@@ -1,0 +1,18 @@
+### 路线 B 探针 1：朴素直调（预期失败）
+    7 个错误
+/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/alt-route-b/ProbeB/NaiveCallSites.cs(22,72): error CS1503: 参数 2: 无法从“System.Windows.Media.Composition.DUCE.ResourceType”转换为“WpfGfx.Linux.Interop.DUCE.ResourceType” [/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/alt-route-b/ProbeB/ProbeB.csproj]
+/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/alt-route-b/ProbeB/NaiveCallSites.cs(22,82): error CS1503: 参数 3: 无法从“ref System.Windows.Media.Composition.DUCE.ResourceHandle”转换为“ref WpfGfx.Linux.Interop.DUCE.ResourceHandle” [/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/alt-route-b/ProbeB/ProbeB.csproj]
+/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/alt-route-b/ProbeB/NaiveCallSites.cs(26,59): error CS1503: 参数 2: 无法从“System.Windows.Media.Composition.DUCE.ResourceHandle”转换为“WpfGfx.Linux.Interop.DUCE.ResourceHandle” [/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/alt-route-b/ProbeB/ProbeB.csproj]
+/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/alt-route-b/ProbeB/NaiveCallSites.cs(26,78): error CS1503: 参数 4: 无法从“ref System.Windows.Media.Composition.DUCE.ResourceHandle”转换为“ref WpfGfx.Linux.Interop.DUCE.ResourceHandle” [/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/alt-route-b/ProbeB/ProbeB.csproj]
+/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/alt-route-b/ProbeB/NaiveCallSites.cs(31,50): error CS1503: 参数 4: 无法从“MS.Internal.MilMatrix3x2D*”转换为“double*” [/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/alt-route-b/ProbeB/ProbeB.csproj]
+/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/alt-route-b/ProbeB/NaiveCallSites.cs(35,69): error CS1503: 参数 3: 无法从“MS.Internal.WindowMessage”转换为“uint” [/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/alt-route-b/ProbeB/ProbeB.csproj]
+/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/alt-route-b/ProbeB/NaiveCallSites.cs(42,87): error CS1503: 参数 10: 无法从“out bool”转换为“out int” [/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/alt-route-b/ProbeB/ProbeB.csproj]
+
+### 路线 B 探针 2：PresentationCore 同款 PublicSign + 引用未签名 WpfGfx.Linux
+    0 个错误
+已成功生成。
+CSC : warning CS8002: 引用程序集“WpfGfx.Linux, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null”没有强名称。 [/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/alt-route-b/ProbeB/ProbeB.csproj]
+
+### 路线 B 探针 3：适配后 + 不签名（预期成功）
+    0 个错误
+已成功生成。

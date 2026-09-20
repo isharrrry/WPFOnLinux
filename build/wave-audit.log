@@ -1,0 +1,461 @@
+2026-09-14T18:25:14+08:00  owner=<未认领>  pid=1424392  ppid=1424390  tty=不是一个 tty
+-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+2026-09-14T18:33:34+08:00  owner=close-wave:links-dev  pid=1452964  ppid=1452869  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+2026-09-14T18:42:30+08:00  owner=close-wave:links-dev  pid=1513770  ppid=1513674  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+2026-09-14T18:48:46+08:00  owner=<未认领>  pid=1527198  ppid=1527197  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=timeout 60 bash build/integration-wave.sh 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && bash -n build/integration-wave.sh && echo "语法 ✅" && echo "=== 测试：无认领跑一次（应拒 + 记 ppid_cmd）===" && timeout 60 bash build/integration-wave.sh >/dev/null 2>&1; echo "rc=$?（期望 9）"; echo "=== 审计日志尾部（应看到 ppid_cmd 行）===" && tail -4 build/wave-audit.log | cut -c1-170 
+2026-09-14T19:09:35+08:00  owner=close-wave:links-dev  pid=1566864  ppid=1566768  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && echo "=== 前置 ===" && pgrep -af 'run-wpf|WpfFeatureProbe|WpfTextDemo' | grep -v pgrep | wc -l && ls /tmp/bridge-republish.lock 2>&1 | head -1 && echo "=== 开 #10 ===" && nohup bash build/close-wave.sh > /tmp/closewave10.out 2>&1 & sleep 40; W=$(ls -1dt ~/wfp-runs/close-wave-* | head -1); echo "W=$W"; grep -aE '^──── \[|计划|rc=' "$W/close-wave.log" 2>/dev/null | tail -8; tail -3 /tmp/closewave10.out 
+2026-09-14T19:34:40+08:00  owner=close-wave:t1d  pid=1646228  ppid=1646225  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && WAVE_OWNER=close-wave:t1d bash build/integration-wave.sh 2>&1 | tail -40 
+    ppid2_cmd=node /home/links-dev/node/bin/dsh web --no-open --trusted-host 192.168.193.59:3080 
+2026-09-14T19:50:21+08:00  owner=close-wave:links-dev  pid=1725030  ppid=1724934  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && nohup bash build/close-wave.sh > /tmp/closewave11b.log 2>&1 &
+echo "launched"; sleep 8; date '+%H:%M:%S'; tail -5 /tmp/closewave11b.log | cut -c1-150 
+2026-09-14T20:31:11+08:00  owner=close-wave:links-dev  pid=1799425  ppid=1799328  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && date '+%H:%M:%S'; echo "=== 起波前现场 ==="; printf "shim  %s (%s)\n" "$(sha256sum build/shims/PresentationCore.HbTextLine.cs | cut -c1-16)" "$(stat -c %y build/shims/PresentationCore.HbTextLine.cs | cut -c12-19)"; printf "pc    %s (%s)\n" "$(sha256sum build/PresentationCore.Linux/bin/Debug/PresentationCore.dll | cut -c1-16)" "$(stat -c %y build/PresentationCore.Linux/bin/Debug/PresentationCore.dll | cut -c12-19)"; printf "instr Program.cs %s\n" "$(sha256sum build/MilBridge/tests/HbTextLineParity/Program.cs | cut -c1-16)"; echo; echo "=== 有没有别的进程 ==="; ps -eo pid,args | grep -E "[r]un-wpftextdemo|[v]erify-all|[d]otnet test|[H]bTextLineParity" | head -3; echo "(空=静)"; echo; nohup bash build/close-wave.sh > /tmp/closewave12.log 2>&1 &
+echo "launched #12 wave"; sleep 10; tail -3 /tmp/closewave12.log | cut -c1-140 
+2026-09-15T10:25:23+08:00  owner=close-wave:links-dev  pid=72047  ppid=71951  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && nohup bash build/close-wave.sh > /tmp/closewave13.log 2>&1 &
+echo "launched #13 wave"; sleep 12; date '+%H:%M:%S'; tail -5 /tmp/closewave13.log | cut -c1-140 
+2026-09-15T10:50:27+08:00  owner=close-wave:links-dev  pid=142505  ppid=142409  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && nohup bash build/close-wave.sh > /tmp/closewave14.log 2>&1 &
+echo "launched #14 wave (D-F1)"; sleep 12; date '+%H:%M:%S'; tail -4 /tmp/closewave14.log | cut -c1-140 
+2026-09-15T10:57:39+08:00  owner=close-wave:links-dev  pid=152092  ppid=151992  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && date '+%H:%M:%S'; printf "shim = %s\n" "$(sha256sum build/shims/PresentationCore.HbTextLine.cs | cut -c1-16)"; echo "=== 起波前：两条反射宿主 error CS 复核（主控）==="; for prj in TextLineProto HbTextLineParity; do n=$(timeout 300 env PATH="$HOME/.dotnet:$PATH" dotnet build build/MilBridge/tests/$prj -p:HbShimSrc="$PWD/build/shims/PresentationCore.HbTextLine.cs" -v q --nologo 2>&1 | grep -c 'error CS'); printf "  %-18s error CS = %s\n" "$prj" "$n"; done; nohup bash build/close-wave.sh > /tmp/closewave15.log 2>&1 &
+echo "launched wave (#14 re-run)"; sleep 8; tail -2 /tmp/closewave15.log | cut -c1-130 
+2026-09-15T12:53:19+08:00  owner=主控  pid=1105648  ppid=1105550  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && export PATH="$HOME/.dotnet:$PATH" && CLOSE_WAVE_OUT="$HOME/wfp-runs/close-wave-w15" WAVE_OWNER=主控 bash build/close-wave.sh 2>&1 | tail -n 120; echo "CLOSE_WAVE_PIPE_EXIT=${PIPESTATUS[0]}" 
+2026-09-15T17:08:54+08:00  owner=主控  pid=1241675  ppid=1241577  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh --skip-verify-all 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && export PATH="$HOME/.dotnet:$PATH" && CLOSE_WAVE_OUT="$HOME/wfp-runs/close-wave-w16-step1" WAVE_OWNER=主控 bash build/close-wave.sh --skip-verify-all 2>&1 | tail -n 60; echo "W16_STEP1_EXIT=${PIPESTATUS[0]}" 
+2026-09-15T17:12:24+08:00  owner=主控  pid=1246769  ppid=1246670  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh --skip-verify-all 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && export PATH="$HOME/.dotnet:$PATH" && rm -rf ~/w16-precheck && CLOSE_WAVE_OUT="$HOME/wfp-runs/close-wave-w16-step1b" WAVE_OWNER=主控 bash build/close-wave.sh --skip-verify-all 2>&1 | tail -n 40; echo "W16_STEP1B_EXIT=${PIPESTATUS[0]}" 
+2026-09-15T18:37:16+08:00  owner=主控  pid=1278965  ppid=1278867  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && export PATH="$HOME/.dotnet:$PATH" && CLOSE_WAVE_OUT="$HOME/wfp-runs/close-wave-w16" WAVE_OWNER=主控 bash build/close-wave.sh 2>&1 | tail -n 45; echo "W16_WAVE_EXIT=${PIPESTATUS[0]}" 
+2026-09-16T12:24:12+08:00  owner=主控  pid=26760  ppid=26662  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && export PATH="$HOME/.dotnet:$PATH" && CLOSE_WAVE_OUT=$HOME/wfp-runs/close-wave-w17 WAVE_OWNER=主控 bash build/close-wave.sh 2>&1 | tail -40; echo "W17_WAVE_EXIT=${PIPESTATUS[0]}" 
+2026-09-16T12:41:24+08:00  owner=主控  pid=52944  ppid=52846  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && echo "波前：csproj=$(sha256sum build/PresentationCore.Linux/PresentationCore.Linux.csproj|cut -c1-16) import=$(grep -c HbTextLineShimSha build/PresentationCore.Linux/PresentationCore.Linux.csproj) pc=$(sha256sum build/PresentationCore.Linux/bin/Debug/PresentationCore.dll|cut -c1-16)"; export PATH="$HOME/.dotnet:$PATH"; CLOSE_WAVE_OUT=$HOME/wfp-runs/close-wave-w17b WAVE_OWNER=主控 bash build/close-wave.sh 2>&1 | tail -22; echo "W17B_WAVE_EXIT=${PIPESTATUS[0]}" 
+2026-09-16T15:08:49+08:00  owner=主控  pid=83059  ppid=82961  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && export PATH="$HOME/.dotnet:$PATH" && CLOSE_WAVE_OUT=$HOME/wfp-runs/close-wave-w18 WAVE_OWNER=主控 bash build/close-wave.sh 2>&1 | tail -30; echo "W18_WAVE_EXIT=${PIPESTATUS[0]}" 
+2026-09-16T15:39:44+08:00  owner=主控  pid=127275  ppid=127177  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh --skip-verify-all 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && export PATH="$HOME/.dotnet:$PATH" && CLOSE_WAVE_OUT=$HOME/wfp-runs/close-wave-w19a WAVE_OWNER=主控 bash build/close-wave.sh --skip-verify-all 2>&1 | tail -22; echo "W19_STEP_A_EXIT=${PIPESTATUS[0]}" 
+2026-09-16T18:46:41+08:00  owner=close-wave:links-dev  pid=210217  ppid=210117  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh --skip-verify-all 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && export PATH="$HOME/.dotnet:$PATH" && bash build/close-wave.sh --skip-verify-all 2>&1 | tail -60 
+2026-09-17T00:47:25+08:00  owner=主控  pid=371893  ppid=371795  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh --skip-verify-all 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && export PATH="$HOME/.dotnet:$PATH" && CLOSE_WAVE_OUT=$HOME/wfp-runs/close-wave-23 WAVE_OWNER=主控 bash build/close-wave.sh --skip-verify-all 2>&1 | tail -28 
+2026-09-17T10:33:49+08:00  owner=主控  pid=523450  ppid=523352  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh --skip-verify-all 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && export PATH="$HOME/.dotnet:$PATH" && echo "=== 前置：九位与 hbtextline ===" && printf "hbtextline=%s（必须 e89fed55fd8e32bc）\npc=%s\n" "$(sha256sum build/shims/PresentationCore.HbTextLine.cs|cut -c1-16)" "$(sha256sum build/PresentationCore.Linux/bin/Debug/PresentationCore.dll|cut -c1-16)" && echo "=== [0/6] close-wave.sh ===" && CLOSE_WAVE_OUT=$HOME/wfp-runs/close-wave-24 WAVE_OWNER=主控 bash build/close-wave.sh --skip-verify-all 2>&1 | tail -24 
+2026-09-17T13:02:52+08:00  owner=close-wave:links-dev  pid=750970  ppid=750870  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh --skip-verify-all 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux
+R=$PWD
+{ for f in \
+  "bridge build/MilBridge/.artifacts/publish/MilBridge.Linux/release_linux-x64/wpfgfx_cor3.so" \
+  "pc build/PresentationCore.Linux/bin/Debug/PresentationCore.dll" \
+  "pf build/PresentationFramework.Linux/bin/Debug/PresentationFramework.dll" \
+  "windowsbase build/WindowsBase.Linux/bin/Debug/WindowsBase.dll" \
+  "provider build/DirectWrite.Linux/Provider/bin/Debug/DirectWrite.Linux.Provider.dll" \
+  "win32shim src/WpfGfx.Linux.Native/bin/libwpfwin32.so" \
+  "wic_shim build/DirectWrite.Linux/wic-shim/libwpfwic.so" \
+  "hbtextline build/shims/PresentationCore.HbTextLine.cs" \
+  "dwf build/DirectWriteForwarder.Linux/bin/Debug/DirectWriteForwarder.dll" ; do
+  set -- $f; printf '%s %s\n' "$1" "$(sha256sum "$R/$2" | cut -c1-16)"
+done; } > "$HOME/wfp-runs/w25-pre-close.nine"
+echo "=== 波尾前九位快照 ==="; cat "$HOME/wfp-runs/w25-pre-close.nine" | tr '\n' ' '; echo
+echo "  inputs_fp = $(bash -c 'cd '"$R"'; { find src/WpfGfx.Linux.Native/tools build -maxdepth 2 -name "patch-*.py" -o -maxdepth 1 -name "port-lib.py" -o -maxdepth 1 -name "integration-wave.sh" -o -maxdepth 1 -name "close-wave.sh" 2>/dev/null; find build/shims -type f -name "*.cs" 2>/dev/null; find src/WpfGfx.Linux -type f -name "*.cs" 2>/dev/null; } | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -d" " -f1')"
+echo; echo "=== 开波尾：close-wave.sh --skip-verify-all（纪律 46：必须第一个跑）==="
+export PATH="$HOME/.dotnet:$PATH"
+date '+START %F %T'
+bash build/close-wave.sh --skip-verify-all 2>&1 | tail -25
+echo "CLOSE_WAVE_RC=$?"
+date '+END %F %T' 
+2026-09-17T15:09:26+08:00  owner=close-wave:links-dev  pid=1175511  ppid=1175411  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh --skip-verify-all 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux
+echo "=== ① arm_logs 核对器现状（应 FAIL：臂已重取、登记表还是旧值 ⇒ 这正是"牙齿会咬"的实证）==="
+out=$(bash build/MilBridge/tools/arm-log-sha-check.sh); rc=$?
+printf '%s\n' "$out" | head -8 | cut -c1-150; echo "  rc=$rc"
+echo; echo "=== ② 现场五支臂 sha（供重注入）==="
+sha256sum build/MilBridge/arm-logs/*.log | awk '{printf "  %s %s\n",substr($1,1,16),$2}'
+echo; echo "=== ③ 开波尾：close-wave.sh --skip-verify-all ==="
+export PATH="$HOME/.dotnet:$PATH"
+date '+START %F %T'
+bash build/close-wave.sh --skip-verify-all 2>&1 | tail -22
+echo "CLOSE_WAVE_RC=$?"
+date '+END %F %T' 
+2026-09-17T18:00:41+08:00  owner=close-wave:links-dev  pid=868260  ppid=868159  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh --skip-verify-all 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && export PATH="$HOME/.dotnet:$PATH" && mkdir -p /home/links-dev/wfp-runs/w27-close && bash build/close-wave.sh --skip-verify-all > /home/links-dev/wfp-runs/w27-close/close-wave.out 2>&1; echo "CLOSEWAVE_RC=$?" | tee /home/links-dev/wfp-runs/w27-close/rc.txt; tail -70 /home/links-dev/wfp-runs/w27-close/close-wave.out 
+2026-09-17T19:11:18+08:00  owner=close-wave:links-dev  pid=1889006  ppid=1888907  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh --skip-verify-all 
+    ppid2_cmd=bash -c ps -eo args 2>/dev/null | grep -cE 'PresentationCore.Tests|CoverageProbe' ; cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && export PATH="$HOME/.dotnet:$PATH" && echo "=== close-wave 重试 $(date '+%H:%M:%S') ===" && bash build/close-wave.sh --skip-verify-all > /home/links-dev/wfp-runs/w28-close.out 2>&1; echo "CLOSEWAVE_RC=$?"; tail -25 /home/links-dev/wfp-runs/w28-close.out 
+2026-09-17T19:29:48+08:00  owner=close-wave:links-dev  pid=1934710  ppid=1934611  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh --skip-verify-all 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && export PATH="$HOME/.dotnet:$PATH" && bash build/close-wave.sh --skip-verify-all > /home/links-dev/wfp-runs/w28-close2.out 2>&1; echo "RC=$?"; grep -E '输入稳定性|native shim|桥：|应用器审计|生成物指纹|桥源指纹|cpu|rc=' /home/links-dev/wfp-runs/w28-close2.out | cut -c1-140; echo "=== 稳定性：连测两次 ==="; for i in 1 2; do bash -c 'source <(sed -n "/^fp_inputs()/,/^}/p" build/close-wave.sh); fp_inputs'; done 
+2026-09-17T22:07:10+08:00  owner=close-wave:links-dev  pid=2797768  ppid=2797667  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh --skip-verify-all 
+    ppid2_cmd=bash -c printf '%s\n' '#!/usr/bin/env bash' 'cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux || exit 9' 'export PATH="$HOME/.dotnet:$PATH"' 'exec bash build/close-wave.sh --skip-verify-all' > /home/links-dev/w30-close.sh && chmod 711 /home/links-dev/w30-close.sh && nohup bash /home/links-dev/w30-close.sh > /home/links-dev/wfp-runs/w30-close.out 2>&1 & sleep 50; tail -14 /home/links-dev/wfp-runs/w30-close.out 
+2026-09-17T23:44:59+08:00  owner=close-wave:links-dev  pid=3520307  ppid=3520191  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh --skip-verify-all 
+    ppid2_cmd=bash -c cat > /home/links-dev/w21-verify/w30-record.txt <<'EOF'
+===BANNER===
+# BASELINE-HEADER date=2026-09-17T23:4x+08:00 display=:99（verify-all）/ :97（应用门禁，常驻） host=linksdev-VirtualBox kernel=6.8.0-138-generic
+#   cpu=3核  run_dir=/home/links-dev/wfp-runs/w30-gate2  repeat=3  timeout=90s  tier=both
+#   git_head=(no git —— 本机**没装 git**，任何"git status 干净"都不构成证据)  samples_src=samples/WpfTextDemo  runner=run-wpftextdemo.sh（5dfb2635b87bb351）
+===FROZEN===
+# RE-FROZEN #30 —— ✅ **当前冻结基线** —— 内容 = **① `D-G26`：探针自报身份 ＋ 门禁 `probe` 段（＋按纪律 59 重取三支 `tab-*` 臂）** ＋ **② `D-G27`：列级下限的「外挂读者」（`column-floor-check.sh`，本块同时钉下它要读的声明）** ＋ **③ `D-G33`：构建卫生见证由「判产物」改成「判结构」** ＋ **④ `D-G34`：`close-wave.sh` 的 `pgrep` 自匹配** ＋ **⑤ `D-T5-R` 的牙修两处（归因升级成判据）** ＋ **⑥ 登记 `D-G26`–`D-G34` 与纪律 63–68**（预登记 `docs/WAVE30-PREREGISTRATION.md` §8）。
+#   ⚠️ **本文件的整份 sha 由 `build/MilBridge/tools/baseline-sha-check.sh` 机器核对**；**唯一声明处** = `docs/CURRENT-STATE.md` 的 `BASELINE-FROZEN` 机器行（本处照纪律 53 **不重述值**）。
+#   **九位**：**只有环成员 `pf {PF}`（{PFSZ} B）变**（`{PF_PREV} → {PF}`，波尾 `integration-wave.sh` 重编引起）；`bridge`/`pc`/`windowsbase`/`provider`/`win32shim`/`wic_shim`/`dwf` **逐位未动**；**`hbtextline` 一字节未动 = `{HB}`（{HBSZ} B）** ⇒ **世代绑定三项全未变** ⇒ **不重取五臂**（⚠️ 但本波**按 `D-G26` 的需要重取了三支 `tab-*` 臂**，那是**为让日志带上探针身份行**，不是世代前进）。`BRIDGE_SRC_FP={BSFP}`（未变，未重发）。
+#   【本块的**外挂声明**（`D-G27` 的读者 `column-floor-check.sh` 读它们；值 = 现场实测、与 `#29` 逐位相同）】
+# COLUMN-FLOOR arm=tab-oracle-anchor col=START      judged_min=615 released_min=194
+# COLUMN-FLOOR arm=tab-oracle-anchor col=OVERFLOWED judged_min=421
+# COLUMN-CORPUS file=tests/parity/windows/tab-anchor/tab-anchor-oracle.json sha16=@CORPUS@
+# ARM-LOG-SHA arm=tab-oracle-anchor sha16=@{ARMLOG_TAB_ANCHOR}@
+# ARM-LOG-SHA arm=tab-oracle-zero   sha16=@{ARMLOG_TAB_ZERO}@
+# ARM-LOG-SHA arm=tab-oracle-rtl    sha16=@{ARMLOG_TAB_RTL}@
+# ARM-LOG-SHA arm=tline             sha16=@{ARMLOG_TLINE}@
+# ARM-LOG-SHA arm=textlineproto     sha16=@{ARMLOG_TEXTLINEPROTO}@
+#   ⚠️ **以上 4 类行的作用**：`column-floor-check.sh` 的三档据此判 —— ①登记表⇔本块｜②本块声明 ≥ **语料复算**的下界｜③语料整份 sha｜④门禁机读行自报值⇔本块｜⑤`arm_logs`⇔本块。**只有②（语料复算）回答"这个数该是多少"**。⇒ 把「改小下限仍绿」与「同趟改 `arm_logs` 洗绿」两条自指通道**都变成有痕编辑**。
+#   【① `D-G26`：探针身份】**缺口**：产生五臂读数的探针 `CoverageProbe/Program.cs` **既不在 `GEN_KEYS`**（那里的 `instr_program_cs` 指**另一个** `Program.cs` = `HbTextLineParity/Program.cs`）**、也不在 `fp_inputs()`**（现场 `grep -c CoverageProbe` = **0**）、**臂日志里也不记它的 sha** ⇒ **改测量代码没有任何指纹会动**（`#26` W26A 真的改过它，只靠人工记账）。**修法**：探针构建时把源 sha 嵌进 `AssemblyMetadata` ＋ 入口打 `TAB_LINES_PROBE sha256=<64>`；门禁加 `probe` 段 ＋ **`GATE_PROBE=`** 机读行。
+#     **正极性**：三支 `tab-*` 日志首行 `TAB_LINES_PROBE sha256=a6d0352b86467111…9a40 path=…` ＝ 现场探针源 **全 64 位逐字相等**；`GATE_PROBE=PASS`、`TLINE_GATE=PASS`、`rc=0`。**⭐ 最硬的零位移证据**：三支新日志**剥掉 `^TAB_LINES_PROBE` 行后与旧件 `cmp` 逐字节 IDENTICAL** ⇒ **只新增了一行身份、读数零位移**（`判定行=615`/`字形释放行=194` 与下限逐位相符）。
+#     **反极性**：必红 **6 档**（一位翻转／**前缀＋48 个 0**／另一合法 64 位／声明改过的副本／**现场探针真改一字节**／双行冲突）＋ 必 `NOINFO` **3 档**（无自报行 ⇒ **老日志不许读成绿**／声明源缺件／`probes` 整节缺失）＋「只声明一支不牵连」。⭐ **"前缀＋48 个 0"是"必须比 64 位"的铁证**：点名行里**两侧前 16 位逐字相同**，只因后 48 位不同而 FAIL。
+#     **⚠️ 作者修掉方案草稿的 5 处真缺陷**，其中两处会让这颗牙**上线即哑**：`<Import>` 被写进 `<ItemGroup>`（MSBuild 当它是一个 item ⇒ **targets 永不导入** ⇒ 元数据不生成 ⇒ 自报恒 `NOINFO`）；`GATE_PROBE=NOINFO` 与 `TLINE_GATE=PASS … all-as-registered` **同时出现**（违反"**`NOINFO` 不许当绿**"）。均已修并给成对复现读数。
+#     **边界**：证"**这份日志出自哪一版探针**"；**不证**"探针的测量逻辑是对的"。`FrameProbe`/`PcLineOracle`/`D5CbrProbe` **仍无身份**（族化 = 二期）。
+#   【② `D-G27`：下限值本身没有牙齿】**缺口**：两颗列级下限（`START` 615/194、`OVERFLOWED` 421）**唯一声明处** = `known-red.json`；**改小它 ⇒ 门禁照新门槛比、仍然 `PASS`**（实测 `615→421`／`421→400`／`194→0`／两处同降 **四档全 `rc=0`**，且 **`GATE_COLUMN=`/`GATE_COLUMN_EXTRA=` 两行归一化掉声明值后 `cmp` 逐字节 IDENTICAL**）；**同族的第三个自指值** = `generation.arm_logs`（失真日志＋同趟改它 ⇒ `ARMLOG_SHA=PASS`）。**修法** = 新件 `build/MilBridge/tools/column-floor-check.sh`（`--selftest` **18/18**）＋ **本块上面那 4 类声明行**。
+#     ⚠️ **它尚未接线**（`#31` 第一项）：接线会让 `verify-all` 步数 `18 → 19/20`，而**声明行必须与重冻同趟**（单独插会让 `[7] BASELINE-SHA` 直接红）⇒ 本波先把**声明钉下**、把**步骤留给 `#31`**（届时它一插即绿）。
+#   【③ `D-G33`：见证不再"判产物"】**缺口**：17 行 `suspended` 的见证 `no-in-repo-obj` 判的是**构建产物** ⇒ **删掉 `obj/` 就能变绿**（现场复现：造 `obj/*.cs` ⇒ `FAIL`；**再删掉那个 `obj/` ⇒ 回到 `PASS`** —— 免罪符）。**修法**：改成 **`not-in-build-coverage`**（判**结构**：该工程不在"会被以私有中间目录构建"的闭包内），`MilBridge.Linux` → `fp-locked+foreign-intermediate`。**修后**：无 `obj`／有 `obj`／再删 ⇒ 三趟 **`rc=0` 且 `cmp` IDENTICAL**（产物零影响）；**结构性失效仍必红 4 档**（加进 sln／脚本里加 `dotnet build`／覆盖面内加 `ProjectReference`／抹掉 `-p:ArtifactsPath=`）；数据源取不到 ⇒ **`WITNESS-UNCOMPUTABLE` ⇒ `NOINFO`**。`--selftest` 就地 **25/25**。
+#     ⚠️ **作者抓到一件更早的事**：**改前 `--selftest` 本就是红的** —— `#29` 的 `D-G32` 把 `WpfGfx` 真修好之后，`case Q` 的前提（`suspended`+`no-in-repo-obj`）**消失** ⇒ 该例永远红（可复现 `cases=20 pass=19 fail=1`），而 **`verify-all.sh:529` 只跑生产路径、不跑 `--selftest`** ⇒ **没有任何东西看着"用例失去前提"**。⇒ **纪律 68**。
+#   【④ `D-G34`：`close-wave.sh` 的 `pgrep` 自匹配】**缺口**：`[0/6]` 的 `pgrep -af '…|WpfTextDemo|…'` **会匹配到承载它的那个 shell 自己** —— 实测：主控用一条**命令行文本里含 `WpfTextDemo`** 的 `bash -c` 调用 ⇒ **假报"有应用/探针在跑"、`exit 3`**（当时只有两个 `Xvfb`、`loadavg 0.16`）。**修法**：命中 ∧ **不属于本脚本自己及其祖先链** ＋ **逐条点名**。**修后成对读数**：脏命令行 **3→0**／**真有"应用"在跑仍 `rc=3`**（且新增点名行 `· 命中：… run-wpftextdemo-fake 90`，旧件该 grep = 0）／干净对照 **0/0**。
+#   【⑤ `D-T5-R` 的牙】**修掉两处**：① `*LoCreateContext*` 归因分支原本是**死代码**（`grep -aoE '[A-Za-z]+Exception'` 只取**异常类型名**）⇒ **每一格 `rc=134` 都被印成"不是 D-T5-R 的签名 ⇒ 先怀疑环境"，包括真是它的时候**；② 屏上仍写"恰 4 格红"而真判据是"≥4 且目标在内"。**修后**：真签名格 ⇒ `…消息含 LoCreateContext ⇒ **D-T5-R 的真签名**`（整步 `rc=1` 一字不变）；**缺 shim 格 ⇒ `rc=1 FAIL` → `rc=2 NOINFO`**（`signature=env-missing-shim`）—— **"仪器缺件"不再冒充"被测件失败"**。判据骨架行 **`MISS=0`**；`--selftest` 就地 **12/12**（**0 次 `dotnet`**）。⚠️ **它仍未接线**（是**构建者**：实测 +101.9 s/趟、35 次 `dotnet`/趟 ⇒ 会让 `verify-all` 多一个构建者）⇒ 留给 `#31` 与 `[14]` 同趟。
+#   【波尾与门禁】`close-wave.sh`（rc=0）⇒ `native_rebuilt=0`、桥源指纹两侧一致、生成物指纹 `state=ok`、**应用器审计 `miss=0`**、**输入稳定性 波前==波后**；五臂 **`TLINE_GATE=PASS arms=5 red=2 green=3 noinfo_arm=0 registered=4 unlocated=1 drift=0 gone=0 unregistered=0 caliber=OK generation=#23 tree_gen=same saved_shim={HB}`** ＋ **`GATE_PROBE=PASS`** ＋ `GATE_COLUMN=PASS` ＋ `GATE_COLUMN_EXTRA=PASS`、rc=0；`verify-all` **rc=0 / {NSTEP} 步 / {NCASE} 通过 {NSKIP} 跳过**；`ARMLOG_SHA=PASS 5/5`；应用门禁**两趟** `RUN1_RC=0`/`RUN2_RC=0`、**6/6 `BASELINE … result=PASS`**。
+#   【⑥ `APPSYNC`】@APPSYNC@
+#   【⑦ 内存信封】@MEM@
+#   【⑧ 留给 `#31`（按价值）】① **接线 `[13]`/`[14]`**（`HIDDEN-ONLY` 与 `COLUMN-FLOOR`；**B 式声明**：`19 gen=#31` ＋ 追加 ``**`#31` 收官起 = N 步**``，**保留 `#30` = 18 作为史实**）｜② **`D-G30` 第三格**（给 `tab-zero`/`tab-rtl` 的对账行**只互校不下限**的读者：`COL2_ARM` 补两臂 ＋ 显式 `judged_min:null` ＋ **"该列须整列 NOINFO"的自证**；另加 `判定行 == 红 + 绿` 等式牙）｜③ **产品侧：走产品入口的臂**（`TextFormatter.Create()`＋`FormatLine`，真值复用 `layout-b34-compact.json` 的 5 个 M 例、**免 Windows 重录**）—— `#30` W30E 已用零 `dotnet` 复算证明那 5 条 `M_modifier` Extent 余差**与 modifier 跨度未接线同根**，而**今天没有任何一支臂走产品路径** ⇒ **纪律 67**｜④ **反引号的机器检查**（同一陷阱已 4 次现场：`run-wpfprobe.sh:659`、W28F、主控、W30C；**唯一抓住它的是 `noise=` 断言**）｜⑤ **`D-G11`**（产物↔生成物等号读者）｜⑥ `verify-all` 的**实际执行轨迹**那一半。
+===RECORD===
+#   【本波六条车道（除 W30B 外全部零 `dotnet`）】`W30A`（`$HOME/w30a-report.md 7cce22e9ba7176ef`，`D-G27` ＋ 新读者）｜`W30B`（`$HOME/w30b-report.md bcddba5849536f10`，**构建者**：`D-G26` ＋ 重取三支臂，纪律 59 全流程留档）｜`W30C`（`$HOME/w30c-report.md c53d79c7b48d54c2`，`D-G33` ＋ `D-G34` ＋ `D-G30` 第三格方案）｜`W30D`（`$HOME/w30d-report.md b3b004660e351e6a`，`D-T5-R` 修两处 ＋ 重锚）｜`W30E`（`$HOME/w30e-report.md ccf1494687ae6bf1`，产品侧只读根因）｜`W30F`（`$HOME/w30f-report.md 0443d6168708f6d0`，**主控仪器清账**，修 5 件）。**主控**：修掉自己 `[12]` 步的反引号活缺陷、清 7 个可写硬链接别名。
+#   **本波最值钱的四条**：① **一个"上线即哑"的牙被拦下**（W30B 修掉草稿里 `<Import>` 写进 `<ItemGroup>` 与"`NOINFO` 当绿"两处 —— 没有它，`D-G26` 会静默失效）；② **两块自指通道被钉成有痕编辑**（`D-G27` 的外挂声明 ＋ `D-G33` 的"删产物免罪符"）；③ **三条真实的资源/工程隐患被翻出来**：`swapfree=0MB` 而 `avail` 看着健康、`arms23` 那份"归档"其实是**硬链接**（纪律 59 的归档层是空的）、**没有任何东西看着"`--selftest` 用例失去前提"**；④ **纪律 67**：连续五波"零产品位移"，一半原因是**没有一支臂走产品入口**（W30E 已复算证明 Extent 余差与 modifier 同根）。
+#   **主控自纠（本波 4 处）**：① **我自己的 `[12]` 步 `echo` 把反引号写在双引号里** ⇒ 命令替换 ⇒ **每趟 stderr 吐语法错误、横幅丢 `fp_inputs()`**（W30D 查出；我当场复现了"字被吃掉"的形态）；② 我派单书说"W29C 的锚也已过期" —— **被 W30D 实测推翻**（它报的就是现件，只有 W28H 的锚过期）；③ 我改 roster 时**漏第 5 列**（`#29` 的判据当场报 `roster-malformed`）；④ 我在 `#29` 定的"备份晚了"事故促成**纪律 65**，而 W30F 又查出**我的三个 `-fill.py` 仍带 `#27` 时代的 `fp_inputs()` 硬编码拷贝**（⇒ 它打印过老定义的值；记录本身未被污染）。
+#   **"未取到"（不许当绿）**：`verify-all` 端到端回显（各车道禁跑；替代证已给）｜产品路径的 modifier 实测读数（禁 `dotnet` ＋ **臂不存在**）｜`D-T5-R` 三条要 `dotnet` 的自测例｜`a6d0352b…` 探针源在**重取之前**的日志与门禁的干净对照（被 W30C 的 `close-wave.sh` 改动混入）｜`instr_pc` = `7b47a7b3d69ad62f` 与现场 `pc` dll 的世代差异（该键被 `arm-log-sha-check.sh:53` 自述**信息性** ⇒ 只登记不判缺陷）。
+EOF
+cd /home/links-dev/w21-verify && python3 - <<'PY'
+import ast
+F='w27-freeze.py'; t=open(F,encoding='utf-8').read()
+old="    '#29': dict(TXT="
+assert t.count(old)==1
+new=("    '#30': dict(TXT='/home/links-dev/w21-verify/w30-record.txt',\n"
+     "                PRE='/home/links-dev/w30-pre.sha',\n"
+     "                prev='#29', nstep=18, prev_pf='a91e564da4d4f2cb',\n"
+     "                infp=None,\n"
+     "                prev_infp='4ce9f65af5f102a6d9cc8d9e72e79b99e9214a634a15796abe6f7f6447b47ef2',\n"
+     "                hb='e89fed55fd8e32bc', bs_fp='fdcb41bdc373eee3', prev_bsfp='fdcb41bdc373eee3',\n"
+     "                green=['BASELINE-SHA','ARM-LOG-SHA','BUILD-HYGIENE','DEFECT-REGISTRY','VERIFYALL-SELF','FP-INPUTS-HYGIENE']),\n"
+     "    '#29': dict(TXT=")
+t=t.replace(old,new)
+open(F,'w',encoding='utf-8').write(t); ast.parse(t); print('freeze GENS(#30) 就绪')
+PY
+printf '%s\n' '#!/usr/bin/env bash' 'cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux || exit 9' 'export PATH="$HOME/.dotnet:$PATH"' 'exec bash build/close-wave.sh --skip-verify-all' > /home/links-dev/w30-close.sh && chmod 711 /home/links-dev/w30-close.sh && nohup bash /home/links-dev/w30-close.sh > /home/links-dev/wfp-runs/w30-close.out 2>&1 & sleep 100; tail -6 /home/links-dev/wfp-runs/w30-close.out 
+2026-09-18T11:21:46+08:00  owner=close-wave:links-dev  pid=781473  ppid=781358  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh --skip-verify-all 
+    ppid2_cmd=bash /home/links-dev/w31-chain.sh 
+2026-09-18T12:54:27+08:00  owner=close-wave:links-dev  pid=3940697  ppid=3940573  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh --skip-verify-all 
+    ppid2_cmd=bash /home/links-dev/w32-chain.sh 
+2026-09-18T15:51:41+08:00  owner=close-wave:links-dev  pid=4216  ppid=4098  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh --skip-verify-all 
+    ppid2_cmd=bash /home/links-dev/w33-chain.sh 
+2026-09-18T23:49:10+08:00  owner=<未认领>  pid=93444  ppid=93443  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && export PATH="$HOME/.dotnet:$PATH" && (time bash build/integration-wave.sh > $HOME/w34-integration.log 2>&1; echo "INTEG_RC=$?" >> $HOME/w34-integration.log) 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && export PATH="$HOME/.dotnet:$PATH" && (time bash build/integration-wave.sh > $HOME/w34-integration.log 2>&1; echo "INTEG_RC=$?" >> $HOME/w34-integration.log) 
+2026-09-18T23:49:40+08:00  owner=close-wave:links-dev  pid=93614  ppid=93499  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && (time bash build/close-wave.sh > $HOME/w34-closewave.log 2>&1; echo "CLOSEWAVE_RC=$?" >> $HOME/w34-closewave.log) 
+2026-09-19T01:17:31+08:00  owner=主控  pid=170310  ppid=170309  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && export PATH="$HOME/.dotnet:$PATH" && (WAVE_OWNER=主控 bash build/integration-wave.sh > $HOME/w35-integration.log 2>&1; echo "INTEG_RC=$?" >> $HOME/w35-integration.log) 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && export PATH="$HOME/.dotnet:$PATH" && (WAVE_OWNER=主控 bash build/integration-wave.sh > $HOME/w35-integration.log 2>&1; echo "INTEG_RC=$?" >> $HOME/w35-integration.log) 
+2026-09-19T01:32:46+08:00  owner=主控  pid=204345  ppid=204344  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && python3 - <<'PY'
+import hashlib
+p="build/shims/Win32ShimResolver.cs"; s=open(p,encoding="utf-8").read()
+old = '            "ntdll.dll",        // RtlGetVersion（系统版本分支；Linux 无真值 ⇒ 报受支持的 Win10 版本，降级在册）\n'
+assert s.count(old)==1
+new = ('            // ⚠️ `ntdll.dll` **本波不映射** —— 实测（`#35` 逐名二分）映射它会让**第三方应用的启动路径断掉**\n'
+       '            //   （窗口建出来了但整屏全黑、`WPF_LINUX_MIL_TRACE` 一行都没有 ⇒ 呈现链根本没跑到）。\n'
+       '            //   同一批读数：撤掉 `gdiplus`/`shell32`/`msimg32`/`dwmapi` 都不影响画面（1274/1275 色），\n'
+       '            //   只有撤掉 `ntdll`（= 让 shim 提供 `ntdll.dll`）会黑屏。⇒ 需要先补齐 ntdll 面\n'
+       '            //   （至少 `RtlGetVersion` 之外的入口）再打开；登记在 `docs/WAVE34-PREREGISTRATION.md` §3t。\n')
+s=s.replace(old,new,1)
+open(p,"w",encoding="utf-8").write(s)
+print("resolver sha16=", hashlib.sha256(s.encode()).hexdigest()[:16], " ntdll 仍在映射表=", '"ntdll.dll"' in s.replace(new,""))
+PY
+export PATH="$HOME/.dotnet:$PATH"; (WAVE_OWNER=主控 bash build/integration-wave.sh > $HOME/w35-integration2.log 2>&1; dotnet build build/PresentationFramework.Linux/PresentationFramework.Linux.csproj -c Release -m:1 --nologo -v q >> $HOME/w35-integration2.log 2>&1; echo "REBUILD_RC=$?" >> $HOME/w35-integration2.log)  
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && python3 - <<'PY'
+import hashlib
+p="build/shims/Win32ShimResolver.cs"; s=open(p,encoding="utf-8").read()
+old = '            "ntdll.dll",        // RtlGetVersion（系统版本分支；Linux 无真值 ⇒ 报受支持的 Win10 版本，降级在册）\n'
+assert s.count(old)==1
+new = ('            // ⚠️ `ntdll.dll` **本波不映射** —— 实测（`#35` 逐名二分）映射它会让**第三方应用的启动路径断掉**\n'
+       '            //   （窗口建出来了但整屏全黑、`WPF_LINUX_MIL_TRACE` 一行都没有 ⇒ 呈现链根本没跑到）。\n'
+       '            //   同一批读数：撤掉 `gdiplus`/`shell32`/`msimg32`/`dwmapi` 都不影响画面（1274/1275 色），\n'
+       '            //   只有撤掉 `ntdll`（= 让 shim 提供 `ntdll.dll`）会黑屏。⇒ 需要先补齐 ntdll 面\n'
+       '            //   （至少 `RtlGetVersion` 之外的入口）再打开；登记在 `docs/WAVE34-PREREGISTRATION.md` §3t。\n')
+s=s.replace(old,new,1)
+open(p,"w",encoding="utf-8").write(s)
+print("resolver sha16=", hashlib.sha256(s.encode()).hexdigest()[:16], " ntdll 仍在映射表=", '"ntdll.dll"' in s.replace(new,""))
+PY
+export PATH="$HOME/.dotnet:$PATH"; (WAVE_OWNER=主控 bash build/integration-wave.sh > $HOME/w35-integration2.log 2>&1; dotnet build build/PresentationFramework.Linux/PresentationFramework.Linux.csproj -c Release -m:1 --nologo -v q >> $HOME/w35-integration2.log 2>&1; echo "REBUILD_RC=$?" >> $HOME/w35-integration2.log)  
+2026-09-19T01:38:47+08:00  owner=主控  pid=212247  ppid=212245  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && python3 - <<'PY'
+import hashlib
+p="build/shims/Win32ShimResolver.cs"; s=open(p,encoding="utf-8").read()
+# ① 恢复 ntdll 映射（附"只对非 CoreLib 生效"的说明）
+old_note = s[s.index("            // ⚠️ `ntdll.dll` **本波不映射**"):s.index("\n\n            \"shell32.dll\"")]
+s = s.replace(old_note, '            // `ntdll.dll`：**只对"应用程序集"生效**（见下面钩子里的 CoreLib 排除）——\n'
+                        '            //   运行期自己也会按名查 ntdll（CoreLib 的内部 P/Invoke），若被 ALC 级钩子劫持到本 shim，\n'
+                        '            //   那些找不到的入口会让整条启动/呈现链**静默走偏**（实测：窗口建得出来、整屏全黑、MIL 轨迹一行都没有）。\n'
+                        '            "ntdll.dll",        // RtlGetVersion（系统版本分支；Linux 无真值 ⇒ 报受支持的 Win10 版本，降级在册）', 1)
+# ② 钩子里排除 CoreLib
+old_hook = """                AssemblyLoadContext.Default.ResolvingUnmanagedDll += (assembly, name) =>
+                {
+                    try { return Resolve(name, assembly, null); }
+                    catch { return IntPtr.Zero; }
+                };"""
+assert s.count(old_hook)==1
+new_hook = """                AssemblyLoadContext.Default.ResolvingUnmanagedDll += (assembly, name) =>
+                {
+                    // ⚠️ **绝不劫持 CoreLib 的查询**：运行期自己会按名找 `ntdll.dll`（内部 P/Invoke）。
+                    //   实测（`#35` 逐名二分）：映射 `ntdll` 后若连 CoreLib 一起接住，第三方应用会
+                    //   "窗口建出来但整屏全黑、MIL 轨迹一行都没有" —— 而同一个 DLL 由 app-local 桩提供时画面正常
+                    //   ⇒ 差别就在这里。排除 CoreLib 之后，钩子只服务"应用的"P/Invoke（那正是它存在的理由）。
+                    if (ReferenceEquals(assembly, typeof(object).Assembly)) return IntPtr.Zero;
+                    try { return Resolve(name, assembly, null); }
+                    catch { return IntPtr.Zero; }
+                };"""
+s=s.replace(old_hook,new_hook,1)
+open(p,"w",encoding="utf-8").write(s)
+print("resolver sha16=", hashlib.sha256(s.encode()).hexdigest()[:16], ' ntdll 在表=', '"ntdll.dll"' in s)
+PY
+export PATH="$HOME/.dotnet:$PATH"; WAVE_OWNER=主控 bash build/integration-wave.sh > $HOME/w35-integration3.log 2>&1; tail -2 $HOME/w35-integration3.log | cut -c1-120; dotnet build build/PresentationFramework.Linux/PresentationFramework.Linux.csproj -c Release -m:1 --nologo -v q 2>&1 | grep -E 'error|警告' | head -2; D=/home/links-dev/hc-linux/src/Net_GE45/HandyControlDemo_Net_GE45/bin/Debug/net10.0; rm -f $D/*.dll.so; cp -p build/PresentationCore.Linux/bin/Debug/PresentationCore.dll build/WindowsBase.Linux/bin/Debug/WindowsBase.dll build/PresentationFramework.Linux/bin/Release/PresentationFramework.dll build/System.Windows.Extensions.Linux/bin/Release/System.Windows.Extensions.dll build/DirectWrite.Linux/wic-shim/libwpfwic.so src/WpfGfx.Linux.Native/bin/libwpfwin32.so build/MilBridge/.artifacts/publish/MilBridge.Linux/release_linux-x64/wpfgfx_cor3.so build/MilBridge/.artifacts/publish/MilBridge.Linux/release_linux-x64/libSkiaSharp.so $D/; bash $HOME/w35-hc-noprobe.sh 61 20 2>&1 | tail -3 
+    ppid2_cmd=node /home/links-dev/node/bin/dsh web --no-open --trusted-host 192.168.193.59:3080 
+2026-09-19T01:44:18+08:00  owner=主控  pid=225301  ppid=225299  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && python3 - <<'PY'
+import hashlib
+p="build/shims/Win32ShimResolver.cs"; s=open(p,encoding="utf-8").read()
+
+# ① 用**索引切片**恢复 ntdll 映射行（上次用字符串锚点失败：引号不匹配）
+i = s.index("            // ⚠️ `ntdll.dll` **本波不映射**")
+j = s.index('            "shell32.dll"', i)
+s = s[:i] + ('            // `ntdll.dll`：**只对"应用程序集"生效**（见下面钩子里的 CoreLib 排除）——\n'
+             '            //   运行期自己也会按名查 ntdll（CoreLib 的内部 P/Invoke）；若被 ALC 级钩子一起接住，\n'
+             '            //   那些缺失入口会让整条启动/呈现链**静默走偏**（实测：窗口建得出来、整屏全黑、MIL 轨迹一行都没有）。\n'
+             '            "ntdll.dll",        // RtlGetVersion（系统版本分支；Linux 无真值 ⇒ 报受支持的 Win10 版本，降级在册）\n') + s[j:]
+
+# ② 钩子里排除 CoreLib
+old_hook = """                AssemblyLoadContext.Default.ResolvingUnmanagedDll += (assembly, name) =>
+                {
+                    try { return Resolve(name, assembly, null); }
+                    catch { return IntPtr.Zero; }
+                };"""
+assert s.count(old_hook)==1, s.count(old_hook)
+new_hook = """                AssemblyLoadContext.Default.ResolvingUnmanagedDll += (assembly, name) =>
+                {
+                    // ⚠️ **绝不劫持 CoreLib 的查询**：运行期自己会按名找 `ntdll.dll`（内部 P/Invoke）。
+                    //   实测（`#35` 逐名二分）：`ntdll` 一进映射表且连 CoreLib 一起接住，第三方应用就
+                    //   "窗口建出来但整屏全黑、MIL 轨迹一行都没有"；而同一个 DLL 由 app-local 桩提供时画面正常
+                    //   ⇒ 差别正在这里。排除 CoreLib 后，钩子只服务"应用的"P/Invoke（那正是它存在的理由）。
+                    if (ReferenceEquals(assembly, typeof(object).Assembly)) return IntPtr.Zero;
+                    try { return Resolve(name, assembly, null); }
+                    catch { return IntPtr.Zero; }
+                };"""
+s=s.replace(old_hook,new_hook,1)
+open(p,"w",encoding="utf-8").write(s)
+print("resolver sha16=", hashlib.sha256(s.encode()).hexdigest()[:16])
+print("ntdll 在映射表=", '"ntdll.dll"' in s, "｜CoreLib 排除=", "typeof(object).Assembly" in s)
+PY
+export PATH="$HOME/.dotnet:$PATH"; WAVE_OWNER=主控 bash build/integration-wave.sh > $HOME/w35-integration4.log 2>&1; tail -2 $HOME/w35-integration4.log | cut -c1-110; dotnet build build/PresentationFramework.Linux/PresentationFramework.Linux.csproj -c Release -m:1 --nologo -v q 2>&1 | grep -cE 'error'; D=/home/links-dev/hc-linux/src/Net_GE45/HandyControlDemo_Net_GE45/bin/Debug/net10.0; rm -f $D/*.dll.so; cp -p build/PresentationCore.Linux/bin/Debug/PresentationCore.dll build/WindowsBase.Linux/bin/Debug/WindowsBase.dll build/PresentationFramework.Linux/bin/Release/PresentationFramework.dll build/System.Windows.Extensions.Linux/bin/Release/System.Windows.Extensions.dll build/DirectWrite.Linux/wic-shim/libwpfwic.so src/WpfGfx.Linux.Native/bin/libwpfwin32.so build/MilBridge/.artifacts/publish/MilBridge.Linux/release_linux-x64/wpfgfx_cor3.so build/MilBridge/.artifacts/publish/MilBridge.Linux/release_linux-x64/libSkiaSharp.so $D/; echo "桩数=$(ls $D/*.dll.so 2>/dev/null | wc -l)"; bash $HOME/w35-hc-noprobe.sh 62 20 2>&1 | tail -3 
+    ppid2_cmd=node /home/links-dev/node/bin/dsh web --no-open --trusted-host 192.168.193.59:3080 
+2026-09-19T01:52:30+08:00  owner=主控  pid=246654  ppid=246653  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && export PATH="$HOME/.dotnet:$PATH" && WAVE_OWNER=主控 bash build/integration-wave.sh > $HOME/w35-integration5.log 2>&1; echo "integ_rc=$? $(tail -1 $HOME/w35-integration5.log | cut -c1-60)"; dotnet build build/PresentationFramework.Linux/PresentationFramework.Linux.csproj -c Release -m:1 --nologo -v q 2>&1 | grep -cE ' error '; D=/home/links-dev/hc-linux/src/Net_GE45/HandyControlDemo_Net_GE45/bin/Debug/net10.0; rm -f $D/*.dll.so; cp -p build/PresentationCore.Linux/bin/Debug/PresentationCore.dll build/WindowsBase.Linux/bin/Debug/WindowsBase.dll build/PresentationFramework.Linux/bin/Release/PresentationFramework.dll build/System.Windows.Extensions.Linux/bin/Release/System.Windows.Extensions.dll build/DirectWrite.Linux/wic-shim/libwpfwic.so src/WpfGfx.Linux.Native/bin/libwpfwin32.so build/MilBridge/.artifacts/publish/MilBridge.Linux/release_linux-x64/wpfgfx_cor3.so build/MilBridge/.artifacts/publish/MilBridge.Linux/release_linux-x64/libSkiaSharp.so $D/; echo "桩数=$(ls $D/*.dll.so 2>/dev/null | wc -l)"; bash $HOME/w35-hc-noprobe.sh 70 20 2>&1 | tail -3 
+    ppid2_cmd=node /home/links-dev/node/bin/dsh web --no-open --trusted-host 192.168.193.59:3080 
+2026-09-19T01:58:58+08:00  owner=close-wave:links-dev  pid=255238  ppid=255123  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && python3 - <<'PY'
+import hashlib
+P="docs/WAVE34-PREREGISTRATION.md"; s=open(P,encoding="utf-8").read()
+anchor="## 4. 边界（明说，不许沉默扩权）"
+assert s.count(anchor)==1
+add = """## 3v. ★ **`#35` 关键一击：第三方 app 在"零探针装置"下渲染出完整界面**（根因 = 我的 `RtlGetVersion` 越界写）
+
+### 读数（同一判据：根窗口截图里**窗口矩形内**的颜色数）
+
+| 配置 | 颜色数 | 结论 |
+|---|---|---|
+| 5 个 `.dll.so` 桩 ＋ 6 个硬链接别名（旧探针配置） | 1274 | 能渲染（历史） |
+| **零桩零别名**：映射表含 ALC 钩子 ＋ `shell32/gdiplus/msimg32/dwmapi` | 1274 / 1275 / 1275 / 1275 | ✓ 可用 |
+| 零桩零别名 ＋ `ntdll` 也进映射表（**CoreLib 已排除**） | **1（整屏黑）** | ✗ 仍黑 |
+| 零桩零别名 ＋ 同上，且 **`RtlGetVersion` 改成"尊重调用方声明的大小"** | **1275** ✅ | **成了** |
+
+### 根因（值得单独记一条纪律）
+
+我上一版 `RtlGetVersion` 里 `memset(v, 0, sizeof(*v))` 并按"我们以为的 280 字节"回填
+`dwOSVersionInfoSize = sizeof(*v)`。而**调用方的托管声明算出的大小不同**：`szCSDVersion` 用
+ANSI 的 `ByValTStr(128)` 时整个结构只有 **148 字节**（20 ＋ 128），Unicode 才是 280。
+**写满 280 = 越界踩坏调用方的栈/堆** —— 症状是**应用静默黑屏、一个异常都没有**
+（窗口建得出来、`WPF_LINUX_MIL_TRACE` 一行都没有，因为呈现链根本没跑到）。
+
+**修法**：只写前 20 字节的固定字段，`dwOSVersionInfoSize` **原样回填调用方声明值**，
+其余字段仅在 `declared >= 头部+256` 时才清。
+⇒ 提议纪律 79：**降级实现也必须尊重调用方声明的结构大小**——"我按我知道的结构写"是越界写，
+而它的症状**不是异常，是静默走偏**（本工程最怕的形态）。
+
+### 副产品：`ntdll` 映射与 CoreLib 排除都保留
+
+`ntdll.dll` 已在映射表里；钩子的 `ResolvingUnmanagedDll` 里加了
+`if (ReferenceEquals(assembly, typeof(object).Assembly)) return IntPtr.Zero;`
+（不劫持运行期自己的 ntdll 查询）。两者一起才是最终可用形态。
+
+"""
+s=s.replace(anchor, add+anchor,1)
+open(P,"w",encoding="utf-8").write(s)
+print("WAVE34 sha16=", hashlib.sha256(s.encode()).hexdigest()[:16], len(s))
+PY
+export PATH="$HOME/.dotnet:$PATH"; (time bash build/close-wave.sh > $HOME/w35-closewave.log 2>&1; echo "CW_RC=$?" >> $HOME/w35-closewave.log) 
+2026-09-19T03:25:26+08:00  owner=主控  pid=340328  ppid=340327  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && export PATH="$HOME/.dotnet:$PATH" && WAVE_OWNER=主控 bash build/integration-wave.sh > $HOME/w36-integration.log 2>&1; echo "rc=$?"; grep -aE 'patch-swe-linux|System.Windows.Extensions.Linux|失败步骤' $HOME/w36-integration.log | head -6 | cut -c1-150; echo "=== 接线是否生效 ==="; python3 src/WpfGfx.Linux.Native/tools/patch-swe-linux.py --check | tail -1; echo "=== 九件套输出里是哪一份 SWE ==="; for d in build/System.Xaml.Linux/bin/Debug build/WindowsBase.Linux/bin/Debug build/PresentationCore.Linux/bin/Debug build/PresentationFramework.Linux/bin/Debug; do printf "%-46s %s\n" "$d" "$(sha256sum $d/System.Windows.Extensions.dll 2>/dev/null | cut -c1-16 || echo 缺)"; done; printf "%-46s %s\n" "我们自建（权威）" "$(sha256sum build/System.Windows.Extensions.Linux/bin/Release/System.Windows.Extensions.dll | cut -c1-16)" 
+    ppid2_cmd=node /home/links-dev/node/bin/dsh web --no-open --trusted-host 192.168.193.59:3080 
+2026-09-19T03:29:52+08:00  owner=主控  pid=347915  ppid=347914  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && export PATH="$HOME/.dotnet:$PATH" && WAVE_OWNER=主控 bash build/integration-wave.sh > $HOME/w36-integration2.log 2>&1; echo "wave rc=$? $(grep -a '失败步骤' $HOME/w36-integration2.log | tail -1)"; echo "=== 九件套输出里的 SWE ==="; for d in build/System.Xaml.Linux/bin/Debug build/WindowsBase.Linux/bin/Debug build/PresentationCore.Linux/bin/Debug build/PresentationFramework.Linux/bin/Debug; do printf "%-44s %s\n" "$(basename $(dirname $d))" "$(sha256sum $d/System.Windows.Extensions.dll 2>/dev/null | cut -c1-16 || echo 缺)"; done; printf "%-44s %s\n" "权威（自建替身）" "$(sha256sum build/System.Windows.Extensions.Linux/bin/Release/System.Windows.Extensions.dll | cut -c1-16)"; echo "=== 样本输出里的 SWE ==="; for s in WpfTextDemo HelloWpf WpfFeatureProbe; do printf "%-44s %s\n" "$s" "$(sha256sum samples/$s/bin/Debug/net10.0/System.Windows.Extensions.dll 2>/dev/null | cut -c1-16 || echo 缺)"; done 
+    ppid2_cmd=node /home/links-dev/node/bin/dsh web --no-open --trusted-host 192.168.193.59:3080 
+2026-09-19T03:35:12+08:00  owner=主控  pid=355620  ppid=355618  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && python3 - <<'PY'
+import hashlib
+# ① 从显式表与库存里摘掉（应用器暂不启用）——否则下一趟波会再次接线并打断构建
+p="build/integration-wave.sh"; s=open(p,encoding="utf-8").read()
+old = ("    # 2026-09-19 主控补（`#36` 波）：把四个产品工程的官方 `System.Windows.Extensions` 包\n"
+       "    #   **运行期**换成 Linux 原生替身（`ExcludeAssets=\"runtime\"` ＋ `<Reference>` HintPath）。\n"
+       "    patch-swe-linux\n")
+assert s.count(old)==1, s.count(old)
+new = ("    # ⏸ 2026-09-19（`#36`）：`patch-swe-linux`（把官方 `System.Windows.Extensions` 包换成 Linux 原生替身）\n"
+       "    #   **暂不启用** —— 接线后 `PresentationFramework` 报 11 个错，其中 `CS0012: 类型 XamlAccessLevel\n"
+       "    #   在未引用的程序集中定义` ⇒ 四个工程之间对 SWE 的**程序集身份**不一致（包是签名的、替身没签名；\n"
+       "    #   删掉 `PackageReference` 后 `project.assets.json` 是否随隐式 restore 更新也待验）。\n"
+       "    #   本行**刻意注释掉**：留着它会让下一趟波把 csproj 接上、把构建打断。见 KNOWN-DEFECTS 的登记。\n"
+       "    # patch-swe-linux\n")
+s=s.replace(old,new,1)
+open(p,"w",encoding="utf-8").write(s)
+print("integration-wave.sh sha16=", hashlib.sha256(s.encode()).hexdigest()[:16])
+q="build/MilBridge/tools/applier-audit-expected.txt"; t=open(q,encoding="utf-8").read()
+t=t.replace("patch-swe-linux\n","")
+open(q,"w",encoding="utf-8").write(t)
+print("库存清单 sha16=", hashlib.sha256(t.encode()).hexdigest()[:16], "含 patch-swe-linux=", "patch-swe-linux" in t)
+PY
+export PATH="$HOME/.dotnet:$PATH"; WAVE_OWNER=主控 bash build/integration-wave.sh > $HOME/w36-integration3.log 2>&1; echo "wave rc=$? $(grep -a '失败步骤' $HOME/w36-integration3.log | tail -1)"; grep -aE '❌' $HOME/w36-integration3.log | head -3 | cut -c1-120 
+    ppid2_cmd=node /home/links-dev/node/bin/dsh web --no-open --trusted-host 192.168.193.59:3080 
+2026-09-19T05:38:03+08:00  owner=主控  pid=649104  ppid=649103  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash /home/links-dev/w37-chain.sh 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && cat > $HOME/w37-chain.sh <<'EOF'
+#!/usr/bin/env bash
+# `#37` 收尾链：移植+构建 → 应用门禁 ×2（第 2 趟落 BASELINE 行）→ verify-all（25 步，静默窗口）
+set -u
+cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux
+export PATH="$HOME/.dotnet:$PATH"
+G=tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpftextdemo.sh
+echo "=== [1] integration-wave（移植 + 按依赖序重建）==="
+WAVE_OWNER=主控 bash build/integration-wave.sh > $HOME/w37-integration.log 2>&1; echo "integ_rc=$?"
+echo "=== [2] 应用门禁 1/2 ==="
+WPTD_RUN_DIR=$HOME/w37-gate-a timeout 900 bash $G 60 --tier both --no-build > $HOME/w37-gate-a.log 2>&1; echo "gate_a_rc=$?"
+echo "=== [3] 应用门禁 2/2（落 BASELINE 行）==="
+WPTD_RUN_DIR=$HOME/w37-gate-b WPTD_BASELINE_OUT=$HOME/w37-gate-rows.txt timeout 900 bash $G 60 --tier both --no-build > $HOME/w37-gate-b.log 2>&1; echo "gate_b_rc=$?"
+echo "=== [4] verify-all（25 步，静默窗口）==="
+time bash verify-all.sh > $HOME/w37-verifyall-1.log 2>&1; echo "va1_rc=$?"
+echo "CHAIN37_DONE"
+EOF
+bash $HOME/w37-chain.sh > $HOME/w37-chain.log 2>&1 
+2026-09-19T07:11:50+08:00  owner=主控  pid=763037  ppid=763036  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=timeout 2400 bash build/integration-wave.sh 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && python3 - <<'PY'
+p='build/MilBridge/tools/applier-audit-expected.txt'; s=open(p,encoding='utf-8').read()
+assert 'patch-swe-linux' not in s
+add = ('patch-swe-linux\n'
+       '#   ↑ `#38` 接通（`#36` 曾回退）：官方 `System.Windows.Extensions` 包 → Linux 原生替身。\n'
+       '#   两条根因 = ① HintPath 写死 `bin/Release/`（波建的是 Debug）⇒ 引用落空、RAR 回落到**包** ⇒ CS0012；\n'
+       '#   ② `System.Security.Permissions 9.0.0` 传递依赖 SWE ⇒ 必须留"排除 compile/runtime 资产"的占位包引用。\n')
+open(p,'w',encoding='utf-8').write(s.rstrip('\n') + '\n' + add)
+print('期望清单已登记 patch-swe-linux')
+PY
+export PATH="$HOME/.dotnet:$PATH"; WAVE_OWNER=主控 timeout 2400 bash build/integration-wave.sh > $HOME/w38-integration.log 2>&1; echo "integ_rc=$?"; grep -E "^\[|失败步骤|miss=|APPLIER_AUDIT_SUMMARY" $HOME/w38-integration.log | tail -8; echo "=== 接线是否在波里保住 ==="; python3 src/WpfGfx.Linux.Native/tools/patch-swe-linux.py --check 2>&1 | head -2; grep -c 'ExcludeAssets="compile;runtime"' build/PresentationFramework.Linux/PresentationFramework.Linux.csproj 
+2026-09-19T07:15:13+08:00  owner=主控  pid=770938  ppid=770937  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=timeout 2400 bash build/integration-wave.sh 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && export PATH="$HOME/.dotnet:$PATH" && WAVE_OWNER=主控 timeout 2400 bash build/integration-wave.sh > $HOME/w38-integration2.log 2>&1; echo "integ_rc=$?"; grep -E "❌|缺被引产物|失败步骤|APPLIER_AUDIT_SUMMARY" $HOME/w38-integration2.log | head -12 
+2026-09-19T09:58:25+08:00  owner=主控  pid=914084  ppid=914082  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash /home/links-dev/w39-chain.sh 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && cat > $HOME/w39-chain.sh <<'EOF'
+#!/usr/bin/env bash
+# `#39`（阶段 1）收尾链：integration-wave → 门禁 ×2（第 1 趟落全新机读行）→ verify-all（25 步）
+set -u
+cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux
+export PATH="$HOME/.dotnet:$PATH"
+G=tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpftextdemo.sh
+rm -f $HOME/w39-gate-rows-c.txt
+echo "=== [1] integration-wave（证明接线活过 port-lib 重生成）==="
+WAVE_OWNER=主控 bash build/integration-wave.sh > $HOME/w39-integration.log 2>&1; echo "integ_rc=$?"
+echo "=== [2] 接线存活复核 ==="
+bash build/selfbuilt-config.sh --check | tail -1
+grep -c 'SelfBuiltConfig.props' build/Directory.Upstream.props BuildHygiene.props
+echo "=== [3] 门禁 1/2（落全新机读行）==="
+WPTD_RUN_DIR=$HOME/w39-gate-c WPTD_BASELINE_OUT=$HOME/w39-gate-rows-c.txt timeout 900 bash $G 60 --tier both --no-build > $HOME/w39-gate-c.log 2>&1; echo "gate_c_rc=$?"
+echo "=== [4] 门禁 2/2（复现性）==="
+WPTD_RUN_DIR=$HOME/w39-gate-d timeout 900 bash $G 60 --tier both --no-build > $HOME/w39-gate-d.log 2>&1; echo "gate_d_rc=$?"
+echo "=== [5] verify-all（25 步，静默）==="
+time bash verify-all.sh > $HOME/w39-verifyall-1.log 2>&1; echo "va1_rc=$?"
+echo "CHAIN39_DONE"
+EOF
+bash $HOME/w39-chain.sh > $HOME/w39-chain.log 2>&1 
+2026-09-19T11:09:56+08:00  owner=主控  pid=1037168  ppid=1036464  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash /home/links-dev/w40-flip.sh 
+    ppid2_cmd=/sbin/init splash 
+2026-09-19T11:11:47+08:00  owner=主控  pid=1038051  ppid=1037982  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash /home/links-dev/w40-flip.sh 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && SKIP_BUILDCHECK=1 nohup bash $HOME/w40-flip.sh > $HOME/w40-chain2.log 2>&1 & sleep 45; tail -8 $HOME/w40-chain2.log; date +%H:%M:%S 
+2026-09-19T11:13:14+08:00  owner=主控  pid=1038596  ppid=1038595  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash /home/links-dev/w40-chain3.sh 
+    ppid2_cmd=bash -c bash /home/links-dev/w40-chain3.sh > /home/links-dev/w40-chain3.log 2>&1 
+2026-09-19T15:05:53+08:00  owner=<未认领>  pid=1257590  ppid=1257589  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux; export PATH="$HOME/.dotnet:$PATH"; bash build/integration-wave.sh > "$HOME/w44-wave.log" 2>&1; echo "W44_WAVE_RC=$?" >> "$HOME/w44-wave.log"; echo "--- 九位现值 ---" >> "$HOME/w44-wave.log"; for p in build/MilBridge/.artifacts/publish/MilBridge.Linux/release_linux-x64/wpfgfx_cor3.so build/PresentationCore.Linux/bin/Release/PresentationCore.dll build/PresentationFramework.Linux/bin/Release/PresentationFramework.dll build/WindowsBase.Linux/bin/Release/WindowsBase.dll build/DirectWrite.Linux/Provider/bin/Release/DirectWrite.Linux.Provider.dll src/WpfGfx.Linux.Native/bin/libwpfwin32.so build/DirectWrite.Linux/wic-shim/libwpfwic.so build/shims/PresentationCore.HbTextLine.cs build/DirectWriteForwarder.Linux/bin/Release/DirectWriteForwarder.dll; do [ -f "$p" ] && echo "$(sha256sum "$p" | cut -c1-16)  $p" >> "$HOME/w44-wave.log" || echo "MISSING  $p" >> "$HOME/w44-wave.log"; done; echo W44_STAGE1_DONE >> "$HOME/w44-wave.log" 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && export PATH="$HOME/.dotnet:$PATH" && nohup bash -c 'cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux; export PATH="$HOME/.dotnet:$PATH"; bash build/integration-wave.sh > "$HOME/w44-wave.log" 2>&1; echo "W44_WAVE_RC=$?" >> "$HOME/w44-wave.log"; echo "--- 九位现值 ---" >> "$HOME/w44-wave.log"; for p in build/MilBridge/.artifacts/publish/MilBridge.Linux/release_linux-x64/wpfgfx_cor3.so build/PresentationCore.Linux/bin/Release/PresentationCore.dll build/PresentationFramework.Linux/bin/Release/PresentationFramework.dll build/WindowsBase.Linux/bin/Release/WindowsBase.dll build/DirectWrite.Linux/Provider/bin/Release/DirectWrite.Linux.Provider.dll src/WpfGfx.Linux.Native/bin/libwpfwin32.so build/DirectWrite.Linux/wic-shim/libwpfwic.so build/shims/PresentationCore.HbTextLine.cs build/DirectWriteForwarder.Linux/bin/Release/DirectWriteForwarder.dll; do [ -f "$p" ] && echo "$(sha256sum "$p" | cut -c1-16)  $p" >> "$HOME/w44-wave.log" || echo "MISSING  $p" >> "$HOME/w44-wave.log"; done; echo W44_STAGE1_DONE >> "$HOME/w44-wave.log"' >/dev/null 2>&1 &
+sleep 5; echo "已启动 integration-wave（日志 $HOME/w44-wave.log）"; wc -l "$HOME/w44-wave.log" 2>/dev/null 
+2026-09-19T15:06:39+08:00  owner=主控  pid=1257683  ppid=1257682  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux; export PATH="$HOME/.dotnet:$PATH"; WAVE_OWNER=主控 bash build/integration-wave.sh > "$HOME/w44-wave.log" 2>&1; echo "W44_WAVE_RC=$?" >> "$HOME/w44-wave.log"; echo "--- 九位现值 ---" >> "$HOME/w44-wave.log"; for p in build/MilBridge/.artifacts/publish/MilBridge.Linux/release_linux-x64/wpfgfx_cor3.so build/PresentationCore.Linux/bin/Release/PresentationCore.dll build/PresentationFramework.Linux/bin/Release/PresentationFramework.dll build/WindowsBase.Linux/bin/Release/WindowsBase.dll build/DirectWrite.Linux/Provider/bin/Release/DirectWrite.Linux.Provider.dll src/WpfGfx.Linux.Native/bin/libwpfwin32.so build/DirectWrite.Linux/wic-shim/libwpfwic.so build/shims/PresentationCore.HbTextLine.cs build/DirectWriteForwarder.Linux/bin/Release/DirectWriteForwarder.dll; do [ -f "$p" ] && echo "$(sha256sum "$p" | cut -c1-16)  $p" >> "$HOME/w44-wave.log" || echo "MISSING  $p" >> "$HOME/w44-wave.log"; done; echo "--- 重取五臂 ---" >> "$HOME/w44-wave.log"; ARMS_OUT="$HOME/w44-arms" bash build/MilBridge/tools/retake-arms-w23.sh >> "$HOME/w44-arms.log" 2>&1; echo "W44_ARMS_RC=$?" >> "$HOME/w44-arms.log"; echo W44_STAGE1B_DONE >> "$HOME/w44-wave.log" 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && nohup bash -c 'cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux; export PATH="$HOME/.dotnet:$PATH"; WAVE_OWNER=主控 bash build/integration-wave.sh > "$HOME/w44-wave.log" 2>&1; echo "W44_WAVE_RC=$?" >> "$HOME/w44-wave.log"; echo "--- 九位现值 ---" >> "$HOME/w44-wave.log"; for p in build/MilBridge/.artifacts/publish/MilBridge.Linux/release_linux-x64/wpfgfx_cor3.so build/PresentationCore.Linux/bin/Release/PresentationCore.dll build/PresentationFramework.Linux/bin/Release/PresentationFramework.dll build/WindowsBase.Linux/bin/Release/WindowsBase.dll build/DirectWrite.Linux/Provider/bin/Release/DirectWrite.Linux.Provider.dll src/WpfGfx.Linux.Native/bin/libwpfwin32.so build/DirectWrite.Linux/wic-shim/libwpfwic.so build/shims/PresentationCore.HbTextLine.cs build/DirectWriteForwarder.Linux/bin/Release/DirectWriteForwarder.dll; do [ -f "$p" ] && echo "$(sha256sum "$p" | cut -c1-16)  $p" >> "$HOME/w44-wave.log" || echo "MISSING  $p" >> "$HOME/w44-wave.log"; done; echo "--- 重取五臂 ---" >> "$HOME/w44-wave.log"; ARMS_OUT="$HOME/w44-arms" bash build/MilBridge/tools/retake-arms-w23.sh >> "$HOME/w44-arms.log" 2>&1; echo "W44_ARMS_RC=$?" >> "$HOME/w44-arms.log"; echo W44_STAGE1B_DONE >> "$HOME/w44-wave.log"' >/dev/null 2>&1 &
+sleep 5; echo "已启动（WAVE_OWNER=主控）：integration-wave → 重取五臂"; date '+%H:%M:%S' 
+2026-09-19T20:49:08+08:00  owner=w46h  pid=1548525  ppid=1548520  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && export PATH="$HOME/.dotnet:$PATH" && export DOTNET_gcServer=0 && awk '/MemAvailable/{print int($2/1024)" MB"}' /proc/meminfo && pgrep -a dotnet | head && echo "(no dotnet above = clean)" && date -Is && WAVE_OWNER=w46h bash build/integration-wave.sh > /home/links-dev/w46h/02-integration-wave.log 2>&1 ; echo "WAVE_RC=$?" ; date -Is ; tail -6 /home/links-dev/w46h/02-integration-wave.log 
+    ppid2_cmd=node /home/links-dev/node/bin/dsh web --no-open --trusted-host 192.168.193.59:3080 
+2026-09-19T22:51:54+08:00  owner=w48a  pid=1780431  ppid=1780429  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux
+export PATH="$HOME/.dotnet:$PATH"; export DOTNET_gcServer=0
+echo "WAVE_START=$(date +%FT%T)"; (date +%FT%T; time env WAVE_OWNER=w48a bash build/integration-wave.sh) > /home/links-dev/w48a/02-integration-wave.log 2>&1; echo "WAVE_RC=$?" | tee -a /home/links-dev/w48a/02-integration-wave.log; tail -5 /home/links-dev/w48a/02-integration-wave.log 
+    ppid2_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux
+export PATH="$HOME/.dotnet:$PATH"; export DOTNET_gcServer=0
+echo "WAVE_START=$(date +%FT%T)"; (date +%FT%T; time env WAVE_OWNER=w48a bash build/integration-wave.sh) > /home/links-dev/w48a/02-integration-wave.log 2>&1; echo "WAVE_RC=$?" | tee -a /home/links-dev/w48a/02-integration-wave.log; tail -5 /home/links-dev/w48a/02-integration-wave.log 
+2026-09-20T00:11:55+08:00  owner=w50a  pid=1943012  ppid=1943007  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && export PATH="$HOME/.dotnet:$PATH" && export DOTNET_gcServer=0 && echo "PRE: $(date '+%F %T') loadavg=$(cut -d' ' -f1-3 /proc/loadavg) memavail=$(awk '/MemAvailable/{printf "%dMB",$2/1024}' /proc/meminfo)" && s=$(date +%s) && WAVE_OWNER=w50a bash build/integration-wave.sh > $HOME/w50a/02-integration-wave.log 2>&1; rc=$?; e=$(date +%s); echo "WAVE_RC=$rc elapsed=$((e-s))s"; echo "POST: $(date '+%F %T') loadavg=$(cut -d' ' -f1-3 /proc/loadavg) memavail=$(awk '/MemAvailable/{printf "%dMB",$2/1024}' /proc/meminfo)" 
+    ppid2_cmd=node /home/links-dev/node/bin/dsh web --no-open --trusted-host 192.168.193.59:3080 

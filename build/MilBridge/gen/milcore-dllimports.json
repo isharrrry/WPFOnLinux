@@ -1,0 +1,2202 @@
+{
+ "entries": [
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "EnterCompositionEngineLock",
+   "entry_point": "MilCompositionEngine_EnterCompositionEngineLock",
+   "entry_point_declared": "MilCompositionEngine_EnterCompositionEngineLock",
+   "preserve_sig": true,
+   "return": "void",
+   "params_raw": ""
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "ExitCompositionEngineLock",
+   "entry_point": "MilCompositionEngine_ExitCompositionEngineLock",
+   "entry_point_declared": "MilCompositionEngine_ExitCompositionEngineLock",
+   "preserve_sig": true,
+   "return": "void",
+   "params_raw": ""
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "EnterMediaSystemLock",
+   "entry_point": "MilCompositionEngine_EnterMediaSystemLock",
+   "entry_point_declared": "MilCompositionEngine_EnterMediaSystemLock",
+   "preserve_sig": true,
+   "return": "void",
+   "params_raw": ""
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "ExitMediaSystemLock",
+   "entry_point": "MilCompositionEngine_ExitMediaSystemLock",
+   "entry_point_declared": "MilCompositionEngine_ExitMediaSystemLock",
+   "preserve_sig": true,
+   "return": "void",
+   "params_raw": ""
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "MilVersionCheck",
+   "entry_point": "MilVersionCheck",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "uint uiCallerMilSdkVersion"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "WgxConnection_ShouldForceSoftwareForGraphicsStreamClient",
+   "entry_point": "WgxConnection_ShouldForceSoftwareForGraphicsStreamClient",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "bool",
+   "params_raw": ""
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "WgxConnection_Create",
+   "entry_point": "WgxConnection_Create",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "bool requestSynchronousTransport, out IntPtr ppConnection"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "WgxConnection_Disconnect",
+   "entry_point": "WgxConnection_Disconnect",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr pTranspManager"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "MILCreateStreamFromStreamDescriptor",
+   "entry_point": "MILCreateStreamFromStreamDescriptor",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "ref System.Windows.Media.StreamDescriptor pSD, out IntPtr ppStream"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "MilUtility_GetTileBrushMapping",
+   "entry_point": "MilUtility_GetTileBrushMapping",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "void",
+   "params_raw": "D3DMATRIX* transform, D3DMATRIX* relativeTransform, Stretch stretch, AlignmentX alignmentX, AlignmentY alignmentY, BrushMappingMode viewPortUnits, BrushMappingMode viewBoxUnits, Rect* shapeFillBounds, Rect* contentBounds, ref Rect viewport, ref Rect viewbox, out D3DMATRIX contentToShape, out int brushIsEmpty"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "MilUtility_PathGeometryBounds",
+   "entry_point": "MilUtility_PathGeometryBounds",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "MIL_PEN_DATA *pPenData, double *pDashArray, MilMatrix3x2D* pWorldMatrix, FillRule fillRule, byte* pPathData, UInt32 nSize, MilMatrix3x2D* pGeometryMatrix, double rTolerance, bool fRelative, bool fSkipHollows, MilRectD* pBounds"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "MilUtility_PathGeometryCombine",
+   "entry_point": "MilUtility_PathGeometryCombine",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "MilMatrix3x2D* pMatrix, MilMatrix3x2D* pMatrix1, FillRule fillRule1, byte* pPathData1, UInt32 nSize1, MilMatrix3x2D* pMatrix2, FillRule fillRule2, byte* pPathData2, UInt32 nSize2, double rTolerance, bool fRelative, PathGeometry.AddFigureToListDelegate addFigureCallback, GeometryCombineMode combineMode, out FillRule resultFillRule"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "MilUtility_PathGeometryWiden",
+   "entry_point": "MilUtility_PathGeometryWiden",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "MIL_PEN_DATA *pPenData, double *pDashArray, MilMatrix3x2D* pMatrix, FillRule fillRule, byte* pPathData, UInt32 nSize, double rTolerance, bool fRelative, PathGeometry.AddFigureToListDelegate addFigureCallback, out FillRule widenedFillRule"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "MilUtility_PathGeometryOutline",
+   "entry_point": "MilUtility_PathGeometryOutline",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "MilMatrix3x2D* pMatrix, FillRule fillRule, byte* pPathData, UInt32 nSize, double rTolerance, bool fRelative, PathGeometry.AddFigureToListDelegate addFigureCallback, out FillRule outlinedFillRule"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "MilUtility_PathGeometryFlatten",
+   "entry_point": "MilUtility_PathGeometryFlatten",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "MilMatrix3x2D* pMatrix, FillRule fillRule, byte* pPathData, UInt32 nSize, double rTolerance, bool fRelative, PathGeometry.AddFigureToListDelegate addFigureCallback, out FillRule resultFillRule"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "MilGlyphCache_BeginCommandAtRenderTime",
+   "entry_point": "MilGlyphCache_BeginCommandAtRenderTime",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr pMilSlaveGlyphCacheTarget, byte* pbData, uint cbSize, uint cbExtra"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "MilGlyphCache_AppendCommandDataAtRenderTime",
+   "entry_point": "MilGlyphCache_AppendCommandDataAtRenderTime",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr pMilSlaveGlyphCacheTarget, byte* pbData, uint cbSize"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "MilGlyphCache_EndCommandAtRenderTime",
+   "entry_point": "MilGlyphCache_EndCommandAtRenderTime",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr pMilSlaveGlyphCacheTarget"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "MilGlyphRun_SetGeometryAtRenderTime",
+   "entry_point": "MilGlyphRun_SetGeometryAtRenderTime",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr pMilGlyphRunTarget, byte* pCmd, uint cbCmd"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "MilGlyphRun_GetGlyphOutline",
+   "entry_point": "MilGlyphRun_GetGlyphOutline",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr pFontFace, ushort glyphIndex, bool sideways, double renderingEmSize, out byte* pPathGeometryData, out UInt32 pSize, out FillRule pFillRule"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "MilGlyphRun_ReleasePathGeometryData",
+   "entry_point": "MilGlyphRun_ReleasePathGeometryData",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "byte* pPathGeometryData"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "MilCreateReversePInvokeWrapper",
+   "entry_point": "MilCreateReversePInvokeWrapper",
+   "entry_point_declared": "MilCreateReversePInvokeWrapper",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr pFcn, out IntPtr reversePInvokeWrapper"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "MilReleasePInvokePtrBlocking",
+   "entry_point": "MilReleasePInvokePtrBlocking",
+   "entry_point_declared": "MilReleasePInvokePtrBlocking",
+   "preserve_sig": true,
+   "return": "void",
+   "params_raw": "IntPtr reversePInvokeWrapper"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "RenderOptions_ForceSoftwareRenderingModeForProcess",
+   "entry_point": "RenderOptions_ForceSoftwareRenderingModeForProcess",
+   "entry_point_declared": "RenderOptions_ForceSoftwareRenderingModeForProcess",
+   "preserve_sig": true,
+   "return": "void",
+   "params_raw": "bool fForce"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "RenderOptions_IsSoftwareRenderingForcedForProcess",
+   "entry_point": "RenderOptions_IsSoftwareRenderingForcedForProcess",
+   "entry_point_declared": "RenderOptions_IsSoftwareRenderingForcedForProcess",
+   "preserve_sig": true,
+   "return": "bool",
+   "params_raw": ""
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "RenderOptions_EnableHardwareAccelerationInRdp",
+   "entry_point": "RenderOptions_EnableHardwareAccelerationInRdp",
+   "entry_point_declared": "RenderOptions_EnableHardwareAccelerationInRdp",
+   "preserve_sig": true,
+   "return": "void",
+   "params_raw": "bool value"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "WpfGfx_SetDisableBoundsCheckProtection",
+   "entry_point": "WpfGfx_SetDisableBoundsCheckProtection",
+   "entry_point_declared": "WpfGfx_SetDisableBoundsCheckProtection",
+   "preserve_sig": true,
+   "return": "void",
+   "params_raw": "bool value"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "CreateCWICWrapperBitmap",
+   "entry_point": "MilResource_CreateCWICWrapperBitmap",
+   "entry_point_declared": "MilResource_CreateCWICWrapperBitmap",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "BitmapSourceSafeMILHandle pIWICBitmapSource, out BitmapSourceSafeMILHandle pCWICWrapperBitmap"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "AddRef",
+   "entry_point": "MILAddRef",
+   "entry_point_declared": "MILAddRef",
+   "preserve_sig": true,
+   "return": "UInt32",
+   "params_raw": "SafeMILHandle pIUnkown"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "AddRef",
+   "entry_point": "MILAddRef",
+   "entry_point_declared": "MILAddRef",
+   "preserve_sig": true,
+   "return": "UInt32",
+   "params_raw": "SafeReversePInvokeWrapper pIUnknown"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "Release",
+   "entry_point": "MILRelease",
+   "entry_point_declared": "MILRelease",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr pIUnkown"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "QueryInterface",
+   "entry_point": "MILQueryInterface",
+   "entry_point_declared": "MILQueryInterface",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr pIUnknown, ref Guid guid, out IntPtr ppvObject"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "QueryInterface",
+   "entry_point": "MILQueryInterface",
+   "entry_point_declared": "MILQueryInterface",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "SafeMILHandle pIUnknown, ref Guid guid, out IntPtr ppvObject"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "GetProfileBytes",
+   "entry_point": "IWICColorContext_GetProfileBytes_Proxy",
+   "entry_point_declared": "IWICColorContext_GetProfileBytes_Proxy",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "SafeMILHandle THIS_PTR, uint cbBuffer, byte[] pbBuffer, out uint pcbActual"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "GetType",
+   "entry_point": "IWICColorContext_GetType_Proxy",
+   "entry_point_declared": "IWICColorContext_GetType_Proxy",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "SafeMILHandle THIS_PTR, out WICColorContextType pType"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "GetExifColorSpace",
+   "entry_point": "IWICColorContext_GetExifColorSpace_Proxy",
+   "entry_point_declared": "IWICColorContext_GetExifColorSpace_Proxy",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "SafeMILHandle THIS_PTR, out uint pValue"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "CreateFactory",
+   "entry_point": "MILCreateFactory",
+   "entry_point_declared": "MILCreateFactory",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "out IntPtr ppIFactory, UInt32 SDKVersion"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "CreateMediaPlayer",
+   "entry_point": "MILFactoryCreateMediaPlayer",
+   "entry_point_declared": "MILFactoryCreateMediaPlayer",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr THIS_PTR, SafeMILHandle pEventProxy, bool canOpenAllMedia, out SafeMediaHandle ppMedia"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "CreateBitmapRenderTarget",
+   "entry_point": "MILFactoryCreateBitmapRenderTarget",
+   "entry_point_declared": "MILFactoryCreateBitmapRenderTarget",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr THIS_PTR, UInt32 width, UInt32 height, PixelFormatEnum pixelFormatEnum, float dpiX, float dpiY, MILRTInitializationFlags dwFlags, out SafeMILHandle ppIRenderTargetBitmap"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "CreateBitmapRenderTargetForBitmap",
+   "entry_point": "MILFactoryCreateSWRenderTargetForBitmap",
+   "entry_point_declared": "MILFactoryCreateSWRenderTargetForBitmap",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr THIS_PTR, BitmapSourceSafeMILHandle pIBitmap, out SafeMILHandle ppIRenderTargetBitmap"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "Create",
+   "entry_point": "InteropDeviceBitmap_Create",
+   "entry_point_declared": "InteropDeviceBitmap_Create",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr d3dResource, double dpiX, double dpiY, uint version, FrontBufferAvailableCallback pfnCallback, bool isSoftwareFallbackEnabled, out SafeMILHandle ppInteropDeviceBitmap, out uint pixelWidth, out uint pixelHeight"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "Detach",
+   "entry_point": "InteropDeviceBitmap_Detach",
+   "entry_point_declared": "InteropDeviceBitmap_Detach",
+   "preserve_sig": true,
+   "return": "void",
+   "params_raw": "SafeMILHandle pInteropDeviceBitmap"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "AddDirtyRect",
+   "entry_point": "InteropDeviceBitmap_AddDirtyRect",
+   "entry_point_declared": "InteropDeviceBitmap_AddDirtyRect",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "int x, int y, int w, int h, SafeMILHandle pInteropDeviceBitmap"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+   "method": "GetAsSoftwareBitmap",
+   "entry_point": "InteropDeviceBitmap_GetAsSoftwareBitmap",
+   "entry_point_declared": "InteropDeviceBitmap_GetAsSoftwareBitmap",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "SafeMILHandle pInteropDeviceBitmap, out BitmapSourceSafeMILHandle pIWICBitmapSource"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/SafeNativeMethodsMilCoreApi.cs",
+   "method": "MilCompositionEngine_InitializePartitionManager",
+   "entry_point": "MilCompositionEngine_InitializePartitionManager",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "int nPriority"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/SafeNativeMethodsMilCoreApi.cs",
+   "method": "MilCompositionEngine_DeinitializePartitionManager",
+   "entry_point": "MilCompositionEngine_DeinitializePartitionManager",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": ""
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/SafeNativeMethodsMilCoreApi.cs",
+   "method": "GetNextPerfElementId",
+   "entry_point": "GetNextPerfElementId",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "long",
+   "params_raw": ""
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/Composition.cs",
+   "method": "MilComposition_SyncFlush",
+   "entry_point": "MilComposition_SyncFlush",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr pChannel"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/Composition.cs",
+   "method": "MilUtility_GetPointAtLengthFraction",
+   "entry_point": "MilUtility_GetPointAtLengthFraction",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "MilMatrix3x2D *pMatrix, FillRule fillRule, byte *pPathData, UInt32 nSize, double rFraction, out Point pt, out Point vecTangent"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/Composition.cs",
+   "method": "MilUtility_PolygonBounds",
+   "entry_point": "MilUtility_PolygonBounds",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "MilMatrix3x2D *pWorldMatrix, MIL_PEN_DATA *pPenData, double *pDashArray, Point *pPoints, byte *pTypes, UInt32 pointCount, UInt32 segmentCount, MilMatrix3x2D *pGeometryMatrix, double rTolerance, bool fRelative, bool fSkipHollows, Rect *pBounds"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/Composition.cs",
+   "method": "MilUtility_PolygonHitTest",
+   "entry_point": "MilUtility_PolygonHitTest",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "MilMatrix3x2D *pGeometryMatrix, MIL_PEN_DATA *pPenData, double *pDashArray, Point* pPoints, byte *pTypes, UInt32 cPoints, UInt32 cSegments, double rTolerance, bool fRelative, Point* pHitPoint, out bool pDoesContain"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/Composition.cs",
+   "method": "MilUtility_PathGeometryHitTest",
+   "entry_point": "MilUtility_PathGeometryHitTest",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "MilMatrix3x2D *pMatrix, MIL_PEN_DATA* pPenData, double* pDashArray, FillRule fillRule, byte *pPathData, UInt32 nSize, double rTolerance, bool fRelative, Point* pHitPoint, out bool pDoesContain"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/Composition.cs",
+   "method": "MilUtility_PathGeometryHitTestPathGeometry",
+   "entry_point": "MilUtility_PathGeometryHitTestPathGeometry",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "MilMatrix3x2D *pMatrix1, FillRule fillRule1, byte *pPathData1, UInt32 nSize1, MilMatrix3x2D *pMatrix2, FillRule fillRule2, byte *pPathData2, UInt32 nSize2, double rTolerance, bool fRelative, IntersectionDetail* pDetail"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/Composition.cs",
+   "method": "MilUtility_GeometryGetArea",
+   "entry_point": "MilUtility_GeometryGetArea",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "FillRule fillRule, byte *pPathData, UInt32 nSize, MilMatrix3x2D *pMatrix, double rTolerance, bool fRelative, double* pArea"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/Composition.cs",
+   "method": "MilUtility_ArcToBezier",
+   "entry_point": "MilUtility_ArcToBezier",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "void",
+   "params_raw": "Point ptStart, Size rRadii, double rRotation, bool fLargeArc, SweepDirection fSweepUp, Point ptEnd, MilMatrix3x2D* pMatrix, Point* pPt, out int cPieces"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/MILUtilities.cs",
+   "method": "MIL3DCalcProjected2DBounds",
+   "entry_point": "MIL3DCalcProjected2DBounds",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "ref D3DMATRIX pFullTransform3D, ref MILRect3D pboxBounds, out MilRectF prcDestRect"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/MILUtilities.cs",
+   "method": "MILCopyPixelBuffer",
+   "entry_point": "MilUtility_CopyPixelBuffer",
+   "entry_point_declared": "MilUtility_CopyPixelBuffer",
+   "preserve_sig": false,
+   "return": "void",
+   "params_raw": "byte * pOutputBuffer, uint outputBufferSize, uint outputBufferStride, uint outputBufferOffsetInBits, byte * pInputBuffer, uint inputBufferSize, uint inputBufferStride, uint inputBufferOffsetInBits, uint height, uint copyWidthInBits"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/MediaContextNotificationWindow.cs",
+   "method": "MilContent_AttachToHwnd",
+   "entry_point": "MilContent_AttachToHwnd",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr hwnd"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/MediaContextNotificationWindow.cs",
+   "method": "MilContent_DetachFromHwnd",
+   "entry_point": "MilContent_DetachFromHwnd",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr hwnd"
+  },
+  {
+   "file": "PresentationCore/System/Windows/InterOp/HwndTarget.cs",
+   "method": "VisualTarget_AttachToHwnd",
+   "entry_point": "MilVisualTarget_AttachToHwnd",
+   "entry_point_declared": "MilVisualTarget_AttachToHwnd",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr hwnd"
+  },
+  {
+   "file": "PresentationCore/System/Windows/InterOp/HwndTarget.cs",
+   "method": "VisualTarget_DetachFromHwnd",
+   "entry_point": "MilVisualTarget_DetachFromHwnd",
+   "entry_point_declared": "MilVisualTarget_DetachFromHwnd",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr hwnd"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/StreamAsIStream.cs",
+   "method": "MILIStreamWrite",
+   "entry_point": "MILIStreamWrite",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr pStream, [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)]byte[] buffer, uint cb, out uint cbWritten"
+  },
+  {
+   "file": "PresentationCore/System/Windows/Media/EventProxy.cs",
+   "method": "MILCreateEventProxy",
+   "entry_point": "MILCreateEventProxy",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "ref EventProxyDescriptor pEPD, out SafeMILHandle ppEventProxy"
+  },
+  {
+   "file": "Common/Graphics/exports.cs",
+   "method": "MilResource_CreateOrAddRefOnChannel",
+   "entry_point": "MilResource_CreateOrAddRefOnChannel",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr pChannel, DUCE.ResourceType resourceType, ref DUCE.ResourceHandle hResource"
+  },
+  {
+   "file": "Common/Graphics/exports.cs",
+   "method": "MilResource_DuplicateHandle",
+   "entry_point": "MilResource_DuplicateHandle",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr pSourceChannel, DUCE.ResourceHandle original, IntPtr pTargetChannel, ref DUCE.ResourceHandle duplicate"
+  },
+  {
+   "file": "Common/Graphics/exports.cs",
+   "method": "MilConnection_CreateChannel",
+   "entry_point": "MilConnection_CreateChannel",
+   "entry_point_declared": "MilConnection_CreateChannel",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr pTransport, IntPtr hChannel, out IntPtr channelHandle"
+  },
+  {
+   "file": "Common/Graphics/exports.cs",
+   "method": "MilConnection_DestroyChannel",
+   "entry_point": "MilConnection_DestroyChannel",
+   "entry_point_declared": "MilConnection_DestroyChannel",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr channelHandle"
+  },
+  {
+   "file": "Common/Graphics/exports.cs",
+   "method": "MilConnection_CloseBatch",
+   "entry_point": "MilChannel_CloseBatch",
+   "entry_point_declared": "MilChannel_CloseBatch",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr channelHandle"
+  },
+  {
+   "file": "Common/Graphics/exports.cs",
+   "method": "MilConnection_CommitChannel",
+   "entry_point": "MilChannel_CommitChannel",
+   "entry_point_declared": "MilChannel_CommitChannel",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr channelHandle"
+  },
+  {
+   "file": "Common/Graphics/exports.cs",
+   "method": "WgxConnection_SameThreadPresent",
+   "entry_point": "WgxConnection_SameThreadPresent",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr pConnection"
+  },
+  {
+   "file": "Common/Graphics/exports.cs",
+   "method": "MilChannel_GetMarshalType",
+   "entry_point": "MilChannel_GetMarshalType",
+   "entry_point_declared": "MilChannel_GetMarshalType",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr channelHandle, out ChannelMarshalType marshalType"
+  },
+  {
+   "file": "Common/Graphics/exports.cs",
+   "method": "MilResource_SendCommand",
+   "entry_point": "MilResource_SendCommand",
+   "entry_point_declared": "MilResource_SendCommand",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "byte *pbData, uint cbSize, bool sendInSeparateBatch, IntPtr pChannel"
+  },
+  {
+   "file": "Common/Graphics/exports.cs",
+   "method": "MilChannel_BeginCommand",
+   "entry_point": "MilChannel_BeginCommand",
+   "entry_point_declared": "MilChannel_BeginCommand",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr pChannel, byte *pbData, uint cbSize, uint cbExtra"
+  },
+  {
+   "file": "Common/Graphics/exports.cs",
+   "method": "MilChannel_AppendCommandData",
+   "entry_point": "MilChannel_AppendCommandData",
+   "entry_point_declared": "MilChannel_AppendCommandData",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr pChannel, byte *pbData, uint cbSize"
+  },
+  {
+   "file": "Common/Graphics/exports.cs",
+   "method": "MilChannel_EndCommand",
+   "entry_point": "MilChannel_EndCommand",
+   "entry_point_declared": "MilChannel_EndCommand",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr pChannel"
+  },
+  {
+   "file": "Common/Graphics/exports.cs",
+   "method": "MilResource_SendCommandMedia",
+   "entry_point": "MilResource_SendCommandMedia",
+   "entry_point_declared": "MilResource_SendCommandMedia",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "ResourceHandle handle, SafeMediaHandle pMedia, IntPtr pChannel, bool notifyUceDirect"
+  },
+  {
+   "file": "Common/Graphics/exports.cs",
+   "method": "MilResource_SendCommandBitmapSource",
+   "entry_point": "MilResource_SendCommandBitmapSource",
+   "entry_point_declared": "MilResource_SendCommandBitmapSource",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "ResourceHandle handle, BitmapSourceSafeMILHandle pBitmapSource, IntPtr pChannel"
+  },
+  {
+   "file": "Common/Graphics/exports.cs",
+   "method": "MilResource_ReleaseOnChannel",
+   "entry_point": "MilResource_ReleaseOnChannel",
+   "entry_point_declared": "MilResource_ReleaseOnChannel",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr pChannel, DUCE.ResourceHandle hResource, out int deleted"
+  },
+  {
+   "file": "Common/Graphics/exports.cs",
+   "method": "MilChannel_SetNotificationWindow",
+   "entry_point": "MilChannel_SetNotificationWindow",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr pChannel, IntPtr hwnd, WindowMessage message"
+  },
+  {
+   "file": "Common/Graphics/exports.cs",
+   "method": "MilComposition_WaitForNextMessage",
+   "entry_point": "MilComposition_WaitForNextMessage",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr pChannel, int nCount, IntPtr[] handles, int bWaitAll, UInt32 waitTimeout, out int waitReturn"
+  },
+  {
+   "file": "Common/Graphics/exports.cs",
+   "method": "MilComposition_PeekNextMessage",
+   "entry_point": "MilComposition_PeekNextMessage",
+   "entry_point_declared": null,
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr pChannel, out MilMessage.Message message, IntPtr messageSize, out int messageRetrieved"
+  },
+  {
+   "file": "Common/Graphics/exports.cs",
+   "method": "MilResource_GetRefCountOnChannel",
+   "entry_point": "MilResource_GetRefCountOnChannel",
+   "entry_point_declared": "MilResource_GetRefCountOnChannel",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr pChannel, DUCE.ResourceHandle hResource, out uint refCount"
+  },
+  {
+   "file": "Common/Graphics/wgx_exports.cs",
+   "method": "GetBitmap",
+   "entry_point": "MILRenderTargetBitmapGetBitmap",
+   "entry_point_declared": "MILRenderTargetBitmapGetBitmap",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "SafeMILHandle THIS_PTR, out BitmapSourceSafeMILHandle ppIBitmap"
+  },
+  {
+   "file": "Common/Graphics/wgx_exports.cs",
+   "method": "Clear",
+   "entry_point": "MILRenderTargetBitmapClear",
+   "entry_point_declared": "MILRenderTargetBitmapClear",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "SafeMILHandle THIS_PTR"
+  },
+  {
+   "file": "Common/Graphics/wgx_exports.cs",
+   "method": "Open",
+   "entry_point": "MILMediaOpen",
+   "entry_point_declared": "MILMediaOpen",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "SafeMediaHandle THIS_PTR, [In, MarshalAs(UnmanagedType.BStr)] string src"
+  },
+  {
+   "file": "Common/Graphics/wgx_exports.cs",
+   "method": "Stop",
+   "entry_point": "MILMediaStop",
+   "entry_point_declared": "MILMediaStop",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "SafeMediaHandle THIS_PTR"
+  },
+  {
+   "file": "Common/Graphics/wgx_exports.cs",
+   "method": "Close",
+   "entry_point": "MILMediaClose",
+   "entry_point_declared": "MILMediaClose",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "SafeMediaHandle THIS_PTR"
+  },
+  {
+   "file": "Common/Graphics/wgx_exports.cs",
+   "method": "GetPosition",
+   "entry_point": "MILMediaGetPosition",
+   "entry_point_declared": "MILMediaGetPosition",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "SafeMediaHandle THIS_PTR, ref long pllTime"
+  },
+  {
+   "file": "Common/Graphics/wgx_exports.cs",
+   "method": "SetPosition",
+   "entry_point": "MILMediaSetPosition",
+   "entry_point_declared": "MILMediaSetPosition",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "SafeMediaHandle THIS_PTR, long llTime"
+  },
+  {
+   "file": "Common/Graphics/wgx_exports.cs",
+   "method": "SetVolume",
+   "entry_point": "MILMediaSetVolume",
+   "entry_point_declared": "MILMediaSetVolume",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "SafeMediaHandle THIS_PTR, double dblVolume"
+  },
+  {
+   "file": "Common/Graphics/wgx_exports.cs",
+   "method": "SetBalance",
+   "entry_point": "MILMediaSetBalance",
+   "entry_point_declared": "MILMediaSetBalance",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "SafeMediaHandle THIS_PTR, double dblBalance"
+  },
+  {
+   "file": "Common/Graphics/wgx_exports.cs",
+   "method": "SetIsScrubbingEnabled",
+   "entry_point": "MILMediaSetIsScrubbingEnabled",
+   "entry_point_declared": "MILMediaSetIsScrubbingEnabled",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "SafeMediaHandle THIS_PTR, bool isScrubbingEnabled"
+  },
+  {
+   "file": "Common/Graphics/wgx_exports.cs",
+   "method": "IsBuffering",
+   "entry_point": "MILMediaIsBuffering",
+   "entry_point_declared": "MILMediaIsBuffering",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "SafeMediaHandle THIS_PTR, ref bool pIsBuffering"
+  },
+  {
+   "file": "Common/Graphics/wgx_exports.cs",
+   "method": "CanPause",
+   "entry_point": "MILMediaCanPause",
+   "entry_point_declared": "MILMediaCanPause",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "SafeMediaHandle THIS_PTR, ref bool pCanPause"
+  },
+  {
+   "file": "Common/Graphics/wgx_exports.cs",
+   "method": "GetDownloadProgress",
+   "entry_point": "MILMediaGetDownloadProgress",
+   "entry_point_declared": "MILMediaGetDownloadProgress",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "SafeMediaHandle THIS_PTR, ref double pProgress"
+  },
+  {
+   "file": "Common/Graphics/wgx_exports.cs",
+   "method": "GetBufferingProgress",
+   "entry_point": "MILMediaGetBufferingProgress",
+   "entry_point_declared": "MILMediaGetBufferingProgress",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "SafeMediaHandle THIS_PTR, ref double pProgress"
+  },
+  {
+   "file": "Common/Graphics/wgx_exports.cs",
+   "method": "SetRate",
+   "entry_point": "MILMediaSetRate",
+   "entry_point_declared": "MILMediaSetRate",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "SafeMediaHandle THIS_PTR, double dblRate"
+  },
+  {
+   "file": "Common/Graphics/wgx_exports.cs",
+   "method": "HasVideo",
+   "entry_point": "MILMediaHasVideo",
+   "entry_point_declared": "MILMediaHasVideo",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "SafeMediaHandle THIS_PTR, ref bool pfHasVideo"
+  },
+  {
+   "file": "Common/Graphics/wgx_exports.cs",
+   "method": "HasAudio",
+   "entry_point": "MILMediaHasAudio",
+   "entry_point_declared": "MILMediaHasAudio",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "SafeMediaHandle THIS_PTR, ref bool pfHasAudio"
+  },
+  {
+   "file": "Common/Graphics/wgx_exports.cs",
+   "method": "GetNaturalHeight",
+   "entry_point": "MILMediaGetNaturalHeight",
+   "entry_point_declared": "MILMediaGetNaturalHeight",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "SafeMediaHandle THIS_PTR, ref UInt32 puiHeight"
+  },
+  {
+   "file": "Common/Graphics/wgx_exports.cs",
+   "method": "GetNaturalWidth",
+   "entry_point": "MILMediaGetNaturalWidth",
+   "entry_point_declared": "MILMediaGetNaturalWidth",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "SafeMediaHandle THIS_PTR, ref UInt32 puiWidth"
+  },
+  {
+   "file": "Common/Graphics/wgx_exports.cs",
+   "method": "GetMediaLength",
+   "entry_point": "MILMediaGetMediaLength",
+   "entry_point_declared": "MILMediaGetMediaLength",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "SafeMediaHandle THIS_PTR, ref long pllLength"
+  },
+  {
+   "file": "Common/Graphics/wgx_exports.cs",
+   "method": "NeedUIFrameUpdate",
+   "entry_point": "MILMediaNeedUIFrameUpdate",
+   "entry_point_declared": "MILMediaNeedUIFrameUpdate",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "SafeMediaHandle THIS_PTR"
+  },
+  {
+   "file": "Common/Graphics/wgx_exports.cs",
+   "method": "Shutdown",
+   "entry_point": "MILMediaShutdown",
+   "entry_point_declared": "MILMediaShutdown",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "IntPtr THIS_PTR"
+  },
+  {
+   "file": "Common/Graphics/wgx_exports.cs",
+   "method": "ProcessExitHandler",
+   "entry_point": "MILMediaProcessExitHandler",
+   "entry_point_declared": "MILMediaProcessExitHandler",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "SafeMediaHandle THIS_PTR"
+  },
+  {
+   "file": "Common/Graphics/wgx_exports.cs",
+   "method": "Create",
+   "entry_point": "MILSwDoubleBufferedBitmapCreate",
+   "entry_point_declared": "MILSwDoubleBufferedBitmapCreate",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "uint width, uint height, double dpiX, double dpiY, ref Guid pixelFormatGuid, SafeMILHandle pPalette, out SafeMILHandle ppSwDoubleBufferedBitmap"
+  },
+  {
+   "file": "Common/Graphics/wgx_exports.cs",
+   "method": "GetBackBuffer",
+   "entry_point": "MILSwDoubleBufferedBitmapGetBackBuffer",
+   "entry_point_declared": "MILSwDoubleBufferedBitmapGetBackBuffer",
+   "preserve_sig": false,
+   "return": "void",
+   "params_raw": "SafeMILHandle THIS_PTR, out BitmapSourceSafeMILHandle pBackBuffer, out uint pBackBufferSize"
+  },
+  {
+   "file": "Common/Graphics/wgx_exports.cs",
+   "method": "AddDirtyRect",
+   "entry_point": "MILSwDoubleBufferedBitmapAddDirtyRect",
+   "entry_point_declared": "MILSwDoubleBufferedBitmapAddDirtyRect",
+   "preserve_sig": false,
+   "return": "void",
+   "params_raw": "SafeMILHandle THIS_PTR, ref Int32Rect dirtyRect"
+  },
+  {
+   "file": "Common/Graphics/wgx_exports.cs",
+   "method": "ProtectBackBuffer",
+   "entry_point": "MILSwDoubleBufferedBitmapProtectBackBuffer",
+   "entry_point_declared": "MILSwDoubleBufferedBitmapProtectBackBuffer",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": "SafeMILHandle THIS_PTR"
+  },
+  {
+   "file": "Common/Graphics/wgx_exports.cs",
+   "method": "Update",
+   "entry_point": "MILUpdateSystemParametersInfo",
+   "entry_point_declared": "MILUpdateSystemParametersInfo",
+   "preserve_sig": true,
+   "return": "int",
+   "params_raw": ""
+  }
+ ],
+ "by_entry_point": {
+  "MilCompositionEngine_EnterCompositionEngineLock": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "EnterCompositionEngineLock",
+    "entry_point": "MilCompositionEngine_EnterCompositionEngineLock",
+    "entry_point_declared": "MilCompositionEngine_EnterCompositionEngineLock",
+    "preserve_sig": true,
+    "return": "void",
+    "params_raw": ""
+   }
+  ],
+  "MilCompositionEngine_ExitCompositionEngineLock": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "ExitCompositionEngineLock",
+    "entry_point": "MilCompositionEngine_ExitCompositionEngineLock",
+    "entry_point_declared": "MilCompositionEngine_ExitCompositionEngineLock",
+    "preserve_sig": true,
+    "return": "void",
+    "params_raw": ""
+   }
+  ],
+  "MilCompositionEngine_EnterMediaSystemLock": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "EnterMediaSystemLock",
+    "entry_point": "MilCompositionEngine_EnterMediaSystemLock",
+    "entry_point_declared": "MilCompositionEngine_EnterMediaSystemLock",
+    "preserve_sig": true,
+    "return": "void",
+    "params_raw": ""
+   }
+  ],
+  "MilCompositionEngine_ExitMediaSystemLock": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "ExitMediaSystemLock",
+    "entry_point": "MilCompositionEngine_ExitMediaSystemLock",
+    "entry_point_declared": "MilCompositionEngine_ExitMediaSystemLock",
+    "preserve_sig": true,
+    "return": "void",
+    "params_raw": ""
+   }
+  ],
+  "MilVersionCheck": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "MilVersionCheck",
+    "entry_point": "MilVersionCheck",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "uint uiCallerMilSdkVersion"
+   }
+  ],
+  "WgxConnection_ShouldForceSoftwareForGraphicsStreamClient": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "WgxConnection_ShouldForceSoftwareForGraphicsStreamClient",
+    "entry_point": "WgxConnection_ShouldForceSoftwareForGraphicsStreamClient",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "bool",
+    "params_raw": ""
+   }
+  ],
+  "WgxConnection_Create": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "WgxConnection_Create",
+    "entry_point": "WgxConnection_Create",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "bool requestSynchronousTransport, out IntPtr ppConnection"
+   }
+  ],
+  "WgxConnection_Disconnect": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "WgxConnection_Disconnect",
+    "entry_point": "WgxConnection_Disconnect",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr pTranspManager"
+   }
+  ],
+  "MILCreateStreamFromStreamDescriptor": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "MILCreateStreamFromStreamDescriptor",
+    "entry_point": "MILCreateStreamFromStreamDescriptor",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "ref System.Windows.Media.StreamDescriptor pSD, out IntPtr ppStream"
+   }
+  ],
+  "MilUtility_GetTileBrushMapping": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "MilUtility_GetTileBrushMapping",
+    "entry_point": "MilUtility_GetTileBrushMapping",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "void",
+    "params_raw": "D3DMATRIX* transform, D3DMATRIX* relativeTransform, Stretch stretch, AlignmentX alignmentX, AlignmentY alignmentY, BrushMappingMode viewPortUnits, BrushMappingMode viewBoxUnits, Rect* shapeFillBounds, Rect* contentBounds, ref Rect viewport, ref Rect viewbox, out D3DMATRIX contentToShape, out int brushIsEmpty"
+   }
+  ],
+  "MilUtility_PathGeometryBounds": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "MilUtility_PathGeometryBounds",
+    "entry_point": "MilUtility_PathGeometryBounds",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "MIL_PEN_DATA *pPenData, double *pDashArray, MilMatrix3x2D* pWorldMatrix, FillRule fillRule, byte* pPathData, UInt32 nSize, MilMatrix3x2D* pGeometryMatrix, double rTolerance, bool fRelative, bool fSkipHollows, MilRectD* pBounds"
+   }
+  ],
+  "MilUtility_PathGeometryCombine": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "MilUtility_PathGeometryCombine",
+    "entry_point": "MilUtility_PathGeometryCombine",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "MilMatrix3x2D* pMatrix, MilMatrix3x2D* pMatrix1, FillRule fillRule1, byte* pPathData1, UInt32 nSize1, MilMatrix3x2D* pMatrix2, FillRule fillRule2, byte* pPathData2, UInt32 nSize2, double rTolerance, bool fRelative, PathGeometry.AddFigureToListDelegate addFigureCallback, GeometryCombineMode combineMode, out FillRule resultFillRule"
+   }
+  ],
+  "MilUtility_PathGeometryWiden": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "MilUtility_PathGeometryWiden",
+    "entry_point": "MilUtility_PathGeometryWiden",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "MIL_PEN_DATA *pPenData, double *pDashArray, MilMatrix3x2D* pMatrix, FillRule fillRule, byte* pPathData, UInt32 nSize, double rTolerance, bool fRelative, PathGeometry.AddFigureToListDelegate addFigureCallback, out FillRule widenedFillRule"
+   }
+  ],
+  "MilUtility_PathGeometryOutline": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "MilUtility_PathGeometryOutline",
+    "entry_point": "MilUtility_PathGeometryOutline",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "MilMatrix3x2D* pMatrix, FillRule fillRule, byte* pPathData, UInt32 nSize, double rTolerance, bool fRelative, PathGeometry.AddFigureToListDelegate addFigureCallback, out FillRule outlinedFillRule"
+   }
+  ],
+  "MilUtility_PathGeometryFlatten": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "MilUtility_PathGeometryFlatten",
+    "entry_point": "MilUtility_PathGeometryFlatten",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "MilMatrix3x2D* pMatrix, FillRule fillRule, byte* pPathData, UInt32 nSize, double rTolerance, bool fRelative, PathGeometry.AddFigureToListDelegate addFigureCallback, out FillRule resultFillRule"
+   }
+  ],
+  "MilGlyphCache_BeginCommandAtRenderTime": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "MilGlyphCache_BeginCommandAtRenderTime",
+    "entry_point": "MilGlyphCache_BeginCommandAtRenderTime",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr pMilSlaveGlyphCacheTarget, byte* pbData, uint cbSize, uint cbExtra"
+   }
+  ],
+  "MilGlyphCache_AppendCommandDataAtRenderTime": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "MilGlyphCache_AppendCommandDataAtRenderTime",
+    "entry_point": "MilGlyphCache_AppendCommandDataAtRenderTime",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr pMilSlaveGlyphCacheTarget, byte* pbData, uint cbSize"
+   }
+  ],
+  "MilGlyphCache_EndCommandAtRenderTime": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "MilGlyphCache_EndCommandAtRenderTime",
+    "entry_point": "MilGlyphCache_EndCommandAtRenderTime",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr pMilSlaveGlyphCacheTarget"
+   }
+  ],
+  "MilGlyphRun_SetGeometryAtRenderTime": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "MilGlyphRun_SetGeometryAtRenderTime",
+    "entry_point": "MilGlyphRun_SetGeometryAtRenderTime",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr pMilGlyphRunTarget, byte* pCmd, uint cbCmd"
+   }
+  ],
+  "MilGlyphRun_GetGlyphOutline": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "MilGlyphRun_GetGlyphOutline",
+    "entry_point": "MilGlyphRun_GetGlyphOutline",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr pFontFace, ushort glyphIndex, bool sideways, double renderingEmSize, out byte* pPathGeometryData, out UInt32 pSize, out FillRule pFillRule"
+   }
+  ],
+  "MilGlyphRun_ReleasePathGeometryData": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "MilGlyphRun_ReleasePathGeometryData",
+    "entry_point": "MilGlyphRun_ReleasePathGeometryData",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "byte* pPathGeometryData"
+   }
+  ],
+  "MilCreateReversePInvokeWrapper": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "MilCreateReversePInvokeWrapper",
+    "entry_point": "MilCreateReversePInvokeWrapper",
+    "entry_point_declared": "MilCreateReversePInvokeWrapper",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr pFcn, out IntPtr reversePInvokeWrapper"
+   }
+  ],
+  "MilReleasePInvokePtrBlocking": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "MilReleasePInvokePtrBlocking",
+    "entry_point": "MilReleasePInvokePtrBlocking",
+    "entry_point_declared": "MilReleasePInvokePtrBlocking",
+    "preserve_sig": true,
+    "return": "void",
+    "params_raw": "IntPtr reversePInvokeWrapper"
+   }
+  ],
+  "RenderOptions_ForceSoftwareRenderingModeForProcess": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "RenderOptions_ForceSoftwareRenderingModeForProcess",
+    "entry_point": "RenderOptions_ForceSoftwareRenderingModeForProcess",
+    "entry_point_declared": "RenderOptions_ForceSoftwareRenderingModeForProcess",
+    "preserve_sig": true,
+    "return": "void",
+    "params_raw": "bool fForce"
+   }
+  ],
+  "RenderOptions_IsSoftwareRenderingForcedForProcess": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "RenderOptions_IsSoftwareRenderingForcedForProcess",
+    "entry_point": "RenderOptions_IsSoftwareRenderingForcedForProcess",
+    "entry_point_declared": "RenderOptions_IsSoftwareRenderingForcedForProcess",
+    "preserve_sig": true,
+    "return": "bool",
+    "params_raw": ""
+   }
+  ],
+  "RenderOptions_EnableHardwareAccelerationInRdp": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "RenderOptions_EnableHardwareAccelerationInRdp",
+    "entry_point": "RenderOptions_EnableHardwareAccelerationInRdp",
+    "entry_point_declared": "RenderOptions_EnableHardwareAccelerationInRdp",
+    "preserve_sig": true,
+    "return": "void",
+    "params_raw": "bool value"
+   }
+  ],
+  "WpfGfx_SetDisableBoundsCheckProtection": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "WpfGfx_SetDisableBoundsCheckProtection",
+    "entry_point": "WpfGfx_SetDisableBoundsCheckProtection",
+    "entry_point_declared": "WpfGfx_SetDisableBoundsCheckProtection",
+    "preserve_sig": true,
+    "return": "void",
+    "params_raw": "bool value"
+   }
+  ],
+  "MilResource_CreateCWICWrapperBitmap": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "CreateCWICWrapperBitmap",
+    "entry_point": "MilResource_CreateCWICWrapperBitmap",
+    "entry_point_declared": "MilResource_CreateCWICWrapperBitmap",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "BitmapSourceSafeMILHandle pIWICBitmapSource, out BitmapSourceSafeMILHandle pCWICWrapperBitmap"
+   }
+  ],
+  "MILAddRef": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "AddRef",
+    "entry_point": "MILAddRef",
+    "entry_point_declared": "MILAddRef",
+    "preserve_sig": true,
+    "return": "UInt32",
+    "params_raw": "SafeMILHandle pIUnkown"
+   },
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "AddRef",
+    "entry_point": "MILAddRef",
+    "entry_point_declared": "MILAddRef",
+    "preserve_sig": true,
+    "return": "UInt32",
+    "params_raw": "SafeReversePInvokeWrapper pIUnknown"
+   }
+  ],
+  "MILRelease": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "Release",
+    "entry_point": "MILRelease",
+    "entry_point_declared": "MILRelease",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr pIUnkown"
+   }
+  ],
+  "MILQueryInterface": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "QueryInterface",
+    "entry_point": "MILQueryInterface",
+    "entry_point_declared": "MILQueryInterface",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr pIUnknown, ref Guid guid, out IntPtr ppvObject"
+   },
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "QueryInterface",
+    "entry_point": "MILQueryInterface",
+    "entry_point_declared": "MILQueryInterface",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "SafeMILHandle pIUnknown, ref Guid guid, out IntPtr ppvObject"
+   }
+  ],
+  "IWICColorContext_GetProfileBytes_Proxy": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "GetProfileBytes",
+    "entry_point": "IWICColorContext_GetProfileBytes_Proxy",
+    "entry_point_declared": "IWICColorContext_GetProfileBytes_Proxy",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "SafeMILHandle THIS_PTR, uint cbBuffer, byte[] pbBuffer, out uint pcbActual"
+   }
+  ],
+  "IWICColorContext_GetType_Proxy": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "GetType",
+    "entry_point": "IWICColorContext_GetType_Proxy",
+    "entry_point_declared": "IWICColorContext_GetType_Proxy",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "SafeMILHandle THIS_PTR, out WICColorContextType pType"
+   }
+  ],
+  "IWICColorContext_GetExifColorSpace_Proxy": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "GetExifColorSpace",
+    "entry_point": "IWICColorContext_GetExifColorSpace_Proxy",
+    "entry_point_declared": "IWICColorContext_GetExifColorSpace_Proxy",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "SafeMILHandle THIS_PTR, out uint pValue"
+   }
+  ],
+  "MILCreateFactory": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "CreateFactory",
+    "entry_point": "MILCreateFactory",
+    "entry_point_declared": "MILCreateFactory",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "out IntPtr ppIFactory, UInt32 SDKVersion"
+   }
+  ],
+  "MILFactoryCreateMediaPlayer": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "CreateMediaPlayer",
+    "entry_point": "MILFactoryCreateMediaPlayer",
+    "entry_point_declared": "MILFactoryCreateMediaPlayer",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr THIS_PTR, SafeMILHandle pEventProxy, bool canOpenAllMedia, out SafeMediaHandle ppMedia"
+   }
+  ],
+  "MILFactoryCreateBitmapRenderTarget": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "CreateBitmapRenderTarget",
+    "entry_point": "MILFactoryCreateBitmapRenderTarget",
+    "entry_point_declared": "MILFactoryCreateBitmapRenderTarget",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr THIS_PTR, UInt32 width, UInt32 height, PixelFormatEnum pixelFormatEnum, float dpiX, float dpiY, MILRTInitializationFlags dwFlags, out SafeMILHandle ppIRenderTargetBitmap"
+   }
+  ],
+  "MILFactoryCreateSWRenderTargetForBitmap": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "CreateBitmapRenderTargetForBitmap",
+    "entry_point": "MILFactoryCreateSWRenderTargetForBitmap",
+    "entry_point_declared": "MILFactoryCreateSWRenderTargetForBitmap",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr THIS_PTR, BitmapSourceSafeMILHandle pIBitmap, out SafeMILHandle ppIRenderTargetBitmap"
+   }
+  ],
+  "InteropDeviceBitmap_Create": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "Create",
+    "entry_point": "InteropDeviceBitmap_Create",
+    "entry_point_declared": "InteropDeviceBitmap_Create",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr d3dResource, double dpiX, double dpiY, uint version, FrontBufferAvailableCallback pfnCallback, bool isSoftwareFallbackEnabled, out SafeMILHandle ppInteropDeviceBitmap, out uint pixelWidth, out uint pixelHeight"
+   }
+  ],
+  "InteropDeviceBitmap_Detach": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "Detach",
+    "entry_point": "InteropDeviceBitmap_Detach",
+    "entry_point_declared": "InteropDeviceBitmap_Detach",
+    "preserve_sig": true,
+    "return": "void",
+    "params_raw": "SafeMILHandle pInteropDeviceBitmap"
+   }
+  ],
+  "InteropDeviceBitmap_AddDirtyRect": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "AddDirtyRect",
+    "entry_point": "InteropDeviceBitmap_AddDirtyRect",
+    "entry_point_declared": "InteropDeviceBitmap_AddDirtyRect",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "int x, int y, int w, int h, SafeMILHandle pInteropDeviceBitmap"
+   }
+  ],
+  "InteropDeviceBitmap_GetAsSoftwareBitmap": [
+   {
+    "file": "PresentationCore/System/Windows/Media/UnsafeNativeMethodsMilCoreApi.cs",
+    "method": "GetAsSoftwareBitmap",
+    "entry_point": "InteropDeviceBitmap_GetAsSoftwareBitmap",
+    "entry_point_declared": "InteropDeviceBitmap_GetAsSoftwareBitmap",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "SafeMILHandle pInteropDeviceBitmap, out BitmapSourceSafeMILHandle pIWICBitmapSource"
+   }
+  ],
+  "MilCompositionEngine_InitializePartitionManager": [
+   {
+    "file": "PresentationCore/System/Windows/Media/SafeNativeMethodsMilCoreApi.cs",
+    "method": "MilCompositionEngine_InitializePartitionManager",
+    "entry_point": "MilCompositionEngine_InitializePartitionManager",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "int nPriority"
+   }
+  ],
+  "MilCompositionEngine_DeinitializePartitionManager": [
+   {
+    "file": "PresentationCore/System/Windows/Media/SafeNativeMethodsMilCoreApi.cs",
+    "method": "MilCompositionEngine_DeinitializePartitionManager",
+    "entry_point": "MilCompositionEngine_DeinitializePartitionManager",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": ""
+   }
+  ],
+  "GetNextPerfElementId": [
+   {
+    "file": "PresentationCore/System/Windows/Media/SafeNativeMethodsMilCoreApi.cs",
+    "method": "GetNextPerfElementId",
+    "entry_point": "GetNextPerfElementId",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "long",
+    "params_raw": ""
+   }
+  ],
+  "MilComposition_SyncFlush": [
+   {
+    "file": "PresentationCore/System/Windows/Media/Composition.cs",
+    "method": "MilComposition_SyncFlush",
+    "entry_point": "MilComposition_SyncFlush",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr pChannel"
+   }
+  ],
+  "MilUtility_GetPointAtLengthFraction": [
+   {
+    "file": "PresentationCore/System/Windows/Media/Composition.cs",
+    "method": "MilUtility_GetPointAtLengthFraction",
+    "entry_point": "MilUtility_GetPointAtLengthFraction",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "MilMatrix3x2D *pMatrix, FillRule fillRule, byte *pPathData, UInt32 nSize, double rFraction, out Point pt, out Point vecTangent"
+   }
+  ],
+  "MilUtility_PolygonBounds": [
+   {
+    "file": "PresentationCore/System/Windows/Media/Composition.cs",
+    "method": "MilUtility_PolygonBounds",
+    "entry_point": "MilUtility_PolygonBounds",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "MilMatrix3x2D *pWorldMatrix, MIL_PEN_DATA *pPenData, double *pDashArray, Point *pPoints, byte *pTypes, UInt32 pointCount, UInt32 segmentCount, MilMatrix3x2D *pGeometryMatrix, double rTolerance, bool fRelative, bool fSkipHollows, Rect *pBounds"
+   }
+  ],
+  "MilUtility_PolygonHitTest": [
+   {
+    "file": "PresentationCore/System/Windows/Media/Composition.cs",
+    "method": "MilUtility_PolygonHitTest",
+    "entry_point": "MilUtility_PolygonHitTest",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "MilMatrix3x2D *pGeometryMatrix, MIL_PEN_DATA *pPenData, double *pDashArray, Point* pPoints, byte *pTypes, UInt32 cPoints, UInt32 cSegments, double rTolerance, bool fRelative, Point* pHitPoint, out bool pDoesContain"
+   }
+  ],
+  "MilUtility_PathGeometryHitTest": [
+   {
+    "file": "PresentationCore/System/Windows/Media/Composition.cs",
+    "method": "MilUtility_PathGeometryHitTest",
+    "entry_point": "MilUtility_PathGeometryHitTest",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "MilMatrix3x2D *pMatrix, MIL_PEN_DATA* pPenData, double* pDashArray, FillRule fillRule, byte *pPathData, UInt32 nSize, double rTolerance, bool fRelative, Point* pHitPoint, out bool pDoesContain"
+   }
+  ],
+  "MilUtility_PathGeometryHitTestPathGeometry": [
+   {
+    "file": "PresentationCore/System/Windows/Media/Composition.cs",
+    "method": "MilUtility_PathGeometryHitTestPathGeometry",
+    "entry_point": "MilUtility_PathGeometryHitTestPathGeometry",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "MilMatrix3x2D *pMatrix1, FillRule fillRule1, byte *pPathData1, UInt32 nSize1, MilMatrix3x2D *pMatrix2, FillRule fillRule2, byte *pPathData2, UInt32 nSize2, double rTolerance, bool fRelative, IntersectionDetail* pDetail"
+   }
+  ],
+  "MilUtility_GeometryGetArea": [
+   {
+    "file": "PresentationCore/System/Windows/Media/Composition.cs",
+    "method": "MilUtility_GeometryGetArea",
+    "entry_point": "MilUtility_GeometryGetArea",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "FillRule fillRule, byte *pPathData, UInt32 nSize, MilMatrix3x2D *pMatrix, double rTolerance, bool fRelative, double* pArea"
+   }
+  ],
+  "MilUtility_ArcToBezier": [
+   {
+    "file": "PresentationCore/System/Windows/Media/Composition.cs",
+    "method": "MilUtility_ArcToBezier",
+    "entry_point": "MilUtility_ArcToBezier",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "void",
+    "params_raw": "Point ptStart, Size rRadii, double rRotation, bool fLargeArc, SweepDirection fSweepUp, Point ptEnd, MilMatrix3x2D* pMatrix, Point* pPt, out int cPieces"
+   }
+  ],
+  "MIL3DCalcProjected2DBounds": [
+   {
+    "file": "PresentationCore/System/Windows/Media/MILUtilities.cs",
+    "method": "MIL3DCalcProjected2DBounds",
+    "entry_point": "MIL3DCalcProjected2DBounds",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "ref D3DMATRIX pFullTransform3D, ref MILRect3D pboxBounds, out MilRectF prcDestRect"
+   }
+  ],
+  "MilUtility_CopyPixelBuffer": [
+   {
+    "file": "PresentationCore/System/Windows/Media/MILUtilities.cs",
+    "method": "MILCopyPixelBuffer",
+    "entry_point": "MilUtility_CopyPixelBuffer",
+    "entry_point_declared": "MilUtility_CopyPixelBuffer",
+    "preserve_sig": false,
+    "return": "void",
+    "params_raw": "byte * pOutputBuffer, uint outputBufferSize, uint outputBufferStride, uint outputBufferOffsetInBits, byte * pInputBuffer, uint inputBufferSize, uint inputBufferStride, uint inputBufferOffsetInBits, uint height, uint copyWidthInBits"
+   }
+  ],
+  "MilContent_AttachToHwnd": [
+   {
+    "file": "PresentationCore/System/Windows/Media/MediaContextNotificationWindow.cs",
+    "method": "MilContent_AttachToHwnd",
+    "entry_point": "MilContent_AttachToHwnd",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr hwnd"
+   }
+  ],
+  "MilContent_DetachFromHwnd": [
+   {
+    "file": "PresentationCore/System/Windows/Media/MediaContextNotificationWindow.cs",
+    "method": "MilContent_DetachFromHwnd",
+    "entry_point": "MilContent_DetachFromHwnd",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr hwnd"
+   }
+  ],
+  "MilVisualTarget_AttachToHwnd": [
+   {
+    "file": "PresentationCore/System/Windows/InterOp/HwndTarget.cs",
+    "method": "VisualTarget_AttachToHwnd",
+    "entry_point": "MilVisualTarget_AttachToHwnd",
+    "entry_point_declared": "MilVisualTarget_AttachToHwnd",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr hwnd"
+   }
+  ],
+  "MilVisualTarget_DetachFromHwnd": [
+   {
+    "file": "PresentationCore/System/Windows/InterOp/HwndTarget.cs",
+    "method": "VisualTarget_DetachFromHwnd",
+    "entry_point": "MilVisualTarget_DetachFromHwnd",
+    "entry_point_declared": "MilVisualTarget_DetachFromHwnd",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr hwnd"
+   }
+  ],
+  "MILIStreamWrite": [
+   {
+    "file": "PresentationCore/System/Windows/Media/StreamAsIStream.cs",
+    "method": "MILIStreamWrite",
+    "entry_point": "MILIStreamWrite",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr pStream, [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)]byte[] buffer, uint cb, out uint cbWritten"
+   }
+  ],
+  "MILCreateEventProxy": [
+   {
+    "file": "PresentationCore/System/Windows/Media/EventProxy.cs",
+    "method": "MILCreateEventProxy",
+    "entry_point": "MILCreateEventProxy",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "ref EventProxyDescriptor pEPD, out SafeMILHandle ppEventProxy"
+   }
+  ],
+  "MilResource_CreateOrAddRefOnChannel": [
+   {
+    "file": "Common/Graphics/exports.cs",
+    "method": "MilResource_CreateOrAddRefOnChannel",
+    "entry_point": "MilResource_CreateOrAddRefOnChannel",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr pChannel, DUCE.ResourceType resourceType, ref DUCE.ResourceHandle hResource"
+   }
+  ],
+  "MilResource_DuplicateHandle": [
+   {
+    "file": "Common/Graphics/exports.cs",
+    "method": "MilResource_DuplicateHandle",
+    "entry_point": "MilResource_DuplicateHandle",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr pSourceChannel, DUCE.ResourceHandle original, IntPtr pTargetChannel, ref DUCE.ResourceHandle duplicate"
+   }
+  ],
+  "MilConnection_CreateChannel": [
+   {
+    "file": "Common/Graphics/exports.cs",
+    "method": "MilConnection_CreateChannel",
+    "entry_point": "MilConnection_CreateChannel",
+    "entry_point_declared": "MilConnection_CreateChannel",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr pTransport, IntPtr hChannel, out IntPtr channelHandle"
+   }
+  ],
+  "MilConnection_DestroyChannel": [
+   {
+    "file": "Common/Graphics/exports.cs",
+    "method": "MilConnection_DestroyChannel",
+    "entry_point": "MilConnection_DestroyChannel",
+    "entry_point_declared": "MilConnection_DestroyChannel",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr channelHandle"
+   }
+  ],
+  "MilChannel_CloseBatch": [
+   {
+    "file": "Common/Graphics/exports.cs",
+    "method": "MilConnection_CloseBatch",
+    "entry_point": "MilChannel_CloseBatch",
+    "entry_point_declared": "MilChannel_CloseBatch",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr channelHandle"
+   }
+  ],
+  "MilChannel_CommitChannel": [
+   {
+    "file": "Common/Graphics/exports.cs",
+    "method": "MilConnection_CommitChannel",
+    "entry_point": "MilChannel_CommitChannel",
+    "entry_point_declared": "MilChannel_CommitChannel",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr channelHandle"
+   }
+  ],
+  "WgxConnection_SameThreadPresent": [
+   {
+    "file": "Common/Graphics/exports.cs",
+    "method": "WgxConnection_SameThreadPresent",
+    "entry_point": "WgxConnection_SameThreadPresent",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr pConnection"
+   }
+  ],
+  "MilChannel_GetMarshalType": [
+   {
+    "file": "Common/Graphics/exports.cs",
+    "method": "MilChannel_GetMarshalType",
+    "entry_point": "MilChannel_GetMarshalType",
+    "entry_point_declared": "MilChannel_GetMarshalType",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr channelHandle, out ChannelMarshalType marshalType"
+   }
+  ],
+  "MilResource_SendCommand": [
+   {
+    "file": "Common/Graphics/exports.cs",
+    "method": "MilResource_SendCommand",
+    "entry_point": "MilResource_SendCommand",
+    "entry_point_declared": "MilResource_SendCommand",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "byte *pbData, uint cbSize, bool sendInSeparateBatch, IntPtr pChannel"
+   }
+  ],
+  "MilChannel_BeginCommand": [
+   {
+    "file": "Common/Graphics/exports.cs",
+    "method": "MilChannel_BeginCommand",
+    "entry_point": "MilChannel_BeginCommand",
+    "entry_point_declared": "MilChannel_BeginCommand",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr pChannel, byte *pbData, uint cbSize, uint cbExtra"
+   }
+  ],
+  "MilChannel_AppendCommandData": [
+   {
+    "file": "Common/Graphics/exports.cs",
+    "method": "MilChannel_AppendCommandData",
+    "entry_point": "MilChannel_AppendCommandData",
+    "entry_point_declared": "MilChannel_AppendCommandData",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr pChannel, byte *pbData, uint cbSize"
+   }
+  ],
+  "MilChannel_EndCommand": [
+   {
+    "file": "Common/Graphics/exports.cs",
+    "method": "MilChannel_EndCommand",
+    "entry_point": "MilChannel_EndCommand",
+    "entry_point_declared": "MilChannel_EndCommand",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr pChannel"
+   }
+  ],
+  "MilResource_SendCommandMedia": [
+   {
+    "file": "Common/Graphics/exports.cs",
+    "method": "MilResource_SendCommandMedia",
+    "entry_point": "MilResource_SendCommandMedia",
+    "entry_point_declared": "MilResource_SendCommandMedia",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "ResourceHandle handle, SafeMediaHandle pMedia, IntPtr pChannel, bool notifyUceDirect"
+   }
+  ],
+  "MilResource_SendCommandBitmapSource": [
+   {
+    "file": "Common/Graphics/exports.cs",
+    "method": "MilResource_SendCommandBitmapSource",
+    "entry_point": "MilResource_SendCommandBitmapSource",
+    "entry_point_declared": "MilResource_SendCommandBitmapSource",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "ResourceHandle handle, BitmapSourceSafeMILHandle pBitmapSource, IntPtr pChannel"
+   }
+  ],
+  "MilResource_ReleaseOnChannel": [
+   {
+    "file": "Common/Graphics/exports.cs",
+    "method": "MilResource_ReleaseOnChannel",
+    "entry_point": "MilResource_ReleaseOnChannel",
+    "entry_point_declared": "MilResource_ReleaseOnChannel",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr pChannel, DUCE.ResourceHandle hResource, out int deleted"
+   }
+  ],
+  "MilChannel_SetNotificationWindow": [
+   {
+    "file": "Common/Graphics/exports.cs",
+    "method": "MilChannel_SetNotificationWindow",
+    "entry_point": "MilChannel_SetNotificationWindow",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr pChannel, IntPtr hwnd, WindowMessage message"
+   }
+  ],
+  "MilComposition_WaitForNextMessage": [
+   {
+    "file": "Common/Graphics/exports.cs",
+    "method": "MilComposition_WaitForNextMessage",
+    "entry_point": "MilComposition_WaitForNextMessage",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr pChannel, int nCount, IntPtr[] handles, int bWaitAll, UInt32 waitTimeout, out int waitReturn"
+   }
+  ],
+  "MilComposition_PeekNextMessage": [
+   {
+    "file": "Common/Graphics/exports.cs",
+    "method": "MilComposition_PeekNextMessage",
+    "entry_point": "MilComposition_PeekNextMessage",
+    "entry_point_declared": null,
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr pChannel, out MilMessage.Message message, IntPtr messageSize, out int messageRetrieved"
+   }
+  ],
+  "MilResource_GetRefCountOnChannel": [
+   {
+    "file": "Common/Graphics/exports.cs",
+    "method": "MilResource_GetRefCountOnChannel",
+    "entry_point": "MilResource_GetRefCountOnChannel",
+    "entry_point_declared": "MilResource_GetRefCountOnChannel",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr pChannel, DUCE.ResourceHandle hResource, out uint refCount"
+   }
+  ],
+  "MILRenderTargetBitmapGetBitmap": [
+   {
+    "file": "Common/Graphics/wgx_exports.cs",
+    "method": "GetBitmap",
+    "entry_point": "MILRenderTargetBitmapGetBitmap",
+    "entry_point_declared": "MILRenderTargetBitmapGetBitmap",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "SafeMILHandle THIS_PTR, out BitmapSourceSafeMILHandle ppIBitmap"
+   }
+  ],
+  "MILRenderTargetBitmapClear": [
+   {
+    "file": "Common/Graphics/wgx_exports.cs",
+    "method": "Clear",
+    "entry_point": "MILRenderTargetBitmapClear",
+    "entry_point_declared": "MILRenderTargetBitmapClear",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "SafeMILHandle THIS_PTR"
+   }
+  ],
+  "MILMediaOpen": [
+   {
+    "file": "Common/Graphics/wgx_exports.cs",
+    "method": "Open",
+    "entry_point": "MILMediaOpen",
+    "entry_point_declared": "MILMediaOpen",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "SafeMediaHandle THIS_PTR, [In, MarshalAs(UnmanagedType.BStr)] string src"
+   }
+  ],
+  "MILMediaStop": [
+   {
+    "file": "Common/Graphics/wgx_exports.cs",
+    "method": "Stop",
+    "entry_point": "MILMediaStop",
+    "entry_point_declared": "MILMediaStop",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "SafeMediaHandle THIS_PTR"
+   }
+  ],
+  "MILMediaClose": [
+   {
+    "file": "Common/Graphics/wgx_exports.cs",
+    "method": "Close",
+    "entry_point": "MILMediaClose",
+    "entry_point_declared": "MILMediaClose",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "SafeMediaHandle THIS_PTR"
+   }
+  ],
+  "MILMediaGetPosition": [
+   {
+    "file": "Common/Graphics/wgx_exports.cs",
+    "method": "GetPosition",
+    "entry_point": "MILMediaGetPosition",
+    "entry_point_declared": "MILMediaGetPosition",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "SafeMediaHandle THIS_PTR, ref long pllTime"
+   }
+  ],
+  "MILMediaSetPosition": [
+   {
+    "file": "Common/Graphics/wgx_exports.cs",
+    "method": "SetPosition",
+    "entry_point": "MILMediaSetPosition",
+    "entry_point_declared": "MILMediaSetPosition",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "SafeMediaHandle THIS_PTR, long llTime"
+   }
+  ],
+  "MILMediaSetVolume": [
+   {
+    "file": "Common/Graphics/wgx_exports.cs",
+    "method": "SetVolume",
+    "entry_point": "MILMediaSetVolume",
+    "entry_point_declared": "MILMediaSetVolume",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "SafeMediaHandle THIS_PTR, double dblVolume"
+   }
+  ],
+  "MILMediaSetBalance": [
+   {
+    "file": "Common/Graphics/wgx_exports.cs",
+    "method": "SetBalance",
+    "entry_point": "MILMediaSetBalance",
+    "entry_point_declared": "MILMediaSetBalance",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "SafeMediaHandle THIS_PTR, double dblBalance"
+   }
+  ],
+  "MILMediaSetIsScrubbingEnabled": [
+   {
+    "file": "Common/Graphics/wgx_exports.cs",
+    "method": "SetIsScrubbingEnabled",
+    "entry_point": "MILMediaSetIsScrubbingEnabled",
+    "entry_point_declared": "MILMediaSetIsScrubbingEnabled",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "SafeMediaHandle THIS_PTR, bool isScrubbingEnabled"
+   }
+  ],
+  "MILMediaIsBuffering": [
+   {
+    "file": "Common/Graphics/wgx_exports.cs",
+    "method": "IsBuffering",
+    "entry_point": "MILMediaIsBuffering",
+    "entry_point_declared": "MILMediaIsBuffering",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "SafeMediaHandle THIS_PTR, ref bool pIsBuffering"
+   }
+  ],
+  "MILMediaCanPause": [
+   {
+    "file": "Common/Graphics/wgx_exports.cs",
+    "method": "CanPause",
+    "entry_point": "MILMediaCanPause",
+    "entry_point_declared": "MILMediaCanPause",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "SafeMediaHandle THIS_PTR, ref bool pCanPause"
+   }
+  ],
+  "MILMediaGetDownloadProgress": [
+   {
+    "file": "Common/Graphics/wgx_exports.cs",
+    "method": "GetDownloadProgress",
+    "entry_point": "MILMediaGetDownloadProgress",
+    "entry_point_declared": "MILMediaGetDownloadProgress",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "SafeMediaHandle THIS_PTR, ref double pProgress"
+   }
+  ],
+  "MILMediaGetBufferingProgress": [
+   {
+    "file": "Common/Graphics/wgx_exports.cs",
+    "method": "GetBufferingProgress",
+    "entry_point": "MILMediaGetBufferingProgress",
+    "entry_point_declared": "MILMediaGetBufferingProgress",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "SafeMediaHandle THIS_PTR, ref double pProgress"
+   }
+  ],
+  "MILMediaSetRate": [
+   {
+    "file": "Common/Graphics/wgx_exports.cs",
+    "method": "SetRate",
+    "entry_point": "MILMediaSetRate",
+    "entry_point_declared": "MILMediaSetRate",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "SafeMediaHandle THIS_PTR, double dblRate"
+   }
+  ],
+  "MILMediaHasVideo": [
+   {
+    "file": "Common/Graphics/wgx_exports.cs",
+    "method": "HasVideo",
+    "entry_point": "MILMediaHasVideo",
+    "entry_point_declared": "MILMediaHasVideo",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "SafeMediaHandle THIS_PTR, ref bool pfHasVideo"
+   }
+  ],
+  "MILMediaHasAudio": [
+   {
+    "file": "Common/Graphics/wgx_exports.cs",
+    "method": "HasAudio",
+    "entry_point": "MILMediaHasAudio",
+    "entry_point_declared": "MILMediaHasAudio",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "SafeMediaHandle THIS_PTR, ref bool pfHasAudio"
+   }
+  ],
+  "MILMediaGetNaturalHeight": [
+   {
+    "file": "Common/Graphics/wgx_exports.cs",
+    "method": "GetNaturalHeight",
+    "entry_point": "MILMediaGetNaturalHeight",
+    "entry_point_declared": "MILMediaGetNaturalHeight",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "SafeMediaHandle THIS_PTR, ref UInt32 puiHeight"
+   }
+  ],
+  "MILMediaGetNaturalWidth": [
+   {
+    "file": "Common/Graphics/wgx_exports.cs",
+    "method": "GetNaturalWidth",
+    "entry_point": "MILMediaGetNaturalWidth",
+    "entry_point_declared": "MILMediaGetNaturalWidth",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "SafeMediaHandle THIS_PTR, ref UInt32 puiWidth"
+   }
+  ],
+  "MILMediaGetMediaLength": [
+   {
+    "file": "Common/Graphics/wgx_exports.cs",
+    "method": "GetMediaLength",
+    "entry_point": "MILMediaGetMediaLength",
+    "entry_point_declared": "MILMediaGetMediaLength",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "SafeMediaHandle THIS_PTR, ref long pllLength"
+   }
+  ],
+  "MILMediaNeedUIFrameUpdate": [
+   {
+    "file": "Common/Graphics/wgx_exports.cs",
+    "method": "NeedUIFrameUpdate",
+    "entry_point": "MILMediaNeedUIFrameUpdate",
+    "entry_point_declared": "MILMediaNeedUIFrameUpdate",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "SafeMediaHandle THIS_PTR"
+   }
+  ],
+  "MILMediaShutdown": [
+   {
+    "file": "Common/Graphics/wgx_exports.cs",
+    "method": "Shutdown",
+    "entry_point": "MILMediaShutdown",
+    "entry_point_declared": "MILMediaShutdown",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "IntPtr THIS_PTR"
+   }
+  ],
+  "MILMediaProcessExitHandler": [
+   {
+    "file": "Common/Graphics/wgx_exports.cs",
+    "method": "ProcessExitHandler",
+    "entry_point": "MILMediaProcessExitHandler",
+    "entry_point_declared": "MILMediaProcessExitHandler",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "SafeMediaHandle THIS_PTR"
+   }
+  ],
+  "MILSwDoubleBufferedBitmapCreate": [
+   {
+    "file": "Common/Graphics/wgx_exports.cs",
+    "method": "Create",
+    "entry_point": "MILSwDoubleBufferedBitmapCreate",
+    "entry_point_declared": "MILSwDoubleBufferedBitmapCreate",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "uint width, uint height, double dpiX, double dpiY, ref Guid pixelFormatGuid, SafeMILHandle pPalette, out SafeMILHandle ppSwDoubleBufferedBitmap"
+   }
+  ],
+  "MILSwDoubleBufferedBitmapGetBackBuffer": [
+   {
+    "file": "Common/Graphics/wgx_exports.cs",
+    "method": "GetBackBuffer",
+    "entry_point": "MILSwDoubleBufferedBitmapGetBackBuffer",
+    "entry_point_declared": "MILSwDoubleBufferedBitmapGetBackBuffer",
+    "preserve_sig": false,
+    "return": "void",
+    "params_raw": "SafeMILHandle THIS_PTR, out BitmapSourceSafeMILHandle pBackBuffer, out uint pBackBufferSize"
+   }
+  ],
+  "MILSwDoubleBufferedBitmapAddDirtyRect": [
+   {
+    "file": "Common/Graphics/wgx_exports.cs",
+    "method": "AddDirtyRect",
+    "entry_point": "MILSwDoubleBufferedBitmapAddDirtyRect",
+    "entry_point_declared": "MILSwDoubleBufferedBitmapAddDirtyRect",
+    "preserve_sig": false,
+    "return": "void",
+    "params_raw": "SafeMILHandle THIS_PTR, ref Int32Rect dirtyRect"
+   }
+  ],
+  "MILSwDoubleBufferedBitmapProtectBackBuffer": [
+   {
+    "file": "Common/Graphics/wgx_exports.cs",
+    "method": "ProtectBackBuffer",
+    "entry_point": "MILSwDoubleBufferedBitmapProtectBackBuffer",
+    "entry_point_declared": "MILSwDoubleBufferedBitmapProtectBackBuffer",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": "SafeMILHandle THIS_PTR"
+   }
+  ],
+  "MILUpdateSystemParametersInfo": [
+   {
+    "file": "Common/Graphics/wgx_exports.cs",
+    "method": "Update",
+    "entry_point": "MILUpdateSystemParametersInfo",
+    "entry_point_declared": "MILUpdateSystemParametersInfo",
+    "preserve_sig": true,
+    "return": "int",
+    "params_raw": ""
+   }
+  ]
+ }
+}

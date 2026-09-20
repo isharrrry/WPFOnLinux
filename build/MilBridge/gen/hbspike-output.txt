@@ -1,0 +1,38 @@
+== M7c4 · 路线 B（HarfBuzz）可行性 spike（v2）==
+libharfbuzz = 2.7.4   (/usr/lib/x86_64-linux-gnu/libharfbuzz.so.0)
+SkiaSharp   = 2.88.9   size = 24px   Hinting=None Subpixel=true
+
+[M0] 对照前提：UI-NoLayout 是否真是 NotoSans-Regular 的纯 GSUB/GPOS 剥离件？
+  PASS  M0   配对前提成立：upem / 字形数 / 逐字形 hmtx 步进全一致
+              upem 1000/1000；glyphCount 3884/3884；逐字形步进比对 3884 个，不一致 0 个
+
+[M1] HarfBuzz 管线正确性：剥离字体（无 GPOS）下 HB 步进 == hmtx 步进
+  PASS  M1   HB 步进与 Skia(Hinting=None) 逐项一致 ⇒ HB 管线读数可信
+              字形数 HB=18 Skia=18；步进差异 0 处
+
+[M2] GPOS 生效证据：真实字体下找到被字距改掉的字母对
+  PASS  M2   至少一对字母的步进被 GPOS 字距改掉
+              命中 18/22 对：AV(Δ=-0.960px) VA(Δ=-0.960px) WA(Δ=-0.960px) AW(Δ=-0.960px) To(Δ=-1.680px) Ta(Δ=-1.920px) Te(Δ=-1.680px) Yo(Δ=-1.200px) LT(Δ=-0.480px) PA(Δ=-1.200px) P.(Δ=-3.120px) F,(Δ=-1.440px) r.(Δ=-3.840px) v.(Δ=-0.960px) y.(Δ=-0.960px) W.(Δ=-1.200px) AT(Δ=-1.680px) Tu(Δ=-1.200px)
+
+[M3] GSUB 生效证据：连字让字形数 < 字符数
+  PASS  M3   真实字体下 GSUB 连字生效（字形数 < 字符数）
+              ffi: HB 1 字形 / 3 字符 ← 连字；fi: HB 1 字形 / 2 字符 ← 连字；fl: HB 1 字形 / 2 字符 ← 连字；office: HB 4 字形 / 6 字符 ← 连字；affluent: HB 6 字形 / 8 字符 ← 连字
+
+[M4] 快路径(名义字形) vs shaping 的量化差 —— 路线 B 的收益面
+      NotoSans-Regular（真实字体）                     HB  37 字形 / 快路径  41 字形   总宽 HB=  466.488px  快路径=  473.447px  Δ=  -6.959px
+      NotoSans-Bold（真实字体）                        HB  37 字形 / 快路径  41 字形   总宽 HB=  493.488px  快路径=  500.543px  Δ=  -7.055px
+      UI-NoLayout（当前默认 UI 字体·降级路径）               HB  41 字形 / 快路径  41 字形   总宽 HB=  473.448px  快路径=  473.447px  Δ=   0.001px
+      （'快路径' = Skia cmap+hmtx 的名义字形语义：无字距、无连字）
+  PASS  M4   shape 结果与快路径确实不同（否则路线 B 没有收益）
+              见上表 Δ 列
+
+[M5] 路线 B 的渲染闭环：HarfBuzz 字形 id → MIL 轮廓（跨 AOT 边界）
+      .so 侧字体面令牌 = 0x20000001
+  PASS  M5   HarfBuzz 产出的字形 id 逐个能从 MIL(.so) 取到真轮廓
+              13/13 个不同字形成功，共 9136 字节；抽样 gid=43:472B gid=72:1408B gid=79:216B gid=82:1216B gid=3:48B gid=58:1336B
+
+[M6] 路线 B 的第二个依赖：ICU 70 的 UAX#14 断行能不能从托管侧调到？
+  PASS  M6   ICU 70 UAX#14 断行从托管侧可调，且给出正确断点
+              locale=en, UBRK_LINE, 断点数=15：Hello  | WPF  | on  | Linux,  | long- | word- | hyphenation  | and  | 中 | 文 | 断 | 行 | 测 | 试
+
+== 通过 7 / 失败 0 ==

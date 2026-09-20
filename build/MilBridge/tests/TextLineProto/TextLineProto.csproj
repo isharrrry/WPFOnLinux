@@ -1,0 +1,66 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- ⭐ `D-R8`（工程卫生）：不依赖 `$(BaseIntermediateOutputPath)` 指向哪里的产物目录排除。
+       实现在仓根 `BuildHygiene.props`（全仓唯一一份；理由与两种被否决的落点见 `build/MilBridge/W21B-report.md` §2）。
+       **故意不加 `Exists()` 条件**：文件找不到要大声失败。 -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('BuildHygiene.props'))" />
+
+  <!--
+    轨道A · **TextLine 契约限时原型**（回答"路线 B 到底要多少行、连锁多深"）。
+    引用形态照搬 WiringSmoke：HintPath + Private —— **只读引用已构建的 PresentationCore.dll**，
+    本轮不重建 PC。
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>MilBridge.TextLineProto</AssemblyName>
+    <RootNamespace>MilBridge.TextLineProto</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <BaseOutputPath>$(MSBuildThisFileDirectory)bin\</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)obj\</BaseIntermediateOutputPath>
+    <!-- ⭐ 纪律 33 的陷阱（`D-R8`）：SDK 把"排除产物目录"表达成**当前生效的**
+         `$(OutputPath)`/`$(IntermediateOutputPath)`/`$(BaseOutputPath)`/`$(BaseIntermediateOutputPath)`
+         四条绝对路径（`Microsoft.NET.DefaultOutputPaths.targets:126-127`、
+         `Microsoft.NET.Sdk.DefaultItems.targets:35,37`）⇒ `-p:BaseIntermediateOutputPath=<仓外>`
+         一改，**本工程目录下**的 `obj/` 就**不再**被排除 ⇒ 默认 glob 把里面**陈旧**的
+         `*.AssemblyInfo.cs` 收进编译 ⇒ 与 SDK 新生成的那份撞成 `CS0579`（`#20` 实测 `16×CS0579`）。
+         ⚠️ **`#20` 原来在本 PropertyGroup 里的那一行 `DefaultItemExcludes` 已被 `#21`（lane W21B）
+         收口到仓根 `BuildHygiene.props`**（文件开头第 5 行的 `<Import>`；全仓唯一一份）。
+         本工程**不再**自带那一行 —— 这是**有意收敛**，不是删漏；
+         清单未变的机器证明见 `build/MilBridge/W21B-report.md` §3。 -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- ⭐ 编**真 shim 源文件**（与将来编进 PresentationCore 的是同一份），而不是副本。
+         未定义 TEXTLINE_SHIM_DIRECT ⇒ 走反射分支（PC 之外唯一可行的方式），
+         于是"这个文件本身"在这里被验证；直构分支由主控重建 PC 后验。 -->
+    <Compile Include="../../../shims/PresentationCore.HbTextLine.cs" Link="PresentationCore.HbTextLine.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="PresentationCore">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/PresentationCore.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationCore.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="WindowsBase">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/WindowsBase.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/WindowsBase.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="DirectWriteForwarder">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/DirectWriteForwarder.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWriteForwarder.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.IO.Packaging" Version="9.0.0" />
+    <PackageReference Include="System.Formats.Nrbf" Version="9.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.0" />
+    <PackageReference Include="System.Windows.Extensions" Version="9.0.0" />
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.88.9" />
+  </ItemGroup>
+
+</Project>

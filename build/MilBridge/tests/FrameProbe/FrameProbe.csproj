@@ -1,0 +1,77 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    W22C · **`D-T6-b` 帧判据探针**（`docs/WAVE22-PREREGISTRATION.md` §3 P3 的红读数仪器）
+
+    它做什么：对 tab-anchor 语料里**每一条可判定用例的每一行**，比较
+      · **我方帧** = 该行自己的**段落系帧原点**（`GetTextBounds` 逐下标扫描：最小的、能取到
+        `TextRunBounds` 的段落系下标 —— 见 `shim:3044-3045` 的 `localFirst = arg - _lineStart`，
+        故「最小可用 arg」恒等于 `_lineStart`；另用 `HbTextLine.LineStartForDiag`（internal，IVT）
+        交叉验证）；
+      · **真机真值帧** = `cases[].lines[].startChar`
+        （真机臂 `tests/parity/windows/tab-anchor/src/Program.cs:556` 落盘；= `:443` 传进
+         `FormatLine(source, index, …)` 的那个 `index` = **绝对段落系**起点）。
+    ⇒ 「帧 == `startChar`」是**同系比较**（`ParaCache` 编址用的也是绝对系，`shim:4030-4044`）。
+
+    为什么**独立成工程**：`PcLineOracle/**` 是另一条车道的仪器（本波禁改），且预登记 §3.6 要求
+    「判据先行、修法留到下一波」。本探针**不碰任何既有文件**，也不进任何门禁。
+
+    身份：程序集名 `PresentationCore.Tests` + 与 PC 同一把公钥公开签名 ⇒ 借 PC 的 IVT 名额
+      （用途：读 `HbTextFallback.Enabled/Calls/Handled/...`、`WpfLinuxLenientTextFallback.Diagnostics`
+       当**档位来源自证**，以及 `HbTextLine.LineStartForDiag` 做反射交叉验证）。
+
+    `D-R8`：本工程用默认 glob（不开 `EnableDefaultCompileItems=false`）⇒ **必须**导入仓根
+    `BuildHygiene.props`，否则命令行把中间目录指到仓外时，工程目录下的陈旧 `obj/**/*.AssemblyInfo.cs`
+    会被 glob 收进来撞成 `CS0579`（`#20`/`#21` 实测）。按 `BuildHygiene.props:47` 的官方写法。
+  -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('BuildHygiene.props'))" />
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>PresentationCore.Tests</AssemblyName>
+    <RootNamespace>MilBridge.FrameProbe</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <BaseOutputPath>$(MSBuildThisFileDirectory)bin\</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)obj\</BaseIntermediateOutputPath>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign>true</PublicSign>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)../../../../build/keys/WcpPublicKey.snk</AssemblyOriginatorKeyFile>
+    <NoWarn>$(NoWarn);CS8002;CS0436;CS0012</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- 被测件 = **权威 pc**（Debug）。与 `build/MilBridge/tools/tline-gate.sh:138` 同一份。
+         ⚠️ `Private=true` ⇒ 输出目录里有自己的副本 ⇒ 读数前后必须印**两份** sha16（本机副本 + 权威路径）。 -->
+    <Reference Include="PresentationCore">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/PresentationCore.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationCore.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="WindowsBase">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/WindowsBase.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/WindowsBase.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="DirectWriteForwarder">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/DirectWriteForwarder.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWriteForwarder.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="DirectWrite.Linux.Provider">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/DirectWrite.Linux/Provider/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWrite.Linux.Provider.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 版本锁：与 T3/M7c/CoverageProbe/PcLineOracle/StrictTierProbe 一致，不许动 -->
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.88.9" />
+    <PackageReference Include="System.IO.Packaging" Version="9.0.0" />
+    <PackageReference Include="System.Formats.Nrbf" Version="9.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.0" />
+    <PackageReference Include="System.Windows.Extensions" Version="9.0.0" />
+  </ItemGroup>
+
+</Project>

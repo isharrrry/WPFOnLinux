@@ -1,0 +1,13 @@
+== T1b · LS 绊线（真值来源：ld.so 的 LD_DEBUG=symbols 日志）==
+日志 = /tmp/t1b-clean/ld.735843（45147 行）
+
+-- LS 家族符号被查找的次数（Lo*/Ls*/Nl*/Fs*）--
+      1 LsDisableSpecialCharacterLigature
+
+-- 关键符号：是否被查找过 / 查找传播范围 --
+   判据（不猜命中位置，只报事实）：查找行数 = 1 ⇒ 第一个库里就有；行数 ≥ 6 ⇒ 整条依赖链都翻遍（MISS）
+  LoAcquireBreakRecord: **没有**被查找过（0 行）
+  LoCreateLine: **没有**被查找过（0 行）
+  LoCreateContext: **没有**被查找过（0 行）
+  LoGetEscString: **没有**被查找过（0 行）
+  LsDisableSpecialCharacterLigature: 被查找 1 行 ⇒ FOUND（只翻了 1 个库就命中：/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/src/WpfGfx.Linux.Native/bin/libwpfwin32.so）

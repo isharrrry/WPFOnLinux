@@ -1,0 +1,5542 @@
+{
+  "format": "wpf-linux-u1-shaping-oracle/1",
+  "generatedUtc": "2026-09-11T01:00:16.3217276Z",
+  "engine": "DirectWrite, IDWriteTextAnalyzer::GetGlyphs \u002B GetGlyphPlacements (same as dwrite-shaping-oracle.json)",
+  "apiSequence": [
+    "DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, IID_IDWriteFactory)",
+    "IDWriteFactory::CreateFontFileReference(\u003CNotoSansCJK-Regular.ttc\u003E)",
+    "IDWriteFactory::CreateFontFace(DWRITE_FONT_FACE_TYPE_TRUETYPE, 1, {file}, faceIndex, NONE)   \u003C-- faceIndex selects JP/KR/SC/TC/HK",
+    "IDWriteFontFace::GetMetrics / GetGlyphCount",
+    "IDWriteFactory::CreateTextAnalyzer",
+    "IDWriteTextAnalyzer::GetGlyphs / GetGlyphPlacements  (script=0, locale=\u0022en-us\u0022, no features)"
+  ],
+  "font": "NotoSansCJK-Regular.ttc",
+  "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+  "fontIsCollection": true,
+  "faceIndexMeaning": "0=Noto Sans CJK JP, 1=KR, 2=SC, 3=TC, 4=HK",
+  "dwiteDllVersion": "10.0.22621.4745 (WinBuild.160101.0800)",
+  "os": "Microsoft Windows 10.0.22631",
+  "clr": ".NET 10.0.7",
+  "emSizesDip": [
+    24,
+    11
+  ],
+  "cases": [
+    {
+      "id": "han-simplified",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 2,
+      "ttcFace": "SC",
+      "emSizeDip": 24,
+      "text": "\u6C49\u5B57\u6392\u7248\u6D4B\u8BD5\uFF1A\u8FD9\u662F\u4E00\u6BB5\u9700\u8981\u6362\u884C\u7684\u4E2D\u6587\u6587\u672C\u3002",
+      "utf16Length": 21,
+      "glyphCount": 21,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        23037,
+        15365,
+        19127,
+        25783,
+        23422,
+        38482,
+        63150,
+        40121,
+        20333,
+        9481,
+        22784,
+        43470,
+        37329,
+        19046,
+        36710,
+        27699,
+        9544,
+        20036,
+        20036,
+        20759,
+        1398
+      ],
+      "advancesDip": [
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ],
+      "totalAdvanceDip": 504,
+      "totalAdvanceDesignUnits": 21000,
+      "upem": 1000,
+      "ascentDip": 27.84,
+      "descentDip": 6.912,
+      "lineGapDip": 0,
+      "lineHeightDip": 34.752,
+      "note": "simplified Chinese Han \u002B fullwidth colon/period"
+    },
+    {
+      "id": "han-simplified",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 2,
+      "ttcFace": "SC",
+      "emSizeDip": 24,
+      "text": "\u6C49\u5B57\u6392\u7248\u6D4B\u8BD5\uFF1A\u8FD9\u662F\u4E00\u6BB5\u9700\u8981\u6362\u884C\u7684\u4E2D\u6587\u6587\u672C\u3002",
+      "utf16Length": 21,
+      "glyphCount": 21,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        23037,
+        15365,
+        19127,
+        25783,
+        23422,
+        38482,
+        63150,
+        40121,
+        20333,
+        9481,
+        22784,
+        43470,
+        37329,
+        19046,
+        36710,
+        27699,
+        9544,
+        20036,
+        20036,
+        20759,
+        1398
+      ],
+      "advancesDip": [
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ],
+      "totalAdvanceDip": 504,
+      "totalAdvanceDesignUnits": 21000,
+      "upem": 1000,
+      "ascentDip": 27.84,
+      "descentDip": 6.912,
+      "lineGapDip": 0,
+      "lineHeightDip": 34.752,
+      "note": "simplified Chinese Han \u002B fullwidth colon/period"
+    },
+    {
+      "id": "han-mixed-script",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 2,
+      "ttcFace": "SC",
+      "emSizeDip": 24,
+      "text": "\u65E5\u672C\u8A9E\u306E\u6F22\u5B57\u3068\u304B\u306A\u3001\uD55C\uAE00 \uC870\uD310, \u7B80\u4F53\u6C49\u5B57\u3002",
+      "utf16Length": 22,
+      "glyphCount": 22,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        20220,
+        20759,
+        37861,
+        1505,
+        58935,
+        15365,
+        1499,
+        1470,
+        1501,
+        1397,
+        58199,
+        48123,
+        63108,
+        54891,
+        57611,
+        13,
+        1,
+        29967,
+        9966,
+        23037,
+        15365,
+        1398
+      ],
+      "advancesDip": [
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        22.08,
+        22.08,
+        6.72,
+        22.08,
+        22.08,
+        6.672,
+        5.376,
+        24,
+        24,
+        24,
+        24,
+        24
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21
+      ],
+      "totalAdvanceDip": 467.088,
+      "totalAdvanceDesignUnits": 19461.999993,
+      "upem": 1000,
+      "ascentDip": 27.84,
+      "descentDip": 6.912,
+      "lineGapDip": 0,
+      "lineHeightDip": 34.752,
+      "note": "Han \u002B kana \u002B hangul in one run (real script boundaries)"
+    },
+    {
+      "id": "han-mixed-script",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 2,
+      "ttcFace": "SC",
+      "emSizeDip": 24,
+      "text": "\u65E5\u672C\u8A9E\u306E\u6F22\u5B57\u3068\u304B\u306A\u3001\uD55C\uAE00 \uC870\uD310, \u7B80\u4F53\u6C49\u5B57\u3002",
+      "utf16Length": 22,
+      "glyphCount": 22,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        20220,
+        20759,
+        37861,
+        1505,
+        58935,
+        15365,
+        1499,
+        1470,
+        1501,
+        1397,
+        58199,
+        48123,
+        63108,
+        54891,
+        57611,
+        13,
+        1,
+        29967,
+        9966,
+        23037,
+        15365,
+        1398
+      ],
+      "advancesDip": [
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        22.08,
+        22.08,
+        6.72,
+        22.08,
+        22.08,
+        6.672,
+        5.376,
+        24,
+        24,
+        24,
+        24,
+        24
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21
+      ],
+      "totalAdvanceDip": 467.088,
+      "totalAdvanceDesignUnits": 19461.999993,
+      "upem": 1000,
+      "ascentDip": 27.84,
+      "descentDip": 6.912,
+      "lineGapDip": 0,
+      "lineHeightDip": 34.752,
+      "note": "Han \u002B kana \u002B hangul in one run (real script boundaries)"
+    },
+    {
+      "id": "kana",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 2,
+      "ttcFace": "SC",
+      "emSizeDip": 24,
+      "text": "\u3072\u3089\u304C\u306A\u3068\u30AB\u30BF\u30AB\u30CA\u306E\u30C6\u30B9\u30C8\u3067\u3059\u3002",
+      "utf16Length": 16,
+      "glyphCount": 16,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        1509,
+        1532,
+        1471,
+        1501,
+        1499,
+        1564,
+        1584,
+        1564,
+        1595,
+        1505,
+        1591,
+        1578,
+        1593,
+        1498,
+        1484,
+        1398
+      ],
+      "advancesDip": [
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        21.6,
+        24
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "totalAdvanceDip": 381.6,
+      "totalAdvanceDesignUnits": 15900.000016,
+      "upem": 1000,
+      "ascentDip": 27.84,
+      "descentDip": 6.912,
+      "lineGapDip": 0,
+      "lineHeightDip": 34.752,
+      "note": "hiragana \u002B katakana \u002B ideographic full stop"
+    },
+    {
+      "id": "kana",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 2,
+      "ttcFace": "SC",
+      "emSizeDip": 24,
+      "text": "\u3072\u3089\u304C\u306A\u3068\u30AB\u30BF\u30AB\u30CA\u306E\u30C6\u30B9\u30C8\u3067\u3059\u3002",
+      "utf16Length": 16,
+      "glyphCount": 16,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        1509,
+        1532,
+        1471,
+        1501,
+        1499,
+        1564,
+        1584,
+        1564,
+        1595,
+        1505,
+        1591,
+        1578,
+        1593,
+        1498,
+        1484,
+        1398
+      ],
+      "advancesDip": [
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        21.6,
+        24
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "totalAdvanceDip": 381.6,
+      "totalAdvanceDesignUnits": 15900.000016,
+      "upem": 1000,
+      "ascentDip": 27.84,
+      "descentDip": 6.912,
+      "lineGapDip": 0,
+      "lineHeightDip": 34.752,
+      "note": "hiragana \u002B katakana \u002B ideographic full stop"
+    },
+    {
+      "id": "hangul",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 2,
+      "ttcFace": "SC",
+      "emSizeDip": 24,
+      "text": "\uD55C\uAE00 \uC870\uD310 \uD14C\uC2A4\uD2B8\uC785\uB2C8\uB2E4.",
+      "utf16Length": 13,
+      "glyphCount": 13,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        58199,
+        48123,
+        63108,
+        54891,
+        57611,
+        63108,
+        57159,
+        53407,
+        57523,
+        54656,
+        49347,
+        49375,
+        15
+      ],
+      "advancesDip": [
+        22.08,
+        22.08,
+        6.72,
+        22.08,
+        22.08,
+        6.72,
+        22.08,
+        22.08,
+        22.08,
+        22.08,
+        22.08,
+        22.08,
+        6.672
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "totalAdvanceDip": 240.912,
+      "totalAdvanceDesignUnits": 10037.999988,
+      "upem": 1000,
+      "ascentDip": 27.84,
+      "descentDip": 6.912,
+      "lineGapDip": 0,
+      "lineHeightDip": 34.752,
+      "note": "hangul syllables \u002B space"
+    },
+    {
+      "id": "hangul",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 2,
+      "ttcFace": "SC",
+      "emSizeDip": 24,
+      "text": "\uD55C\uAE00 \uC870\uD310 \uD14C\uC2A4\uD2B8\uC785\uB2C8\uB2E4.",
+      "utf16Length": 13,
+      "glyphCount": 13,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        58199,
+        48123,
+        63108,
+        54891,
+        57611,
+        63108,
+        57159,
+        53407,
+        57523,
+        54656,
+        49347,
+        49375,
+        15
+      ],
+      "advancesDip": [
+        22.08,
+        22.08,
+        6.72,
+        22.08,
+        22.08,
+        6.72,
+        22.08,
+        22.08,
+        22.08,
+        22.08,
+        22.08,
+        22.08,
+        6.672
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "totalAdvanceDip": 240.912,
+      "totalAdvanceDesignUnits": 10037.999988,
+      "upem": 1000,
+      "ascentDip": 27.84,
+      "descentDip": 6.912,
+      "lineGapDip": 0,
+      "lineHeightDip": 34.752,
+      "note": "hangul syllables \u002B space"
+    },
+    {
+      "id": "fullwidth-punct",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 2,
+      "ttcFace": "SC",
+      "emSizeDip": 24,
+      "text": "\u5168\u89D2\u6807\u70B9\uFF1A\uFF0C\u3002\uFF01\uFF1F\uFF1B\uFF1A\u300C\u300D\uFF08\uFF09\u3010\u3011",
+      "utf16Length": 17,
+      "glyphCount": 17,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        10899,
+        37449,
+        21085,
+        24992,
+        63150,
+        59058,
+        1398,
+        63147,
+        63152,
+        63151,
+        63150,
+        1408,
+        1409,
+        59054,
+        59055,
+        1412,
+        1413
+      ],
+      "advancesDip": [
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "totalAdvanceDip": 408,
+      "totalAdvanceDesignUnits": 17000,
+      "upem": 1000,
+      "ascentDip": 27.84,
+      "descentDip": 6.912,
+      "lineGapDip": 0,
+      "lineHeightDip": 34.752,
+      "note": "fullwidth punctuation only"
+    },
+    {
+      "id": "fullwidth-punct",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 2,
+      "ttcFace": "SC",
+      "emSizeDip": 24,
+      "text": "\u5168\u89D2\u6807\u70B9\uFF1A\uFF0C\u3002\uFF01\uFF1F\uFF1B\uFF1A\u300C\u300D\uFF08\uFF09\u3010\u3011",
+      "utf16Length": 17,
+      "glyphCount": 17,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        10899,
+        37449,
+        21085,
+        24992,
+        63150,
+        59058,
+        1398,
+        63147,
+        63152,
+        63151,
+        63150,
+        1408,
+        1409,
+        59054,
+        59055,
+        1412,
+        1413
+      ],
+      "advancesDip": [
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "totalAdvanceDip": 408,
+      "totalAdvanceDesignUnits": 17000,
+      "upem": 1000,
+      "ascentDip": 27.84,
+      "descentDip": 6.912,
+      "lineGapDip": 0,
+      "lineHeightDip": 34.752,
+      "note": "fullwidth punctuation only"
+    },
+    {
+      "id": "mixed-latin-cjk",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 2,
+      "ttcFace": "SC",
+      "emSizeDip": 24,
+      "text": "WPF \u5728 Linux \u4E0A\u6E32\u67D3\u6587\u672C with Latin 123",
+      "utf16Length": 32,
+      "glyphCount": 32,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        56,
+        49,
+        39,
+        1,
+        13255,
+        1,
+        45,
+        74,
+        79,
+        86,
+        89,
+        1,
+        9493,
+        23799,
+        21004,
+        20036,
+        20759,
+        1,
+        88,
+        74,
+        85,
+        73,
+        1,
+        45,
+        66,
+        85,
+        74,
+        79,
+        1,
+        18,
+        19,
+        20
+      ],
+      "advancesDip": [
+        21.072001,
+        15.192,
+        13.248,
+        5.376,
+        24,
+        5.376,
+        13.032001,
+        6.6,
+        14.64,
+        14.568,
+        11.952,
+        5.376,
+        24,
+        24,
+        24,
+        24,
+        24,
+        5.376,
+        19.248001,
+        6.6,
+        9.048,
+        14.568,
+        5.376,
+        13.032001,
+        13.152,
+        9.048,
+        6.6,
+        14.64,
+        5.376,
+        13.32,
+        13.32,
+        13.32
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ],
+      "totalAdvanceDip": 432.456003,
+      "totalAdvanceDesignUnits": 18019.000113,
+      "upem": 1000,
+      "ascentDip": 27.84,
+      "descentDip": 6.912,
+      "lineGapDip": 0,
+      "lineHeightDip": 34.752,
+      "note": "Latin \u002B CJK \u002B digits (the string that was .notdef before)"
+    },
+    {
+      "id": "mixed-latin-cjk",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 2,
+      "ttcFace": "SC",
+      "emSizeDip": 24,
+      "text": "WPF \u5728 Linux \u4E0A\u6E32\u67D3\u6587\u672C with Latin 123",
+      "utf16Length": 32,
+      "glyphCount": 32,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        56,
+        49,
+        39,
+        1,
+        13255,
+        1,
+        45,
+        74,
+        79,
+        86,
+        89,
+        1,
+        9493,
+        23799,
+        21004,
+        20036,
+        20759,
+        1,
+        88,
+        74,
+        85,
+        73,
+        1,
+        45,
+        66,
+        85,
+        74,
+        79,
+        1,
+        18,
+        19,
+        20
+      ],
+      "advancesDip": [
+        21.072001,
+        15.192,
+        13.248,
+        5.376,
+        24,
+        5.376,
+        13.032001,
+        6.6,
+        14.64,
+        14.568,
+        11.952,
+        5.376,
+        24,
+        24,
+        24,
+        24,
+        24,
+        5.376,
+        19.248001,
+        6.6,
+        9.048,
+        14.568,
+        5.376,
+        13.032001,
+        13.152,
+        9.048,
+        6.6,
+        14.64,
+        5.376,
+        13.32,
+        13.32,
+        13.32
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ],
+      "totalAdvanceDip": 432.456003,
+      "totalAdvanceDesignUnits": 18019.000113,
+      "upem": 1000,
+      "ascentDip": 27.84,
+      "descentDip": 6.912,
+      "lineGapDip": 0,
+      "lineHeightDip": 34.752,
+      "note": "Latin \u002B CJK \u002B digits (the string that was .notdef before)"
+    },
+    {
+      "id": "latin-only-in-cjk-font",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 2,
+      "ttcFace": "SC",
+      "emSizeDip": 24,
+      "text": "Hello WPF",
+      "utf16Length": 9,
+      "glyphCount": 9,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        41,
+        70,
+        77,
+        77,
+        80,
+        1,
+        56,
+        49,
+        39
+      ],
+      "advancesDip": [
+        17.472,
+        13.296,
+        6.816,
+        6.816,
+        14.544,
+        5.376,
+        21.072001,
+        15.192,
+        13.248
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "totalAdvanceDip": 113.832001,
+      "totalAdvanceDesignUnits": 4743.00005,
+      "upem": 1000,
+      "ascentDip": 27.84,
+      "descentDip": 6.912,
+      "lineGapDip": 0,
+      "lineHeightDip": 34.752,
+      "note": "Latin served by the CJK font itself (no fallback)"
+    },
+    {
+      "id": "latin-only-in-cjk-font",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 2,
+      "ttcFace": "SC",
+      "emSizeDip": 24,
+      "text": "Hello WPF",
+      "utf16Length": 9,
+      "glyphCount": 9,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        41,
+        70,
+        77,
+        77,
+        80,
+        1,
+        56,
+        49,
+        39
+      ],
+      "advancesDip": [
+        17.472,
+        13.296,
+        6.816,
+        6.816,
+        14.544,
+        5.376,
+        21.072001,
+        15.192,
+        13.248
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "totalAdvanceDip": 113.832001,
+      "totalAdvanceDesignUnits": 4743.00005,
+      "upem": 1000,
+      "ascentDip": 27.84,
+      "descentDip": 6.912,
+      "lineGapDip": 0,
+      "lineHeightDip": 34.752,
+      "note": "Latin served by the CJK font itself (no fallback)"
+    },
+    {
+      "id": "han-simplified",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 2,
+      "ttcFace": "SC",
+      "emSizeDip": 11,
+      "text": "\u6C49\u5B57\u6392\u7248\u6D4B\u8BD5\uFF1A\u8FD9\u662F\u4E00\u6BB5\u9700\u8981\u6362\u884C\u7684\u4E2D\u6587\u6587\u672C\u3002",
+      "utf16Length": 21,
+      "glyphCount": 21,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        23037,
+        15365,
+        19127,
+        25783,
+        23422,
+        38482,
+        63150,
+        40121,
+        20333,
+        9481,
+        22784,
+        43470,
+        37329,
+        19046,
+        36710,
+        27699,
+        9544,
+        20036,
+        20036,
+        20759,
+        1398
+      ],
+      "advancesDip": [
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ],
+      "totalAdvanceDip": 231,
+      "totalAdvanceDesignUnits": 21000,
+      "upem": 1000,
+      "ascentDip": 12.76,
+      "descentDip": 3.168,
+      "lineGapDip": 0,
+      "lineHeightDip": 15.928,
+      "note": "simplified Chinese Han \u002B fullwidth colon/period"
+    },
+    {
+      "id": "han-simplified",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 2,
+      "ttcFace": "SC",
+      "emSizeDip": 11,
+      "text": "\u6C49\u5B57\u6392\u7248\u6D4B\u8BD5\uFF1A\u8FD9\u662F\u4E00\u6BB5\u9700\u8981\u6362\u884C\u7684\u4E2D\u6587\u6587\u672C\u3002",
+      "utf16Length": 21,
+      "glyphCount": 21,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        23037,
+        15365,
+        19127,
+        25783,
+        23422,
+        38482,
+        63150,
+        40121,
+        20333,
+        9481,
+        22784,
+        43470,
+        37329,
+        19046,
+        36710,
+        27699,
+        9544,
+        20036,
+        20036,
+        20759,
+        1398
+      ],
+      "advancesDip": [
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ],
+      "totalAdvanceDip": 231,
+      "totalAdvanceDesignUnits": 21000,
+      "upem": 1000,
+      "ascentDip": 12.76,
+      "descentDip": 3.168,
+      "lineGapDip": 0,
+      "lineHeightDip": 15.928,
+      "note": "simplified Chinese Han \u002B fullwidth colon/period"
+    },
+    {
+      "id": "han-mixed-script",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 2,
+      "ttcFace": "SC",
+      "emSizeDip": 11,
+      "text": "\u65E5\u672C\u8A9E\u306E\u6F22\u5B57\u3068\u304B\u306A\u3001\uD55C\uAE00 \uC870\uD310, \u7B80\u4F53\u6C49\u5B57\u3002",
+      "utf16Length": 22,
+      "glyphCount": 22,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        20220,
+        20759,
+        37861,
+        1505,
+        58935,
+        15365,
+        1499,
+        1470,
+        1501,
+        1397,
+        58199,
+        48123,
+        63108,
+        54891,
+        57611,
+        13,
+        1,
+        29967,
+        9966,
+        23037,
+        15365,
+        1398
+      ],
+      "advancesDip": [
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        10.12,
+        10.12,
+        3.08,
+        10.12,
+        10.12,
+        3.058,
+        2.464,
+        11,
+        11,
+        11,
+        11,
+        11
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21
+      ],
+      "totalAdvanceDip": 214.082,
+      "totalAdvanceDesignUnits": 19461.999958,
+      "upem": 1000,
+      "ascentDip": 12.76,
+      "descentDip": 3.168,
+      "lineGapDip": 0,
+      "lineHeightDip": 15.928,
+      "note": "Han \u002B kana \u002B hangul in one run (real script boundaries)"
+    },
+    {
+      "id": "han-mixed-script",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 2,
+      "ttcFace": "SC",
+      "emSizeDip": 11,
+      "text": "\u65E5\u672C\u8A9E\u306E\u6F22\u5B57\u3068\u304B\u306A\u3001\uD55C\uAE00 \uC870\uD310, \u7B80\u4F53\u6C49\u5B57\u3002",
+      "utf16Length": 22,
+      "glyphCount": 22,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        20220,
+        20759,
+        37861,
+        1505,
+        58935,
+        15365,
+        1499,
+        1470,
+        1501,
+        1397,
+        58199,
+        48123,
+        63108,
+        54891,
+        57611,
+        13,
+        1,
+        29967,
+        9966,
+        23037,
+        15365,
+        1398
+      ],
+      "advancesDip": [
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        10.12,
+        10.12,
+        3.08,
+        10.12,
+        10.12,
+        3.058,
+        2.464,
+        11,
+        11,
+        11,
+        11,
+        11
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21
+      ],
+      "totalAdvanceDip": 214.082,
+      "totalAdvanceDesignUnits": 19461.999958,
+      "upem": 1000,
+      "ascentDip": 12.76,
+      "descentDip": 3.168,
+      "lineGapDip": 0,
+      "lineHeightDip": 15.928,
+      "note": "Han \u002B kana \u002B hangul in one run (real script boundaries)"
+    },
+    {
+      "id": "kana",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 2,
+      "ttcFace": "SC",
+      "emSizeDip": 11,
+      "text": "\u3072\u3089\u304C\u306A\u3068\u30AB\u30BF\u30AB\u30CA\u306E\u30C6\u30B9\u30C8\u3067\u3059\u3002",
+      "utf16Length": 16,
+      "glyphCount": 16,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        1509,
+        1532,
+        1471,
+        1501,
+        1499,
+        1564,
+        1584,
+        1564,
+        1595,
+        1505,
+        1591,
+        1578,
+        1593,
+        1498,
+        1484,
+        1398
+      ],
+      "advancesDip": [
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        9.9,
+        11
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "totalAdvanceDip": 174.9,
+      "totalAdvanceDesignUnits": 15899.999965,
+      "upem": 1000,
+      "ascentDip": 12.76,
+      "descentDip": 3.168,
+      "lineGapDip": 0,
+      "lineHeightDip": 15.928,
+      "note": "hiragana \u002B katakana \u002B ideographic full stop"
+    },
+    {
+      "id": "kana",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 2,
+      "ttcFace": "SC",
+      "emSizeDip": 11,
+      "text": "\u3072\u3089\u304C\u306A\u3068\u30AB\u30BF\u30AB\u30CA\u306E\u30C6\u30B9\u30C8\u3067\u3059\u3002",
+      "utf16Length": 16,
+      "glyphCount": 16,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        1509,
+        1532,
+        1471,
+        1501,
+        1499,
+        1564,
+        1584,
+        1564,
+        1595,
+        1505,
+        1591,
+        1578,
+        1593,
+        1498,
+        1484,
+        1398
+      ],
+      "advancesDip": [
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        9.9,
+        11
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "totalAdvanceDip": 174.9,
+      "totalAdvanceDesignUnits": 15899.999965,
+      "upem": 1000,
+      "ascentDip": 12.76,
+      "descentDip": 3.168,
+      "lineGapDip": 0,
+      "lineHeightDip": 15.928,
+      "note": "hiragana \u002B katakana \u002B ideographic full stop"
+    },
+    {
+      "id": "hangul",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 2,
+      "ttcFace": "SC",
+      "emSizeDip": 11,
+      "text": "\uD55C\uAE00 \uC870\uD310 \uD14C\uC2A4\uD2B8\uC785\uB2C8\uB2E4.",
+      "utf16Length": 13,
+      "glyphCount": 13,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        58199,
+        48123,
+        63108,
+        54891,
+        57611,
+        63108,
+        57159,
+        53407,
+        57523,
+        54656,
+        49347,
+        49375,
+        15
+      ],
+      "advancesDip": [
+        10.12,
+        10.12,
+        3.08,
+        10.12,
+        10.12,
+        3.08,
+        10.12,
+        10.12,
+        10.12,
+        10.12,
+        10.12,
+        10.12,
+        3.058
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "totalAdvanceDip": 110.417999,
+      "totalAdvanceDesignUnits": 10037.99989,
+      "upem": 1000,
+      "ascentDip": 12.76,
+      "descentDip": 3.168,
+      "lineGapDip": 0,
+      "lineHeightDip": 15.928,
+      "note": "hangul syllables \u002B space"
+    },
+    {
+      "id": "hangul",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 2,
+      "ttcFace": "SC",
+      "emSizeDip": 11,
+      "text": "\uD55C\uAE00 \uC870\uD310 \uD14C\uC2A4\uD2B8\uC785\uB2C8\uB2E4.",
+      "utf16Length": 13,
+      "glyphCount": 13,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        58199,
+        48123,
+        63108,
+        54891,
+        57611,
+        63108,
+        57159,
+        53407,
+        57523,
+        54656,
+        49347,
+        49375,
+        15
+      ],
+      "advancesDip": [
+        10.12,
+        10.12,
+        3.08,
+        10.12,
+        10.12,
+        3.08,
+        10.12,
+        10.12,
+        10.12,
+        10.12,
+        10.12,
+        10.12,
+        3.058
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "totalAdvanceDip": 110.417999,
+      "totalAdvanceDesignUnits": 10037.99989,
+      "upem": 1000,
+      "ascentDip": 12.76,
+      "descentDip": 3.168,
+      "lineGapDip": 0,
+      "lineHeightDip": 15.928,
+      "note": "hangul syllables \u002B space"
+    },
+    {
+      "id": "fullwidth-punct",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 2,
+      "ttcFace": "SC",
+      "emSizeDip": 11,
+      "text": "\u5168\u89D2\u6807\u70B9\uFF1A\uFF0C\u3002\uFF01\uFF1F\uFF1B\uFF1A\u300C\u300D\uFF08\uFF09\u3010\u3011",
+      "utf16Length": 17,
+      "glyphCount": 17,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        10899,
+        37449,
+        21085,
+        24992,
+        63150,
+        59058,
+        1398,
+        63147,
+        63152,
+        63151,
+        63150,
+        1408,
+        1409,
+        59054,
+        59055,
+        1412,
+        1413
+      ],
+      "advancesDip": [
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "totalAdvanceDip": 187,
+      "totalAdvanceDesignUnits": 17000,
+      "upem": 1000,
+      "ascentDip": 12.76,
+      "descentDip": 3.168,
+      "lineGapDip": 0,
+      "lineHeightDip": 15.928,
+      "note": "fullwidth punctuation only"
+    },
+    {
+      "id": "fullwidth-punct",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 2,
+      "ttcFace": "SC",
+      "emSizeDip": 11,
+      "text": "\u5168\u89D2\u6807\u70B9\uFF1A\uFF0C\u3002\uFF01\uFF1F\uFF1B\uFF1A\u300C\u300D\uFF08\uFF09\u3010\u3011",
+      "utf16Length": 17,
+      "glyphCount": 17,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        10899,
+        37449,
+        21085,
+        24992,
+        63150,
+        59058,
+        1398,
+        63147,
+        63152,
+        63151,
+        63150,
+        1408,
+        1409,
+        59054,
+        59055,
+        1412,
+        1413
+      ],
+      "advancesDip": [
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "totalAdvanceDip": 187,
+      "totalAdvanceDesignUnits": 17000,
+      "upem": 1000,
+      "ascentDip": 12.76,
+      "descentDip": 3.168,
+      "lineGapDip": 0,
+      "lineHeightDip": 15.928,
+      "note": "fullwidth punctuation only"
+    },
+    {
+      "id": "mixed-latin-cjk",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 2,
+      "ttcFace": "SC",
+      "emSizeDip": 11,
+      "text": "WPF \u5728 Linux \u4E0A\u6E32\u67D3\u6587\u672C with Latin 123",
+      "utf16Length": 32,
+      "glyphCount": 32,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        56,
+        49,
+        39,
+        1,
+        13255,
+        1,
+        45,
+        74,
+        79,
+        86,
+        89,
+        1,
+        9493,
+        23799,
+        21004,
+        20036,
+        20759,
+        1,
+        88,
+        74,
+        85,
+        73,
+        1,
+        45,
+        66,
+        85,
+        74,
+        79,
+        1,
+        18,
+        19,
+        20
+      ],
+      "advancesDip": [
+        9.658,
+        6.963,
+        6.072,
+        2.464,
+        11,
+        2.464,
+        5.973,
+        3.025,
+        6.71,
+        6.677,
+        5.478,
+        2.464,
+        11,
+        11,
+        11,
+        11,
+        11,
+        2.464,
+        8.822,
+        3.025,
+        4.147,
+        6.677,
+        2.464,
+        5.973,
+        6.028,
+        4.147,
+        3.025,
+        6.71,
+        2.464,
+        6.105,
+        6.105,
+        6.105
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ],
+      "totalAdvanceDip": 198.209,
+      "totalAdvanceDesignUnits": 18018.999967,
+      "upem": 1000,
+      "ascentDip": 12.76,
+      "descentDip": 3.168,
+      "lineGapDip": 0,
+      "lineHeightDip": 15.928,
+      "note": "Latin \u002B CJK \u002B digits (the string that was .notdef before)"
+    },
+    {
+      "id": "mixed-latin-cjk",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 2,
+      "ttcFace": "SC",
+      "emSizeDip": 11,
+      "text": "WPF \u5728 Linux \u4E0A\u6E32\u67D3\u6587\u672C with Latin 123",
+      "utf16Length": 32,
+      "glyphCount": 32,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        56,
+        49,
+        39,
+        1,
+        13255,
+        1,
+        45,
+        74,
+        79,
+        86,
+        89,
+        1,
+        9493,
+        23799,
+        21004,
+        20036,
+        20759,
+        1,
+        88,
+        74,
+        85,
+        73,
+        1,
+        45,
+        66,
+        85,
+        74,
+        79,
+        1,
+        18,
+        19,
+        20
+      ],
+      "advancesDip": [
+        9.658,
+        6.963,
+        6.072,
+        2.464,
+        11,
+        2.464,
+        5.973,
+        3.025,
+        6.71,
+        6.677,
+        5.478,
+        2.464,
+        11,
+        11,
+        11,
+        11,
+        11,
+        2.464,
+        8.822,
+        3.025,
+        4.147,
+        6.677,
+        2.464,
+        5.973,
+        6.028,
+        4.147,
+        3.025,
+        6.71,
+        2.464,
+        6.105,
+        6.105,
+        6.105
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ],
+      "totalAdvanceDip": 198.209,
+      "totalAdvanceDesignUnits": 18018.999967,
+      "upem": 1000,
+      "ascentDip": 12.76,
+      "descentDip": 3.168,
+      "lineGapDip": 0,
+      "lineHeightDip": 15.928,
+      "note": "Latin \u002B CJK \u002B digits (the string that was .notdef before)"
+    },
+    {
+      "id": "latin-only-in-cjk-font",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 2,
+      "ttcFace": "SC",
+      "emSizeDip": 11,
+      "text": "Hello WPF",
+      "utf16Length": 9,
+      "glyphCount": 9,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        41,
+        70,
+        77,
+        77,
+        80,
+        1,
+        56,
+        49,
+        39
+      ],
+      "advancesDip": [
+        8.008,
+        6.094,
+        3.124,
+        3.124,
+        6.666,
+        2.464,
+        9.658,
+        6.963,
+        6.072
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "totalAdvanceDip": 52.173,
+      "totalAdvanceDesignUnits": 4743.000009,
+      "upem": 1000,
+      "ascentDip": 12.76,
+      "descentDip": 3.168,
+      "lineGapDip": 0,
+      "lineHeightDip": 15.928,
+      "note": "Latin served by the CJK font itself (no fallback)"
+    },
+    {
+      "id": "latin-only-in-cjk-font",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 2,
+      "ttcFace": "SC",
+      "emSizeDip": 11,
+      "text": "Hello WPF",
+      "utf16Length": 9,
+      "glyphCount": 9,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        41,
+        70,
+        77,
+        77,
+        80,
+        1,
+        56,
+        49,
+        39
+      ],
+      "advancesDip": [
+        8.008,
+        6.094,
+        3.124,
+        3.124,
+        6.666,
+        2.464,
+        9.658,
+        6.963,
+        6.072
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "totalAdvanceDip": 52.173,
+      "totalAdvanceDesignUnits": 4743.000009,
+      "upem": 1000,
+      "ascentDip": 12.76,
+      "descentDip": 3.168,
+      "lineGapDip": 0,
+      "lineHeightDip": 15.928,
+      "note": "Latin served by the CJK font itself (no fallback)"
+    },
+    {
+      "id": "locl-han-forms-JP",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 0,
+      "ttcFace": "JP",
+      "emSizeDip": 24,
+      "text": "\u76F4\u753B\u9AA8\u89D2\u5199\u95E8\u4ECA\u4EE4",
+      "utf16Length": 8,
+      "glyphCount": 8,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        27873,
+        27078,
+        45132,
+        37448,
+        10973,
+        43012,
+        9770,
+        9808
+      ],
+      "advancesDip": [
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "totalAdvanceDip": 192,
+      "totalAdvanceDesignUnits": 8000,
+      "upem": 1000,
+      "ascentDip": 27.84,
+      "descentDip": 6.912,
+      "lineGapDip": 0,
+      "lineHeightDip": 34.752,
+      "note": "characters whose SC/TC/JP forms commonly differ"
+    },
+    {
+      "id": "locl-han-forms-SC",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 2,
+      "ttcFace": "SC",
+      "emSizeDip": 24,
+      "text": "\u76F4\u753B\u9AA8\u89D2\u5199\u95E8\u4ECA\u4EE4",
+      "utf16Length": 8,
+      "glyphCount": 8,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        27874,
+        27079,
+        45133,
+        37449,
+        10974,
+        43013,
+        9771,
+        9809
+      ],
+      "advancesDip": [
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "totalAdvanceDip": 192,
+      "totalAdvanceDesignUnits": 8000,
+      "upem": 1000,
+      "ascentDip": 27.84,
+      "descentDip": 6.912,
+      "lineGapDip": 0,
+      "lineHeightDip": 34.752,
+      "note": "characters whose SC/TC/JP forms commonly differ"
+    },
+    {
+      "id": "locl-han-forms-TC",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 3,
+      "ttcFace": "TC",
+      "emSizeDip": 24,
+      "text": "\u76F4\u753B\u9AA8\u89D2\u5199\u95E8\u4ECA\u4EE4",
+      "utf16Length": 8,
+      "glyphCount": 8,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        27874,
+        27080,
+        45134,
+        37448,
+        10974,
+        43013,
+        9772,
+        9810
+      ],
+      "advancesDip": [
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "totalAdvanceDip": 192,
+      "totalAdvanceDesignUnits": 8000,
+      "upem": 1000,
+      "ascentDip": 27.84,
+      "descentDip": 6.912,
+      "lineGapDip": 0,
+      "lineHeightDip": 34.752,
+      "note": "characters whose SC/TC/JP forms commonly differ"
+    },
+    {
+      "id": "locl-han-2-JP",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 0,
+      "ttcFace": "JP",
+      "emSizeDip": 24,
+      "text": "\u6C49\u5B57\u5B57\u4F53\u8BF4\u660E",
+      "utf16Length": 6,
+      "glyphCount": 6,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        23037,
+        15364,
+        15364,
+        9966,
+        38513,
+        20282
+      ],
+      "advancesDip": [
+        24,
+        24,
+        24,
+        24,
+        24,
+        24
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "totalAdvanceDip": 144,
+      "totalAdvanceDesignUnits": 6000,
+      "upem": 1000,
+      "ascentDip": 27.84,
+      "descentDip": 6.912,
+      "lineGapDip": 0,
+      "lineHeightDip": 34.752,
+      "note": "plain Han, expect identical glyphs across faces"
+    },
+    {
+      "id": "locl-han-2-SC",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 2,
+      "ttcFace": "SC",
+      "emSizeDip": 24,
+      "text": "\u6C49\u5B57\u5B57\u4F53\u8BF4\u660E",
+      "utf16Length": 6,
+      "glyphCount": 6,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        23037,
+        15365,
+        15365,
+        9966,
+        38513,
+        20282
+      ],
+      "advancesDip": [
+        24,
+        24,
+        24,
+        24,
+        24,
+        24
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "totalAdvanceDip": 144,
+      "totalAdvanceDesignUnits": 6000,
+      "upem": 1000,
+      "ascentDip": 27.84,
+      "descentDip": 6.912,
+      "lineGapDip": 0,
+      "lineHeightDip": 34.752,
+      "note": "plain Han, expect identical glyphs across faces"
+    },
+    {
+      "id": "locl-han-2-TC",
+      "font": "NotoSansCJK-Regular.ttc",
+      "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "ttcFaceIndex": 3,
+      "ttcFace": "TC",
+      "emSizeDip": 24,
+      "text": "\u6C49\u5B57\u5B57\u4F53\u8BF4\u660E",
+      "utf16Length": 6,
+      "glyphCount": 6,
+      "notdefGlyphs": 0,
+      "glyphIds": [
+        23037,
+        15365,
+        15365,
+        9966,
+        38513,
+        20282
+      ],
+      "advancesDip": [
+        24,
+        24,
+        24,
+        24,
+        24,
+        24
+      ],
+      "offsetsDip": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "textToGlyphMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "glyphToClusterMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "totalAdvanceDip": 144,
+      "totalAdvanceDesignUnits": 6000,
+      "upem": 1000,
+      "ascentDip": 27.84,
+      "descentDip": 6.912,
+      "lineGapDip": 0,
+      "lineHeightDip": 34.752,
+      "note": "plain Han, expect identical glyphs across faces"
+    }
+  ]
+}

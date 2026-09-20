@@ -1,0 +1,201 @@
+<Window x:Class="WpfTextDemo.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="WpfTextDemo — text / binding / image / effect"
+        Width="900" Height="900"
+        Background="#FF0E1320">
+
+    <!--
+      窗口高度 900：**门禁的判据④要求"每个可见特性色都能在初始视口里找到"**。
+      620 时左列（ScrollViewer 里 5 张卡片）会被折叠掉下半部分 ⇒ 判据④ 会把"没滚动到"
+      误判成"没画出来"（实测踩到：align_right/image_card/shapes_tomato 全 0，而它们其实在）。
+      本机屏幕 1280x1024，900 高放得下。**这不是为了让判据变绿而删功能** ——
+      5 张卡片、ScrollViewer、全部特性一个都没少。
+    -->
+    <Border Margin="16" CornerRadius="16"
+            Background="#FF1A2233" BorderBrush="#FF3C4E6B" BorderThickness="2">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="24" ShadowDepth="6" Direction="315"
+                              Opacity="0.65" Color="#FF000000" />
+        </Border.Effect>
+
+        <Grid Margin="18">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="440" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- ── 标题（跨两列）────────────────────────────────────────── -->
+            <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Margin="0,0,0,12">
+                <TextBlock Text="WpfTextDemo" FontSize="26" FontWeight="Bold"
+                           Foreground="#FFE9F1FF" />
+                <TextBlock FontSize="12" Foreground="#FF8FA6C4"
+                           Text="折行 / 省略号 / 三档对齐 · 数据绑定 · 位图 · 圆角与阴影 · 鼠标命中（默认配置门禁样例）" />
+            </StackPanel>
+
+            <!-- ── 左列：ScrollViewer 里塞满文本卡片（内容高于视口 ⇒ 真滚动条）── -->
+            <ScrollViewer Grid.Row="1" Grid.Column="0" VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled" Margin="0,0,14,0">
+                <StackPanel>
+
+                    <!-- (1) 多行折行 + 中英混排（定宽 380）-->
+                    <Border Background="{StaticResource CardBrush}" BorderBrush="{StaticResource CardStrokeBrush}"
+                            BorderThickness="1" CornerRadius="10" Padding="12" Margin="0,0,0,10">
+                        <StackPanel>
+                            <TextBlock Text="① 多行折行 · 中英混排" FontSize="13" FontWeight="Bold"
+                                       Foreground="#FF9BE564" Margin="0,0,0,6" />
+                            <TextBlock x:Name="WrapText" Width="380" TextWrapping="Wrap"
+                                       FontSize="14" Foreground="#FFD8E4F5" TextAlignment="Left"
+                                       Text="这是一段用于验证自动折行的中英混排文字：WPF on Linux renders wrapped text by measuring each line and breaking at word boundaries，同时也要保证 CJK 字符之间可以正常断行、标点不会跑到行首。The quick brown fox jumps over the lazy dog 以便观察英文断词；mixed 中英 mixed 混排 should look natural on every line." />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- (2) TextTrimming 省略号（单行 + 定宽，超长文本被裁成 …）-->
+                    <Border Background="{StaticResource CardBrush}" BorderBrush="{StaticResource CardStrokeBrush}"
+                            BorderThickness="1" CornerRadius="10" Padding="12" Margin="0,0,0,10">
+                        <StackPanel>
+                            <TextBlock Text="② TextTrimming 省略号（CharacterEllipsis）" FontSize="13" FontWeight="Bold"
+                                       Foreground="#FFFFD166" Margin="0,0,0,6" />
+                            <TextBlock x:Name="TrimText" Width="380" TextWrapping="NoWrap"
+                                       TextTrimming="CharacterEllipsis" FontSize="14" Foreground="#FFFFD166"
+                                       Text="这一行很长很长而且不会折行，应该在右边界处被裁掉并显示省略号 trimmed with an ellipsis at the right edge——如果你看到结尾的省略号，说明 trimming 生效。" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- (3) TextAlignment 三档 -->
+                    <Border Background="{StaticResource CardBrush}" BorderBrush="{StaticResource CardStrokeBrush}"
+                            BorderThickness="1" CornerRadius="10" Padding="12" Margin="0,0,0,10">
+                        <StackPanel>
+                            <TextBlock Text="③ TextAlignment 三档" FontSize="13" FontWeight="Bold"
+                                       Foreground="#FF6FD3FF" Margin="0,0,0,6" />
+                            <TextBlock Width="380" TextAlignment="Left"   FontSize="14" Foreground="#FF9BE564" Text="Left · 左对齐" />
+                            <TextBlock Width="380" TextAlignment="Center" FontSize="14" Foreground="#FF6FD3FF" Text="Center · 居中" />
+                            <TextBlock Width="380" TextAlignment="Right"  FontSize="14" Foreground="#FFFF9F7A" Text="Right · 右对齐" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- (4) 程序生成位图 -->
+                    <Border Background="{StaticResource CardBrush}" BorderBrush="{StaticResource CardStrokeBrush}"
+                            BorderThickness="1" CornerRadius="10" Padding="12" Margin="0,0,0,10">
+                        <StackPanel>
+                            <TextBlock Text="④ 程序生成位图（Image）" FontSize="13" FontWeight="Bold"
+                                       Foreground="#FFB48EFF" Margin="0,0,0,6" />
+                            <StackPanel Orientation="Horizontal">
+                                <Border BorderBrush="#FF6B7FA3" BorderThickness="1" CornerRadius="6">
+                                    <Image x:Name="GeneratedImage" Width="96" Height="96" />
+                                </Border>
+                                <TextBlock x:Name="ImageNote" Width="250" Margin="10,0,0,0" TextWrapping="Wrap"
+                                           FontSize="12" Foreground="#FFB8C7DE" Text="（位图机制说明见控制台）" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- (5) 一点几何图形，保证画面里有非文字的饱和色（直方图/读图都更容易判）-->
+                    <Border Background="{StaticResource CardBrush}" BorderBrush="{StaticResource CardStrokeBrush}"
+                            BorderThickness="1" CornerRadius="10" Padding="12" Margin="0,0,0,10">
+                        <StackPanel>
+                            <TextBlock Text="⑤ 形状与渐变（基线对照）" FontSize="13" FontWeight="Bold"
+                                       Foreground="#FFFF8A65" Margin="0,0,0,6" />
+                            <Canvas Width="380" Height="70">
+                                <Rectangle Canvas.Left="0" Canvas.Top="0" Width="110" Height="60"
+                                           Fill="Tomato" Stroke="White" StrokeThickness="2" />
+                                <Ellipse Canvas.Left="130" Canvas.Top="0" Width="110" Height="60"
+                                         Stroke="White" StrokeThickness="2">
+                                    <Ellipse.Fill>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="Gold" Offset="0" />
+                                            <GradientStop Color="MediumPurple" Offset="1" />
+                                        </LinearGradientBrush>
+                                    </Ellipse.Fill>
+                                </Ellipse>
+                                <Path Canvas.Left="260" Canvas.Top="0" Fill="MediumSeaGreen" Stroke="White"
+                                      StrokeThickness="2" Data="M 0,60 L 55,0 L 110,60 Z" />
+                            </Canvas>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ── (6) 滚动垫片：**定高**，把"左列溢出视口"与"文本行高"解耦 ──────────
+                         【为什么加它（2026-09-13 主控裁定，别当装饰删掉）】
+                         判据⑥ 的标准是"**真的有东西可滚，且滚动真的改变了画面**"——标准没错，
+                         但它原先的隐含前提是"左列内容必然高于视口"，而那个前提**依赖另一条车道的
+                         行高**：波 8 让每段文本少算一行（`WrapText 7→6 行`、单行 TextBlock −15.2、
+                         折行段落 −16.3），左列总高 806.4→649.2 就**不再溢出**（viewport 717.1）
+                         ⇒ `ScrollableHeight=0`、滚动条 `Collapsed`、判据⑥ 变成**不可满足**
+                         （红得没错，但红因不是被测对象）。
+                         这张卡的高度**与文本度量无关**（`Canvas Height=220` 写死）⇒ 溢出是
+                         **构造保证**的，判据⑥ 一个字不放宽，且不再被别人的改动牵动。
+                         ⚠️ 它不是装饰，三个约束：① 高度写死 220；② 三条同色横杠是**位移可判**
+                         标记（滚动后整体上移，读图/差分可核对）；③ 只用 `Rectangle`（已验证能画
+                         的种类，避免把判据② `未画种类 0` 弄红）。 -->
+                    <Border Background="{StaticResource CardBrush}" BorderBrush="{StaticResource CardStrokeBrush}"
+                            BorderThickness="1" CornerRadius="10" Padding="12" Margin="0,0,0,10">
+                        <StackPanel>
+                            <TextBlock Text="⑥ 滚动垫片（定高 220：溢出的构造保证，与行高无关）" FontSize="13" FontWeight="Bold"
+                                       Foreground="#FF8FA6C8" Margin="0,0,0,6" />
+                            <Canvas Width="380" Height="220">
+                                <Rectangle Canvas.Left="0" Canvas.Top="0"   Width="380" Height="4" Fill="#FF4C6EF5" />
+                                <Rectangle Canvas.Left="0" Canvas.Top="108" Width="380" Height="4" Fill="#FF4C6EF5" />
+                                <Rectangle Canvas.Left="0" Canvas.Top="216" Width="380" Height="4" Fill="#FF4C6EF5" />
+                            </Canvas>
+                        </StackPanel>
+                    </Border>
+
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- ── 右列：数据绑定 + ListBox（自带滚动）+ 选中项回显 ────────── -->
+            <Grid Grid.Row="1" Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="⑥ 数据绑定 · ListBox（可滚动，24 项）"
+                           FontSize="13" FontWeight="Bold" Foreground="#FF4DD0E1" Margin="0,0,0,6" />
+
+                <ListBox x:Name="ItemsList" Grid.Row="1"
+                         Background="#FF141C2B" BorderBrush="#FF44587A" BorderThickness="1"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                         SelectionChanged="OnSelectionChanged">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="2,3">
+                                <TextBlock Text="{Binding Title}" FontSize="14" Foreground="#FFEAF2FF" />
+                                <TextBlock Text="{Binding Detail}" FontSize="11" Foreground="#FF93A9C9" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <Border Grid.Row="2" Margin="0,8,0,0" CornerRadius="8" Padding="10"
+                        Background="#FF18233A" BorderBrush="#FF44587A" BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="当前选中（ElementName 绑定）" FontSize="11" Foreground="#FF8FA6C4" />
+                        <TextBlock x:Name="SelectionEcho" FontSize="14" Foreground="#FFFFD166"
+                                   Text="{Binding SelectedItem.Title, ElementName=ItemsList, FallbackValue=（未选中）}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- ── 底部：鼠标命中与事件（改可见状态）──────────────────────── -->
+            <Border x:Name="HitCard" Grid.Row="2" Grid.ColumnSpan="2" Margin="0,14,0,0"
+                    CornerRadius="10" Padding="12"
+                    Background="#FF2A3A55" BorderBrush="#FF44587A" BorderThickness="1"
+                    MouseEnter="OnHitEnter" MouseLeave="OnHitLeave"
+                    MouseLeftButtonDown="OnHitDown">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="⑦ 鼠标命中：" FontSize="13" FontWeight="Bold" Foreground="#FF8FA6C4" />
+                    <TextBlock x:Name="HitText" FontSize="13" Foreground="#FFE9F1FF"
+                               Text="把指针移到这块区域 → 变绿；点一下 → 变橙（计数 +1）" />
+                </StackPanel>
+            </Border>
+
+        </Grid>
+    </Border>
+</Window>

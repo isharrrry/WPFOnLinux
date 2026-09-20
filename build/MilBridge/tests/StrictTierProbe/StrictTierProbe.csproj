@@ -1,0 +1,68 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(MSBuildThisFileDirectory)../../../../build/SelfBuiltConfig.props" />
+
+  <!--
+    W20A · **`D-T6` 定性探针**：同一份 pc 上，把**同一条用例**在**两档**（严格档 / 宽松档）各自
+    `TextFormatter.FormatLine` 返回的行逐个 dump 出来，并**同时**用两种索引口径读
+    `GetTextBounds` ⇒ 直接回答"回来的**行本身**一样不一样"与"**读法**是不是两档不同"。
+
+    为什么要独立成工程（而不是往 `PcLineOracle` 里塞）：
+      · `PcLineOracle` 的判据行被多份文档引用（`PCLINE CASE/NAMED/…`），本探针要的是**原始 dump**
+        （每行 `Length`/`Start`/`GetIndexedGlyphRuns` 的段落系起点/逐字两种读法）⇒ 分开互不污染；
+      · 本探针**不改** `PcLineOracle/**` 一个字节，也不进任何门禁。
+
+    身份：程序集名 `PresentationCore.Tests` + 与 PC 同一把公钥公开签名 ⇒ 借 PC 的 IVT 名额
+      （用途只有两个：读 `HbTextFallback.Enabled/Calls/Handled/CacheInfo()` 与
+       `WpfLinuxLenientTextFallback.Diagnostics` 当**档位自证**）。
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>PresentationCore.Tests</AssemblyName>
+    <RootNamespace>MilBridge.StrictTierProbe</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <BaseOutputPath>$(MSBuildThisFileDirectory)bin\</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)obj\</BaseIntermediateOutputPath>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign>true</PublicSign>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)../../../../build/keys/WcpPublicKey.snk</AssemblyOriginatorKeyFile>
+    <NoWarn>$(NoWarn);CS8002;CS0436;CS0012</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="PresentationCore">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/PresentationCore.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationCore.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="WindowsBase">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/WindowsBase.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/WindowsBase.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="DirectWriteForwarder">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/DirectWriteForwarder.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWriteForwarder.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="DirectWrite.Linux.Provider">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/DirectWrite.Linux/Provider/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWrite.Linux.Provider.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.88.9" />
+    <PackageReference Include="System.IO.Packaging" Version="9.0.0" />
+    <PackageReference Include="System.Formats.Nrbf" Version="9.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.0" />
+    <PackageReference Include="System.Windows.Extensions" Version="9.0.0" />
+  </ItemGroup>
+
+</Project>

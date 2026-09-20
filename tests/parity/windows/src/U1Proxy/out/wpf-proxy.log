@@ -1,0 +1,6 @@
+real dll loaded: C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\10.0.7\wpfgfx_cor3.dll (hmod=00007FFA84D60000)
+resolved all exports, failures=0
+channel 00000204D4F26D60 -> C:\u1-parity\out\proxy2\wpf-ch0.stream
+channel 00000204D4F27540 -> C:\u1-parity\out\proxy2\wpf-ch1.stream
+channel 00000204D4F25F60 -> C:\u1-parity\out\proxy2\wpf-ch2.stream
+channel 00000204D4F271C0 -> C:\u1-parity\out\proxy2\wpf-ch3.stream

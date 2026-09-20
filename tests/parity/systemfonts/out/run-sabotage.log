@@ -1,0 +1,6 @@
+U1SystemFontsOracle: outDir=C:\wpf-oracle-systemfonts\out-sabotage sabotage=True
+
+systemFonts properties=60 SystemFontFamilies=91 (orderStable=True)
+message family source='Microsoft YaHei UI' localized='Microsoft YaHei UI' files=3 inSystemFontFamilies=(bySource=True, byName=True, byEquals=True)
+negative control ok=True failures=1 sabotage=True
+  ! SystemFonts.MessageFontFamily ('__NoSuchFontFamily_U1__') resolves to NO font file [sabotaged]

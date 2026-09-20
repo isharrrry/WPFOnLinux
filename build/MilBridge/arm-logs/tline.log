@@ -1,0 +1,212 @@
+== T1b/B2 · HbTextLine 对拍 harness（**驱动真 shim 源**：73 例 CJK + 真机 oracle 614 例）==
+被测文件 = build/shims/PresentationCore.HbTextLine.cs
+           sha256=e89fed55fd8e32bc40f171036e15cfa4b1dcbc69729028a783e0d32a99030e96  大小=290825 B  行数=4836
+           mtime=2026-09-17 00:12:06
+
+-- [1/3] 直构分支编译闸门 + 默认值语义自检（TEXTLINE_SHIM_DIRECT，PC 内形态）--
+  [applocal] DirectWriteForwarder.dll：已与权威一致（de2d555105b7d04b）
+  [applocal] DirectWrite.Linux.Provider.dll：已与权威一致（1f9511a7ef395bfe）
+  [applocal] PresentationCore.dll：已与权威一致（9465f9dce39e2dfc）
+  [applocal] WindowsBase.dll：**陈旧 84a2826c471e60ea → 已同步为权威 79740e9ba7fbf9ca**
+  [applocal] 汇总：4/4 权威产物均已就位并与副本一致/已同步
+
+已用时间 00:00:01.54
+== T1b · 直构分支（PC 内形态）+ 默认值语义自检 ==
+  PASS  D1 编的是直构分支（Direct == true）
+        IsDirect=True
+  PASS  D2 HbTextFallback 存在（D3 接线钩子已编入）
+        ok
+  PASS  D3 **不设任何 env ⇒ 回退默认「开」**（D3 第一版就栽在这里：默认关 ⇒ 接线等于不存在）
+        Enabled=True
+  PASS  D4 `WPF_LINUX_TEXTLINE=0` ⇒ 回退关（回到接线前行为，用于 A/B 对照）
+        Enabled=False
+  PASS  D5 `WPF_LINUX_TEXTLINE_FALLBACK=0` ⇒ 回退关（独立开关，不动总开关语义）
+        Enabled=False
+  PASS  D6 `WPF_LINUX_TEXTLINE=1` ⇒ 仍开（打开别的读数不该关掉回退）
+        Enabled=True
+== 通过 ==
+-- [2/3] 对拍主体（反射分支；直构分支由主控重建 PC 后验）--
+==================== T1b/B2 · HbTextLine 对拍 harness（驱动真 shim 源）====================
+shim 源 = build/shims/PresentationCore.HbTextLine.cs
+shim tag = T1b/B2 · 2026-09-11 · break-engine + TextLineBreak + Collapse
+引擎     = ICU(UAX#14) + `…`前可断 + 禁则拉字 + 强制断 fallback
+ICU      = 70.1.0.0；HB = 2.7.4
+
+──────── T0 身份自检：驱动的是**真 shim 源文件**吗 ────────
+  ✅ T0.1 HbTextLine 编译在**本 harness 程序集**内（不是引用 PC 里的副本）
+       HbTextLine.Assembly=MilBridge.HbTextLineParity；harness=MilBridge.HbTextLineParity
+  ✅ T0.2 TextLine 基类来自 PresentationCore（契约是真的）
+       TextLine.Assembly=PresentationCore
+  ✅ T0.3 shim 源文件里的 Tag 与 harness 预期逐字相同（换文件/换 stub 会在这里炸）
+       实际="T1b/B2 · 2026-09-11 · break-engine + TextLineBreak + Collapse"
+  ✅ T0.4 真 shim 源文件在磁盘上存在（能算出 sha256）
+       build/shims/PresentationCore.HbTextLine.cs sha256=E89FED55FD8E32BC40F171036E15CFA4B1DCBC69729028A783E0D32A99030E96
+      [T0.7] PresentationCore.dll             副本=9465F9DCE39E2DFC  权威=9465F9DCE39E2DFC  ✓ 一致
+      [T0.7] WindowsBase.dll                  副本=79740E9BA7FBF9CA  权威=79740E9BA7FBF9CA  ✓ 一致
+      [T0.7] DirectWriteForwarder.dll         副本=DE2D555105B7D04B  权威=DE2D555105B7D04B  ✓ 一致
+      [T0.7] DirectWrite.Linux.Provider.dll   副本=1F9511A7EF395BFE  权威=1F9511A7EF395BFE  ✓ 一致
+  ✅ T0.7 **探针目录里实际加载的 4 个副本 sha 与权威件逐一相同**（测量对象被钉住）
+       一致 4/4（权威 PC=9465F9DCE39E2DFC cfg=Release）
+  ✅ T0.6 **被测文件的 sha256 == run.sh 固定的 sha256**（编译进本 harness 的那一份）
+       固定=e89fed55fd8e32bc40f171036e15cfa4b1dcbc69729028a783e0d32a99030e96 实读=E89FED55FD8E32BC40F171036E15CFA4B1DCBC69729028A783E0D32A99030E96
+  ✅ T0.5 ICU 断行引擎可用（不是 '?'）
+       u_getVersion=70.1.0.0
+
+──────── T1 · 73 例 CJK（DWrite oracle）逐行全等 —— 驱动真 HbTextLine ────────
+   用例 73；**逐行全等 73 / 不同 0**
+  ✅ T1.73 73 例 CJK 逐行全等（判据：必须 0 不同）
+       exact=73 diff=0 cases=73
+
+──────── T2/T3/T4 · 真机 oracle（layout-b34）对拍 —— 驱动真 HbTextLine ────────
+[ROWD] 开关：T1B_ROW_DUMP 未设/为空 ⇒ 逐字符 dump **关闭**（本趟不产生 [ROWD] 读数）
+   [对拍面] 可逐位比用例 315（file 字体 + Ideal 模式 + 非 RTL）；其余 299 例只统计不给结论（zh/ja = 无 YaHei/Yu Gothic；Display = 本实现无该模式（advance 未按整像素对齐）；RTL = 本轮无 bidi）
+   [逐行记账·结构] Length+NewlineLength+TrailingWhitespaceLength+(WITW−W) ⇒ 全等 1298 / 1298
+   [口径·宽度分桶] 0=173 / ≤0.34DIP=1125 / >0.34DIP=0 行（三桶和==1298 机检：OK）最大差 0.333333 @ A1_long_word_w150
+   [隔离矩阵] 族 × >0.34 红数：（无）    各和=0 == 总数 0 : OK
+   [隔离矩阵] 允许变化的族（其余族**一位不动**）：A1_nbsp_zwsp / B_nbsp_zwsp / B_nbsp_zwsp_trim / F_nbsp_zwsp / F_lat_words / M_modifier
+   [隔离矩阵] before（上一趟 artifact gen/t2d-width-diff.txt sha16=13408DDB4379A2B1 mtime=2026-09-19 23:07:52（本文件即上一趟跑的产物 ⇒ 它就是「上一趟的族表」））：（无）
+   [隔离矩阵] after ：（无）
+   [隔离矩阵] 逐族 diff：一位未动（全部族计数与基线逐位相同）
+   [隔离矩阵] 已写 /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/gen/t2d-family-matrix.txt
+   [口径·宽度分桶] 逐行清单 1125 条 ⇒ 已写 /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/gen/t2d-width-diff.txt
+      （真机在 Windows 把每个字形 advance 量化到 1/300 英寸整数量；我们走 HarfBuzz 精确 design units ⇒ 绝对值本就不该逐位相等）
+   [用例] 行划分+结构记账全等 310 / 315
+   [A 组·断行位置] 行首+行可见长度对拍：行级 972/972；用例级 213/213
+   [① 行区间**含**硬断字符（Length 含它、NewlineLength 单独给个数）]
+      真硬断行 286/286 行一致
+   [② 相邻 \n ⇒ Length=1、内容='\n' 的普通行（不是零长度行）]
+      空行 68/68 行一致（Length/Width==0/NewlineLength 同时相等）
+      A1_blank_lines_w20 行#4: 真机 Len=1 W=0.0000 nl=1 | 实得 Len=1 W=0.0000 nl=1
+      A1_blank_lines_w20 行#5: 真机 Len=1 W=0.0000 nl=1 | 实得 Len=1 W=0.0000 nl=1
+      A1_blank_lines_w30 行#3: 真机 Len=1 W=0.0000 nl=1 | 实得 Len=1 W=0.0000 nl=1
+      A1_blank_lines_w30 行#4: 真机 Len=1 W=0.0000 nl=1 | 实得 Len=1 W=0.0000 nl=1
+   [③ 行尾空白：占区间、不占 Width，差额由 WidthIncludingTrailingWhitespace 给出]
+      有行尾空白的行 988/988 一致（TrailingWhitespaceLength + WITW−W 关系）
+      A1_lat_words_w20 行#1: 真机 ws=1 WITW−W=4.1600 | 实得 ws=1 WITW−W=4.1600
+      A1_lat_words_w30 行#0: 真机 ws=1 WITW−W=4.1600 | 实得 ws=1 WITW−W=4.1600
+      A1_lat_words_w40 行#0: 真机 ws=1 WITW−W=4.1600 | 实得 ws=1 WITW−W=4.1600
+      A1_lat_words_w50 行#0: 真机 ws=1 WITW−W=4.1600 | 实得 ws=1 WITW−W=4.1600
+   [T2d 行度量：Height / Baseline / Extent vs 真机]
+      行级一致：Height 1298/1298、Baseline 1298/1298、Extent 1223/1298；最大差 Height=0.0013（在 A1_lat_words_w20 行#0）、Baseline=0.0007
+      **LineHeight>0 的用例**：10 例 / 40 行 （来源 cases-cd2.json：`lineHeight` 显式非空的用例；真值 = results-cd2.json）
+        逐例一致：Height 10/10、TextHeight 5/10、Baseline 6/10、Extent 5/10
+        Height 一致 @0.34: 10/10 ｜ @0.01: 10/10   Baseline 一致 @0.34: 10/10 ｜ @0.01: 6/10
+        TextHeight 一致 @0.34: 5/10 ｜ @0.01: 5/10   Extent 一致 @0.34: 5/10 ｜ @0.01: 5/10 （严口径 0.01 与宽口径 0.34 之间的差额行：16；CJK 例为字体代用：本机无 MS YaHei）
+      LH_lat_words_lh10        LineHeight=10.0000  行0: Height 真值=10.0000 我们=10.0000 | Baseline 真值=7.8500 我们=7.8488 | Extent 真值=18.0800 我们=18.0800
+      LH_lat_words_lh22        LineHeight=21.7930  行0: Height 真值=21.7933 我们=21.7930 | Baseline 真值=17.1067 我们=17.1048 | Extent 真值=18.0800 我们=18.0800
+      LH_lat_words_lh30        LineHeight=30.0000  行0: Height 真值=30.0000 我们=30.0000 | Baseline 真值=23.5467 我们=23.5463 | Extent 真值=18.0800 我们=18.0800
+      LH_lat_words_lh50        LineHeight=50.0000  行0: Height 真值=50.0000 我们=50.0000 | Baseline 真值=39.2433 我们=39.2438 | Extent 真值=18.0800 我们=18.0800
+      LH_lat_words_lh30_ac1    LineHeight=30.0000  行0: Height 真值=30.0000 我们=30.0000 | Baseline 真值=23.5467 我们=23.5463 | Extent 真值=18.0800 我们=18.0800
+      LH_cjk_punct_lh10        LineHeight=10.0000  行0: Height 真值=10.0000 我们=10.0000 | Baseline 真值=8.0167 我们=8.0110 | Extent 真值=18.0859 我们=17.2320
+      LH_cjk_punct_lh22        LineHeight=21.7930  行0: Height 真值=21.7933 我们=21.7930 | Baseline 真值=17.4733 我们=17.4585 | Extent 真值=18.0859 我们=17.2320
+      LH_cjk_punct_lh30        LineHeight=30.0000  行0: Height 真值=30.0000 我们=30.0000 | Baseline 真值=24.0500 我们=24.0331 | Extent 真值=18.0859 我们=17.2320
+      LH_cjk_punct_lh50        LineHeight=50.0000  行0: Height 真值=50.0000 我们=50.0000 | Baseline 真值=40.0867 我们=40.0552 | Extent 真值=18.0859 我们=17.2320
+      LH_cjk_punct_lh30_ac1    LineHeight=30.0000  行0: Height 真值=30.0000 我们=30.0000 | Baseline 真值=24.0500 我们=24.0331 | Extent 真值=18.0859 我们=17.2320
+   [Collapse / GetTextCollapsedRanges]
+      折叠判定一致 1297/1298；真折叠 236 行，明细全等 232/236（折后宽度最大差 9.680667 DIP，最差在 F_nbsp_zwsp_w80 行#0（行文本=start=0 visible=9 hardBreak=0 eop=0 forced=1 keepState=1 modifier=0））
+      [契约断言·逐条] ① 三种计数（主控 2026-09-14 裁定：判据 = **判别式** `ours<0 ⇒ truth<0`）：裸形式红 0/236 ／ 判别式红 0/236 ／ 两侧同为负 0/236（裸形式比判别式多的 0 条 = **假红**：真机自己在该位置也为负）；② 起止(起点+长度)==真机 红 4/236；③ |cr.Width−真值| < 0.34 红 2/236（**沿用既有容差，未放宽**）
+      [登记·判据位移] ① 由**裸 `cr.Width>=0`** 改为**判别式** `ours<0 ⇒ truth<0`：裸形式红 0 ⇒ 判别式红 0（方向**未放松**：真值非负而我们为负的每一种情形仍全部抓住；少的 0 条全是「真值同位置也 <0」＝真机自己也这样 ⇒ 不是违反）。三种计数见上一行。
+      [契约②] F_lat_words_w560 行#0：起止 我们=n=1 [30,40) 真值=[31,39)
+      [契约②] F_nbsp_zwsp_w80 行#0：起止 我们=n=1 [2,7) 真值=[1,8)
+      [契约②] F_nbsp_zwsp_w200 行#0：起止 我们=n=1 [8,13) 真值=[7,14)
+      [契约②] M_modifier_w120 行#0：起止 我们=n=1 [5,51) 真值=[6,50)
+      [契约③] F_nbsp_zwsp_w80 行#0：cr.Width 我们=38.3360 真值=48.0133 差=-9.6773 阈值=0.3400
+      [契约③] F_nbsp_zwsp_w200 行#0：cr.Width 我们=85.5680 真值=94.1067 差=-8.5387 阈值=0.3400
+      F_lat_words_w40 行#0: 真机 Len=4 W=21.5533 cr=[1,3) W=6.2533 | 实得 Len=4 W=21.5520 cr=[1,3) W=6.2560
+      F_lat_words_w40 行#1: 真机 Len=4 W=22.4967 cr=[5,3) W=9.0367 | 实得 Len=4 W=22.4960 cr=[5,3) W=9.0400
+      F_lat_words_w40 行#2: 真机 Len=2 W=12.6567 cr=[8,2) W=-4.1133 | 实得 Len=2 W=12.6560 cr=[8,2) W=-4.1120
+      F_lat_words_w40 行#3: 真机 Len=4 W=22.4967 cr=[11,3) W=15.5667 | 实得 Len=4 W=22.4960 cr=[11,3) W=15.5680
+      X F_lat_words_w560 行#0 [start=0 visible=70 hardBreak=0 eop=0 forced=0 keepState=1 modifier=0] 行文本="The quick brown fox jumps over the lazy dog and the waffle office ffl " 行W=511.4400  | 真机 Len=70 W=252.2100 cr=[31,39) W=259.2133  | 实得 Len=70 W=252.2240 cr=[30,40) W=259.2160
+      X F_nbsp_zwsp_w80 行#0 [start=0 visible=9 hardBreak=0 eop=0 forced=1 keepState=1 modifier=0] 行文本="no break " 行W=70.5600  | 真机 Len=9 W=22.5433 cr=[1,8) W=48.0133  | 实得 Len=9 W=32.2240 cr=[2,7) W=38.3360
+      X F_nbsp_zwsp_w200 行#0 [start=0 visible=21 hardBreak=0 eop=0 forced=0 keepState=1 modifier=0] 行文本="no break nbsp 与 zero​" 行W=164.6240  | 真机 Len=21 W=70.5100 cr=[7,14) W=94.1067  | 实得 Len=21 W=79.0560 cr=[8,13) W=85.5680
+      X M_modifier_w120 行#0 [start=0 visible=56 hardBreak=0 eop=0 forced=0 keepState=1 modifier=1] 行文本="alpha bravo charlie delta echo foxtrot golf hotel india " 行W=115.6960  | 真机 Len=56 W=54.4633 cr=[6,50) W=61.2267  | 实得 Len=56 W=54.4640 cr=[5,51) W=61.2320
+      空参：可折叠行抛 ArgumentNullException 253/253；不可折叠行原样返回 this 1044/1044
+   ── 不一致用例 5 个，按家族归并 ──
+      A1_nbsp_zwsp: 1 例
+      F_lat_words: 1 例
+      F_nbsp_zwsp: 2 例
+      M_modifier: 1 例
+      A1_nbsp_zwsp_w40(行#0 Collapse hasCollapsed 期望 False 实得 True)
+      F_lat_words_w560(行#0 折叠明细不符)
+      F_nbsp_zwsp_w80(行#0 折叠明细不符)
+      F_nbsp_zwsp_w200(行#0 折叠明细不符)
+      M_modifier_w120(行#0 折叠明细不符)
+  ✅ T2 真机口径逐行**记账结构**全等（①硬断 ②空行 ③行尾空白）
+       [口径·记账结构] 全等 1298/1298（不等 0 行：①硬断 286/286 ②空行 68/68 ③行尾空白 988/988）
+  ✅ T2-iso 族计数等式（各和 == 总数）**且**隔离矩阵（其它族一位不动）—— 机器断言
+       各和 0 == 总数 0 : OK；隔离性 OK；逐族 diff = 一位未动（全部族计数与基线逐位相同）
+  ✅ T2b A 组（CJK/中英混排）断行位置逐行对拍
+       行级 972/972；用例级 213/213
+  ❌ T3 Collapse 与真机一致（判定 + 明细 + 未折叠 ⇒ GetTextCollapsedRanges()==null）
+       判定 1297/1298；明细 232/236；空参抛 253/253；空参返回 this 1044/1044
+  ❌ T3b 折叠明细**契约级**断言（① 判别式 `ours<0 ⇒ truth<0` ② 起止==真机 ③ |cr.Width−真机| < 0.34）
+       ① 判别式红 0/236（**真违反**）；裸形式红 0/236（多出的 0 条 = 两侧同为负 0 条的**假红**：真机自己在 oracle 的 430 条折叠区间里有 7 条 Width<0）；② 红 4/236；③ 红 2/236（容差 0.34，**未放宽**）
+   [完整明细] 折叠不符 4 条（样例上限 24 ⇒ 未截断）；记账不一致 5 条（用例样例上限 80）；Extent 余差 95 条（控制台样例上限 45）
+   [记账行级清单] 0 条（无上限 ⇒ 未截断）⇒ 已写 /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/gen/tline-ledger-lines-20260920-0017.txt
+   [完整明细] 已写 /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/gen/tline-detail-full.txt（116 行；含 3 段：折叠 4 / Extent 95 / 记账 5）
+  ✅ T2d-lh **T2d 的 LineHeight 覆盖不再为 0**（真值来源 cases-cd2.json；口径见输出）
+       LineHeight 用例 10 例 / 40 行（Height 10/10、Baseline 6/10）
+   [② Extent 余差清单] 共 95 条（主对拍集 75 + LH 组 20；容差 0.01 DIP）⇒ 全量已写 /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/gen/t2d-extent-mismatches.txt
+      LH_cjk_punct_lh10 行#0 [NotoSansCJK(da)] Extent 真值=18.0859 我们=17.2320 差=-0.8539
+      LH_cjk_punct_lh10 行#1 [NotoSansCJK(da)] Extent 真值=18.0547 我们=17.2320 差=-0.8227
+      LH_cjk_punct_lh10 行#2 [NotoSansCJK(da)] Extent 真值=17.5781 我们=16.9120 差=-0.6661
+      LH_cjk_punct_lh10 行#3 [NotoSansCJK(da)] Extent 真值=17.5156 我们=16.8160 差=-0.6996
+      LH_cjk_punct_lh22 行#0 [NotoSansCJK(da)] Extent 真值=18.0859 我们=17.2320 差=-0.8539
+      LH_cjk_punct_lh22 行#1 [NotoSansCJK(da)] Extent 真值=18.0547 我们=17.2320 差=-0.8227
+      LH_cjk_punct_lh22 行#2 [NotoSansCJK(da)] Extent 真值=17.5781 我们=16.9120 差=-0.6661
+      LH_cjk_punct_lh22 行#3 [NotoSansCJK(da)] Extent 真值=17.5156 我们=16.8160 差=-0.6996
+      LH_cjk_punct_lh30 行#0 [NotoSansCJK(da)] Extent 真值=18.0859 我们=17.2320 差=-0.8539
+      LH_cjk_punct_lh30 行#1 [NotoSansCJK(da)] Extent 真值=18.0547 我们=17.2320 差=-0.8227
+      LH_cjk_punct_lh30 行#2 [NotoSansCJK(da)] Extent 真值=17.5781 我们=16.9120 差=-0.6661
+      LH_cjk_punct_lh30 行#3 [NotoSansCJK(da)] Extent 真值=17.5156 我们=16.8160 差=-0.6996
+      LH_cjk_punct_lh50 行#0 [NotoSansCJK(da)] Extent 真值=18.0859 我们=17.2320 差=-0.8539
+      LH_cjk_punct_lh50 行#1 [NotoSansCJK(da)] Extent 真值=18.0547 我们=17.2320 差=-0.8227
+      LH_cjk_punct_lh50 行#2 [NotoSansCJK(da)] Extent 真值=17.5781 我们=16.9120 差=-0.6661
+      LH_cjk_punct_lh50 行#3 [NotoSansCJK(da)] Extent 真值=17.5156 我们=16.8160 差=-0.6996
+      LH_cjk_punct_lh30_ac1 行#0 [NotoSansCJK(da)] Extent 真值=18.0859 我们=17.2320 差=-0.8539
+      LH_cjk_punct_lh30_ac1 行#1 [NotoSansCJK(da)] Extent 真值=18.0547 我们=17.2320 差=-0.8227
+      LH_cjk_punct_lh30_ac1 行#2 [NotoSansCJK(da)] Extent 真值=17.5781 我们=16.9120 差=-0.6661
+      LH_cjk_punct_lh30_ac1 行#3 [NotoSansCJK(da)] Extent 真值=17.5156 我们=16.8160 差=-0.6996
+  ✅ T2d 行度量与真机一致（Height / Baseline / Extent）—— 摞印归因的关键判据
+       Height 1298/1298、Baseline 1298/1298、Extent 1223/1298；最大差 Height=0.0013（A1_lat_words_w20 行#0）、Baseline=0.0007；LineHeight 行 0（一致 0）
+  ✅ T2c 【已登记差异·保留红】Tab（`\t`）口径：真机 = 0 宽 + 特定断点，本实现未做
+       Tab 可比例 34 例，其中不一致 0 例（家族：） ⇒ 这是**新发现的差异类别**（不属于本轮三条记账），已在 T1b 报告里登记给主控，未实现、未放宽
+
+──────── T5 · GetTextLineBreak 语义 + 零记录 + 所有权/Clone/Dispose ────────
+  ✅ T5.1 普通文本（无 TextModifier）：每行 GetTextLineBreak() 都是 null
+       行数=7 null=7 非null=0（真机 3220/3222 null）
+  ✅ T5.2 modifier 情形：拿到**真的** TextLineBreak 对象（非 null）
+       type=System.Windows.Media.TextFormatting.TextLineBreak
+  ✅ T5.3 零记录：_breakRecord = IntPtr.Zero 且 _currentScope = null（**不伪造**原生断行记录）
+       _breakRecord=0 _currentScope=null
+  ✅ T5.4 Clone() 不崩、返回**新实例**（真机 cloneIsSameReference=false），且克隆体也是零记录
+       sameRef=False cloneRecord=0
+  ✅ T5.5 Dispose() 对零记录**不调** LsDestroy/LoDisposeBreakRecord（上游 `if (_breakRecord != IntPtr.Zero)` ⇒ 零记录走不到原生）；两个实例各自 Dispose 一次不崩（无引用计数、各自持有）
+       两次 Dispose 均无异常
+      [读数] breakNull=7 breakZeroRecords=1 modifierLines=9
+  ✅ T5.6 计数器口径：null 路径与零记录路径**各记各的**（本次：null≥1、zero≥1）
+       breakNull=7 breakZeroRecords=1
+  ✅ T5.7 WPF_LINUX_TEXTLINE_STRICT=1 时零记录**当失败上报**（抛出，不吞）
+       NotSupportedException ✓
+  ✅ T5.8 零记录生命周期不碰 LS：**同进程对照**（能解析一个已知 LS 符号）+ **测量**（Dispose/Clone 会调的符号不存在⇒调了就抛）
+       LsDisableSpecialCharacterLigature 解析成功（对照✓）；（本次未探测符号是否存在：保持 ld.so 日志干净，用『除对照外零查找』作判据；要显式验证不存在就跑 T1B_LS_PROBE_ABSENT=1）
+
+──────── 计数器汇总（脚手架读数）────────
+  HB_TEXTLINE enabled=0 lines=3789 draw=0 getTextBounds=0 getTextRunSpans=0 fallbackTotal=0 Collapse=0 GetBackspaceCaretCharacterHit=0 GetCharacterHitFromDistance=0 GetDistanceFromCharacterHit=0 GetIndexedGlyphRuns=0 GetNextCaretCharacterHit=0 GetPreviousCaretCharacterHit=0 GetTextCollapsedRanges=0 GetTextLineBreak=0 paragraphs=699 breakNull=7 breakZeroRecords=2 modifierLines=9 collapseCalls=2596 collapseIneligible=2088 collapseTooWide=17 collapseEmptyArgsThrow=254 collapseApplied=237 collapseUnsupported=0 collapsedRangesNull=1061 collapsedRangesReturned=237 forcedBreakLines=571 kinsokuPulls=36 dependentLengthQueries=0 invertedLines=0 invertedNoWidth=0 antiMatrixMismatch=0
+
+==================== 结论 ====================
+通过 22 / 失败 2
+  ❌ T3 Collapse 与真机一致（判定 + 明细 + 未折叠 ⇒ GetTextCollapsedRanges()==null） :: 判定 1297/1298；明细 232/236；空参抛 253/253；空参返回 this 1044/1044
+  ❌ T3b 折叠明细**契约级**断言（① 判别式 `ours<0 ⇒ truth<0` ② 起止==真机 ③ |cr.Width−真机| < 0.34） :: ① 判别式红 0/236（**真违反**）；裸形式红 0/236（多出的 0 条 = 两侧同为负 0 条的**假红**：真机自己在 oracle 的 430 条折叠区间里有 7 条 Width<0）；② 红 4/236；③ 红 2/236（容差 0.34，**未放宽**）
+⇒ **有失败**（见上）
+
+-- [3/3] LS 绊线装置自证（ld.so 的 LD_DEBUG=symbols 日志 + nm -D 交叉核对）--
+  ✓ nm -D：LsDisableSpecialCharacterLigature **已定义**（与日志 FOUND 一致）
+  ✓ nm -D：LoAcquireBreakRecord **未定义**（与日志 MISS 一致）
+
+⇒ 装置自证 通过（捕获到的查找与 nm -D 事实一致）
+  原始日志保留在 /tmp/tmp.gfcyEdX4x5/（未删，供复核）
+ST_ATTEST=PASS self=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/tools/t1b-ls-tripwire.sh sha16=82f6a05afb1f9db9（自测期间本件未变 ⇒ 读数可归因）
+
+→ harness 退出码 1（0 = 73 例逐行全等 + 真机口径记账/Collapse 全绿；
+   非 0 时看上面 ❌ —— 已知未实现项会**保留红**，不会为了变绿而放宽）

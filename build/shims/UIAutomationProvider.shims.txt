@@ -1,0 +1,1 @@
+build/shims/Win32ShimResolver.cs

@@ -1,0 +1,24 @@
+== T2Repro · mode=--t2-first ==
+AppContext.BaseDirectory = /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/.artifacts/bin/T2Repro/release/
+该目录有 libSkiaSharp.so = False
+LD_LIBRARY_PATH = (unset)
+
+[probe] TryLoad OK: /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/.artifacts/publish/MilBridge.Linux/release_linux-x64/wpfgfx_cor3.so
+[probe] registerExport = 找到(MilFontFace_RegisterFromFile)
+[state] MilCoreDllImportResolver.IsLoaded = False   （false ⇒ .so 内部的 native 目录从未被注入）
+
+[call] MilFontFace_RegisterFromFile("/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/fonts/NotoSans-Regular.ttf", 0, 0) = 0x20000001
+
+[diag-matrix] 失败路径 → (返回值, 诊断码, 诊断文本)
+  文件不存在                      ret=0x0  code=0x5(FileNotFound)  msg=/nonexistent/NoSuchFont.ttf
+  faceIndex < 0              ret=0x0  code=0x6(NegativeFaceIndex)  msg=faceIndex=-1
+  faceIndex 越界               ret=0x0  code=0x7(TypefaceLoadFailed)  msg=SKTypeface.FromFile 返回 null：path=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/fonts/NotoSans-Regular.ttf faceIndex=9999
+  NULL 路径                    ret=0x0  code=0x1(NullPath)  msg=utf8Path == NULL
+  空串                         ret=0x0  code=0x2(EmptyPath)  msg=空路径
+  非法 UTF-8                   ret=0x0  code=0x8(Exception)  msg=System.Text.DecoderFallbackException: Argument_InvalidCodePageBytesIndex, [FF], 0
+  成功（清掉上一次失败）                ret=0x20000002  code=0x0(None)  msg=(null)
+
+[cross-runtime] 令牌交给 .so 内的 MilGlyphRun_GetGlyphOutline
+  hr=0x00000000 size=800 bytes fillRule=1 ptr=0x566D40037C60   ✅ 跨运行时接通（真轮廓）
+  对照：伪造令牌 hr=0x80070006（期望 0x80070006 E_HANDLE）
+  释放轮廓缓冲 hr=0x00000000

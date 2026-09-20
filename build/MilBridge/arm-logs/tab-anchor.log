@@ -1,0 +1,1346 @@
+TAB_LINES_PROBE sha256=a6d0352b8646711157c563fbb6882ceba7ef8989606ba2f4178a6c8cd5849a40 path=build/MilBridge/tests/CoverageProbe/Program.cs
+TAB_LINES CASE A-anchor/lat-a-t-b@w96@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START A-anchor/lat-a-t-b@w96@LTR@i0@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED A-anchor/lat-a-t-b@w96@LTR@i0@default 行=3 红=0 绿=3
+TAB_LINES CASE A-anchor/lat-a-t-b@w96@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START A-anchor/lat-a-t-b@w96@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/lat-a-t-b@w96@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE A-anchor/lat-a-t-b@w100@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START A-anchor/lat-a-t-b@w100@LTR@i0@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED A-anchor/lat-a-t-b@w100@LTR@i0@default 行=3 红=0 绿=3
+TAB_LINES CASE A-anchor/lat-a-t-b@w100@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START A-anchor/lat-a-t-b@w100@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/lat-a-t-b@w100@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE A-anchor/lat-a-t-b@w140@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START A-anchor/lat-a-t-b@w140@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/lat-a-t-b@w140@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE A-anchor/lat-a-t-b@w140@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START A-anchor/lat-a-t-b@w140@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/lat-a-t-b@w140@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE A-anchor/lat-a-t-b@w192@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START A-anchor/lat-a-t-b@w192@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/lat-a-t-b@w192@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE A-anchor/lat-a-t-b@w192@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START A-anchor/lat-a-t-b@w192@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/lat-a-t-b@w192@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE A-anchor/lat-a-t-b@w200@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START A-anchor/lat-a-t-b@w200@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/lat-a-t-b@w200@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE A-anchor/lat-a-t-b@w200@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START A-anchor/lat-a-t-b@w200@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/lat-a-t-b@w200@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE A-anchor/lat-a-t-b@w220@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START A-anchor/lat-a-t-b@w220@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/lat-a-t-b@w220@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE A-anchor/lat-a-t-b@w220@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START A-anchor/lat-a-t-b@w220@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/lat-a-t-b@w220@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE A-anchor/lat-a-t-b@w260@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START A-anchor/lat-a-t-b@w260@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/lat-a-t-b@w260@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE A-anchor/lat-a-t-b@w260@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START A-anchor/lat-a-t-b@w260@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/lat-a-t-b@w260@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE A-anchor/lat-ab-t-c@w96@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START A-anchor/lat-ab-t-c@w96@LTR@i0@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED A-anchor/lat-ab-t-c@w96@LTR@i0@default 行=3 红=0 绿=3
+TAB_LINES CASE A-anchor/lat-ab-t-c@w96@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START A-anchor/lat-ab-t-c@w96@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/lat-ab-t-c@w96@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE A-anchor/lat-ab-t-c@w100@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START A-anchor/lat-ab-t-c@w100@LTR@i0@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED A-anchor/lat-ab-t-c@w100@LTR@i0@default 行=3 红=0 绿=3
+TAB_LINES CASE A-anchor/lat-ab-t-c@w100@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START A-anchor/lat-ab-t-c@w100@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/lat-ab-t-c@w100@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE A-anchor/lat-ab-t-c@w140@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START A-anchor/lat-ab-t-c@w140@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/lat-ab-t-c@w140@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE A-anchor/lat-ab-t-c@w140@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START A-anchor/lat-ab-t-c@w140@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/lat-ab-t-c@w140@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE A-anchor/lat-ab-t-c@w192@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START A-anchor/lat-ab-t-c@w192@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/lat-ab-t-c@w192@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE A-anchor/lat-ab-t-c@w192@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START A-anchor/lat-ab-t-c@w192@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/lat-ab-t-c@w192@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE A-anchor/lat-ab-t-c@w200@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START A-anchor/lat-ab-t-c@w200@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/lat-ab-t-c@w200@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE A-anchor/lat-ab-t-c@w200@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START A-anchor/lat-ab-t-c@w200@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/lat-ab-t-c@w200@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE A-anchor/lat-ab-t-c@w220@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START A-anchor/lat-ab-t-c@w220@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/lat-ab-t-c@w220@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE A-anchor/lat-ab-t-c@w220@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START A-anchor/lat-ab-t-c@w220@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/lat-ab-t-c@w220@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE A-anchor/lat-ab-t-c@w260@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START A-anchor/lat-ab-t-c@w260@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/lat-ab-t-c@w260@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE A-anchor/lat-ab-t-c@w260@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START A-anchor/lat-ab-t-c@w260@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/lat-ab-t-c@w260@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE A-anchor/he-a-t-b@w96@RTL@i0@default 臂=RTL 跳过=面缺字形2
+TAB_LINES START A-anchor/he-a-t-b@w96@RTL@i0@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED A-anchor/he-a-t-b@w96@RTL@i0@default 行=3 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-anchor/he-a-t-b@w96@RTL@i0@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES START A-anchor/he-a-t-b@w96@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/he-a-t-b@w96@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-anchor/he-a-t-b@w100@RTL@i0@default 臂=RTL 跳过=面缺字形2
+TAB_LINES START A-anchor/he-a-t-b@w100@RTL@i0@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED A-anchor/he-a-t-b@w100@RTL@i0@default 行=3 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-anchor/he-a-t-b@w100@RTL@i0@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES START A-anchor/he-a-t-b@w100@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/he-a-t-b@w100@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-anchor/he-a-t-b@w140@RTL@i0@default 臂=RTL 跳过=面缺字形2
+TAB_LINES START A-anchor/he-a-t-b@w140@RTL@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/he-a-t-b@w140@RTL@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-anchor/he-a-t-b@w140@RTL@i0@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES START A-anchor/he-a-t-b@w140@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/he-a-t-b@w140@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-anchor/he-a-t-b@w192@RTL@i0@default 臂=RTL 跳过=面缺字形2
+TAB_LINES START A-anchor/he-a-t-b@w192@RTL@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/he-a-t-b@w192@RTL@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-anchor/he-a-t-b@w192@RTL@i0@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES START A-anchor/he-a-t-b@w192@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/he-a-t-b@w192@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-anchor/he-a-t-b@w200@RTL@i0@default 臂=RTL 跳过=面缺字形2
+TAB_LINES START A-anchor/he-a-t-b@w200@RTL@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/he-a-t-b@w200@RTL@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-anchor/he-a-t-b@w200@RTL@i0@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES START A-anchor/he-a-t-b@w200@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/he-a-t-b@w200@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-anchor/he-a-t-b@w220@RTL@i0@default 臂=RTL 跳过=面缺字形2
+TAB_LINES START A-anchor/he-a-t-b@w220@RTL@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/he-a-t-b@w220@RTL@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-anchor/he-a-t-b@w220@RTL@i0@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES START A-anchor/he-a-t-b@w220@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/he-a-t-b@w220@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-anchor/he-a-t-b@w260@RTL@i0@default 臂=RTL 跳过=面缺字形2
+TAB_LINES START A-anchor/he-a-t-b@w260@RTL@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/he-a-t-b@w260@RTL@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-anchor/he-a-t-b@w260@RTL@i0@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES START A-anchor/he-a-t-b@w260@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/he-a-t-b@w260@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-anchor/he-ab-t-g@w96@RTL@i0@default 臂=RTL 跳过=面缺字形3
+TAB_LINES START A-anchor/he-ab-t-g@w96@RTL@i0@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED A-anchor/he-ab-t-g@w96@RTL@i0@default 行=3 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-anchor/he-ab-t-g@w96@RTL@i0@tab0 臂=RTL 跳过=面缺字形3
+TAB_LINES START A-anchor/he-ab-t-g@w96@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/he-ab-t-g@w96@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-anchor/he-ab-t-g@w100@RTL@i0@default 臂=RTL 跳过=面缺字形3
+TAB_LINES START A-anchor/he-ab-t-g@w100@RTL@i0@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED A-anchor/he-ab-t-g@w100@RTL@i0@default 行=3 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-anchor/he-ab-t-g@w100@RTL@i0@tab0 臂=RTL 跳过=面缺字形3
+TAB_LINES START A-anchor/he-ab-t-g@w100@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/he-ab-t-g@w100@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-anchor/he-ab-t-g@w140@RTL@i0@default 臂=RTL 跳过=面缺字形3
+TAB_LINES START A-anchor/he-ab-t-g@w140@RTL@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/he-ab-t-g@w140@RTL@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-anchor/he-ab-t-g@w140@RTL@i0@tab0 臂=RTL 跳过=面缺字形3
+TAB_LINES START A-anchor/he-ab-t-g@w140@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/he-ab-t-g@w140@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-anchor/he-ab-t-g@w192@RTL@i0@default 臂=RTL 跳过=面缺字形3
+TAB_LINES START A-anchor/he-ab-t-g@w192@RTL@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/he-ab-t-g@w192@RTL@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-anchor/he-ab-t-g@w192@RTL@i0@tab0 臂=RTL 跳过=面缺字形3
+TAB_LINES START A-anchor/he-ab-t-g@w192@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/he-ab-t-g@w192@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-anchor/he-ab-t-g@w200@RTL@i0@default 臂=RTL 跳过=面缺字形3
+TAB_LINES START A-anchor/he-ab-t-g@w200@RTL@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/he-ab-t-g@w200@RTL@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-anchor/he-ab-t-g@w200@RTL@i0@tab0 臂=RTL 跳过=面缺字形3
+TAB_LINES START A-anchor/he-ab-t-g@w200@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/he-ab-t-g@w200@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-anchor/he-ab-t-g@w220@RTL@i0@default 臂=RTL 跳过=面缺字形3
+TAB_LINES START A-anchor/he-ab-t-g@w220@RTL@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/he-ab-t-g@w220@RTL@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-anchor/he-ab-t-g@w220@RTL@i0@tab0 臂=RTL 跳过=面缺字形3
+TAB_LINES START A-anchor/he-ab-t-g@w220@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/he-ab-t-g@w220@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-anchor/he-ab-t-g@w260@RTL@i0@default 臂=RTL 跳过=面缺字形3
+TAB_LINES START A-anchor/he-ab-t-g@w260@RTL@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/he-ab-t-g@w260@RTL@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-anchor/he-ab-t-g@w260@RTL@i0@tab0 臂=RTL 跳过=面缺字形3
+TAB_LINES START A-anchor/he-ab-t-g@w260@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/he-ab-t-g@w260@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-anchor/ar-a-t-b@w96@RTL@i0@default 臂=RTL 跳过=面缺字形2
+TAB_LINES START A-anchor/ar-a-t-b@w96@RTL@i0@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED A-anchor/ar-a-t-b@w96@RTL@i0@default 行=3 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-anchor/ar-a-t-b@w96@RTL@i0@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES START A-anchor/ar-a-t-b@w96@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/ar-a-t-b@w96@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-anchor/ar-a-t-b@w100@RTL@i0@default 臂=RTL 跳过=面缺字形2
+TAB_LINES START A-anchor/ar-a-t-b@w100@RTL@i0@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED A-anchor/ar-a-t-b@w100@RTL@i0@default 行=3 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-anchor/ar-a-t-b@w100@RTL@i0@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES START A-anchor/ar-a-t-b@w100@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/ar-a-t-b@w100@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-anchor/ar-a-t-b@w140@RTL@i0@default 臂=RTL 跳过=面缺字形2
+TAB_LINES START A-anchor/ar-a-t-b@w140@RTL@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/ar-a-t-b@w140@RTL@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-anchor/ar-a-t-b@w140@RTL@i0@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES START A-anchor/ar-a-t-b@w140@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/ar-a-t-b@w140@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-anchor/ar-a-t-b@w192@RTL@i0@default 臂=RTL 跳过=面缺字形2
+TAB_LINES START A-anchor/ar-a-t-b@w192@RTL@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/ar-a-t-b@w192@RTL@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-anchor/ar-a-t-b@w192@RTL@i0@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES START A-anchor/ar-a-t-b@w192@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/ar-a-t-b@w192@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-anchor/ar-a-t-b@w200@RTL@i0@default 臂=RTL 跳过=面缺字形2
+TAB_LINES START A-anchor/ar-a-t-b@w200@RTL@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/ar-a-t-b@w200@RTL@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-anchor/ar-a-t-b@w200@RTL@i0@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES START A-anchor/ar-a-t-b@w200@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/ar-a-t-b@w200@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-anchor/ar-a-t-b@w220@RTL@i0@default 臂=RTL 跳过=面缺字形2
+TAB_LINES START A-anchor/ar-a-t-b@w220@RTL@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/ar-a-t-b@w220@RTL@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-anchor/ar-a-t-b@w220@RTL@i0@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES START A-anchor/ar-a-t-b@w220@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/ar-a-t-b@w220@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-anchor/ar-a-t-b@w260@RTL@i0@default 臂=RTL 跳过=面缺字形2
+TAB_LINES START A-anchor/ar-a-t-b@w260@RTL@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/ar-a-t-b@w260@RTL@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-anchor/ar-a-t-b@w260@RTL@i0@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES START A-anchor/ar-a-t-b@w260@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/ar-a-t-b@w260@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-anchor/ar-ab-t-j@w96@RTL@i0@default 臂=RTL 跳过=面缺字形3
+TAB_LINES START A-anchor/ar-ab-t-j@w96@RTL@i0@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED A-anchor/ar-ab-t-j@w96@RTL@i0@default 行=3 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-anchor/ar-ab-t-j@w96@RTL@i0@tab0 臂=RTL 跳过=面缺字形3
+TAB_LINES START A-anchor/ar-ab-t-j@w96@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/ar-ab-t-j@w96@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-anchor/ar-ab-t-j@w100@RTL@i0@default 臂=RTL 跳过=面缺字形3
+TAB_LINES START A-anchor/ar-ab-t-j@w100@RTL@i0@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED A-anchor/ar-ab-t-j@w100@RTL@i0@default 行=3 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-anchor/ar-ab-t-j@w100@RTL@i0@tab0 臂=RTL 跳过=面缺字形3
+TAB_LINES START A-anchor/ar-ab-t-j@w100@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/ar-ab-t-j@w100@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-anchor/ar-ab-t-j@w140@RTL@i0@default 臂=RTL 跳过=面缺字形3
+TAB_LINES START A-anchor/ar-ab-t-j@w140@RTL@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/ar-ab-t-j@w140@RTL@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-anchor/ar-ab-t-j@w140@RTL@i0@tab0 臂=RTL 跳过=面缺字形3
+TAB_LINES START A-anchor/ar-ab-t-j@w140@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/ar-ab-t-j@w140@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-anchor/ar-ab-t-j@w192@RTL@i0@default 臂=RTL 跳过=面缺字形3
+TAB_LINES START A-anchor/ar-ab-t-j@w192@RTL@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/ar-ab-t-j@w192@RTL@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-anchor/ar-ab-t-j@w192@RTL@i0@tab0 臂=RTL 跳过=面缺字形3
+TAB_LINES START A-anchor/ar-ab-t-j@w192@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/ar-ab-t-j@w192@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-anchor/ar-ab-t-j@w200@RTL@i0@default 臂=RTL 跳过=面缺字形3
+TAB_LINES START A-anchor/ar-ab-t-j@w200@RTL@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/ar-ab-t-j@w200@RTL@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-anchor/ar-ab-t-j@w200@RTL@i0@tab0 臂=RTL 跳过=面缺字形3
+TAB_LINES START A-anchor/ar-ab-t-j@w200@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/ar-ab-t-j@w200@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-anchor/ar-ab-t-j@w220@RTL@i0@default 臂=RTL 跳过=面缺字形3
+TAB_LINES START A-anchor/ar-ab-t-j@w220@RTL@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/ar-ab-t-j@w220@RTL@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-anchor/ar-ab-t-j@w220@RTL@i0@tab0 臂=RTL 跳过=面缺字形3
+TAB_LINES START A-anchor/ar-ab-t-j@w220@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/ar-ab-t-j@w220@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-anchor/ar-ab-t-j@w260@RTL@i0@default 臂=RTL 跳过=面缺字形3
+TAB_LINES START A-anchor/ar-ab-t-j@w260@RTL@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/ar-ab-t-j@w260@RTL@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-anchor/ar-ab-t-j@w260@RTL@i0@tab0 臂=RTL 跳过=面缺字形3
+TAB_LINES START A-anchor/ar-ab-t-j@w260@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-anchor/ar-ab-t-j@w260@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-contrast/ltr-he-a-t-b@w96@LTR@i0@default 臂=LTR 跳过=面缺字形2
+TAB_LINES START A-contrast/ltr-he-a-t-b@w96@LTR@i0@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED A-contrast/ltr-he-a-t-b@w96@LTR@i0@default 行=3 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-contrast/ltr-he-a-t-b@w96@LTR@i0@tab0 臂=LTR 跳过=面缺字形2
+TAB_LINES START A-contrast/ltr-he-a-t-b@w96@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-contrast/ltr-he-a-t-b@w96@LTR@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-contrast/ltr-he-a-t-b@w100@LTR@i0@default 臂=LTR 跳过=面缺字形2
+TAB_LINES START A-contrast/ltr-he-a-t-b@w100@LTR@i0@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED A-contrast/ltr-he-a-t-b@w100@LTR@i0@default 行=3 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-contrast/ltr-he-a-t-b@w100@LTR@i0@tab0 臂=LTR 跳过=面缺字形2
+TAB_LINES START A-contrast/ltr-he-a-t-b@w100@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-contrast/ltr-he-a-t-b@w100@LTR@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-contrast/ltr-he-a-t-b@w140@LTR@i0@default 臂=LTR 跳过=面缺字形2
+TAB_LINES START A-contrast/ltr-he-a-t-b@w140@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-contrast/ltr-he-a-t-b@w140@LTR@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-contrast/ltr-he-a-t-b@w140@LTR@i0@tab0 臂=LTR 跳过=面缺字形2
+TAB_LINES START A-contrast/ltr-he-a-t-b@w140@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-contrast/ltr-he-a-t-b@w140@LTR@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-contrast/ltr-he-a-t-b@w192@LTR@i0@default 臂=LTR 跳过=面缺字形2
+TAB_LINES START A-contrast/ltr-he-a-t-b@w192@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-contrast/ltr-he-a-t-b@w192@LTR@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-contrast/ltr-he-a-t-b@w192@LTR@i0@tab0 臂=LTR 跳过=面缺字形2
+TAB_LINES START A-contrast/ltr-he-a-t-b@w192@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-contrast/ltr-he-a-t-b@w192@LTR@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-contrast/ltr-he-a-t-b@w200@LTR@i0@default 臂=LTR 跳过=面缺字形2
+TAB_LINES START A-contrast/ltr-he-a-t-b@w200@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-contrast/ltr-he-a-t-b@w200@LTR@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-contrast/ltr-he-a-t-b@w200@LTR@i0@tab0 臂=LTR 跳过=面缺字形2
+TAB_LINES START A-contrast/ltr-he-a-t-b@w200@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-contrast/ltr-he-a-t-b@w200@LTR@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-contrast/ltr-he-a-t-b@w220@LTR@i0@default 臂=LTR 跳过=面缺字形2
+TAB_LINES START A-contrast/ltr-he-a-t-b@w220@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-contrast/ltr-he-a-t-b@w220@LTR@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-contrast/ltr-he-a-t-b@w220@LTR@i0@tab0 臂=LTR 跳过=面缺字形2
+TAB_LINES START A-contrast/ltr-he-a-t-b@w220@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-contrast/ltr-he-a-t-b@w220@LTR@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-contrast/ltr-he-a-t-b@w260@LTR@i0@default 臂=LTR 跳过=面缺字形2
+TAB_LINES START A-contrast/ltr-he-a-t-b@w260@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-contrast/ltr-he-a-t-b@w260@LTR@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-contrast/ltr-he-a-t-b@w260@LTR@i0@tab0 臂=LTR 跳过=面缺字形2
+TAB_LINES START A-contrast/ltr-he-a-t-b@w260@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-contrast/ltr-he-a-t-b@w260@LTR@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE A-contrast/ltr-he-ab-t-g@w96@LTR@i0@default 臂=LTR 跳过=面缺字形3
+TAB_LINES START A-contrast/ltr-he-ab-t-g@w96@LTR@i0@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED A-contrast/ltr-he-ab-t-g@w96@LTR@i0@default 行=3 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-contrast/ltr-he-ab-t-g@w96@LTR@i0@tab0 臂=LTR 跳过=面缺字形3
+TAB_LINES START A-contrast/ltr-he-ab-t-g@w96@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-contrast/ltr-he-ab-t-g@w96@LTR@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-contrast/ltr-he-ab-t-g@w100@LTR@i0@default 臂=LTR 跳过=面缺字形3
+TAB_LINES START A-contrast/ltr-he-ab-t-g@w100@LTR@i0@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED A-contrast/ltr-he-ab-t-g@w100@LTR@i0@default 行=3 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-contrast/ltr-he-ab-t-g@w100@LTR@i0@tab0 臂=LTR 跳过=面缺字形3
+TAB_LINES START A-contrast/ltr-he-ab-t-g@w100@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-contrast/ltr-he-ab-t-g@w100@LTR@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-contrast/ltr-he-ab-t-g@w140@LTR@i0@default 臂=LTR 跳过=面缺字形3
+TAB_LINES START A-contrast/ltr-he-ab-t-g@w140@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-contrast/ltr-he-ab-t-g@w140@LTR@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-contrast/ltr-he-ab-t-g@w140@LTR@i0@tab0 臂=LTR 跳过=面缺字形3
+TAB_LINES START A-contrast/ltr-he-ab-t-g@w140@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-contrast/ltr-he-ab-t-g@w140@LTR@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-contrast/ltr-he-ab-t-g@w192@LTR@i0@default 臂=LTR 跳过=面缺字形3
+TAB_LINES START A-contrast/ltr-he-ab-t-g@w192@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-contrast/ltr-he-ab-t-g@w192@LTR@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-contrast/ltr-he-ab-t-g@w192@LTR@i0@tab0 臂=LTR 跳过=面缺字形3
+TAB_LINES START A-contrast/ltr-he-ab-t-g@w192@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-contrast/ltr-he-ab-t-g@w192@LTR@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-contrast/ltr-he-ab-t-g@w200@LTR@i0@default 臂=LTR 跳过=面缺字形3
+TAB_LINES START A-contrast/ltr-he-ab-t-g@w200@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-contrast/ltr-he-ab-t-g@w200@LTR@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-contrast/ltr-he-ab-t-g@w200@LTR@i0@tab0 臂=LTR 跳过=面缺字形3
+TAB_LINES START A-contrast/ltr-he-ab-t-g@w200@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-contrast/ltr-he-ab-t-g@w200@LTR@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-contrast/ltr-he-ab-t-g@w220@LTR@i0@default 臂=LTR 跳过=面缺字形3
+TAB_LINES START A-contrast/ltr-he-ab-t-g@w220@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-contrast/ltr-he-ab-t-g@w220@LTR@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-contrast/ltr-he-ab-t-g@w220@LTR@i0@tab0 臂=LTR 跳过=面缺字形3
+TAB_LINES START A-contrast/ltr-he-ab-t-g@w220@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-contrast/ltr-he-ab-t-g@w220@LTR@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-contrast/ltr-he-ab-t-g@w260@LTR@i0@default 臂=LTR 跳过=面缺字形3
+TAB_LINES START A-contrast/ltr-he-ab-t-g@w260@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-contrast/ltr-he-ab-t-g@w260@LTR@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE A-contrast/ltr-he-ab-t-g@w260@LTR@i0@tab0 臂=LTR 跳过=面缺字形3
+TAB_LINES START A-contrast/ltr-he-ab-t-g@w260@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED A-contrast/ltr-he-ab-t-g@w260@LTR@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE B-indent/lead-tab-a@w40@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w40@LTR@i0@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w40@LTR@i0@default 行=2 红=0 绿=2
+TAB_LINES CASE B-indent/lead-tab-a@w40@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w40@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w40@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-a@w40@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w40@LTR@i24@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w40@LTR@i24@default 行=2 红=0 绿=2
+TAB_LINES CASE B-indent/lead-tab-a@w40@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w40@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w40@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-a@w80@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w80@LTR@i0@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w80@LTR@i0@default 行=2 红=0 绿=2
+TAB_LINES CASE B-indent/lead-tab-a@w80@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w80@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w80@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-a@w80@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w80@LTR@i24@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w80@LTR@i24@default 行=2 红=0 绿=2
+TAB_LINES CASE B-indent/lead-tab-a@w80@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w80@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w80@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-a@w96@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w96@LTR@i0@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w96@LTR@i0@default 行=2 红=0 绿=2
+TAB_LINES CASE B-indent/lead-tab-a@w96@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w96@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w96@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-a@w96@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w96@LTR@i24@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w96@LTR@i24@default 行=2 红=0 绿=2
+TAB_LINES CASE B-indent/lead-tab-a@w96@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w96@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w96@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-a@w100@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w100@LTR@i0@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w100@LTR@i0@default 行=2 红=0 绿=2
+TAB_LINES CASE B-indent/lead-tab-a@w100@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w100@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w100@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-a@w100@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w100@LTR@i24@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w100@LTR@i24@default 行=2 红=0 绿=2
+TAB_LINES CASE B-indent/lead-tab-a@w100@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w100@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w100@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-a@w140@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w140@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w140@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-a@w140@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w140@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w140@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-a@w140@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w140@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w140@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-a@w140@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w140@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w140@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-a@w160@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w160@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w160@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-a@w160@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w160@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w160@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-a@w160@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w160@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w160@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-a@w160@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w160@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w160@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-a@w192@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w192@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w192@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-a@w192@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w192@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w192@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-a@w192@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w192@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w192@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-a@w192@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w192@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w192@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-a@w220@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w220@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w220@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-a@w220@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w220@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w220@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-a@w220@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w220@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w220@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-a@w220@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-a@w220@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-a@w220@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w40@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w40@LTR@i0@default 行=4 红=0 绿=4
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w40@LTR@i0@default 行=4 红=0 绿=4
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w40@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w40@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w40@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w40@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w40@LTR@i24@default 行=4 红=0 绿=4
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w40@LTR@i24@default 行=4 红=0 绿=4
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w40@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w40@LTR@i24@tab0 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w40@LTR@i24@tab0 行=2 红=0 绿=2
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w80@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w80@LTR@i0@default 行=4 红=0 绿=4
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w80@LTR@i0@default 行=4 红=0 绿=4
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w80@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w80@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w80@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w80@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w80@LTR@i24@default 行=4 红=0 绿=4
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w80@LTR@i24@default 行=4 红=0 绿=4
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w80@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w80@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w80@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w96@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w96@LTR@i0@default 行=4 红=0 绿=4
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w96@LTR@i0@default 行=4 红=0 绿=4
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w96@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w96@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w96@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w96@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w96@LTR@i24@default 行=4 红=0 绿=4
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w96@LTR@i24@default 行=4 红=0 绿=4
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w96@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w96@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w96@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w100@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w100@LTR@i0@default 行=4 红=0 绿=4
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w100@LTR@i0@default 行=4 红=0 绿=4
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w100@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w100@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w100@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w100@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w100@LTR@i24@default 行=4 红=0 绿=4
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w100@LTR@i24@default 行=4 红=0 绿=4
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w100@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w100@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w100@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w140@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w140@LTR@i0@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w140@LTR@i0@default 行=2 红=0 绿=2
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w140@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w140@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w140@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w140@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w140@LTR@i24@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w140@LTR@i24@default 行=2 红=0 绿=2
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w140@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w140@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w140@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w160@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w160@LTR@i0@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w160@LTR@i0@default 行=2 红=0 绿=2
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w160@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w160@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w160@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w160@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w160@LTR@i24@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w160@LTR@i24@default 行=2 红=0 绿=2
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w160@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w160@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w160@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w192@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w192@LTR@i0@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w192@LTR@i0@default 行=2 红=0 绿=2
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w192@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w192@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w192@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w192@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w192@LTR@i24@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w192@LTR@i24@default 行=2 红=0 绿=2
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w192@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w192@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w192@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w220@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w220@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w220@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w220@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w220@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w220@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w220@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w220@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w220@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-b-t-c@w220@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-b-t-c@w220@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-b-t-c@w220@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w40@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w40@LTR@i0@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w40@LTR@i0@default 行=3 红=0 绿=3
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w40@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w40@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w40@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w40@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w40@LTR@i24@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w40@LTR@i24@default 行=3 红=0 绿=3
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w40@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w40@LTR@i24@tab0 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w40@LTR@i24@tab0 行=2 红=0 绿=2
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w80@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w80@LTR@i0@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w80@LTR@i0@default 行=3 红=0 绿=3
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w80@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w80@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w80@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w80@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w80@LTR@i24@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w80@LTR@i24@default 行=3 红=0 绿=3
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w80@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w80@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w80@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w96@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w96@LTR@i0@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w96@LTR@i0@default 行=3 红=0 绿=3
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w96@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w96@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w96@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w96@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w96@LTR@i24@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w96@LTR@i24@default 行=3 红=0 绿=3
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w96@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w96@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w96@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w100@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w100@LTR@i0@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w100@LTR@i0@default 行=3 红=0 绿=3
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w100@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w100@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w100@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w100@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w100@LTR@i24@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w100@LTR@i24@default 行=3 红=0 绿=3
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w100@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w100@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w100@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w140@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w140@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w140@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w140@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w140@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w140@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w140@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w140@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w140@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w140@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w140@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w140@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w160@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w160@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w160@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w160@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w160@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w160@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w160@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w160@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w160@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w160@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w160@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w160@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w192@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w192@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w192@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w192@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w192@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w192@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w192@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w192@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w192@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w192@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w192@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w192@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w220@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w220@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w220@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w220@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w220@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w220@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w220@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w220@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w220@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/mid-tab-a-t-b@w220@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/mid-tab-a-t-b@w220@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/mid-tab-a-t-b@w220@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/notab-control@w40@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w40@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/notab-control@w40@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/notab-control@w40@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w40@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/notab-control@w40@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/notab-control@w40@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w40@LTR@i24@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent/notab-control@w40@LTR@i24@default 行=2 红=0 绿=2
+TAB_LINES CASE B-indent/notab-control@w40@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w40@LTR@i24@tab0 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent/notab-control@w40@LTR@i24@tab0 行=2 红=0 绿=2
+TAB_LINES CASE B-indent/notab-control@w80@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w80@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/notab-control@w80@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/notab-control@w80@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w80@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/notab-control@w80@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/notab-control@w80@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w80@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/notab-control@w80@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/notab-control@w80@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w80@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/notab-control@w80@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/notab-control@w96@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w96@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/notab-control@w96@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/notab-control@w96@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w96@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/notab-control@w96@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/notab-control@w96@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w96@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/notab-control@w96@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/notab-control@w96@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w96@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/notab-control@w96@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/notab-control@w100@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w100@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/notab-control@w100@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/notab-control@w100@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w100@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/notab-control@w100@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/notab-control@w100@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w100@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/notab-control@w100@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/notab-control@w100@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w100@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/notab-control@w100@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/notab-control@w140@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w140@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/notab-control@w140@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/notab-control@w140@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w140@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/notab-control@w140@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/notab-control@w140@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w140@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/notab-control@w140@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/notab-control@w140@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w140@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/notab-control@w140@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/notab-control@w160@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w160@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/notab-control@w160@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/notab-control@w160@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w160@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/notab-control@w160@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/notab-control@w160@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w160@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/notab-control@w160@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/notab-control@w160@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w160@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/notab-control@w160@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/notab-control@w192@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w192@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/notab-control@w192@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/notab-control@w192@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w192@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/notab-control@w192@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/notab-control@w192@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w192@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/notab-control@w192@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/notab-control@w192@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w192@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/notab-control@w192@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/notab-control@w220@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w220@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/notab-control@w220@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/notab-control@w220@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w220@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/notab-control@w220@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/notab-control@w220@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w220@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/notab-control@w220@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/notab-control@w220@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/notab-control@w220@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/notab-control@w220@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-only@w40@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-only@w40@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-only@w40@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-only@w40@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-only@w40@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-only@w40@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-only@w40@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-only@w40@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-only@w40@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-only@w40@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-only@w40@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-only@w40@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-only@w80@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-only@w80@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-only@w80@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-only@w80@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-only@w80@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-only@w80@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-only@w80@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-only@w80@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-only@w80@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-only@w80@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-only@w80@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-only@w80@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-only@w100@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-only@w100@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-only@w100@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-only@w100@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-only@w100@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-only@w100@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-only@w100@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-only@w100@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-only@w100@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-only@w100@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-only@w100@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-only@w100@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-only@w140@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-only@w140@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-only@w140@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-only@w140@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-only@w140@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-only@w140@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-only@w140@LTR@i24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-only@w140@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-only@w140@LTR@i24@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent/lead-tab-only@w140@LTR@i24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent/lead-tab-only@w140@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent/lead-tab-only@w140@LTR@i24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/lead-tab-a@w40@LTR@i24p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-a@w40@LTR@i24p24@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-a@w40@LTR@i24p24@default 行=2 红=0 绿=2
+TAB_LINES CASE B-indent-extra/lead-tab-a@w40@LTR@i24p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-a@w40@LTR@i24p24@tab0 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-a@w40@LTR@i24p24@tab0 行=2 红=0 绿=2
+TAB_LINES CASE B-indent-extra/lead-tab-a@w40@LTR@i0p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-a@w40@LTR@i0p24@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-a@w40@LTR@i0p24@default 行=2 红=0 绿=2
+TAB_LINES CASE B-indent-extra/lead-tab-a@w40@LTR@i0p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-a@w40@LTR@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-a@w40@LTR@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/lead-tab-a@w40@LTR@i24nl@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-a@w40@LTR@i24nl@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-a@w40@LTR@i24nl@default 行=2 红=0 绿=2
+TAB_LINES CASE B-indent-extra/lead-tab-a@w40@LTR@i24nl@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-a@w40@LTR@i24nl@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-a@w40@LTR@i24nl@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/lead-tab-a@w80@LTR@i24p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-a@w80@LTR@i24p24@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-a@w80@LTR@i24p24@default 行=2 红=0 绿=2
+TAB_LINES CASE B-indent-extra/lead-tab-a@w80@LTR@i24p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-a@w80@LTR@i24p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-a@w80@LTR@i24p24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/lead-tab-a@w80@LTR@i0p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-a@w80@LTR@i0p24@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-a@w80@LTR@i0p24@default 行=2 红=0 绿=2
+TAB_LINES CASE B-indent-extra/lead-tab-a@w80@LTR@i0p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-a@w80@LTR@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-a@w80@LTR@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/lead-tab-a@w80@LTR@i24nl@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-a@w80@LTR@i24nl@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-a@w80@LTR@i24nl@default 行=2 红=0 绿=2
+TAB_LINES CASE B-indent-extra/lead-tab-a@w80@LTR@i24nl@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-a@w80@LTR@i24nl@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-a@w80@LTR@i24nl@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/lead-tab-a@w140@LTR@i24p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-a@w140@LTR@i24p24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-a@w140@LTR@i24p24@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/lead-tab-a@w140@LTR@i24p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-a@w140@LTR@i24p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-a@w140@LTR@i24p24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/lead-tab-a@w140@LTR@i0p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-a@w140@LTR@i0p24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-a@w140@LTR@i0p24@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/lead-tab-a@w140@LTR@i0p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-a@w140@LTR@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-a@w140@LTR@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/lead-tab-a@w140@LTR@i24nl@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-a@w140@LTR@i24nl@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-a@w140@LTR@i24nl@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/lead-tab-a@w140@LTR@i24nl@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-a@w140@LTR@i24nl@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-a@w140@LTR@i24nl@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/lead-tab-b-t-c@w40@LTR@i24p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-b-t-c@w40@LTR@i24p24@default 行=4 红=0 绿=4
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-b-t-c@w40@LTR@i24p24@default 行=4 红=0 绿=4
+TAB_LINES CASE B-indent-extra/lead-tab-b-t-c@w40@LTR@i24p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-b-t-c@w40@LTR@i24p24@tab0 行=4 红=0 绿=4
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-b-t-c@w40@LTR@i24p24@tab0 行=4 红=0 绿=4
+TAB_LINES CASE B-indent-extra/lead-tab-b-t-c@w40@LTR@i0p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-b-t-c@w40@LTR@i0p24@default 行=4 红=0 绿=4
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-b-t-c@w40@LTR@i0p24@default 行=4 红=0 绿=4
+TAB_LINES CASE B-indent-extra/lead-tab-b-t-c@w40@LTR@i0p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-b-t-c@w40@LTR@i0p24@tab0 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-b-t-c@w40@LTR@i0p24@tab0 行=2 红=0 绿=2
+TAB_LINES CASE B-indent-extra/lead-tab-b-t-c@w40@LTR@i24nl@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-b-t-c@w40@LTR@i24nl@default 行=4 红=0 绿=4
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-b-t-c@w40@LTR@i24nl@default 行=4 红=0 绿=4
+TAB_LINES CASE B-indent-extra/lead-tab-b-t-c@w40@LTR@i24nl@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-b-t-c@w40@LTR@i24nl@tab0 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-b-t-c@w40@LTR@i24nl@tab0 行=2 红=0 绿=2
+TAB_LINES CASE B-indent-extra/lead-tab-b-t-c@w80@LTR@i24p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-b-t-c@w80@LTR@i24p24@default 行=4 红=0 绿=4
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-b-t-c@w80@LTR@i24p24@default 行=4 红=0 绿=4
+TAB_LINES CASE B-indent-extra/lead-tab-b-t-c@w80@LTR@i24p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-b-t-c@w80@LTR@i24p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-b-t-c@w80@LTR@i24p24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/lead-tab-b-t-c@w80@LTR@i0p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-b-t-c@w80@LTR@i0p24@default 行=4 红=0 绿=4
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-b-t-c@w80@LTR@i0p24@default 行=4 红=0 绿=4
+TAB_LINES CASE B-indent-extra/lead-tab-b-t-c@w80@LTR@i0p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-b-t-c@w80@LTR@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-b-t-c@w80@LTR@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/lead-tab-b-t-c@w80@LTR@i24nl@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-b-t-c@w80@LTR@i24nl@default 行=4 红=0 绿=4
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-b-t-c@w80@LTR@i24nl@default 行=4 红=0 绿=4
+TAB_LINES CASE B-indent-extra/lead-tab-b-t-c@w80@LTR@i24nl@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-b-t-c@w80@LTR@i24nl@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-b-t-c@w80@LTR@i24nl@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/lead-tab-b-t-c@w140@LTR@i24p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-b-t-c@w140@LTR@i24p24@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-b-t-c@w140@LTR@i24p24@default 行=2 红=0 绿=2
+TAB_LINES CASE B-indent-extra/lead-tab-b-t-c@w140@LTR@i24p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-b-t-c@w140@LTR@i24p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-b-t-c@w140@LTR@i24p24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/lead-tab-b-t-c@w140@LTR@i0p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-b-t-c@w140@LTR@i0p24@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-b-t-c@w140@LTR@i0p24@default 行=2 红=0 绿=2
+TAB_LINES CASE B-indent-extra/lead-tab-b-t-c@w140@LTR@i0p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-b-t-c@w140@LTR@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-b-t-c@w140@LTR@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/lead-tab-b-t-c@w140@LTR@i24nl@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-b-t-c@w140@LTR@i24nl@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-b-t-c@w140@LTR@i24nl@default 行=2 红=0 绿=2
+TAB_LINES CASE B-indent-extra/lead-tab-b-t-c@w140@LTR@i24nl@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/lead-tab-b-t-c@w140@LTR@i24nl@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/lead-tab-b-t-c@w140@LTR@i24nl@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/mid-tab-a-t-b@w40@LTR@i24p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/mid-tab-a-t-b@w40@LTR@i24p24@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED B-indent-extra/mid-tab-a-t-b@w40@LTR@i24p24@default 行=3 红=0 绿=3
+TAB_LINES CASE B-indent-extra/mid-tab-a-t-b@w40@LTR@i24p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/mid-tab-a-t-b@w40@LTR@i24p24@tab0 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED B-indent-extra/mid-tab-a-t-b@w40@LTR@i24p24@tab0 行=3 红=0 绿=3
+TAB_LINES CASE B-indent-extra/mid-tab-a-t-b@w40@LTR@i0p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/mid-tab-a-t-b@w40@LTR@i0p24@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED B-indent-extra/mid-tab-a-t-b@w40@LTR@i0p24@default 行=3 红=0 绿=3
+TAB_LINES CASE B-indent-extra/mid-tab-a-t-b@w40@LTR@i0p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/mid-tab-a-t-b@w40@LTR@i0p24@tab0 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent-extra/mid-tab-a-t-b@w40@LTR@i0p24@tab0 行=2 红=0 绿=2
+TAB_LINES CASE B-indent-extra/mid-tab-a-t-b@w40@LTR@i24nl@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/mid-tab-a-t-b@w40@LTR@i24nl@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED B-indent-extra/mid-tab-a-t-b@w40@LTR@i24nl@default 行=3 红=0 绿=3
+TAB_LINES CASE B-indent-extra/mid-tab-a-t-b@w40@LTR@i24nl@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/mid-tab-a-t-b@w40@LTR@i24nl@tab0 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent-extra/mid-tab-a-t-b@w40@LTR@i24nl@tab0 行=2 红=0 绿=2
+TAB_LINES CASE B-indent-extra/mid-tab-a-t-b@w80@LTR@i24p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/mid-tab-a-t-b@w80@LTR@i24p24@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED B-indent-extra/mid-tab-a-t-b@w80@LTR@i24p24@default 行=3 红=0 绿=3
+TAB_LINES CASE B-indent-extra/mid-tab-a-t-b@w80@LTR@i24p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/mid-tab-a-t-b@w80@LTR@i24p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/mid-tab-a-t-b@w80@LTR@i24p24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/mid-tab-a-t-b@w80@LTR@i0p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/mid-tab-a-t-b@w80@LTR@i0p24@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED B-indent-extra/mid-tab-a-t-b@w80@LTR@i0p24@default 行=3 红=0 绿=3
+TAB_LINES CASE B-indent-extra/mid-tab-a-t-b@w80@LTR@i0p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/mid-tab-a-t-b@w80@LTR@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/mid-tab-a-t-b@w80@LTR@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/mid-tab-a-t-b@w80@LTR@i24nl@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/mid-tab-a-t-b@w80@LTR@i24nl@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED B-indent-extra/mid-tab-a-t-b@w80@LTR@i24nl@default 行=3 红=0 绿=3
+TAB_LINES CASE B-indent-extra/mid-tab-a-t-b@w80@LTR@i24nl@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/mid-tab-a-t-b@w80@LTR@i24nl@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/mid-tab-a-t-b@w80@LTR@i24nl@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/mid-tab-a-t-b@w140@LTR@i24p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/mid-tab-a-t-b@w140@LTR@i24p24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/mid-tab-a-t-b@w140@LTR@i24p24@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/mid-tab-a-t-b@w140@LTR@i24p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/mid-tab-a-t-b@w140@LTR@i24p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/mid-tab-a-t-b@w140@LTR@i24p24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/mid-tab-a-t-b@w140@LTR@i0p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/mid-tab-a-t-b@w140@LTR@i0p24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/mid-tab-a-t-b@w140@LTR@i0p24@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/mid-tab-a-t-b@w140@LTR@i0p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/mid-tab-a-t-b@w140@LTR@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/mid-tab-a-t-b@w140@LTR@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/mid-tab-a-t-b@w140@LTR@i24nl@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/mid-tab-a-t-b@w140@LTR@i24nl@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/mid-tab-a-t-b@w140@LTR@i24nl@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/mid-tab-a-t-b@w140@LTR@i24nl@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/mid-tab-a-t-b@w140@LTR@i24nl@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/mid-tab-a-t-b@w140@LTR@i24nl@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/notab-control@w40@LTR@i24p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/notab-control@w40@LTR@i24p24@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent-extra/notab-control@w40@LTR@i24p24@default 行=2 红=0 绿=2
+TAB_LINES CASE B-indent-extra/notab-control@w40@LTR@i24p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/notab-control@w40@LTR@i24p24@tab0 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent-extra/notab-control@w40@LTR@i24p24@tab0 行=2 红=0 绿=2
+TAB_LINES CASE B-indent-extra/notab-control@w40@LTR@i0p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/notab-control@w40@LTR@i0p24@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent-extra/notab-control@w40@LTR@i0p24@default 行=2 红=0 绿=2
+TAB_LINES CASE B-indent-extra/notab-control@w40@LTR@i0p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/notab-control@w40@LTR@i0p24@tab0 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent-extra/notab-control@w40@LTR@i0p24@tab0 行=2 红=0 绿=2
+TAB_LINES CASE B-indent-extra/notab-control@w40@LTR@i24nl@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/notab-control@w40@LTR@i24nl@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent-extra/notab-control@w40@LTR@i24nl@default 行=2 红=0 绿=2
+TAB_LINES CASE B-indent-extra/notab-control@w40@LTR@i24nl@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/notab-control@w40@LTR@i24nl@tab0 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED B-indent-extra/notab-control@w40@LTR@i24nl@tab0 行=2 红=0 绿=2
+TAB_LINES CASE B-indent-extra/notab-control@w80@LTR@i24p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/notab-control@w80@LTR@i24p24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/notab-control@w80@LTR@i24p24@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/notab-control@w80@LTR@i24p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/notab-control@w80@LTR@i24p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/notab-control@w80@LTR@i24p24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/notab-control@w80@LTR@i0p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/notab-control@w80@LTR@i0p24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/notab-control@w80@LTR@i0p24@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/notab-control@w80@LTR@i0p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/notab-control@w80@LTR@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/notab-control@w80@LTR@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/notab-control@w80@LTR@i24nl@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/notab-control@w80@LTR@i24nl@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/notab-control@w80@LTR@i24nl@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/notab-control@w80@LTR@i24nl@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/notab-control@w80@LTR@i24nl@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/notab-control@w80@LTR@i24nl@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/notab-control@w140@LTR@i24p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/notab-control@w140@LTR@i24p24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/notab-control@w140@LTR@i24p24@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/notab-control@w140@LTR@i24p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/notab-control@w140@LTR@i24p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/notab-control@w140@LTR@i24p24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/notab-control@w140@LTR@i0p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/notab-control@w140@LTR@i0p24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/notab-control@w140@LTR@i0p24@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/notab-control@w140@LTR@i0p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/notab-control@w140@LTR@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/notab-control@w140@LTR@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/notab-control@w140@LTR@i24nl@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/notab-control@w140@LTR@i24nl@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/notab-control@w140@LTR@i24nl@default 行=1 红=0 绿=1
+TAB_LINES CASE B-indent-extra/notab-control@w140@LTR@i24nl@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START B-indent-extra/notab-control@w140@LTR@i24nl@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED B-indent-extra/notab-control@w140@LTR@i24nl@tab0 行=1 红=0 绿=1
+TAB_LINES CASE C-rtl-indent/he-lead-tab-a@w40@RTL@i0@default 臂=RTL 跳过=面缺字形1
+TAB_LINES START C-rtl-indent/he-lead-tab-a@w40@RTL@i0@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED C-rtl-indent/he-lead-tab-a@w40@RTL@i0@default 行=2 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE C-rtl-indent/he-lead-tab-a@w40@RTL@i0@tab0 臂=RTL 跳过=面缺字形1
+TAB_LINES START C-rtl-indent/he-lead-tab-a@w40@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED C-rtl-indent/he-lead-tab-a@w40@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE C-rtl-indent/he-lead-tab-a@w40@RTL@i24@default 臂=RTL 跳过=面缺字形1
+TAB_LINES START C-rtl-indent/he-lead-tab-a@w40@RTL@i24@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED C-rtl-indent/he-lead-tab-a@w40@RTL@i24@default 行=2 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE C-rtl-indent/he-lead-tab-a@w40@RTL@i24@tab0 臂=RTL 跳过=面缺字形1
+TAB_LINES START C-rtl-indent/he-lead-tab-a@w40@RTL@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED C-rtl-indent/he-lead-tab-a@w40@RTL@i24@tab0 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE C-rtl-indent/he-lead-tab-a@w100@RTL@i0@default 臂=RTL 跳过=面缺字形1
+TAB_LINES START C-rtl-indent/he-lead-tab-a@w100@RTL@i0@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED C-rtl-indent/he-lead-tab-a@w100@RTL@i0@default 行=2 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE C-rtl-indent/he-lead-tab-a@w100@RTL@i0@tab0 臂=RTL 跳过=面缺字形1
+TAB_LINES START C-rtl-indent/he-lead-tab-a@w100@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED C-rtl-indent/he-lead-tab-a@w100@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE C-rtl-indent/he-lead-tab-a@w100@RTL@i24@default 臂=RTL 跳过=面缺字形1
+TAB_LINES START C-rtl-indent/he-lead-tab-a@w100@RTL@i24@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED C-rtl-indent/he-lead-tab-a@w100@RTL@i24@default 行=2 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE C-rtl-indent/he-lead-tab-a@w100@RTL@i24@tab0 臂=RTL 跳过=面缺字形1
+TAB_LINES START C-rtl-indent/he-lead-tab-a@w100@RTL@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED C-rtl-indent/he-lead-tab-a@w100@RTL@i24@tab0 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE C-rtl-indent/he-lead-tab-a@w140@RTL@i0@default 臂=RTL 跳过=面缺字形1
+TAB_LINES START C-rtl-indent/he-lead-tab-a@w140@RTL@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED C-rtl-indent/he-lead-tab-a@w140@RTL@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE C-rtl-indent/he-lead-tab-a@w140@RTL@i0@tab0 臂=RTL 跳过=面缺字形1
+TAB_LINES START C-rtl-indent/he-lead-tab-a@w140@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED C-rtl-indent/he-lead-tab-a@w140@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE C-rtl-indent/he-lead-tab-a@w140@RTL@i24@default 臂=RTL 跳过=面缺字形1
+TAB_LINES START C-rtl-indent/he-lead-tab-a@w140@RTL@i24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED C-rtl-indent/he-lead-tab-a@w140@RTL@i24@default 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE C-rtl-indent/he-lead-tab-a@w140@RTL@i24@tab0 臂=RTL 跳过=面缺字形1
+TAB_LINES START C-rtl-indent/he-lead-tab-a@w140@RTL@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED C-rtl-indent/he-lead-tab-a@w140@RTL@i24@tab0 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE C-rtl-indent/he-lead-tab-a@w220@RTL@i0@default 臂=RTL 跳过=面缺字形1
+TAB_LINES START C-rtl-indent/he-lead-tab-a@w220@RTL@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED C-rtl-indent/he-lead-tab-a@w220@RTL@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE C-rtl-indent/he-lead-tab-a@w220@RTL@i0@tab0 臂=RTL 跳过=面缺字形1
+TAB_LINES START C-rtl-indent/he-lead-tab-a@w220@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED C-rtl-indent/he-lead-tab-a@w220@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE C-rtl-indent/he-lead-tab-a@w220@RTL@i24@default 臂=RTL 跳过=面缺字形1
+TAB_LINES START C-rtl-indent/he-lead-tab-a@w220@RTL@i24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED C-rtl-indent/he-lead-tab-a@w220@RTL@i24@default 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE C-rtl-indent/he-lead-tab-a@w220@RTL@i24@tab0 臂=RTL 跳过=面缺字形1
+TAB_LINES START C-rtl-indent/he-lead-tab-a@w220@RTL@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED C-rtl-indent/he-lead-tab-a@w220@RTL@i24@tab0 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE C-rtl-indent/he-mid-tab@w40@RTL@i0@default 臂=RTL 跳过=面缺字形2
+TAB_LINES START C-rtl-indent/he-mid-tab@w40@RTL@i0@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED C-rtl-indent/he-mid-tab@w40@RTL@i0@default 行=3 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE C-rtl-indent/he-mid-tab@w40@RTL@i0@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES START C-rtl-indent/he-mid-tab@w40@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED C-rtl-indent/he-mid-tab@w40@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE C-rtl-indent/he-mid-tab@w40@RTL@i24@default 臂=RTL 跳过=面缺字形2
+TAB_LINES START C-rtl-indent/he-mid-tab@w40@RTL@i24@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED C-rtl-indent/he-mid-tab@w40@RTL@i24@default 行=3 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE C-rtl-indent/he-mid-tab@w40@RTL@i24@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES START C-rtl-indent/he-mid-tab@w40@RTL@i24@tab0 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED C-rtl-indent/he-mid-tab@w40@RTL@i24@tab0 行=2 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE C-rtl-indent/he-mid-tab@w100@RTL@i0@default 臂=RTL 跳过=面缺字形2
+TAB_LINES START C-rtl-indent/he-mid-tab@w100@RTL@i0@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED C-rtl-indent/he-mid-tab@w100@RTL@i0@default 行=3 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE C-rtl-indent/he-mid-tab@w100@RTL@i0@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES START C-rtl-indent/he-mid-tab@w100@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED C-rtl-indent/he-mid-tab@w100@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE C-rtl-indent/he-mid-tab@w100@RTL@i24@default 臂=RTL 跳过=面缺字形2
+TAB_LINES START C-rtl-indent/he-mid-tab@w100@RTL@i24@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED C-rtl-indent/he-mid-tab@w100@RTL@i24@default 行=3 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE C-rtl-indent/he-mid-tab@w100@RTL@i24@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES START C-rtl-indent/he-mid-tab@w100@RTL@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED C-rtl-indent/he-mid-tab@w100@RTL@i24@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE C-rtl-indent/he-mid-tab@w140@RTL@i0@default 臂=RTL 跳过=面缺字形2
+TAB_LINES START C-rtl-indent/he-mid-tab@w140@RTL@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED C-rtl-indent/he-mid-tab@w140@RTL@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE C-rtl-indent/he-mid-tab@w140@RTL@i0@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES START C-rtl-indent/he-mid-tab@w140@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED C-rtl-indent/he-mid-tab@w140@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE C-rtl-indent/he-mid-tab@w140@RTL@i24@default 臂=RTL 跳过=面缺字形2
+TAB_LINES START C-rtl-indent/he-mid-tab@w140@RTL@i24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED C-rtl-indent/he-mid-tab@w140@RTL@i24@default 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE C-rtl-indent/he-mid-tab@w140@RTL@i24@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES START C-rtl-indent/he-mid-tab@w140@RTL@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED C-rtl-indent/he-mid-tab@w140@RTL@i24@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE C-rtl-indent/he-mid-tab@w220@RTL@i0@default 臂=RTL 跳过=面缺字形2
+TAB_LINES START C-rtl-indent/he-mid-tab@w220@RTL@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED C-rtl-indent/he-mid-tab@w220@RTL@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE C-rtl-indent/he-mid-tab@w220@RTL@i0@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES START C-rtl-indent/he-mid-tab@w220@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED C-rtl-indent/he-mid-tab@w220@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE C-rtl-indent/he-mid-tab@w220@RTL@i24@default 臂=RTL 跳过=面缺字形2
+TAB_LINES START C-rtl-indent/he-mid-tab@w220@RTL@i24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED C-rtl-indent/he-mid-tab@w220@RTL@i24@default 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE C-rtl-indent/he-mid-tab@w220@RTL@i24@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES START C-rtl-indent/he-mid-tab@w220@RTL@i24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED C-rtl-indent/he-mid-tab@w220@RTL@i24@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE D-paraindent/lead-tab-a@w100@LTR@i0p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/lead-tab-a@w100@LTR@i0p24@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED D-paraindent/lead-tab-a@w100@LTR@i0p24@default 行=2 红=0 绿=2
+TAB_LINES CASE D-paraindent/lead-tab-a@w100@LTR@i0p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/lead-tab-a@w100@LTR@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/lead-tab-a@w100@LTR@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/lead-tab-a@w100@LTR@i24p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/lead-tab-a@w100@LTR@i24p24@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED D-paraindent/lead-tab-a@w100@LTR@i24p24@default 行=2 红=0 绿=2
+TAB_LINES CASE D-paraindent/lead-tab-a@w100@LTR@i24p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/lead-tab-a@w100@LTR@i24p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/lead-tab-a@w100@LTR@i24p24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/lead-tab-a@w100@LTR@i0p48@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/lead-tab-a@w100@LTR@i0p48@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED D-paraindent/lead-tab-a@w100@LTR@i0p48@default 行=2 红=0 绿=2
+TAB_LINES CASE D-paraindent/lead-tab-a@w100@LTR@i0p48@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/lead-tab-a@w100@LTR@i0p48@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/lead-tab-a@w100@LTR@i0p48@tab0 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/lead-tab-a@w140@LTR@i0p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/lead-tab-a@w140@LTR@i0p24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/lead-tab-a@w140@LTR@i0p24@default 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/lead-tab-a@w140@LTR@i0p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/lead-tab-a@w140@LTR@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/lead-tab-a@w140@LTR@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/lead-tab-a@w140@LTR@i24p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/lead-tab-a@w140@LTR@i24p24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/lead-tab-a@w140@LTR@i24p24@default 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/lead-tab-a@w140@LTR@i24p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/lead-tab-a@w140@LTR@i24p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/lead-tab-a@w140@LTR@i24p24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/lead-tab-a@w140@LTR@i0p48@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/lead-tab-a@w140@LTR@i0p48@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED D-paraindent/lead-tab-a@w140@LTR@i0p48@default 行=2 红=0 绿=2
+TAB_LINES CASE D-paraindent/lead-tab-a@w140@LTR@i0p48@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/lead-tab-a@w140@LTR@i0p48@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/lead-tab-a@w140@LTR@i0p48@tab0 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/lead-tab-a@w220@LTR@i0p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/lead-tab-a@w220@LTR@i0p24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/lead-tab-a@w220@LTR@i0p24@default 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/lead-tab-a@w220@LTR@i0p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/lead-tab-a@w220@LTR@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/lead-tab-a@w220@LTR@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/lead-tab-a@w220@LTR@i24p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/lead-tab-a@w220@LTR@i24p24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/lead-tab-a@w220@LTR@i24p24@default 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/lead-tab-a@w220@LTR@i24p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/lead-tab-a@w220@LTR@i24p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/lead-tab-a@w220@LTR@i24p24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/lead-tab-a@w220@LTR@i0p48@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/lead-tab-a@w220@LTR@i0p48@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/lead-tab-a@w220@LTR@i0p48@default 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/lead-tab-a@w220@LTR@i0p48@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/lead-tab-a@w220@LTR@i0p48@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/lead-tab-a@w220@LTR@i0p48@tab0 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/mid-tab-a-t-b@w100@LTR@i0p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/mid-tab-a-t-b@w100@LTR@i0p24@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED D-paraindent/mid-tab-a-t-b@w100@LTR@i0p24@default 行=3 红=0 绿=3
+TAB_LINES CASE D-paraindent/mid-tab-a-t-b@w100@LTR@i0p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/mid-tab-a-t-b@w100@LTR@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/mid-tab-a-t-b@w100@LTR@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/mid-tab-a-t-b@w100@LTR@i24p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/mid-tab-a-t-b@w100@LTR@i24p24@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED D-paraindent/mid-tab-a-t-b@w100@LTR@i24p24@default 行=3 红=0 绿=3
+TAB_LINES CASE D-paraindent/mid-tab-a-t-b@w100@LTR@i24p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/mid-tab-a-t-b@w100@LTR@i24p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/mid-tab-a-t-b@w100@LTR@i24p24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/mid-tab-a-t-b@w100@LTR@i0p48@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/mid-tab-a-t-b@w100@LTR@i0p48@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED D-paraindent/mid-tab-a-t-b@w100@LTR@i0p48@default 行=3 红=0 绿=3
+TAB_LINES CASE D-paraindent/mid-tab-a-t-b@w100@LTR@i0p48@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/mid-tab-a-t-b@w100@LTR@i0p48@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/mid-tab-a-t-b@w100@LTR@i0p48@tab0 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/mid-tab-a-t-b@w140@LTR@i0p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/mid-tab-a-t-b@w140@LTR@i0p24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/mid-tab-a-t-b@w140@LTR@i0p24@default 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/mid-tab-a-t-b@w140@LTR@i0p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/mid-tab-a-t-b@w140@LTR@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/mid-tab-a-t-b@w140@LTR@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/mid-tab-a-t-b@w140@LTR@i24p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/mid-tab-a-t-b@w140@LTR@i24p24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/mid-tab-a-t-b@w140@LTR@i24p24@default 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/mid-tab-a-t-b@w140@LTR@i24p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/mid-tab-a-t-b@w140@LTR@i24p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/mid-tab-a-t-b@w140@LTR@i24p24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/mid-tab-a-t-b@w140@LTR@i0p48@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/mid-tab-a-t-b@w140@LTR@i0p48@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED D-paraindent/mid-tab-a-t-b@w140@LTR@i0p48@default 行=3 红=0 绿=3
+TAB_LINES CASE D-paraindent/mid-tab-a-t-b@w140@LTR@i0p48@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/mid-tab-a-t-b@w140@LTR@i0p48@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/mid-tab-a-t-b@w140@LTR@i0p48@tab0 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/mid-tab-a-t-b@w220@LTR@i0p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/mid-tab-a-t-b@w220@LTR@i0p24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/mid-tab-a-t-b@w220@LTR@i0p24@default 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/mid-tab-a-t-b@w220@LTR@i0p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/mid-tab-a-t-b@w220@LTR@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/mid-tab-a-t-b@w220@LTR@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/mid-tab-a-t-b@w220@LTR@i24p24@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/mid-tab-a-t-b@w220@LTR@i24p24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/mid-tab-a-t-b@w220@LTR@i24p24@default 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/mid-tab-a-t-b@w220@LTR@i24p24@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/mid-tab-a-t-b@w220@LTR@i24p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/mid-tab-a-t-b@w220@LTR@i24p24@tab0 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/mid-tab-a-t-b@w220@LTR@i0p48@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/mid-tab-a-t-b@w220@LTR@i0p48@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/mid-tab-a-t-b@w220@LTR@i0p48@default 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/mid-tab-a-t-b@w220@LTR@i0p48@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/mid-tab-a-t-b@w220@LTR@i0p48@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/mid-tab-a-t-b@w220@LTR@i0p48@tab0 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/lead-tab-a@w220@LTR@i24p48@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/lead-tab-a@w220@LTR@i24p48@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/lead-tab-a@w220@LTR@i24p48@default 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/lead-tab-a@w220@LTR@i24p48@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/lead-tab-a@w220@LTR@i24p48@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/lead-tab-a@w220@LTR@i24p48@tab0 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/mid-tab-a-t-b@w220@LTR@i24p48@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/mid-tab-a-t-b@w220@LTR@i24p48@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/mid-tab-a-t-b@w220@LTR@i24p48@default 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/mid-tab-a-t-b@w220@LTR@i24p48@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START D-paraindent/mid-tab-a-t-b@w220@LTR@i24p48@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/mid-tab-a-t-b@w220@LTR@i24p48@tab0 行=1 红=0 绿=1
+TAB_LINES CASE D-paraindent/he-lead-tab-a@w100@RTL@i0p24@default 臂=RTL 跳过=面缺字形1
+TAB_LINES START D-paraindent/he-lead-tab-a@w100@RTL@i0p24@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED D-paraindent/he-lead-tab-a@w100@RTL@i0p24@default 行=2 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE D-paraindent/he-lead-tab-a@w100@RTL@i0p24@tab0 臂=RTL 跳过=面缺字形1
+TAB_LINES START D-paraindent/he-lead-tab-a@w100@RTL@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/he-lead-tab-a@w100@RTL@i0p24@tab0 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE D-paraindent/he-lead-tab-a@w100@RTL@i0p48@default 臂=RTL 跳过=面缺字形1
+TAB_LINES START D-paraindent/he-lead-tab-a@w100@RTL@i0p48@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED D-paraindent/he-lead-tab-a@w100@RTL@i0p48@default 行=2 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE D-paraindent/he-lead-tab-a@w100@RTL@i0p48@tab0 臂=RTL 跳过=面缺字形1
+TAB_LINES START D-paraindent/he-lead-tab-a@w100@RTL@i0p48@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/he-lead-tab-a@w100@RTL@i0p48@tab0 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE D-paraindent/he-lead-tab-a@w140@RTL@i0p24@default 臂=RTL 跳过=面缺字形1
+TAB_LINES START D-paraindent/he-lead-tab-a@w140@RTL@i0p24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/he-lead-tab-a@w140@RTL@i0p24@default 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE D-paraindent/he-lead-tab-a@w140@RTL@i0p24@tab0 臂=RTL 跳过=面缺字形1
+TAB_LINES START D-paraindent/he-lead-tab-a@w140@RTL@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/he-lead-tab-a@w140@RTL@i0p24@tab0 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE D-paraindent/he-lead-tab-a@w140@RTL@i0p48@default 臂=RTL 跳过=面缺字形1
+TAB_LINES START D-paraindent/he-lead-tab-a@w140@RTL@i0p48@default 行=2 红=0 绿=2
+TAB_LINES OVERFLOWED D-paraindent/he-lead-tab-a@w140@RTL@i0p48@default 行=2 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE D-paraindent/he-lead-tab-a@w140@RTL@i0p48@tab0 臂=RTL 跳过=面缺字形1
+TAB_LINES START D-paraindent/he-lead-tab-a@w140@RTL@i0p48@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/he-lead-tab-a@w140@RTL@i0p48@tab0 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE D-paraindent/he-lead-tab-a@w220@RTL@i0p24@default 臂=RTL 跳过=面缺字形1
+TAB_LINES START D-paraindent/he-lead-tab-a@w220@RTL@i0p24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/he-lead-tab-a@w220@RTL@i0p24@default 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE D-paraindent/he-lead-tab-a@w220@RTL@i0p24@tab0 臂=RTL 跳过=面缺字形1
+TAB_LINES START D-paraindent/he-lead-tab-a@w220@RTL@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/he-lead-tab-a@w220@RTL@i0p24@tab0 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE D-paraindent/he-lead-tab-a@w220@RTL@i0p48@default 臂=RTL 跳过=面缺字形1
+TAB_LINES START D-paraindent/he-lead-tab-a@w220@RTL@i0p48@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/he-lead-tab-a@w220@RTL@i0p48@default 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE D-paraindent/he-lead-tab-a@w220@RTL@i0p48@tab0 臂=RTL 跳过=面缺字形1
+TAB_LINES START D-paraindent/he-lead-tab-a@w220@RTL@i0p48@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/he-lead-tab-a@w220@RTL@i0p48@tab0 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE D-paraindent/he-mid-tab@w100@RTL@i0p24@default 臂=RTL 跳过=面缺字形2
+TAB_LINES START D-paraindent/he-mid-tab@w100@RTL@i0p24@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED D-paraindent/he-mid-tab@w100@RTL@i0p24@default 行=3 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE D-paraindent/he-mid-tab@w100@RTL@i0p24@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES START D-paraindent/he-mid-tab@w100@RTL@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/he-mid-tab@w100@RTL@i0p24@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE D-paraindent/he-mid-tab@w100@RTL@i0p48@default 臂=RTL 跳过=面缺字形2
+TAB_LINES START D-paraindent/he-mid-tab@w100@RTL@i0p48@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED D-paraindent/he-mid-tab@w100@RTL@i0p48@default 行=3 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE D-paraindent/he-mid-tab@w100@RTL@i0p48@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES START D-paraindent/he-mid-tab@w100@RTL@i0p48@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/he-mid-tab@w100@RTL@i0p48@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE D-paraindent/he-mid-tab@w140@RTL@i0p24@default 臂=RTL 跳过=面缺字形2
+TAB_LINES START D-paraindent/he-mid-tab@w140@RTL@i0p24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/he-mid-tab@w140@RTL@i0p24@default 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE D-paraindent/he-mid-tab@w140@RTL@i0p24@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES START D-paraindent/he-mid-tab@w140@RTL@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/he-mid-tab@w140@RTL@i0p24@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE D-paraindent/he-mid-tab@w140@RTL@i0p48@default 臂=RTL 跳过=面缺字形2
+TAB_LINES START D-paraindent/he-mid-tab@w140@RTL@i0p48@default 行=3 红=0 绿=3
+TAB_LINES OVERFLOWED D-paraindent/he-mid-tab@w140@RTL@i0p48@default 行=3 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE D-paraindent/he-mid-tab@w140@RTL@i0p48@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES START D-paraindent/he-mid-tab@w140@RTL@i0p48@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/he-mid-tab@w140@RTL@i0p48@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE D-paraindent/he-mid-tab@w220@RTL@i0p24@default 臂=RTL 跳过=面缺字形2
+TAB_LINES START D-paraindent/he-mid-tab@w220@RTL@i0p24@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/he-mid-tab@w220@RTL@i0p24@default 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE D-paraindent/he-mid-tab@w220@RTL@i0p24@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES START D-paraindent/he-mid-tab@w220@RTL@i0p24@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/he-mid-tab@w220@RTL@i0p24@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE D-paraindent/he-mid-tab@w220@RTL@i0p48@default 臂=RTL 跳过=面缺字形2
+TAB_LINES START D-paraindent/he-mid-tab@w220@RTL@i0p48@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/he-mid-tab@w220@RTL@i0p48@default 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE D-paraindent/he-mid-tab@w220@RTL@i0p48@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES START D-paraindent/he-mid-tab@w220@RTL@i0p48@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED D-paraindent/he-mid-tab@w220@RTL@i0p48@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE P-probe/probe-lat@w1000@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START P-probe/probe-lat@w1000@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED P-probe/probe-lat@w1000@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE P-probe/probe-lat@w1000@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES START P-probe/probe-lat@w1000@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED P-probe/probe-lat@w1000@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES Q2 P-probe/probe-lat@w1000@RTL@i0@default 行#0 行宽=204.0000 tab左xfl=107.9967 P-xfl=96.0033 间隔=96.0 商=1.000035
+TAB_LINES Q2 P-probe/probe-lat@w1000@RTL@i0@default 行#0 行宽=204.0000 tab左xfl=11.9967 P-xfl=192.0033 间隔=96.0 商=2.000035
+TAB_LINES CASE P-probe/probe-lat@w1000@RTL@i0@default 臂=RTL wrap=1 结构=PASS 位置=跳过(bidi 重排)
+TAB_LINES START P-probe/probe-lat@w1000@RTL@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED P-probe/probe-lat@w1000@RTL@i0@default 行=1 红=0 绿=1
+TAB_LINES CASE P-probe/probe-lat@w1000@RTL@i0@tab0 臂=RTL wrap=1 结构=PASS 位置=跳过(bidi 重排)
+TAB_LINES START P-probe/probe-lat@w1000@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED P-probe/probe-lat@w1000@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES CASE P-probe/probe-he@w1000@LTR@i0@default 臂=LTR 跳过=面缺字形3
+TAB_LINES START P-probe/probe-he@w1000@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED P-probe/probe-he@w1000@LTR@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE P-probe/probe-he@w1000@LTR@i0@tab0 臂=LTR 跳过=面缺字形3
+TAB_LINES START P-probe/probe-he@w1000@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED P-probe/probe-he@w1000@LTR@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE P-probe/probe-he@w1000@RTL@i0@default 臂=RTL 跳过=面缺字形3
+TAB_LINES START P-probe/probe-he@w1000@RTL@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED P-probe/probe-he@w1000@RTL@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE P-probe/probe-he@w1000@RTL@i0@tab0 臂=RTL 跳过=面缺字形3
+TAB_LINES START P-probe/probe-he@w1000@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED P-probe/probe-he@w1000@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE P-probe/probe-ar@w1000@LTR@i0@default 臂=LTR 跳过=面缺字形3
+TAB_LINES START P-probe/probe-ar@w1000@LTR@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED P-probe/probe-ar@w1000@LTR@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE P-probe/probe-ar@w1000@LTR@i0@tab0 臂=LTR 跳过=面缺字形3
+TAB_LINES START P-probe/probe-ar@w1000@LTR@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED P-probe/probe-ar@w1000@LTR@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE P-probe/probe-ar@w1000@RTL@i0@default 臂=RTL 跳过=面缺字形3
+TAB_LINES START P-probe/probe-ar@w1000@RTL@i0@default 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED P-probe/probe-ar@w1000@RTL@i0@default 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES CASE P-probe/probe-ar@w1000@RTL@i0@tab0 臂=RTL 跳过=面缺字形3
+TAB_LINES START P-probe/probe-ar@w1000@RTL@i0@tab0 行=1 红=0 绿=1
+TAB_LINES OVERFLOWED P-probe/probe-ar@w1000@RTL@i0@tab0 行=1 NOINFO=面缺字形(本列依赖字形)3
+TAB_LINES 文件=tab-anchor-oracle.json
+TAB_LINES   A-anchor/ar-a-t-b     结构 0/14；位置可比 0 其中过 0
+TAB_LINES   A-anchor/ar-ab-t-j    结构 0/14；位置可比 0 其中过 0
+TAB_LINES   A-anchor/he-a-t-b     结构 0/14；位置可比 0 其中过 0
+TAB_LINES   A-anchor/he-ab-t-g    结构 0/14；位置可比 0 其中过 0
+TAB_LINES   A-anchor/lat-a-t-b    结构 14/14；位置可比 14 其中过 14
+TAB_LINES   A-anchor/lat-ab-t-c   结构 14/14；位置可比 14 其中过 14
+TAB_LINES   A-contrast/ltr-he-a-t-b结构 0/14；位置可比 0 其中过 0
+TAB_LINES   A-contrast/ltr-he-ab-t-g结构 0/14；位置可比 0 其中过 0
+TAB_LINES   B-indent-extra/lead-tab-a结构 18/18；位置可比 18 其中过 18
+TAB_LINES   B-indent-extra/lead-tab-b-t-c结构 18/18；位置可比 18 其中过 18
+TAB_LINES   B-indent-extra/mid-tab-a-t-b结构 18/18；位置可比 18 其中过 18
+TAB_LINES   B-indent-extra/notab-control结构 18/18；位置可比 18 其中过 18
+TAB_LINES   B-indent/lead-tab-a   结构 32/32；位置可比 32 其中过 32
+TAB_LINES   B-indent/lead-tab-b-t-c结构 32/32；位置可比 32 其中过 32
+TAB_LINES   B-indent/lead-tab-only结构 16/16；位置可比 16 其中过 16
+TAB_LINES   B-indent/mid-tab-a-t-b结构 32/32；位置可比 32 其中过 32
+TAB_LINES   B-indent/notab-control结构 32/32；位置可比 32 其中过 32
+TAB_LINES   C-rtl-indent/he-lead-tab-a结构 0/16；位置可比 0 其中过 0
+TAB_LINES   C-rtl-indent/he-mid-tab结构 0/16；位置可比 0 其中过 0
+TAB_LINES   D-paraindent/he-lead-tab-a结构 0/12；位置可比 0 其中过 0
+TAB_LINES   D-paraindent/he-mid-tab结构 0/12；位置可比 0 其中过 0
+TAB_LINES   D-paraindent/lead-tab-a结构 20/20；位置可比 20 其中过 20
+TAB_LINES   D-paraindent/mid-tab-a-t-b结构 20/20；位置可比 20 其中过 20
+TAB_LINES   P-probe/probe-ar      结构 0/4；位置可比 0 其中过 0
+TAB_LINES   P-probe/probe-he      结构 0/4；位置可比 0 其中过 0
+TAB_LINES   P-probe/probe-lat     结构 4/4；位置可比 2 其中过 2
+TAB_LINES 合计 cases=436 判定过=288 结构败=0 不可比(缺字形)=148 其中 bidi 重排例=2；Q3 clamp 铺满整行 16/38；Q2 真值侧 tab 左缘自右缘量=网格倍数 2/2，我方侧 0/0
+TAB_LINES 最大差=0.0000 @
+TAB_LINES START 红=0 绿=615 判定行=615 NOINFO=0 NOINFO字形=0(构造性:本列不经字形) 字形释放行=194 非零真值行判定=171 红例=0 NOINFO例=0 对齐=Left 量=R(我方 line.Start) 真值=lineStartOffsetsDip[k] R(v)=Round(v,6,AwayFromZero) 口径=Start≡ParagraphIndent
+TAB_LINES START 对账 逐例求和 红=0 绿=615 NOINFO=0 ⇒ 与汇总一致
+TAB_LINES OVERFLOWED 红=0 绿=421 判定行=421 NOINFO=194 红例=0 NOINFO例=148 对齐=Left NOINFO字形=194 NOINFO字形外=0 真值True=22 诊断发丝边界行=58 量=我方 line.HasOverflowed 真值=lines[k].hasOverflowed 口径=盒原点+行宽 > 段落宽（**严格 >**，相等⇒false；无容差；布尔全等）
+TAB_LINES OVERFLOWED 对账 逐例求和 红=0 绿=421 NOINFO=194 ⇒ 与汇总一致
+TAB_LINES 未给 --known-red ⇒ 任何失败都算**未登记**（rc=1）；本档旧行为是恒 rc=0，已改。
+TAB_LINES 退出码=0（未登记失败 0 / 失败共 0 / 登记表 <未给>）

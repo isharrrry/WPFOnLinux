@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- ⭐ `D-R8`（工程卫生）：不依赖 `$(BaseIntermediateOutputPath)` 指向哪里的产物目录排除。
+       实现在仓根 `BuildHygiene.props`（全仓唯一一份；理由与两种被否决的落点见 `build/MilBridge/W21B-report.md` §2）。
+       **故意不加 `Exists()` 条件**：文件找不到要大声失败。 -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('BuildHygiene.props'))" />
+
+  <!--
+    U1c：几何 oracle 对拍的 Linux 侧驱动（生成输入集 / 跑我方实现 / 出对拍报告）。
+
+    共享 harness 源码在 tests/parity/geometry/harness/ 下，Windows 侧把同一批文件
+    复制到 C:\u1-geom\Harness\ 编译。两份源码逐字节相同（报告里附 sha256）。
+  -->
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>GeometryOracle</AssemblyName>
+    <RootNamespace>WpfGfx.Linux.Parity.Geometry</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="../../tests/parity/geometry/harness/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/WpfGfx.Linux/WpfGfx.Linux.csproj" />
+  </ItemGroup>
+
+</Project>

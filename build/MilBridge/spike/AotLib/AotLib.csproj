@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- ⭐ `D-R8`（工程卫生）：不依赖 `$(BaseIntermediateOutputPath)` 指向哪里的产物目录排除。
+       实现在仓根 `BuildHygiene.props`（全仓唯一一份；理由与两种被否决的落点见 `build/MilBridge/W21B-report.md` §2）。
+       **故意不加 `Exists()` 条件**：文件找不到要大声失败。 -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('BuildHygiene.props'))" />
+
+  <!--
+    T1 Phase 1-A：NativeAOT 共享库最小验证。
+    目标：证明 `dotnet publish -p:NativeLib=Shared -p:PublishAot=true` 产出的 .so
+    在 Linux 上真的导出了 [UnmanagedCallersOnly(EntryPoint=...)] 的符号，
+    并且托管侧 [DllImport] + SetDllImportResolver 能调到它。
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+
+    <PublishAot>true</PublishAot>
+    <NativeLib>Shared</NativeLib>
+
+    <AssemblyName>aotspike</AssemblyName>
+    <RootNamespace>AotSpike</RootNamespace>
+
+    <!-- NativeAOT 默认裁剪 + 反射分析器会把不支持的警告升级为错误；spike 阶段先关掉，
+         Phase 2 的真库再逐条处理。 -->
+    <SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
+    <EnableTrimAnalyzer>false</EnableTrimAnalyzer>
+    <EnableAotAnalyzer>false</EnableAotAnalyzer>
+    <TrimmerSingleWarn>false</TrimmerSingleWarn>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <StackTraceSupport>false</StackTraceSupport>
+  </PropertyGroup>
+
+</Project>

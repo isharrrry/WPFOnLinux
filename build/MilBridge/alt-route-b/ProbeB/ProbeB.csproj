@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    T1 Phase 1-D：备选路线 B「编译期替换」的**可编译性实测探针**。
+
+    目的不是把 108 条都铺开真编译（那要重编 1348 个源文件的 PresentationCore），
+    而是用最小代价把路线 B 的**硬阻塞**变成可复现的编译器诊断：
+      阻塞 1  类型同一性：PresentationCore 自己的 DUCE.ResourceHandle /
+              MilMatrix3x2D 与 WpfGfx.Linux 的同名类型是**两个不同的类型**，
+              managed→managed 直调必须逐点显式转换。
+      阻塞 2  强名称：PresentationCore.Linux 是 SignAssembly+PublicSign，
+              引用未签名的 WpfGfx.Linux 会出 CS8002。
+      阻塞 3  PreserveSig=false：DllImport 的"失败即抛"语义在直调里要手写。
+      阻塞 4  参数方向：DllImport 的 out/ref 与 MilNative 的 public 镜像类型逐点对齐。
+
+    本工程**预期编译失败**，失败信息就是证据 —— 见 gen/route-b-diagnostics.txt。
+    （build.sh 里用 `|| true` 接住，不当作构建错误。）
+
+    把 EXCLUDE_BLOCKERS 设为 true 可编出「适配后」的形态，
+    用于量化"每条调用点要加多少转换"。
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AssemblyName>ProbeB</AssemblyName>
+    <OutputType>Library</OutputType>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <NoWarn>$(NoWarn);CS0169;CS0649</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(SignAsPresentationCore)' == 'true'">
+    <!-- 与 build/PresentationCore.Linux/PresentationCore.Linux.csproj 一致的签名设置 -->
+    <SignAssembly>true</SignAssembly>
+    <PublicSign>true</PublicSign>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)../../../../build/keys/WcpPublicKey.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="UpstreamMirrors.cs" />
+    <Compile Include="NaiveCallSites.cs" Condition="'$(EXCLUDE_BLOCKERS)' != 'true'" />
+    <Compile Include="AdaptedCallSites.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 路线 B 的真实形态：PresentationCore.Linux 直接引用 WpfGfx.Linux，
+         然后把它自己的 [DllImport] 换成 MilNative.X 的托管直调。 -->
+    <ProjectReference Include="../../../../src/WpfGfx.Linux/WpfGfx.Linux.csproj" />
+  </ItemGroup>
+
+</Project>

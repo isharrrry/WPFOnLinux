@@ -1,0 +1,5631 @@
+{
+  "format": "wpf-linux-u1-bidi-oracle/1",
+  "generatedUtc": "2026-09-13T16:27:06.2092300Z",
+  "os": "Microsoft Windows NT 10.0.22631.0",
+  "clr": ".NET 10.0.7",
+  "presentationCore": "10.0.0.0",
+  "measurement": "System.Windows.Media.TextFormatting.TextFormatter.FormatLine -\u003E TextLine.GetTextBounds(i,1) / GetTextBounds(0,Length) / GetTextRunSpans",
+  "dpi": 96,
+  "units": "DIP (1/96 inch). TextFormatter is resolution independent; x/width are DIPs and do not depend on the monitor DPI",
+  "emSizeDip": 24,
+  "paragraphWidthDip": 10000,
+  "fontFamily": "Arial",
+  "fontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+  "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+  "fontSelection": "first candidate whose GlyphTypeface.CharacterToGlyphMap covers every code point in the corpus, so WPF font fallback cannot split the runs",
+  "fontCoverageTable": [
+    {
+      "family": "Arial",
+      "usable": true,
+      "missingCodePoints": [],
+      "fontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF"
+    },
+    {
+      "family": "Segoe UI",
+      "usable": true,
+      "missingCodePoints": [],
+      "fontUri": "file:///C:/WINDOWS/FONTS/SEGOEUI.TTF"
+    },
+    {
+      "family": "Tahoma",
+      "usable": true,
+      "missingCodePoints": [],
+      "fontUri": "file:///C:/WINDOWS/FONTS/TAHOMA.TTF"
+    },
+    {
+      "family": "Times New Roman",
+      "usable": true,
+      "missingCodePoints": [],
+      "fontUri": "file:///C:/WINDOWS/FONTS/TIMES.TTF"
+    },
+    {
+      "family": "David",
+      "usable": false,
+      "reason": "TryGetGlyphTypeface failed"
+    }
+  ],
+  "corpusCodePoints": [
+    "U\u002B0020",
+    "U\u002B002E",
+    "U\u002B0031",
+    "U\u002B0032",
+    "U\u002B0033",
+    "U\u002B0061",
+    "U\u002B0062",
+    "U\u002B0063",
+    "U\u002B0064",
+    "U\u002B0065",
+    "U\u002B0066",
+    "U\u002B05D5",
+    "U\u002B05DC",
+    "U\u002B05DD",
+    "U\u002B05E2",
+    "U\u002B05E9"
+  ],
+  "noteOnXCoordinates": "perChar[].x/width are the RAW TextBounds.Rectangle values. Their origin is the line origin, which for a RightToLeft paragraph is the RIGHT edge, so raw x grows leftwards there. perChar[].xFromLeftDip is the normalised value (distance of the character\u0027s left edge from the line\u0027s left edge) and is directly comparable across both flow directions.",
+  "noteOnVisualOrder": "visualOrder is derived from xFromLeftDip sorted ascending, i.e. what you see when scanning the line left to right",
+  "cases": [
+    {
+      "id": "he-pure@LeftToRight",
+      "baseId": "he-pure",
+      "text": "\u05E9\u05DC\u05D5\u05DD \u05E2\u05D5\u05DC\u05DD",
+      "note": "CONTROL: pure RTL (Hebrew \u002B space)",
+      "flowDirection": "LeftToRight",
+      "fontFamily": "Arial",
+      "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+      "emSizeDip": 24,
+      "dpi": 96,
+      "line": {
+        "start": 0,
+        "length": 10,
+        "newlineLength": 1,
+        "width": 98.82,
+        "widthIncludingTrailingWhitespace": 98.82,
+        "height": 27.596667,
+        "baseline": 22.12,
+        "hasOverflowed": false,
+        "textLineCount": 1
+      },
+      "wholeLineBounds": {
+        "x": -0.003333,
+        "y": 0,
+        "width": 98.82,
+        "height": 27.596667,
+        "fragments": 1
+      },
+      "perChar": [
+        {
+          "i": 0,
+          "char": "\u05E9",
+          "codePoint": "U\u002B05E9",
+          "x": 82.153333,
+          "width": 16.663333,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "0",
+              "Length": "1",
+              "Rectangle": {
+                "x": 82.153333,
+                "y": 0,
+                "width": 16.663333,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 82.153333
+        },
+        {
+          "i": 1,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC",
+          "x": 71.043333,
+          "width": 11.11,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "1",
+              "Length": "1",
+              "Rectangle": {
+                "x": 71.043333,
+                "y": 0,
+                "width": 11.11,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 71.043333
+        },
+        {
+          "i": 2,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5",
+          "x": 65.126667,
+          "width": 5.916667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "2",
+              "Length": "1",
+              "Rectangle": {
+                "x": 65.126667,
+                "y": 0,
+                "width": 5.916667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 65.126667
+        },
+        {
+          "i": 3,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD",
+          "x": 50.76,
+          "width": 14.366667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "3",
+              "Length": "1",
+              "Rectangle": {
+                "x": 50.76,
+                "y": 0,
+                "width": 14.366667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 50.76
+        },
+        {
+          "i": 4,
+          "char": " ",
+          "codePoint": "U\u002B0020",
+          "x": 44.093333,
+          "width": 6.666667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "4",
+              "Length": "1",
+              "Rectangle": {
+                "x": 44.093333,
+                "y": 0,
+                "width": 6.666667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 44.093333
+        },
+        {
+          "i": 5,
+          "char": "\u05E2",
+          "codePoint": "U\u002B05E2",
+          "x": 31.39,
+          "width": 12.703333,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "5",
+              "Length": "1",
+              "Rectangle": {
+                "x": 31.39,
+                "y": 0,
+                "width": 12.703333,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 31.39
+        },
+        {
+          "i": 6,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5",
+          "x": 25.473333,
+          "width": 5.916667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "6",
+              "Length": "1",
+              "Rectangle": {
+                "x": 25.473333,
+                "y": 0,
+                "width": 5.916667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 25.473333
+        },
+        {
+          "i": 7,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC",
+          "x": 14.363333,
+          "width": 11.11,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "7",
+              "Length": "1",
+              "Rectangle": {
+                "x": 14.363333,
+                "y": 0,
+                "width": 11.11,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 14.363333
+        },
+        {
+          "i": 8,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD",
+          "x": -0.003333,
+          "width": 14.366667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "8",
+              "Length": "1",
+              "Rectangle": {
+                "x": -0.003333,
+                "y": 0,
+                "width": 14.366667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": -0.003333
+        }
+      ],
+      "visualOrder": [
+        {
+          "visualPos": 0,
+          "logicalIndex": 8,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD"
+        },
+        {
+          "visualPos": 1,
+          "logicalIndex": 7,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC"
+        },
+        {
+          "visualPos": 2,
+          "logicalIndex": 6,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5"
+        },
+        {
+          "visualPos": 3,
+          "logicalIndex": 5,
+          "char": "\u05E2",
+          "codePoint": "U\u002B05E2"
+        },
+        {
+          "visualPos": 4,
+          "logicalIndex": 4,
+          "char": " ",
+          "codePoint": "U\u002B0020"
+        },
+        {
+          "visualPos": 5,
+          "logicalIndex": 3,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD"
+        },
+        {
+          "visualPos": 6,
+          "logicalIndex": 2,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5"
+        },
+        {
+          "visualPos": 7,
+          "logicalIndex": 1,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC"
+        },
+        {
+          "visualPos": 8,
+          "logicalIndex": 0,
+          "char": "\u05E9",
+          "codePoint": "U\u002B05E9"
+        }
+      ],
+      "visualString": "\u05DD\u05DC\u05D5\u05E2 \u05DD\u05D5\u05DC\u05E9",
+      "runSpans": [
+        {
+          "start": 0,
+          "length": 9,
+          "type": "TextCharacters",
+          "propertiesTypeface": "Arial"
+        },
+        {
+          "start": 9,
+          "length": 1,
+          "type": "TextEndOfParagraph",
+          "propertiesTypeface": null
+        }
+      ]
+    },
+    {
+      "id": "he-pure@RightToLeft",
+      "baseId": "he-pure",
+      "text": "\u05E9\u05DC\u05D5\u05DD \u05E2\u05D5\u05DC\u05DD",
+      "note": "CONTROL: pure RTL (Hebrew \u002B space)",
+      "flowDirection": "RightToLeft",
+      "fontFamily": "Arial",
+      "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+      "emSizeDip": 24,
+      "dpi": 96,
+      "line": {
+        "start": 0,
+        "length": 10,
+        "newlineLength": 1,
+        "width": 98.82,
+        "widthIncludingTrailingWhitespace": 98.82,
+        "height": 27.596667,
+        "baseline": 22.12,
+        "hasOverflowed": false,
+        "textLineCount": 1
+      },
+      "wholeLineBounds": {
+        "x": 0,
+        "y": 0,
+        "width": 98.82,
+        "height": 27.596667,
+        "fragments": 1
+      },
+      "perChar": [
+        {
+          "i": 0,
+          "char": "\u05E9",
+          "codePoint": "U\u002B05E9",
+          "x": 0,
+          "width": 16.663333,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "0",
+              "Length": "1",
+              "Rectangle": {
+                "x": 0,
+                "y": 0,
+                "width": 16.663333,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 82.156667
+        },
+        {
+          "i": 1,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC",
+          "x": 16.663333,
+          "width": 11.11,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "1",
+              "Length": "1",
+              "Rectangle": {
+                "x": 16.663333,
+                "y": 0,
+                "width": 11.11,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 71.046667
+        },
+        {
+          "i": 2,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5",
+          "x": 27.773333,
+          "width": 5.916667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "2",
+              "Length": "1",
+              "Rectangle": {
+                "x": 27.773333,
+                "y": 0,
+                "width": 5.916667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 65.13
+        },
+        {
+          "i": 3,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD",
+          "x": 33.69,
+          "width": 14.366667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "3",
+              "Length": "1",
+              "Rectangle": {
+                "x": 33.69,
+                "y": 0,
+                "width": 14.366667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 50.763333
+        },
+        {
+          "i": 4,
+          "char": " ",
+          "codePoint": "U\u002B0020",
+          "x": 48.056667,
+          "width": 6.666667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "4",
+              "Length": "1",
+              "Rectangle": {
+                "x": 48.056667,
+                "y": 0,
+                "width": 6.666667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 44.096666
+        },
+        {
+          "i": 5,
+          "char": "\u05E2",
+          "codePoint": "U\u002B05E2",
+          "x": 54.723333,
+          "width": 12.703333,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "5",
+              "Length": "1",
+              "Rectangle": {
+                "x": 54.723333,
+                "y": 0,
+                "width": 12.703333,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 31.393334
+        },
+        {
+          "i": 6,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5",
+          "x": 67.426667,
+          "width": 5.916667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "6",
+              "Length": "1",
+              "Rectangle": {
+                "x": 67.426667,
+                "y": 0,
+                "width": 5.916667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 25.476666
+        },
+        {
+          "i": 7,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC",
+          "x": 73.343333,
+          "width": 11.11,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "7",
+              "Length": "1",
+              "Rectangle": {
+                "x": 73.343333,
+                "y": 0,
+                "width": 11.11,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 14.366667
+        },
+        {
+          "i": 8,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD",
+          "x": 84.453333,
+          "width": 14.366667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "8",
+              "Length": "1",
+              "Rectangle": {
+                "x": 84.453333,
+                "y": 0,
+                "width": 14.366667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 0
+        }
+      ],
+      "visualOrder": [
+        {
+          "visualPos": 0,
+          "logicalIndex": 8,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD"
+        },
+        {
+          "visualPos": 1,
+          "logicalIndex": 7,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC"
+        },
+        {
+          "visualPos": 2,
+          "logicalIndex": 6,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5"
+        },
+        {
+          "visualPos": 3,
+          "logicalIndex": 5,
+          "char": "\u05E2",
+          "codePoint": "U\u002B05E2"
+        },
+        {
+          "visualPos": 4,
+          "logicalIndex": 4,
+          "char": " ",
+          "codePoint": "U\u002B0020"
+        },
+        {
+          "visualPos": 5,
+          "logicalIndex": 3,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD"
+        },
+        {
+          "visualPos": 6,
+          "logicalIndex": 2,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5"
+        },
+        {
+          "visualPos": 7,
+          "logicalIndex": 1,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC"
+        },
+        {
+          "visualPos": 8,
+          "logicalIndex": 0,
+          "char": "\u05E9",
+          "codePoint": "U\u002B05E9"
+        }
+      ],
+      "visualString": "\u05DD\u05DC\u05D5\u05E2 \u05DD\u05D5\u05DC\u05E9",
+      "runSpans": [
+        {
+          "start": 0,
+          "length": 9,
+          "type": "TextCharacters",
+          "propertiesTypeface": "Arial"
+        },
+        {
+          "start": 9,
+          "length": 1,
+          "type": "TextEndOfParagraph",
+          "propertiesTypeface": null
+        }
+      ]
+    },
+    {
+      "id": "ltr-pure@LeftToRight",
+      "baseId": "ltr-pure",
+      "text": "abc 123",
+      "note": "CONTROL: pure LTR (Latin \u002B digits)",
+      "flowDirection": "LeftToRight",
+      "fontFamily": "Arial",
+      "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+      "emSizeDip": 24,
+      "dpi": 96,
+      "line": {
+        "start": 0,
+        "length": 8,
+        "newlineLength": 1,
+        "width": 85.4,
+        "widthIncludingTrailingWhitespace": 85.4,
+        "height": 27.596667,
+        "baseline": 22.12,
+        "hasOverflowed": false,
+        "textLineCount": 1
+      },
+      "wholeLineBounds": {
+        "x": 0,
+        "y": 0,
+        "width": 85.4,
+        "height": 27.596667,
+        "fragments": 1
+      },
+      "perChar": [
+        {
+          "i": 0,
+          "char": "a",
+          "codePoint": "U\u002B0061",
+          "x": 0,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "0",
+              "Length": "1",
+              "Rectangle": {
+                "x": 0,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 0
+        },
+        {
+          "i": 1,
+          "char": "b",
+          "codePoint": "U\u002B0062",
+          "x": 13.346667,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "1",
+              "Length": "1",
+              "Rectangle": {
+                "x": 13.346667,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 13.346667
+        },
+        {
+          "i": 2,
+          "char": "c",
+          "codePoint": "U\u002B0063",
+          "x": 26.693333,
+          "width": 12,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "2",
+              "Length": "1",
+              "Rectangle": {
+                "x": 26.693333,
+                "y": 0,
+                "width": 12,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 26.693333
+        },
+        {
+          "i": 3,
+          "char": " ",
+          "codePoint": "U\u002B0020",
+          "x": 38.693333,
+          "width": 6.666667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "3",
+              "Length": "1",
+              "Rectangle": {
+                "x": 38.693333,
+                "y": 0,
+                "width": 6.666667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 38.693333
+        },
+        {
+          "i": 4,
+          "char": "1",
+          "codePoint": "U\u002B0031",
+          "x": 45.36,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "4",
+              "Length": "1",
+              "Rectangle": {
+                "x": 45.36,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 45.36
+        },
+        {
+          "i": 5,
+          "char": "2",
+          "codePoint": "U\u002B0032",
+          "x": 58.706667,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "5",
+              "Length": "1",
+              "Rectangle": {
+                "x": 58.706667,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 58.706667
+        },
+        {
+          "i": 6,
+          "char": "3",
+          "codePoint": "U\u002B0033",
+          "x": 72.053333,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "6",
+              "Length": "1",
+              "Rectangle": {
+                "x": 72.053333,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 72.053333
+        }
+      ],
+      "visualOrder": [
+        {
+          "visualPos": 0,
+          "logicalIndex": 0,
+          "char": "a",
+          "codePoint": "U\u002B0061"
+        },
+        {
+          "visualPos": 1,
+          "logicalIndex": 1,
+          "char": "b",
+          "codePoint": "U\u002B0062"
+        },
+        {
+          "visualPos": 2,
+          "logicalIndex": 2,
+          "char": "c",
+          "codePoint": "U\u002B0063"
+        },
+        {
+          "visualPos": 3,
+          "logicalIndex": 3,
+          "char": " ",
+          "codePoint": "U\u002B0020"
+        },
+        {
+          "visualPos": 4,
+          "logicalIndex": 4,
+          "char": "1",
+          "codePoint": "U\u002B0031"
+        },
+        {
+          "visualPos": 5,
+          "logicalIndex": 5,
+          "char": "2",
+          "codePoint": "U\u002B0032"
+        },
+        {
+          "visualPos": 6,
+          "logicalIndex": 6,
+          "char": "3",
+          "codePoint": "U\u002B0033"
+        }
+      ],
+      "visualString": "abc 123",
+      "runSpans": [
+        {
+          "start": 0,
+          "length": 7,
+          "type": "TextCharacters",
+          "propertiesTypeface": "Arial"
+        },
+        {
+          "start": 7,
+          "length": 1,
+          "type": "TextEndOfParagraph",
+          "propertiesTypeface": null
+        }
+      ]
+    },
+    {
+      "id": "ltr-pure@RightToLeft",
+      "baseId": "ltr-pure",
+      "text": "abc 123",
+      "note": "CONTROL: pure LTR (Latin \u002B digits)",
+      "flowDirection": "RightToLeft",
+      "fontFamily": "Arial",
+      "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+      "emSizeDip": 24,
+      "dpi": 96,
+      "line": {
+        "start": 0,
+        "length": 8,
+        "newlineLength": 1,
+        "width": 85.4,
+        "widthIncludingTrailingWhitespace": 85.4,
+        "height": 27.596667,
+        "baseline": 22.12,
+        "hasOverflowed": false,
+        "textLineCount": 1
+      },
+      "wholeLineBounds": {
+        "x": -0.003333,
+        "y": 0,
+        "width": 85.4,
+        "height": 27.596667,
+        "fragments": 1
+      },
+      "perChar": [
+        {
+          "i": 0,
+          "char": "a",
+          "codePoint": "U\u002B0061",
+          "x": 72.05,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "0",
+              "Length": "1",
+              "Rectangle": {
+                "x": 72.05,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 0
+        },
+        {
+          "i": 1,
+          "char": "b",
+          "codePoint": "U\u002B0062",
+          "x": 58.703333,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "1",
+              "Length": "1",
+              "Rectangle": {
+                "x": 58.703333,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 13.346667
+        },
+        {
+          "i": 2,
+          "char": "c",
+          "codePoint": "U\u002B0063",
+          "x": 46.703333,
+          "width": 12,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "2",
+              "Length": "1",
+              "Rectangle": {
+                "x": 46.703333,
+                "y": 0,
+                "width": 12,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 26.693334
+        },
+        {
+          "i": 3,
+          "char": " ",
+          "codePoint": "U\u002B0020",
+          "x": 40.036667,
+          "width": 6.666667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "3",
+              "Length": "1",
+              "Rectangle": {
+                "x": 40.036667,
+                "y": 0,
+                "width": 6.666667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 38.693333
+        },
+        {
+          "i": 4,
+          "char": "1",
+          "codePoint": "U\u002B0031",
+          "x": 26.69,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "4",
+              "Length": "1",
+              "Rectangle": {
+                "x": 26.69,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 45.36
+        },
+        {
+          "i": 5,
+          "char": "2",
+          "codePoint": "U\u002B0032",
+          "x": 13.343333,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "5",
+              "Length": "1",
+              "Rectangle": {
+                "x": 13.343333,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 58.706667
+        },
+        {
+          "i": 6,
+          "char": "3",
+          "codePoint": "U\u002B0033",
+          "x": -0.003333,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "6",
+              "Length": "1",
+              "Rectangle": {
+                "x": -0.003333,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 72.053333
+        }
+      ],
+      "visualOrder": [
+        {
+          "visualPos": 0,
+          "logicalIndex": 0,
+          "char": "a",
+          "codePoint": "U\u002B0061"
+        },
+        {
+          "visualPos": 1,
+          "logicalIndex": 1,
+          "char": "b",
+          "codePoint": "U\u002B0062"
+        },
+        {
+          "visualPos": 2,
+          "logicalIndex": 2,
+          "char": "c",
+          "codePoint": "U\u002B0063"
+        },
+        {
+          "visualPos": 3,
+          "logicalIndex": 3,
+          "char": " ",
+          "codePoint": "U\u002B0020"
+        },
+        {
+          "visualPos": 4,
+          "logicalIndex": 4,
+          "char": "1",
+          "codePoint": "U\u002B0031"
+        },
+        {
+          "visualPos": 5,
+          "logicalIndex": 5,
+          "char": "2",
+          "codePoint": "U\u002B0032"
+        },
+        {
+          "visualPos": 6,
+          "logicalIndex": 6,
+          "char": "3",
+          "codePoint": "U\u002B0033"
+        }
+      ],
+      "visualString": "abc 123",
+      "runSpans": [
+        {
+          "start": 0,
+          "length": 7,
+          "type": "TextCharacters",
+          "propertiesTypeface": "Arial"
+        },
+        {
+          "start": 7,
+          "length": 1,
+          "type": "TextEndOfParagraph",
+          "propertiesTypeface": null
+        }
+      ]
+    },
+    {
+      "id": "ltr-digits@LeftToRight",
+      "baseId": "ltr-digits",
+      "text": "123 abc",
+      "note": "LTR start with digits",
+      "flowDirection": "LeftToRight",
+      "fontFamily": "Arial",
+      "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+      "emSizeDip": 24,
+      "dpi": 96,
+      "line": {
+        "start": 0,
+        "length": 8,
+        "newlineLength": 1,
+        "width": 85.4,
+        "widthIncludingTrailingWhitespace": 85.4,
+        "height": 27.596667,
+        "baseline": 22.12,
+        "hasOverflowed": false,
+        "textLineCount": 1
+      },
+      "wholeLineBounds": {
+        "x": 0,
+        "y": 0,
+        "width": 85.4,
+        "height": 27.596667,
+        "fragments": 1
+      },
+      "perChar": [
+        {
+          "i": 0,
+          "char": "1",
+          "codePoint": "U\u002B0031",
+          "x": 0,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "0",
+              "Length": "1",
+              "Rectangle": {
+                "x": 0,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 0
+        },
+        {
+          "i": 1,
+          "char": "2",
+          "codePoint": "U\u002B0032",
+          "x": 13.346667,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "1",
+              "Length": "1",
+              "Rectangle": {
+                "x": 13.346667,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 13.346667
+        },
+        {
+          "i": 2,
+          "char": "3",
+          "codePoint": "U\u002B0033",
+          "x": 26.693333,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "2",
+              "Length": "1",
+              "Rectangle": {
+                "x": 26.693333,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 26.693333
+        },
+        {
+          "i": 3,
+          "char": " ",
+          "codePoint": "U\u002B0020",
+          "x": 40.04,
+          "width": 6.666667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "3",
+              "Length": "1",
+              "Rectangle": {
+                "x": 40.04,
+                "y": 0,
+                "width": 6.666667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 40.04
+        },
+        {
+          "i": 4,
+          "char": "a",
+          "codePoint": "U\u002B0061",
+          "x": 46.706667,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "4",
+              "Length": "1",
+              "Rectangle": {
+                "x": 46.706667,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 46.706667
+        },
+        {
+          "i": 5,
+          "char": "b",
+          "codePoint": "U\u002B0062",
+          "x": 60.053333,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "5",
+              "Length": "1",
+              "Rectangle": {
+                "x": 60.053333,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 60.053333
+        },
+        {
+          "i": 6,
+          "char": "c",
+          "codePoint": "U\u002B0063",
+          "x": 73.4,
+          "width": 12,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "6",
+              "Length": "1",
+              "Rectangle": {
+                "x": 73.4,
+                "y": 0,
+                "width": 12,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 73.4
+        }
+      ],
+      "visualOrder": [
+        {
+          "visualPos": 0,
+          "logicalIndex": 0,
+          "char": "1",
+          "codePoint": "U\u002B0031"
+        },
+        {
+          "visualPos": 1,
+          "logicalIndex": 1,
+          "char": "2",
+          "codePoint": "U\u002B0032"
+        },
+        {
+          "visualPos": 2,
+          "logicalIndex": 2,
+          "char": "3",
+          "codePoint": "U\u002B0033"
+        },
+        {
+          "visualPos": 3,
+          "logicalIndex": 3,
+          "char": " ",
+          "codePoint": "U\u002B0020"
+        },
+        {
+          "visualPos": 4,
+          "logicalIndex": 4,
+          "char": "a",
+          "codePoint": "U\u002B0061"
+        },
+        {
+          "visualPos": 5,
+          "logicalIndex": 5,
+          "char": "b",
+          "codePoint": "U\u002B0062"
+        },
+        {
+          "visualPos": 6,
+          "logicalIndex": 6,
+          "char": "c",
+          "codePoint": "U\u002B0063"
+        }
+      ],
+      "visualString": "123 abc",
+      "runSpans": [
+        {
+          "start": 0,
+          "length": 7,
+          "type": "TextCharacters",
+          "propertiesTypeface": "Arial"
+        },
+        {
+          "start": 7,
+          "length": 1,
+          "type": "TextEndOfParagraph",
+          "propertiesTypeface": null
+        }
+      ]
+    },
+    {
+      "id": "ltr-digits@RightToLeft",
+      "baseId": "ltr-digits",
+      "text": "123 abc",
+      "note": "LTR start with digits",
+      "flowDirection": "RightToLeft",
+      "fontFamily": "Arial",
+      "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+      "emSizeDip": 24,
+      "dpi": 96,
+      "line": {
+        "start": 0,
+        "length": 8,
+        "newlineLength": 1,
+        "width": 85.4,
+        "widthIncludingTrailingWhitespace": 85.4,
+        "height": 27.596667,
+        "baseline": 22.12,
+        "hasOverflowed": false,
+        "textLineCount": 1
+      },
+      "wholeLineBounds": {
+        "x": -0.003333,
+        "y": 0,
+        "width": 40.04,
+        "height": 27.596667,
+        "fragments": 2
+      },
+      "perChar": [
+        {
+          "i": 0,
+          "char": "1",
+          "codePoint": "U\u002B0031",
+          "x": 26.69,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "0",
+              "Length": "1",
+              "Rectangle": {
+                "x": 26.69,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 45.36
+        },
+        {
+          "i": 1,
+          "char": "2",
+          "codePoint": "U\u002B0032",
+          "x": 13.343333,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "1",
+              "Length": "1",
+              "Rectangle": {
+                "x": 13.343333,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 58.706667
+        },
+        {
+          "i": 2,
+          "char": "3",
+          "codePoint": "U\u002B0033",
+          "x": -0.003333,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "2",
+              "Length": "1",
+              "Rectangle": {
+                "x": -0.003333,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 72.053333
+        },
+        {
+          "i": 3,
+          "char": " ",
+          "codePoint": "U\u002B0020",
+          "x": 40.04,
+          "width": 6.666667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "3",
+              "Length": "1",
+              "Rectangle": {
+                "x": 40.04,
+                "y": 0,
+                "width": 6.666667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 38.69
+        },
+        {
+          "i": 4,
+          "char": "a",
+          "codePoint": "U\u002B0061",
+          "x": 72.05,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "4",
+              "Length": "1",
+              "Rectangle": {
+                "x": 72.05,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 0
+        },
+        {
+          "i": 5,
+          "char": "b",
+          "codePoint": "U\u002B0062",
+          "x": 58.703333,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "5",
+              "Length": "1",
+              "Rectangle": {
+                "x": 58.703333,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 13.346667
+        },
+        {
+          "i": 6,
+          "char": "c",
+          "codePoint": "U\u002B0063",
+          "x": 46.703333,
+          "width": 12,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "6",
+              "Length": "1",
+              "Rectangle": {
+                "x": 46.703333,
+                "y": 0,
+                "width": 12,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 26.693334
+        }
+      ],
+      "visualOrder": [
+        {
+          "visualPos": 0,
+          "logicalIndex": 4,
+          "char": "a",
+          "codePoint": "U\u002B0061"
+        },
+        {
+          "visualPos": 1,
+          "logicalIndex": 5,
+          "char": "b",
+          "codePoint": "U\u002B0062"
+        },
+        {
+          "visualPos": 2,
+          "logicalIndex": 6,
+          "char": "c",
+          "codePoint": "U\u002B0063"
+        },
+        {
+          "visualPos": 3,
+          "logicalIndex": 3,
+          "char": " ",
+          "codePoint": "U\u002B0020"
+        },
+        {
+          "visualPos": 4,
+          "logicalIndex": 0,
+          "char": "1",
+          "codePoint": "U\u002B0031"
+        },
+        {
+          "visualPos": 5,
+          "logicalIndex": 1,
+          "char": "2",
+          "codePoint": "U\u002B0032"
+        },
+        {
+          "visualPos": 6,
+          "logicalIndex": 2,
+          "char": "3",
+          "codePoint": "U\u002B0033"
+        }
+      ],
+      "visualString": "abc 123",
+      "runSpans": [
+        {
+          "start": 0,
+          "length": 7,
+          "type": "TextCharacters",
+          "propertiesTypeface": "Arial"
+        },
+        {
+          "start": 7,
+          "length": 1,
+          "type": "TextEndOfParagraph",
+          "propertiesTypeface": null
+        }
+      ]
+    },
+    {
+      "id": "he-period@LeftToRight",
+      "baseId": "he-period",
+      "text": "\u05E9\u05DC\u05D5\u05DD.",
+      "note": "RTL \u002B neutral period at the end",
+      "flowDirection": "LeftToRight",
+      "fontFamily": "Arial",
+      "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+      "emSizeDip": 24,
+      "dpi": 96,
+      "line": {
+        "start": 0,
+        "length": 6,
+        "newlineLength": 1,
+        "width": 54.723333,
+        "widthIncludingTrailingWhitespace": 54.723333,
+        "height": 27.596667,
+        "baseline": 22.12,
+        "hasOverflowed": false,
+        "textLineCount": 1
+      },
+      "wholeLineBounds": {
+        "x": -0.003333,
+        "y": 0,
+        "width": 48.056667,
+        "height": 27.596667,
+        "fragments": 2
+      },
+      "perChar": [
+        {
+          "i": 0,
+          "char": "\u05E9",
+          "codePoint": "U\u002B05E9",
+          "x": 31.39,
+          "width": 16.663333,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "0",
+              "Length": "1",
+              "Rectangle": {
+                "x": 31.39,
+                "y": 0,
+                "width": 16.663333,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 31.39
+        },
+        {
+          "i": 1,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC",
+          "x": 20.28,
+          "width": 11.11,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "1",
+              "Length": "1",
+              "Rectangle": {
+                "x": 20.28,
+                "y": 0,
+                "width": 11.11,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 20.28
+        },
+        {
+          "i": 2,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5",
+          "x": 14.363333,
+          "width": 5.916667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "2",
+              "Length": "1",
+              "Rectangle": {
+                "x": 14.363333,
+                "y": 0,
+                "width": 5.916667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 14.363333
+        },
+        {
+          "i": 3,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD",
+          "x": -0.003333,
+          "width": 14.366667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "3",
+              "Length": "1",
+              "Rectangle": {
+                "x": -0.003333,
+                "y": 0,
+                "width": 14.366667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": -0.003333
+        },
+        {
+          "i": 4,
+          "char": ".",
+          "codePoint": "U\u002B002E",
+          "x": 48.056667,
+          "width": 6.666667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "4",
+              "Length": "1",
+              "Rectangle": {
+                "x": 48.056667,
+                "y": 0,
+                "width": 6.666667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 48.056667
+        }
+      ],
+      "visualOrder": [
+        {
+          "visualPos": 0,
+          "logicalIndex": 3,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD"
+        },
+        {
+          "visualPos": 1,
+          "logicalIndex": 2,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5"
+        },
+        {
+          "visualPos": 2,
+          "logicalIndex": 1,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC"
+        },
+        {
+          "visualPos": 3,
+          "logicalIndex": 0,
+          "char": "\u05E9",
+          "codePoint": "U\u002B05E9"
+        },
+        {
+          "visualPos": 4,
+          "logicalIndex": 4,
+          "char": ".",
+          "codePoint": "U\u002B002E"
+        }
+      ],
+      "visualString": "\u05DD\u05D5\u05DC\u05E9.",
+      "runSpans": [
+        {
+          "start": 0,
+          "length": 5,
+          "type": "TextCharacters",
+          "propertiesTypeface": "Arial"
+        },
+        {
+          "start": 5,
+          "length": 1,
+          "type": "TextEndOfParagraph",
+          "propertiesTypeface": null
+        }
+      ]
+    },
+    {
+      "id": "he-period@RightToLeft",
+      "baseId": "he-period",
+      "text": "\u05E9\u05DC\u05D5\u05DD.",
+      "note": "RTL \u002B neutral period at the end",
+      "flowDirection": "RightToLeft",
+      "fontFamily": "Arial",
+      "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+      "emSizeDip": 24,
+      "dpi": 96,
+      "line": {
+        "start": 0,
+        "length": 6,
+        "newlineLength": 1,
+        "width": 54.723333,
+        "widthIncludingTrailingWhitespace": 54.723333,
+        "height": 27.596667,
+        "baseline": 22.12,
+        "hasOverflowed": false,
+        "textLineCount": 1
+      },
+      "wholeLineBounds": {
+        "x": 0,
+        "y": 0,
+        "width": 54.723333,
+        "height": 27.596667,
+        "fragments": 1
+      },
+      "perChar": [
+        {
+          "i": 0,
+          "char": "\u05E9",
+          "codePoint": "U\u002B05E9",
+          "x": 0,
+          "width": 16.663333,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "0",
+              "Length": "1",
+              "Rectangle": {
+                "x": 0,
+                "y": 0,
+                "width": 16.663333,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 38.060001
+        },
+        {
+          "i": 1,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC",
+          "x": 16.663333,
+          "width": 11.11,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "1",
+              "Length": "1",
+              "Rectangle": {
+                "x": 16.663333,
+                "y": 0,
+                "width": 11.11,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 26.950001
+        },
+        {
+          "i": 2,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5",
+          "x": 27.773333,
+          "width": 5.916667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "2",
+              "Length": "1",
+              "Rectangle": {
+                "x": 27.773333,
+                "y": 0,
+                "width": 5.916667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 21.033334
+        },
+        {
+          "i": 3,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD",
+          "x": 33.69,
+          "width": 14.366667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "3",
+              "Length": "1",
+              "Rectangle": {
+                "x": 33.69,
+                "y": 0,
+                "width": 14.366667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 6.666667
+        },
+        {
+          "i": 4,
+          "char": ".",
+          "codePoint": "U\u002B002E",
+          "x": 48.056667,
+          "width": 6.666667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "4",
+              "Length": "1",
+              "Rectangle": {
+                "x": 48.056667,
+                "y": 0,
+                "width": 6.666667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 0
+        }
+      ],
+      "visualOrder": [
+        {
+          "visualPos": 0,
+          "logicalIndex": 4,
+          "char": ".",
+          "codePoint": "U\u002B002E"
+        },
+        {
+          "visualPos": 1,
+          "logicalIndex": 3,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD"
+        },
+        {
+          "visualPos": 2,
+          "logicalIndex": 2,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5"
+        },
+        {
+          "visualPos": 3,
+          "logicalIndex": 1,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC"
+        },
+        {
+          "visualPos": 4,
+          "logicalIndex": 0,
+          "char": "\u05E9",
+          "codePoint": "U\u002B05E9"
+        }
+      ],
+      "visualString": ".\u05DD\u05D5\u05DC\u05E9",
+      "runSpans": [
+        {
+          "start": 0,
+          "length": 5,
+          "type": "TextCharacters",
+          "propertiesTypeface": "Arial"
+        },
+        {
+          "start": 5,
+          "length": 1,
+          "type": "TextEndOfParagraph",
+          "propertiesTypeface": null
+        }
+      ]
+    },
+    {
+      "id": "he-123@LeftToRight",
+      "baseId": "he-123",
+      "text": "\u05E9\u05DC\u05D5\u05DD 123",
+      "note": "RTL \u002B European digits (the reported failure case)",
+      "flowDirection": "LeftToRight",
+      "fontFamily": "Arial",
+      "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+      "emSizeDip": 24,
+      "dpi": 96,
+      "line": {
+        "start": 0,
+        "length": 9,
+        "newlineLength": 1,
+        "width": 94.763333,
+        "widthIncludingTrailingWhitespace": 94.763333,
+        "height": 27.596667,
+        "baseline": 22.12,
+        "hasOverflowed": false,
+        "textLineCount": 1
+      },
+      "wholeLineBounds": {
+        "x": -0.003333,
+        "y": 0,
+        "width": 94.763333,
+        "height": 27.596667,
+        "fragments": 1
+      },
+      "perChar": [
+        {
+          "i": 0,
+          "char": "\u05E9",
+          "codePoint": "U\u002B05E9",
+          "x": 78.096667,
+          "width": 16.663333,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "0",
+              "Length": "1",
+              "Rectangle": {
+                "x": 78.096667,
+                "y": 0,
+                "width": 16.663333,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 78.096667
+        },
+        {
+          "i": 1,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC",
+          "x": 66.986667,
+          "width": 11.11,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "1",
+              "Length": "1",
+              "Rectangle": {
+                "x": 66.986667,
+                "y": 0,
+                "width": 11.11,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 66.986667
+        },
+        {
+          "i": 2,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5",
+          "x": 61.07,
+          "width": 5.916667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "2",
+              "Length": "1",
+              "Rectangle": {
+                "x": 61.07,
+                "y": 0,
+                "width": 5.916667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 61.07
+        },
+        {
+          "i": 3,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD",
+          "x": 46.703333,
+          "width": 14.366667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "3",
+              "Length": "1",
+              "Rectangle": {
+                "x": 46.703333,
+                "y": 0,
+                "width": 14.366667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 46.703333
+        },
+        {
+          "i": 4,
+          "char": " ",
+          "codePoint": "U\u002B0020",
+          "x": 40.036667,
+          "width": 6.666667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "4",
+              "Length": "1",
+              "Rectangle": {
+                "x": 40.036667,
+                "y": 0,
+                "width": 6.666667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 40.036667
+        },
+        {
+          "i": 5,
+          "char": "1",
+          "codePoint": "U\u002B0031",
+          "x": 0,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "5",
+              "Length": "1",
+              "Rectangle": {
+                "x": 0,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 0
+        },
+        {
+          "i": 6,
+          "char": "2",
+          "codePoint": "U\u002B0032",
+          "x": 13.346667,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "6",
+              "Length": "1",
+              "Rectangle": {
+                "x": 13.346667,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 13.346667
+        },
+        {
+          "i": 7,
+          "char": "3",
+          "codePoint": "U\u002B0033",
+          "x": 26.693333,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "7",
+              "Length": "1",
+              "Rectangle": {
+                "x": 26.693333,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 26.693333
+        }
+      ],
+      "visualOrder": [
+        {
+          "visualPos": 0,
+          "logicalIndex": 5,
+          "char": "1",
+          "codePoint": "U\u002B0031"
+        },
+        {
+          "visualPos": 1,
+          "logicalIndex": 6,
+          "char": "2",
+          "codePoint": "U\u002B0032"
+        },
+        {
+          "visualPos": 2,
+          "logicalIndex": 7,
+          "char": "3",
+          "codePoint": "U\u002B0033"
+        },
+        {
+          "visualPos": 3,
+          "logicalIndex": 4,
+          "char": " ",
+          "codePoint": "U\u002B0020"
+        },
+        {
+          "visualPos": 4,
+          "logicalIndex": 3,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD"
+        },
+        {
+          "visualPos": 5,
+          "logicalIndex": 2,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5"
+        },
+        {
+          "visualPos": 6,
+          "logicalIndex": 1,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC"
+        },
+        {
+          "visualPos": 7,
+          "logicalIndex": 0,
+          "char": "\u05E9",
+          "codePoint": "U\u002B05E9"
+        }
+      ],
+      "visualString": "123 \u05DD\u05D5\u05DC\u05E9",
+      "runSpans": [
+        {
+          "start": 0,
+          "length": 8,
+          "type": "TextCharacters",
+          "propertiesTypeface": "Arial"
+        },
+        {
+          "start": 8,
+          "length": 1,
+          "type": "TextEndOfParagraph",
+          "propertiesTypeface": null
+        }
+      ]
+    },
+    {
+      "id": "he-123@RightToLeft",
+      "baseId": "he-123",
+      "text": "\u05E9\u05DC\u05D5\u05DD 123",
+      "note": "RTL \u002B European digits (the reported failure case)",
+      "flowDirection": "RightToLeft",
+      "fontFamily": "Arial",
+      "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+      "emSizeDip": 24,
+      "dpi": 96,
+      "line": {
+        "start": 0,
+        "length": 9,
+        "newlineLength": 1,
+        "width": 94.763333,
+        "widthIncludingTrailingWhitespace": 94.763333,
+        "height": 27.596667,
+        "baseline": 22.12,
+        "hasOverflowed": false,
+        "textLineCount": 1
+      },
+      "wholeLineBounds": {
+        "x": 0,
+        "y": 0,
+        "width": 94.763333,
+        "height": 27.596667,
+        "fragments": 1
+      },
+      "perChar": [
+        {
+          "i": 0,
+          "char": "\u05E9",
+          "codePoint": "U\u002B05E9",
+          "x": 0,
+          "width": 16.663333,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "0",
+              "Length": "1",
+              "Rectangle": {
+                "x": 0,
+                "y": 0,
+                "width": 16.663333,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 78.096667
+        },
+        {
+          "i": 1,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC",
+          "x": 16.663333,
+          "width": 11.11,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "1",
+              "Length": "1",
+              "Rectangle": {
+                "x": 16.663333,
+                "y": 0,
+                "width": 11.11,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 66.986667
+        },
+        {
+          "i": 2,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5",
+          "x": 27.773333,
+          "width": 5.916667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "2",
+              "Length": "1",
+              "Rectangle": {
+                "x": 27.773333,
+                "y": 0,
+                "width": 5.916667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 61.07
+        },
+        {
+          "i": 3,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD",
+          "x": 33.69,
+          "width": 14.366667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "3",
+              "Length": "1",
+              "Rectangle": {
+                "x": 33.69,
+                "y": 0,
+                "width": 14.366667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 46.703333
+        },
+        {
+          "i": 4,
+          "char": " ",
+          "codePoint": "U\u002B0020",
+          "x": 48.056667,
+          "width": 6.666667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "4",
+              "Length": "1",
+              "Rectangle": {
+                "x": 48.056667,
+                "y": 0,
+                "width": 6.666667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 40.036666
+        },
+        {
+          "i": 5,
+          "char": "1",
+          "codePoint": "U\u002B0031",
+          "x": 81.413333,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "5",
+              "Length": "1",
+              "Rectangle": {
+                "x": 81.413333,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 0
+        },
+        {
+          "i": 6,
+          "char": "2",
+          "codePoint": "U\u002B0032",
+          "x": 68.066667,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "6",
+              "Length": "1",
+              "Rectangle": {
+                "x": 68.066667,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 13.346666
+        },
+        {
+          "i": 7,
+          "char": "3",
+          "codePoint": "U\u002B0033",
+          "x": 54.72,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "7",
+              "Length": "1",
+              "Rectangle": {
+                "x": 54.72,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 26.693333
+        }
+      ],
+      "visualOrder": [
+        {
+          "visualPos": 0,
+          "logicalIndex": 5,
+          "char": "1",
+          "codePoint": "U\u002B0031"
+        },
+        {
+          "visualPos": 1,
+          "logicalIndex": 6,
+          "char": "2",
+          "codePoint": "U\u002B0032"
+        },
+        {
+          "visualPos": 2,
+          "logicalIndex": 7,
+          "char": "3",
+          "codePoint": "U\u002B0033"
+        },
+        {
+          "visualPos": 3,
+          "logicalIndex": 4,
+          "char": " ",
+          "codePoint": "U\u002B0020"
+        },
+        {
+          "visualPos": 4,
+          "logicalIndex": 3,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD"
+        },
+        {
+          "visualPos": 5,
+          "logicalIndex": 2,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5"
+        },
+        {
+          "visualPos": 6,
+          "logicalIndex": 1,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC"
+        },
+        {
+          "visualPos": 7,
+          "logicalIndex": 0,
+          "char": "\u05E9",
+          "codePoint": "U\u002B05E9"
+        }
+      ],
+      "visualString": "123 \u05DD\u05D5\u05DC\u05E9",
+      "runSpans": [
+        {
+          "start": 0,
+          "length": 8,
+          "type": "TextCharacters",
+          "propertiesTypeface": "Arial"
+        },
+        {
+          "start": 8,
+          "length": 1,
+          "type": "TextEndOfParagraph",
+          "propertiesTypeface": null
+        }
+      ]
+    },
+    {
+      "id": "he-123-he@LeftToRight",
+      "baseId": "he-123-he",
+      "text": "\u05E9\u05DC\u05D5\u05DD 123 \u05E2\u05D5\u05DC\u05DD",
+      "note": "RTL \u002B digits \u002B RTL",
+      "flowDirection": "LeftToRight",
+      "fontFamily": "Arial",
+      "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+      "emSizeDip": 24,
+      "dpi": 96,
+      "line": {
+        "start": 0,
+        "length": 14,
+        "newlineLength": 1,
+        "width": 145.526667,
+        "widthIncludingTrailingWhitespace": 145.526667,
+        "height": 27.596667,
+        "baseline": 22.12,
+        "hasOverflowed": false,
+        "textLineCount": 1
+      },
+      "wholeLineBounds": {
+        "x": -0.003333,
+        "y": 0,
+        "width": 145.526667,
+        "height": 27.596667,
+        "fragments": 1
+      },
+      "perChar": [
+        {
+          "i": 0,
+          "char": "\u05E9",
+          "codePoint": "U\u002B05E9",
+          "x": 128.86,
+          "width": 16.663333,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "0",
+              "Length": "1",
+              "Rectangle": {
+                "x": 128.86,
+                "y": 0,
+                "width": 16.663333,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 128.86
+        },
+        {
+          "i": 1,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC",
+          "x": 117.75,
+          "width": 11.11,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "1",
+              "Length": "1",
+              "Rectangle": {
+                "x": 117.75,
+                "y": 0,
+                "width": 11.11,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 117.75
+        },
+        {
+          "i": 2,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5",
+          "x": 111.833333,
+          "width": 5.916667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "2",
+              "Length": "1",
+              "Rectangle": {
+                "x": 111.833333,
+                "y": 0,
+                "width": 5.916667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 111.833333
+        },
+        {
+          "i": 3,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD",
+          "x": 97.466667,
+          "width": 14.366667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "3",
+              "Length": "1",
+              "Rectangle": {
+                "x": 97.466667,
+                "y": 0,
+                "width": 14.366667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 97.466667
+        },
+        {
+          "i": 4,
+          "char": " ",
+          "codePoint": "U\u002B0020",
+          "x": 90.8,
+          "width": 6.666667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "4",
+              "Length": "1",
+              "Rectangle": {
+                "x": 90.8,
+                "y": 0,
+                "width": 6.666667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 90.8
+        },
+        {
+          "i": 5,
+          "char": "1",
+          "codePoint": "U\u002B0031",
+          "x": 50.763333,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "5",
+              "Length": "1",
+              "Rectangle": {
+                "x": 50.763333,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 50.763333
+        },
+        {
+          "i": 6,
+          "char": "2",
+          "codePoint": "U\u002B0032",
+          "x": 64.11,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "6",
+              "Length": "1",
+              "Rectangle": {
+                "x": 64.11,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 64.11
+        },
+        {
+          "i": 7,
+          "char": "3",
+          "codePoint": "U\u002B0033",
+          "x": 77.456667,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "7",
+              "Length": "1",
+              "Rectangle": {
+                "x": 77.456667,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 77.456667
+        },
+        {
+          "i": 8,
+          "char": " ",
+          "codePoint": "U\u002B0020",
+          "x": 44.093333,
+          "width": 6.666667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "8",
+              "Length": "1",
+              "Rectangle": {
+                "x": 44.093333,
+                "y": 0,
+                "width": 6.666667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 44.093333
+        },
+        {
+          "i": 9,
+          "char": "\u05E2",
+          "codePoint": "U\u002B05E2",
+          "x": 31.39,
+          "width": 12.703333,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "9",
+              "Length": "1",
+              "Rectangle": {
+                "x": 31.39,
+                "y": 0,
+                "width": 12.703333,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 31.39
+        },
+        {
+          "i": 10,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5",
+          "x": 25.473333,
+          "width": 5.916667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "10",
+              "Length": "1",
+              "Rectangle": {
+                "x": 25.473333,
+                "y": 0,
+                "width": 5.916667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 25.473333
+        },
+        {
+          "i": 11,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC",
+          "x": 14.363333,
+          "width": 11.11,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "11",
+              "Length": "1",
+              "Rectangle": {
+                "x": 14.363333,
+                "y": 0,
+                "width": 11.11,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 14.363333
+        },
+        {
+          "i": 12,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD",
+          "x": -0.003333,
+          "width": 14.366667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "12",
+              "Length": "1",
+              "Rectangle": {
+                "x": -0.003333,
+                "y": 0,
+                "width": 14.366667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": -0.003333
+        }
+      ],
+      "visualOrder": [
+        {
+          "visualPos": 0,
+          "logicalIndex": 12,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD"
+        },
+        {
+          "visualPos": 1,
+          "logicalIndex": 11,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC"
+        },
+        {
+          "visualPos": 2,
+          "logicalIndex": 10,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5"
+        },
+        {
+          "visualPos": 3,
+          "logicalIndex": 9,
+          "char": "\u05E2",
+          "codePoint": "U\u002B05E2"
+        },
+        {
+          "visualPos": 4,
+          "logicalIndex": 8,
+          "char": " ",
+          "codePoint": "U\u002B0020"
+        },
+        {
+          "visualPos": 5,
+          "logicalIndex": 5,
+          "char": "1",
+          "codePoint": "U\u002B0031"
+        },
+        {
+          "visualPos": 6,
+          "logicalIndex": 6,
+          "char": "2",
+          "codePoint": "U\u002B0032"
+        },
+        {
+          "visualPos": 7,
+          "logicalIndex": 7,
+          "char": "3",
+          "codePoint": "U\u002B0033"
+        },
+        {
+          "visualPos": 8,
+          "logicalIndex": 4,
+          "char": " ",
+          "codePoint": "U\u002B0020"
+        },
+        {
+          "visualPos": 9,
+          "logicalIndex": 3,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD"
+        },
+        {
+          "visualPos": 10,
+          "logicalIndex": 2,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5"
+        },
+        {
+          "visualPos": 11,
+          "logicalIndex": 1,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC"
+        },
+        {
+          "visualPos": 12,
+          "logicalIndex": 0,
+          "char": "\u05E9",
+          "codePoint": "U\u002B05E9"
+        }
+      ],
+      "visualString": "\u05DD\u05DC\u05D5\u05E2 123 \u05DD\u05D5\u05DC\u05E9",
+      "runSpans": [
+        {
+          "start": 0,
+          "length": 13,
+          "type": "TextCharacters",
+          "propertiesTypeface": "Arial"
+        },
+        {
+          "start": 13,
+          "length": 1,
+          "type": "TextEndOfParagraph",
+          "propertiesTypeface": null
+        }
+      ]
+    },
+    {
+      "id": "he-123-he@RightToLeft",
+      "baseId": "he-123-he",
+      "text": "\u05E9\u05DC\u05D5\u05DD 123 \u05E2\u05D5\u05DC\u05DD",
+      "note": "RTL \u002B digits \u002B RTL",
+      "flowDirection": "RightToLeft",
+      "fontFamily": "Arial",
+      "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+      "emSizeDip": 24,
+      "dpi": 96,
+      "line": {
+        "start": 0,
+        "length": 14,
+        "newlineLength": 1,
+        "width": 145.526667,
+        "widthIncludingTrailingWhitespace": 145.526667,
+        "height": 27.596667,
+        "baseline": 22.12,
+        "hasOverflowed": false,
+        "textLineCount": 1
+      },
+      "wholeLineBounds": {
+        "x": 0,
+        "y": 0,
+        "width": 145.526667,
+        "height": 27.596667,
+        "fragments": 1
+      },
+      "perChar": [
+        {
+          "i": 0,
+          "char": "\u05E9",
+          "codePoint": "U\u002B05E9",
+          "x": 0,
+          "width": 16.663333,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "0",
+              "Length": "1",
+              "Rectangle": {
+                "x": 0,
+                "y": 0,
+                "width": 16.663333,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 128.863334
+        },
+        {
+          "i": 1,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC",
+          "x": 16.663333,
+          "width": 11.11,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "1",
+              "Length": "1",
+              "Rectangle": {
+                "x": 16.663333,
+                "y": 0,
+                "width": 11.11,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 117.753334
+        },
+        {
+          "i": 2,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5",
+          "x": 27.773333,
+          "width": 5.916667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "2",
+              "Length": "1",
+              "Rectangle": {
+                "x": 27.773333,
+                "y": 0,
+                "width": 5.916667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 111.836667
+        },
+        {
+          "i": 3,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD",
+          "x": 33.69,
+          "width": 14.366667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "3",
+              "Length": "1",
+              "Rectangle": {
+                "x": 33.69,
+                "y": 0,
+                "width": 14.366667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 97.47
+        },
+        {
+          "i": 4,
+          "char": " ",
+          "codePoint": "U\u002B0020",
+          "x": 48.056667,
+          "width": 6.666667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "4",
+              "Length": "1",
+              "Rectangle": {
+                "x": 48.056667,
+                "y": 0,
+                "width": 6.666667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 90.803333
+        },
+        {
+          "i": 5,
+          "char": "1",
+          "codePoint": "U\u002B0031",
+          "x": 81.413333,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "5",
+              "Length": "1",
+              "Rectangle": {
+                "x": 81.413333,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 50.766667
+        },
+        {
+          "i": 6,
+          "char": "2",
+          "codePoint": "U\u002B0032",
+          "x": 68.066667,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "6",
+              "Length": "1",
+              "Rectangle": {
+                "x": 68.066667,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 64.113333
+        },
+        {
+          "i": 7,
+          "char": "3",
+          "codePoint": "U\u002B0033",
+          "x": 54.72,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "7",
+              "Length": "1",
+              "Rectangle": {
+                "x": 54.72,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 77.46
+        },
+        {
+          "i": 8,
+          "char": " ",
+          "codePoint": "U\u002B0020",
+          "x": 94.763333,
+          "width": 6.666667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "8",
+              "Length": "1",
+              "Rectangle": {
+                "x": 94.763333,
+                "y": 0,
+                "width": 6.666667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 44.096667
+        },
+        {
+          "i": 9,
+          "char": "\u05E2",
+          "codePoint": "U\u002B05E2",
+          "x": 101.43,
+          "width": 12.703333,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "9",
+              "Length": "1",
+              "Rectangle": {
+                "x": 101.43,
+                "y": 0,
+                "width": 12.703333,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 31.393334
+        },
+        {
+          "i": 10,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5",
+          "x": 114.133333,
+          "width": 5.916667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "10",
+              "Length": "1",
+              "Rectangle": {
+                "x": 114.133333,
+                "y": 0,
+                "width": 5.916667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 25.476667
+        },
+        {
+          "i": 11,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC",
+          "x": 120.05,
+          "width": 11.11,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "11",
+              "Length": "1",
+              "Rectangle": {
+                "x": 120.05,
+                "y": 0,
+                "width": 11.11,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 14.366667
+        },
+        {
+          "i": 12,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD",
+          "x": 131.16,
+          "width": 14.366667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "12",
+              "Length": "1",
+              "Rectangle": {
+                "x": 131.16,
+                "y": 0,
+                "width": 14.366667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 0
+        }
+      ],
+      "visualOrder": [
+        {
+          "visualPos": 0,
+          "logicalIndex": 12,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD"
+        },
+        {
+          "visualPos": 1,
+          "logicalIndex": 11,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC"
+        },
+        {
+          "visualPos": 2,
+          "logicalIndex": 10,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5"
+        },
+        {
+          "visualPos": 3,
+          "logicalIndex": 9,
+          "char": "\u05E2",
+          "codePoint": "U\u002B05E2"
+        },
+        {
+          "visualPos": 4,
+          "logicalIndex": 8,
+          "char": " ",
+          "codePoint": "U\u002B0020"
+        },
+        {
+          "visualPos": 5,
+          "logicalIndex": 5,
+          "char": "1",
+          "codePoint": "U\u002B0031"
+        },
+        {
+          "visualPos": 6,
+          "logicalIndex": 6,
+          "char": "2",
+          "codePoint": "U\u002B0032"
+        },
+        {
+          "visualPos": 7,
+          "logicalIndex": 7,
+          "char": "3",
+          "codePoint": "U\u002B0033"
+        },
+        {
+          "visualPos": 8,
+          "logicalIndex": 4,
+          "char": " ",
+          "codePoint": "U\u002B0020"
+        },
+        {
+          "visualPos": 9,
+          "logicalIndex": 3,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD"
+        },
+        {
+          "visualPos": 10,
+          "logicalIndex": 2,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5"
+        },
+        {
+          "visualPos": 11,
+          "logicalIndex": 1,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC"
+        },
+        {
+          "visualPos": 12,
+          "logicalIndex": 0,
+          "char": "\u05E9",
+          "codePoint": "U\u002B05E9"
+        }
+      ],
+      "visualString": "\u05DD\u05DC\u05D5\u05E2 123 \u05DD\u05D5\u05DC\u05E9",
+      "runSpans": [
+        {
+          "start": 0,
+          "length": 13,
+          "type": "TextCharacters",
+          "propertiesTypeface": "Arial"
+        },
+        {
+          "start": 13,
+          "length": 1,
+          "type": "TextEndOfParagraph",
+          "propertiesTypeface": null
+        }
+      ]
+    },
+    {
+      "id": "he-latin@LeftToRight",
+      "baseId": "he-latin",
+      "text": "\u05E9\u05DC\u05D5\u05DD abc",
+      "note": "RTL \u002B Latin word",
+      "flowDirection": "LeftToRight",
+      "fontFamily": "Arial",
+      "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+      "emSizeDip": 24,
+      "dpi": 96,
+      "line": {
+        "start": 0,
+        "length": 9,
+        "newlineLength": 1,
+        "width": 93.416667,
+        "widthIncludingTrailingWhitespace": 93.416667,
+        "height": 27.596667,
+        "baseline": 22.12,
+        "hasOverflowed": false,
+        "textLineCount": 1
+      },
+      "wholeLineBounds": {
+        "x": -0.003333,
+        "y": 0,
+        "width": 48.056667,
+        "height": 27.596667,
+        "fragments": 2
+      },
+      "perChar": [
+        {
+          "i": 0,
+          "char": "\u05E9",
+          "codePoint": "U\u002B05E9",
+          "x": 31.39,
+          "width": 16.663333,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "0",
+              "Length": "1",
+              "Rectangle": {
+                "x": 31.39,
+                "y": 0,
+                "width": 16.663333,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 31.39
+        },
+        {
+          "i": 1,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC",
+          "x": 20.28,
+          "width": 11.11,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "1",
+              "Length": "1",
+              "Rectangle": {
+                "x": 20.28,
+                "y": 0,
+                "width": 11.11,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 20.28
+        },
+        {
+          "i": 2,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5",
+          "x": 14.363333,
+          "width": 5.916667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "2",
+              "Length": "1",
+              "Rectangle": {
+                "x": 14.363333,
+                "y": 0,
+                "width": 5.916667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 14.363333
+        },
+        {
+          "i": 3,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD",
+          "x": -0.003333,
+          "width": 14.366667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "3",
+              "Length": "1",
+              "Rectangle": {
+                "x": -0.003333,
+                "y": 0,
+                "width": 14.366667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": -0.003333
+        },
+        {
+          "i": 4,
+          "char": " ",
+          "codePoint": "U\u002B0020",
+          "x": 48.056667,
+          "width": 6.666667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "4",
+              "Length": "1",
+              "Rectangle": {
+                "x": 48.056667,
+                "y": 0,
+                "width": 6.666667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 48.056667
+        },
+        {
+          "i": 5,
+          "char": "a",
+          "codePoint": "U\u002B0061",
+          "x": 54.723333,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "5",
+              "Length": "1",
+              "Rectangle": {
+                "x": 54.723333,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 54.723333
+        },
+        {
+          "i": 6,
+          "char": "b",
+          "codePoint": "U\u002B0062",
+          "x": 68.07,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "6",
+              "Length": "1",
+              "Rectangle": {
+                "x": 68.07,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 68.07
+        },
+        {
+          "i": 7,
+          "char": "c",
+          "codePoint": "U\u002B0063",
+          "x": 81.416667,
+          "width": 12,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "7",
+              "Length": "1",
+              "Rectangle": {
+                "x": 81.416667,
+                "y": 0,
+                "width": 12,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 81.416667
+        }
+      ],
+      "visualOrder": [
+        {
+          "visualPos": 0,
+          "logicalIndex": 3,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD"
+        },
+        {
+          "visualPos": 1,
+          "logicalIndex": 2,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5"
+        },
+        {
+          "visualPos": 2,
+          "logicalIndex": 1,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC"
+        },
+        {
+          "visualPos": 3,
+          "logicalIndex": 0,
+          "char": "\u05E9",
+          "codePoint": "U\u002B05E9"
+        },
+        {
+          "visualPos": 4,
+          "logicalIndex": 4,
+          "char": " ",
+          "codePoint": "U\u002B0020"
+        },
+        {
+          "visualPos": 5,
+          "logicalIndex": 5,
+          "char": "a",
+          "codePoint": "U\u002B0061"
+        },
+        {
+          "visualPos": 6,
+          "logicalIndex": 6,
+          "char": "b",
+          "codePoint": "U\u002B0062"
+        },
+        {
+          "visualPos": 7,
+          "logicalIndex": 7,
+          "char": "c",
+          "codePoint": "U\u002B0063"
+        }
+      ],
+      "visualString": "\u05DD\u05D5\u05DC\u05E9 abc",
+      "runSpans": [
+        {
+          "start": 0,
+          "length": 8,
+          "type": "TextCharacters",
+          "propertiesTypeface": "Arial"
+        },
+        {
+          "start": 8,
+          "length": 1,
+          "type": "TextEndOfParagraph",
+          "propertiesTypeface": null
+        }
+      ]
+    },
+    {
+      "id": "he-latin@RightToLeft",
+      "baseId": "he-latin",
+      "text": "\u05E9\u05DC\u05D5\u05DD abc",
+      "note": "RTL \u002B Latin word",
+      "flowDirection": "RightToLeft",
+      "fontFamily": "Arial",
+      "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+      "emSizeDip": 24,
+      "dpi": 96,
+      "line": {
+        "start": 0,
+        "length": 9,
+        "newlineLength": 1,
+        "width": 93.416667,
+        "widthIncludingTrailingWhitespace": 93.416667,
+        "height": 27.596667,
+        "baseline": 22.12,
+        "hasOverflowed": false,
+        "textLineCount": 1
+      },
+      "wholeLineBounds": {
+        "x": 0,
+        "y": 0,
+        "width": 93.416667,
+        "height": 27.596667,
+        "fragments": 1
+      },
+      "perChar": [
+        {
+          "i": 0,
+          "char": "\u05E9",
+          "codePoint": "U\u002B05E9",
+          "x": 0,
+          "width": 16.663333,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "0",
+              "Length": "1",
+              "Rectangle": {
+                "x": 0,
+                "y": 0,
+                "width": 16.663333,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 76.750001
+        },
+        {
+          "i": 1,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC",
+          "x": 16.663333,
+          "width": 11.11,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "1",
+              "Length": "1",
+              "Rectangle": {
+                "x": 16.663333,
+                "y": 0,
+                "width": 11.11,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 65.640001
+        },
+        {
+          "i": 2,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5",
+          "x": 27.773333,
+          "width": 5.916667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "2",
+              "Length": "1",
+              "Rectangle": {
+                "x": 27.773333,
+                "y": 0,
+                "width": 5.916667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 59.723334
+        },
+        {
+          "i": 3,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD",
+          "x": 33.69,
+          "width": 14.366667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "3",
+              "Length": "1",
+              "Rectangle": {
+                "x": 33.69,
+                "y": 0,
+                "width": 14.366667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 45.356667
+        },
+        {
+          "i": 4,
+          "char": " ",
+          "codePoint": "U\u002B0020",
+          "x": 48.056667,
+          "width": 6.666667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "4",
+              "Length": "1",
+              "Rectangle": {
+                "x": 48.056667,
+                "y": 0,
+                "width": 6.666667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 38.69
+        },
+        {
+          "i": 5,
+          "char": "a",
+          "codePoint": "U\u002B0061",
+          "x": 80.066667,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "5",
+              "Length": "1",
+              "Rectangle": {
+                "x": 80.066667,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 0
+        },
+        {
+          "i": 6,
+          "char": "b",
+          "codePoint": "U\u002B0062",
+          "x": 66.72,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "6",
+              "Length": "1",
+              "Rectangle": {
+                "x": 66.72,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 13.346667
+        },
+        {
+          "i": 7,
+          "char": "c",
+          "codePoint": "U\u002B0063",
+          "x": 54.72,
+          "width": 12,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "7",
+              "Length": "1",
+              "Rectangle": {
+                "x": 54.72,
+                "y": 0,
+                "width": 12,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 26.693334
+        }
+      ],
+      "visualOrder": [
+        {
+          "visualPos": 0,
+          "logicalIndex": 5,
+          "char": "a",
+          "codePoint": "U\u002B0061"
+        },
+        {
+          "visualPos": 1,
+          "logicalIndex": 6,
+          "char": "b",
+          "codePoint": "U\u002B0062"
+        },
+        {
+          "visualPos": 2,
+          "logicalIndex": 7,
+          "char": "c",
+          "codePoint": "U\u002B0063"
+        },
+        {
+          "visualPos": 3,
+          "logicalIndex": 4,
+          "char": " ",
+          "codePoint": "U\u002B0020"
+        },
+        {
+          "visualPos": 4,
+          "logicalIndex": 3,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD"
+        },
+        {
+          "visualPos": 5,
+          "logicalIndex": 2,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5"
+        },
+        {
+          "visualPos": 6,
+          "logicalIndex": 1,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC"
+        },
+        {
+          "visualPos": 7,
+          "logicalIndex": 0,
+          "char": "\u05E9",
+          "codePoint": "U\u002B05E9"
+        }
+      ],
+      "visualString": "abc \u05DD\u05D5\u05DC\u05E9",
+      "runSpans": [
+        {
+          "start": 0,
+          "length": 8,
+          "type": "TextCharacters",
+          "propertiesTypeface": "Arial"
+        },
+        {
+          "start": 8,
+          "length": 1,
+          "type": "TextEndOfParagraph",
+          "propertiesTypeface": null
+        }
+      ]
+    },
+    {
+      "id": "latin-he@LeftToRight",
+      "baseId": "latin-he",
+      "text": "abc \u05E9\u05DC\u05D5\u05DD",
+      "note": "LTR \u002B Hebrew word",
+      "flowDirection": "LeftToRight",
+      "fontFamily": "Arial",
+      "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+      "emSizeDip": 24,
+      "dpi": 96,
+      "line": {
+        "start": 0,
+        "length": 9,
+        "newlineLength": 1,
+        "width": 93.416667,
+        "widthIncludingTrailingWhitespace": 93.416667,
+        "height": 27.596667,
+        "baseline": 22.12,
+        "hasOverflowed": false,
+        "textLineCount": 1
+      },
+      "wholeLineBounds": {
+        "x": 0,
+        "y": 0,
+        "width": 93.416667,
+        "height": 27.596667,
+        "fragments": 1
+      },
+      "perChar": [
+        {
+          "i": 0,
+          "char": "a",
+          "codePoint": "U\u002B0061",
+          "x": 0,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "0",
+              "Length": "1",
+              "Rectangle": {
+                "x": 0,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 0
+        },
+        {
+          "i": 1,
+          "char": "b",
+          "codePoint": "U\u002B0062",
+          "x": 13.346667,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "1",
+              "Length": "1",
+              "Rectangle": {
+                "x": 13.346667,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 13.346667
+        },
+        {
+          "i": 2,
+          "char": "c",
+          "codePoint": "U\u002B0063",
+          "x": 26.693333,
+          "width": 12,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "2",
+              "Length": "1",
+              "Rectangle": {
+                "x": 26.693333,
+                "y": 0,
+                "width": 12,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 26.693333
+        },
+        {
+          "i": 3,
+          "char": " ",
+          "codePoint": "U\u002B0020",
+          "x": 38.693333,
+          "width": 6.666667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "3",
+              "Length": "1",
+              "Rectangle": {
+                "x": 38.693333,
+                "y": 0,
+                "width": 6.666667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 38.693333
+        },
+        {
+          "i": 4,
+          "char": "\u05E9",
+          "codePoint": "U\u002B05E9",
+          "x": 76.75,
+          "width": 16.663333,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "4",
+              "Length": "1",
+              "Rectangle": {
+                "x": 76.75,
+                "y": 0,
+                "width": 16.663333,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 76.75
+        },
+        {
+          "i": 5,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC",
+          "x": 65.64,
+          "width": 11.11,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "5",
+              "Length": "1",
+              "Rectangle": {
+                "x": 65.64,
+                "y": 0,
+                "width": 11.11,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 65.64
+        },
+        {
+          "i": 6,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5",
+          "x": 59.723333,
+          "width": 5.916667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "6",
+              "Length": "1",
+              "Rectangle": {
+                "x": 59.723333,
+                "y": 0,
+                "width": 5.916667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 59.723333
+        },
+        {
+          "i": 7,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD",
+          "x": 45.356667,
+          "width": 14.366667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "7",
+              "Length": "1",
+              "Rectangle": {
+                "x": 45.356667,
+                "y": 0,
+                "width": 14.366667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 45.356667
+        }
+      ],
+      "visualOrder": [
+        {
+          "visualPos": 0,
+          "logicalIndex": 0,
+          "char": "a",
+          "codePoint": "U\u002B0061"
+        },
+        {
+          "visualPos": 1,
+          "logicalIndex": 1,
+          "char": "b",
+          "codePoint": "U\u002B0062"
+        },
+        {
+          "visualPos": 2,
+          "logicalIndex": 2,
+          "char": "c",
+          "codePoint": "U\u002B0063"
+        },
+        {
+          "visualPos": 3,
+          "logicalIndex": 3,
+          "char": " ",
+          "codePoint": "U\u002B0020"
+        },
+        {
+          "visualPos": 4,
+          "logicalIndex": 7,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD"
+        },
+        {
+          "visualPos": 5,
+          "logicalIndex": 6,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5"
+        },
+        {
+          "visualPos": 6,
+          "logicalIndex": 5,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC"
+        },
+        {
+          "visualPos": 7,
+          "logicalIndex": 4,
+          "char": "\u05E9",
+          "codePoint": "U\u002B05E9"
+        }
+      ],
+      "visualString": "abc \u05DD\u05D5\u05DC\u05E9",
+      "runSpans": [
+        {
+          "start": 0,
+          "length": 8,
+          "type": "TextCharacters",
+          "propertiesTypeface": "Arial"
+        },
+        {
+          "start": 8,
+          "length": 1,
+          "type": "TextEndOfParagraph",
+          "propertiesTypeface": null
+        }
+      ]
+    },
+    {
+      "id": "latin-he@RightToLeft",
+      "baseId": "latin-he",
+      "text": "abc \u05E9\u05DC\u05D5\u05DD",
+      "note": "LTR \u002B Hebrew word",
+      "flowDirection": "RightToLeft",
+      "fontFamily": "Arial",
+      "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+      "emSizeDip": 24,
+      "dpi": 96,
+      "line": {
+        "start": 0,
+        "length": 9,
+        "newlineLength": 1,
+        "width": 93.416667,
+        "widthIncludingTrailingWhitespace": 93.416667,
+        "height": 27.596667,
+        "baseline": 22.12,
+        "hasOverflowed": false,
+        "textLineCount": 1
+      },
+      "wholeLineBounds": {
+        "x": -0.003333,
+        "y": 0,
+        "width": 38.693333,
+        "height": 27.596667,
+        "fragments": 2
+      },
+      "perChar": [
+        {
+          "i": 0,
+          "char": "a",
+          "codePoint": "U\u002B0061",
+          "x": 25.343333,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "0",
+              "Length": "1",
+              "Rectangle": {
+                "x": 25.343333,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 54.726667
+        },
+        {
+          "i": 1,
+          "char": "b",
+          "codePoint": "U\u002B0062",
+          "x": 11.996667,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "1",
+              "Length": "1",
+              "Rectangle": {
+                "x": 11.996667,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 68.073333
+        },
+        {
+          "i": 2,
+          "char": "c",
+          "codePoint": "U\u002B0063",
+          "x": -0.003333,
+          "width": 12,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "2",
+              "Length": "1",
+              "Rectangle": {
+                "x": -0.003333,
+                "y": 0,
+                "width": 12,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 81.42
+        },
+        {
+          "i": 3,
+          "char": " ",
+          "codePoint": "U\u002B0020",
+          "x": 38.693333,
+          "width": 6.666667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "3",
+              "Length": "1",
+              "Rectangle": {
+                "x": 38.693333,
+                "y": 0,
+                "width": 6.666667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 48.056667
+        },
+        {
+          "i": 4,
+          "char": "\u05E9",
+          "codePoint": "U\u002B05E9",
+          "x": 45.36,
+          "width": 16.663333,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "4",
+              "Length": "1",
+              "Rectangle": {
+                "x": 45.36,
+                "y": 0,
+                "width": 16.663333,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 31.393334
+        },
+        {
+          "i": 5,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC",
+          "x": 62.023333,
+          "width": 11.11,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "5",
+              "Length": "1",
+              "Rectangle": {
+                "x": 62.023333,
+                "y": 0,
+                "width": 11.11,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 20.283334
+        },
+        {
+          "i": 6,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5",
+          "x": 73.133333,
+          "width": 5.916667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "6",
+              "Length": "1",
+              "Rectangle": {
+                "x": 73.133333,
+                "y": 0,
+                "width": 5.916667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 14.366667
+        },
+        {
+          "i": 7,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD",
+          "x": 79.05,
+          "width": 14.366667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "7",
+              "Length": "1",
+              "Rectangle": {
+                "x": 79.05,
+                "y": 0,
+                "width": 14.366667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 0
+        }
+      ],
+      "visualOrder": [
+        {
+          "visualPos": 0,
+          "logicalIndex": 7,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD"
+        },
+        {
+          "visualPos": 1,
+          "logicalIndex": 6,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5"
+        },
+        {
+          "visualPos": 2,
+          "logicalIndex": 5,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC"
+        },
+        {
+          "visualPos": 3,
+          "logicalIndex": 4,
+          "char": "\u05E9",
+          "codePoint": "U\u002B05E9"
+        },
+        {
+          "visualPos": 4,
+          "logicalIndex": 3,
+          "char": " ",
+          "codePoint": "U\u002B0020"
+        },
+        {
+          "visualPos": 5,
+          "logicalIndex": 0,
+          "char": "a",
+          "codePoint": "U\u002B0061"
+        },
+        {
+          "visualPos": 6,
+          "logicalIndex": 1,
+          "char": "b",
+          "codePoint": "U\u002B0062"
+        },
+        {
+          "visualPos": 7,
+          "logicalIndex": 2,
+          "char": "c",
+          "codePoint": "U\u002B0063"
+        }
+      ],
+      "visualString": "\u05DD\u05D5\u05DC\u05E9 abc",
+      "runSpans": [
+        {
+          "start": 0,
+          "length": 8,
+          "type": "TextCharacters",
+          "propertiesTypeface": "Arial"
+        },
+        {
+          "start": 8,
+          "length": 1,
+          "type": "TextEndOfParagraph",
+          "propertiesTypeface": null
+        }
+      ]
+    },
+    {
+      "id": "mixed-long@LeftToRight",
+      "baseId": "mixed-long",
+      "text": "abc \u05E9\u05DC\u05D5\u05DD 123 def",
+      "note": "LTR \u002B RTL \u002B digits \u002B LTR",
+      "flowDirection": "LeftToRight",
+      "fontFamily": "Arial",
+      "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+      "emSizeDip": 24,
+      "dpi": 96,
+      "line": {
+        "start": 0,
+        "length": 17,
+        "newlineLength": 1,
+        "width": 180.15,
+        "widthIncludingTrailingWhitespace": 180.15,
+        "height": 27.596667,
+        "baseline": 22.12,
+        "hasOverflowed": false,
+        "textLineCount": 1
+      },
+      "wholeLineBounds": {
+        "x": 0,
+        "y": 0,
+        "width": 180.15,
+        "height": 27.596667,
+        "fragments": 1
+      },
+      "perChar": [
+        {
+          "i": 0,
+          "char": "a",
+          "codePoint": "U\u002B0061",
+          "x": 0,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "0",
+              "Length": "1",
+              "Rectangle": {
+                "x": 0,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 0
+        },
+        {
+          "i": 1,
+          "char": "b",
+          "codePoint": "U\u002B0062",
+          "x": 13.346667,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "1",
+              "Length": "1",
+              "Rectangle": {
+                "x": 13.346667,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 13.346667
+        },
+        {
+          "i": 2,
+          "char": "c",
+          "codePoint": "U\u002B0063",
+          "x": 26.693333,
+          "width": 12,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "2",
+              "Length": "1",
+              "Rectangle": {
+                "x": 26.693333,
+                "y": 0,
+                "width": 12,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 26.693333
+        },
+        {
+          "i": 3,
+          "char": " ",
+          "codePoint": "U\u002B0020",
+          "x": 38.693333,
+          "width": 6.666667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "3",
+              "Length": "1",
+              "Rectangle": {
+                "x": 38.693333,
+                "y": 0,
+                "width": 6.666667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 38.693333
+        },
+        {
+          "i": 4,
+          "char": "\u05E9",
+          "codePoint": "U\u002B05E9",
+          "x": 123.456667,
+          "width": 16.663333,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "4",
+              "Length": "1",
+              "Rectangle": {
+                "x": 123.456667,
+                "y": 0,
+                "width": 16.663333,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 123.456667
+        },
+        {
+          "i": 5,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC",
+          "x": 112.346667,
+          "width": 11.11,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "5",
+              "Length": "1",
+              "Rectangle": {
+                "x": 112.346667,
+                "y": 0,
+                "width": 11.11,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 112.346667
+        },
+        {
+          "i": 6,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5",
+          "x": 106.43,
+          "width": 5.916667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "6",
+              "Length": "1",
+              "Rectangle": {
+                "x": 106.43,
+                "y": 0,
+                "width": 5.916667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 106.43
+        },
+        {
+          "i": 7,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD",
+          "x": 92.063333,
+          "width": 14.366667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "7",
+              "Length": "1",
+              "Rectangle": {
+                "x": 92.063333,
+                "y": 0,
+                "width": 14.366667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 92.063333
+        },
+        {
+          "i": 8,
+          "char": " ",
+          "codePoint": "U\u002B0020",
+          "x": 85.396667,
+          "width": 6.666667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "8",
+              "Length": "1",
+              "Rectangle": {
+                "x": 85.396667,
+                "y": 0,
+                "width": 6.666667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 85.396667
+        },
+        {
+          "i": 9,
+          "char": "1",
+          "codePoint": "U\u002B0031",
+          "x": 45.36,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "9",
+              "Length": "1",
+              "Rectangle": {
+                "x": 45.36,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 45.36
+        },
+        {
+          "i": 10,
+          "char": "2",
+          "codePoint": "U\u002B0032",
+          "x": 58.706667,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "10",
+              "Length": "1",
+              "Rectangle": {
+                "x": 58.706667,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 58.706667
+        },
+        {
+          "i": 11,
+          "char": "3",
+          "codePoint": "U\u002B0033",
+          "x": 72.053333,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "11",
+              "Length": "1",
+              "Rectangle": {
+                "x": 72.053333,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 72.053333
+        },
+        {
+          "i": 12,
+          "char": " ",
+          "codePoint": "U\u002B0020",
+          "x": 140.123333,
+          "width": 6.666667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "12",
+              "Length": "1",
+              "Rectangle": {
+                "x": 140.123333,
+                "y": 0,
+                "width": 6.666667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 140.123333
+        },
+        {
+          "i": 13,
+          "char": "d",
+          "codePoint": "U\u002B0064",
+          "x": 146.79,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "13",
+              "Length": "1",
+              "Rectangle": {
+                "x": 146.79,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 146.79
+        },
+        {
+          "i": 14,
+          "char": "e",
+          "codePoint": "U\u002B0065",
+          "x": 160.136667,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "14",
+              "Length": "1",
+              "Rectangle": {
+                "x": 160.136667,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 160.136667
+        },
+        {
+          "i": 15,
+          "char": "f",
+          "codePoint": "U\u002B0066",
+          "x": 173.483333,
+          "width": 6.666667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "15",
+              "Length": "1",
+              "Rectangle": {
+                "x": 173.483333,
+                "y": 0,
+                "width": 6.666667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 173.483333
+        }
+      ],
+      "visualOrder": [
+        {
+          "visualPos": 0,
+          "logicalIndex": 0,
+          "char": "a",
+          "codePoint": "U\u002B0061"
+        },
+        {
+          "visualPos": 1,
+          "logicalIndex": 1,
+          "char": "b",
+          "codePoint": "U\u002B0062"
+        },
+        {
+          "visualPos": 2,
+          "logicalIndex": 2,
+          "char": "c",
+          "codePoint": "U\u002B0063"
+        },
+        {
+          "visualPos": 3,
+          "logicalIndex": 3,
+          "char": " ",
+          "codePoint": "U\u002B0020"
+        },
+        {
+          "visualPos": 4,
+          "logicalIndex": 9,
+          "char": "1",
+          "codePoint": "U\u002B0031"
+        },
+        {
+          "visualPos": 5,
+          "logicalIndex": 10,
+          "char": "2",
+          "codePoint": "U\u002B0032"
+        },
+        {
+          "visualPos": 6,
+          "logicalIndex": 11,
+          "char": "3",
+          "codePoint": "U\u002B0033"
+        },
+        {
+          "visualPos": 7,
+          "logicalIndex": 8,
+          "char": " ",
+          "codePoint": "U\u002B0020"
+        },
+        {
+          "visualPos": 8,
+          "logicalIndex": 7,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD"
+        },
+        {
+          "visualPos": 9,
+          "logicalIndex": 6,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5"
+        },
+        {
+          "visualPos": 10,
+          "logicalIndex": 5,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC"
+        },
+        {
+          "visualPos": 11,
+          "logicalIndex": 4,
+          "char": "\u05E9",
+          "codePoint": "U\u002B05E9"
+        },
+        {
+          "visualPos": 12,
+          "logicalIndex": 12,
+          "char": " ",
+          "codePoint": "U\u002B0020"
+        },
+        {
+          "visualPos": 13,
+          "logicalIndex": 13,
+          "char": "d",
+          "codePoint": "U\u002B0064"
+        },
+        {
+          "visualPos": 14,
+          "logicalIndex": 14,
+          "char": "e",
+          "codePoint": "U\u002B0065"
+        },
+        {
+          "visualPos": 15,
+          "logicalIndex": 15,
+          "char": "f",
+          "codePoint": "U\u002B0066"
+        }
+      ],
+      "visualString": "abc 123 \u05DD\u05D5\u05DC\u05E9 def",
+      "runSpans": [
+        {
+          "start": 0,
+          "length": 16,
+          "type": "TextCharacters",
+          "propertiesTypeface": "Arial"
+        },
+        {
+          "start": 16,
+          "length": 1,
+          "type": "TextEndOfParagraph",
+          "propertiesTypeface": null
+        }
+      ]
+    },
+    {
+      "id": "mixed-long@RightToLeft",
+      "baseId": "mixed-long",
+      "text": "abc \u05E9\u05DC\u05D5\u05DD 123 def",
+      "note": "LTR \u002B RTL \u002B digits \u002B LTR",
+      "flowDirection": "RightToLeft",
+      "fontFamily": "Arial",
+      "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+      "emSizeDip": 24,
+      "dpi": 96,
+      "line": {
+        "start": 0,
+        "length": 17,
+        "newlineLength": 1,
+        "width": 180.15,
+        "widthIncludingTrailingWhitespace": 180.15,
+        "height": 27.596667,
+        "baseline": 22.12,
+        "hasOverflowed": false,
+        "textLineCount": 1
+      },
+      "wholeLineBounds": {
+        "x": -0.003333,
+        "y": 0,
+        "width": 38.693333,
+        "height": 27.596667,
+        "fragments": 2
+      },
+      "perChar": [
+        {
+          "i": 0,
+          "char": "a",
+          "codePoint": "U\u002B0061",
+          "x": 25.343333,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "0",
+              "Length": "1",
+              "Rectangle": {
+                "x": 25.343333,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 141.456667
+        },
+        {
+          "i": 1,
+          "char": "b",
+          "codePoint": "U\u002B0062",
+          "x": 11.996667,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "1",
+              "Length": "1",
+              "Rectangle": {
+                "x": 11.996667,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 154.803333
+        },
+        {
+          "i": 2,
+          "char": "c",
+          "codePoint": "U\u002B0063",
+          "x": -0.003333,
+          "width": 12,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "2",
+              "Length": "1",
+              "Rectangle": {
+                "x": -0.003333,
+                "y": 0,
+                "width": 12,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 168.15
+        },
+        {
+          "i": 3,
+          "char": " ",
+          "codePoint": "U\u002B0020",
+          "x": 38.693333,
+          "width": 6.666667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "3",
+              "Length": "1",
+              "Rectangle": {
+                "x": 38.693333,
+                "y": 0,
+                "width": 6.666667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 134.786667
+        },
+        {
+          "i": 4,
+          "char": "\u05E9",
+          "codePoint": "U\u002B05E9",
+          "x": 45.36,
+          "width": 16.663333,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "4",
+              "Length": "1",
+              "Rectangle": {
+                "x": 45.36,
+                "y": 0,
+                "width": 16.663333,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 118.123334
+        },
+        {
+          "i": 5,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC",
+          "x": 62.023333,
+          "width": 11.11,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "5",
+              "Length": "1",
+              "Rectangle": {
+                "x": 62.023333,
+                "y": 0,
+                "width": 11.11,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 107.013334
+        },
+        {
+          "i": 6,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5",
+          "x": 73.133333,
+          "width": 5.916667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "6",
+              "Length": "1",
+              "Rectangle": {
+                "x": 73.133333,
+                "y": 0,
+                "width": 5.916667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 101.096667
+        },
+        {
+          "i": 7,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD",
+          "x": 79.05,
+          "width": 14.366667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "7",
+              "Length": "1",
+              "Rectangle": {
+                "x": 79.05,
+                "y": 0,
+                "width": 14.366667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 86.73
+        },
+        {
+          "i": 8,
+          "char": " ",
+          "codePoint": "U\u002B0020",
+          "x": 93.416667,
+          "width": 6.666667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "8",
+              "Length": "1",
+              "Rectangle": {
+                "x": 93.416667,
+                "y": 0,
+                "width": 6.666667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 80.063333
+        },
+        {
+          "i": 9,
+          "char": "1",
+          "codePoint": "U\u002B0031",
+          "x": 126.773333,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "9",
+              "Length": "1",
+              "Rectangle": {
+                "x": 126.773333,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 40.026667
+        },
+        {
+          "i": 10,
+          "char": "2",
+          "codePoint": "U\u002B0032",
+          "x": 113.426667,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "10",
+              "Length": "1",
+              "Rectangle": {
+                "x": 113.426667,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 53.373333
+        },
+        {
+          "i": 11,
+          "char": "3",
+          "codePoint": "U\u002B0033",
+          "x": 100.08,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "11",
+              "Length": "1",
+              "Rectangle": {
+                "x": 100.08,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 66.72
+        },
+        {
+          "i": 12,
+          "char": " ",
+          "codePoint": "U\u002B0020",
+          "x": 140.123333,
+          "width": 6.666667,
+          "flowDirection": "RightToLeft",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "12",
+              "Length": "1",
+              "Rectangle": {
+                "x": 140.123333,
+                "y": 0,
+                "width": 6.666667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 33.356667
+        },
+        {
+          "i": 13,
+          "char": "d",
+          "codePoint": "U\u002B0064",
+          "x": 166.8,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "13",
+              "Length": "1",
+              "Rectangle": {
+                "x": 166.8,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 0
+        },
+        {
+          "i": 14,
+          "char": "e",
+          "codePoint": "U\u002B0065",
+          "x": 153.453333,
+          "width": 13.346667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "14",
+              "Length": "1",
+              "Rectangle": {
+                "x": 153.453333,
+                "y": 0,
+                "width": 13.346667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 13.346667
+        },
+        {
+          "i": 15,
+          "char": "f",
+          "codePoint": "U\u002B0066",
+          "x": 146.786667,
+          "width": 6.666667,
+          "flowDirection": "LeftToRight",
+          "boundsFragments": 1,
+          "textRunBounds": [
+            {
+              "TextSourceCharacterIndex": "15",
+              "Length": "1",
+              "Rectangle": {
+                "x": 146.786667,
+                "y": 0,
+                "width": 6.666667,
+                "height": 27.596667
+              },
+              "TextRun": "System.Windows.Media.TextFormatting.TextCharacters"
+            }
+          ],
+          "xFromLeftDip": 26.693333
+        }
+      ],
+      "visualOrder": [
+        {
+          "visualPos": 0,
+          "logicalIndex": 13,
+          "char": "d",
+          "codePoint": "U\u002B0064"
+        },
+        {
+          "visualPos": 1,
+          "logicalIndex": 14,
+          "char": "e",
+          "codePoint": "U\u002B0065"
+        },
+        {
+          "visualPos": 2,
+          "logicalIndex": 15,
+          "char": "f",
+          "codePoint": "U\u002B0066"
+        },
+        {
+          "visualPos": 3,
+          "logicalIndex": 12,
+          "char": " ",
+          "codePoint": "U\u002B0020"
+        },
+        {
+          "visualPos": 4,
+          "logicalIndex": 9,
+          "char": "1",
+          "codePoint": "U\u002B0031"
+        },
+        {
+          "visualPos": 5,
+          "logicalIndex": 10,
+          "char": "2",
+          "codePoint": "U\u002B0032"
+        },
+        {
+          "visualPos": 6,
+          "logicalIndex": 11,
+          "char": "3",
+          "codePoint": "U\u002B0033"
+        },
+        {
+          "visualPos": 7,
+          "logicalIndex": 8,
+          "char": " ",
+          "codePoint": "U\u002B0020"
+        },
+        {
+          "visualPos": 8,
+          "logicalIndex": 7,
+          "char": "\u05DD",
+          "codePoint": "U\u002B05DD"
+        },
+        {
+          "visualPos": 9,
+          "logicalIndex": 6,
+          "char": "\u05D5",
+          "codePoint": "U\u002B05D5"
+        },
+        {
+          "visualPos": 10,
+          "logicalIndex": 5,
+          "char": "\u05DC",
+          "codePoint": "U\u002B05DC"
+        },
+        {
+          "visualPos": 11,
+          "logicalIndex": 4,
+          "char": "\u05E9",
+          "codePoint": "U\u002B05E9"
+        },
+        {
+          "visualPos": 12,
+          "logicalIndex": 3,
+          "char": " ",
+          "codePoint": "U\u002B0020"
+        },
+        {
+          "visualPos": 13,
+          "logicalIndex": 0,
+          "char": "a",
+          "codePoint": "U\u002B0061"
+        },
+        {
+          "visualPos": 14,
+          "logicalIndex": 1,
+          "char": "b",
+          "codePoint": "U\u002B0062"
+        },
+        {
+          "visualPos": 15,
+          "logicalIndex": 2,
+          "char": "c",
+          "codePoint": "U\u002B0063"
+        }
+      ],
+      "visualString": "def 123 \u05DD\u05D5\u05DC\u05E9 abc",
+      "runSpans": [
+        {
+          "start": 0,
+          "length": 16,
+          "type": "TextCharacters",
+          "propertiesTypeface": "Arial"
+        },
+        {
+          "start": 16,
+          "length": 1,
+          "type": "TextEndOfParagraph",
+          "propertiesTypeface": null
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,4597 @@
+{
+  "format": "wpf-linux-u1-font-fallback-raw/1",
+  "generatedUtc": "2026-09-14T14:05:09.4188494Z",
+  "os": "Microsoft Windows NT 10.0.22631.0",
+  "clr": ".NET 10.0.7",
+  "presentationCore": "10.0.0.0",
+  "measurement": "TextFormatter.Create().FormatLine(...); per-character advance from TextLine.GetTextBounds; the ACTUAL font and glyph used from the public TextLine.GetIndexedGlyphRuns()",
+  "dpi": 96,
+  "units": "DIP (1/96 inch)",
+  "emSizeDip": 24,
+  "paragraphWidthDip": 400,
+  "notoFile": "C:\\u1-shaping\\fonts\\NotoSans-Regular.ttf",
+  "candidatesForExplicitCoveringFont": [
+    "Microsoft YaHei",
+    "SimSun",
+    "Microsoft JhengHei",
+    "Segoe UI Symbol",
+    "Cambria Math",
+    "Segoe UI",
+    "Tahoma",
+    "Times New Roman",
+    "Arial",
+    "MS Gothic",
+    "Malgun Gothic",
+    "Yu Gothic",
+    "Meiryo"
+  ],
+  "installedFontCoveragePerCodePoint": {
+    "U\u002B4E0E": {
+      "codePoint": "U\u002B4E0E",
+      "char": "\u4E0E",
+      "installedFamilies": 91,
+      "installedFacesChecked": 563,
+      "familiesCovering": 15,
+      "facesCovering": 80,
+      "examples": [
+        {
+          "family": "Microsoft JhengHei",
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSJHL.TTC",
+          "glyphIndex": 7775,
+          "advanceEm": 1
+        },
+        {
+          "family": "Microsoft JhengHei",
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSJH.TTC",
+          "glyphIndex": 7669,
+          "advanceEm": 1
+        },
+        {
+          "family": "Microsoft JhengHei",
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSJHBD.TTC",
+          "glyphIndex": 7372,
+          "advanceEm": 1
+        },
+        {
+          "family": "Microsoft JhengHei",
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSJHL.TTC",
+          "glyphIndex": 7775,
+          "advanceEm": 1
+        },
+        {
+          "family": "Microsoft JhengHei",
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSJH.TTC",
+          "glyphIndex": 7669,
+          "advanceEm": 1
+        },
+        {
+          "family": "Microsoft JhengHei",
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSJHBD.TTC",
+          "glyphIndex": 7372,
+          "advanceEm": 1
+        }
+      ]
+    },
+    "U\u002B6C49": {
+      "codePoint": "U\u002B6C49",
+      "char": "\u6C49",
+      "installedFamilies": 91,
+      "installedFacesChecked": 563,
+      "familiesCovering": 10,
+      "facesCovering": 50,
+      "examples": [
+        {
+          "family": "Microsoft JhengHei",
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSJHL.TTC",
+          "glyphIndex": 15514,
+          "advanceEm": 1
+        },
+        {
+          "family": "Microsoft JhengHei",
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSJH.TTC",
+          "glyphIndex": 15408,
+          "advanceEm": 1
+        },
+        {
+          "family": "Microsoft JhengHei",
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSJHBD.TTC",
+          "glyphIndex": 15111,
+          "advanceEm": 1
+        },
+        {
+          "family": "Microsoft JhengHei",
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSJHL.TTC",
+          "glyphIndex": 15514,
+          "advanceEm": 1
+        },
+        {
+          "family": "Microsoft JhengHei",
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSJH.TTC",
+          "glyphIndex": 15408,
+          "advanceEm": 1
+        },
+        {
+          "family": "Microsoft JhengHei",
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSJHBD.TTC",
+          "glyphIndex": 15111,
+          "advanceEm": 1
+        }
+      ]
+    },
+    "U\u002B05D0": {
+      "codePoint": "U\u002B05D0",
+      "char": "\u05D0",
+      "installedFamilies": 91,
+      "installedFacesChecked": 563,
+      "familiesCovering": 10,
+      "facesCovering": 97,
+      "examples": [
+        {
+          "family": "Cascadia Code",
+          "fontUri": "file:///C:/PROGRAM FILES/WINDOWSAPPS/MICROSOFT.WINDOWSTERMINAL_1.24.11911.0_X64__8WEKYB3D8BBWE/CASCADIACODE.TTF",
+          "glyphIndex": 1674,
+          "advanceEm": 0.585938
+        },
+        {
+          "family": "Cascadia Code",
+          "fontUri": "file:///C:/PROGRAM FILES/WINDOWSAPPS/MICROSOFT.WINDOWSTERMINAL_1.24.11911.0_X64__8WEKYB3D8BBWE/CASCADIACODE.TTF",
+          "glyphIndex": 1674,
+          "advanceEm": 0.585938
+        },
+        {
+          "family": "Cascadia Code",
+          "fontUri": "file:///C:/PROGRAM FILES/WINDOWSAPPS/MICROSOFT.WINDOWSTERMINAL_1.24.11911.0_X64__8WEKYB3D8BBWE/CASCADIACODE.TTF",
+          "glyphIndex": 1674,
+          "advanceEm": 0.585938
+        },
+        {
+          "family": "Cascadia Code",
+          "fontUri": "file:///C:/PROGRAM FILES/WINDOWSAPPS/MICROSOFT.WINDOWSTERMINAL_1.24.11911.0_X64__8WEKYB3D8BBWE/CASCADIACODE.TTF",
+          "glyphIndex": 1674,
+          "advanceEm": 0.585938
+        },
+        {
+          "family": "Cascadia Code",
+          "fontUri": "file:///C:/PROGRAM FILES/WINDOWSAPPS/MICROSOFT.WINDOWSTERMINAL_1.24.11911.0_X64__8WEKYB3D8BBWE/CASCADIACODE.TTF",
+          "glyphIndex": 1674,
+          "advanceEm": 0.585938
+        },
+        {
+          "family": "Cascadia Code",
+          "fontUri": "file:///C:/PROGRAM FILES/WINDOWSAPPS/MICROSOFT.WINDOWSTERMINAL_1.24.11911.0_X64__8WEKYB3D8BBWE/CASCADIACODE.TTF",
+          "glyphIndex": 1674,
+          "advanceEm": 0.585938
+        }
+      ]
+    },
+    "U\u002B0627": {
+      "codePoint": "U\u002B0627",
+      "char": "\u0627",
+      "installedFamilies": 91,
+      "installedFacesChecked": 563,
+      "familiesCovering": 10,
+      "facesCovering": 86,
+      "examples": [
+        {
+          "family": "Cascadia Code",
+          "fontUri": "file:///C:/PROGRAM FILES/WINDOWSAPPS/MICROSOFT.WINDOWSTERMINAL_1.24.11911.0_X64__8WEKYB3D8BBWE/CASCADIACODE.TTF",
+          "glyphIndex": 681,
+          "advanceEm": 0.585938
+        },
+        {
+          "family": "Cascadia Code",
+          "fontUri": "file:///C:/PROGRAM FILES/WINDOWSAPPS/MICROSOFT.WINDOWSTERMINAL_1.24.11911.0_X64__8WEKYB3D8BBWE/CASCADIACODE.TTF",
+          "glyphIndex": 681,
+          "advanceEm": 0.585938
+        },
+        {
+          "family": "Cascadia Code",
+          "fontUri": "file:///C:/PROGRAM FILES/WINDOWSAPPS/MICROSOFT.WINDOWSTERMINAL_1.24.11911.0_X64__8WEKYB3D8BBWE/CASCADIACODE.TTF",
+          "glyphIndex": 681,
+          "advanceEm": 0.585938
+        },
+        {
+          "family": "Cascadia Code",
+          "fontUri": "file:///C:/PROGRAM FILES/WINDOWSAPPS/MICROSOFT.WINDOWSTERMINAL_1.24.11911.0_X64__8WEKYB3D8BBWE/CASCADIACODE.TTF",
+          "glyphIndex": 681,
+          "advanceEm": 0.585938
+        },
+        {
+          "family": "Cascadia Code",
+          "fontUri": "file:///C:/PROGRAM FILES/WINDOWSAPPS/MICROSOFT.WINDOWSTERMINAL_1.24.11911.0_X64__8WEKYB3D8BBWE/CASCADIACODE.TTF",
+          "glyphIndex": 681,
+          "advanceEm": 0.585938
+        },
+        {
+          "family": "Cascadia Code",
+          "fontUri": "file:///C:/PROGRAM FILES/WINDOWSAPPS/MICROSOFT.WINDOWSTERMINAL_1.24.11911.0_X64__8WEKYB3D8BBWE/CASCADIACODE.TTF",
+          "glyphIndex": 681,
+          "advanceEm": 0.585938
+        }
+      ]
+    },
+    "U\u002B2192": {
+      "codePoint": "U\u002B2192",
+      "char": "\u2192",
+      "installedFamilies": 91,
+      "installedFacesChecked": 563,
+      "familiesCovering": 41,
+      "facesCovering": 289,
+      "examples": [
+        {
+          "family": "Cascadia Code",
+          "fontUri": "file:///C:/PROGRAM FILES/WINDOWSAPPS/MICROSOFT.WINDOWSTERMINAL_1.24.11911.0_X64__8WEKYB3D8BBWE/CASCADIACODE.TTF",
+          "glyphIndex": 2094,
+          "advanceEm": 0.585938
+        },
+        {
+          "family": "Cascadia Code",
+          "fontUri": "file:///C:/PROGRAM FILES/WINDOWSAPPS/MICROSOFT.WINDOWSTERMINAL_1.24.11911.0_X64__8WEKYB3D8BBWE/CASCADIACODE.TTF",
+          "glyphIndex": 2094,
+          "advanceEm": 0.585938
+        },
+        {
+          "family": "Cascadia Code",
+          "fontUri": "file:///C:/PROGRAM FILES/WINDOWSAPPS/MICROSOFT.WINDOWSTERMINAL_1.24.11911.0_X64__8WEKYB3D8BBWE/CASCADIACODEITALIC.TTF",
+          "glyphIndex": 970,
+          "advanceEm": 0.585938
+        },
+        {
+          "family": "Cascadia Code",
+          "fontUri": "file:///C:/PROGRAM FILES/WINDOWSAPPS/MICROSOFT.WINDOWSTERMINAL_1.24.11911.0_X64__8WEKYB3D8BBWE/CASCADIACODE.TTF",
+          "glyphIndex": 2094,
+          "advanceEm": 0.585938
+        },
+        {
+          "family": "Cascadia Code",
+          "fontUri": "file:///C:/PROGRAM FILES/WINDOWSAPPS/MICROSOFT.WINDOWSTERMINAL_1.24.11911.0_X64__8WEKYB3D8BBWE/CASCADIACODE.TTF",
+          "glyphIndex": 2094,
+          "advanceEm": 0.585938
+        },
+        {
+          "family": "Cascadia Code",
+          "fontUri": "file:///C:/PROGRAM FILES/WINDOWSAPPS/MICROSOFT.WINDOWSTERMINAL_1.24.11911.0_X64__8WEKYB3D8BBWE/CASCADIACODEITALIC.TTF",
+          "glyphIndex": 970,
+          "advanceEm": 0.585938
+        }
+      ]
+    },
+    "U\u002BE000": {
+      "codePoint": "U\u002BE000",
+      "char": "\uE000",
+      "installedFamilies": 91,
+      "installedFacesChecked": 563,
+      "familiesCovering": 2,
+      "facesCovering": 8,
+      "examples": [
+        {
+          "family": "Gabriola",
+          "fontUri": "file:///C:/WINDOWS/FONTS/GABRIOLA.TTF",
+          "glyphIndex": 4327,
+          "advanceEm": 0.792725
+        },
+        {
+          "family": "Gabriola",
+          "fontUri": "file:///C:/WINDOWS/FONTS/GABRIOLA.TTF",
+          "glyphIndex": 4327,
+          "advanceEm": 0.792725
+        },
+        {
+          "family": "Gabriola",
+          "fontUri": "file:///C:/WINDOWS/FONTS/GABRIOLA.TTF",
+          "glyphIndex": 4327,
+          "advanceEm": 0.812744
+        },
+        {
+          "family": "Gabriola",
+          "fontUri": "file:///C:/WINDOWS/FONTS/GABRIOLA.TTF",
+          "glyphIndex": 4327,
+          "advanceEm": 0.812744
+        },
+        {
+          "family": "Segoe UI Symbol",
+          "fontUri": "file:///C:/WINDOWS/FONTS/SEGUISYM.TTF",
+          "glyphIndex": 4366,
+          "advanceEm": 1
+        },
+        {
+          "family": "Segoe UI Symbol",
+          "fontUri": "file:///C:/WINDOWS/FONTS/SEGUISYM.TTF",
+          "glyphIndex": 4366,
+          "advanceEm": 1
+        }
+      ]
+    },
+    "U\u002B10FFFD": {
+      "codePoint": "U\u002B10FFFD",
+      "char": "\uDBFF\uDFFD",
+      "installedFamilies": 91,
+      "installedFacesChecked": 563,
+      "familiesCovering": 0,
+      "facesCovering": 0,
+      "examples": []
+    }
+  },
+  "apiNotes": {
+    "howTheActualFontIsObserved": "TextLine.GetIndexedGlyphRuns() (PUBLIC) yields IndexedGlyphRun { TextSourceCharacterIndex, TextSourceLength, GlyphRun }; GlyphRun exposes GlyphTypeface (-\u003E FontUri, FamilyNames), GlyphIndices, AdvanceWidths, BidiLevel and FontRenderingEmSize. No reflection was needed for any value in this oracle.",
+    "glyphTypefaceAdvanceWidths": "GlyphTypeface.AdvanceWidths maps glyph index -\u003E advance as a FRACTION OF EM; multiplying by emSize gives DIP. Glyph index 0 is .notdef.",
+    "glyphRunAdvanceWidths": "GlyphRun.AdvanceWidths is reported as WPF returns it, next to the measured DIP advance, so its unit can be read off the data instead of assumed."
+  },
+  "cases": [
+    {
+      "id": "A-missing-glyph/U\u002B4E0E@single-Arial",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B4E0E",
+      "char": "\u4E0E",
+      "codePointName": "CJK \u0027and/with\u0027",
+      "codePointNote": "the code point of the project\u0027s field case D-F1",
+      "textUtf16Length": 1,
+      "fontSettingId": "single-Arial",
+      "fontSettingKind": "single font family",
+      "fontSettingSpec": "Typeface(\u0022Arial\u0022)",
+      "fontSettingNote": "one Latin family, no fallback declared",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "specifiedFontFamilyNames": "Arial",
+      "specifiedFontCoversCodePoint": false,
+      "specifiedFontGlyphIndex": null,
+      "specifiedFontGlyphAdvanceEm": null,
+      "specifiedFontGlyphAdvanceDip": null,
+      "specifiedFontNotdefAdvanceEm": 0.75,
+      "specifiedFontNotdefAdvanceDip": 18,
+      "measuredAdvanceDip": 24,
+      "measuredLineWidthDip": 24,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": true,
+      "advanceOverEmSize": 1,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/YUGOTHM.TTC#1",
+      "observedFontFamilyNames": "Yu Gothic UI",
+      "observedGlyphIndex": 3883,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 24,
+      "observedBidiLevel": 0,
+      "fallbackToADifferentFont": true,
+      "observedFontEqualsSpecifiedFont": false,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/YUGOTHM.TTC#1",
+          "familyNames": "Yu Gothic UI",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 0,
+          "glyphIndices": [
+            3883
+          ],
+          "advanceWidthsAsReported": [
+            24
+          ],
+          "characters": "\u4E0E"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B4E0E@single-TimesNewRoman",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B4E0E",
+      "char": "\u4E0E",
+      "codePointName": "CJK \u0027and/with\u0027",
+      "codePointNote": "the code point of the project\u0027s field case D-F1",
+      "textUtf16Length": 1,
+      "fontSettingId": "single-TimesNewRoman",
+      "fontSettingKind": "single font family",
+      "fontSettingSpec": "Typeface(\u0022Times New Roman\u0022)",
+      "fontSettingNote": "a second Latin family, so the result does not hang on Arial alone",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/TIMES.TTF",
+      "specifiedFontFamilyNames": "Times New Roman",
+      "specifiedFontCoversCodePoint": false,
+      "specifiedFontGlyphIndex": null,
+      "specifiedFontGlyphAdvanceEm": null,
+      "specifiedFontGlyphAdvanceDip": null,
+      "specifiedFontNotdefAdvanceEm": 0.777832,
+      "specifiedFontNotdefAdvanceDip": 18.667969,
+      "measuredAdvanceDip": 24,
+      "measuredLineWidthDip": 24,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": true,
+      "advanceOverEmSize": 1,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/YUGOTHM.TTC#1",
+      "observedFontFamilyNames": "Yu Gothic UI",
+      "observedGlyphIndex": 3883,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 24,
+      "observedBidiLevel": 0,
+      "fallbackToADifferentFont": true,
+      "observedFontEqualsSpecifiedFont": false,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/YUGOTHM.TTC#1",
+          "familyNames": "Yu Gothic UI",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 0,
+          "glyphIndices": [
+            3883
+          ],
+          "advanceWidthsAsReported": [
+            24
+          ],
+          "characters": "\u4E0E"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B4E0E@file-NotoSans-Regular",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B4E0E",
+      "char": "\u4E0E",
+      "codePointName": "CJK \u0027and/with\u0027",
+      "codePointNote": "the code point of the project\u0027s field case D-F1",
+      "textUtf16Length": 1,
+      "fontSettingId": "file-NotoSans-Regular",
+      "fontSettingKind": "FILE font family",
+      "fontSettingSpec": "FontFamily(new Uri(\u0022file:///C:/u1-shaping/fonts/\u0022), \u0022./#\u0022 \u002B \u003Cfamily name read from the ttf\u003E)",
+      "fontSettingNote": "the project\u0027s own situation: a font loaded from a file, not installed",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/U1-SHAPING/FONTS/NOTOSANS-REGULAR.TTF",
+      "specifiedFontFamilyNames": "Noto Sans",
+      "specifiedFontCoversCodePoint": false,
+      "specifiedFontGlyphIndex": null,
+      "specifiedFontGlyphAdvanceEm": null,
+      "specifiedFontGlyphAdvanceDip": null,
+      "specifiedFontNotdefAdvanceEm": 0.6,
+      "specifiedFontNotdefAdvanceDip": 14.4,
+      "measuredAdvanceDip": 24,
+      "measuredLineWidthDip": 24,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": true,
+      "advanceOverEmSize": 1,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/YUGOTHM.TTC#1",
+      "observedFontFamilyNames": "Yu Gothic UI",
+      "observedGlyphIndex": 3883,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 24,
+      "observedBidiLevel": 0,
+      "fallbackToADifferentFont": true,
+      "observedFontEqualsSpecifiedFont": false,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/YUGOTHM.TTC#1",
+          "familyNames": "Yu Gothic UI",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 0,
+          "glyphIndices": [
+            3883
+          ],
+          "advanceWidthsAsReported": [
+            24
+          ],
+          "characters": "\u4E0E"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B4E0E@list-Arial-SegoeUISymbol",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B4E0E",
+      "char": "\u4E0E",
+      "codePointName": "CJK \u0027and/with\u0027",
+      "codePointNote": "the code point of the project\u0027s field case D-F1",
+      "textUtf16Length": 1,
+      "fontSettingId": "list-Arial-SegoeUISymbol",
+      "fontSettingKind": "font family LIST",
+      "fontSettingSpec": "FontFamily(\u0022Arial, Segoe UI Symbol\u0022)",
+      "fontSettingNote": "WPF FontFamily fallback list",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "specifiedFontFamilyNames": "Arial",
+      "specifiedFontCoversCodePoint": false,
+      "specifiedFontGlyphIndex": null,
+      "specifiedFontGlyphAdvanceEm": null,
+      "specifiedFontGlyphAdvanceDip": null,
+      "specifiedFontNotdefAdvanceEm": 0.75,
+      "specifiedFontNotdefAdvanceDip": 18,
+      "measuredAdvanceDip": 24,
+      "measuredLineWidthDip": 24,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": true,
+      "advanceOverEmSize": 1,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/YUGOTHM.TTC#1",
+      "observedFontFamilyNames": "Yu Gothic UI",
+      "observedGlyphIndex": 3883,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 24,
+      "observedBidiLevel": 0,
+      "fallbackToADifferentFont": true,
+      "observedFontEqualsSpecifiedFont": false,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/YUGOTHM.TTC#1",
+          "familyNames": "Yu Gothic UI",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 0,
+          "glyphIndices": [
+            3883
+          ],
+          "advanceWidthsAsReported": [
+            24
+          ],
+          "characters": "\u4E0E"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B4E0E@typeface-declared-fallback-YaHei",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B4E0E",
+      "char": "\u4E0E",
+      "codePointName": "CJK \u0027and/with\u0027",
+      "codePointNote": "the code point of the project\u0027s field case D-F1",
+      "textUtf16Length": 1,
+      "fontSettingId": "typeface-declared-fallback-YaHei",
+      "fontSettingKind": "Typeface with a declared fallbackFontFamily",
+      "fontSettingSpec": "Typeface(FontFamily(\u0022Arial\u0022), Normal, Normal, Normal, fallbackFontFamily: FontFamily(\u0022Microsoft YaHei\u0022))",
+      "fontSettingNote": "WPF\u0027s explicit fallback constructor argument",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "specifiedFontFamilyNames": "Arial",
+      "specifiedFontCoversCodePoint": false,
+      "specifiedFontGlyphIndex": null,
+      "specifiedFontGlyphAdvanceEm": null,
+      "specifiedFontGlyphAdvanceDip": null,
+      "specifiedFontNotdefAdvanceEm": 0.75,
+      "specifiedFontNotdefAdvanceDip": 18,
+      "measuredAdvanceDip": 24,
+      "measuredLineWidthDip": 24,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": true,
+      "advanceOverEmSize": 1,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/MSYH.TTC",
+      "observedFontFamilyNames": "Microsoft YaHei",
+      "observedGlyphIndex": 1034,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 24,
+      "observedBidiLevel": 0,
+      "fallbackToADifferentFont": true,
+      "observedFontEqualsSpecifiedFont": false,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/MSYH.TTC",
+          "familyNames": "Microsoft YaHei",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 0,
+          "glyphIndices": [
+            1034
+          ],
+          "advanceWidthsAsReported": [
+            24
+          ],
+          "characters": "\u4E0E"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B4E0E@explicit-covering-Microsoft YaHei",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B4E0E",
+      "char": "\u4E0E",
+      "codePointName": "CJK \u0027and/with\u0027",
+      "codePointNote": "the code point of the project\u0027s field case D-F1",
+      "textUtf16Length": 1,
+      "fontSettingId": "explicit-covering-Microsoft YaHei",
+      "fontSettingKind": "explicit family that DOES cover the code point",
+      "fontSettingSpec": "Typeface(\u0022Microsoft YaHei\u0022)",
+      "fontSettingNote": "positive control",
+      "fontFamilyNameCount": 2,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/MSYH.TTC",
+      "specifiedFontFamilyNames": "Microsoft YaHei",
+      "specifiedFontCoversCodePoint": true,
+      "specifiedFontGlyphIndex": 1034,
+      "specifiedFontGlyphAdvanceEm": 1,
+      "specifiedFontGlyphAdvanceDip": 24,
+      "specifiedFontNotdefAdvanceEm": 0.697266,
+      "specifiedFontNotdefAdvanceDip": 16.734375,
+      "measuredAdvanceDip": 24,
+      "measuredLineWidthDip": 24,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": true,
+      "advanceOverEmSize": 1,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": true,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/MSYH.TTC",
+      "observedFontFamilyNames": "Microsoft YaHei",
+      "observedGlyphIndex": 1034,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 24,
+      "observedBidiLevel": 0,
+      "fallbackToADifferentFont": false,
+      "observedFontEqualsSpecifiedFont": true,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/MSYH.TTC",
+          "familyNames": "Microsoft YaHei",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 0,
+          "glyphIndices": [
+            1034
+          ],
+          "advanceWidthsAsReported": [
+            24
+          ],
+          "characters": "\u4E0E"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B6C49@single-Arial",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B6C49",
+      "char": "\u6C49",
+      "codePointName": "CJK \u0027Han\u0027",
+      "codePointNote": "a second CJK code point",
+      "textUtf16Length": 1,
+      "fontSettingId": "single-Arial",
+      "fontSettingKind": "single font family",
+      "fontSettingSpec": "Typeface(\u0022Arial\u0022)",
+      "fontSettingNote": "one Latin family, no fallback declared",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "specifiedFontFamilyNames": "Arial",
+      "specifiedFontCoversCodePoint": false,
+      "specifiedFontGlyphIndex": null,
+      "specifiedFontGlyphAdvanceEm": null,
+      "specifiedFontGlyphAdvanceDip": null,
+      "specifiedFontNotdefAdvanceEm": 0.75,
+      "specifiedFontNotdefAdvanceDip": 18,
+      "measuredAdvanceDip": 24,
+      "measuredLineWidthDip": 24,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": true,
+      "advanceOverEmSize": 1,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/MSJH.TTC#1",
+      "observedFontFamilyNames": "Microsoft JhengHei UI",
+      "observedGlyphIndex": 15408,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 24,
+      "observedBidiLevel": 0,
+      "fallbackToADifferentFont": true,
+      "observedFontEqualsSpecifiedFont": false,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/MSJH.TTC#1",
+          "familyNames": "Microsoft JhengHei UI",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 0,
+          "glyphIndices": [
+            15408
+          ],
+          "advanceWidthsAsReported": [
+            24
+          ],
+          "characters": "\u6C49"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B6C49@single-TimesNewRoman",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B6C49",
+      "char": "\u6C49",
+      "codePointName": "CJK \u0027Han\u0027",
+      "codePointNote": "a second CJK code point",
+      "textUtf16Length": 1,
+      "fontSettingId": "single-TimesNewRoman",
+      "fontSettingKind": "single font family",
+      "fontSettingSpec": "Typeface(\u0022Times New Roman\u0022)",
+      "fontSettingNote": "a second Latin family, so the result does not hang on Arial alone",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/TIMES.TTF",
+      "specifiedFontFamilyNames": "Times New Roman",
+      "specifiedFontCoversCodePoint": false,
+      "specifiedFontGlyphIndex": null,
+      "specifiedFontGlyphAdvanceEm": null,
+      "specifiedFontGlyphAdvanceDip": null,
+      "specifiedFontNotdefAdvanceEm": 0.777832,
+      "specifiedFontNotdefAdvanceDip": 18.667969,
+      "measuredAdvanceDip": 24,
+      "measuredLineWidthDip": 24,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": true,
+      "advanceOverEmSize": 1,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/MSJH.TTC#1",
+      "observedFontFamilyNames": "Microsoft JhengHei UI",
+      "observedGlyphIndex": 15408,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 24,
+      "observedBidiLevel": 0,
+      "fallbackToADifferentFont": true,
+      "observedFontEqualsSpecifiedFont": false,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/MSJH.TTC#1",
+          "familyNames": "Microsoft JhengHei UI",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 0,
+          "glyphIndices": [
+            15408
+          ],
+          "advanceWidthsAsReported": [
+            24
+          ],
+          "characters": "\u6C49"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B6C49@file-NotoSans-Regular",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B6C49",
+      "char": "\u6C49",
+      "codePointName": "CJK \u0027Han\u0027",
+      "codePointNote": "a second CJK code point",
+      "textUtf16Length": 1,
+      "fontSettingId": "file-NotoSans-Regular",
+      "fontSettingKind": "FILE font family",
+      "fontSettingSpec": "FontFamily(new Uri(\u0022file:///C:/u1-shaping/fonts/\u0022), \u0022./#\u0022 \u002B \u003Cfamily name read from the ttf\u003E)",
+      "fontSettingNote": "the project\u0027s own situation: a font loaded from a file, not installed",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/U1-SHAPING/FONTS/NOTOSANS-REGULAR.TTF",
+      "specifiedFontFamilyNames": "Noto Sans",
+      "specifiedFontCoversCodePoint": false,
+      "specifiedFontGlyphIndex": null,
+      "specifiedFontGlyphAdvanceEm": null,
+      "specifiedFontGlyphAdvanceDip": null,
+      "specifiedFontNotdefAdvanceEm": 0.6,
+      "specifiedFontNotdefAdvanceDip": 14.4,
+      "measuredAdvanceDip": 24,
+      "measuredLineWidthDip": 24,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": true,
+      "advanceOverEmSize": 1,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/MSJH.TTC#1",
+      "observedFontFamilyNames": "Microsoft JhengHei UI",
+      "observedGlyphIndex": 15408,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 24,
+      "observedBidiLevel": 0,
+      "fallbackToADifferentFont": true,
+      "observedFontEqualsSpecifiedFont": false,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/MSJH.TTC#1",
+          "familyNames": "Microsoft JhengHei UI",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 0,
+          "glyphIndices": [
+            15408
+          ],
+          "advanceWidthsAsReported": [
+            24
+          ],
+          "characters": "\u6C49"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B6C49@list-Arial-SegoeUISymbol",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B6C49",
+      "char": "\u6C49",
+      "codePointName": "CJK \u0027Han\u0027",
+      "codePointNote": "a second CJK code point",
+      "textUtf16Length": 1,
+      "fontSettingId": "list-Arial-SegoeUISymbol",
+      "fontSettingKind": "font family LIST",
+      "fontSettingSpec": "FontFamily(\u0022Arial, Segoe UI Symbol\u0022)",
+      "fontSettingNote": "WPF FontFamily fallback list",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "specifiedFontFamilyNames": "Arial",
+      "specifiedFontCoversCodePoint": false,
+      "specifiedFontGlyphIndex": null,
+      "specifiedFontGlyphAdvanceEm": null,
+      "specifiedFontGlyphAdvanceDip": null,
+      "specifiedFontNotdefAdvanceEm": 0.75,
+      "specifiedFontNotdefAdvanceDip": 18,
+      "measuredAdvanceDip": 24,
+      "measuredLineWidthDip": 24,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": true,
+      "advanceOverEmSize": 1,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/MSJH.TTC#1",
+      "observedFontFamilyNames": "Microsoft JhengHei UI",
+      "observedGlyphIndex": 15408,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 24,
+      "observedBidiLevel": 0,
+      "fallbackToADifferentFont": true,
+      "observedFontEqualsSpecifiedFont": false,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/MSJH.TTC#1",
+          "familyNames": "Microsoft JhengHei UI",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 0,
+          "glyphIndices": [
+            15408
+          ],
+          "advanceWidthsAsReported": [
+            24
+          ],
+          "characters": "\u6C49"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B6C49@typeface-declared-fallback-YaHei",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B6C49",
+      "char": "\u6C49",
+      "codePointName": "CJK \u0027Han\u0027",
+      "codePointNote": "a second CJK code point",
+      "textUtf16Length": 1,
+      "fontSettingId": "typeface-declared-fallback-YaHei",
+      "fontSettingKind": "Typeface with a declared fallbackFontFamily",
+      "fontSettingSpec": "Typeface(FontFamily(\u0022Arial\u0022), Normal, Normal, Normal, fallbackFontFamily: FontFamily(\u0022Microsoft YaHei\u0022))",
+      "fontSettingNote": "WPF\u0027s explicit fallback constructor argument",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "specifiedFontFamilyNames": "Arial",
+      "specifiedFontCoversCodePoint": false,
+      "specifiedFontGlyphIndex": null,
+      "specifiedFontGlyphAdvanceEm": null,
+      "specifiedFontGlyphAdvanceDip": null,
+      "specifiedFontNotdefAdvanceEm": 0.75,
+      "specifiedFontNotdefAdvanceDip": 18,
+      "measuredAdvanceDip": 24,
+      "measuredLineWidthDip": 24,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": true,
+      "advanceOverEmSize": 1,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/MSYH.TTC",
+      "observedFontFamilyNames": "Microsoft YaHei",
+      "observedGlyphIndex": 2126,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 24,
+      "observedBidiLevel": 0,
+      "fallbackToADifferentFont": true,
+      "observedFontEqualsSpecifiedFont": false,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/MSYH.TTC",
+          "familyNames": "Microsoft YaHei",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 0,
+          "glyphIndices": [
+            2126
+          ],
+          "advanceWidthsAsReported": [
+            24
+          ],
+          "characters": "\u6C49"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B6C49@explicit-covering-Microsoft YaHei",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B6C49",
+      "char": "\u6C49",
+      "codePointName": "CJK \u0027Han\u0027",
+      "codePointNote": "a second CJK code point",
+      "textUtf16Length": 1,
+      "fontSettingId": "explicit-covering-Microsoft YaHei",
+      "fontSettingKind": "explicit family that DOES cover the code point",
+      "fontSettingSpec": "Typeface(\u0022Microsoft YaHei\u0022)",
+      "fontSettingNote": "positive control",
+      "fontFamilyNameCount": 2,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/MSYH.TTC",
+      "specifiedFontFamilyNames": "Microsoft YaHei",
+      "specifiedFontCoversCodePoint": true,
+      "specifiedFontGlyphIndex": 2126,
+      "specifiedFontGlyphAdvanceEm": 1,
+      "specifiedFontGlyphAdvanceDip": 24,
+      "specifiedFontNotdefAdvanceEm": 0.697266,
+      "specifiedFontNotdefAdvanceDip": 16.734375,
+      "measuredAdvanceDip": 24,
+      "measuredLineWidthDip": 24,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": true,
+      "advanceOverEmSize": 1,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": true,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/MSYH.TTC",
+      "observedFontFamilyNames": "Microsoft YaHei",
+      "observedGlyphIndex": 2126,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 24,
+      "observedBidiLevel": 0,
+      "fallbackToADifferentFont": false,
+      "observedFontEqualsSpecifiedFont": true,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/MSYH.TTC",
+          "familyNames": "Microsoft YaHei",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 0,
+          "glyphIndices": [
+            2126
+          ],
+          "advanceWidthsAsReported": [
+            24
+          ],
+          "characters": "\u6C49"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B05D0@single-Arial",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B05D0",
+      "char": "\u05D0",
+      "codePointName": "HEBREW ALEF",
+      "codePointNote": "Hebrew: covered by Arial, so it doubles as an \u0027present\u0027 control",
+      "textUtf16Length": 1,
+      "fontSettingId": "single-Arial",
+      "fontSettingKind": "single font family",
+      "fontSettingSpec": "Typeface(\u0022Arial\u0022)",
+      "fontSettingNote": "one Latin family, no fallback declared",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "specifiedFontFamilyNames": "Arial",
+      "specifiedFontCoversCodePoint": true,
+      "specifiedFontGlyphIndex": 672,
+      "specifiedFontGlyphAdvanceEm": 0.562988,
+      "specifiedFontGlyphAdvanceDip": 13.511719,
+      "specifiedFontNotdefAdvanceEm": 0.75,
+      "specifiedFontNotdefAdvanceDip": 18,
+      "measuredAdvanceDip": 13.513333,
+      "measuredLineWidthDip": 13.513333,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": false,
+      "advanceOverEmSize": 0.563056,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "observedFontFamilyNames": "Arial",
+      "observedGlyphIndex": 672,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 13.512,
+      "observedBidiLevel": 1,
+      "fallbackToADifferentFont": false,
+      "observedFontEqualsSpecifiedFont": true,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+          "familyNames": "Arial",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 1,
+          "glyphIndices": [
+            672
+          ],
+          "advanceWidthsAsReported": [
+            13.512
+          ],
+          "characters": "\u05D0"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B05D0@single-TimesNewRoman",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B05D0",
+      "char": "\u05D0",
+      "codePointName": "HEBREW ALEF",
+      "codePointNote": "Hebrew: covered by Arial, so it doubles as an \u0027present\u0027 control",
+      "textUtf16Length": 1,
+      "fontSettingId": "single-TimesNewRoman",
+      "fontSettingKind": "single font family",
+      "fontSettingSpec": "Typeface(\u0022Times New Roman\u0022)",
+      "fontSettingNote": "a second Latin family, so the result does not hang on Arial alone",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/TIMES.TTF",
+      "specifiedFontFamilyNames": "Times New Roman",
+      "specifiedFontCoversCodePoint": true,
+      "specifiedFontGlyphIndex": 672,
+      "specifiedFontGlyphAdvanceEm": 0.481445,
+      "specifiedFontGlyphAdvanceDip": 11.554688,
+      "specifiedFontNotdefAdvanceEm": 0.777832,
+      "specifiedFontNotdefAdvanceDip": 18.667969,
+      "measuredAdvanceDip": 11.553333,
+      "measuredLineWidthDip": 11.553333,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": false,
+      "advanceOverEmSize": 0.481389,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/TIMES.TTF",
+      "observedFontFamilyNames": "Times New Roman",
+      "observedGlyphIndex": 672,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 11.544,
+      "observedBidiLevel": 1,
+      "fallbackToADifferentFont": false,
+      "observedFontEqualsSpecifiedFont": true,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/TIMES.TTF",
+          "familyNames": "Times New Roman",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 1,
+          "glyphIndices": [
+            672
+          ],
+          "advanceWidthsAsReported": [
+            11.544
+          ],
+          "characters": "\u05D0"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B05D0@file-NotoSans-Regular",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B05D0",
+      "char": "\u05D0",
+      "codePointName": "HEBREW ALEF",
+      "codePointNote": "Hebrew: covered by Arial, so it doubles as an \u0027present\u0027 control",
+      "textUtf16Length": 1,
+      "fontSettingId": "file-NotoSans-Regular",
+      "fontSettingKind": "FILE font family",
+      "fontSettingSpec": "FontFamily(new Uri(\u0022file:///C:/u1-shaping/fonts/\u0022), \u0022./#\u0022 \u002B \u003Cfamily name read from the ttf\u003E)",
+      "fontSettingNote": "the project\u0027s own situation: a font loaded from a file, not installed",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/U1-SHAPING/FONTS/NOTOSANS-REGULAR.TTF",
+      "specifiedFontFamilyNames": "Noto Sans",
+      "specifiedFontCoversCodePoint": false,
+      "specifiedFontGlyphIndex": null,
+      "specifiedFontGlyphAdvanceEm": null,
+      "specifiedFontGlyphAdvanceDip": null,
+      "specifiedFontNotdefAdvanceEm": 0.6,
+      "specifiedFontNotdefAdvanceDip": 14.4,
+      "measuredAdvanceDip": 15.28,
+      "measuredLineWidthDip": 15.28,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": false,
+      "advanceOverEmSize": 0.636667,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/SEGOEUI.TTF",
+      "observedFontFamilyNames": "Segoe UI",
+      "observedGlyphIndex": 2920,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 15.288,
+      "observedBidiLevel": 1,
+      "fallbackToADifferentFont": true,
+      "observedFontEqualsSpecifiedFont": false,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/SEGOEUI.TTF",
+          "familyNames": "Segoe UI",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 1,
+          "glyphIndices": [
+            2920
+          ],
+          "advanceWidthsAsReported": [
+            15.288
+          ],
+          "characters": "\u05D0"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B05D0@list-Arial-SegoeUISymbol",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B05D0",
+      "char": "\u05D0",
+      "codePointName": "HEBREW ALEF",
+      "codePointNote": "Hebrew: covered by Arial, so it doubles as an \u0027present\u0027 control",
+      "textUtf16Length": 1,
+      "fontSettingId": "list-Arial-SegoeUISymbol",
+      "fontSettingKind": "font family LIST",
+      "fontSettingSpec": "FontFamily(\u0022Arial, Segoe UI Symbol\u0022)",
+      "fontSettingNote": "WPF FontFamily fallback list",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "specifiedFontFamilyNames": "Arial",
+      "specifiedFontCoversCodePoint": true,
+      "specifiedFontGlyphIndex": 672,
+      "specifiedFontGlyphAdvanceEm": 0.562988,
+      "specifiedFontGlyphAdvanceDip": 13.511719,
+      "specifiedFontNotdefAdvanceEm": 0.75,
+      "specifiedFontNotdefAdvanceDip": 18,
+      "measuredAdvanceDip": 13.513333,
+      "measuredLineWidthDip": 13.513333,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": false,
+      "advanceOverEmSize": 0.563056,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "observedFontFamilyNames": "Arial",
+      "observedGlyphIndex": 672,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 13.512,
+      "observedBidiLevel": 1,
+      "fallbackToADifferentFont": false,
+      "observedFontEqualsSpecifiedFont": true,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+          "familyNames": "Arial",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 1,
+          "glyphIndices": [
+            672
+          ],
+          "advanceWidthsAsReported": [
+            13.512
+          ],
+          "characters": "\u05D0"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B05D0@typeface-declared-fallback-YaHei",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B05D0",
+      "char": "\u05D0",
+      "codePointName": "HEBREW ALEF",
+      "codePointNote": "Hebrew: covered by Arial, so it doubles as an \u0027present\u0027 control",
+      "textUtf16Length": 1,
+      "fontSettingId": "typeface-declared-fallback-YaHei",
+      "fontSettingKind": "Typeface with a declared fallbackFontFamily",
+      "fontSettingSpec": "Typeface(FontFamily(\u0022Arial\u0022), Normal, Normal, Normal, fallbackFontFamily: FontFamily(\u0022Microsoft YaHei\u0022))",
+      "fontSettingNote": "WPF\u0027s explicit fallback constructor argument",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "specifiedFontFamilyNames": "Arial",
+      "specifiedFontCoversCodePoint": true,
+      "specifiedFontGlyphIndex": 672,
+      "specifiedFontGlyphAdvanceEm": 0.562988,
+      "specifiedFontGlyphAdvanceDip": 13.511719,
+      "specifiedFontNotdefAdvanceEm": 0.75,
+      "specifiedFontNotdefAdvanceDip": 18,
+      "measuredAdvanceDip": 13.513333,
+      "measuredLineWidthDip": 13.513333,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": false,
+      "advanceOverEmSize": 0.563056,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "observedFontFamilyNames": "Arial",
+      "observedGlyphIndex": 672,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 13.512,
+      "observedBidiLevel": 1,
+      "fallbackToADifferentFont": false,
+      "observedFontEqualsSpecifiedFont": true,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+          "familyNames": "Arial",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 1,
+          "glyphIndices": [
+            672
+          ],
+          "advanceWidthsAsReported": [
+            13.512
+          ],
+          "characters": "\u05D0"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B05D0@explicit-covering-Segoe UI",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B05D0",
+      "char": "\u05D0",
+      "codePointName": "HEBREW ALEF",
+      "codePointNote": "Hebrew: covered by Arial, so it doubles as an \u0027present\u0027 control",
+      "textUtf16Length": 1,
+      "fontSettingId": "explicit-covering-Segoe UI",
+      "fontSettingKind": "explicit family that DOES cover the code point",
+      "fontSettingSpec": "Typeface(\u0022Segoe UI\u0022)",
+      "fontSettingNote": "positive control",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/SEGOEUI.TTF",
+      "specifiedFontFamilyNames": "Segoe UI",
+      "specifiedFontCoversCodePoint": true,
+      "specifiedFontGlyphIndex": 2920,
+      "specifiedFontGlyphAdvanceEm": 0.636719,
+      "specifiedFontGlyphAdvanceDip": 15.28125,
+      "specifiedFontNotdefAdvanceEm": 0.645508,
+      "specifiedFontNotdefAdvanceDip": 15.492188,
+      "measuredAdvanceDip": 15.28,
+      "measuredLineWidthDip": 15.28,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": false,
+      "advanceOverEmSize": 0.636667,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/SEGOEUI.TTF",
+      "observedFontFamilyNames": "Segoe UI",
+      "observedGlyphIndex": 2920,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 15.288,
+      "observedBidiLevel": 1,
+      "fallbackToADifferentFont": false,
+      "observedFontEqualsSpecifiedFont": true,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/SEGOEUI.TTF",
+          "familyNames": "Segoe UI",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 1,
+          "glyphIndices": [
+            2920
+          ],
+          "advanceWidthsAsReported": [
+            15.288
+          ],
+          "characters": "\u05D0"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B0627@single-Arial",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B0627",
+      "char": "\u0627",
+      "codePointName": "ARABIC ALEF",
+      "codePointNote": "Arabic: covered by Arial as well",
+      "textUtf16Length": 1,
+      "fontSettingId": "single-Arial",
+      "fontSettingKind": "single font family",
+      "fontSettingSpec": "Typeface(\u0022Arial\u0022)",
+      "fontSettingNote": "one Latin family, no fallback declared",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "specifiedFontFamilyNames": "Arial",
+      "specifiedFontCoversCodePoint": true,
+      "specifiedFontGlyphIndex": 909,
+      "specifiedFontGlyphAdvanceEm": 0.207031,
+      "specifiedFontGlyphAdvanceDip": 4.96875,
+      "specifiedFontNotdefAdvanceEm": 0.75,
+      "specifiedFontNotdefAdvanceDip": 18,
+      "measuredAdvanceDip": 4.97,
+      "measuredLineWidthDip": 4.97,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": false,
+      "advanceOverEmSize": 0.207083,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "observedFontFamilyNames": "Arial",
+      "observedGlyphIndex": 909,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 4.968,
+      "observedBidiLevel": 1,
+      "fallbackToADifferentFont": false,
+      "observedFontEqualsSpecifiedFont": true,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+          "familyNames": "Arial",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 1,
+          "glyphIndices": [
+            909
+          ],
+          "advanceWidthsAsReported": [
+            4.968
+          ],
+          "characters": "\u0627"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B0627@single-TimesNewRoman",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B0627",
+      "char": "\u0627",
+      "codePointName": "ARABIC ALEF",
+      "codePointNote": "Arabic: covered by Arial as well",
+      "textUtf16Length": 1,
+      "fontSettingId": "single-TimesNewRoman",
+      "fontSettingKind": "single font family",
+      "fontSettingSpec": "Typeface(\u0022Times New Roman\u0022)",
+      "fontSettingNote": "a second Latin family, so the result does not hang on Arial alone",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/TIMES.TTF",
+      "specifiedFontFamilyNames": "Times New Roman",
+      "specifiedFontCoversCodePoint": true,
+      "specifiedFontGlyphIndex": 909,
+      "specifiedFontGlyphAdvanceEm": 0.207031,
+      "specifiedFontGlyphAdvanceDip": 4.96875,
+      "specifiedFontNotdefAdvanceEm": 0.777832,
+      "specifiedFontNotdefAdvanceDip": 18.667969,
+      "measuredAdvanceDip": 4.97,
+      "measuredLineWidthDip": 4.97,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": false,
+      "advanceOverEmSize": 0.207083,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/TIMES.TTF",
+      "observedFontFamilyNames": "Times New Roman",
+      "observedGlyphIndex": 909,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 4.968,
+      "observedBidiLevel": 1,
+      "fallbackToADifferentFont": false,
+      "observedFontEqualsSpecifiedFont": true,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/TIMES.TTF",
+          "familyNames": "Times New Roman",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 1,
+          "glyphIndices": [
+            909
+          ],
+          "advanceWidthsAsReported": [
+            4.968
+          ],
+          "characters": "\u0627"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B0627@file-NotoSans-Regular",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B0627",
+      "char": "\u0627",
+      "codePointName": "ARABIC ALEF",
+      "codePointNote": "Arabic: covered by Arial as well",
+      "textUtf16Length": 1,
+      "fontSettingId": "file-NotoSans-Regular",
+      "fontSettingKind": "FILE font family",
+      "fontSettingSpec": "FontFamily(new Uri(\u0022file:///C:/u1-shaping/fonts/\u0022), \u0022./#\u0022 \u002B \u003Cfamily name read from the ttf\u003E)",
+      "fontSettingNote": "the project\u0027s own situation: a font loaded from a file, not installed",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/U1-SHAPING/FONTS/NOTOSANS-REGULAR.TTF",
+      "specifiedFontFamilyNames": "Noto Sans",
+      "specifiedFontCoversCodePoint": false,
+      "specifiedFontGlyphIndex": null,
+      "specifiedFontGlyphAdvanceEm": null,
+      "specifiedFontGlyphAdvanceDip": null,
+      "specifiedFontNotdefAdvanceEm": 0.6,
+      "specifiedFontNotdefAdvanceDip": 14.4,
+      "measuredAdvanceDip": 6.013333,
+      "measuredLineWidthDip": 6.013333,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": false,
+      "advanceOverEmSize": 0.250556,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/SEGOEUI.TTF",
+      "observedFontFamilyNames": "Segoe UI",
+      "observedGlyphIndex": 2317,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 6.024,
+      "observedBidiLevel": 1,
+      "fallbackToADifferentFont": true,
+      "observedFontEqualsSpecifiedFont": false,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/SEGOEUI.TTF",
+          "familyNames": "Segoe UI",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 1,
+          "glyphIndices": [
+            2317
+          ],
+          "advanceWidthsAsReported": [
+            6.024
+          ],
+          "characters": "\u0627"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B0627@list-Arial-SegoeUISymbol",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B0627",
+      "char": "\u0627",
+      "codePointName": "ARABIC ALEF",
+      "codePointNote": "Arabic: covered by Arial as well",
+      "textUtf16Length": 1,
+      "fontSettingId": "list-Arial-SegoeUISymbol",
+      "fontSettingKind": "font family LIST",
+      "fontSettingSpec": "FontFamily(\u0022Arial, Segoe UI Symbol\u0022)",
+      "fontSettingNote": "WPF FontFamily fallback list",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "specifiedFontFamilyNames": "Arial",
+      "specifiedFontCoversCodePoint": true,
+      "specifiedFontGlyphIndex": 909,
+      "specifiedFontGlyphAdvanceEm": 0.207031,
+      "specifiedFontGlyphAdvanceDip": 4.96875,
+      "specifiedFontNotdefAdvanceEm": 0.75,
+      "specifiedFontNotdefAdvanceDip": 18,
+      "measuredAdvanceDip": 4.97,
+      "measuredLineWidthDip": 4.97,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": false,
+      "advanceOverEmSize": 0.207083,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "observedFontFamilyNames": "Arial",
+      "observedGlyphIndex": 909,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 4.968,
+      "observedBidiLevel": 1,
+      "fallbackToADifferentFont": false,
+      "observedFontEqualsSpecifiedFont": true,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+          "familyNames": "Arial",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 1,
+          "glyphIndices": [
+            909
+          ],
+          "advanceWidthsAsReported": [
+            4.968
+          ],
+          "characters": "\u0627"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B0627@typeface-declared-fallback-YaHei",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B0627",
+      "char": "\u0627",
+      "codePointName": "ARABIC ALEF",
+      "codePointNote": "Arabic: covered by Arial as well",
+      "textUtf16Length": 1,
+      "fontSettingId": "typeface-declared-fallback-YaHei",
+      "fontSettingKind": "Typeface with a declared fallbackFontFamily",
+      "fontSettingSpec": "Typeface(FontFamily(\u0022Arial\u0022), Normal, Normal, Normal, fallbackFontFamily: FontFamily(\u0022Microsoft YaHei\u0022))",
+      "fontSettingNote": "WPF\u0027s explicit fallback constructor argument",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "specifiedFontFamilyNames": "Arial",
+      "specifiedFontCoversCodePoint": true,
+      "specifiedFontGlyphIndex": 909,
+      "specifiedFontGlyphAdvanceEm": 0.207031,
+      "specifiedFontGlyphAdvanceDip": 4.96875,
+      "specifiedFontNotdefAdvanceEm": 0.75,
+      "specifiedFontNotdefAdvanceDip": 18,
+      "measuredAdvanceDip": 4.97,
+      "measuredLineWidthDip": 4.97,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": false,
+      "advanceOverEmSize": 0.207083,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "observedFontFamilyNames": "Arial",
+      "observedGlyphIndex": 909,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 4.968,
+      "observedBidiLevel": 1,
+      "fallbackToADifferentFont": false,
+      "observedFontEqualsSpecifiedFont": true,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+          "familyNames": "Arial",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 1,
+          "glyphIndices": [
+            909
+          ],
+          "advanceWidthsAsReported": [
+            4.968
+          ],
+          "characters": "\u0627"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B0627@explicit-covering-Segoe UI",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B0627",
+      "char": "\u0627",
+      "codePointName": "ARABIC ALEF",
+      "codePointNote": "Arabic: covered by Arial as well",
+      "textUtf16Length": 1,
+      "fontSettingId": "explicit-covering-Segoe UI",
+      "fontSettingKind": "explicit family that DOES cover the code point",
+      "fontSettingSpec": "Typeface(\u0022Segoe UI\u0022)",
+      "fontSettingNote": "positive control",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/SEGOEUI.TTF",
+      "specifiedFontFamilyNames": "Segoe UI",
+      "specifiedFontCoversCodePoint": true,
+      "specifiedFontGlyphIndex": 2317,
+      "specifiedFontGlyphAdvanceEm": 0.250488,
+      "specifiedFontGlyphAdvanceDip": 6.011719,
+      "specifiedFontNotdefAdvanceEm": 0.645508,
+      "specifiedFontNotdefAdvanceDip": 15.492188,
+      "measuredAdvanceDip": 6.013333,
+      "measuredLineWidthDip": 6.013333,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": false,
+      "advanceOverEmSize": 0.250556,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/SEGOEUI.TTF",
+      "observedFontFamilyNames": "Segoe UI",
+      "observedGlyphIndex": 2317,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 6.024,
+      "observedBidiLevel": 1,
+      "fallbackToADifferentFont": false,
+      "observedFontEqualsSpecifiedFont": true,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/SEGOEUI.TTF",
+          "familyNames": "Segoe UI",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 1,
+          "glyphIndices": [
+            2317
+          ],
+          "advanceWidthsAsReported": [
+            6.024
+          ],
+          "characters": "\u0627"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B2192@single-Arial",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B2192",
+      "char": "\u2192",
+      "codePointName": "RIGHTWARDS ARROW",
+      "codePointNote": "usually present only in symbol fonts / math fonts",
+      "textUtf16Length": 1,
+      "fontSettingId": "single-Arial",
+      "fontSettingKind": "single font family",
+      "fontSettingSpec": "Typeface(\u0022Arial\u0022)",
+      "fontSettingNote": "one Latin family, no fallback declared",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "specifiedFontFamilyNames": "Arial",
+      "specifiedFontCoversCodePoint": true,
+      "specifiedFontGlyphIndex": 314,
+      "specifiedFontGlyphAdvanceEm": 1,
+      "specifiedFontGlyphAdvanceDip": 24,
+      "specifiedFontNotdefAdvanceEm": 0.75,
+      "specifiedFontNotdefAdvanceDip": 18,
+      "measuredAdvanceDip": 24,
+      "measuredLineWidthDip": 24,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": true,
+      "advanceOverEmSize": 1,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": true,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "observedFontFamilyNames": "Arial",
+      "observedGlyphIndex": 314,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 24,
+      "observedBidiLevel": 0,
+      "fallbackToADifferentFont": false,
+      "observedFontEqualsSpecifiedFont": true,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+          "familyNames": "Arial",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 0,
+          "glyphIndices": [
+            314
+          ],
+          "advanceWidthsAsReported": [
+            24
+          ],
+          "characters": "\u2192"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B2192@single-TimesNewRoman",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B2192",
+      "char": "\u2192",
+      "codePointName": "RIGHTWARDS ARROW",
+      "codePointNote": "usually present only in symbol fonts / math fonts",
+      "textUtf16Length": 1,
+      "fontSettingId": "single-TimesNewRoman",
+      "fontSettingKind": "single font family",
+      "fontSettingSpec": "Typeface(\u0022Times New Roman\u0022)",
+      "fontSettingNote": "a second Latin family, so the result does not hang on Arial alone",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/TIMES.TTF",
+      "specifiedFontFamilyNames": "Times New Roman",
+      "specifiedFontCoversCodePoint": true,
+      "specifiedFontGlyphIndex": 314,
+      "specifiedFontGlyphAdvanceEm": 1,
+      "specifiedFontGlyphAdvanceDip": 24,
+      "specifiedFontNotdefAdvanceEm": 0.777832,
+      "specifiedFontNotdefAdvanceDip": 18.667969,
+      "measuredAdvanceDip": 24,
+      "measuredLineWidthDip": 24,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": true,
+      "advanceOverEmSize": 1,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": true,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/TIMES.TTF",
+      "observedFontFamilyNames": "Times New Roman",
+      "observedGlyphIndex": 314,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 24,
+      "observedBidiLevel": 0,
+      "fallbackToADifferentFont": false,
+      "observedFontEqualsSpecifiedFont": true,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/TIMES.TTF",
+          "familyNames": "Times New Roman",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 0,
+          "glyphIndices": [
+            314
+          ],
+          "advanceWidthsAsReported": [
+            24
+          ],
+          "characters": "\u2192"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B2192@file-NotoSans-Regular",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B2192",
+      "char": "\u2192",
+      "codePointName": "RIGHTWARDS ARROW",
+      "codePointNote": "usually present only in symbol fonts / math fonts",
+      "textUtf16Length": 1,
+      "fontSettingId": "file-NotoSans-Regular",
+      "fontSettingKind": "FILE font family",
+      "fontSettingSpec": "FontFamily(new Uri(\u0022file:///C:/u1-shaping/fonts/\u0022), \u0022./#\u0022 \u002B \u003Cfamily name read from the ttf\u003E)",
+      "fontSettingNote": "the project\u0027s own situation: a font loaded from a file, not installed",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/U1-SHAPING/FONTS/NOTOSANS-REGULAR.TTF",
+      "specifiedFontFamilyNames": "Noto Sans",
+      "specifiedFontCoversCodePoint": false,
+      "specifiedFontGlyphIndex": null,
+      "specifiedFontGlyphAdvanceEm": null,
+      "specifiedFontGlyphAdvanceDip": null,
+      "specifiedFontNotdefAdvanceEm": 0.6,
+      "specifiedFontNotdefAdvanceDip": 14.4,
+      "measuredAdvanceDip": 20.706667,
+      "measuredLineWidthDip": 20.706667,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": false,
+      "advanceOverEmSize": 0.862778,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/SEGOEUI.TTF",
+      "observedFontFamilyNames": "Segoe UI",
+      "observedGlyphIndex": 2862,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 20.712,
+      "observedBidiLevel": 0,
+      "fallbackToADifferentFont": true,
+      "observedFontEqualsSpecifiedFont": false,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/SEGOEUI.TTF",
+          "familyNames": "Segoe UI",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 0,
+          "glyphIndices": [
+            2862
+          ],
+          "advanceWidthsAsReported": [
+            20.712
+          ],
+          "characters": "\u2192"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B2192@list-Arial-SegoeUISymbol",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B2192",
+      "char": "\u2192",
+      "codePointName": "RIGHTWARDS ARROW",
+      "codePointNote": "usually present only in symbol fonts / math fonts",
+      "textUtf16Length": 1,
+      "fontSettingId": "list-Arial-SegoeUISymbol",
+      "fontSettingKind": "font family LIST",
+      "fontSettingSpec": "FontFamily(\u0022Arial, Segoe UI Symbol\u0022)",
+      "fontSettingNote": "WPF FontFamily fallback list",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "specifiedFontFamilyNames": "Arial",
+      "specifiedFontCoversCodePoint": true,
+      "specifiedFontGlyphIndex": 314,
+      "specifiedFontGlyphAdvanceEm": 1,
+      "specifiedFontGlyphAdvanceDip": 24,
+      "specifiedFontNotdefAdvanceEm": 0.75,
+      "specifiedFontNotdefAdvanceDip": 18,
+      "measuredAdvanceDip": 24,
+      "measuredLineWidthDip": 24,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": true,
+      "advanceOverEmSize": 1,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": true,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "observedFontFamilyNames": "Arial",
+      "observedGlyphIndex": 314,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 24,
+      "observedBidiLevel": 0,
+      "fallbackToADifferentFont": false,
+      "observedFontEqualsSpecifiedFont": true,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+          "familyNames": "Arial",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 0,
+          "glyphIndices": [
+            314
+          ],
+          "advanceWidthsAsReported": [
+            24
+          ],
+          "characters": "\u2192"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B2192@typeface-declared-fallback-YaHei",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B2192",
+      "char": "\u2192",
+      "codePointName": "RIGHTWARDS ARROW",
+      "codePointNote": "usually present only in symbol fonts / math fonts",
+      "textUtf16Length": 1,
+      "fontSettingId": "typeface-declared-fallback-YaHei",
+      "fontSettingKind": "Typeface with a declared fallbackFontFamily",
+      "fontSettingSpec": "Typeface(FontFamily(\u0022Arial\u0022), Normal, Normal, Normal, fallbackFontFamily: FontFamily(\u0022Microsoft YaHei\u0022))",
+      "fontSettingNote": "WPF\u0027s explicit fallback constructor argument",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "specifiedFontFamilyNames": "Arial",
+      "specifiedFontCoversCodePoint": true,
+      "specifiedFontGlyphIndex": 314,
+      "specifiedFontGlyphAdvanceEm": 1,
+      "specifiedFontGlyphAdvanceDip": 24,
+      "specifiedFontNotdefAdvanceEm": 0.75,
+      "specifiedFontNotdefAdvanceDip": 18,
+      "measuredAdvanceDip": 24,
+      "measuredLineWidthDip": 24,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": true,
+      "advanceOverEmSize": 1,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": true,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "observedFontFamilyNames": "Arial",
+      "observedGlyphIndex": 314,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 24,
+      "observedBidiLevel": 0,
+      "fallbackToADifferentFont": false,
+      "observedFontEqualsSpecifiedFont": true,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+          "familyNames": "Arial",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 0,
+          "glyphIndices": [
+            314
+          ],
+          "advanceWidthsAsReported": [
+            24
+          ],
+          "characters": "\u2192"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B2192@explicit-covering-Microsoft YaHei",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B2192",
+      "char": "\u2192",
+      "codePointName": "RIGHTWARDS ARROW",
+      "codePointNote": "usually present only in symbol fonts / math fonts",
+      "textUtf16Length": 1,
+      "fontSettingId": "explicit-covering-Microsoft YaHei",
+      "fontSettingKind": "explicit family that DOES cover the code point",
+      "fontSettingSpec": "Typeface(\u0022Microsoft YaHei\u0022)",
+      "fontSettingNote": "positive control",
+      "fontFamilyNameCount": 2,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/MSYH.TTC",
+      "specifiedFontFamilyNames": "Microsoft YaHei",
+      "specifiedFontCoversCodePoint": true,
+      "specifiedFontGlyphIndex": 594,
+      "specifiedFontGlyphAdvanceEm": 1,
+      "specifiedFontGlyphAdvanceDip": 24,
+      "specifiedFontNotdefAdvanceEm": 0.697266,
+      "specifiedFontNotdefAdvanceDip": 16.734375,
+      "measuredAdvanceDip": 24,
+      "measuredLineWidthDip": 24,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": true,
+      "advanceOverEmSize": 1,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": true,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/MSYH.TTC",
+      "observedFontFamilyNames": "Microsoft YaHei",
+      "observedGlyphIndex": 594,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 24,
+      "observedBidiLevel": 0,
+      "fallbackToADifferentFont": false,
+      "observedFontEqualsSpecifiedFont": true,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/MSYH.TTC",
+          "familyNames": "Microsoft YaHei",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 0,
+          "glyphIndices": [
+            594
+          ],
+          "advanceWidthsAsReported": [
+            24
+          ],
+          "characters": "\u2192"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002BE000@single-Arial",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002BE000",
+      "char": "\uE000",
+      "codePointName": "PRIVATE USE (BMP)",
+      "codePointNote": "BMP private use area: expected in no font",
+      "textUtf16Length": 1,
+      "fontSettingId": "single-Arial",
+      "fontSettingKind": "single font family",
+      "fontSettingSpec": "Typeface(\u0022Arial\u0022)",
+      "fontSettingNote": "one Latin family, no fallback declared",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "specifiedFontFamilyNames": "Arial",
+      "specifiedFontCoversCodePoint": false,
+      "specifiedFontGlyphIndex": null,
+      "specifiedFontGlyphAdvanceEm": null,
+      "specifiedFontGlyphAdvanceDip": null,
+      "specifiedFontNotdefAdvanceEm": 0.75,
+      "specifiedFontNotdefAdvanceDip": 18,
+      "measuredAdvanceDip": 18,
+      "measuredLineWidthDip": 18,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": false,
+      "advanceOverEmSize": 0.75,
+      "advanceEqualsSpecifiedNotdefAdvance": true,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "observedFontFamilyNames": "Arial",
+      "observedGlyphIndex": 0,
+      "observedGlyphIsNotdef": true,
+      "observedRunAdvanceAsReported": 18,
+      "observedBidiLevel": 0,
+      "fallbackToADifferentFont": false,
+      "observedFontEqualsSpecifiedFont": true,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+          "familyNames": "Arial",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 0,
+          "glyphIndices": [
+            0
+          ],
+          "advanceWidthsAsReported": [
+            18
+          ],
+          "characters": "\uE000"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002BE000@single-TimesNewRoman",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002BE000",
+      "char": "\uE000",
+      "codePointName": "PRIVATE USE (BMP)",
+      "codePointNote": "BMP private use area: expected in no font",
+      "textUtf16Length": 1,
+      "fontSettingId": "single-TimesNewRoman",
+      "fontSettingKind": "single font family",
+      "fontSettingSpec": "Typeface(\u0022Times New Roman\u0022)",
+      "fontSettingNote": "a second Latin family, so the result does not hang on Arial alone",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/TIMES.TTF",
+      "specifiedFontFamilyNames": "Times New Roman",
+      "specifiedFontCoversCodePoint": false,
+      "specifiedFontGlyphIndex": null,
+      "specifiedFontGlyphAdvanceEm": null,
+      "specifiedFontGlyphAdvanceDip": null,
+      "specifiedFontNotdefAdvanceEm": 0.777832,
+      "specifiedFontNotdefAdvanceDip": 18.667969,
+      "measuredAdvanceDip": 18.666667,
+      "measuredLineWidthDip": 18.666667,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": false,
+      "advanceOverEmSize": 0.777778,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/TIMES.TTF",
+      "observedFontFamilyNames": "Times New Roman",
+      "observedGlyphIndex": 0,
+      "observedGlyphIsNotdef": true,
+      "observedRunAdvanceAsReported": 18.672,
+      "observedBidiLevel": 0,
+      "fallbackToADifferentFont": false,
+      "observedFontEqualsSpecifiedFont": true,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/TIMES.TTF",
+          "familyNames": "Times New Roman",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 0,
+          "glyphIndices": [
+            0
+          ],
+          "advanceWidthsAsReported": [
+            18.672
+          ],
+          "characters": "\uE000"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002BE000@file-NotoSans-Regular",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002BE000",
+      "char": "\uE000",
+      "codePointName": "PRIVATE USE (BMP)",
+      "codePointNote": "BMP private use area: expected in no font",
+      "textUtf16Length": 1,
+      "fontSettingId": "file-NotoSans-Regular",
+      "fontSettingKind": "FILE font family",
+      "fontSettingSpec": "FontFamily(new Uri(\u0022file:///C:/u1-shaping/fonts/\u0022), \u0022./#\u0022 \u002B \u003Cfamily name read from the ttf\u003E)",
+      "fontSettingNote": "the project\u0027s own situation: a font loaded from a file, not installed",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/U1-SHAPING/FONTS/NOTOSANS-REGULAR.TTF",
+      "specifiedFontFamilyNames": "Noto Sans",
+      "specifiedFontCoversCodePoint": false,
+      "specifiedFontGlyphIndex": null,
+      "specifiedFontGlyphAdvanceEm": null,
+      "specifiedFontGlyphAdvanceDip": null,
+      "specifiedFontNotdefAdvanceEm": 0.6,
+      "specifiedFontNotdefAdvanceDip": 14.4,
+      "measuredAdvanceDip": 14.4,
+      "measuredLineWidthDip": 14.4,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": false,
+      "advanceOverEmSize": 0.6,
+      "advanceEqualsSpecifiedNotdefAdvance": true,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/U1-SHAPING/FONTS/NOTOSANS-REGULAR.TTF",
+      "observedFontFamilyNames": "Noto Sans",
+      "observedGlyphIndex": 0,
+      "observedGlyphIsNotdef": true,
+      "observedRunAdvanceAsReported": 14.4,
+      "observedBidiLevel": 0,
+      "fallbackToADifferentFont": false,
+      "observedFontEqualsSpecifiedFont": true,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/U1-SHAPING/FONTS/NOTOSANS-REGULAR.TTF",
+          "familyNames": "Noto Sans",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 0,
+          "glyphIndices": [
+            0
+          ],
+          "advanceWidthsAsReported": [
+            14.4
+          ],
+          "characters": "\uE000"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002BE000@list-Arial-SegoeUISymbol",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002BE000",
+      "char": "\uE000",
+      "codePointName": "PRIVATE USE (BMP)",
+      "codePointNote": "BMP private use area: expected in no font",
+      "textUtf16Length": 1,
+      "fontSettingId": "list-Arial-SegoeUISymbol",
+      "fontSettingKind": "font family LIST",
+      "fontSettingSpec": "FontFamily(\u0022Arial, Segoe UI Symbol\u0022)",
+      "fontSettingNote": "WPF FontFamily fallback list",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "specifiedFontFamilyNames": "Arial",
+      "specifiedFontCoversCodePoint": false,
+      "specifiedFontGlyphIndex": null,
+      "specifiedFontGlyphAdvanceEm": null,
+      "specifiedFontGlyphAdvanceDip": null,
+      "specifiedFontNotdefAdvanceEm": 0.75,
+      "specifiedFontNotdefAdvanceDip": 18,
+      "measuredAdvanceDip": 24,
+      "measuredLineWidthDip": 24,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": true,
+      "advanceOverEmSize": 1,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/SEGUISYM.TTF",
+      "observedFontFamilyNames": "Segoe UI Symbol",
+      "observedGlyphIndex": 4366,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 24,
+      "observedBidiLevel": 0,
+      "fallbackToADifferentFont": true,
+      "observedFontEqualsSpecifiedFont": false,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/SEGUISYM.TTF",
+          "familyNames": "Segoe UI Symbol",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 0,
+          "glyphIndices": [
+            4366
+          ],
+          "advanceWidthsAsReported": [
+            24
+          ],
+          "characters": "\uE000"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002BE000@typeface-declared-fallback-YaHei",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002BE000",
+      "char": "\uE000",
+      "codePointName": "PRIVATE USE (BMP)",
+      "codePointNote": "BMP private use area: expected in no font",
+      "textUtf16Length": 1,
+      "fontSettingId": "typeface-declared-fallback-YaHei",
+      "fontSettingKind": "Typeface with a declared fallbackFontFamily",
+      "fontSettingSpec": "Typeface(FontFamily(\u0022Arial\u0022), Normal, Normal, Normal, fallbackFontFamily: FontFamily(\u0022Microsoft YaHei\u0022))",
+      "fontSettingNote": "WPF\u0027s explicit fallback constructor argument",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "specifiedFontFamilyNames": "Arial",
+      "specifiedFontCoversCodePoint": false,
+      "specifiedFontGlyphIndex": null,
+      "specifiedFontGlyphAdvanceEm": null,
+      "specifiedFontGlyphAdvanceDip": null,
+      "specifiedFontNotdefAdvanceEm": 0.75,
+      "specifiedFontNotdefAdvanceDip": 18,
+      "measuredAdvanceDip": 18,
+      "measuredLineWidthDip": 18,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": false,
+      "advanceOverEmSize": 0.75,
+      "advanceEqualsSpecifiedNotdefAdvance": true,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "observedFontFamilyNames": "Arial",
+      "observedGlyphIndex": 0,
+      "observedGlyphIsNotdef": true,
+      "observedRunAdvanceAsReported": 18,
+      "observedBidiLevel": 0,
+      "fallbackToADifferentFont": false,
+      "observedFontEqualsSpecifiedFont": true,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+          "familyNames": "Arial",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 0,
+          "glyphIndices": [
+            0
+          ],
+          "advanceWidthsAsReported": [
+            18
+          ],
+          "characters": "\uE000"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002BE000@explicit-covering-Segoe UI Symbol",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002BE000",
+      "char": "\uE000",
+      "codePointName": "PRIVATE USE (BMP)",
+      "codePointNote": "BMP private use area: expected in no font",
+      "textUtf16Length": 1,
+      "fontSettingId": "explicit-covering-Segoe UI Symbol",
+      "fontSettingKind": "explicit family that DOES cover the code point",
+      "fontSettingSpec": "Typeface(\u0022Segoe UI Symbol\u0022)",
+      "fontSettingNote": "positive control",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/SEGUISYM.TTF",
+      "specifiedFontFamilyNames": "Segoe UI Symbol",
+      "specifiedFontCoversCodePoint": true,
+      "specifiedFontGlyphIndex": 4366,
+      "specifiedFontGlyphAdvanceEm": 1,
+      "specifiedFontGlyphAdvanceDip": 24,
+      "specifiedFontNotdefAdvanceEm": 0.645508,
+      "specifiedFontNotdefAdvanceDip": 15.492188,
+      "measuredAdvanceDip": 24,
+      "measuredLineWidthDip": 24,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": true,
+      "advanceOverEmSize": 1,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": true,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/SEGUISYM.TTF",
+      "observedFontFamilyNames": "Segoe UI Symbol",
+      "observedGlyphIndex": 4366,
+      "observedGlyphIsNotdef": false,
+      "observedRunAdvanceAsReported": 24,
+      "observedBidiLevel": 0,
+      "fallbackToADifferentFont": false,
+      "observedFontEqualsSpecifiedFont": true,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 1,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/SEGUISYM.TTF",
+          "familyNames": "Segoe UI Symbol",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 0,
+          "glyphIndices": [
+            4366
+          ],
+          "advanceWidthsAsReported": [
+            24
+          ],
+          "characters": "\uE000"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B10FFFD@single-Arial",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B10FFFD",
+      "char": "\uDBFF\uDFFD",
+      "codePointName": "PRIVATE USE (plane 16)",
+      "codePointNote": "supplementary private use area: expected in no font, and it needs a surrogate pair",
+      "textUtf16Length": 2,
+      "fontSettingId": "single-Arial",
+      "fontSettingKind": "single font family",
+      "fontSettingSpec": "Typeface(\u0022Arial\u0022)",
+      "fontSettingNote": "one Latin family, no fallback declared",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "specifiedFontFamilyNames": "Arial",
+      "specifiedFontCoversCodePoint": false,
+      "specifiedFontGlyphIndex": null,
+      "specifiedFontGlyphAdvanceEm": null,
+      "specifiedFontGlyphAdvanceDip": null,
+      "specifiedFontNotdefAdvanceEm": 0.75,
+      "specifiedFontNotdefAdvanceDip": 18,
+      "measuredAdvanceDip": 18,
+      "measuredLineWidthDip": 18,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": false,
+      "advanceOverEmSize": 0.75,
+      "advanceEqualsSpecifiedNotdefAdvance": true,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "observedFontFamilyNames": "Arial",
+      "observedGlyphIndex": 0,
+      "observedGlyphIsNotdef": true,
+      "observedRunAdvanceAsReported": 18,
+      "observedBidiLevel": 0,
+      "fallbackToADifferentFont": false,
+      "observedFontEqualsSpecifiedFont": true,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 2,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+          "familyNames": "Arial",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 0,
+          "glyphIndices": [
+            0
+          ],
+          "advanceWidthsAsReported": [
+            18
+          ],
+          "characters": "\uDBFF\uDFFD"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B10FFFD@single-TimesNewRoman",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B10FFFD",
+      "char": "\uDBFF\uDFFD",
+      "codePointName": "PRIVATE USE (plane 16)",
+      "codePointNote": "supplementary private use area: expected in no font, and it needs a surrogate pair",
+      "textUtf16Length": 2,
+      "fontSettingId": "single-TimesNewRoman",
+      "fontSettingKind": "single font family",
+      "fontSettingSpec": "Typeface(\u0022Times New Roman\u0022)",
+      "fontSettingNote": "a second Latin family, so the result does not hang on Arial alone",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/TIMES.TTF",
+      "specifiedFontFamilyNames": "Times New Roman",
+      "specifiedFontCoversCodePoint": false,
+      "specifiedFontGlyphIndex": null,
+      "specifiedFontGlyphAdvanceEm": null,
+      "specifiedFontGlyphAdvanceDip": null,
+      "specifiedFontNotdefAdvanceEm": 0.777832,
+      "specifiedFontNotdefAdvanceDip": 18.667969,
+      "measuredAdvanceDip": 18.666667,
+      "measuredLineWidthDip": 18.666667,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": false,
+      "advanceOverEmSize": 0.777778,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/TIMES.TTF",
+      "observedFontFamilyNames": "Times New Roman",
+      "observedGlyphIndex": 0,
+      "observedGlyphIsNotdef": true,
+      "observedRunAdvanceAsReported": 18.672,
+      "observedBidiLevel": 0,
+      "fallbackToADifferentFont": false,
+      "observedFontEqualsSpecifiedFont": true,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 2,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/TIMES.TTF",
+          "familyNames": "Times New Roman",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 0,
+          "glyphIndices": [
+            0
+          ],
+          "advanceWidthsAsReported": [
+            18.672
+          ],
+          "characters": "\uDBFF\uDFFD"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B10FFFD@file-NotoSans-Regular",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B10FFFD",
+      "char": "\uDBFF\uDFFD",
+      "codePointName": "PRIVATE USE (plane 16)",
+      "codePointNote": "supplementary private use area: expected in no font, and it needs a surrogate pair",
+      "textUtf16Length": 2,
+      "fontSettingId": "file-NotoSans-Regular",
+      "fontSettingKind": "FILE font family",
+      "fontSettingSpec": "FontFamily(new Uri(\u0022file:///C:/u1-shaping/fonts/\u0022), \u0022./#\u0022 \u002B \u003Cfamily name read from the ttf\u003E)",
+      "fontSettingNote": "the project\u0027s own situation: a font loaded from a file, not installed",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/U1-SHAPING/FONTS/NOTOSANS-REGULAR.TTF",
+      "specifiedFontFamilyNames": "Noto Sans",
+      "specifiedFontCoversCodePoint": false,
+      "specifiedFontGlyphIndex": null,
+      "specifiedFontGlyphAdvanceEm": null,
+      "specifiedFontGlyphAdvanceDip": null,
+      "specifiedFontNotdefAdvanceEm": 0.6,
+      "specifiedFontNotdefAdvanceDip": 14.4,
+      "measuredAdvanceDip": 14.4,
+      "measuredLineWidthDip": 14.4,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": false,
+      "advanceOverEmSize": 0.6,
+      "advanceEqualsSpecifiedNotdefAdvance": true,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/U1-SHAPING/FONTS/NOTOSANS-REGULAR.TTF",
+      "observedFontFamilyNames": "Noto Sans",
+      "observedGlyphIndex": 0,
+      "observedGlyphIsNotdef": true,
+      "observedRunAdvanceAsReported": 14.4,
+      "observedBidiLevel": 0,
+      "fallbackToADifferentFont": false,
+      "observedFontEqualsSpecifiedFont": true,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 2,
+          "glyphTypefaceFontUri": "file:///C:/U1-SHAPING/FONTS/NOTOSANS-REGULAR.TTF",
+          "familyNames": "Noto Sans",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 0,
+          "glyphIndices": [
+            0
+          ],
+          "advanceWidthsAsReported": [
+            14.4
+          ],
+          "characters": "\uDBFF\uDFFD"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B10FFFD@list-Arial-SegoeUISymbol",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B10FFFD",
+      "char": "\uDBFF\uDFFD",
+      "codePointName": "PRIVATE USE (plane 16)",
+      "codePointNote": "supplementary private use area: expected in no font, and it needs a surrogate pair",
+      "textUtf16Length": 2,
+      "fontSettingId": "list-Arial-SegoeUISymbol",
+      "fontSettingKind": "font family LIST",
+      "fontSettingSpec": "FontFamily(\u0022Arial, Segoe UI Symbol\u0022)",
+      "fontSettingNote": "WPF FontFamily fallback list",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "specifiedFontFamilyNames": "Arial",
+      "specifiedFontCoversCodePoint": false,
+      "specifiedFontGlyphIndex": null,
+      "specifiedFontGlyphAdvanceEm": null,
+      "specifiedFontGlyphAdvanceDip": null,
+      "specifiedFontNotdefAdvanceEm": 0.75,
+      "specifiedFontNotdefAdvanceDip": 18,
+      "measuredAdvanceDip": 18,
+      "measuredLineWidthDip": 18,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": false,
+      "advanceOverEmSize": 0.75,
+      "advanceEqualsSpecifiedNotdefAdvance": true,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "observedFontFamilyNames": "Arial",
+      "observedGlyphIndex": 0,
+      "observedGlyphIsNotdef": true,
+      "observedRunAdvanceAsReported": 18,
+      "observedBidiLevel": 0,
+      "fallbackToADifferentFont": false,
+      "observedFontEqualsSpecifiedFont": true,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 2,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+          "familyNames": "Arial",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 0,
+          "glyphIndices": [
+            0
+          ],
+          "advanceWidthsAsReported": [
+            18
+          ],
+          "characters": "\uDBFF\uDFFD"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B10FFFD@typeface-declared-fallback-YaHei",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B10FFFD",
+      "char": "\uDBFF\uDFFD",
+      "codePointName": "PRIVATE USE (plane 16)",
+      "codePointNote": "supplementary private use area: expected in no font, and it needs a surrogate pair",
+      "textUtf16Length": 2,
+      "fontSettingId": "typeface-declared-fallback-YaHei",
+      "fontSettingKind": "Typeface with a declared fallbackFontFamily",
+      "fontSettingSpec": "Typeface(FontFamily(\u0022Arial\u0022), Normal, Normal, Normal, fallbackFontFamily: FontFamily(\u0022Microsoft YaHei\u0022))",
+      "fontSettingNote": "WPF\u0027s explicit fallback constructor argument",
+      "fontFamilyNameCount": 1,
+      "specifiedFontResolved": true,
+      "specifiedFontResolveError": null,
+      "specifiedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "specifiedFontFamilyNames": "Arial",
+      "specifiedFontCoversCodePoint": false,
+      "specifiedFontGlyphIndex": null,
+      "specifiedFontGlyphAdvanceEm": null,
+      "specifiedFontGlyphAdvanceDip": null,
+      "specifiedFontNotdefAdvanceEm": 0.75,
+      "specifiedFontNotdefAdvanceDip": 18,
+      "measuredAdvanceDip": 18,
+      "measuredLineWidthDip": 18,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": false,
+      "advanceOverEmSize": 0.75,
+      "advanceEqualsSpecifiedNotdefAdvance": true,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "observedFontFamilyNames": "Arial",
+      "observedGlyphIndex": 0,
+      "observedGlyphIsNotdef": true,
+      "observedRunAdvanceAsReported": 18,
+      "observedBidiLevel": 0,
+      "fallbackToADifferentFont": false,
+      "observedFontEqualsSpecifiedFont": true,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 2,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+          "familyNames": "Arial",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 0,
+          "glyphIndices": [
+            0
+          ],
+          "advanceWidthsAsReported": [
+            18
+          ],
+          "characters": "\uDBFF\uDFFD"
+        }
+      ]
+    },
+    {
+      "id": "A-missing-glyph/U\u002B10FFFD@explicit-covering-NONE-FOUND",
+      "group": "A-missing-glyph",
+      "codePoint": "U\u002B10FFFD",
+      "char": "\uDBFF\uDFFD",
+      "codePointName": "PRIVATE USE (plane 16)",
+      "codePointNote": "supplementary private use area: expected in no font, and it needs a surrogate pair",
+      "textUtf16Length": 2,
+      "fontSettingId": "explicit-covering-NONE-FOUND",
+      "fontSettingKind": "explicit family that DOES cover the code point",
+      "fontSettingSpec": "no candidate family covers this code point",
+      "fontSettingNote": "no covering family was found on this machine",
+      "fontFamilyNameCount": 0,
+      "specifiedFontResolved": false,
+      "specifiedFontResolveError": "no Typeface was constructed",
+      "specifiedFontUri": null,
+      "specifiedFontFamilyNames": null,
+      "specifiedFontCoversCodePoint": null,
+      "specifiedFontGlyphIndex": null,
+      "specifiedFontGlyphAdvanceEm": null,
+      "specifiedFontGlyphAdvanceDip": null,
+      "specifiedFontNotdefAdvanceEm": null,
+      "specifiedFontNotdefAdvanceDip": null,
+      "measuredAdvanceDip": 18,
+      "measuredLineWidthDip": 18,
+      "hasOverflowed": false,
+      "measureError": null,
+      "advanceEqualsOneEm": false,
+      "advanceOverEmSize": 0.75,
+      "advanceEqualsSpecifiedNotdefAdvance": false,
+      "advanceEqualsSpecifiedOwnGlyphAdvance": false,
+      "observedFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "observedFontFamilyNames": "Arial",
+      "observedGlyphIndex": 0,
+      "observedGlyphIsNotdef": true,
+      "observedRunAdvanceAsReported": 18,
+      "observedBidiLevel": 0,
+      "fallbackToADifferentFont": false,
+      "observedFontEqualsSpecifiedFont": false,
+      "observedGlyphRuns": [
+        {
+          "textSourceCharacterIndex": 0,
+          "textSourceLength": 2,
+          "glyphTypefaceFontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+          "familyNames": "Arial",
+          "fontRenderingEmSize": 24,
+          "bidiLevel": 0,
+          "glyphIndices": [
+            0
+          ],
+          "advanceWidthsAsReported": [
+            18
+          ],
+          "characters": "\uDBFF\uDFFD"
+        }
+      ]
+    },
+    {
+      "id": "I-directional-embedding/latin-scope-ltr-para@w40@identity",
+      "group": "I-directional-embedding",
+      "docId": "latin-scope-ltr-para",
+      "note": "LTR paragraph, the modifier scope covers the Latin run \u0027abc\u0027 followed by Hebrew",
+      "embeddingMode": "identity",
+      "paragraphWidthDip": 40,
+      "modifierHasDirectionalEmbedding": false,
+      "modifierFlowDirection": "n/a (identity modifier)",
+      "flowDirection": "LeftToRight",
+      "visibleText": "abc\u05D0\u05D1\u05D2",
+      "bufferWithMarkers": "\u003COPEN\u003Eabc\u003CCLOSE\u003E\u05D0\u05D1\u05D2",
+      "lineCount": 2,
+      "lineBreakIsNull": [
+        {
+          "isNull": false,
+          "lineIndex": 0
+        },
+        {
+          "isNull": true,
+          "lineIndex": 1
+        }
+      ],
+      "lines": [
+        {
+          "index": 0,
+          "startChar": 0,
+          "endCharExclusive": 4,
+          "lineText": "\uE000abc",
+          "width": 38.693333,
+          "hasOverflowed": false,
+          "firstGlyphRunBidiLevel": 0,
+          "perChar": [
+            {
+              "i": 0,
+              "char": "\uE000",
+              "kind": "OPEN",
+              "rawX": 0,
+              "width": 0,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 1,
+              "char": "a",
+              "kind": "char",
+              "rawX": 0,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 2,
+              "char": "b",
+              "kind": "char",
+              "rawX": 13.346667,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 3,
+              "char": "c",
+              "kind": "char",
+              "rawX": 26.693333,
+              "width": 12,
+              "runFlow": "LeftToRight"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "startChar": 4,
+          "endCharExclusive": 9,
+          "lineText": "\uE001\u05D0\u05D1\u05D2",
+          "width": 36.093333,
+          "hasOverflowed": false,
+          "firstGlyphRunBidiLevel": 1,
+          "perChar": [
+            {
+              "i": 4,
+              "char": "\uE001",
+              "kind": "CLOSE",
+              "rawX": 36.09,
+              "width": 0,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 5,
+              "char": "\u05D0",
+              "kind": "char",
+              "rawX": 22.576667,
+              "width": 13.513333,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 6,
+              "char": "\u05D1",
+              "kind": "char",
+              "rawX": 9.57,
+              "width": 13.006667,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 7,
+              "char": "\u05D2",
+              "kind": "char",
+              "rawX": -0.003333,
+              "width": 9.573333,
+              "runFlow": "RightToLeft"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "I-directional-embedding/latin-scope-ltr-para@w40@ltr-embed",
+      "group": "I-directional-embedding",
+      "docId": "latin-scope-ltr-para",
+      "note": "LTR paragraph, the modifier scope covers the Latin run \u0027abc\u0027 followed by Hebrew",
+      "embeddingMode": "ltr-embed",
+      "paragraphWidthDip": 40,
+      "modifierHasDirectionalEmbedding": true,
+      "modifierFlowDirection": "LeftToRight",
+      "flowDirection": "LeftToRight",
+      "visibleText": "abc\u05D0\u05D1\u05D2",
+      "bufferWithMarkers": "\u003COPEN\u003Eabc\u003CCLOSE\u003E\u05D0\u05D1\u05D2",
+      "lineCount": 2,
+      "lineBreakIsNull": [
+        {
+          "isNull": false,
+          "lineIndex": 0
+        },
+        {
+          "isNull": true,
+          "lineIndex": 1
+        }
+      ],
+      "lines": [
+        {
+          "index": 0,
+          "startChar": 0,
+          "endCharExclusive": 4,
+          "lineText": "\uE000abc",
+          "width": 38.693333,
+          "hasOverflowed": false,
+          "firstGlyphRunBidiLevel": 0,
+          "perChar": [
+            {
+              "i": 0,
+              "char": "\uE000",
+              "kind": "OPEN",
+              "rawX": 0,
+              "width": 0,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 1,
+              "char": "a",
+              "kind": "char",
+              "rawX": 0,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 2,
+              "char": "b",
+              "kind": "char",
+              "rawX": 13.346667,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 3,
+              "char": "c",
+              "kind": "char",
+              "rawX": 26.693333,
+              "width": 12,
+              "runFlow": "LeftToRight"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "startChar": 4,
+          "endCharExclusive": 9,
+          "lineText": "\uE001\u05D0\u05D1\u05D2",
+          "width": 36.093333,
+          "hasOverflowed": false,
+          "firstGlyphRunBidiLevel": 1,
+          "perChar": [
+            {
+              "i": 4,
+              "char": "\uE001",
+              "kind": "CLOSE",
+              "rawX": 36.09,
+              "width": 0,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 5,
+              "char": "\u05D0",
+              "kind": "char",
+              "rawX": 22.576667,
+              "width": 13.513333,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 6,
+              "char": "\u05D1",
+              "kind": "char",
+              "rawX": 9.57,
+              "width": 13.006667,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 7,
+              "char": "\u05D2",
+              "kind": "char",
+              "rawX": -0.003333,
+              "width": 9.573333,
+              "runFlow": "RightToLeft"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "I-directional-embedding/latin-scope-ltr-para@w40@rtl-embed",
+      "group": "I-directional-embedding",
+      "docId": "latin-scope-ltr-para",
+      "note": "LTR paragraph, the modifier scope covers the Latin run \u0027abc\u0027 followed by Hebrew",
+      "embeddingMode": "rtl-embed",
+      "paragraphWidthDip": 40,
+      "modifierHasDirectionalEmbedding": true,
+      "modifierFlowDirection": "RightToLeft",
+      "flowDirection": "LeftToRight",
+      "visibleText": "abc\u05D0\u05D1\u05D2",
+      "bufferWithMarkers": "\u003COPEN\u003Eabc\u003CCLOSE\u003E\u05D0\u05D1\u05D2",
+      "lineCount": 2,
+      "lineBreakIsNull": [
+        {
+          "isNull": false,
+          "lineIndex": 0
+        },
+        {
+          "isNull": true,
+          "lineIndex": 1
+        }
+      ],
+      "lines": [
+        {
+          "index": 0,
+          "startChar": 0,
+          "endCharExclusive": 4,
+          "lineText": "\uE000abc",
+          "width": 38.693333,
+          "hasOverflowed": false,
+          "firstGlyphRunBidiLevel": 0,
+          "perChar": [
+            {
+              "i": 0,
+              "char": "\uE000",
+              "kind": "OPEN",
+              "rawX": 0,
+              "width": 0,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 1,
+              "char": "a",
+              "kind": "char",
+              "rawX": 0,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 2,
+              "char": "b",
+              "kind": "char",
+              "rawX": 13.346667,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 3,
+              "char": "c",
+              "kind": "char",
+              "rawX": 26.693333,
+              "width": 12,
+              "runFlow": "LeftToRight"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "startChar": 4,
+          "endCharExclusive": 9,
+          "lineText": "\uE001\u05D0\u05D1\u05D2",
+          "width": 36.093333,
+          "hasOverflowed": false,
+          "firstGlyphRunBidiLevel": 1,
+          "perChar": [
+            {
+              "i": 4,
+              "char": "\uE001",
+              "kind": "CLOSE",
+              "rawX": 36.09,
+              "width": 0,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 5,
+              "char": "\u05D0",
+              "kind": "char",
+              "rawX": 22.576667,
+              "width": 13.513333,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 6,
+              "char": "\u05D1",
+              "kind": "char",
+              "rawX": 9.57,
+              "width": 13.006667,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 7,
+              "char": "\u05D2",
+              "kind": "char",
+              "rawX": -0.003333,
+              "width": 9.573333,
+              "runFlow": "RightToLeft"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "I-directional-embedding/latin-scope-ltr-para@w140@identity",
+      "group": "I-directional-embedding",
+      "docId": "latin-scope-ltr-para",
+      "note": "LTR paragraph, the modifier scope covers the Latin run \u0027abc\u0027 followed by Hebrew",
+      "embeddingMode": "identity",
+      "paragraphWidthDip": 140,
+      "modifierHasDirectionalEmbedding": false,
+      "modifierFlowDirection": "n/a (identity modifier)",
+      "flowDirection": "LeftToRight",
+      "visibleText": "abc\u05D0\u05D1\u05D2",
+      "bufferWithMarkers": "\u003COPEN\u003Eabc\u003CCLOSE\u003E\u05D0\u05D1\u05D2",
+      "lineCount": 1,
+      "lineBreakIsNull": [
+        {
+          "isNull": true,
+          "lineIndex": 0
+        }
+      ],
+      "lines": [
+        {
+          "index": 0,
+          "startChar": 0,
+          "endCharExclusive": 9,
+          "lineText": "\uE000abc\uE001\u05D0\u05D1\u05D2",
+          "width": 74.786667,
+          "hasOverflowed": false,
+          "firstGlyphRunBidiLevel": 0,
+          "perChar": [
+            {
+              "i": 0,
+              "char": "\uE000",
+              "kind": "OPEN",
+              "rawX": 0,
+              "width": 0,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 1,
+              "char": "a",
+              "kind": "char",
+              "rawX": 0,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 2,
+              "char": "b",
+              "kind": "char",
+              "rawX": 13.346667,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 3,
+              "char": "c",
+              "kind": "char",
+              "rawX": 26.693333,
+              "width": 12,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 4,
+              "char": "\uE001",
+              "kind": "CLOSE",
+              "rawX": 38.693333,
+              "width": 0,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 5,
+              "char": "\u05D0",
+              "kind": "char",
+              "rawX": 61.27,
+              "width": 13.513333,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 6,
+              "char": "\u05D1",
+              "kind": "char",
+              "rawX": 48.263333,
+              "width": 13.006667,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 7,
+              "char": "\u05D2",
+              "kind": "char",
+              "rawX": 38.69,
+              "width": 9.573333,
+              "runFlow": "RightToLeft"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "I-directional-embedding/latin-scope-ltr-para@w140@ltr-embed",
+      "group": "I-directional-embedding",
+      "docId": "latin-scope-ltr-para",
+      "note": "LTR paragraph, the modifier scope covers the Latin run \u0027abc\u0027 followed by Hebrew",
+      "embeddingMode": "ltr-embed",
+      "paragraphWidthDip": 140,
+      "modifierHasDirectionalEmbedding": true,
+      "modifierFlowDirection": "LeftToRight",
+      "flowDirection": "LeftToRight",
+      "visibleText": "abc\u05D0\u05D1\u05D2",
+      "bufferWithMarkers": "\u003COPEN\u003Eabc\u003CCLOSE\u003E\u05D0\u05D1\u05D2",
+      "lineCount": 1,
+      "lineBreakIsNull": [
+        {
+          "isNull": true,
+          "lineIndex": 0
+        }
+      ],
+      "lines": [
+        {
+          "index": 0,
+          "startChar": 0,
+          "endCharExclusive": 9,
+          "lineText": "\uE000abc\uE001\u05D0\u05D1\u05D2",
+          "width": 74.786667,
+          "hasOverflowed": false,
+          "firstGlyphRunBidiLevel": 0,
+          "perChar": [
+            {
+              "i": 0,
+              "char": "\uE000",
+              "kind": "OPEN",
+              "rawX": 0,
+              "width": 0,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 1,
+              "char": "a",
+              "kind": "char",
+              "rawX": 0,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 2,
+              "char": "b",
+              "kind": "char",
+              "rawX": 13.346667,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 3,
+              "char": "c",
+              "kind": "char",
+              "rawX": 26.693333,
+              "width": 12,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 4,
+              "char": "\uE001",
+              "kind": "CLOSE",
+              "rawX": 38.693333,
+              "width": 0,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 5,
+              "char": "\u05D0",
+              "kind": "char",
+              "rawX": 61.27,
+              "width": 13.513333,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 6,
+              "char": "\u05D1",
+              "kind": "char",
+              "rawX": 48.263333,
+              "width": 13.006667,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 7,
+              "char": "\u05D2",
+              "kind": "char",
+              "rawX": 38.69,
+              "width": 9.573333,
+              "runFlow": "RightToLeft"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "I-directional-embedding/latin-scope-ltr-para@w140@rtl-embed",
+      "group": "I-directional-embedding",
+      "docId": "latin-scope-ltr-para",
+      "note": "LTR paragraph, the modifier scope covers the Latin run \u0027abc\u0027 followed by Hebrew",
+      "embeddingMode": "rtl-embed",
+      "paragraphWidthDip": 140,
+      "modifierHasDirectionalEmbedding": true,
+      "modifierFlowDirection": "RightToLeft",
+      "flowDirection": "LeftToRight",
+      "visibleText": "abc\u05D0\u05D1\u05D2",
+      "bufferWithMarkers": "\u003COPEN\u003Eabc\u003CCLOSE\u003E\u05D0\u05D1\u05D2",
+      "lineCount": 1,
+      "lineBreakIsNull": [
+        {
+          "isNull": true,
+          "lineIndex": 0
+        }
+      ],
+      "lines": [
+        {
+          "index": 0,
+          "startChar": 0,
+          "endCharExclusive": 9,
+          "lineText": "\uE000abc\uE001\u05D0\u05D1\u05D2",
+          "width": 74.786667,
+          "hasOverflowed": false,
+          "firstGlyphRunBidiLevel": 0,
+          "perChar": [
+            {
+              "i": 0,
+              "char": "\uE000",
+              "kind": "OPEN",
+              "rawX": 0,
+              "width": 0,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 1,
+              "char": "a",
+              "kind": "char",
+              "rawX": 0,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 2,
+              "char": "b",
+              "kind": "char",
+              "rawX": 13.346667,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 3,
+              "char": "c",
+              "kind": "char",
+              "rawX": 26.693333,
+              "width": 12,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 4,
+              "char": "\uE001",
+              "kind": "CLOSE",
+              "rawX": 38.693333,
+              "width": 0,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 5,
+              "char": "\u05D0",
+              "kind": "char",
+              "rawX": 61.27,
+              "width": 13.513333,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 6,
+              "char": "\u05D1",
+              "kind": "char",
+              "rawX": 48.263333,
+              "width": 13.006667,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 7,
+              "char": "\u05D2",
+              "kind": "char",
+              "rawX": 38.69,
+              "width": 9.573333,
+              "runFlow": "RightToLeft"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "I-directional-embedding/hebrew-scope-ltr-para@w40@identity",
+      "group": "I-directional-embedding",
+      "docId": "hebrew-scope-ltr-para",
+      "note": "LTR paragraph, the modifier scope covers the Hebrew run followed by Latin",
+      "embeddingMode": "identity",
+      "paragraphWidthDip": 40,
+      "modifierHasDirectionalEmbedding": false,
+      "modifierFlowDirection": "n/a (identity modifier)",
+      "flowDirection": "LeftToRight",
+      "visibleText": "\u05D0\u05D1\u05D2abc",
+      "bufferWithMarkers": "\u003COPEN\u003E\u05D0\u05D1\u05D2\u003CCLOSE\u003Eabc",
+      "lineCount": 2,
+      "lineBreakIsNull": [
+        {
+          "isNull": false,
+          "lineIndex": 0
+        },
+        {
+          "isNull": true,
+          "lineIndex": 1
+        }
+      ],
+      "lines": [
+        {
+          "index": 0,
+          "startChar": 0,
+          "endCharExclusive": 4,
+          "lineText": "\uE000\u05D0\u05D1\u05D2",
+          "width": 36.093333,
+          "hasOverflowed": false,
+          "firstGlyphRunBidiLevel": 1,
+          "perChar": [
+            {
+              "i": 0,
+              "char": "\uE000",
+              "kind": "OPEN",
+              "rawX": 36.09,
+              "width": 0,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 1,
+              "char": "\u05D0",
+              "kind": "char",
+              "rawX": 22.576667,
+              "width": 13.513333,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 2,
+              "char": "\u05D1",
+              "kind": "char",
+              "rawX": 9.57,
+              "width": 13.006667,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 3,
+              "char": "\u05D2",
+              "kind": "char",
+              "rawX": -0.003333,
+              "width": 9.573333,
+              "runFlow": "RightToLeft"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "startChar": 4,
+          "endCharExclusive": 9,
+          "lineText": "\uE001abc",
+          "width": 38.693333,
+          "hasOverflowed": false,
+          "firstGlyphRunBidiLevel": 0,
+          "perChar": [
+            {
+              "i": 4,
+              "char": "\uE001",
+              "kind": "CLOSE",
+              "rawX": 0,
+              "width": 0,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 5,
+              "char": "a",
+              "kind": "char",
+              "rawX": 0,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 6,
+              "char": "b",
+              "kind": "char",
+              "rawX": 13.346667,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 7,
+              "char": "c",
+              "kind": "char",
+              "rawX": 26.693333,
+              "width": 12,
+              "runFlow": "LeftToRight"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "I-directional-embedding/hebrew-scope-ltr-para@w40@ltr-embed",
+      "group": "I-directional-embedding",
+      "docId": "hebrew-scope-ltr-para",
+      "note": "LTR paragraph, the modifier scope covers the Hebrew run followed by Latin",
+      "embeddingMode": "ltr-embed",
+      "paragraphWidthDip": 40,
+      "modifierHasDirectionalEmbedding": true,
+      "modifierFlowDirection": "LeftToRight",
+      "flowDirection": "LeftToRight",
+      "visibleText": "\u05D0\u05D1\u05D2abc",
+      "bufferWithMarkers": "\u003COPEN\u003E\u05D0\u05D1\u05D2\u003CCLOSE\u003Eabc",
+      "lineCount": 2,
+      "lineBreakIsNull": [
+        {
+          "isNull": false,
+          "lineIndex": 0
+        },
+        {
+          "isNull": true,
+          "lineIndex": 1
+        }
+      ],
+      "lines": [
+        {
+          "index": 0,
+          "startChar": 0,
+          "endCharExclusive": 4,
+          "lineText": "\uE000\u05D0\u05D1\u05D2",
+          "width": 36.093333,
+          "hasOverflowed": false,
+          "firstGlyphRunBidiLevel": 1,
+          "perChar": [
+            {
+              "i": 0,
+              "char": "\uE000",
+              "kind": "OPEN",
+              "rawX": 36.09,
+              "width": 0,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 1,
+              "char": "\u05D0",
+              "kind": "char",
+              "rawX": 22.576667,
+              "width": 13.513333,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 2,
+              "char": "\u05D1",
+              "kind": "char",
+              "rawX": 9.57,
+              "width": 13.006667,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 3,
+              "char": "\u05D2",
+              "kind": "char",
+              "rawX": -0.003333,
+              "width": 9.573333,
+              "runFlow": "RightToLeft"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "startChar": 4,
+          "endCharExclusive": 9,
+          "lineText": "\uE001abc",
+          "width": 38.693333,
+          "hasOverflowed": false,
+          "firstGlyphRunBidiLevel": 0,
+          "perChar": [
+            {
+              "i": 4,
+              "char": "\uE001",
+              "kind": "CLOSE",
+              "rawX": 0,
+              "width": 0,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 5,
+              "char": "a",
+              "kind": "char",
+              "rawX": 0,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 6,
+              "char": "b",
+              "kind": "char",
+              "rawX": 13.346667,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 7,
+              "char": "c",
+              "kind": "char",
+              "rawX": 26.693333,
+              "width": 12,
+              "runFlow": "LeftToRight"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "I-directional-embedding/hebrew-scope-ltr-para@w40@rtl-embed",
+      "group": "I-directional-embedding",
+      "docId": "hebrew-scope-ltr-para",
+      "note": "LTR paragraph, the modifier scope covers the Hebrew run followed by Latin",
+      "embeddingMode": "rtl-embed",
+      "paragraphWidthDip": 40,
+      "modifierHasDirectionalEmbedding": true,
+      "modifierFlowDirection": "RightToLeft",
+      "flowDirection": "LeftToRight",
+      "visibleText": "\u05D0\u05D1\u05D2abc",
+      "bufferWithMarkers": "\u003COPEN\u003E\u05D0\u05D1\u05D2\u003CCLOSE\u003Eabc",
+      "lineCount": 2,
+      "lineBreakIsNull": [
+        {
+          "isNull": false,
+          "lineIndex": 0
+        },
+        {
+          "isNull": true,
+          "lineIndex": 1
+        }
+      ],
+      "lines": [
+        {
+          "index": 0,
+          "startChar": 0,
+          "endCharExclusive": 4,
+          "lineText": "\uE000\u05D0\u05D1\u05D2",
+          "width": 36.093333,
+          "hasOverflowed": false,
+          "firstGlyphRunBidiLevel": 1,
+          "perChar": [
+            {
+              "i": 0,
+              "char": "\uE000",
+              "kind": "OPEN",
+              "rawX": 36.09,
+              "width": 0,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 1,
+              "char": "\u05D0",
+              "kind": "char",
+              "rawX": 22.576667,
+              "width": 13.513333,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 2,
+              "char": "\u05D1",
+              "kind": "char",
+              "rawX": 9.57,
+              "width": 13.006667,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 3,
+              "char": "\u05D2",
+              "kind": "char",
+              "rawX": -0.003333,
+              "width": 9.573333,
+              "runFlow": "RightToLeft"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "startChar": 4,
+          "endCharExclusive": 9,
+          "lineText": "\uE001abc",
+          "width": 38.693333,
+          "hasOverflowed": false,
+          "firstGlyphRunBidiLevel": 0,
+          "perChar": [
+            {
+              "i": 4,
+              "char": "\uE001",
+              "kind": "CLOSE",
+              "rawX": 0,
+              "width": 0,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 5,
+              "char": "a",
+              "kind": "char",
+              "rawX": 0,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 6,
+              "char": "b",
+              "kind": "char",
+              "rawX": 13.346667,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 7,
+              "char": "c",
+              "kind": "char",
+              "rawX": 26.693333,
+              "width": 12,
+              "runFlow": "LeftToRight"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "I-directional-embedding/hebrew-scope-ltr-para@w140@identity",
+      "group": "I-directional-embedding",
+      "docId": "hebrew-scope-ltr-para",
+      "note": "LTR paragraph, the modifier scope covers the Hebrew run followed by Latin",
+      "embeddingMode": "identity",
+      "paragraphWidthDip": 140,
+      "modifierHasDirectionalEmbedding": false,
+      "modifierFlowDirection": "n/a (identity modifier)",
+      "flowDirection": "LeftToRight",
+      "visibleText": "\u05D0\u05D1\u05D2abc",
+      "bufferWithMarkers": "\u003COPEN\u003E\u05D0\u05D1\u05D2\u003CCLOSE\u003Eabc",
+      "lineCount": 1,
+      "lineBreakIsNull": [
+        {
+          "isNull": true,
+          "lineIndex": 0
+        }
+      ],
+      "lines": [
+        {
+          "index": 0,
+          "startChar": 0,
+          "endCharExclusive": 9,
+          "lineText": "\uE000\u05D0\u05D1\u05D2\uE001abc",
+          "width": 74.786667,
+          "hasOverflowed": false,
+          "firstGlyphRunBidiLevel": 1,
+          "perChar": [
+            {
+              "i": 0,
+              "char": "\uE000",
+              "kind": "OPEN",
+              "rawX": 36.09,
+              "width": 0,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 1,
+              "char": "\u05D0",
+              "kind": "char",
+              "rawX": 22.576667,
+              "width": 13.513333,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 2,
+              "char": "\u05D1",
+              "kind": "char",
+              "rawX": 9.57,
+              "width": 13.006667,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 3,
+              "char": "\u05D2",
+              "kind": "char",
+              "rawX": -0.003333,
+              "width": 9.573333,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 4,
+              "char": "\uE001",
+              "kind": "CLOSE",
+              "rawX": -0.003333,
+              "width": 0,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 5,
+              "char": "a",
+              "kind": "char",
+              "rawX": 36.093333,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 6,
+              "char": "b",
+              "kind": "char",
+              "rawX": 49.44,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 7,
+              "char": "c",
+              "kind": "char",
+              "rawX": 62.786667,
+              "width": 12,
+              "runFlow": "LeftToRight"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "I-directional-embedding/hebrew-scope-ltr-para@w140@ltr-embed",
+      "group": "I-directional-embedding",
+      "docId": "hebrew-scope-ltr-para",
+      "note": "LTR paragraph, the modifier scope covers the Hebrew run followed by Latin",
+      "embeddingMode": "ltr-embed",
+      "paragraphWidthDip": 140,
+      "modifierHasDirectionalEmbedding": true,
+      "modifierFlowDirection": "LeftToRight",
+      "flowDirection": "LeftToRight",
+      "visibleText": "\u05D0\u05D1\u05D2abc",
+      "bufferWithMarkers": "\u003COPEN\u003E\u05D0\u05D1\u05D2\u003CCLOSE\u003Eabc",
+      "lineCount": 1,
+      "lineBreakIsNull": [
+        {
+          "isNull": true,
+          "lineIndex": 0
+        }
+      ],
+      "lines": [
+        {
+          "index": 0,
+          "startChar": 0,
+          "endCharExclusive": 9,
+          "lineText": "\uE000\u05D0\u05D1\u05D2\uE001abc",
+          "width": 74.786667,
+          "hasOverflowed": false,
+          "firstGlyphRunBidiLevel": 1,
+          "perChar": [
+            {
+              "i": 0,
+              "char": "\uE000",
+              "kind": "OPEN",
+              "rawX": 36.09,
+              "width": 0,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 1,
+              "char": "\u05D0",
+              "kind": "char",
+              "rawX": 22.576667,
+              "width": 13.513333,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 2,
+              "char": "\u05D1",
+              "kind": "char",
+              "rawX": 9.57,
+              "width": 13.006667,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 3,
+              "char": "\u05D2",
+              "kind": "char",
+              "rawX": -0.003333,
+              "width": 9.573333,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 4,
+              "char": "\uE001",
+              "kind": "CLOSE",
+              "rawX": -0.003333,
+              "width": 0,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 5,
+              "char": "a",
+              "kind": "char",
+              "rawX": 36.093333,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 6,
+              "char": "b",
+              "kind": "char",
+              "rawX": 49.44,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 7,
+              "char": "c",
+              "kind": "char",
+              "rawX": 62.786667,
+              "width": 12,
+              "runFlow": "LeftToRight"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "I-directional-embedding/hebrew-scope-ltr-para@w140@rtl-embed",
+      "group": "I-directional-embedding",
+      "docId": "hebrew-scope-ltr-para",
+      "note": "LTR paragraph, the modifier scope covers the Hebrew run followed by Latin",
+      "embeddingMode": "rtl-embed",
+      "paragraphWidthDip": 140,
+      "modifierHasDirectionalEmbedding": true,
+      "modifierFlowDirection": "RightToLeft",
+      "flowDirection": "LeftToRight",
+      "visibleText": "\u05D0\u05D1\u05D2abc",
+      "bufferWithMarkers": "\u003COPEN\u003E\u05D0\u05D1\u05D2\u003CCLOSE\u003Eabc",
+      "lineCount": 1,
+      "lineBreakIsNull": [
+        {
+          "isNull": true,
+          "lineIndex": 0
+        }
+      ],
+      "lines": [
+        {
+          "index": 0,
+          "startChar": 0,
+          "endCharExclusive": 9,
+          "lineText": "\uE000\u05D0\u05D1\u05D2\uE001abc",
+          "width": 74.786667,
+          "hasOverflowed": false,
+          "firstGlyphRunBidiLevel": 1,
+          "perChar": [
+            {
+              "i": 0,
+              "char": "\uE000",
+              "kind": "OPEN",
+              "rawX": 36.09,
+              "width": 0,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 1,
+              "char": "\u05D0",
+              "kind": "char",
+              "rawX": 22.576667,
+              "width": 13.513333,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 2,
+              "char": "\u05D1",
+              "kind": "char",
+              "rawX": 9.57,
+              "width": 13.006667,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 3,
+              "char": "\u05D2",
+              "kind": "char",
+              "rawX": -0.003333,
+              "width": 9.573333,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 4,
+              "char": "\uE001",
+              "kind": "CLOSE",
+              "rawX": -0.003333,
+              "width": 0,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 5,
+              "char": "a",
+              "kind": "char",
+              "rawX": 36.093333,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 6,
+              "char": "b",
+              "kind": "char",
+              "rawX": 49.44,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 7,
+              "char": "c",
+              "kind": "char",
+              "rawX": 62.786667,
+              "width": 12,
+              "runFlow": "LeftToRight"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "I-directional-embedding/hebrew-scope-rtl-para@w40@identity",
+      "group": "I-directional-embedding",
+      "docId": "hebrew-scope-rtl-para",
+      "note": "RTL paragraph, the modifier scope covers the Hebrew run followed by Latin",
+      "embeddingMode": "identity",
+      "paragraphWidthDip": 40,
+      "modifierHasDirectionalEmbedding": false,
+      "modifierFlowDirection": "n/a (identity modifier)",
+      "flowDirection": "RightToLeft",
+      "visibleText": "\u05D0\u05D1\u05D2abc",
+      "bufferWithMarkers": "\u003COPEN\u003E\u05D0\u05D1\u05D2\u003CCLOSE\u003Eabc",
+      "lineCount": 2,
+      "lineBreakIsNull": [
+        {
+          "isNull": false,
+          "lineIndex": 0
+        },
+        {
+          "isNull": true,
+          "lineIndex": 1
+        }
+      ],
+      "lines": [
+        {
+          "index": 0,
+          "startChar": 0,
+          "endCharExclusive": 4,
+          "lineText": "\uE000\u05D0\u05D1\u05D2",
+          "width": 36.093333,
+          "hasOverflowed": false,
+          "firstGlyphRunBidiLevel": 1,
+          "perChar": [
+            {
+              "i": 0,
+              "char": "\uE000",
+              "kind": "OPEN",
+              "rawX": 0,
+              "width": 0,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 1,
+              "char": "\u05D0",
+              "kind": "char",
+              "rawX": 0,
+              "width": 13.513333,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 2,
+              "char": "\u05D1",
+              "kind": "char",
+              "rawX": 13.513333,
+              "width": 13.006667,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 3,
+              "char": "\u05D2",
+              "kind": "char",
+              "rawX": 26.52,
+              "width": 9.573333,
+              "runFlow": "RightToLeft"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "startChar": 4,
+          "endCharExclusive": 9,
+          "lineText": "\uE001abc",
+          "width": 38.693333,
+          "hasOverflowed": false,
+          "firstGlyphRunBidiLevel": 0,
+          "perChar": [
+            {
+              "i": 4,
+              "char": "\uE001",
+              "kind": "CLOSE",
+              "rawX": 38.69,
+              "width": 0,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 5,
+              "char": "a",
+              "kind": "char",
+              "rawX": 25.343333,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 6,
+              "char": "b",
+              "kind": "char",
+              "rawX": 11.996667,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 7,
+              "char": "c",
+              "kind": "char",
+              "rawX": -0.003333,
+              "width": 12,
+              "runFlow": "LeftToRight"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "I-directional-embedding/hebrew-scope-rtl-para@w40@ltr-embed",
+      "group": "I-directional-embedding",
+      "docId": "hebrew-scope-rtl-para",
+      "note": "RTL paragraph, the modifier scope covers the Hebrew run followed by Latin",
+      "embeddingMode": "ltr-embed",
+      "paragraphWidthDip": 40,
+      "modifierHasDirectionalEmbedding": true,
+      "modifierFlowDirection": "LeftToRight",
+      "flowDirection": "RightToLeft",
+      "visibleText": "\u05D0\u05D1\u05D2abc",
+      "bufferWithMarkers": "\u003COPEN\u003E\u05D0\u05D1\u05D2\u003CCLOSE\u003Eabc",
+      "lineCount": 2,
+      "lineBreakIsNull": [
+        {
+          "isNull": false,
+          "lineIndex": 0
+        },
+        {
+          "isNull": true,
+          "lineIndex": 1
+        }
+      ],
+      "lines": [
+        {
+          "index": 0,
+          "startChar": 0,
+          "endCharExclusive": 4,
+          "lineText": "\uE000\u05D0\u05D1\u05D2",
+          "width": 36.093333,
+          "hasOverflowed": false,
+          "firstGlyphRunBidiLevel": 1,
+          "perChar": [
+            {
+              "i": 0,
+              "char": "\uE000",
+              "kind": "OPEN",
+              "rawX": 0,
+              "width": 0,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 1,
+              "char": "\u05D0",
+              "kind": "char",
+              "rawX": 0,
+              "width": 13.513333,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 2,
+              "char": "\u05D1",
+              "kind": "char",
+              "rawX": 13.513333,
+              "width": 13.006667,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 3,
+              "char": "\u05D2",
+              "kind": "char",
+              "rawX": 26.52,
+              "width": 9.573333,
+              "runFlow": "RightToLeft"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "startChar": 4,
+          "endCharExclusive": 9,
+          "lineText": "\uE001abc",
+          "width": 38.693333,
+          "hasOverflowed": false,
+          "firstGlyphRunBidiLevel": 0,
+          "perChar": [
+            {
+              "i": 4,
+              "char": "\uE001",
+              "kind": "CLOSE",
+              "rawX": 38.69,
+              "width": 0,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 5,
+              "char": "a",
+              "kind": "char",
+              "rawX": 25.343333,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 6,
+              "char": "b",
+              "kind": "char",
+              "rawX": 11.996667,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 7,
+              "char": "c",
+              "kind": "char",
+              "rawX": -0.003333,
+              "width": 12,
+              "runFlow": "LeftToRight"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "I-directional-embedding/hebrew-scope-rtl-para@w40@rtl-embed",
+      "group": "I-directional-embedding",
+      "docId": "hebrew-scope-rtl-para",
+      "note": "RTL paragraph, the modifier scope covers the Hebrew run followed by Latin",
+      "embeddingMode": "rtl-embed",
+      "paragraphWidthDip": 40,
+      "modifierHasDirectionalEmbedding": true,
+      "modifierFlowDirection": "RightToLeft",
+      "flowDirection": "RightToLeft",
+      "visibleText": "\u05D0\u05D1\u05D2abc",
+      "bufferWithMarkers": "\u003COPEN\u003E\u05D0\u05D1\u05D2\u003CCLOSE\u003Eabc",
+      "lineCount": 2,
+      "lineBreakIsNull": [
+        {
+          "isNull": false,
+          "lineIndex": 0
+        },
+        {
+          "isNull": true,
+          "lineIndex": 1
+        }
+      ],
+      "lines": [
+        {
+          "index": 0,
+          "startChar": 0,
+          "endCharExclusive": 4,
+          "lineText": "\uE000\u05D0\u05D1\u05D2",
+          "width": 36.093333,
+          "hasOverflowed": false,
+          "firstGlyphRunBidiLevel": 1,
+          "perChar": [
+            {
+              "i": 0,
+              "char": "\uE000",
+              "kind": "OPEN",
+              "rawX": 0,
+              "width": 0,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 1,
+              "char": "\u05D0",
+              "kind": "char",
+              "rawX": 0,
+              "width": 13.513333,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 2,
+              "char": "\u05D1",
+              "kind": "char",
+              "rawX": 13.513333,
+              "width": 13.006667,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 3,
+              "char": "\u05D2",
+              "kind": "char",
+              "rawX": 26.52,
+              "width": 9.573333,
+              "runFlow": "RightToLeft"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "startChar": 4,
+          "endCharExclusive": 9,
+          "lineText": "\uE001abc",
+          "width": 38.693333,
+          "hasOverflowed": false,
+          "firstGlyphRunBidiLevel": 0,
+          "perChar": [
+            {
+              "i": 4,
+              "char": "\uE001",
+              "kind": "CLOSE",
+              "rawX": 38.69,
+              "width": 0,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 5,
+              "char": "a",
+              "kind": "char",
+              "rawX": 25.343333,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 6,
+              "char": "b",
+              "kind": "char",
+              "rawX": 11.996667,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 7,
+              "char": "c",
+              "kind": "char",
+              "rawX": -0.003333,
+              "width": 12,
+              "runFlow": "LeftToRight"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "I-directional-embedding/hebrew-scope-rtl-para@w140@identity",
+      "group": "I-directional-embedding",
+      "docId": "hebrew-scope-rtl-para",
+      "note": "RTL paragraph, the modifier scope covers the Hebrew run followed by Latin",
+      "embeddingMode": "identity",
+      "paragraphWidthDip": 140,
+      "modifierHasDirectionalEmbedding": false,
+      "modifierFlowDirection": "n/a (identity modifier)",
+      "flowDirection": "RightToLeft",
+      "visibleText": "\u05D0\u05D1\u05D2abc",
+      "bufferWithMarkers": "\u003COPEN\u003E\u05D0\u05D1\u05D2\u003CCLOSE\u003Eabc",
+      "lineCount": 1,
+      "lineBreakIsNull": [
+        {
+          "isNull": true,
+          "lineIndex": 0
+        }
+      ],
+      "lines": [
+        {
+          "index": 0,
+          "startChar": 0,
+          "endCharExclusive": 9,
+          "lineText": "\uE000\u05D0\u05D1\u05D2\uE001abc",
+          "width": 74.786667,
+          "hasOverflowed": false,
+          "firstGlyphRunBidiLevel": 1,
+          "perChar": [
+            {
+              "i": 0,
+              "char": "\uE000",
+              "kind": "OPEN",
+              "rawX": 0,
+              "width": 0,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 1,
+              "char": "\u05D0",
+              "kind": "char",
+              "rawX": 0,
+              "width": 13.513333,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 2,
+              "char": "\u05D1",
+              "kind": "char",
+              "rawX": 13.513333,
+              "width": 13.006667,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 3,
+              "char": "\u05D2",
+              "kind": "char",
+              "rawX": 26.52,
+              "width": 9.573333,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 4,
+              "char": "\uE001",
+              "kind": "CLOSE",
+              "rawX": 36.093333,
+              "width": 0,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 5,
+              "char": "a",
+              "kind": "char",
+              "rawX": 61.436667,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 6,
+              "char": "b",
+              "kind": "char",
+              "rawX": 48.09,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 7,
+              "char": "c",
+              "kind": "char",
+              "rawX": 36.09,
+              "width": 12,
+              "runFlow": "LeftToRight"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "I-directional-embedding/hebrew-scope-rtl-para@w140@ltr-embed",
+      "group": "I-directional-embedding",
+      "docId": "hebrew-scope-rtl-para",
+      "note": "RTL paragraph, the modifier scope covers the Hebrew run followed by Latin",
+      "embeddingMode": "ltr-embed",
+      "paragraphWidthDip": 140,
+      "modifierHasDirectionalEmbedding": true,
+      "modifierFlowDirection": "LeftToRight",
+      "flowDirection": "RightToLeft",
+      "visibleText": "\u05D0\u05D1\u05D2abc",
+      "bufferWithMarkers": "\u003COPEN\u003E\u05D0\u05D1\u05D2\u003CCLOSE\u003Eabc",
+      "lineCount": 1,
+      "lineBreakIsNull": [
+        {
+          "isNull": true,
+          "lineIndex": 0
+        }
+      ],
+      "lines": [
+        {
+          "index": 0,
+          "startChar": 0,
+          "endCharExclusive": 9,
+          "lineText": "\uE000\u05D0\u05D1\u05D2\uE001abc",
+          "width": 74.786667,
+          "hasOverflowed": false,
+          "firstGlyphRunBidiLevel": 1,
+          "perChar": [
+            {
+              "i": 0,
+              "char": "\uE000",
+              "kind": "OPEN",
+              "rawX": 0,
+              "width": 0,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 1,
+              "char": "\u05D0",
+              "kind": "char",
+              "rawX": 0,
+              "width": 13.513333,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 2,
+              "char": "\u05D1",
+              "kind": "char",
+              "rawX": 13.513333,
+              "width": 13.006667,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 3,
+              "char": "\u05D2",
+              "kind": "char",
+              "rawX": 26.52,
+              "width": 9.573333,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 4,
+              "char": "\uE001",
+              "kind": "CLOSE",
+              "rawX": 36.093333,
+              "width": 0,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 5,
+              "char": "a",
+              "kind": "char",
+              "rawX": 61.436667,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 6,
+              "char": "b",
+              "kind": "char",
+              "rawX": 48.09,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 7,
+              "char": "c",
+              "kind": "char",
+              "rawX": 36.09,
+              "width": 12,
+              "runFlow": "LeftToRight"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "I-directional-embedding/hebrew-scope-rtl-para@w140@rtl-embed",
+      "group": "I-directional-embedding",
+      "docId": "hebrew-scope-rtl-para",
+      "note": "RTL paragraph, the modifier scope covers the Hebrew run followed by Latin",
+      "embeddingMode": "rtl-embed",
+      "paragraphWidthDip": 140,
+      "modifierHasDirectionalEmbedding": true,
+      "modifierFlowDirection": "RightToLeft",
+      "flowDirection": "RightToLeft",
+      "visibleText": "\u05D0\u05D1\u05D2abc",
+      "bufferWithMarkers": "\u003COPEN\u003E\u05D0\u05D1\u05D2\u003CCLOSE\u003Eabc",
+      "lineCount": 1,
+      "lineBreakIsNull": [
+        {
+          "isNull": true,
+          "lineIndex": 0
+        }
+      ],
+      "lines": [
+        {
+          "index": 0,
+          "startChar": 0,
+          "endCharExclusive": 9,
+          "lineText": "\uE000\u05D0\u05D1\u05D2\uE001abc",
+          "width": 74.786667,
+          "hasOverflowed": false,
+          "firstGlyphRunBidiLevel": 1,
+          "perChar": [
+            {
+              "i": 0,
+              "char": "\uE000",
+              "kind": "OPEN",
+              "rawX": 0,
+              "width": 0,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 1,
+              "char": "\u05D0",
+              "kind": "char",
+              "rawX": 0,
+              "width": 13.513333,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 2,
+              "char": "\u05D1",
+              "kind": "char",
+              "rawX": 13.513333,
+              "width": 13.006667,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 3,
+              "char": "\u05D2",
+              "kind": "char",
+              "rawX": 26.52,
+              "width": 9.573333,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 4,
+              "char": "\uE001",
+              "kind": "CLOSE",
+              "rawX": 36.093333,
+              "width": 0,
+              "runFlow": "RightToLeft"
+            },
+            {
+              "i": 5,
+              "char": "a",
+              "kind": "char",
+              "rawX": 61.436667,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 6,
+              "char": "b",
+              "kind": "char",
+              "rawX": 48.09,
+              "width": 13.346667,
+              "runFlow": "LeftToRight"
+            },
+            {
+              "i": 7,
+              "char": "c",
+              "kind": "char",
+              "rawX": 36.09,
+              "width": 12,
+              "runFlow": "LeftToRight"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

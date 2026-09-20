@@ -1,0 +1,138 @@
+// 手工拼 PathGeometry 的序列化字节块（喂给 MilPathGeometry.SerializedData）。
+//
+// 【为什么 demo 里要自己再写一份】
+//   Rendering.Tests 里有一份同名工具类，但那属于 Rendering.Tests 的地盘；samples/
+//   HelloMil 不能引用测试工程。这份是独立实现，布局与 Rendering/PathGeometryParser.cs
+//   的读取约定逐字节对应（后者照上游 wgx_core_types.cs 抄）：
+//
+//   MIL_PATHGEOMETRY  48B : Size@0 Flags@4 Bounds@8(32B) FigureCount@40 Pad@44
+//   MIL_PATHFIGURE    40B : BackSize@0 Flags@4 Count@8 Size@12 StartPoint@16(16B)
+//                           OffsetToLastSegment@32 Pad@36
+//   段头              16B : Type@0 Flags@4 BackSize@8 Pad@12
+//     Line            32B : + Point×1 @16
+//     Bezier          64B : + Point×3 @16
+//     QuadraticBezier 48B : + Point×2 @16
+//     Arc             64B : LargeArc@12 Point@16 Size@32 XRotation@48 Sweep@56 Pad@60
+//
+// 只实现 demo 用得到的 Line / Bezier / Quadratic；其余段类型留空，也不是本 demo
+// 要证明的能力。
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using WpfGfx.Linux.Interop;
+
+namespace HelloMil
+{
+    internal sealed class PathGeometryBuilder
+    {
+        private const int GeometryHeaderSize = 48;
+        private const int FigureHeaderSize = 40;
+
+        private readonly List<byte[]> _figures = new List<byte[]>();
+
+        /// <summary>开一个新 Figure。写完后调 <see cref="Figure.End"/> 封口。</summary>
+        public Figure AddFigure(double startX, double startY, bool isClosed = false)
+            => new Figure(this, startX, startY, isClosed);
+
+        public byte[] Build()
+        {
+            using var ms = new MemoryStream();
+            using var w = new BinaryWriter(ms);
+
+            w.Write(0u);                            // Size@0，回填
+            w.Write(0u);                            // Flags@4
+            for (int i = 0; i < 4; i++) w.Write(0.0);   // Bounds@8..40
+            w.Write((uint)_figures.Count);          // FigureCount@40
+            w.Write(0u);                            // Pad@44
+
+            foreach (byte[] f in _figures) w.Write(f);
+
+            byte[] bytes = ms.ToArray();
+            BitConverter.GetBytes((uint)bytes.Length).CopyTo(bytes, 0);
+            return bytes;
+        }
+
+        private void Commit(Figure figure) => _figures.Add(figure.ToBytes());
+
+        internal sealed class Figure
+        {
+            private readonly PathGeometryBuilder _owner;
+            private readonly double _sx, _sy;
+            private readonly bool _closed;
+            private readonly MemoryStream _body = new MemoryStream();
+            private readonly BinaryWriter _w;
+            private int _segmentCount;
+
+            internal Figure(PathGeometryBuilder owner, double sx, double sy, bool closed)
+            {
+                _owner = owner;
+                _sx = sx;
+                _sy = sy;
+                _closed = closed;
+                _w = new BinaryWriter(_body);
+            }
+
+            public Figure Line(double x, double y) => Segment(MilSegmentType.Line, w =>
+            {
+                w.Write(0u);                        // Pad@12
+                w.Write(x);
+                w.Write(y);
+            });
+
+            public Figure Bezier(double c1x, double c1y, double c2x, double c2y, double x, double y)
+                => Segment(MilSegmentType.Bezier, w =>
+                {
+                    w.Write(0u);
+                    w.Write(c1x); w.Write(c1y);
+                    w.Write(c2x); w.Write(c2y);
+                    w.Write(x); w.Write(y);
+                });
+
+            public Figure Quadratic(double cx, double cy, double x, double y)
+                => Segment(MilSegmentType.QuadraticBezier, w =>
+                {
+                    w.Write(0u);
+                    w.Write(cx); w.Write(cy);
+                    w.Write(x); w.Write(y);
+                });
+
+            private Figure Segment(MilSegmentType type, Action<BinaryWriter> body,
+                MilCoreSegFlags flags = 0)
+            {
+                _w.Write((uint)type);
+                _w.Write((uint)flags);
+                _w.Write(0u);                       // BackSize@8（前向遍历用不到）
+                body(_w);
+                _segmentCount++;
+                return this;
+            }
+
+            internal byte[] ToBytes()
+            {
+                _w.Flush();
+                byte[] body = _body.ToArray();
+
+                using var ms = new MemoryStream();
+                using var w = new BinaryWriter(ms);
+                w.Write(0u);                                        // BackSize@0
+                w.Write(_closed ? (uint)MilPathFigureFlags.IsClosed : 0u);
+                w.Write((uint)_segmentCount);                       // Count@8
+                w.Write((uint)(FigureHeaderSize + body.Length));    // Size@12
+                w.Write(_sx); w.Write(_sy);                         // StartPoint@16
+                w.Write(0u);                                        // OffsetToLastSegment@32
+                w.Write(0u);                                        // Pad@36
+                w.Write(body);
+
+                return ms.ToArray();
+            }
+
+            /// <summary>封口并把 figure 交回外层，可继续 AddFigure 或 Build。</summary>
+            public PathGeometryBuilder End()
+            {
+                _owner.Commit(this);
+                return _owner;
+            }
+        }
+    }
+}

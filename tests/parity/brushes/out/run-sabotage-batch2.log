@@ -1,0 +1,120 @@
+U1BrushOracle: outDir=C:\wpf-oracle-brush\out2-sabotage sabotage=True batch=2
+  [ok  ] b2_gap_none_left_none_v2tiling                 colors=   8 painted=   19 model=61/61 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_gap_none_left_tile_v2tiling                 colors=  10 painted=  154 model=358/358 vpOrigin=relative-to-bounding-box
+  [FAIL] b2_gap_none_left_flipx_v2tiling                colors=  10 painted=  154 model=280/355 vpOrigin=relative-to-bounding-box
+  [FAIL] b2_gap_none_left_flipy_v2tiling                colors=  10 painted=  154 model=309/363 vpOrigin=relative-to-bounding-box
+  [FAIL] b2_gap_none_left_flipxy_v2tiling               colors=  10 painted=  154 model=251/357 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_gap_none_center_none_v2tiling               colors=   8 painted=   16 model=64/64 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_gap_none_center_tile_v2tiling               colors=  10 painted=  111 model=393/393 vpOrigin=relative-to-bounding-box
+  [FAIL] b2_gap_none_center_flipx_v2tiling              colors=  10 painted=  111 model=379/389 vpOrigin=relative-to-bounding-box
+  [FAIL] b2_gap_none_center_flipy_v2tiling              colors=  10 painted=  111 model=374/392 vpOrigin=relative-to-bounding-box
+  [FAIL] b2_gap_none_center_flipxy_v2tiling             colors=  10 painted=  111 model=365/387 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_gap_none_right_none_v2tiling                colors=   7 painted=   18 model=62/62 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_gap_none_right_tile_v2tiling                colors=   9 painted=   88 model=405/405 vpOrigin=relative-to-bounding-box
+  [FAIL] b2_gap_none_right_flipx_v2tiling               colors=   9 painted=   88 model=341/410 vpOrigin=relative-to-bounding-box
+  [FAIL] b2_gap_none_right_flipy_v2tiling               colors=   9 painted=   88 model=366/403 vpOrigin=relative-to-bounding-box
+  [FAIL] b2_gap_none_right_flipxy_v2tiling              colors=   9 painted=   88 model=318/406 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_gap_none_left_none_v1same                   colors=   8 painted=   18 model=389/389 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_gap_none_left_tile_v1same                   colors=   8 painted=   18 model=389/389 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_gap_none_center_none_v1same                 colors=   9 painted=   16 model=386/386 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_gap_none_center_tile_v1same                 colors=   9 painted=   16 model=386/386 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_up_image_nearestneighbor              colors=   9 painted=  444 model=243/243 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_down_image_nearestneighbor            colors=   9 painted=  584 model=204/204 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_up_drawing_nearestneighbor            colors=  11 painted=  444 model=243/243 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_down_drawing_nearestneighbor          colors=  20 painted=  584 model=166/204 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_up_image_linear                       colors=  36 painted=  444 model=243/243 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_down_image_linear                     colors=  33 painted=  584 model=204/204 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_up_drawing_linear                     colors=  11 painted=  444 model=243/243 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_down_drawing_linear                   colors=  75 painted=  584 model=128/204 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_up_image_highquality                  colors=  36 painted=  444 model=243/243 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_down_image_highquality                colors=  80 painted=  584 model=128/204 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_up_drawing_highquality                colors=  11 painted=  444 model=243/243 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_down_drawing_highquality              colors=  75 painted=  584 model=128/204 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_up_image_unspecified                  colors=  36 painted=  444 model=243/243 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_down_image_unspecified                colors=  33 painted=  584 model=204/204 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_up_drawing_unspecified                colors=  11 painted=  444 model=243/243 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_down_drawing_unspecified              colors=  75 painted=  584 model=128/204 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi96_image_tile_v2                         colors=  36 painted=  444 model=243/243 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi96_image_flipx_v2                        colors=  36 painted=  444 model=164/238 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi96_drawing_tile_v2                       colors=  11 painted=  444 model=243/243 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi96_visual_tile_v2                        colors=   9 painted=  444 model=183/183 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi96_image_none_v1same                     colors=  21 painted=  397 model=203/203 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi120_image_tile_v2                        colors=  38 painted=  442 model=224/224 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi120_image_flipx_v2                       colors=  38 painted=  442 model=156/226 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi120_drawing_tile_v2                      colors=  13 painted=  442 model=224/224 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi120_visual_tile_v2                       colors=  10 painted=  442 model=171/171 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi120_image_none_v1same                    colors=  24 painted=  395 model=215/215 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi144_image_tile_v2                        colors=  36 painted=  439 model=258/258 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi144_image_flipx_v2                       colors=  36 painted=  439 model=130/240 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi144_drawing_tile_v2                      colors=  11 painted=  439 model=258/258 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi144_visual_tile_v2                       colors=   9 painted=  439 model=205/205 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi144_image_none_v1same                    colors=  21 painted=  393 model=202/202 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi96_image_none_stretch_left_tile          colors=  10 painted=  154 model=358/358 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi120_image_none_stretch_left_tile         colors=  35 painted=  166 model=355/355 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi144_image_none_stretch_left_tile         colors=  26 painted=  105 model=384/386 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_text_ideal_tile                             colors=   9 painted=  444 model=183/183 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_text_ideal_flipx                            colors=   9 painted=  444 model=121/184 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_text_display_tile                           colors=  17 painted=  444 model=183/183 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_text_display_flipx                          colors=  17 painted=  444 model=121/184 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_cachebrush_nocache_tile                     colors=  63 painted=  444 model=33/183 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_cachebrush_cache_tile                       colors=  63 painted=  444 model=33/183 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_cachebrush_cache_scale2_tile                colors=  39 painted=  444 model=33/183 vpOrigin=relative-to-bounding-box
+  cmp b2_scale_up_image_nearestneighbor vs b2_scale_up_image_linear: 68 sample(s) differ
+  cmp b2_scale_up_image_nearestneighbor vs b2_scale_up_image_highquality: 68 sample(s) differ
+  cmp b2_scale_up_image_nearestneighbor vs b2_scale_up_image_unspecified: 68 sample(s) differ
+  cmp b2_scale_down_image_nearestneighbor vs b2_scale_down_image_linear: 187 sample(s) differ
+  cmp b2_scale_down_image_nearestneighbor vs b2_scale_down_image_highquality: 414 sample(s) differ
+  cmp b2_scale_down_image_nearestneighbor vs b2_scale_down_image_unspecified: 187 sample(s) differ
+  cmp b2_scale_down_image_linear vs b2_scale_down_image_highquality: 409 sample(s) differ
+  cmp b2_scale_down_image_highquality vs b2_scale_down_image_unspecified: 409 sample(s) differ
+  cmp b2_scale_down_drawing_nearestneighbor vs b2_scale_down_drawing_linear: 308 sample(s) differ
+  cmp b2_scale_down_drawing_nearestneighbor vs b2_scale_down_drawing_highquality: 308 sample(s) differ
+  cmp b2_scale_down_drawing_nearestneighbor vs b2_scale_down_drawing_unspecified: 308 sample(s) differ
+  cmp b2_dpi96_image_tile_v2 vs b2_dpi120_image_tile_v2: 2 sample(s) differ
+  cmp b2_dpi120_image_tile_v2 vs b2_dpi144_image_tile_v2: 9 sample(s) differ
+  cmp b2_dpi96_image_flipx_v2 vs b2_dpi120_image_flipx_v2: 2 sample(s) differ
+  cmp b2_dpi120_image_flipx_v2 vs b2_dpi144_image_flipx_v2: 9 sample(s) differ
+  cmp b2_dpi96_drawing_tile_v2 vs b2_dpi120_drawing_tile_v2: 2 sample(s) differ
+  cmp b2_dpi120_drawing_tile_v2 vs b2_dpi144_drawing_tile_v2: 8 sample(s) differ
+  cmp b2_dpi96_visual_tile_v2 vs b2_dpi120_visual_tile_v2: 2 sample(s) differ
+  cmp b2_dpi120_visual_tile_v2 vs b2_dpi144_visual_tile_v2: 8 sample(s) differ
+  cmp b2_dpi96_image_none_stretch_left_tile vs b2_dpi120_image_none_stretch_left_tile: 2 sample(s) differ
+  cmp b2_dpi120_image_none_stretch_left_tile vs b2_dpi144_image_none_stretch_left_tile: 7 sample(s) differ
+  cmp b2_text_ideal_tile vs b2_text_display_tile: 20 sample(s) differ
+  cmp b2_text_ideal_flipx vs b2_text_display_flipx: 20 sample(s) differ
+  cmp b2_cachebrush_nocache_tile vs b2_cachebrush_cache_scale2_tile: 67 sample(s) differ
+  cmp b2_cachebrush_cache_tile vs b2_cachebrush_cache_scale2_tile: 67 sample(s) differ
+
+cases=60 failures=32 sabotage=True selfTest=ok
+  ! b2_gap_none_left_flipx_v2tiling: model agreement 280/355 (78.87 %) - documented tile model does not explain WPF pixels. First: grid/g10,0 (104,20) model=#FF808080 actual=#FFD02020; grid/g11,0 (112,20) model=#FF808080 actual=#FF00FFFF; grid/g12,0 (120,20) model=#FF808080 actual=#FFFFFFFF; grid/g16,0 (154,20) model=#FF20A040 actual=#FF808080; grid/g17,0 (162,20) model=#FF00FFFF actual=#FF808080; grid/g18,0 (170,20) model=#FFD02020 actual=#FF808080; grid/g10,1 (104,27) model=#FF808080 actual=#FFD02020; grid/g11,1 (112,27) model=#FF808080 actual=#FF202830
+  ! b2_gap_none_left_flipy_v2tiling: model agreement 309/363 (85.12 %) - documented tile model does not explain WPF pixels. First: grid/g0,6 (20,65) model=#FF808080 actual=#FFD02020; grid/g1,6 (28,65) model=#FF808080 actual=#FF202830; grid/g2,6 (37,65) model=#FF808080 actual=#FF20A040; grid/g3,6 (45,65) model=#FF808080 actual=#FF20A040; grid/g10,6 (104,65) model=#FF808080 actual=#FFD02020; grid/g11,6 (112,65) model=#FF808080 actual=#FF202830; grid/g12,6 (120,65) model=#FF808080 actual=#FF20A040; grid/g19,6 (178,65) model=#FF808080 actual=#FFD02020
+  ! b2_gap_none_left_flipxy_v2tiling: model agreement 251/357 (70.31 %) - documented tile model does not explain WPF pixels. First: grid/g10,0 (104,20) model=#FF808080 actual=#FFD02020; grid/g11,0 (112,20) model=#FF808080 actual=#FF00FFFF; grid/g12,0 (120,20) model=#FF808080 actual=#FFFFFFFF; grid/g16,0 (154,20) model=#FF20A040 actual=#FF808080; grid/g17,0 (162,20) model=#FF00FFFF actual=#FF808080; grid/g18,0 (170,20) model=#FFD02020 actual=#FF808080; grid/g10,1 (104,27) model=#FF808080 actual=#FFD02020; grid/g11,1 (112,27) model=#FF808080 actual=#FF202830
+  ! b2_gap_none_center_flipx_v2tiling: model agreement 379/389 (97.43 %) - documented tile model does not explain WPF pixels. First: grid/g15,1 (145,27) model=#FFD02020 actual=#FF20A040; grid/g13,4 (128,50) model=#FFE0C020 actual=#FF2050D0; grid/g15,4 (145,50) model=#FF2050D0 actual=#FFE0C020; grid/g13,8 (128,80) model=#FF20A040 actual=#FFD02020; grid/g15,8 (145,80) model=#FFD02020 actual=#FF20A040; grid/g13,10 (128,95) model=#FFE0C020 actual=#FF2050D0; grid/g15,10 (145,95) model=#FF2050D0 actual=#FFE0C020; grid/g13,11 (128,102) model=#FFE0C020 actual=#FF2050D0
+  ! b2_gap_none_center_flipy_v2tiling: model agreement 374/392 (95.41 %) - documented tile model does not explain WPF pixels. First: grid/g3,8 (45,80) model=#FF2050D0 actual=#FFD02020; grid/g5,8 (62,80) model=#FFE0C020 actual=#FF20A040; grid/g6,8 (70,80) model=#FFE0C020 actual=#FF20A040; grid/g13,8 (128,80) model=#FF2050D0 actual=#FFD02020; grid/g15,8 (145,80) model=#FFE0C020 actual=#FF20A040; grid/g22,8 (204,80) model=#FF2050D0 actual=#FFD02020; grid/g3,10 (45,95) model=#FFD02020 actual=#FF2050D0; grid/g5,10 (62,95) model=#FF20A040 actual=#FFE0C020
+  ! b2_gap_none_center_flipxy_v2tiling: model agreement 365/387 (94.32 %) - documented tile model does not explain WPF pixels. First: grid/g15,1 (145,27) model=#FFD02020 actual=#FF20A040; grid/g13,4 (128,50) model=#FFE0C020 actual=#FF2050D0; grid/g15,4 (145,50) model=#FF2050D0 actual=#FFE0C020; grid/g3,8 (45,80) model=#FF2050D0 actual=#FFD02020; grid/g5,8 (62,80) model=#FFE0C020 actual=#FF20A040; grid/g6,8 (70,80) model=#FFE0C020 actual=#FF20A040; grid/g13,8 (128,80) model=#FFE0C020 actual=#FFD02020; grid/g15,8 (145,80) model=#FF2050D0 actual=#FF20A040
+  ! b2_gap_none_right_flipx_v2tiling: model agreement 341/410 (83.17 %) - documented tile model does not explain WPF pixels. First: grid/g11,2 (112,35) model=#FF00FFFF actual=#FF808080; grid/g12,2 (120,35) model=#FFD02020 actual=#FF808080; grid/g15,2 (145,35) model=#FF808080 actual=#FFD02020; grid/g16,2 (154,35) model=#FF808080 actual=#FF00FFFF; grid/g17,2 (162,35) model=#FF808080 actual=#FF00FFFF; grid/g18,2 (170,35) model=#FF808080 actual=#FF20A040; grid/g10,3 (104,42) model=#FF20A040 actual=#FF808080; grid/g11,3 (112,42) model=#FF202830 actual=#FF808080
+  ! b2_gap_none_right_flipy_v2tiling: model agreement 366/403 (90.82 %) - documented tile model does not explain WPF pixels. First: grid/g6,6 (70,65) model=#FF2050D0 actual=#FF808080; grid/g7,6 (78,65) model=#FF202830 actual=#FF808080; grid/g8,6 (87,65) model=#FFE0C020 actual=#FF808080; grid/g16,6 (154,65) model=#FF2050D0 actual=#FF808080; grid/g17,6 (162,65) model=#FF202830 actual=#FF808080; grid/g18,6 (170,65) model=#FFE0C020 actual=#FF808080; grid/g6,7 (70,72) model=#FF2050D0 actual=#FF808080; grid/g7,7 (78,72) model=#FF202830 actual=#FF808080
+  ! b2_gap_none_right_flipxy_v2tiling: model agreement 318/406 (78.33 %) - documented tile model does not explain WPF pixels. First: grid/g11,2 (112,35) model=#FF00FFFF actual=#FF808080; grid/g12,2 (120,35) model=#FFD02020 actual=#FF808080; grid/g15,2 (145,35) model=#FF808080 actual=#FFD02020; grid/g16,2 (154,35) model=#FF808080 actual=#FF00FFFF; grid/g17,2 (162,35) model=#FF808080 actual=#FF00FFFF; grid/g18,2 (170,35) model=#FF808080 actual=#FF20A040; grid/g10,3 (104,42) model=#FF20A040 actual=#FF808080; grid/g11,3 (112,42) model=#FF202830 actual=#FF808080
+  ! NO DISCRIMINATION: gap|image|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=None|align=Left/Top Tile vs FlipX are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: gap|image|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=None|align=Left/Top Tile vs FlipY are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: gap|image|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=None|align=Left/Top Tile vs FlipXY are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: gap|image|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=None|align=Left/Top FlipX vs FlipY are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: gap|image|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=None|align=Left/Top FlipX vs FlipXY are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: gap|image|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=None|align=Left/Top FlipY vs FlipXY are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: gap|image|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=None|align=Center/Center Tile vs FlipX are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: gap|image|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=None|align=Center/Center Tile vs FlipY are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: gap|image|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=None|align=Center/Center Tile vs FlipXY are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: gap|image|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=None|align=Center/Center FlipX vs FlipY are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: gap|image|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=None|align=Center/Center FlipX vs FlipXY are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: gap|image|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=None|align=Center/Center FlipY vs FlipXY are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: gap|image|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=None|align=Right/Bottom Tile vs FlipX are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: gap|image|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=None|align=Right/Bottom Tile vs FlipY are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: gap|image|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=None|align=Right/Bottom Tile vs FlipXY are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: gap|image|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=None|align=Right/Bottom FlipX vs FlipY are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: gap|image|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=None|align=Right/Bottom FlipX vs FlipXY are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: gap|image|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=None|align=Right/Bottom FlipY vs FlipXY are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: dpi|image|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center Tile vs FlipX are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: dpi|image|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center Tile vs FlipX are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: dpi|image|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center Tile vs FlipX are pixel-identical at all 439 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: textmode|visual|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center Tile vs FlipX are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: textmode|visual|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center Tile vs FlipX are pixel-identical at all 444 samples - this case cannot tell them apart

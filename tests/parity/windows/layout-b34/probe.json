@@ -1,0 +1,739 @@
+{
+  "generatedUtc": "2026-09-11T06:00:40.9032894Z",
+  "environment": {
+    "machine": "BILINTU",
+    "user": "PC",
+    "osVersion": "Microsoft Windows NT 10.0.22631.0",
+    "osDescription": "Microsoft Windows 10.0.22631",
+    "processArch": "X64",
+    "dotnetVersion": "10.0.7",
+    "runtimeDir": "C:\\Program Files\\dotnet\\shared\\Microsoft.NETCore.App\\10.0.7\\",
+    "currentCulture": "zh-CN",
+    "currentUICulture": "zh-CN",
+    "installedCultures": [
+      "ar-SA",
+      "en-US",
+      "he-IL",
+      "ja-JP"
+    ],
+    "dpi": 96,
+    "assemblies": {
+      "PresentationCore": "10.0.0.0",
+      "PresentationCoreLocation": "C:\\Program Files\\dotnet\\shared\\Microsoft.WindowsDesktop.App\\10.0.7\\PresentationCore.dll",
+      "WindowsBase": "10.0.0.0",
+      "SystemXaml": "10.0.0.0"
+    }
+  },
+  "apiSurface": {
+    "TextFormatter": {
+      "fullName": "System.Windows.Media.TextFormatting.TextFormatter",
+      "isEnum": false,
+      "isAbstract": true,
+      "properties": [],
+      "methods": [
+        "TextFormatter Create(TextFormattingMode textFormattingMode)",
+        "TextFormatter Create()",
+        "Void Dispose()",
+        "Boolean Equals(Object obj)",
+        "TextLine FormatLine(TextSource textSource, Int32 firstCharIndex, Double paragraphWidth, TextParagraphProperties paragraphProperties, TextLineBreak previousLineBreak)",
+        "TextLine FormatLine(TextSource textSource, Int32 firstCharIndex, Double paragraphWidth, TextParagraphProperties paragraphProperties, TextLineBreak previousLineBreak, TextRunCache textRunCache)",
+        "MinMaxParagraphWidth FormatMinMaxParagraphWidth(TextSource textSource, Int32 firstCharIndex, TextParagraphProperties paragraphProperties)",
+        "MinMaxParagraphWidth FormatMinMaxParagraphWidth(TextSource textSource, Int32 firstCharIndex, TextParagraphProperties paragraphProperties, TextRunCache textRunCache)",
+        "Int32 GetHashCode()",
+        "Type GetType()",
+        "String ToString()"
+      ]
+    },
+    "TextLine": {
+      "fullName": "System.Windows.Media.TextFormatting.TextLine",
+      "isEnum": false,
+      "isAbstract": true,
+      "properties": [
+        "Double Baseline { get; }",
+        "Int32 DependentLength { get; }",
+        "Double Extent { get; }",
+        "Boolean HasCollapsed { get; }",
+        "Boolean HasOverflowed { get; }",
+        "Double Height { get; }",
+        "Boolean IsTruncated { get; }",
+        "Int32 Length { get; }",
+        "Double MarkerBaseline { get; }",
+        "Double MarkerHeight { get; }",
+        "Int32 NewlineLength { get; }",
+        "Double OverhangAfter { get; }",
+        "Double OverhangLeading { get; }",
+        "Double OverhangTrailing { get; }",
+        "Double PixelsPerDip { get; set; }",
+        "Double Start { get; }",
+        "Double TextBaseline { get; }",
+        "Double TextHeight { get; }",
+        "Int32 TrailingWhitespaceLength { get; }",
+        "Double Width { get; }",
+        "Double WidthIncludingTrailingWhitespace { get; }"
+      ],
+      "methods": [
+        "TextLine Collapse(TextCollapsingProperties[] collapsingPropertiesList)",
+        "Void Dispose()",
+        "Void Draw(DrawingContext drawingContext, Point origin, InvertAxes inversion)",
+        "Boolean Equals(Object obj)",
+        "CharacterHit GetBackspaceCaretCharacterHit(CharacterHit characterHit)",
+        "CharacterHit GetCharacterHitFromDistance(Double distance)",
+        "Double GetDistanceFromCharacterHit(CharacterHit characterHit)",
+        "Int32 GetHashCode()",
+        "IEnumerable\u00601 GetIndexedGlyphRuns()",
+        "CharacterHit GetNextCaretCharacterHit(CharacterHit characterHit)",
+        "CharacterHit GetPreviousCaretCharacterHit(CharacterHit characterHit)",
+        "IList\u00601 GetTextBounds(Int32 firstTextSourceCharacterIndex, Int32 textLength)",
+        "IList\u00601 GetTextCollapsedRanges()",
+        "TextLineBreak GetTextLineBreak()",
+        "IList\u00601 GetTextRunSpans()",
+        "Type GetType()",
+        "String ToString()"
+      ]
+    },
+    "TextLineBreak": {
+      "fullName": "System.Windows.Media.TextFormatting.TextLineBreak",
+      "isEnum": false,
+      "isAbstract": false,
+      "properties": [],
+      "methods": [
+        "TextLineBreak Clone()",
+        "Void Dispose()",
+        "Boolean Equals(Object obj)",
+        "Int32 GetHashCode()",
+        "Type GetType()",
+        "String ToString()"
+      ]
+    },
+    "TextCollapsedRange": {
+      "fullName": "System.Windows.Media.TextFormatting.TextCollapsedRange",
+      "isEnum": false,
+      "isAbstract": false,
+      "properties": [
+        "Int32 Length { get; }",
+        "Int32 TextSourceCharacterIndex { get; }",
+        "Double Width { get; }"
+      ],
+      "methods": [
+        "Boolean Equals(Object obj)",
+        "Int32 GetHashCode()",
+        "Type GetType()",
+        "String ToString()"
+      ]
+    },
+    "TextRunBounds": {
+      "fullName": "System.Windows.Media.TextFormatting.TextRunBounds",
+      "isEnum": false,
+      "isAbstract": false,
+      "properties": [
+        "Int32 Length { get; }",
+        "Rect Rectangle { get; }",
+        "TextRun TextRun { get; }",
+        "Int32 TextSourceCharacterIndex { get; }"
+      ],
+      "methods": [
+        "Boolean Equals(Object obj)",
+        "Int32 GetHashCode()",
+        "Type GetType()",
+        "String ToString()"
+      ]
+    },
+    "CharacterHit": {
+      "fullName": "System.Windows.Media.TextFormatting.CharacterHit",
+      "isEnum": false,
+      "isAbstract": false,
+      "properties": [
+        "Int32 FirstCharacterIndex { get; }",
+        "Int32 TrailingLength { get; }"
+      ],
+      "methods": [
+        "Boolean Equals(CharacterHit obj)",
+        "Boolean Equals(Object obj)",
+        "Int32 GetHashCode()",
+        "Type GetType()",
+        "String ToString()"
+      ]
+    },
+    "TextSource": {
+      "fullName": "System.Windows.Media.TextFormatting.TextSource",
+      "isEnum": false,
+      "isAbstract": true,
+      "properties": [
+        "Double PixelsPerDip { get; set; }"
+      ],
+      "methods": [
+        "Boolean Equals(Object obj)",
+        "Int32 GetHashCode()",
+        "TextSpan\u00601 GetPrecedingText(Int32 textSourceCharacterIndexLimit)",
+        "Int32 GetTextEffectCharacterIndexFromTextSourceCharacterIndex(Int32 textSourceCharacterIndex)",
+        "TextRun GetTextRun(Int32 textSourceCharacterIndex)",
+        "Type GetType()",
+        "String ToString()"
+      ]
+    },
+    "TextRun": {
+      "fullName": "System.Windows.Media.TextFormatting.TextRun",
+      "isEnum": false,
+      "isAbstract": true,
+      "properties": [
+        "CharacterBufferReference CharacterBufferReference { get; }",
+        "Int32 Length { get; }",
+        "TextRunProperties Properties { get; }"
+      ],
+      "methods": [
+        "Boolean Equals(Object obj)",
+        "Int32 GetHashCode()",
+        "Type GetType()",
+        "String ToString()"
+      ]
+    },
+    "TextRunProperties": {
+      "fullName": "System.Windows.Media.TextFormatting.TextRunProperties",
+      "isEnum": false,
+      "isAbstract": true,
+      "properties": [
+        "Brush BackgroundBrush { get; }",
+        "BaselineAlignment BaselineAlignment { get; }",
+        "CultureInfo CultureInfo { get; }",
+        "Double FontHintingEmSize { get; }",
+        "Double FontRenderingEmSize { get; }",
+        "Brush ForegroundBrush { get; }",
+        "NumberSubstitution NumberSubstitution { get; }",
+        "Double PixelsPerDip { get; set; }",
+        "TextDecorationCollection TextDecorations { get; }",
+        "TextEffectCollection TextEffects { get; }",
+        "Typeface Typeface { get; }",
+        "TextRunTypographyProperties TypographyProperties { get; }"
+      ],
+      "methods": [
+        "Boolean Equals(Object obj)",
+        "Int32 GetHashCode()",
+        "Type GetType()",
+        "String ToString()"
+      ]
+    },
+    "TextParagraphProperties": {
+      "fullName": "System.Windows.Media.TextFormatting.TextParagraphProperties",
+      "isEnum": false,
+      "isAbstract": true,
+      "properties": [
+        "Boolean AlwaysCollapsible { get; }",
+        "Double DefaultIncrementalTab { get; }",
+        "TextRunProperties DefaultTextRunProperties { get; }",
+        "Boolean FirstLineInParagraph { get; }",
+        "FlowDirection FlowDirection { get; }",
+        "Double Indent { get; }",
+        "Double LineHeight { get; }",
+        "Double ParagraphIndent { get; }",
+        "IList\u00601 Tabs { get; }",
+        "TextAlignment TextAlignment { get; }",
+        "TextDecorationCollection TextDecorations { get; }",
+        "TextMarkerProperties TextMarkerProperties { get; }",
+        "TextWrapping TextWrapping { get; }"
+      ],
+      "methods": [
+        "Boolean Equals(Object obj)",
+        "Int32 GetHashCode()",
+        "Type GetType()",
+        "String ToString()"
+      ]
+    },
+    "TextWrapping": {
+      "fullName": "System.Windows.TextWrapping",
+      "isEnum": true,
+      "isAbstract": false,
+      "enumValues": [
+        "WrapWithOverflow = 0",
+        "NoWrap = 1",
+        "Wrap = 2"
+      ]
+    },
+    "TextTrimming": {
+      "fullName": "System.Windows.TextTrimming",
+      "isEnum": true,
+      "isAbstract": false,
+      "enumValues": [
+        "None = 0",
+        "CharacterEllipsis = 1",
+        "WordEllipsis = 2"
+      ]
+    },
+    "TextAlignment": {
+      "fullName": "System.Windows.TextAlignment",
+      "isEnum": true,
+      "isAbstract": false,
+      "enumValues": [
+        "Left = 0",
+        "Right = 1",
+        "Center = 2",
+        "Justify = 3"
+      ]
+    },
+    "LineStackingStrategy": {
+      "fullName": "System.Windows.LineStackingStrategy",
+      "isEnum": true,
+      "isAbstract": false,
+      "enumValues": [
+        "BlockLineHeight = 0",
+        "MaxHeight = 1"
+      ]
+    },
+    "FlowDirection": {
+      "fullName": "System.Windows.FlowDirection",
+      "isEnum": true,
+      "isAbstract": false,
+      "enumValues": [
+        "LeftToRight = 0",
+        "RightToLeft = 1"
+      ]
+    },
+    "TextFormattingMode": {
+      "fullName": "System.Windows.Media.TextFormattingMode",
+      "isEnum": true,
+      "isAbstract": false,
+      "enumValues": [
+        "Ideal = 0",
+        "Display = 1"
+      ]
+    },
+    "Fonts": {
+      "fullName": "System.Windows.Media.Fonts",
+      "isEnum": false,
+      "isAbstract": true,
+      "properties": [
+        "ICollection\u00601 SystemFontFamilies { get; }",
+        "ICollection\u00601 SystemTypefaces { get; }"
+      ],
+      "methods": [
+        "Boolean Equals(Object obj)",
+        "ICollection\u00601 GetFontFamilies(String location)",
+        "ICollection\u00601 GetFontFamilies(Uri baseUri)",
+        "ICollection\u00601 GetFontFamilies(Uri baseUri, String location)",
+        "Int32 GetHashCode()",
+        "Type GetType()",
+        "ICollection\u00601 GetTypefaces(String location)",
+        "ICollection\u00601 GetTypefaces(Uri baseUri)",
+        "ICollection\u00601 GetTypefaces(Uri baseUri, String location)",
+        "String ToString()"
+      ]
+    }
+  },
+  "fonts": {
+    "fileBased": {
+      "dir": "fonts",
+      "fullDir": "C:\\wpf-oracle-layout\\fonts",
+      "file": "C:\\wpf-oracle-layout\\fonts\\NotoSans-Regular.ttf",
+      "fileExists": true,
+      "fileSha256": "f3961a9cde016d41a4879aecda1474d3a36d6bf54fa0e4643de029cc2248b0e8",
+      "dirUri": "file:///C:/wpf-oracle-layout/fonts/",
+      "fileUri": "file:///C:/wpf-oracle-layout/fonts/NotoSans-Regular.ttf",
+      "variants": {
+        "V1_newFontFamily_dirUri_dotSlashHash": {
+          "source": "./#Noto Sans",
+          "familyNames": [
+            "Noto Sans"
+          ],
+          "typefaceCount": 6,
+          "tryGetGlyphTypeface": true,
+          "glyphTypefaceUri": "C:\\WPF-ORACLE-LAYOUT\\FONTS\\NOTOSANS-REGULAR.TTF",
+          "glyphCount": 3884,
+          "familyNamesFromGlyphTypeface": [
+            "Noto Sans"
+          ]
+        },
+        "V2_newFontFamily_dirUri_hash": {
+          "source": "#Noto Sans",
+          "familyNames": [
+            "Arial"
+          ],
+          "typefaceCount": 8,
+          "tryGetGlyphTypeface": false
+        },
+        "V3_newFontFamily_fileUri_hash": {
+          "source": "file:///C:/wpf-oracle-layout/fonts/NotoSans-Regular.ttf#Noto Sans",
+          "familyNames": [
+            "Noto Sans"
+          ],
+          "typefaceCount": 4,
+          "tryGetGlyphTypeface": true,
+          "glyphTypefaceUri": "C:\\WPF-ORACLE-LAYOUT\\FONTS\\NOTOSANS-REGULAR.TTF",
+          "glyphCount": 3884,
+          "familyNamesFromGlyphTypeface": [
+            "Noto Sans"
+          ]
+        }
+      },
+      "Fonts_GetFontFamilies_dirUri": [
+        "./#Noto Sans :: Noto Sans"
+      ]
+    },
+    "systemCjkCandidates": {
+      "Microsoft YaHei": {
+        "files": [
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\MSYHL.TTC",
+            "sha256": "f25f39a6d56ec6d1b356254dd776219d71b7e6f3584b3ec1b83aab0ceb08881a"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\MSYH.TTC",
+            "sha256": "3084f1f88369af6bf9989c909024164d953d1e38d08734f05f28ef24b2f9d577"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\MSYHBD.TTC",
+            "sha256": "519309b7ab0479c4dc3ace5e291de5a8702175be5586e165bc810267bd4619a5"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\MSYHL.TTC",
+            "sha256": "f25f39a6d56ec6d1b356254dd776219d71b7e6f3584b3ec1b83aab0ceb08881a"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\MSYH.TTC",
+            "sha256": "3084f1f88369af6bf9989c909024164d953d1e38d08734f05f28ef24b2f9d577"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\MSYHBD.TTC",
+            "sha256": "519309b7ab0479c4dc3ace5e291de5a8702175be5586e165bc810267bd4619a5"
+          }
+        ],
+        "familyNames": [
+          "Microsoft YaHei",
+          "\u5FAE\u8F6F\u96C5\u9ED1"
+        ]
+      },
+      "Microsoft YaHei UI": {
+        "files": [
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\MSYHL.TTC",
+            "sha256": "f25f39a6d56ec6d1b356254dd776219d71b7e6f3584b3ec1b83aab0ceb08881a"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\MSYH.TTC",
+            "sha256": "3084f1f88369af6bf9989c909024164d953d1e38d08734f05f28ef24b2f9d577"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\MSYHBD.TTC",
+            "sha256": "519309b7ab0479c4dc3ace5e291de5a8702175be5586e165bc810267bd4619a5"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\MSYHL.TTC",
+            "sha256": "f25f39a6d56ec6d1b356254dd776219d71b7e6f3584b3ec1b83aab0ceb08881a"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\MSYH.TTC",
+            "sha256": "3084f1f88369af6bf9989c909024164d953d1e38d08734f05f28ef24b2f9d577"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\MSYHBD.TTC",
+            "sha256": "519309b7ab0479c4dc3ace5e291de5a8702175be5586e165bc810267bd4619a5"
+          }
+        ],
+        "familyNames": [
+          "Microsoft YaHei UI",
+          "Microsoft YaHei UI"
+        ]
+      },
+      "SimSun": {
+        "files": [
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\SIMSUN.TTC",
+            "sha256": "05068fa1acae212120dcc7e98c884b174a6eca252a636b4b64030235473ec27e"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\SIMSUN.TTC",
+            "sha256": "05068fa1acae212120dcc7e98c884b174a6eca252a636b4b64030235473ec27e"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\SIMSUN.TTC",
+            "sha256": "05068fa1acae212120dcc7e98c884b174a6eca252a636b4b64030235473ec27e"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\SIMSUN.TTC",
+            "sha256": "05068fa1acae212120dcc7e98c884b174a6eca252a636b4b64030235473ec27e"
+          }
+        ],
+        "familyNames": [
+          "SimSun",
+          "\u5B8B\u4F53",
+          "\u5B8B\u4F53"
+        ]
+      },
+      "NSimSun": {
+        "files": [
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\SIMSUN.TTC",
+            "sha256": "05068fa1acae212120dcc7e98c884b174a6eca252a636b4b64030235473ec27e"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\SIMSUN.TTC",
+            "sha256": "05068fa1acae212120dcc7e98c884b174a6eca252a636b4b64030235473ec27e"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\SIMSUN.TTC",
+            "sha256": "05068fa1acae212120dcc7e98c884b174a6eca252a636b4b64030235473ec27e"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\SIMSUN.TTC",
+            "sha256": "05068fa1acae212120dcc7e98c884b174a6eca252a636b4b64030235473ec27e"
+          }
+        ],
+        "familyNames": [
+          "NSimSun",
+          "\u65B0\u5B8B\u4F53",
+          "\u65B0\u5B8B\u4F53"
+        ]
+      },
+      "SimHei": {
+        "files": [
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\SIMHEI.TTF",
+            "sha256": "aa4560dd8fe5645745fed3ffa301c3ca4d6c03cbd738145b613303961ba733b8"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\SIMHEI.TTF",
+            "sha256": "aa4560dd8fe5645745fed3ffa301c3ca4d6c03cbd738145b613303961ba733b8"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\SIMHEI.TTF",
+            "sha256": "aa4560dd8fe5645745fed3ffa301c3ca4d6c03cbd738145b613303961ba733b8"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\SIMHEI.TTF",
+            "sha256": "aa4560dd8fe5645745fed3ffa301c3ca4d6c03cbd738145b613303961ba733b8"
+          }
+        ],
+        "familyNames": [
+          "SimHei",
+          "\u9ED1\u4F53"
+        ]
+      },
+      "KaiTi": {
+        "files": [
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\SIMKAI.TTF",
+            "sha256": "9dd76f7ab430edd091db24c3f18e71410325c1414141aad5fe67947873ffba06"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\SIMKAI.TTF",
+            "sha256": "9dd76f7ab430edd091db24c3f18e71410325c1414141aad5fe67947873ffba06"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\SIMKAI.TTF",
+            "sha256": "9dd76f7ab430edd091db24c3f18e71410325c1414141aad5fe67947873ffba06"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\SIMKAI.TTF",
+            "sha256": "9dd76f7ab430edd091db24c3f18e71410325c1414141aad5fe67947873ffba06"
+          }
+        ],
+        "familyNames": [
+          "KaiTi",
+          "\u6977\u4F53"
+        ]
+      },
+      "FangSong": {
+        "files": [
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\SIMFANG.TTF",
+            "sha256": "3e2d44b01c9a248a61bedae4f15c8aae501328b1f7adfe6e111a5da5aa5c5104"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\SIMFANG.TTF",
+            "sha256": "3e2d44b01c9a248a61bedae4f15c8aae501328b1f7adfe6e111a5da5aa5c5104"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\SIMFANG.TTF",
+            "sha256": "3e2d44b01c9a248a61bedae4f15c8aae501328b1f7adfe6e111a5da5aa5c5104"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\SIMFANG.TTF",
+            "sha256": "3e2d44b01c9a248a61bedae4f15c8aae501328b1f7adfe6e111a5da5aa5c5104"
+          }
+        ],
+        "familyNames": [
+          "FangSong",
+          "\u4EFF\u5B8B"
+        ]
+      },
+      "MingLiU": null,
+      "PMingLiU": null,
+      "MS Gothic": {
+        "files": [
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\MSGOTHIC.TTC",
+            "sha256": "4bde3e6392b96910fb59094c6c1a4dbfae18fee78d0bf13dc30616837c4f95db"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\MSGOTHIC.TTC",
+            "sha256": "4bde3e6392b96910fb59094c6c1a4dbfae18fee78d0bf13dc30616837c4f95db"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\MSGOTHIC.TTC",
+            "sha256": "4bde3e6392b96910fb59094c6c1a4dbfae18fee78d0bf13dc30616837c4f95db"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\MSGOTHIC.TTC",
+            "sha256": "4bde3e6392b96910fb59094c6c1a4dbfae18fee78d0bf13dc30616837c4f95db"
+          }
+        ],
+        "familyNames": [
+          "MS Gothic",
+          "\uFF2D\uFF33 \u30B4\u30B7\u30C3\u30AF"
+        ]
+      },
+      "MS Mincho": null,
+      "Yu Gothic": {
+        "files": [
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\YUGOTHL.TTC",
+            "sha256": "95392428a804b937919526fec91bab64200664f7f22f777211da6bb244988f56"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\YUGOTHR.TTC",
+            "sha256": "27c9b8e4cc7c5cbd846d1fa978b7713938e8ae766875962c70c3986b004bbc85"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\YUGOTHM.TTC",
+            "sha256": "14afc5b98fc53165a2f760fcff11f6ed55ab80f20ae46a2a4a08b7af2b9044d5"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\YUGOTHB.TTC",
+            "sha256": "9d0437d151ddd907d72ba9ba348d670575a86e4f5cbf018de18645f2353140e5"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\YUGOTHL.TTC",
+            "sha256": "95392428a804b937919526fec91bab64200664f7f22f777211da6bb244988f56"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\YUGOTHR.TTC",
+            "sha256": "27c9b8e4cc7c5cbd846d1fa978b7713938e8ae766875962c70c3986b004bbc85"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\YUGOTHM.TTC",
+            "sha256": "14afc5b98fc53165a2f760fcff11f6ed55ab80f20ae46a2a4a08b7af2b9044d5"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\YUGOTHB.TTC",
+            "sha256": "9d0437d151ddd907d72ba9ba348d670575a86e4f5cbf018de18645f2353140e5"
+          }
+        ],
+        "familyNames": [
+          "Yu Gothic",
+          "\u6E38\u30B4\u30B7\u30C3\u30AF"
+        ]
+      },
+      "Meiryo": null,
+      "Malgun Gothic": {
+        "files": [
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\MALGUNSL.TTF",
+            "sha256": "a7217a2e590c86141bddadc74a2bcdff2efe210db48469a77a749e0446d91ea9"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\MALGUN.TTF",
+            "sha256": "0086c19e81d293a542e7d75564c645fb58070cc850aefebf8fa1c397858e510c"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\MALGUNBD.TTF",
+            "sha256": "a541834fb9cdde9bd6d2c3ff1565cb0bb5ccf7a15e4e9daf2cb58d9b1cf282aa"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\MALGUNSL.TTF",
+            "sha256": "a7217a2e590c86141bddadc74a2bcdff2efe210db48469a77a749e0446d91ea9"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\MALGUN.TTF",
+            "sha256": "0086c19e81d293a542e7d75564c645fb58070cc850aefebf8fa1c397858e510c"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\MALGUNBD.TTF",
+            "sha256": "a541834fb9cdde9bd6d2c3ff1565cb0bb5ccf7a15e4e9daf2cb58d9b1cf282aa"
+          }
+        ],
+        "familyNames": [
+          "Malgun Gothic",
+          "\uB9D1\uC740 \uACE0\uB515"
+        ]
+      },
+      "Batang": null,
+      "Gulim": null,
+      "Arial Unicode MS": null,
+      "DengXian": {
+        "files": [
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\DENGL.TTF",
+            "sha256": "a950894abb1ceb1be0d9460b26e5a6167cafc3fc3330eab7f6b21db8b96cd080"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\DENG.TTF",
+            "sha256": "fd46a547002d330f48855408609eb47c22a8c269fe01e3d183e7ca98397bde77"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\DENGB.TTF",
+            "sha256": "be80e1246047a6489a2573c6426519c7cfe0d08c1669dd81c43bb67d39482a19"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\DENGL.TTF",
+            "sha256": "a950894abb1ceb1be0d9460b26e5a6167cafc3fc3330eab7f6b21db8b96cd080"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\DENG.TTF",
+            "sha256": "fd46a547002d330f48855408609eb47c22a8c269fe01e3d183e7ca98397bde77"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\DENGB.TTF",
+            "sha256": "be80e1246047a6489a2573c6426519c7cfe0d08c1669dd81c43bb67d39482a19"
+          }
+        ],
+        "familyNames": [
+          "DengXian",
+          "\u7B49\u7EBF"
+        ]
+      },
+      "Microsoft JhengHei": {
+        "files": [
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\MSJHL.TTC",
+            "sha256": "d3b01af9bfc265ee4057b76c897243ed42f14d62a78b7306084e54dba37a548e"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\MSJH.TTC",
+            "sha256": "0b50839f0e13f9e1607b46568aa953fc1491eb3f867f2737e6a4ff9eb3696aa9"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\MSJHBD.TTC",
+            "sha256": "73293967f4bb2ceb68a40d642d7dbe410ea55abb1410ba94c02d9d88e4d055bf"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\MSJHL.TTC",
+            "sha256": "d3b01af9bfc265ee4057b76c897243ed42f14d62a78b7306084e54dba37a548e"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\MSJH.TTC",
+            "sha256": "0b50839f0e13f9e1607b46568aa953fc1491eb3f867f2737e6a4ff9eb3696aa9"
+          },
+          {
+            "uri": "C:\\WINDOWS\\FONTS\\MSJHBD.TTC",
+            "sha256": "73293967f4bb2ceb68a40d642d7dbe410ea55abb1410ba94c02d9d88e4d055bf"
+          }
+        ],
+        "familyNames": [
+          "Microsoft JhengHei",
+          "\u5FAE\u8EDF\u6B63\u9ED1\u9AD4",
+          "\u5FAE\u8EDF\u6B63\u9ED1\u9AD4"
+        ]
+      }
+    },
+    "systemFontFamilyCount": 91
+  },
+  "verticalText": {
+    "suspectedUnsupported": true,
+    "namespaceMembersMatchingVerticalKeywords": [
+      "InvertAxes.Vertical (Field)"
+    ],
+    "flowDirectionValues": [
+      "LeftToRight",
+      "RightToLeft"
+    ],
+    "note": "\u4E0A\u9762\u8FD9\u4E2A\u6570\u7EC4\u4E3A\u7A7A = \u516C\u5F00\u9762\u91CC\u6CA1\u6709\u4EFB\u4F55\u7AD6\u6392\u5165\u53E3\uFF1BFlowDirection \u53EA\u6709 LTR/RTL \u4E24\u4E2A\u503C\u3002"
+  }
+}

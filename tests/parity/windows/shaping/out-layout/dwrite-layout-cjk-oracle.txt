@@ -1,0 +1,523 @@
+DirectWrite LAYOUT oracle (line breaking + line metrics) - human readable
+generated: 2026-09-11T01:16:57.7069507Z
+
+== [en-long] "The quick brown fox jumps over the lazy dog and keeps on running until the line has to wrap somewhere."
+   container 200 DIP, weight 400, style 0
+   textMetrics: width=198.167999 height=228.81601 lines=7 maxBidi=1
+   line 0: chars [0,16)  len=16 nl=0 trailWs=1  h=32.688 base=25.656 adv=192.479996 caret=(0,0)  "The quick brown "
+   line 1: chars [16,31)  len=15 nl=0 trailWs=1  h=32.688 base=25.656 adv=173.112015 caret=(0,32.688004)  "fox jumps over "
+   line 2: chars [31,48)  len=17 nl=0 trailWs=1  h=32.688 base=25.656 adv=192.264008 caret=(0,65.375999)  "the lazy dog and "
+   line 3: chars [48,65)  len=17 nl=0 trailWs=1  h=32.688 base=25.656 adv=204.408005 caret=(0,98.063995)  "keeps on running "
+   line 4: chars [65,84)  len=19 nl=0 trailWs=1  h=32.688 base=25.656 adv=193.248032 caret=(0,130.751999)  "until the line has "
+   line 5: chars [84,92)  len=8 nl=0 trailWs=1  h=32.688 base=25.656 adv=92.183998 caret=(0,163.440002)  "to wrap "
+   line 6: chars [92,102)  len=10 nl=0 trailWs=0  h=32.688 base=25.656 adv=138.144012 caret=(0,196.128006)  "somewhere."
+== [en-words] "one two three four five six seven eight nine ten eleven twelve thirteen"
+   container 150 DIP, weight 400, style 0
+   textMetrics: width=148.152008 height=228.81601 lines=7 maxBidi=1
+   line 0: chars [0,8)  len=8 nl=0 trailWs=1  h=32.688 base=25.656 adv=97.416008 caret=(0,0)  "one two "
+   line 1: chars [8,19)  len=11 nl=0 trailWs=1  h=32.688 base=25.656 adv=120.000008 caret=(0,32.688004)  "three four "
+   line 2: chars [19,34)  len=15 nl=0 trailWs=1  h=32.688 base=25.656 adv=154.392014 caret=(0,65.375999)  "five six seven "
+   line 3: chars [34,45)  len=11 nl=0 trailWs=1  h=32.688 base=25.656 adv=119.856003 caret=(0,98.063995)  "eight nine "
+   line 4: chars [45,56)  len=11 nl=0 trailWs=1  h=32.688 base=25.656 adv=122.856003 caret=(0,130.751999)  "ten eleven "
+   line 5: chars [56,63)  len=7 nl=0 trailWs=1  h=32.688 base=25.656 adv=79.223999 caret=(0,163.440002)  "twelve "
+   line 6: chars [63,71)  len=8 nl=0 trailWs=0  h=32.688 base=25.656 adv=90.167999 caret=(0,196.128006)  "thirteen"
+== [en-hyphen] "well-known state-of-the-art self-contained hyphen-separated compound words"
+   container 160 DIP, weight 400, style 0
+   textMetrics: width=138.815994 height=261.503998 lines=8 maxBidi=1
+   line 0: chars [0,11)  len=11 nl=0 trailWs=1  h=32.688 base=25.656 adv=134.136002 caret=(0,0)  "well-known "
+   line 1: chars [11,24)  len=13 nl=0 trailWs=0  h=32.688 base=25.656 adv=138.815994 caret=(0,32.688004)  "state-of-the-"
+   line 2: chars [24,33)  len=9 nl=0 trailWs=0  h=32.688 base=25.656 adv=85.487991 caret=(0,65.375999)  "art self-"
+   line 3: chars [33,43)  len=10 nl=0 trailWs=1  h=32.688 base=25.656 adv=118.560005 caret=(0,98.063995)  "contained "
+   line 4: chars [43,50)  len=7 nl=0 trailWs=0  h=32.688 base=25.656 adv=92.760002 caret=(0,130.751999)  "hyphen-"
+   line 5: chars [50,60)  len=10 nl=0 trailWs=1  h=32.688 base=25.656 adv=119.352005 caret=(0,163.440002)  "separated "
+   line 6: chars [60,69)  len=9 nl=0 trailWs=1  h=32.688 base=25.656 adv=128.424011 caret=(0,196.128006)  "compound "
+   line 7: chars [69,74)  len=5 nl=0 trailWs=0  h=32.688 base=25.656 adv=69.072006 caret=(0,228.81601)  "words"
+== [en-narrow] "The quick brown fox jumps over the lazy dog"
+   container 90 DIP, weight 400, style 0
+   textMetrics: width=86.448006 height=261.503998 lines=8 maxBidi=1
+   line 0: chars [0,4)  len=4 nl=0 trailWs=1  h=32.688 base=25.656 adv=47.952 caret=(0,0)  "The "
+   line 1: chars [4,10)  len=6 nl=0 trailWs=1  h=32.688 base=25.656 adv=66.360001 caret=(0,32.688004)  "quick "
+   line 2: chars [10,16)  len=6 nl=0 trailWs=1  h=32.688 base=25.656 adv=78.167999 caret=(0,65.375999)  "brown "
+   line 3: chars [16,20)  len=4 nl=0 trailWs=1  h=32.688 base=25.656 adv=41.232002 caret=(0,98.063995)  "fox "
+   line 4: chars [20,26)  len=6 nl=0 trailWs=1  h=32.688 base=25.656 adv=75.959999 caret=(0,130.751999)  "jumps "
+   line 5: chars [26,31)  len=5 nl=0 trailWs=1  h=32.688 base=25.656 adv=55.920002 caret=(0,163.440002)  "over "
+   line 6: chars [31,40)  len=9 nl=0 trailWs=1  h=32.688 base=25.656 adv=92.688004 caret=(0,196.128006)  "the lazy "
+   line 7: chars [40,43)  len=3 nl=0 trailWs=0  h=32.688 base=25.656 adv=44.040001 caret=(0,228.81601)  "dog"
+== [en-newline] "first line\nsecond line\n\nfourth line after an empty one"
+   container 300 DIP, weight 400, style 0
+   textMetrics: width=290.496002 height=163.440002 lines=5 maxBidi=1
+   line 0: chars [0,10)  len=11 nl=1 trailWs=1  h=32.688 base=25.656 adv=91.512009 caret=(0,0)  "first line"
+   line 1: chars [11,22)  len=12 nl=1 trailWs=1  h=32.688 base=25.656 adv=127.656006 caret=(0,32.688004)  "second line"
+   line 2: chars [23,23)  len=1 nl=1 trailWs=1  h=32.688 base=25.656 adv=0 caret=(0,65.375999)  ""
+   line 3: chars [24,51)  len=27 nl=0 trailWs=1  h=32.688 base=25.656 adv=296.735992 caret=(0,98.063995)  "fourth line after an empty "
+   line 4: chars [51,54)  len=3 nl=0 trailWs=0  h=32.688 base=25.656 adv=42.888 caret=(0,130.751999)  "one"
+== [en-oneword] "supercalifragilisticexpialidociousandthensomemorelettershere"
+   container 100 DIP, weight 400, style 0
+   textMetrics: width=98.832001 height=261.503998 lines=8 maxBidi=1
+   line 0: chars [0,8)  len=8 nl=0 trailWs=0  h=32.688 base=25.656 adv=95.232002 caret=(0,0)  "supercal"
+   line 1: chars [8,19)  len=11 nl=0 trailWs=0  h=32.688 base=25.656 adv=97.032013 caret=(0,32.688004)  "ifragilisti"
+   line 2: chars [19,28)  len=9 nl=0 trailWs=0  h=32.688 base=25.656 adv=98.832001 caret=(0,65.375999)  "cexpialid"
+   line 3: chars [28,35)  len=7 nl=0 trailWs=0  h=32.688 base=25.656 adv=86.543999 caret=(0,98.063995)  "ociousa"
+   line 4: chars [35,42)  len=7 nl=0 trailWs=0  h=32.688 base=25.656 adv=92.952003 caret=(0,130.751999)  "ndthens"
+   line 5: chars [42,48)  len=6 nl=0 trailWs=0  h=32.688 base=25.656 adv=96.887993 caret=(0,163.440002)  "omemor"
+   line 6: chars [48,56)  len=8 nl=0 trailWs=0  h=32.688 base=25.656 adv=85.536011 caret=(0,196.128006)  "eletters"
+   line 7: chars [56,60)  len=4 nl=0 trailWs=0  h=32.688 base=25.656 adv=51.335999 caret=(0,228.81601)  "here"
+== [mixed] "WPF on Linux renders text 中英混排换行测试 with Latin and CJK together"
+   container 200 DIP, weight 400, style 0
+   textMetrics: width=198.792007 height=163.924881 lines=5 maxBidi=1
+   line 0: chars [0,13)  len=13 nl=0 trailWs=1  h=32.688 base=25.656 adv=158.496002 caret=(0,0)  "WPF on Linux "
+   line 1: chars [13,28)  len=15 nl=0 trailWs=0  h=32.930439 base=25.898438 adv=191.064011 caret=(0,32.930435)  "renders text 中英"
+   line 2: chars [28,40)  len=12 nl=0 trailWs=1  h=32.930439 base=25.898438 adv=205.032013 caret=(0,65.618439)  "混排换行测试 with "
+   line 3: chars [40,54)  len=14 nl=0 trailWs=1  h=32.688 base=25.656 adv=154.080017 caret=(0,98.548874)  "Latin and CJK "
+   line 4: chars [54,62)  len=8 nl=0 trailWs=0  h=32.688 base=25.656 adv=98.424004 caret=(0,131.236877)  "together"
+== [cjk-only] "中文排版测试：这是一段需要换行的中文文本，标点符号也要正确处理。"
+   container 180 DIP, weight 400, style 0
+   textMetrics: width=168 height=159.9375 lines=5 maxBidi=1
+   line 0: chars [0,7)  len=7 nl=0 trailWs=0  h=32.003906 base=25.898438 adv=168 caret=(0,0)  "中文排版测试："
+   line 1: chars [7,14)  len=7 nl=0 trailWs=0  h=32.003906 base=25.898438 adv=168 caret=(0,33.527344)  "这是一段需要换"
+   line 2: chars [14,21)  len=7 nl=0 trailWs=0  h=31.921875 base=25.898438 adv=168 caret=(0,64.007813)  "行的中文文本，"
+   line 3: chars [21,28)  len=7 nl=0 trailWs=0  h=32.003906 base=25.898438 adv=168 caret=(0,97.453125)  "标点符号也要正"
+   line 4: chars [28,32)  len=4 nl=0 trailWs=0  h=32.003906 base=25.898438 adv=87.9375 caret=(0,127.933594)  "确处理。"
+== [bold-wrap] "The quick brown fox jumps over the lazy dog and keeps on running"
+   container 180 DIP, weight 700, style 0
+   textMetrics: width=179.472015 height=196.128006 lines=6 maxBidi=1
+   line 0: chars [0,10)  len=10 nl=0 trailWs=1  h=32.688 base=25.656 adv=121.464005 caret=(0,0)  "The quick "
+   line 1: chars [10,20)  len=10 nl=0 trailWs=1  h=32.688 base=25.656 adv=126.240005 caret=(0,32.688004)  "brown fox "
+   line 2: chars [20,35)  len=15 nl=0 trailWs=1  h=32.688 base=25.656 adv=185.712021 caret=(0,65.375999)  "jumps over the "
+   line 3: chars [35,48)  len=13 nl=0 trailWs=1  h=32.688 base=25.656 adv=156.264008 caret=(0,98.063995)  "lazy dog and "
+   line 4: chars [48,57)  len=9 nl=0 trailWs=1  h=32.688 base=25.656 adv=113.831993 caret=(0,130.751999)  "keeps on "
+   line 5: chars [57,64)  len=7 nl=0 trailWs=0  h=32.688 base=25.656 adv=95.472 caret=(0,163.440002)  "running"
+== [italic-wrap] "The quick brown fox jumps over the lazy dog and keeps on running"
+   container 180 DIP, weight 400, style 2
+   textMetrics: width=177 height=163.440002 lines=5 maxBidi=1
+   line 0: chars [0,16)  len=16 nl=0 trailWs=1  h=32.688 base=25.656 adv=180.600006 caret=(0,0)  "The quick brown "
+   line 1: chars [16,31)  len=15 nl=0 trailWs=1  h=32.688 base=25.656 adv=162.576004 caret=(0,32.688004)  "fox jumps over "
+   line 2: chars [31,48)  len=17 nl=0 trailWs=1  h=32.688 base=25.656 adv=183.240005 caret=(0,65.375999)  "the lazy dog and "
+   line 3: chars [48,57)  len=9 nl=0 trailWs=1  h=32.688 base=25.656 adv=99.50399 caret=(0,98.063995)  "keeps on "
+   line 4: chars [57,64)  len=7 nl=0 trailWs=0  h=32.688 base=25.656 adv=85.223999 caret=(0,130.751999)  "running"
+
+== [cjk-para] family=Noto Sans CJK SC container=200 size=24  "这是一段用来测试中文换行的段落，它足够长，需要被容器折成好几行才放得下。"
+   textMetrics: width=192 height=173.759995 lines=5
+   line 0: chars [0,8)  h=34.751999 adv=192  "这是一段用来测试"
+   line 1: chars [8,16)  h=34.751999 adv=192  "中文换行的段落，"
+   line 2: chars [16,24)  h=34.751999 adv=192  "它足够长，需要被"
+   line 3: chars [24,32)  h=34.751999 adv=192  "容器折成好几行才"
+   line 4: chars [32,36)  h=34.751999 adv=96  "放得下。"
+
+== [cjk-punct-head] family=Noto Sans CJK SC container=180 size=24  "标点避头尾测试：逗号，顿号、句号。问号？叹号！以及右括号）」都不应该出现在行首。"
+   textMetrics: width=168 height=243.263992 lines=7
+   line 0: chars [0,6)  h=34.751999 adv=144  "标点避头尾测"
+   line 1: chars [6,12)  h=34.751999 adv=144  "试：逗号，顿"
+   line 2: chars [12,18)  h=34.751999 adv=144  "号、句号。问"
+   line 3: chars [18,25)  h=34.751999 adv=168  "号？叹号！以及"
+   line 4: chars [25,32)  h=34.751999 adv=168  "右括号）」都不"
+   line 5: chars [32,38)  h=34.751999 adv=144  "应该出现在行"
+   line 6: chars [38,40)  h=34.751999 adv=48  "首。"
+
+== [cjk-kinji-comma] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚，辛壬癸子丑寅卯"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚，辛壬癸子丑"
+   line 2: chars [13,15)  h=34.751999 adv=48  "寅卯"
+
+== [cjk-kinji-close] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚）」辛壬癸子丑"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚）」辛壬癸子"
+   line 2: chars [13,14)  h=34.751999 adv=24  "丑"
+
+== [cjk-kinji-period] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚。辛壬癸子丑寅"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚。辛壬癸子丑"
+   line 2: chars [13,14)  h=34.751999 adv=24  "寅"
+
+== [cjk-narrow] family=Noto Sans CJK SC container=90 size=24  "中文在很窄的容器里换行会更加频繁，几乎每几个字就要断一次。"
+   textMetrics: width=72 height=347.52002 lines=10
+   line 0: chars [0,3)  h=34.751999 adv=72  "中文在"
+   line 1: chars [3,6)  h=34.751999 adv=72  "很窄的"
+   line 2: chars [6,9)  h=34.751999 adv=72  "容器里"
+   line 3: chars [9,12)  h=34.751999 adv=72  "换行会"
+   line 4: chars [12,15)  h=34.751999 adv=72  "更加频"
+   line 5: chars [15,18)  h=34.751999 adv=72  "繁，几"
+   line 6: chars [18,21)  h=34.751999 adv=72  "乎每几"
+   line 7: chars [21,24)  h=34.751999 adv=72  "个字就"
+   line 8: chars [24,27)  h=34.751999 adv=72  "要断一"
+   line 9: chars [27,29)  h=34.751999 adv=48  "次。"
+
+== [cjk-latin-mix] family=Noto Sans CJK SC container=200 size=24  "在中文里嵌入 Latin words 和 numbers 12345 时，断点会出现在中英交界处。"
+   textMetrics: width=192 height=173.759995 lines=5
+   line 0: chars [0,7)  h=34.751999 adv=149.376007  "在中文里嵌入 "
+   line 1: chars [7,21)  h=34.751999 adv=165.456009  "Latin words 和 "
+   line 2: chars [21,35)  h=34.751999 adv=177.360016  "numbers 12345 "
+   line 3: chars [35,43)  h=34.751999 adv=192  "时，断点会出现在"
+   line 4: chars [43,49)  h=34.751999 adv=144  "中英交界处。"
+
+== [cjk-long-token] family=Noto Sans CJK SC container=150 size=24  "这里有一个不可断的长串：abcdefghijklmnopqrstuvwxyz0123456789 它必须被强制断开。"
+   textMetrics: width=147.696014 height=243.263992 lines=7
+   line 0: chars [0,6)  h=34.751999 adv=144  "这里有一个不"
+   line 1: chars [6,12)  h=34.751999 adv=144  "可断的长串："
+   line 2: chars [12,24)  h=34.751999 adv=136.967987  "abcdefghijkl"
+   line 3: chars [24,34)  h=34.751999 adv=137.208008  "mnopqrstuv"
+   line 4: chars [34,45)  h=34.751999 adv=147.696014  "wxyz0123456"
+   line 5: chars [45,53)  h=34.751999 adv=141.335999  "789 它必须被"
+   line 6: chars [53,58)  h=34.751999 adv=120  "强制断开。"
+
+== [cjk-fullwidth] family=Noto Sans CJK SC container=160 size=24  "全角标点：，。！？；：「」（）【】《》——……"
+   textMetrics: width=144 height=173.759995 lines=5
+   line 0: chars [0,3)  h=34.751999 adv=72  "全角标"
+   line 1: chars [3,9)  h=34.751999 adv=144  "点：，。！？"
+   line 2: chars [9,15)  h=34.751999 adv=144  "；：「」（）"
+   line 3: chars [15,21)  h=34.751999 adv=144  "【】《》——"
+   line 4: chars [21,23)  h=34.751999 adv=48  "……"
+
+== [cjk-newlines] family=Noto Sans CJK SC container=300 size=24  "第一行\n第二行\n\n第四行（前面有一个空行）"
+   textMetrics: width=288 height=139.007996 lines=4
+   line 0: chars [0,3)  h=34.751999 adv=72  "第一行"
+   line 1: chars [4,7)  h=34.751999 adv=72  "第二行"
+   line 2: chars [8,8)  h=34.751999 adv=0  ""
+   line 3: chars [9,21)  h=34.751999 adv=288  "第四行（前面有一个空行）"
+
+== [cjk-kana] family=Noto Sans CJK SC container=180 size=24  "これは日本語のかなの折り返しテストです。ひらがなとカタカナが混ざっています。"
+   textMetrics: width=168 height=208.511993 lines=6
+   line 0: chars [0,7)  h=34.751999 adv=168  "これは日本語の"
+   line 1: chars [7,14)  h=34.751999 adv=168  "かなの折り返し"
+   line 2: chars [14,21)  h=34.751999 adv=165.600006  "テストです。ひ"
+   line 3: chars [21,28)  h=34.751999 adv=168  "らがなとカタカ"
+   line 4: chars [28,35)  h=34.751999 adv=166.800003  "ナが混ざってい"
+   line 5: chars [35,38)  h=34.751999 adv=69.599998  "ます。"
+
+== [cjk-hangul] family=Noto Sans CJK SC container=180 size=24  "한국어 조판에서 줄바꿈을 시험하는 문장입니다. 줄이 바뀌어야 합니다."
+   textMetrics: width=171.984009 height=173.759995 lines=5
+   line 0: chars [0,9)  h=34.751999 adv=165.312012  "한국어 조판에서 "
+   line 1: chars [9,17)  h=34.751999 adv=159.936005  "줄바꿈을 시험하"
+   line 2: chars [17,27)  h=34.751999 adv=171.984009  "는 문장입니다. 줄"
+   line 3: chars [27,36)  h=34.751999 adv=165.311996  "이 바뀌어야 합니"
+   line 4: chars [36,38)  h=34.751999 adv=28.751999  "다."
+
+== [cjk-small] family=Noto Sans CJK SC container=150 size=11  "小字号的中文换行测试，容器宽度固定，观察每行的字数。"
+   textMetrics: width=143 height=31.856001 lines=2
+   line 0: chars [0,13)  h=15.928 adv=143  "小字号的中文换行测试，容器"
+   line 1: chars [13,26)  h=15.928 adv=143  "宽度固定，观察每行的字数。"
+
+== [facecmp-sc] family=Noto Sans CJK SC container=160 size=24  "直画骨角写门今令汉字字体说明，这是一段用于比较断行位置的中文文本。"
+   textMetrics: width=144 height=208.511993 lines=6
+   line 0: chars [0,6)  h=34.751999 adv=144  "直画骨角写门"
+   line 1: chars [6,12)  h=34.751999 adv=144  "今令汉字字体"
+   line 2: chars [12,18)  h=34.751999 adv=144  "说明，这是一"
+   line 3: chars [18,24)  h=34.751999 adv=144  "段用于比较断"
+   line 4: chars [24,30)  h=34.751999 adv=144  "行位置的中文"
+   line 5: chars [30,33)  h=34.751999 adv=72  "文本。"
+
+== [facecmp-jp] family=Noto Sans CJK JP container=160 size=24  "直画骨角写门今令汉字字体说明，这是一段用于比较断行位置的中文文本。"
+   textMetrics: width=144 height=208.511993 lines=6
+   line 0: chars [0,6)  h=34.751999 adv=144  "直画骨角写门"
+   line 1: chars [6,12)  h=34.751999 adv=144  "今令汉字字体"
+   line 2: chars [12,18)  h=34.751999 adv=144  "说明，这是一"
+   line 3: chars [18,24)  h=34.751999 adv=144  "段用于比较断"
+   line 4: chars [24,30)  h=34.751999 adv=144  "行位置的中文"
+   line 5: chars [30,33)  h=34.751999 adv=72  "文本。"
+
+== [kinsoku-start-U+3001] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚、辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚、辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-start-U+3002] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚。辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚。辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-start-U+FF0C] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚，辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚，辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-start-U+FF0E] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚．辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚．辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-start-U+FF1A] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚：辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚：辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-start-U+FF1B] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚；辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚；辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-start-U+FF01] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚！辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚！辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-start-U+FF1F] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚？辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚？辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-start-U+FF09] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚）辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚）辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-start-U+FF3D] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚］辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚］辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-start-U+FF5D] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚｝辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚｝辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-start-U+300D] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚」辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚」辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-start-U+300F] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚』辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚』辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-start-U+3011] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚】辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚】辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-start-U+300B] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚》辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚》辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-start-U+3009] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚〉辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚〉辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-start-U+3015] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚〕辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚〕辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-start-U+30FB] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚・辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚・辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-start-U+30FC] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚ー辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚ー辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-start-U+3005] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚々辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚々辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-start-U+3041] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚ぁ辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚ぁ辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-start-U+3043] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚ぃ辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚ぃ辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-start-U+3045] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚ぅ辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚ぅ辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-start-U+3047] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚ぇ辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚ぇ辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-start-U+3049] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚ぉ辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚ぉ辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-start-U+3063] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚っ辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚っ辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-start-U+3083] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚ゃ辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚ゃ辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-start-U+3085] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚ゅ辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚ゅ辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-start-U+3087] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚ょ辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚ょ辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-start-U+2026] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚…辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚…辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-start-U+2010] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚‐辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "庚‐辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-start-control] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己庚甲辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,7)  h=34.751999 adv=168  "甲乙丙丁戊己庚"
+   line 1: chars [7,14)  h=34.751999 adv=168  "甲辛壬癸子丑寅"
+   line 2: chars [14,16)  h=34.751999 adv=48  "卯辰"
+
+== [kinsoku-end-U+FF08] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己（辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "（辛壬癸子丑寅"
+   line 2: chars [13,15)  h=34.751999 adv=48  "卯辰"
+
+== [kinsoku-end-U+FF3B] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己［辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "［辛壬癸子丑寅"
+   line 2: chars [13,15)  h=34.751999 adv=48  "卯辰"
+
+== [kinsoku-end-U+FF5B] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己｛辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "｛辛壬癸子丑寅"
+   line 2: chars [13,15)  h=34.751999 adv=48  "卯辰"
+
+== [kinsoku-end-U+300C] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己「辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "「辛壬癸子丑寅"
+   line 2: chars [13,15)  h=34.751999 adv=48  "卯辰"
+
+== [kinsoku-end-U+300E] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己『辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "『辛壬癸子丑寅"
+   line 2: chars [13,15)  h=34.751999 adv=48  "卯辰"
+
+== [kinsoku-end-U+3010] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己【辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "【辛壬癸子丑寅"
+   line 2: chars [13,15)  h=34.751999 adv=48  "卯辰"
+
+== [kinsoku-end-U+300A] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己《辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "《辛壬癸子丑寅"
+   line 2: chars [13,15)  h=34.751999 adv=48  "卯辰"
+
+== [kinsoku-end-U+3008] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己〈辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "〈辛壬癸子丑寅"
+   line 2: chars [13,15)  h=34.751999 adv=48  "卯辰"
+
+== [kinsoku-end-U+3014] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己〔辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "〔辛壬癸子丑寅"
+   line 2: chars [13,15)  h=34.751999 adv=48  "卯辰"
+
+== [kinsoku-end-U+201C] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己“辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,5)  h=34.751999 adv=120  "甲乙丙丁戊"
+   line 1: chars [5,12)  h=34.751999 adv=168  "己“辛壬癸子丑"
+   line 2: chars [12,15)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-end-U+2018] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己‘辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,5)  h=34.751999 adv=120  "甲乙丙丁戊"
+   line 1: chars [5,12)  h=34.751999 adv=168  "己‘辛壬癸子丑"
+   line 2: chars [12,15)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-end-control] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己甲辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,7)  h=34.751999 adv=168  "甲乙丙丁戊己甲"
+   line 1: chars [7,14)  h=34.751999 adv=168  "辛壬癸子丑寅卯"
+   line 2: chars [14,15)  h=34.751999 adv=24  "辰"
+
+== [kinsoku-conflict-openpair] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己「（辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "「（辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-conflict-both] family=Noto Sans CJK SC container=168 size=24  "甲乙丙丁戊己「」辛壬癸子丑寅卯辰"
+   textMetrics: width=168 height=104.255997 lines=3
+   line 0: chars [0,6)  h=34.751999 adv=144  "甲乙丙丁戊己"
+   line 1: chars [6,13)  h=34.751999 adv=168  "「」辛壬癸子丑"
+   line 2: chars [13,16)  h=34.751999 adv=72  "寅卯辰"
+
+== [kinsoku-conflict-1char] family=Noto Sans CJK SC container=24 size=24  "甲乙丙丁戊己庚，辛壬癸子丑"
+   textMetrics: width=24 height=451.776062 lines=13
+   line 0: chars [0,1)  h=34.751999 adv=24  "甲"
+   line 1: chars [1,2)  h=34.751999 adv=24  "乙"
+   line 2: chars [2,3)  h=34.751999 adv=24  "丙"
+   line 3: chars [3,4)  h=34.751999 adv=24  "丁"
+   line 4: chars [4,5)  h=34.751999 adv=24  "戊"
+   line 5: chars [5,6)  h=34.751999 adv=24  "己"
+   line 6: chars [6,7)  h=34.751999 adv=24  "庚"
+   line 7: chars [7,8)  h=34.751999 adv=24  "，"
+   line 8: chars [8,9)  h=34.751999 adv=24  "辛"
+   line 9: chars [9,10)  h=34.751999 adv=24  "壬"
+   line 10: chars [10,11)  h=34.751999 adv=24  "癸"
+   line 11: chars [11,12)  h=34.751999 adv=24  "子"
+   line 12: chars [12,13)  h=34.751999 adv=24  "丑"
+
+== [kinsoku-conflict-2char] family=Noto Sans CJK SC container=48 size=24  "甲乙丙丁戊己，。」辛壬癸子丑寅卯辰"
+   textMetrics: width=48 height=312.768005 lines=9
+   line 0: chars [0,2)  h=34.751999 adv=48  "甲乙"
+   line 1: chars [2,4)  h=34.751999 adv=48  "丙丁"
+   line 2: chars [4,5)  h=34.751999 adv=24  "戊"
+   line 3: chars [5,7)  h=34.751999 adv=48  "己，"
+   line 4: chars [7,9)  h=34.751999 adv=48  "。」"
+   line 5: chars [9,11)  h=34.751999 adv=48  "辛壬"
+   line 6: chars [11,13)  h=34.751999 adv=48  "癸子"
+   line 7: chars [13,15)  h=34.751999 adv=48  "丑寅"
+   line 8: chars [15,17)  h=34.751999 adv=48  "卯辰"

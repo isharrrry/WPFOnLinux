@@ -1,0 +1,170 @@
+== T1b/B2 · HbTextLine 对拍 harness（**驱动真 shim 源**：73 例 CJK + 真机 oracle 614 例）==
+被测文件 = build/shims/PresentationCore.HbTextLine.cs
+           sha256=de6133fc040e8a9980ac38f33e649245830827b23a61ba26c70226aaa1b1b002  大小=79097 B  行数=1438
+           mtime=2026-09-11 16:40:34
+
+-- [1/3] 直构分支编译闸门（TEXTLINE_SHIM_DIRECT，PC 内形态）--
+    0 个错误
+
+已用时间 00:00:02.38
+-- [2/3] 对拍主体（反射分支；直构分支由主控重建 PC 后验）--
+==================== T1b/B2 · HbTextLine 对拍 harness（驱动真 shim 源）====================
+shim 源 = build/shims/PresentationCore.HbTextLine.cs
+shim tag = T1b/B2 · 2026-09-11 · break-engine + TextLineBreak + Collapse
+引擎     = ICU(UAX#14) + `…`前可断 + 禁则拉字 + 强制断 fallback
+ICU      = 70.1.0.0；HB = 2.7.4
+
+──────── T0 身份自检：驱动的是**真 shim 源文件**吗 ────────
+  ✅ T0.1 HbTextLine 编译在**本 harness 程序集**内（不是引用 PC 里的副本）
+       HbTextLine.Assembly=MilBridge.HbTextLineParity；harness=MilBridge.HbTextLineParity
+  ✅ T0.2 TextLine 基类来自 PresentationCore（契约是真的）
+       TextLine.Assembly=PresentationCore
+  ✅ T0.3 shim 源文件里的 Tag 与 harness 预期逐字相同（换文件/换 stub 会在这里炸）
+       实际="T1b/B2 · 2026-09-11 · break-engine + TextLineBreak + Collapse"
+  ✅ T0.4 真 shim 源文件在磁盘上存在（能算出 sha256）
+       build/shims/PresentationCore.HbTextLine.cs sha256=DE6133FC040E8A9980AC38F33E649245830827B23A61BA26C70226AAA1B1B002
+  ✅ T0.6 **被测文件的 sha256 == run.sh 固定的 sha256**（编译进本 harness 的那一份）
+       固定=de6133fc040e8a9980ac38f33e649245830827b23a61ba26c70226aaa1b1b002 实读=DE6133FC040E8A9980AC38F33E649245830827B23A61BA26C70226AAA1B1B002
+  ✅ T0.5 ICU 断行引擎可用（不是 '?'）
+       u_getVersion=70.1.0.0
+
+──────── T1 · 73 例 CJK（DWrite oracle）逐行全等 —— 驱动真 HbTextLine ────────
+   用例 73；**逐行全等 73 / 不同 0**
+  ✅ T1.73 73 例 CJK 逐行全等（判据：必须 0 不同）
+       exact=73 diff=0 cases=73
+
+──────── T2/T3/T4 · 真机 oracle（layout-b34）对拍 —— 驱动真 HbTextLine ────────
+   [对拍面] 可逐位比用例 315（file 字体 + Ideal 模式 + 非 RTL）；其余 299 例只统计不给结论（zh/ja = 无 YaHei/Yu Gothic；Display = 本实现无该模式（advance 未按整像素对齐）；RTL = 本轮无 bidi）
+   [逐行记账·结构] Length+NewlineLength+TrailingWhitespaceLength+(WITW−W) ⇒ 全等 1276 / 1298
+   [宽度绝对值] 0（逐位等）167 行；≤0.34 DIP（= 1 个 ideal unit）1048 行；>0.34 DIP 83 行；最大差 282.219333 DIP（在 M_modifier_winf）
+      （真机在 Windows 把每个字形 advance 量化到 1/300 英寸整数量；我们走 HarfBuzz 精确 design units ⇒ 绝对值本就不该逐位相等）
+   [用例] 行划分+结构记账全等 271 / 315
+   [A 组·断行位置] 行首+行可见长度对拍：行级 964/965；用例级 207/213
+   [① 行区间**含**硬断字符（Length 含它、NewlineLength 单独给个数）]
+      真硬断行 286/286 行一致
+   [② 相邻 \n ⇒ Length=1、内容='\n' 的普通行（不是零长度行）]
+      空行 68/68 行一致（Length/Width==0/NewlineLength 同时相等）
+      A1_blank_lines_w20 行#4: 真机 Len=1 W=0.0000 nl=1 | 实得 Len=1 W=0.0000 nl=1
+      A1_blank_lines_w20 行#5: 真机 Len=1 W=0.0000 nl=1 | 实得 Len=1 W=0.0000 nl=1
+      A1_blank_lines_w30 行#3: 真机 Len=1 W=0.0000 nl=1 | 实得 Len=1 W=0.0000 nl=1
+      A1_blank_lines_w30 行#4: 真机 Len=1 W=0.0000 nl=1 | 实得 Len=1 W=0.0000 nl=1
+   [③ 行尾空白：占区间、不占 Width，差额由 WidthIncludingTrailingWhitespace 给出]
+      有行尾空白的行 977/988 一致（TrailingWhitespaceLength + WITW−W 关系）
+      A1_lat_words_w20 行#1: 真机 ws=1 WITW−W=4.1600 | 实得 ws=1 WITW−W=4.1600
+      A1_lat_words_w30 行#0: 真机 ws=1 WITW−W=4.1600 | 实得 ws=1 WITW−W=4.1600
+      A1_lat_words_w40 行#0: 真机 ws=1 WITW−W=4.1600 | 实得 ws=1 WITW−W=4.1600
+      A1_lat_words_w50 行#0: 真机 ws=1 WITW−W=4.1600 | 实得 ws=1 WITW−W=4.1600
+   [Collapse / GetTextCollapsedRanges]
+      折叠判定一致 1298/1298；真折叠 236 行，明细全等 198/236（折后宽度最大差 144.816000 DIP，最差在 M_modifier_winf 行#0（行文本=start=0 visible=62 hardBreak=0 eop=1 forced=0 keepState=1 modifier=1））
+      F_lat_words_w40 行#0: 真机 Len=4 W=21.5533 cr=[1,3) W=6.2533 | 实得 Len=4 W=21.5520 cr=[1,3) W=6.2560
+      F_lat_words_w40 行#1: 真机 Len=4 W=22.4967 cr=[5,3) W=9.0367 | 实得 Len=4 W=22.4960 cr=[5,3) W=9.0400
+      F_lat_words_w40 行#2: 真机 Len=2 W=12.6567 cr=[8,2) W=-4.1133 | 实得 Len=2 W=12.6560 cr=[8,2) W=-4.1120
+      F_lat_words_w40 行#3: 真机 Len=4 W=22.4967 cr=[11,3) W=15.5667 | 实得 Len=4 W=22.4960 cr=[11,3) W=15.5680
+      X F_lat_words_w40 行#17 [start=70 visible=6 hardBreak=0 eop=0 forced=1 keepState=1 modifier=0] 行文本="flouri" 行W=39.9360  | 真机 Len=6 W=22.2900 cr=[72,4) W=17.6433  | 实得 Len=6 W=22.2880 cr=[71,5) W=17.6480
+      X F_lat_words_w120 行#3 [start=35 visible=13 hardBreak=0 eop=0 forced=0 keepState=1 modifier=0] 行文本="lazy dog and " 行W=95.1680  | 真机 Len=13 W=41.4400 cr=[40,8) W=53.7267  | 实得 Len=13 W=45.6000 cr=[40,8) W=49.5680
+      X F_lat_words_w200 行#2 [start=44 visible=26 hardBreak=0 eop=0 forced=0 keepState=1 modifier=0] 行文本="and the waffle office ffl " 行W=172.4000  | 真机 Len=26 W=70.2067 cr=[52,18) W=102.1933  | 实得 Len=26 W=74.3680 cr=[52,18) W=98.0320
+      X F_lat_words_w560 行#0 [start=0 visible=70 hardBreak=0 eop=0 forced=0 keepState=1 modifier=0] 行文本="The quick brown fox jumps over the lazy dog and the waffle office ffl " 行W=511.4400  | 真机 Len=70 W=252.2100 cr=[31,39) W=259.2133  | 实得 Len=70 W=252.2240 cr=[30,40) W=259.2160
+      X F_lat_words_w900 行#0 [start=0 visible=79 hardBreak=0 eop=1 forced=0 keepState=1 modifier=0] 行文本="The quick brown fox jumps over the lazy dog and the waffle office ffl flourish." 行W=577.3760  | 真机 Len=80 W=281.0567 cr=[35,45) W=296.2967  | 实得 Len=80 W=285.2320 cr=[35,45) W=292.1440
+      X F_lat_words_winf 行#0 [start=0 visible=79 hardBreak=0 eop=1 forced=0 keepState=1 modifier=0] 行文本="The quick brown fox jumps over the lazy dog and the waffle office ffl flourish." 行W=577.3760  | 真机 Len=80 W=281.0567 cr=[35,45) W=296.2967  | 实得 Len=80 W=285.2320 cr=[35,45) W=292.1440
+      X F_hard_lf_w40 行#0 [start=0 visible=6 hardBreak=0 eop=0 forced=0 keepState=1 modifier=0] 行文本="first " 行W=29.6800  | 真机 Len=6 W=22.2900 cr=[2,4) W=7.3900  | 实得 Len=6 W=22.2880 cr=[1,5) W=7.3920
+      X F_hard_crlf_w40 行#0 [start=0 visible=6 hardBreak=0 eop=0 forced=0 keepState=1 modifier=0] 行文本="first " 行W=29.6800  | 真机 Len=6 W=22.2900 cr=[2,4) W=7.3900  | 实得 Len=6 W=22.2880 cr=[1,5) W=7.3920
+      空参：可折叠行抛 ArgumentNullException 253/253；不可折叠行原样返回 this 1045/1045
+   ── 不一致用例 44 个，按家族归并 ──
+      A1_tabs: 6 例
+      A1_nbsp_zwsp: 3 例
+      B_tabs: 1 例
+      F_lat_words: 6 例
+      F_hard_lf: 1 例
+      F_hard_crlf: 1 例
+      F_hard_ls: 1 例
+      F_spaces: 4 例
+      F_tabs: 8 例
+      F_nbsp_zwsp: 8 例
+      M_modifier: 5 例
+      A1_tabs_w20(行数 4≠2)
+      A1_tabs_w30(行#0 期望 Len=6 nl=0 ws=0 | 实得 Len=5 nl=0 ws=2)
+      A1_tabs_w40(行数 2≠1)
+      A1_tabs_w50(行数 2≠1)
+      A1_tabs_w60(行数 2≠1)
+      A1_tabs_w70(行数 2≠1)
+      A1_nbsp_zwsp_w30(行#0 期望 Len=3 nl=0 ws=0 | 实得 Len=3 nl=0 ws=1)
+      A1_nbsp_zwsp_w40(行#1 期望 Len=4 nl=0 ws=0 | 实得 Len=4 nl=0 ws=1)
+      A1_nbsp_zwsp_w80(行#0 期望 Len=9 nl=0 ws=0 | 实得 Len=9 nl=0 ws=1)
+      B_tabs_w60(行数 2≠1)
+      F_lat_words_w40(行#17 折叠明细不符)
+      F_lat_words_w120(行#3 折叠明细不符)
+      F_lat_words_w200(行#2 折叠明细不符)
+      F_lat_words_w560(行#0 折叠明细不符)
+      F_lat_words_w900(行#0 折叠明细不符)
+      F_lat_words_winf(行#0 折叠明细不符)
+      F_hard_lf_w40(行#0 折叠明细不符)
+      F_hard_crlf_w40(行#0 折叠明细不符)
+      F_hard_ls_w40(行#0 折叠明细不符)
+      F_spaces_w320(行#0 折叠明细不符)
+      F_spaces_w560(行#0 折叠明细不符)
+      F_spaces_w900(行#0 折叠明细不符)
+      F_spaces_winf(行#0 折叠明细不符)
+      F_tabs_w40(行数 2≠1)
+      F_tabs_w80(行#0 折叠明细不符)
+      F_tabs_w120(行#0 折叠明细不符)
+      F_tabs_w200(行#0 折叠明细不符)
+      F_tabs_w320(行#0 折叠明细不符)
+      F_tabs_w560(行#0 折叠明细不符)
+      F_tabs_w900(行#0 折叠明细不符)
+      F_tabs_winf(行#0 折叠明细不符)
+      F_nbsp_zwsp_w40(行#1 期望 Len=4 nl=0 ws=0 | 实得 Len=4 nl=0 ws=1)
+      F_nbsp_zwsp_w80(行#0 期望 Len=9 nl=0 ws=0 | 实得 Len=9 nl=0 ws=1)
+      F_nbsp_zwsp_w120(行#1 折叠明细不符)
+      F_nbsp_zwsp_w200(行#0 折叠明细不符)
+      F_nbsp_zwsp_w320(行#0 折叠明细不符)
+      F_nbsp_zwsp_w560(行#0 折叠明细不符)
+      F_nbsp_zwsp_w900(行#0 折叠明细不符)
+      F_nbsp_zwsp_winf(行#0 折叠明细不符)
+      M_modifier_w80(行数 7≠2)
+  ❌ T2 真机口径逐行**记账结构**全等（①硬断 ②空行 ③行尾空白）
+       行 1276/1298；① 286/286；② 68/68；③ 977/988；宽度超差 83
+  ❌ T2b A 组（CJK/中英混排）断行位置逐行对拍
+       行级 964/965；用例级 207/213
+  ❌ T3 Collapse 与真机一致（判定 + 明细 + 未折叠 ⇒ GetTextCollapsedRanges()==null）
+       判定 1298/1298；明细 198/236；空参抛 253/253；空参返回 this 1045/1045
+  ❌ T2c 【已登记差异·保留红】Tab（`\t`）口径：真机 = 0 宽 + 特定断点，本实现未做
+       Tab 可比例 34 例，其中不一致 15 例（家族：A1_tabs,B_tabs,F_tabs） ⇒ 这是**新发现的差异类别**（不属于本轮三条记账），已在 T1b 报告里登记给主控，未实现、未放宽
+
+──────── T5 · GetTextLineBreak 语义 + 零记录 + 所有权/Clone/Dispose ────────
+  ✅ T5.1 普通文本（无 TextModifier）：每行 GetTextLineBreak() 都是 null
+       行数=7 null=7 非null=0（真机 3220/3222 null）
+  ✅ T5.2 modifier 情形：拿到**真的** TextLineBreak 对象（非 null）
+       type=System.Windows.Media.TextFormatting.TextLineBreak
+  ✅ T5.3 零记录：_breakRecord = IntPtr.Zero 且 _currentScope = null（**不伪造**原生断行记录）
+       _breakRecord=0 _currentScope=null
+  ✅ T5.4 Clone() 不崩、返回**新实例**（真机 cloneIsSameReference=false），且克隆体也是零记录
+       sameRef=False cloneRecord=0
+  ✅ T5.5 Dispose() 对零记录**不调** LsDestroy/LoDisposeBreakRecord（上游 `if (_breakRecord != IntPtr.Zero)` ⇒ 零记录走不到原生）；两个实例各自 Dispose 一次不崩（无引用计数、各自持有）
+       两次 Dispose 均无异常
+      [读数] breakNull=7 breakZeroRecords=1 modifierLines=30
+  ✅ T5.6 计数器口径：null 路径与零记录路径**各记各的**（本次：null≥1、zero≥1）
+       breakNull=7 breakZeroRecords=1
+  ✅ T5.7 WPF_LINUX_TEXTLINE_STRICT=1 时零记录**当失败上报**（抛出，不吞）
+       NotSupportedException ✓
+
+──────── 计数器汇总（脚手架读数）────────
+  HB_TEXTLINE enabled=0 lines=3776 draw=0 getTextBounds=0 getTextRunSpans=0 fallbackTotal=0 Collapse=0 GetBackspaceCaretCharacterHit=0 GetCharacterHitFromDistance=0 GetDistanceFromCharacterHit=0 GetIndexedGlyphRuns=0 GetNextCaretCharacterHit=0 GetPreviousCaretCharacterHit=0 GetTextCollapsedRanges=0 GetTextLineBreak=0 paragraphs=689 breakNull=7 breakZeroRecords=2 modifierLines=30 collapseCalls=2596 collapseIneligible=2090 collapseTooWide=17 collapseEmptyArgsThrow=253 collapseApplied=236 collapseUnsupported=0 collapsedRangesNull=1062 collapsedRangesReturned=236 forcedBreakLines=573 kinsokuPulls=29 dependentLengthQueries=0
+
+==================== 结论 ====================
+通过 14 / 失败 4
+  ❌ T2 真机口径逐行**记账结构**全等（①硬断 ②空行 ③行尾空白） :: 行 1276/1298；① 286/286；② 68/68；③ 977/988；宽度超差 83
+  ❌ T2b A 组（CJK/中英混排）断行位置逐行对拍 :: 行级 964/965；用例级 207/213
+  ❌ T3 Collapse 与真机一致（判定 + 明细 + 未折叠 ⇒ GetTextCollapsedRanges()==null） :: 判定 1298/1298；明细 198/236；空参抛 253/253；空参返回 this 1045/1045
+  ❌ T2c 【已登记差异·保留红】Tab（`\t`）口径：真机 = 0 宽 + 特定断点，本实现未做 :: Tab 可比例 34 例，其中不一致 15 例（家族：A1_tabs,B_tabs,F_tabs） ⇒ 这是**新发现的差异类别**（不属于本轮三条记账），已在 T1b 报告里登记给主控，未实现、未放宽
+⇒ **有失败**（见上）
+
+-- [3/3] LS 绊线装置自证（ld.so 的 LD_DEBUG=symbols 日志 + nm -D 交叉核对）--
+
+  ✓ nm -D：LsDisableSpecialCharacterLigature **已定义**（与日志 FOUND 一致）
+  ✓ nm -D：LoAcquireBreakRecord **未定义**（与日志 MISS 一致）
+
+⇒ 装置自证 通过（捕获到的查找与 nm -D 事实一致）
+  原始日志保留在 /tmp/tmp.J3FEKHa5fN/（未删，供复核）
+
+→ harness 退出码 1（0 = 73 例逐行全等 + 真机口径记账/Collapse 全绿；
+   非 0 时看上面 ❌ —— 已知未实现项会**保留红**，不会为了变绿而放宽）

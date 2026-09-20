@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- ⭐ `D-R8`（工程卫生）：不依赖 `$(BaseIntermediateOutputPath)` 指向哪里的产物目录排除。
+       实现在仓根 `BuildHygiene.props`（全仓唯一一份；理由与两种被否决的落点见 `build/MilBridge/W21B-report.md` §2）。
+       **故意不加 `Exists()` 条件**：文件找不到要大声失败。 -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('BuildHygiene.props'))" />
+
+  <!--
+    V18A · 解析器守卫红证探针（**独立工程**，不引任何产品工程）。
+
+    【为什么它不引用 PresentationCore / WpfGfx.Linux 的编译期类型】
+      本探针必须能对**任意两份**目标件取证：权威件（修前）与私有输出目录里的修后件。
+      ⇒ 目标程序集一律走 `Assembly.LoadFrom(绝对路径)` + 反射，**零 HintPath**，
+        于是同一份探针二进制可以测两棵产物，读数可逐字对拍。
+
+    【一条关键约束（本探针设计的地基，R18A 现场实测）】
+      `[DllImport]` 的解析器是**按声明它的那个程序集**生效的
+      （`NativeLibrary.SetDllImportResolver(assembly, …)` 的作用域 = 传入的 Assembly）。
+      ⇒ 本探针里写一条 `[DllImport("user32.dll")]` **不会**走目标程序集的解析器
+        ⇒ 外部探针**无法**用"自己声明的 P/Invoke"去验别人的解析器。
+        "真 `[DllImport]` 自证"这条只能在**目标程序集内部**做（这正是 V1/V2 守卫里那段的形态，
+        也是 tests/…/ManagedLayer.Tests/X11Guard.cs 之所以有效的原因：安装点与自证同程序集）。
+      ⇒ 本探针验"产品安装点在被抢先时怎么反应"的办法 = **调用产品安装点本身的代码**
+        （反射取 `<Module>` 上的 `[ModuleInitializer]` 方法 / 触发类型静态构造），
+        自证那段在目标程序集内部执行 ⇒ 它声明的 `[DllImport]` 走的是目标的解析器。
+
+    输出目录：私有（不写权威 bin/obj）。
+  -->
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AssemblyName>ResolverGuardProbe</AssemblyName>
+    <RootNamespace>ResolverGuardProbe</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- ⭐ `D-R8`（工程卫生）：不依赖 `$(BaseIntermediateOutputPath)` 指向哪里的产物目录排除。
+       实现在仓根 `BuildHygiene.props`（全仓唯一一份；理由与两种被否决的落点见 `build/MilBridge/W21B-report.md` §2）。
+       **故意不加 `Exists()` 条件**：文件找不到要大声失败。 -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('BuildHygiene.props'))" />
+
+  <!--
+    T2+T3 自测工程。独立于 tests/WpfGfx.Linux.Tests 根目录，
+    避免与测试组（T7/T8）的工程文件冲突（handoff §7：tests/ 共用）。
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RootNamespace>WpfGfx.Linux.Tests.Commands</RootNamespace>
+    <AssemblyName>WpfGfx.Linux.Commands.Tests</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../../src/WpfGfx.Linux/WpfGfx.Linux.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      U1c：几何 oracle 的共享 harness（与 tools/GeometryOracle、Windows 侧
+      C:\u1-geom\Harness 编译的是**同一批源码**）。加进来是为了让对拍用例能
+      在本进程里活体复跑我方实现，而不是只读一份别人产出的 JSON。
+    -->
+    <Compile Include="../../../tests/parity/geometry/harness/*.cs" />
+  </ItemGroup>
+
+
+  <!--
+    债务 #1（测试 flaky 的根因治理）：**显式**声明并行度，不让它取决于 xunit 的默认值。
+    为什么必须显式：`MilChannelRegistry`/`MilHandleTables` 等是**进程级静态表**，
+    而多数用例开头的 `ResetProcessStateForTests()` **刻意不清通道注册表**
+    （理由见 src/WpfGfx.Linux/Interop/MilNative.Exports.cs:266-280）⇒ 一个用例泄漏的通道会活到后面的用例。
+    默认值（v2 为"并行跑集合"）会随版本/机器变化 ⇒ "同一命令有时红"里混进了"默认值变了"这个变量。
+    这里取 **false**（串行跑集合）：它是与"共享进程级静态表"这一事实**相符**的那一档；
+    真并发问题另有长期仪器（`WPF_LINUX_CHANNEL_LEAK_TRACE=1` 的通道泄漏守卫）负责暴露，不靠默认值碰运气。
+  -->
+  <ItemGroup>
+    <None Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

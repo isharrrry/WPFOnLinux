@@ -1,0 +1,12 @@
+<Application x:Class="HelloWpf.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <!-- 覆盖验收标准 §8 里的渲染要素：纯色、渐变、几何、文本 -->
+        <LinearGradientBrush x:Key="PanelBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#FF1E3A5F" Offset="0" />
+            <GradientStop Color="#FF4A7FB5" Offset="1" />
+        </LinearGradientBrush>
+    </Application.Resources>
+</Application>

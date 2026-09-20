@@ -1,0 +1,39 @@
+# T1b · **行级**记账不一致清单（用例 | 行号 | 期望 | 实得 | 归类桶）
+# 被测 shim 源 sha256 = 4044D84A66539C429F8F635A33EAB1CEB5D2485ED63D03CA957EAA70D8331B0B
+# 测量对象（app-local 副本，应与权威一致）： PC=6BE29475B6AEB34E WB=E6216FE961A2BFB9 DWF=2F77DBDF5E7E2CD5 Provider=71BA86C6495347FE
+# 条数 = 35（**无上限，未截断**）
+A1_tabs_w20 | 行#0 | 期望 Len=4 nl=0 ws=0 | 实得 Len=1 nl=0 ws=0 | 桶=行区间长度(Length)
+A1_tabs_w20 | 行#1 | 期望 Len=5 nl=1 ws=1 | 实得 Len=1 nl=0 ws=0 | 桶=行尾空白计数(ws)
+A1_tabs_w30 | 行#0 | 期望 Len=6 nl=0 ws=0 | 实得 Len=1 nl=0 ws=0 | 桶=行区间长度(Length)
+A1_tabs_w30 | 行#1 | 期望 Len=3 nl=1 ws=1 | 实得 Len=1 nl=0 ws=0 | 桶=行尾空白计数(ws)
+A1_tabs_w40 | 行#0 | 期望 Len=9 nl=1 ws=1 | 实得 Len=1 nl=0 ws=0 | 桶=行尾空白计数(ws)
+A1_tabs_w50 | 行#0 | 期望 Len=9 nl=1 ws=1 | 实得 Len=1 nl=0 ws=0 | 桶=行尾空白计数(ws)
+A1_tabs_w60 | 行#0 | 期望 Len=9 nl=1 ws=1 | 实得 Len=1 nl=0 ws=0 | 桶=行尾空白计数(ws)
+A1_tabs_w70 | 行#0 | 期望 Len=9 nl=1 ws=1 | 实得 Len=1 nl=0 ws=0 | 桶=行尾空白计数(ws)
+A1_tabs_w80 | 行#0 | 期望 Len=9 nl=1 ws=1 | 实得 Len=3 nl=0 ws=0 | 桶=行尾空白计数(ws)
+A1_tabs_w100 | 行#0 | 期望 Len=9 nl=1 ws=1 | 实得 Len=3 nl=0 ws=0 | 桶=行尾空白计数(ws)
+A1_tabs_w120 | 行#0 | 期望 Len=9 nl=1 ws=1 | 实得 Len=3 nl=0 ws=0 | 桶=行尾空白计数(ws)
+A1_tabs_w150 | 行#0 | 期望 Len=9 nl=1 ws=1 | 实得 Len=4 nl=0 ws=0 | 桶=行尾空白计数(ws)
+A1_tabs_w180 | 行#0 | 期望 Len=9 nl=1 ws=1 | 实得 Len=4 nl=0 ws=0 | 桶=行尾空白计数(ws)
+A1_tabs_w200 | 行#0 | 期望 Len=9 nl=1 ws=1 | 实得 Len=6 nl=0 ws=0 | 桶=行尾空白计数(ws)
+A1_tabs_w240 | 行#0 | 期望 Len=9 nl=1 ws=1 | 实得 Len=6 nl=0 ws=0 | 桶=行尾空白计数(ws)
+A1_nbsp_zwsp_w30 | 行#0 | 期望 Len=3 nl=0 ws=0 | 实得 Len=3 nl=0 ws=1 | 桶=行尾空白计数(ws)（NBSP/ZWSP 家族）
+A1_nbsp_zwsp_w30 | 行#2 | 期望 Len=3 nl=0 ws=0 | 实得 Len=3 nl=0 ws=1 | 桶=行尾空白计数(ws)（NBSP/ZWSP 家族）
+A1_nbsp_zwsp_w40 | 行#1 | 期望 Len=4 nl=0 ws=0 | 实得 Len=4 nl=0 ws=1 | 桶=行尾空白计数(ws)（NBSP/ZWSP 家族）
+A1_nbsp_zwsp_w80 | 行#0 | 期望 Len=9 nl=0 ws=0 | 实得 Len=9 nl=0 ws=1 | 桶=行尾空白计数(ws)（NBSP/ZWSP 家族）
+B_tabs_w60 | 行#0 | 期望 Len=9 nl=1 ws=1 | 实得 Len=1 nl=0 ws=0 | 桶=行尾空白计数(ws)
+B_tabs_w120 | 行#0 | 期望 Len=9 nl=1 ws=1 | 实得 Len=3 nl=0 ws=0 | 桶=行尾空白计数(ws)
+B_tabs_w240 | 行#0 | 期望 Len=9 nl=1 ws=1 | 实得 Len=6 nl=0 ws=0 | 桶=行尾空白计数(ws)
+B_tabs_trim | 行#0 | 期望 Len=9 nl=1 ws=1 | 实得 Len=3 nl=0 ws=0 | 桶=行尾空白计数(ws)
+F_tabs_w40 | 行#0 | 期望 Len=9 nl=1 ws=1 | 实得 Len=1 nl=0 ws=0 | 桶=行尾空白计数(ws)
+F_tabs_w80 | 行#0 | 期望 Len=9 nl=1 ws=1 | 实得 Len=3 nl=0 ws=0 | 桶=行尾空白计数(ws)
+F_tabs_w120 | 行#0 | 期望 Len=9 nl=1 ws=1 | 实得 Len=3 nl=0 ws=0 | 桶=行尾空白计数(ws)
+F_tabs_w200 | 行#0 | 期望 Len=9 nl=1 ws=1 | 实得 Len=6 nl=0 ws=0 | 桶=行尾空白计数(ws)
+F_nbsp_zwsp_w40 | 行#1 | 期望 Len=4 nl=0 ws=0 | 实得 Len=4 nl=0 ws=1 | 桶=行尾空白计数(ws)（NBSP/ZWSP 家族）
+F_nbsp_zwsp_w80 | 行#0 | 期望 Len=9 nl=0 ws=0 | 实得 Len=9 nl=0 ws=1 | 桶=行尾空白计数(ws)（NBSP/ZWSP 家族）
+M_modifier_w80 | 行#0 | 期望 Len=50 nl=0 ws=1 | 实得 Len=6 nl=0 ws=1 | 桶=行区间长度(Length)
+M_modifier_w80 | 行#1 | 期望 Len=13 nl=1 ws=1 | 实得 Len=6 nl=0 ws=1 | 桶=硬断计数(nl)
+M_modifier_w120 | 行#0 | 期望 Len=56 nl=0 ws=1 | 实得 Len=12 nl=0 ws=1 | 桶=行区间长度(Length)
+M_modifier_w120 | 行#1 | 期望 Len=7 nl=1 ws=1 | 实得 Len=14 nl=0 ws=1 | 桶=硬断计数(nl)
+M_modifier_w200 | 行#0 | 期望 Len=63 nl=1 ws=1 | 实得 Len=26 nl=0 ws=1 | 桶=硬断计数(nl)
+M_modifier_w320 | 行#0 | 期望 Len=63 nl=1 ws=1 | 实得 Len=44 nl=0 ws=1 | 桶=硬断计数(nl)

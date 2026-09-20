@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Windows-side TileBrush oracle for the WPF-on-Linux parity project.
+       Renders asymmetric tile sources through every TileBrush knob and dumps
+       PNG + per-pixel samples + layout metadata, so the Linux backend can be
+       compared against real WPF pixels instead of against its own goldens. -->
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>disable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>U1BrushOracle</AssemblyName>
+    <RootNamespace>U1BrushOracle</RootNamespace>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+</Project>

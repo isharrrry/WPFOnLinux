@@ -1,0 +1,116 @@
+# T1b · 完整逐例明细（**无截断**）
+# 生成命令：bash build/MilBridge/run.sh tline  （本文件由 harness 直接写盘）
+# 被测 shim 源 sha256（本 harness 直接编入） = E89FED55FD8E32BC40F171036E15CFA4B1DCBC69729028A783E0D32A99030E96
+# PC 内 shim sha256                         = unknown(FP 里有该文件的行但行内无 sha256)
+# hbtextline_shim_stale                     = false   （口径=源 mtime 1789575126 vs PC 产物 mtime 1789834435（basis=auth，与 run-wpfprobe.sh 的 hbt_stale() 同谓词）；**mtime 谓词、非内容比对** ⇒ 同内容重写会假阳（已登记为已知仪器局限；内容比对需要 PC 侧逐文件 sha，当前不可得））
+# 仪器 = run.sh 711F39F468F61CC8 / Program.cs 149DD986A642FDFC   pc=9465F9DCE39E2DFC   applocal=4/4 一致
+# ⚠️ 不变式登记 + 判据位移（T1b2/#12 (b)）｜**本趟被测 shim** = E89FED55FD8E32BC40F171036E15CFA4B1DCBC69729028A783E0D32A99030E96
+#   三个不变式：本趟 折叠明细 4 / Extent 余差 95 / 记账用例 5；`#11` 冻件基线（**另一份 shim** `b4c7aa82…`）= 18 / 58 / 17 ⇒ 与基线之差 -14 / +37 / -12 ⚠️ **这一格不可单独归因于仪器**（本趟 shim 与基线不同）—— 仪器位移看下一行的三种计数。
+#   【判据位移·三种计数】**仪器位移的可见量**：① 的**裸形式** `cr.Width>=0` 红 0；其中**两侧同为负**（真机自己也这样 ⇒ 不构成违反）0 条 ⇒ **判别式** `ours<0 ⇒ truth<0` 红 **0** 条（= 真违反）；裸形式 − 判别式 = 0 条**假红**。判据已由裸形式改为判别式（主控 2026-09-14 裁定；方向**未放松**：真值非负而我们为负的每一种情形仍全部抓住）；真机自己在 oracle 的 430 条折叠区间里有 **7 条 Width<0**（真值侧独立复算）⇒ 「宽度为负」不是契约违反。唯一的真违反 = `F_nbsp_zwsp_w40#3`（我们 −3.0560 而真值 +3.3433），它同时被 ③ 抓到，归 `D-F1`。
+# 段1 折叠明细逐行（五列：用例|行|我们|真值|差|cr 我们|cr 真值）  条数 = 4
+F_lat_words_w560|行#0|我们 Len=70 W=252.2240|真值 Len=70 W=252.2100|差 W=0.0140|cr 我们=[30,40) W=259.2160|cr 真值=[31,39) W=259.2133
+F_nbsp_zwsp_w80|行#0|我们 Len=9 W=32.2240|真值 Len=9 W=22.5433|差 W=9.6807|cr 我们=[2,7) W=38.3360|cr 真值=[1,8) W=48.0133
+F_nbsp_zwsp_w200|行#0|我们 Len=21 W=79.0560|真值 Len=21 W=70.5100|差 W=8.5460|cr 我们=[8,13) W=85.5680|cr 真值=[7,14) W=94.1067
+M_modifier_w120|行#0|我们 Len=56 W=54.4640|真值 Len=56 W=54.4633|差 W=0.0007|cr 我们=[5,51) W=61.2320|cr 真值=[6,50) W=61.2267
+# 段2 Extent 余差逐行（主对拍集 75 + LineHeight 组 20；CJK 用例标 +CJK）  条数 = 95
+A1_tabs_w20 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+A1_tabs_w20 行#1 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+A1_tabs_w30 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+A1_tabs_w30 行#1 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+A1_tabs_w40 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+A1_tabs_w50 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+A1_tabs_w60 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+A1_tabs_w70 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+A1_tabs_w80 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+A1_tabs_w100 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+A1_tabs_w120 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+A1_tabs_w150 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+A1_tabs_w180 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+A1_tabs_w200 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+A1_tabs_w240 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+A1_tabs_w280 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+A1_tabs_w320 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+A1_tabs_w400 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+A1_tabs_w480 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+A1_tabs_w560 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+A1_tabs_w700 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+A1_tabs_w900 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+A1_tabs_winf 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+A1_nbsp_zwsp_w20 行#7 [file-font+CJK] Extent 真值=16.0859 我们=16.2080 差=0.1221
+A1_nbsp_zwsp_w30 行#4 [file-font+CJK] Extent 真值=19.0744 我们=18.4161 差=-0.6583
+A1_nbsp_zwsp_w40 行#3 [file-font+CJK] Extent 真值=16.0859 我们=16.2080 差=0.1221
+A1_nbsp_zwsp_w50 行#2 [file-font+CJK] Extent 真值=19.0744 我们=18.4161 差=-0.6583
+A1_nbsp_zwsp_w60 行#2 [file-font+CJK] Extent 真值=16.0859 我们=16.2080 差=0.1221
+A1_nbsp_zwsp_w70 行#1 [file-font+CJK] Extent 真值=19.0744 我们=18.4161 差=-0.6583
+A1_nbsp_zwsp_w80 行#1 [file-font+CJK] Extent 真值=19.0744 我们=18.4161 差=-0.6583
+A1_nbsp_zwsp_w100 行#1 [file-font+CJK] Extent 真值=19.0744 我们=18.4161 差=-0.6583
+A1_nbsp_zwsp_w120 行#1 [file-font+CJK] Extent 真值=16.0859 我们=16.2080 差=0.1221
+A1_nbsp_zwsp_w150 行#0 [file-font+CJK] Extent 真值=19.0744 我们=18.4161 差=-0.6583
+A1_nbsp_zwsp_w180 行#0 [file-font+CJK] Extent 真值=19.0744 我们=18.4161 差=-0.6583
+A1_nbsp_zwsp_w200 行#0 [file-font+CJK] Extent 真值=19.0744 我们=18.4161 差=-0.6583
+A1_nbsp_zwsp_w240 行#0 [file-font+CJK] Extent 真值=19.0744 我们=18.4161 差=-0.6583
+A1_nbsp_zwsp_w280 行#0 [file-font+CJK] Extent 真值=19.0744 我们=18.4161 差=-0.6583
+A1_nbsp_zwsp_w320 行#0 [file-font+CJK] Extent 真值=19.0744 我们=18.4161 差=-0.6583
+A1_nbsp_zwsp_w400 行#0 [file-font+CJK] Extent 真值=19.0744 我们=18.4161 差=-0.6583
+A1_nbsp_zwsp_w480 行#0 [file-font+CJK] Extent 真值=19.0744 我们=18.4161 差=-0.6583
+A1_nbsp_zwsp_w560 行#0 [file-font+CJK] Extent 真值=19.0744 我们=18.4161 差=-0.6583
+A1_nbsp_zwsp_w700 行#0 [file-font+CJK] Extent 真值=19.0744 我们=18.4161 差=-0.6583
+A1_nbsp_zwsp_w900 行#0 [file-font+CJK] Extent 真值=19.0744 我们=18.4161 差=-0.6583
+A1_nbsp_zwsp_winf 行#0 [file-font+CJK] Extent 真值=19.0744 我们=18.4161 差=-0.6583
+B_tabs_w60 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+B_tabs_w120 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+B_tabs_w240 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+B_tabs_winf 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+B_tabs_trim 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+B_nbsp_zwsp_w60 行#2 [file-font+CJK] Extent 真值=16.0859 我们=16.2080 差=0.1221
+B_nbsp_zwsp_w120 行#1 [file-font+CJK] Extent 真值=16.0859 我们=16.2080 差=0.1221
+B_nbsp_zwsp_w240 行#0 [file-font+CJK] Extent 真值=19.0744 我们=18.4161 差=-0.6583
+B_nbsp_zwsp_winf 行#0 [file-font+CJK] Extent 真值=19.0744 我们=18.4161 差=-0.6583
+B_nbsp_zwsp_trim 行#1 [file-font+CJK] Extent 真值=16.0859 我们=16.2080 差=0.1221
+F_tabs_w40 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+F_tabs_w80 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+F_tabs_w120 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+F_tabs_w200 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+F_tabs_w320 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+F_tabs_w560 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+F_tabs_w900 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+F_tabs_winf 行#0 [file-font] Extent 真值=14.3200 我们=14.3828 差=0.0628
+F_nbsp_zwsp_w40 行#3 [file-font+CJK] Extent 真值=16.0859 我们=16.2080 差=0.1221
+F_nbsp_zwsp_w80 行#1 [file-font+CJK] Extent 真值=19.0744 我们=18.4161 差=-0.6583
+F_nbsp_zwsp_w120 行#1 [file-font+CJK] Extent 真值=16.0859 我们=16.2080 差=0.1221
+F_nbsp_zwsp_w200 行#0 [file-font+CJK] Extent 真值=19.0744 我们=18.4161 差=-0.6583
+F_nbsp_zwsp_w320 行#0 [file-font+CJK] Extent 真值=19.0744 我们=18.4161 差=-0.6583
+F_nbsp_zwsp_w560 行#0 [file-font+CJK] Extent 真值=19.0744 我们=18.4161 差=-0.6583
+F_nbsp_zwsp_w900 行#0 [file-font+CJK] Extent 真值=19.0744 我们=18.4161 差=-0.6583
+F_nbsp_zwsp_winf 行#0 [file-font+CJK] Extent 真值=19.0744 我们=18.4161 差=-0.6583
+M_modifier_w80 行#0 [file-font] Extent 真值=18.0000 我们=18.0800 差=0.0800
+M_modifier_w120 行#0 [file-font] Extent 真值=18.0000 我们=18.0800 差=0.0800
+M_modifier_w200 行#0 [file-font] Extent 真值=18.0000 我们=18.0800 差=0.0800
+M_modifier_w320 行#0 [file-font] Extent 真值=18.0000 我们=18.0800 差=0.0800
+M_modifier_winf 行#0 [file-font] Extent 真值=18.0000 我们=18.0800 差=0.0800
+LH_cjk_punct_lh10 行#0 [NotoSansCJK(da)] Extent 真值=18.0859 我们=17.2320 差=-0.8539
+LH_cjk_punct_lh10 行#1 [NotoSansCJK(da)] Extent 真值=18.0547 我们=17.2320 差=-0.8227
+LH_cjk_punct_lh10 行#2 [NotoSansCJK(da)] Extent 真值=17.5781 我们=16.9120 差=-0.6661
+LH_cjk_punct_lh10 行#3 [NotoSansCJK(da)] Extent 真值=17.5156 我们=16.8160 差=-0.6996
+LH_cjk_punct_lh22 行#0 [NotoSansCJK(da)] Extent 真值=18.0859 我们=17.2320 差=-0.8539
+LH_cjk_punct_lh22 行#1 [NotoSansCJK(da)] Extent 真值=18.0547 我们=17.2320 差=-0.8227
+LH_cjk_punct_lh22 行#2 [NotoSansCJK(da)] Extent 真值=17.5781 我们=16.9120 差=-0.6661
+LH_cjk_punct_lh22 行#3 [NotoSansCJK(da)] Extent 真值=17.5156 我们=16.8160 差=-0.6996
+LH_cjk_punct_lh30 行#0 [NotoSansCJK(da)] Extent 真值=18.0859 我们=17.2320 差=-0.8539
+LH_cjk_punct_lh30 行#1 [NotoSansCJK(da)] Extent 真值=18.0547 我们=17.2320 差=-0.8227
+LH_cjk_punct_lh30 行#2 [NotoSansCJK(da)] Extent 真值=17.5781 我们=16.9120 差=-0.6661
+LH_cjk_punct_lh30 行#3 [NotoSansCJK(da)] Extent 真值=17.5156 我们=16.8160 差=-0.6996
+LH_cjk_punct_lh50 行#0 [NotoSansCJK(da)] Extent 真值=18.0859 我们=17.2320 差=-0.8539
+LH_cjk_punct_lh50 行#1 [NotoSansCJK(da)] Extent 真值=18.0547 我们=17.2320 差=-0.8227
+LH_cjk_punct_lh50 行#2 [NotoSansCJK(da)] Extent 真值=17.5781 我们=16.9120 差=-0.6661
+LH_cjk_punct_lh50 行#3 [NotoSansCJK(da)] Extent 真值=17.5156 我们=16.8160 差=-0.6996
+LH_cjk_punct_lh30_ac1 行#0 [NotoSansCJK(da)] Extent 真值=18.0859 我们=17.2320 差=-0.8539
+LH_cjk_punct_lh30_ac1 行#1 [NotoSansCJK(da)] Extent 真值=18.0547 我们=17.2320 差=-0.8227
+LH_cjk_punct_lh30_ac1 行#2 [NotoSansCJK(da)] Extent 真值=17.5781 我们=16.9120 差=-0.6661
+LH_cjk_punct_lh30_ac1 行#3 [NotoSansCJK(da)] Extent 真值=17.5156 我们=16.8160 差=-0.6996
+# 段3 记账不一致用例（用例|原因）  条数 = 5
+A1_nbsp_zwsp_w40|行#0 Collapse hasCollapsed 期望 False 实得 True
+F_lat_words_w560|行#0 折叠明细不符
+F_nbsp_zwsp_w80|行#0 折叠明细不符
+F_nbsp_zwsp_w200|行#0 折叠明细不符
+M_modifier_w120|行#0 折叠明细不符

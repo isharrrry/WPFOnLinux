@@ -1,0 +1,210 @@
+TAB_LINES_PROBE sha256=a6d0352b8646711157c563fbb6882ceba7ef8989606ba2f4178a6c8cd5849a40 path=build/MilBridge/tests/CoverageProbe/Program.cs
+TAB_LINES CASE notab-control@w40@em24@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED notab-control@w40@em24@LTR@tab0 行=2 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE notab-control@w40@em24@RTL@tab0 臂=RTL wrap=1 结构=FAIL 位置=PASS
+TAB_LINES FAILCASE notab-control@w40@em24@RTL@tab0 :: 行#0 尾部空白 期望=0 实得=1
+TAB_LINES OVERFLOWED notab-control@w40@em24@RTL@tab0 行=2 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE notab-control@w80@em24@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED notab-control@w80@em24@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE notab-control@w80@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED notab-control@w80@em24@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE notab-control@w160@em24@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED notab-control@w160@em24@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE notab-control@w160@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED notab-control@w160@em24@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE notab-control@w320@em24@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED notab-control@w320@em24@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE notab-control@w320@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED notab-control@w320@em24@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-single@w40@em24@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-single@w40@em24@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-single@w40@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=跳过(bidi 重排)
+TAB_LINES OVERFLOWED tab-single@w40@em24@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-single@w80@em24@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-single@w80@em24@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-single@w80@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=跳过(bidi 重排)
+TAB_LINES OVERFLOWED tab-single@w80@em24@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-single@w160@em24@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-single@w160@em24@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-single@w160@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=跳过(bidi 重排)
+TAB_LINES OVERFLOWED tab-single@w160@em24@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-single@w320@em24@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-single@w320@em24@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-single@w320@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=跳过(bidi 重排)
+TAB_LINES OVERFLOWED tab-single@w320@em24@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-head@w40@em24@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-head@w40@em24@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-head@w40@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=跳过(bidi 重排)
+TAB_LINES OVERFLOWED tab-head@w40@em24@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-head@w80@em24@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-head@w80@em24@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-head@w80@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=跳过(bidi 重排)
+TAB_LINES OVERFLOWED tab-head@w80@em24@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-head@w160@em24@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-head@w160@em24@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-head@w160@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=跳过(bidi 重排)
+TAB_LINES OVERFLOWED tab-head@w160@em24@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-head@w320@em24@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-head@w320@em24@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-head@w320@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=跳过(bidi 重排)
+TAB_LINES OVERFLOWED tab-head@w320@em24@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-tail@w40@em24@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-tail@w40@em24@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-tail@w40@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-tail@w40@em24@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-tail@w80@em24@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-tail@w80@em24@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-tail@w80@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-tail@w80@em24@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-tail@w160@em24@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-tail@w160@em24@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-tail@w160@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-tail@w160@em24@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-tail@w320@em24@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-tail@w320@em24@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-tail@w320@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-tail@w320@em24@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-adjacent@w40@em24@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-adjacent@w40@em24@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-adjacent@w40@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=跳过(bidi 重排)
+TAB_LINES OVERFLOWED tab-adjacent@w40@em24@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-adjacent@w80@em24@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-adjacent@w80@em24@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-adjacent@w80@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=跳过(bidi 重排)
+TAB_LINES OVERFLOWED tab-adjacent@w80@em24@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-adjacent@w160@em24@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-adjacent@w160@em24@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-adjacent@w160@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=跳过(bidi 重排)
+TAB_LINES OVERFLOWED tab-adjacent@w160@em24@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-adjacent@w320@em24@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-adjacent@w320@em24@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-adjacent@w320@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=跳过(bidi 重排)
+TAB_LINES OVERFLOWED tab-adjacent@w320@em24@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-only@w40@em24@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-only@w40@em24@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-only@w40@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-only@w40@em24@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-only@w80@em24@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-only@w80@em24@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-only@w80@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-only@w80@em24@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-only@w160@em24@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-only@w160@em24@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-only@w160@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-only@w160@em24@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-only@w320@em24@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-only@w320@em24@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-only@w320@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-only@w320@em24@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE b34-tabs@w40@em24@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED b34-tabs@w40@em24@LTR@tab0 行=2 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE b34-tabs@w40@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=跳过(bidi 重排)
+TAB_LINES OVERFLOWED b34-tabs@w40@em24@RTL@tab0 行=2 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE b34-tabs@w80@em24@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED b34-tabs@w80@em24@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE b34-tabs@w80@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=跳过(bidi 重排)
+TAB_LINES OVERFLOWED b34-tabs@w80@em24@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE b34-tabs@w160@em24@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED b34-tabs@w160@em24@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE b34-tabs@w160@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=跳过(bidi 重排)
+TAB_LINES OVERFLOWED b34-tabs@w160@em24@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE b34-tabs@w320@em24@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED b34-tabs@w320@em24@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE b34-tabs@w320@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=跳过(bidi 重排)
+TAB_LINES OVERFLOWED b34-tabs@w320@em24@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-single@w160@em12@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-single@w160@em12@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-single@w160@em12@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=跳过(bidi 重排)
+TAB_LINES OVERFLOWED tab-single@w160@em12@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-single@w160@em48@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-single@w160@em48@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-single@w160@em48@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=跳过(bidi 重排)
+TAB_LINES OVERFLOWED tab-single@w160@em48@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-adjacent@w160@em12@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-adjacent@w160@em12@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-adjacent@w160@em12@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=跳过(bidi 重排)
+TAB_LINES OVERFLOWED tab-adjacent@w160@em12@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-adjacent@w160@em48@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-adjacent@w160@em48@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-adjacent@w160@em48@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=跳过(bidi 重排)
+TAB_LINES OVERFLOWED tab-adjacent@w160@em48@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE b34-tabs@w160@em12@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED b34-tabs@w160@em12@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE b34-tabs@w160@em12@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=跳过(bidi 重排)
+TAB_LINES OVERFLOWED b34-tabs@w160@em12@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE b34-tabs@w160@em48@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED b34-tabs@w160@em48@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE b34-tabs@w160@em48@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=跳过(bidi 重排)
+TAB_LINES OVERFLOWED b34-tabs@w160@em48@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-single@w40@em24@LTR@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-single@w40@em24@LTR@default 行=3 NOINFO=对齐非Left(NOINFO)
+TAB_LINES Q2 tab-single@w40@em24@RTL@default 行#1 行宽=40.0000 tab左xfl=0.0000 P-xfl=40.0000 间隔=96.0 商=0.416667
+TAB_LINES CASE tab-single@w40@em24@RTL@default 臂=RTL wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-single@w40@em24@RTL@default 行=3 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-single@w80@em24@LTR@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-single@w80@em24@LTR@default 行=3 NOINFO=对齐非Left(NOINFO)
+TAB_LINES Q2 tab-single@w80@em24@RTL@default 行#1 行宽=80.0000 tab左xfl=0.0000 P-xfl=80.0000 间隔=96.0 商=0.833333
+TAB_LINES CASE tab-single@w80@em24@RTL@default 臂=RTL wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-single@w80@em24@RTL@default 行=3 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-single@w160@em24@LTR@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-single@w160@em24@LTR@default 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES Q2 tab-single@w160@em24@RTL@default 行#0 行宽=109.3477 tab左xfl=13.3433 P-xfl=96.0043 间隔=96.0 商=1.000045
+TAB_LINES CASE tab-single@w160@em24@RTL@default 臂=RTL wrap=1 结构=PASS 位置=跳过(bidi 重排)
+TAB_LINES OVERFLOWED tab-single@w160@em24@RTL@default 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-only@w40@em24@LTR@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-only@w40@em24@LTR@default 行=2 NOINFO=对齐非Left(NOINFO)
+TAB_LINES Q2 tab-only@w40@em24@RTL@default 行#0 行宽=40.0000 tab左xfl=0.0000 P-xfl=40.0000 间隔=96.0 商=0.416667
+TAB_LINES Q2 tab-only@w40@em24@RTL@default 行#1 行宽=40.0000 tab左xfl=0.0000 P-xfl=40.0000 间隔=96.0 商=0.416667
+TAB_LINES CASE tab-only@w40@em24@RTL@default 臂=RTL wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-only@w40@em24@RTL@default 行=2 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-only@w80@em24@LTR@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-only@w80@em24@LTR@default 行=2 NOINFO=对齐非Left(NOINFO)
+TAB_LINES Q2 tab-only@w80@em24@RTL@default 行#0 行宽=80.0000 tab左xfl=0.0000 P-xfl=80.0000 间隔=96.0 商=0.833333
+TAB_LINES Q2 tab-only@w80@em24@RTL@default 行#1 行宽=80.0000 tab左xfl=0.0000 P-xfl=80.0000 间隔=96.0 商=0.833333
+TAB_LINES CASE tab-only@w80@em24@RTL@default 臂=RTL wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-only@w80@em24@RTL@default 行=2 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE tab-only@w160@em24@LTR@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-only@w160@em24@LTR@default 行=2 NOINFO=对齐非Left(NOINFO)
+TAB_LINES Q2 tab-only@w160@em24@RTL@default 行#0 行宽=96.0000 tab左xfl=0.0000 P-xfl=96.0000 间隔=96.0 商=1.000000
+TAB_LINES Q2 tab-only@w160@em24@RTL@default 行#1 行宽=96.0000 tab左xfl=0.0000 P-xfl=96.0000 间隔=96.0 商=1.000000
+TAB_LINES CASE tab-only@w160@em24@RTL@default 臂=RTL wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED tab-only@w160@em24@RTL@default 行=2 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE b34-tabs@w40@em24@LTR@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED b34-tabs@w40@em24@LTR@default 行=8 NOINFO=对齐非Left(NOINFO)
+TAB_LINES Q2 b34-tabs@w40@em24@RTL@default 行#1 行宽=40.0000 tab左xfl=0.0000 P-xfl=40.0000 间隔=96.0 商=0.416667
+TAB_LINES Q2 b34-tabs@w40@em24@RTL@default 行#3 行宽=40.0000 tab左xfl=0.0000 P-xfl=40.0000 间隔=96.0 商=0.416667
+TAB_LINES Q2 b34-tabs@w40@em24@RTL@default 行#4 行宽=40.0000 tab左xfl=0.0000 P-xfl=40.0000 间隔=96.0 商=0.416667
+TAB_LINES Q2 b34-tabs@w40@em24@RTL@default 行#6 行宽=40.0000 tab左xfl=0.0000 P-xfl=40.0000 间隔=96.0 商=0.416667
+TAB_LINES CASE b34-tabs@w40@em24@RTL@default 臂=RTL wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED b34-tabs@w40@em24@RTL@default 行=8 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE b34-tabs@w80@em24@LTR@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED b34-tabs@w80@em24@LTR@default 行=8 NOINFO=对齐非Left(NOINFO)
+TAB_LINES Q2 b34-tabs@w80@em24@RTL@default 行#1 行宽=80.0000 tab左xfl=0.0000 P-xfl=80.0000 间隔=96.0 商=0.833333
+TAB_LINES Q2 b34-tabs@w80@em24@RTL@default 行#3 行宽=80.0000 tab左xfl=0.0000 P-xfl=80.0000 间隔=96.0 商=0.833333
+TAB_LINES Q2 b34-tabs@w80@em24@RTL@default 行#4 行宽=80.0000 tab左xfl=0.0000 P-xfl=80.0000 间隔=96.0 商=0.833333
+TAB_LINES Q2 b34-tabs@w80@em24@RTL@default 行#6 行宽=80.0000 tab左xfl=0.0000 P-xfl=80.0000 间隔=96.0 商=0.833333
+TAB_LINES CASE b34-tabs@w80@em24@RTL@default 臂=RTL wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED b34-tabs@w80@em24@RTL@default 行=8 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE b34-tabs@w160@em24@LTR@default 臂=LTR wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED b34-tabs@w160@em24@LTR@default 行=4 NOINFO=对齐非Left(NOINFO)
+TAB_LINES Q2 b34-tabs@w160@em24@RTL@default 行#0 行宽=109.3477 tab左xfl=13.3433 P-xfl=96.0043 间隔=96.0 商=1.000045
+TAB_LINES Q2 b34-tabs@w160@em24@RTL@default 行#1 行宽=96.0000 tab左xfl=0.0000 P-xfl=96.0000 间隔=96.0 商=1.000000
+TAB_LINES Q2 b34-tabs@w160@em24@RTL@default 行#2 行宽=108.0000 tab左xfl=11.9967 P-xfl=96.0033 间隔=96.0 商=1.000035
+TAB_LINES Q2 b34-tabs@w160@em24@RTL@default 行#3 行宽=109.3477 tab左xfl=13.3433 P-xfl=96.0043 间隔=96.0 商=1.000045
+TAB_LINES CASE b34-tabs@w160@em24@RTL@default 臂=RTL wrap=1 结构=PASS 位置=跳过(bidi 重排)
+TAB_LINES OVERFLOWED b34-tabs@w160@em24@RTL@default 行=4 NOINFO=对齐非Left(NOINFO)
+TAB_LINES 文件=tab-zero-oracle.json
+TAB_LINES   b34-tabs              结构 18/18；位置可比 11 其中过 11
+TAB_LINES   notab-control         结构 7/8；位置可比 8 其中过 7
+TAB_LINES   tab-adjacent          结构 12/12；位置可比 6 其中过 6
+TAB_LINES   tab-head              结构 8/8；位置可比 4 其中过 4
+TAB_LINES   tab-only              结构 14/14；位置可比 14 其中过 14
+TAB_LINES   tab-single            结构 18/18；位置可比 11 其中过 11
+TAB_LINES   tab-tail              结构 8/8；位置可比 8 其中过 8
+TAB_LINES 合计 cases=86 判定过=85 结构败=1 不可比(缺字形)=0 其中 bidi 重排例=24；Q3 clamp 铺满整行 28/28；Q2 真值侧 tab 左缘自右缘量=网格倍数 7/21，我方侧 2/16
+TAB_LINES 最大差=0.0000 @
+TAB_LINES OVERFLOWED 红=0 绿=0 判定行=0 NOINFO=138 红例=0 NOINFO例=86 对齐=NOINFO NOINFO字形=0 NOINFO字形外=138 真值True=0 诊断发丝边界行=0 量=我方 line.HasOverflowed 真值=lines[k].hasOverflowed 口径=盒原点+行宽 > 段落宽（**严格 >**，相等⇒false；无容差；布尔全等）
+TAB_LINES OVERFLOWED 对账 逐例求和 红=0 绿=0 NOINFO=138 ⇒ 与汇总一致
+TAB_LINES UNREGISTERED notab-control@w40@em24@RTL@tab0 :: 行#0 尾部空白 期望=0 实得=1
+TAB_LINES 未给 --known-red ⇒ 任何失败都算**未登记**（rc=1）；本档旧行为是恒 rc=0，已改。
+TAB_LINES 退出码=1（未登记失败 1 / 失败共 1 / 登记表 <未给>）

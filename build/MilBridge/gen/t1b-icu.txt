@@ -1,0 +1,33 @@
+== B2 预检 · ICU(UAX#14) vs DWrite 行断对拍（U1 的 73 例真值，含 58 个 kinsoku-*）==
+被测文件 = build/shims/PresentationCore.HbTextLine.cs  sha256=de6133fc040e8a9980ac38f33e649245830827b23a61ba26c70226aaa1b1b002  (1438 行)
+==================== ICU(UAX#14)+DWrite 覆盖规则 vs DWrite 行断对拍（73 例）====================
+规则真源 = build/shims/PresentationCore.HbTextLine.cs · HbBreakEngine（ICU(UAX#14) + `…`前可断 + 禁则拉字 + 强制断 fallback）
+shim tag = T1b/B2 · 2026-09-11 · break-engine + TextLineBreak + Collapse
+被测文件 = build/shims/PresentationCore.HbTextLine.cs  sha256=DE6133FC040E8A9980AC38F33E649245830827B23A61BA26C70226AAA1B1B002  ✅ 与 run.sh 固定的 sha 一致
+ICU  = 70.1.0.0  (libicuuc.so.70)
+HB   = 2.7.4  (libharfbuzz.so.0)
+
+oracle = 73 例；引擎 = DirectWrite IDWriteTextLayout::GetMetrics + GetLineMetrics (+ HitTestTextRange/Position)
+
+──────── Stage A：DWrite 的换行点是否 ∈（ICU 断点集 + 覆盖规则）────────
+   en-oneword                   **依赖强制断 fallback（非差异）**：DWrite 在 8,19,28,35,42,48,56 断，断点集里没有 ⇒ 交给「无断点可放 ⇒ 按宽度强制断」（Stage B 判它是否复现）
+   cjk-long-token               **依赖强制断 fallback（非差异）**：DWrite 在 24,34,45 断，断点集里没有 ⇒ 交给「无断点可放 ⇒ 按宽度强制断」（Stage B 判它是否复现）
+   cjk-fullwidth                **依赖强制断 fallback（非差异）**：DWrite 在 9 断，断点集里没有 ⇒ 交给「无断点可放 ⇒ 按宽度强制断」（Stage B 判它是否复现）
+   kinsoku-conflict-1char       **依赖强制断 fallback（非差异）**：DWrite 在 7 断，断点集里没有 ⇒ 交给「无断点可放 ⇒ 按宽度强制断」（Stage B 判它是否复现）
+   kinsoku-conflict-2char       **依赖强制断 fallback（非差异）**：DWrite 在 7 断，断点集里没有 ⇒ 交给「无断点可放 ⇒ 按宽度强制断」（Stage B 判它是否复现）
+   → Stage A：**真不一致 0 例**；依赖强制断 fallback 的例数 5
+
+──────── Stage B：引擎（ICU 断点集 + 贪心填宽 + 真 HarfBuzz advance）⇒ 行划分逐例逐行对拍 ────────
+   → Stage B：**逐例全等 73 例 / 不同 0 例**（共 73 例）
+
+──────── Stage C：kinsoku 表 48 行逐字符 —— ICU 是否允许「把标点留到行首/行尾」的那个断点 ────────
+   → Stage C：禁则 40 一致 / 0 不一致；对照(allow) 2 例一致；conflict 6 例（不判，Stage B 覆盖）
+
+==================== 结论 ====================
+Stage A 真不一致 = 0（紧急断行 5 例归 fallback，**非差异**）
+Stage B 逐例不同 = 0（判据：必须 0）
+Stage C 禁则不一致 = 0（必须 0）
+⇒ **一致**：73 例逐例全等（= ICU 断点集 + `…` 前可断 + 禁则拉字 + 强制断 fallback，规则真源 = shim 的 HbBreakEngine）
+
+→ 探针退出码 0（0 = 73 例逐例一致；1 = 有差异 ⇒ 以 DWrite 真值为准，需在 ICU 之上叠规则）
+   ⚠️ 这里**刻意不**把 rc 当构建失败返回："不一致" 是预检的结论，不是脚本坏了。

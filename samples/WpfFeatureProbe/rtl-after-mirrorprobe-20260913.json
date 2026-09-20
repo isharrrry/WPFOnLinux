@@ -1,0 +1,199 @@
+{
+ "#tuple": "WFP_ARTIFACTS bridge_sha=e0d01832a3efea53 bridge_bytes=4937968 pc_sha=c43d351639856680 pf_sha=dee475f0bf7175cf provider_sha=71ba86c6495347fe win32shim_sha=f84d65a62e0c7fa4 wic_shim_sha=03b67fbcd7c385b6 hbtextline_shim_sha=13992b58905d00e0 hbtextline_shim_stale=no hbtextline_stale_basis=auth hbtextline_src_mtime=1789302292 pc_compare_mtime=1789305016 windowsbase_sha=8c073fab0da88169",
+ "#crop": "470x400+0+0",
+ "#background": "#1B2436",
+ "#method": "同前（墨迹=与底色欧氏距离>40；原始分辨率；裁图原点=窗口左上角）",
+ "#noise_floor": "与上一趟（go-rtl8a）**逐行完全相同** ⇒ 噪声底=0；PF 只加读数、渲染未变",
+ "#M_series": {
+  "M1'": [
+   "[INPUT_TRACE] M1' **推了镜像** MatrixTransform M11=-1 M22=1 **OffsetX=546.48** OffsetY=0（OffsetX 应当 == 当时 RenderSize.Width）当时 TextBlock#3385da1 FlowDirection=RightToLeft RenderSize=546.48x16.297",
+   "[INPUT_TRACE] M1' **推了镜像** MatrixTransform M11=-1 M22=1 **OffsetX=65.255859375** OffsetY=0（OffsetX 应当 == 当时 RenderSize.Width）当时 TextBlock#397a684 FlowDirection=RightToLeft RenderSize=65.256x16.297",
+   "[INPUT_TRACE] M1' **推了镜像** MatrixTransform M11=-1 M22=1 **OffsetX=73.8486328125** OffsetY=0（OffsetX 应当 == 当时 RenderSize.Width）当时 TextBlock#54daa6 FlowDirection=RightToLeft RenderSize=73.849x16.297",
+   "[INPUT_TRACE] M1' **推了镜像** MatrixTransform M11=-1 M22=1 **OffsetX=96.427734375** OffsetY=0（OffsetX 应当 == 当时 RenderSize.Width）当时 TextBlock#2d92e9b FlowDirection=RightToLeft RenderSize=96.428x16.297",
+   "[INPUT_TRACE] M1' **推了镜像** MatrixTransform M11=-1 M22=1 **OffsetX=68.05859375** OffsetY=0（OffsetX 应当 == 当时 RenderSize.Width）当时 TextBlock#1a2a379 FlowDirection=RightToLeft RenderSize=68.059x16.297"
+  ],
+  "M1": [
+   "[INPUT_TRACE] M1 GetFlowDirectionTransform 入口 TextBlock#3385da1 FlowDirection=RightToLeft RenderSize=546.48x16.297",
+   "[INPUT_TRACE] M1' **推了镜像** MatrixTransform M11=-1 M22=1 **OffsetX=546.48** OffsetY=0（OffsetX 应当 == 当时 RenderSize.Width）当时 TextBlock#3385da1 FlowDirection=RightToLeft RenderSize=546.48x16.297",
+   "[INPUT_TRACE] M1 GetFlowDirectionTransform 入口 TextBlock#397a684 FlowDirection=RightToLeft RenderSize=65.256x16.297",
+   "[INPUT_TRACE] M1' **推了镜像** MatrixTransform M11=-1 M22=1 **OffsetX=65.255859375** OffsetY=0（OffsetX 应当 == 当时 RenderSize.Width）当时 TextBlock#397a684 FlowDirection=RightToLeft RenderSize=65.256x16.297",
+   "[INPUT_TRACE] M1 GetFlowDirectionTransform 入口 TextBlock#54daa6 FlowDirection=RightToLeft RenderSize=73.849x16.297",
+   "[INPUT_TRACE] M1' **推了镜像** MatrixTransform M11=-1 M22=1 **OffsetX=73.8486328125** OffsetY=0（OffsetX 应当 == 当时 RenderSize.Width）当时 TextBlock#54daa6 FlowDirection=RightToLeft RenderSize=73.849x16.297",
+   "[INPUT_TRACE] M1 GetFlowDirectionTransform 入口 TextBlock#2d92e9b FlowDirection=RightToLeft RenderSize=96.428x16.297",
+   "[INPUT_TRACE] M1' **推了镜像** MatrixTransform M11=-1 M22=1 **OffsetX=96.427734375** OffsetY=0（OffsetX 应当 == 当时 RenderSize.Width）当时 TextBlock#2d92e9b FlowDirection=RightToLeft RenderSize=96.428x16.297"
+  ],
+  "M2": [
+   "[INPUT_TRACE] M2 **SetLayoutOffset** 传入 offset=(0,17.97) oldRenderSize=0x0｜additionalTransform=MatrixTransform M11=-1 M22=1 **OffsetX=546.48** OffsetY=0｜TextBlock#3385da1 FlowDirection=RightToLeft RenderSize=546.48x16.297",
+   "[INPUT_TRACE] M2 **SetLayoutOffset** 传入 offset=(0,17.97) oldRenderSize=0x0｜additionalTransform=MatrixTransform M11=-1 M22=1 **OffsetX=65.2559** OffsetY=0｜TextBlock#397a684 FlowDirection=RightToLeft RenderSize=65.256x16.297",
+   "[INPUT_TRACE] M2 **SetLayoutOffset** 传入 offset=(0,58.564) oldRenderSize=0x0｜additionalTransform=MatrixTransform M11=-1 M22=1 **OffsetX=73.8486** OffsetY=0｜TextBlock#54daa6 FlowDirection=RightToLeft RenderSize=73.849x16.297",
+   "[INPUT_TRACE] M2 **SetLayoutOffset** 传入 offset=(0,78.861) oldRenderSize=0x0｜additionalTransform=MatrixTransform M11=-1 M22=1 **OffsetX=96.4277** OffsetY=0｜TextBlock#2d92e9b FlowDirection=RightToLeft RenderSize=96.428x16.297",
+   "[INPUT_TRACE] M2 **SetLayoutOffset** 传入 offset=(0,99.158) oldRenderSize=0x0｜additionalTransform=MatrixTransform M11=-1 M22=1 **OffsetX=68.0586** OffsetY=0｜TextBlock#1a2a379 FlowDirection=RightToLeft RenderSize=68.059x16.297"
+  ],
+  "M3": [],
+  "M4": [],
+  "M5": [
+   "[INPUT_TRACE] M5 ApplyMirrorTransform(parentFD=LeftToRight, thisFD=RightToLeft) ⇒ True",
+   "[INPUT_TRACE] M5 ApplyMirrorTransform(parentFD=LeftToRight, thisFD=RightToLeft) ⇒ True",
+   "[INPUT_TRACE] M5 ApplyMirrorTransform(parentFD=LeftToRight, thisFD=RightToLeft) ⇒ True",
+   "[INPUT_TRACE] M5 ApplyMirrorTransform(parentFD=LeftToRight, thisFD=RightToLeft) ⇒ True",
+   "[INPUT_TRACE] M5 ApplyMirrorTransform(parentFD=LeftToRight, thisFD=RightToLeft) ⇒ True"
+  ],
+  "M6": [
+   "[INPUT_TRACE] M6 **TextBlock.OnRender** 入口 TextBlock#3385da1 FlowDirection=RightToLeft RenderSize=546.48x16.297",
+   "[INPUT_TRACE] M6 **TextBlock.OnRender** 入口 TextBlock#397a684 FlowDirection=RightToLeft RenderSize=65.256x16.297",
+   "[INPUT_TRACE] M6 **TextBlock.OnRender** 入口 TextBlock#54daa6 FlowDirection=RightToLeft RenderSize=73.849x16.297",
+   "[INPUT_TRACE] M6 **TextBlock.OnRender** 入口 TextBlock#2d92e9b FlowDirection=RightToLeft RenderSize=96.428x16.297",
+   "[INPUT_TRACE] M6 **TextBlock.OnRender** 入口 TextBlock#1a2a379 FlowDirection=RightToLeft RenderSize=68.059x16.297"
+  ]
+ },
+ "#M3_M4": "**未 fire**（各 0 行）⇒ cell 4a/4b 无法判，属读数缺口",
+ "#fit_check": {
+  "LTR_envelope": [
+   22,
+   88
+  ],
+  "RTL_observed": [
+   13,
+   42
+  ],
+  "W": 65.2559,
+  "box_x0": 21.0,
+  "predA_mirror_in_box": [
+   19.3,
+   85.3
+  ],
+  "predA_delta": [
+   6.3,
+   43.3
+  ],
+  "predB_two_mirrors": [
+   88.0,
+   22.0
+  ],
+  "verdict": "两种镜像解释都与实测不符；且 RTL 墨迹总量只有 LTR 的 46%（119 vs 260）而**每列密度相同**（3.97 vs 3.88）⇒ 纯镜像解释不成立"
+ },
+ "#lines": [
+  {
+   "label": "FF2D95",
+   "y_range": [
+    209,
+    220
+   ],
+   "envelope_x": [
+    13,
+    42
+   ],
+   "width_px": 30,
+   "ink_px": 119,
+   "profile_binned8": [
+    35,
+    28,
+    33,
+    23
+   ]
+  },
+  {
+   "label": "00FF7F",
+   "y_range": [
+    230,
+    241
+   ],
+   "envelope_x": [
+    22,
+    88
+   ],
+   "width_px": 67,
+   "ink_px": 260,
+   "profile_binned8": [
+    37,
+    35,
+    22,
+    40,
+    21,
+    26,
+    33,
+    28,
+    18
+   ]
+  },
+  {
+   "label": "00E5FF",
+   "y_range": [
+    250,
+    265
+   ],
+   "envelope_x": [
+    13,
+    52
+   ],
+   "width_px": 40,
+   "ink_px": 219,
+   "profile_binned8": [
+    40,
+    53,
+    46,
+    49,
+    31
+   ]
+  },
+  {
+   "label": "ADFF2F",
+   "y_range": [
+    272,
+    283
+   ],
+   "envelope_x": [
+    12,
+    73
+   ],
+   "width_px": 62,
+   "ink_px": 246,
+   "profile_binned8": [
+    33,
+    42,
+    31,
+    13,
+    39,
+    29,
+    34,
+    25
+   ]
+  },
+  {
+   "label": "C084FC",
+   "y_range": [
+    293,
+    303
+   ],
+   "envelope_x": [
+    12,
+    46
+   ],
+   "width_px": 35,
+   "ink_px": 123,
+   "profile_binned8": [
+    8,
+    33,
+    41,
+    20,
+    21
+   ]
+  },
+  {
+   "label": "9FB4D0",
+   "y_range": [
+    316,
+    320
+   ],
+   "envelope_x": [
+    13,
+    18
+   ],
+   "width_px": 6,
+   "ink_px": 7,
+   "profile_binned8": [
+    7
+   ]
+  }
+ ]
+}

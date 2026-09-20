@@ -1,0 +1,16 @@
+# T1b · **行级**记账不一致清单（用例 | 行号 | 期望 | 实得 | 归类桶）
+# 被测 shim 源 sha256 = 7C2E0107A9C8618027D327179269ABEE6D8D329EC1CD89194A412B06B1687274
+# 测量对象（app-local 副本，应与权威一致）： PC=E75C7BD5F465EDE6 WB=E6216FE961A2BFB9 DWF=2F77DBDF5E7E2CD5 Provider=71BA86C6495347FE
+# 条数 = 12（**无上限，未截断**）
+A1_nbsp_zwsp_w30 | 行#0 | 期望 Len=3 nl=0 ws=0 | 实得 Len=3 nl=0 ws=1 | 桶=行尾空白计数(ws)（NBSP/ZWSP 家族）
+A1_nbsp_zwsp_w30 | 行#2 | 期望 Len=3 nl=0 ws=0 | 实得 Len=3 nl=0 ws=1 | 桶=行尾空白计数(ws)（NBSP/ZWSP 家族）
+A1_nbsp_zwsp_w40 | 行#1 | 期望 Len=4 nl=0 ws=0 | 实得 Len=4 nl=0 ws=1 | 桶=行尾空白计数(ws)（NBSP/ZWSP 家族）
+A1_nbsp_zwsp_w80 | 行#0 | 期望 Len=9 nl=0 ws=0 | 实得 Len=9 nl=0 ws=1 | 桶=行尾空白计数(ws)（NBSP/ZWSP 家族）
+F_nbsp_zwsp_w40 | 行#1 | 期望 Len=4 nl=0 ws=0 | 实得 Len=4 nl=0 ws=1 | 桶=行尾空白计数(ws)（NBSP/ZWSP 家族）
+F_nbsp_zwsp_w80 | 行#0 | 期望 Len=9 nl=0 ws=0 | 实得 Len=9 nl=0 ws=1 | 桶=行尾空白计数(ws)（NBSP/ZWSP 家族）
+M_modifier_w80 | 行#0 | 期望 Len=50 nl=0 ws=1 | 实得 Len=6 nl=0 ws=1 | 桶=行区间长度(Length)
+M_modifier_w80 | 行#1 | 期望 Len=13 nl=1 ws=1 | 实得 Len=6 nl=0 ws=1 | 桶=硬断计数(nl)
+M_modifier_w120 | 行#0 | 期望 Len=56 nl=0 ws=1 | 实得 Len=12 nl=0 ws=1 | 桶=行区间长度(Length)
+M_modifier_w120 | 行#1 | 期望 Len=7 nl=1 ws=1 | 实得 Len=14 nl=0 ws=1 | 桶=硬断计数(nl)
+M_modifier_w200 | 行#0 | 期望 Len=63 nl=1 ws=1 | 实得 Len=26 nl=0 ws=1 | 桶=硬断计数(nl)
+M_modifier_w320 | 行#0 | 期望 Len=63 nl=1 ws=1 | 实得 Len=44 nl=0 ws=1 | 桶=硬断计数(nl)

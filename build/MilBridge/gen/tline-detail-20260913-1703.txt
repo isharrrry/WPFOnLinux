@@ -1,0 +1,7 @@
+== T1b/B2 · HbTextLine 对拍 harness（**驱动真 shim 源**：73 例 CJK + 真机 oracle 614 例）==
+被测文件 = build/shims/PresentationCore.HbTextLine.cs
+           sha256=ebccdb1ee65e6f7653da338d70188410615062f825a10969b737ca7d48281bbf  大小=206286 B  行数=3766
+           mtime=2026-09-13 00:36:31
+
+-- [1/3] 直构分支编译闸门 + 默认值语义自检（TEXTLINE_SHIM_DIRECT，PC 内形态）--
+build/MilBridge/run.sh: 行 187: ROOT: 未绑定的变量

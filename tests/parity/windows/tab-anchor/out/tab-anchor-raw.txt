@@ -1,0 +1,2084 @@
+WPF tab oracle - ANCHOR discrimination + Indent semantics (RAW machine output, human readable)
+generated: 2026-09-14T11:32:18.3734583Z
+machine: Microsoft Windows NT 10.0.22631.0 | .NET 10.0.7 | PresentationCore 10.0.0.0
+Dpi=96 emSize=24 interval(rule)=4*emSize=96 (the rule is NOT used by the analyzer; the interval is MEASURED from the probe cases)
+TextWrapping=Wrap, TextAlignment=Left, LineHeight=0 (natural)
+tab arms: default (DefaultIncrementalTab not overridden) | tab0 (DefaultIncrementalTab=0)
+font selection: single-font: 'Arial' covers every code point of every script used here
+   script latin -> Arial  sha256=baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c
+   script hebrew -> Arial  sha256=baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c
+   script arabic -> Arial  sha256=baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c
+
+=== FONT COVERAGE / ADVANCE TABLE (each script's code points) ===
+   (advance measured alone in a 1000-DIP paragraph, once per paragraph direction)
+   Arial: coversAll=True missing=0 uri=file:///C:/WINDOWS/FONTS/ARIAL.TTF sha256=baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c isChosenFor=latin,hebrew,arabic
+      U+0061 'a' covered=True glyph=68 advLTR=13.346667 advRTL=13.346667 same=True
+      U+0062 'b' covered=True glyph=69 advLTR=13.346667 advRTL=13.346667 same=True
+      U+0063 'c' covered=True glyph=70 advLTR=12 advRTL=12 same=True
+      U+05D0 'א' covered=True glyph=672 advLTR=13.513333 advRTL=13.513333 same=True
+      U+05D1 'ב' covered=True glyph=673 advLTR=13.006667 advRTL=13.006667 same=True
+      U+05D2 'ג' covered=True glyph=674 advLTR=9.573333 advRTL=9.573333 same=True
+      U+0627 'ا' covered=True glyph=909 advLTR=4.97 advRTL=4.97 same=True
+      U+0628 'ب' covered=True glyph=911 advLTR=17.12 advRTL=17.12 same=True
+      U+062C 'ج' covered=True glyph=925 advLTR=13.513333 advRTL=13.513333 same=True
+   Segoe UI: coversAll=True missing=0 uri=file:///C:/WINDOWS/FONTS/SEGOEUI.TTF sha256=74f2b3d0c20cf7380eb121a09fd7cdfdc1ccdd12a00db83caec0feb48b4db9f7 isChosenFor=
+   Tahoma: coversAll=True missing=0 uri=file:///C:/WINDOWS/FONTS/TAHOMA.TTF sha256=f936530a7ede296580f897c47e7a3fa48a9483166080ce05105673a1339cbf0c isChosenFor=
+   Times New Roman: coversAll=True missing=0 uri=file:///C:/WINDOWS/FONTS/TIMES.TTF sha256=43a890795ad133d73568d169a35924f40416be8a6950a1a03263052ec8e95b8a isChosenFor=
+
+== [A-anchor/lat-a-t-b@w96@LTR@i0@default] "a\tb"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=13.346667 witw=13.346667 ovf=False start=0 cause=before-tab  "a"
+   line 1: [1,2) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=0 w=96
+   line 2: [2,3) nl=1 trailWs=1 w=13.346667 witw=13.346667 ovf=False start=0 cause=end-of-text  "b"
+== [A-anchor/lat-a-t-b@w96@LTR@i0@tab0] "a\tb"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.696667 witw=26.696667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 '\t' xFromLeft=13.346667 w=0
+        i=2 'b' xFromLeft=13.35 w=13.346667
+== [A-anchor/lat-a-t-b@w100@LTR@i0@default] "a\tb"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=13.346667 witw=13.346667 ovf=False start=0 cause=before-tab  "a"
+   line 1: [1,2) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=0 w=96
+   line 2: [2,3) nl=1 trailWs=1 w=13.346667 witw=13.346667 ovf=False start=0 cause=end-of-text  "b"
+== [A-anchor/lat-a-t-b@w100@LTR@i0@tab0] "a\tb"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.696667 witw=26.696667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 '\t' xFromLeft=13.346667 w=0
+        i=2 'b' xFromLeft=13.35 w=13.346667
+== [A-anchor/lat-a-t-b@w140@LTR@i0@default] "a\tb"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 '\t' xFromLeft=13.346667 w=82.653333
+        i=2 'b' xFromLeft=96 w=13.346667
+== [A-anchor/lat-a-t-b@w140@LTR@i0@tab0] "a\tb"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.696667 witw=26.696667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 '\t' xFromLeft=13.346667 w=0
+        i=2 'b' xFromLeft=13.35 w=13.346667
+== [A-anchor/lat-a-t-b@w192@LTR@i0@default] "a\tb"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 '\t' xFromLeft=13.346667 w=82.653333
+        i=2 'b' xFromLeft=96 w=13.346667
+== [A-anchor/lat-a-t-b@w192@LTR@i0@tab0] "a\tb"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.696667 witw=26.696667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 '\t' xFromLeft=13.346667 w=0
+        i=2 'b' xFromLeft=13.35 w=13.346667
+== [A-anchor/lat-a-t-b@w200@LTR@i0@default] "a\tb"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 '\t' xFromLeft=13.346667 w=82.653333
+        i=2 'b' xFromLeft=96 w=13.346667
+== [A-anchor/lat-a-t-b@w200@LTR@i0@tab0] "a\tb"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.696667 witw=26.696667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 '\t' xFromLeft=13.346667 w=0
+        i=2 'b' xFromLeft=13.35 w=13.346667
+== [A-anchor/lat-a-t-b@w220@LTR@i0@default] "a\tb"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 '\t' xFromLeft=13.346667 w=82.653333
+        i=2 'b' xFromLeft=96 w=13.346667
+== [A-anchor/lat-a-t-b@w220@LTR@i0@tab0] "a\tb"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.696667 witw=26.696667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 '\t' xFromLeft=13.346667 w=0
+        i=2 'b' xFromLeft=13.35 w=13.346667
+== [A-anchor/lat-a-t-b@w260@LTR@i0@default] "a\tb"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 '\t' xFromLeft=13.346667 w=82.653333
+        i=2 'b' xFromLeft=96 w=13.346667
+== [A-anchor/lat-a-t-b@w260@LTR@i0@tab0] "a\tb"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.696667 witw=26.696667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 '\t' xFromLeft=13.346667 w=0
+        i=2 'b' xFromLeft=13.35 w=13.346667
+== [A-anchor/lat-ab-t-c@w96@LTR@i0@default] "ab\tc"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=0 trailWs=0 w=26.693333 witw=26.693333 ovf=False start=0 cause=before-tab  "ab"
+   line 1: [2,3) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=2 '\t' xFromLeft=0 w=96
+   line 2: [3,4) nl=1 trailWs=1 w=12 witw=12 ovf=False start=0 cause=end-of-text  "c"
+== [A-anchor/lat-ab-t-c@w96@LTR@i0@tab0] "ab\tc"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=38.696667 witw=38.696667 ovf=False start=0 cause=end-of-text  "ab\tc"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 'b' xFromLeft=13.346667 w=13.346667
+        i=2 '\t' xFromLeft=26.693333 w=0
+        i=3 'c' xFromLeft=26.696667 w=12
+== [A-anchor/lat-ab-t-c@w100@LTR@i0@default] "ab\tc"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=0 trailWs=0 w=26.693333 witw=26.693333 ovf=False start=0 cause=before-tab  "ab"
+   line 1: [2,3) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=2 '\t' xFromLeft=0 w=96
+   line 2: [3,4) nl=1 trailWs=1 w=12 witw=12 ovf=False start=0 cause=end-of-text  "c"
+== [A-anchor/lat-ab-t-c@w100@LTR@i0@tab0] "ab\tc"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=38.696667 witw=38.696667 ovf=False start=0 cause=end-of-text  "ab\tc"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 'b' xFromLeft=13.346667 w=13.346667
+        i=2 '\t' xFromLeft=26.693333 w=0
+        i=3 'c' xFromLeft=26.696667 w=12
+== [A-anchor/lat-ab-t-c@w140@LTR@i0@default] "ab\tc"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=108 witw=108 ovf=False start=0 cause=end-of-text  "ab\tc"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 'b' xFromLeft=13.346667 w=13.346667
+        i=2 '\t' xFromLeft=26.693333 w=69.306667
+        i=3 'c' xFromLeft=96 w=12
+== [A-anchor/lat-ab-t-c@w140@LTR@i0@tab0] "ab\tc"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=38.696667 witw=38.696667 ovf=False start=0 cause=end-of-text  "ab\tc"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 'b' xFromLeft=13.346667 w=13.346667
+        i=2 '\t' xFromLeft=26.693333 w=0
+        i=3 'c' xFromLeft=26.696667 w=12
+== [A-anchor/lat-ab-t-c@w192@LTR@i0@default] "ab\tc"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=108 witw=108 ovf=False start=0 cause=end-of-text  "ab\tc"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 'b' xFromLeft=13.346667 w=13.346667
+        i=2 '\t' xFromLeft=26.693333 w=69.306667
+        i=3 'c' xFromLeft=96 w=12
+== [A-anchor/lat-ab-t-c@w192@LTR@i0@tab0] "ab\tc"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=38.696667 witw=38.696667 ovf=False start=0 cause=end-of-text  "ab\tc"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 'b' xFromLeft=13.346667 w=13.346667
+        i=2 '\t' xFromLeft=26.693333 w=0
+        i=3 'c' xFromLeft=26.696667 w=12
+== [A-anchor/lat-ab-t-c@w200@LTR@i0@default] "ab\tc"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=108 witw=108 ovf=False start=0 cause=end-of-text  "ab\tc"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 'b' xFromLeft=13.346667 w=13.346667
+        i=2 '\t' xFromLeft=26.693333 w=69.306667
+        i=3 'c' xFromLeft=96 w=12
+== [A-anchor/lat-ab-t-c@w200@LTR@i0@tab0] "ab\tc"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=38.696667 witw=38.696667 ovf=False start=0 cause=end-of-text  "ab\tc"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 'b' xFromLeft=13.346667 w=13.346667
+        i=2 '\t' xFromLeft=26.693333 w=0
+        i=3 'c' xFromLeft=26.696667 w=12
+== [A-anchor/lat-ab-t-c@w220@LTR@i0@default] "ab\tc"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=108 witw=108 ovf=False start=0 cause=end-of-text  "ab\tc"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 'b' xFromLeft=13.346667 w=13.346667
+        i=2 '\t' xFromLeft=26.693333 w=69.306667
+        i=3 'c' xFromLeft=96 w=12
+== [A-anchor/lat-ab-t-c@w220@LTR@i0@tab0] "ab\tc"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=38.696667 witw=38.696667 ovf=False start=0 cause=end-of-text  "ab\tc"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 'b' xFromLeft=13.346667 w=13.346667
+        i=2 '\t' xFromLeft=26.693333 w=0
+        i=3 'c' xFromLeft=26.696667 w=12
+== [A-anchor/lat-ab-t-c@w260@LTR@i0@default] "ab\tc"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=108 witw=108 ovf=False start=0 cause=end-of-text  "ab\tc"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 'b' xFromLeft=13.346667 w=13.346667
+        i=2 '\t' xFromLeft=26.693333 w=69.306667
+        i=3 'c' xFromLeft=96 w=12
+== [A-anchor/lat-ab-t-c@w260@LTR@i0@tab0] "ab\tc"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=38.696667 witw=38.696667 ovf=False start=0 cause=end-of-text  "ab\tc"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 'b' xFromLeft=13.346667 w=13.346667
+        i=2 '\t' xFromLeft=26.693333 w=0
+        i=3 'c' xFromLeft=26.696667 w=12
+== [A-anchor/he-a-t-b@w96@RTL@i0@default] "א\tב"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=13.513333 witw=13.513333 ovf=False start=0 cause=before-tab  "א"
+   line 1: [1,2) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=0 w=96
+   line 2: [2,3) nl=1 trailWs=1 w=13.006667 witw=13.006667 ovf=False start=0 cause=end-of-text  "ב"
+== [A-anchor/he-a-t-b@w96@RTL@i0@tab0] "א\tב"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.523333 witw=26.523333 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=13.010001 w=13.513333
+        i=1 '\t' xFromLeft=13.010001 w=0
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [A-anchor/he-a-t-b@w100@RTL@i0@default] "א\tב"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=13.513333 witw=13.513333 ovf=False start=0 cause=before-tab  "א"
+   line 1: [1,2) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=0 w=96
+   line 2: [2,3) nl=1 trailWs=1 w=13.006667 witw=13.006667 ovf=False start=0 cause=end-of-text  "ב"
+== [A-anchor/he-a-t-b@w100@RTL@i0@tab0] "א\tב"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.523333 witw=26.523333 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=13.010001 w=13.513333
+        i=1 '\t' xFromLeft=13.010001 w=0
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [A-anchor/he-a-t-b@w140@RTL@i0@default] "א\tב"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.006667 witw=109.006667 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=95.493334 w=13.513333
+        i=1 '\t' xFromLeft=13.006667 w=82.486667
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [A-anchor/he-a-t-b@w140@RTL@i0@tab0] "א\tב"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.523333 witw=26.523333 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=13.010001 w=13.513333
+        i=1 '\t' xFromLeft=13.010001 w=0
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [A-anchor/he-a-t-b@w192@RTL@i0@default] "א\tב"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.006667 witw=109.006667 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=95.493334 w=13.513333
+        i=1 '\t' xFromLeft=13.006667 w=82.486667
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [A-anchor/he-a-t-b@w192@RTL@i0@tab0] "א\tב"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.523333 witw=26.523333 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=13.010001 w=13.513333
+        i=1 '\t' xFromLeft=13.010001 w=0
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [A-anchor/he-a-t-b@w200@RTL@i0@default] "א\tב"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.006667 witw=109.006667 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=95.493334 w=13.513333
+        i=1 '\t' xFromLeft=13.006667 w=82.486667
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [A-anchor/he-a-t-b@w200@RTL@i0@tab0] "א\tב"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.523333 witw=26.523333 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=13.010001 w=13.513333
+        i=1 '\t' xFromLeft=13.010001 w=0
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [A-anchor/he-a-t-b@w220@RTL@i0@default] "א\tב"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.006667 witw=109.006667 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=95.493334 w=13.513333
+        i=1 '\t' xFromLeft=13.006667 w=82.486667
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [A-anchor/he-a-t-b@w220@RTL@i0@tab0] "א\tב"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.523333 witw=26.523333 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=13.010001 w=13.513333
+        i=1 '\t' xFromLeft=13.010001 w=0
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [A-anchor/he-a-t-b@w260@RTL@i0@default] "א\tב"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.006667 witw=109.006667 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=95.493334 w=13.513333
+        i=1 '\t' xFromLeft=13.006667 w=82.486667
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [A-anchor/he-a-t-b@w260@RTL@i0@tab0] "א\tב"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.523333 witw=26.523333 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=13.010001 w=13.513333
+        i=1 '\t' xFromLeft=13.010001 w=0
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [A-anchor/he-ab-t-g@w96@RTL@i0@default] "אב\tג"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=0 trailWs=0 w=26.52 witw=26.52 ovf=False start=0 cause=before-tab  "אב"
+   line 1: [2,3) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=2 '\t' xFromLeft=0 w=96
+   line 2: [3,4) nl=1 trailWs=1 w=9.573333 witw=9.573333 ovf=False start=0 cause=end-of-text  "ג"
+== [A-anchor/he-ab-t-g@w96@RTL@i0@tab0] "אב\tג"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=36.096667 witw=36.096667 ovf=False start=0 cause=end-of-text  "אב\tג"
+        i=0 'א' xFromLeft=22.583333 w=13.513333
+        i=1 'ב' xFromLeft=9.576666 w=13.006667
+        i=2 '\t' xFromLeft=9.576666 w=0
+        i=3 'ג' xFromLeft=0 w=9.573333
+== [A-anchor/he-ab-t-g@w100@RTL@i0@default] "אב\tג"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=0 trailWs=0 w=26.52 witw=26.52 ovf=False start=0 cause=before-tab  "אב"
+   line 1: [2,3) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=2 '\t' xFromLeft=0 w=96
+   line 2: [3,4) nl=1 trailWs=1 w=9.573333 witw=9.573333 ovf=False start=0 cause=end-of-text  "ג"
+== [A-anchor/he-ab-t-g@w100@RTL@i0@tab0] "אב\tג"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=36.096667 witw=36.096667 ovf=False start=0 cause=end-of-text  "אב\tג"
+        i=0 'א' xFromLeft=22.583333 w=13.513333
+        i=1 'ב' xFromLeft=9.576666 w=13.006667
+        i=2 '\t' xFromLeft=9.576666 w=0
+        i=3 'ג' xFromLeft=0 w=9.573333
+== [A-anchor/he-ab-t-g@w140@RTL@i0@default] "אב\tג"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=105.573333 witw=105.573333 ovf=False start=0 cause=end-of-text  "אב\tג"
+        i=0 'א' xFromLeft=92.06 w=13.513333
+        i=1 'ב' xFromLeft=79.053333 w=13.006667
+        i=2 '\t' xFromLeft=9.573333 w=69.48
+        i=3 'ג' xFromLeft=0 w=9.573333
+== [A-anchor/he-ab-t-g@w140@RTL@i0@tab0] "אב\tג"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=36.096667 witw=36.096667 ovf=False start=0 cause=end-of-text  "אב\tג"
+        i=0 'א' xFromLeft=22.583333 w=13.513333
+        i=1 'ב' xFromLeft=9.576666 w=13.006667
+        i=2 '\t' xFromLeft=9.576666 w=0
+        i=3 'ג' xFromLeft=0 w=9.573333
+== [A-anchor/he-ab-t-g@w192@RTL@i0@default] "אב\tג"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=105.573333 witw=105.573333 ovf=False start=0 cause=end-of-text  "אב\tג"
+        i=0 'א' xFromLeft=92.06 w=13.513333
+        i=1 'ב' xFromLeft=79.053333 w=13.006667
+        i=2 '\t' xFromLeft=9.573333 w=69.48
+        i=3 'ג' xFromLeft=0 w=9.573333
+== [A-anchor/he-ab-t-g@w192@RTL@i0@tab0] "אב\tג"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=36.096667 witw=36.096667 ovf=False start=0 cause=end-of-text  "אב\tג"
+        i=0 'א' xFromLeft=22.583333 w=13.513333
+        i=1 'ב' xFromLeft=9.576666 w=13.006667
+        i=2 '\t' xFromLeft=9.576666 w=0
+        i=3 'ג' xFromLeft=0 w=9.573333
+== [A-anchor/he-ab-t-g@w200@RTL@i0@default] "אב\tג"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=105.573333 witw=105.573333 ovf=False start=0 cause=end-of-text  "אב\tג"
+        i=0 'א' xFromLeft=92.06 w=13.513333
+        i=1 'ב' xFromLeft=79.053333 w=13.006667
+        i=2 '\t' xFromLeft=9.573333 w=69.48
+        i=3 'ג' xFromLeft=0 w=9.573333
+== [A-anchor/he-ab-t-g@w200@RTL@i0@tab0] "אב\tג"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=36.096667 witw=36.096667 ovf=False start=0 cause=end-of-text  "אב\tג"
+        i=0 'א' xFromLeft=22.583333 w=13.513333
+        i=1 'ב' xFromLeft=9.576666 w=13.006667
+        i=2 '\t' xFromLeft=9.576666 w=0
+        i=3 'ג' xFromLeft=0 w=9.573333
+== [A-anchor/he-ab-t-g@w220@RTL@i0@default] "אב\tג"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=105.573333 witw=105.573333 ovf=False start=0 cause=end-of-text  "אב\tג"
+        i=0 'א' xFromLeft=92.06 w=13.513333
+        i=1 'ב' xFromLeft=79.053333 w=13.006667
+        i=2 '\t' xFromLeft=9.573333 w=69.48
+        i=3 'ג' xFromLeft=0 w=9.573333
+== [A-anchor/he-ab-t-g@w220@RTL@i0@tab0] "אב\tג"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=36.096667 witw=36.096667 ovf=False start=0 cause=end-of-text  "אב\tג"
+        i=0 'א' xFromLeft=22.583333 w=13.513333
+        i=1 'ב' xFromLeft=9.576666 w=13.006667
+        i=2 '\t' xFromLeft=9.576666 w=0
+        i=3 'ג' xFromLeft=0 w=9.573333
+== [A-anchor/he-ab-t-g@w260@RTL@i0@default] "אב\tג"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=105.573333 witw=105.573333 ovf=False start=0 cause=end-of-text  "אב\tג"
+        i=0 'א' xFromLeft=92.06 w=13.513333
+        i=1 'ב' xFromLeft=79.053333 w=13.006667
+        i=2 '\t' xFromLeft=9.573333 w=69.48
+        i=3 'ג' xFromLeft=0 w=9.573333
+== [A-anchor/he-ab-t-g@w260@RTL@i0@tab0] "אב\tג"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=36.096667 witw=36.096667 ovf=False start=0 cause=end-of-text  "אב\tג"
+        i=0 'א' xFromLeft=22.583333 w=13.513333
+        i=1 'ב' xFromLeft=9.576666 w=13.006667
+        i=2 '\t' xFromLeft=9.576666 w=0
+        i=3 'ג' xFromLeft=0 w=9.573333
+== [A-anchor/ar-a-t-b@w96@RTL@i0@default] "ا\tب"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=4.97 witw=4.97 ovf=False start=0 cause=before-tab  "ا"
+   line 1: [1,2) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=0 w=96
+   line 2: [2,3) nl=1 trailWs=1 w=17.12 witw=17.12 ovf=False start=0 cause=end-of-text  "ب"
+== [A-anchor/ar-a-t-b@w96@RTL@i0@tab0] "ا\tب"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=22.093333 witw=22.093333 ovf=False start=0 cause=end-of-text  "ا\tب"
+        i=0 'ا' xFromLeft=17.123333 w=4.97
+        i=1 '\t' xFromLeft=17.123333 w=0
+        i=2 'ب' xFromLeft=0 w=17.12
+== [A-anchor/ar-a-t-b@w100@RTL@i0@default] "ا\tب"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=4.97 witw=4.97 ovf=False start=0 cause=before-tab  "ا"
+   line 1: [1,2) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=0 w=96
+   line 2: [2,3) nl=1 trailWs=1 w=17.12 witw=17.12 ovf=False start=0 cause=end-of-text  "ب"
+== [A-anchor/ar-a-t-b@w100@RTL@i0@tab0] "ا\tب"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=22.093333 witw=22.093333 ovf=False start=0 cause=end-of-text  "ا\tب"
+        i=0 'ا' xFromLeft=17.123333 w=4.97
+        i=1 '\t' xFromLeft=17.123333 w=0
+        i=2 'ب' xFromLeft=0 w=17.12
+== [A-anchor/ar-a-t-b@w140@RTL@i0@default] "ا\tب"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=113.12 witw=113.12 ovf=False start=0 cause=end-of-text  "ا\tب"
+        i=0 'ا' xFromLeft=108.15 w=4.97
+        i=1 '\t' xFromLeft=17.12 w=91.03
+        i=2 'ب' xFromLeft=0 w=17.12
+== [A-anchor/ar-a-t-b@w140@RTL@i0@tab0] "ا\tب"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=22.093333 witw=22.093333 ovf=False start=0 cause=end-of-text  "ا\tب"
+        i=0 'ا' xFromLeft=17.123333 w=4.97
+        i=1 '\t' xFromLeft=17.123333 w=0
+        i=2 'ب' xFromLeft=0 w=17.12
+== [A-anchor/ar-a-t-b@w192@RTL@i0@default] "ا\tب"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=113.12 witw=113.12 ovf=False start=0 cause=end-of-text  "ا\tب"
+        i=0 'ا' xFromLeft=108.15 w=4.97
+        i=1 '\t' xFromLeft=17.12 w=91.03
+        i=2 'ب' xFromLeft=0 w=17.12
+== [A-anchor/ar-a-t-b@w192@RTL@i0@tab0] "ا\tب"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=22.093333 witw=22.093333 ovf=False start=0 cause=end-of-text  "ا\tب"
+        i=0 'ا' xFromLeft=17.123333 w=4.97
+        i=1 '\t' xFromLeft=17.123333 w=0
+        i=2 'ب' xFromLeft=0 w=17.12
+== [A-anchor/ar-a-t-b@w200@RTL@i0@default] "ا\tب"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=113.12 witw=113.12 ovf=False start=0 cause=end-of-text  "ا\tب"
+        i=0 'ا' xFromLeft=108.15 w=4.97
+        i=1 '\t' xFromLeft=17.12 w=91.03
+        i=2 'ب' xFromLeft=0 w=17.12
+== [A-anchor/ar-a-t-b@w200@RTL@i0@tab0] "ا\tب"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=22.093333 witw=22.093333 ovf=False start=0 cause=end-of-text  "ا\tب"
+        i=0 'ا' xFromLeft=17.123333 w=4.97
+        i=1 '\t' xFromLeft=17.123333 w=0
+        i=2 'ب' xFromLeft=0 w=17.12
+== [A-anchor/ar-a-t-b@w220@RTL@i0@default] "ا\tب"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=113.12 witw=113.12 ovf=False start=0 cause=end-of-text  "ا\tب"
+        i=0 'ا' xFromLeft=108.15 w=4.97
+        i=1 '\t' xFromLeft=17.12 w=91.03
+        i=2 'ب' xFromLeft=0 w=17.12
+== [A-anchor/ar-a-t-b@w220@RTL@i0@tab0] "ا\tب"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=22.093333 witw=22.093333 ovf=False start=0 cause=end-of-text  "ا\tب"
+        i=0 'ا' xFromLeft=17.123333 w=4.97
+        i=1 '\t' xFromLeft=17.123333 w=0
+        i=2 'ب' xFromLeft=0 w=17.12
+== [A-anchor/ar-a-t-b@w260@RTL@i0@default] "ا\tب"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=113.12 witw=113.12 ovf=False start=0 cause=end-of-text  "ا\tب"
+        i=0 'ا' xFromLeft=108.15 w=4.97
+        i=1 '\t' xFromLeft=17.12 w=91.03
+        i=2 'ب' xFromLeft=0 w=17.12
+== [A-anchor/ar-a-t-b@w260@RTL@i0@tab0] "ا\tب"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=22.093333 witw=22.093333 ovf=False start=0 cause=end-of-text  "ا\tب"
+        i=0 'ا' xFromLeft=17.123333 w=4.97
+        i=1 '\t' xFromLeft=17.123333 w=0
+        i=2 'ب' xFromLeft=0 w=17.12
+== [A-anchor/ar-ab-t-j@w96@RTL@i0@default] "اب\tج"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=0 trailWs=0 w=22.09 witw=22.09 ovf=False start=0 cause=before-tab  "اب"
+   line 1: [2,3) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=2 '\t' xFromLeft=0 w=96
+   line 2: [3,4) nl=1 trailWs=1 w=13.513333 witw=13.513333 ovf=False start=0 cause=end-of-text  "ج"
+== [A-anchor/ar-ab-t-j@w96@RTL@i0@tab0] "اب\tج"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=35.606667 witw=35.606667 ovf=False start=0 cause=end-of-text  "اب\tج"
+        i=0 'ا' xFromLeft=30.636666 w=4.97
+        i=1 'ب' xFromLeft=13.516666 w=17.12
+        i=2 '\t' xFromLeft=13.516666 w=0
+        i=3 'ج' xFromLeft=0 w=13.513333
+== [A-anchor/ar-ab-t-j@w100@RTL@i0@default] "اب\tج"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=0 trailWs=0 w=22.09 witw=22.09 ovf=False start=0 cause=before-tab  "اب"
+   line 1: [2,3) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=2 '\t' xFromLeft=0 w=96
+   line 2: [3,4) nl=1 trailWs=1 w=13.513333 witw=13.513333 ovf=False start=0 cause=end-of-text  "ج"
+== [A-anchor/ar-ab-t-j@w100@RTL@i0@tab0] "اب\tج"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=35.606667 witw=35.606667 ovf=False start=0 cause=end-of-text  "اب\tج"
+        i=0 'ا' xFromLeft=30.636666 w=4.97
+        i=1 'ب' xFromLeft=13.516666 w=17.12
+        i=2 '\t' xFromLeft=13.516666 w=0
+        i=3 'ج' xFromLeft=0 w=13.513333
+== [A-anchor/ar-ab-t-j@w140@RTL@i0@default] "اب\tج"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=109.513333 witw=109.513333 ovf=False start=0 cause=end-of-text  "اب\tج"
+        i=0 'ا' xFromLeft=104.543333 w=4.97
+        i=1 'ب' xFromLeft=87.423333 w=17.12
+        i=2 '\t' xFromLeft=13.513333 w=73.91
+        i=3 'ج' xFromLeft=0 w=13.513333
+== [A-anchor/ar-ab-t-j@w140@RTL@i0@tab0] "اب\tج"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=35.606667 witw=35.606667 ovf=False start=0 cause=end-of-text  "اب\tج"
+        i=0 'ا' xFromLeft=30.636666 w=4.97
+        i=1 'ب' xFromLeft=13.516666 w=17.12
+        i=2 '\t' xFromLeft=13.516666 w=0
+        i=3 'ج' xFromLeft=0 w=13.513333
+== [A-anchor/ar-ab-t-j@w192@RTL@i0@default] "اب\tج"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=109.513333 witw=109.513333 ovf=False start=0 cause=end-of-text  "اب\tج"
+        i=0 'ا' xFromLeft=104.543333 w=4.97
+        i=1 'ب' xFromLeft=87.423333 w=17.12
+        i=2 '\t' xFromLeft=13.513333 w=73.91
+        i=3 'ج' xFromLeft=0 w=13.513333
+== [A-anchor/ar-ab-t-j@w192@RTL@i0@tab0] "اب\tج"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=35.606667 witw=35.606667 ovf=False start=0 cause=end-of-text  "اب\tج"
+        i=0 'ا' xFromLeft=30.636666 w=4.97
+        i=1 'ب' xFromLeft=13.516666 w=17.12
+        i=2 '\t' xFromLeft=13.516666 w=0
+        i=3 'ج' xFromLeft=0 w=13.513333
+== [A-anchor/ar-ab-t-j@w200@RTL@i0@default] "اب\tج"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=109.513333 witw=109.513333 ovf=False start=0 cause=end-of-text  "اب\tج"
+        i=0 'ا' xFromLeft=104.543333 w=4.97
+        i=1 'ب' xFromLeft=87.423333 w=17.12
+        i=2 '\t' xFromLeft=13.513333 w=73.91
+        i=3 'ج' xFromLeft=0 w=13.513333
+== [A-anchor/ar-ab-t-j@w200@RTL@i0@tab0] "اب\tج"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=35.606667 witw=35.606667 ovf=False start=0 cause=end-of-text  "اب\tج"
+        i=0 'ا' xFromLeft=30.636666 w=4.97
+        i=1 'ب' xFromLeft=13.516666 w=17.12
+        i=2 '\t' xFromLeft=13.516666 w=0
+        i=3 'ج' xFromLeft=0 w=13.513333
+== [A-anchor/ar-ab-t-j@w220@RTL@i0@default] "اب\tج"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=109.513333 witw=109.513333 ovf=False start=0 cause=end-of-text  "اب\tج"
+        i=0 'ا' xFromLeft=104.543333 w=4.97
+        i=1 'ب' xFromLeft=87.423333 w=17.12
+        i=2 '\t' xFromLeft=13.513333 w=73.91
+        i=3 'ج' xFromLeft=0 w=13.513333
+== [A-anchor/ar-ab-t-j@w220@RTL@i0@tab0] "اب\tج"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=35.606667 witw=35.606667 ovf=False start=0 cause=end-of-text  "اب\tج"
+        i=0 'ا' xFromLeft=30.636666 w=4.97
+        i=1 'ب' xFromLeft=13.516666 w=17.12
+        i=2 '\t' xFromLeft=13.516666 w=0
+        i=3 'ج' xFromLeft=0 w=13.513333
+== [A-anchor/ar-ab-t-j@w260@RTL@i0@default] "اب\tج"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=109.513333 witw=109.513333 ovf=False start=0 cause=end-of-text  "اب\tج"
+        i=0 'ا' xFromLeft=104.543333 w=4.97
+        i=1 'ب' xFromLeft=87.423333 w=17.12
+        i=2 '\t' xFromLeft=13.513333 w=73.91
+        i=3 'ج' xFromLeft=0 w=13.513333
+== [A-anchor/ar-ab-t-j@w260@RTL@i0@tab0] "اب\tج"   group=A-anchor  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=35.606667 witw=35.606667 ovf=False start=0 cause=end-of-text  "اب\tج"
+        i=0 'ا' xFromLeft=30.636666 w=4.97
+        i=1 'ب' xFromLeft=13.516666 w=17.12
+        i=2 '\t' xFromLeft=13.516666 w=0
+        i=3 'ج' xFromLeft=0 w=13.513333
+== [A-contrast/ltr-he-a-t-b@w96@LTR@i0@default] "א\tב"   group=A-contrast  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=13.513333 witw=13.513333 ovf=False start=0 cause=before-tab  "א"
+   line 1: [1,2) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=0 w=96
+   line 2: [2,3) nl=1 trailWs=1 w=13.006667 witw=13.006667 ovf=False start=0 cause=end-of-text  "ב"
+== [A-contrast/ltr-he-a-t-b@w96@LTR@i0@tab0] "א\tב"   group=A-contrast  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.523333 witw=26.523333 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=-0.003333 w=13.513333
+        i=1 '\t' xFromLeft=13.513333 w=0
+        i=2 'ב' xFromLeft=13.513333 w=13.006667
+== [A-contrast/ltr-he-a-t-b@w100@LTR@i0@default] "א\tב"   group=A-contrast  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=13.513333 witw=13.513333 ovf=False start=0 cause=before-tab  "א"
+   line 1: [1,2) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=0 w=96
+   line 2: [2,3) nl=1 trailWs=1 w=13.006667 witw=13.006667 ovf=False start=0 cause=end-of-text  "ב"
+== [A-contrast/ltr-he-a-t-b@w100@LTR@i0@tab0] "א\tב"   group=A-contrast  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.523333 witw=26.523333 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=-0.003333 w=13.513333
+        i=1 '\t' xFromLeft=13.513333 w=0
+        i=2 'ב' xFromLeft=13.513333 w=13.006667
+== [A-contrast/ltr-he-a-t-b@w140@LTR@i0@default] "א\tב"   group=A-contrast  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.006667 witw=109.006667 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=-0.003333 w=13.513333
+        i=1 '\t' xFromLeft=13.513333 w=82.486667
+        i=2 'ב' xFromLeft=95.996667 w=13.006667
+== [A-contrast/ltr-he-a-t-b@w140@LTR@i0@tab0] "א\tב"   group=A-contrast  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.523333 witw=26.523333 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=-0.003333 w=13.513333
+        i=1 '\t' xFromLeft=13.513333 w=0
+        i=2 'ב' xFromLeft=13.513333 w=13.006667
+== [A-contrast/ltr-he-a-t-b@w192@LTR@i0@default] "א\tב"   group=A-contrast  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.006667 witw=109.006667 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=-0.003333 w=13.513333
+        i=1 '\t' xFromLeft=13.513333 w=82.486667
+        i=2 'ב' xFromLeft=95.996667 w=13.006667
+== [A-contrast/ltr-he-a-t-b@w192@LTR@i0@tab0] "א\tב"   group=A-contrast  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.523333 witw=26.523333 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=-0.003333 w=13.513333
+        i=1 '\t' xFromLeft=13.513333 w=0
+        i=2 'ב' xFromLeft=13.513333 w=13.006667
+== [A-contrast/ltr-he-a-t-b@w200@LTR@i0@default] "א\tב"   group=A-contrast  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.006667 witw=109.006667 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=-0.003333 w=13.513333
+        i=1 '\t' xFromLeft=13.513333 w=82.486667
+        i=2 'ב' xFromLeft=95.996667 w=13.006667
+== [A-contrast/ltr-he-a-t-b@w200@LTR@i0@tab0] "א\tב"   group=A-contrast  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.523333 witw=26.523333 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=-0.003333 w=13.513333
+        i=1 '\t' xFromLeft=13.513333 w=0
+        i=2 'ב' xFromLeft=13.513333 w=13.006667
+== [A-contrast/ltr-he-a-t-b@w220@LTR@i0@default] "א\tב"   group=A-contrast  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.006667 witw=109.006667 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=-0.003333 w=13.513333
+        i=1 '\t' xFromLeft=13.513333 w=82.486667
+        i=2 'ב' xFromLeft=95.996667 w=13.006667
+== [A-contrast/ltr-he-a-t-b@w220@LTR@i0@tab0] "א\tב"   group=A-contrast  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.523333 witw=26.523333 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=-0.003333 w=13.513333
+        i=1 '\t' xFromLeft=13.513333 w=0
+        i=2 'ב' xFromLeft=13.513333 w=13.006667
+== [A-contrast/ltr-he-a-t-b@w260@LTR@i0@default] "א\tב"   group=A-contrast  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.006667 witw=109.006667 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=-0.003333 w=13.513333
+        i=1 '\t' xFromLeft=13.513333 w=82.486667
+        i=2 'ב' xFromLeft=95.996667 w=13.006667
+== [A-contrast/ltr-he-a-t-b@w260@LTR@i0@tab0] "א\tב"   group=A-contrast  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.523333 witw=26.523333 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=-0.003333 w=13.513333
+        i=1 '\t' xFromLeft=13.513333 w=0
+        i=2 'ב' xFromLeft=13.513333 w=13.006667
+== [A-contrast/ltr-he-ab-t-g@w96@LTR@i0@default] "אב\tג"   group=A-contrast  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=0 trailWs=0 w=26.52 witw=26.52 ovf=False start=0 cause=before-tab  "אב"
+   line 1: [2,3) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=2 '\t' xFromLeft=0 w=96
+   line 2: [3,4) nl=1 trailWs=1 w=9.573333 witw=9.573333 ovf=False start=0 cause=end-of-text  "ג"
+== [A-contrast/ltr-he-ab-t-g@w96@LTR@i0@tab0] "אב\tג"   group=A-contrast  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=36.096667 witw=36.096667 ovf=False start=0 cause=end-of-text  "אב\tג"
+        i=0 'א' xFromLeft=13.003333 w=13.513333
+        i=1 'ב' xFromLeft=-0.003333 w=13.006667
+        i=2 '\t' xFromLeft=26.52 w=0
+        i=3 'ג' xFromLeft=26.52 w=9.573333
+== [A-contrast/ltr-he-ab-t-g@w100@LTR@i0@default] "אב\tג"   group=A-contrast  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=0 trailWs=0 w=26.52 witw=26.52 ovf=False start=0 cause=before-tab  "אב"
+   line 1: [2,3) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=2 '\t' xFromLeft=0 w=96
+   line 2: [3,4) nl=1 trailWs=1 w=9.573333 witw=9.573333 ovf=False start=0 cause=end-of-text  "ג"
+== [A-contrast/ltr-he-ab-t-g@w100@LTR@i0@tab0] "אב\tג"   group=A-contrast  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=36.096667 witw=36.096667 ovf=False start=0 cause=end-of-text  "אב\tג"
+        i=0 'א' xFromLeft=13.003333 w=13.513333
+        i=1 'ב' xFromLeft=-0.003333 w=13.006667
+        i=2 '\t' xFromLeft=26.52 w=0
+        i=3 'ג' xFromLeft=26.52 w=9.573333
+== [A-contrast/ltr-he-ab-t-g@w140@LTR@i0@default] "אב\tג"   group=A-contrast  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=105.573333 witw=105.573333 ovf=False start=0 cause=end-of-text  "אב\tג"
+        i=0 'א' xFromLeft=13.003333 w=13.513333
+        i=1 'ב' xFromLeft=-0.003333 w=13.006667
+        i=2 '\t' xFromLeft=26.52 w=69.48
+        i=3 'ג' xFromLeft=95.996667 w=9.573333
+== [A-contrast/ltr-he-ab-t-g@w140@LTR@i0@tab0] "אב\tג"   group=A-contrast  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=36.096667 witw=36.096667 ovf=False start=0 cause=end-of-text  "אב\tג"
+        i=0 'א' xFromLeft=13.003333 w=13.513333
+        i=1 'ב' xFromLeft=-0.003333 w=13.006667
+        i=2 '\t' xFromLeft=26.52 w=0
+        i=3 'ג' xFromLeft=26.52 w=9.573333
+== [A-contrast/ltr-he-ab-t-g@w192@LTR@i0@default] "אב\tג"   group=A-contrast  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=105.573333 witw=105.573333 ovf=False start=0 cause=end-of-text  "אב\tג"
+        i=0 'א' xFromLeft=13.003333 w=13.513333
+        i=1 'ב' xFromLeft=-0.003333 w=13.006667
+        i=2 '\t' xFromLeft=26.52 w=69.48
+        i=3 'ג' xFromLeft=95.996667 w=9.573333
+== [A-contrast/ltr-he-ab-t-g@w192@LTR@i0@tab0] "אב\tג"   group=A-contrast  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=36.096667 witw=36.096667 ovf=False start=0 cause=end-of-text  "אב\tג"
+        i=0 'א' xFromLeft=13.003333 w=13.513333
+        i=1 'ב' xFromLeft=-0.003333 w=13.006667
+        i=2 '\t' xFromLeft=26.52 w=0
+        i=3 'ג' xFromLeft=26.52 w=9.573333
+== [A-contrast/ltr-he-ab-t-g@w200@LTR@i0@default] "אב\tג"   group=A-contrast  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=105.573333 witw=105.573333 ovf=False start=0 cause=end-of-text  "אב\tג"
+        i=0 'א' xFromLeft=13.003333 w=13.513333
+        i=1 'ב' xFromLeft=-0.003333 w=13.006667
+        i=2 '\t' xFromLeft=26.52 w=69.48
+        i=3 'ג' xFromLeft=95.996667 w=9.573333
+== [A-contrast/ltr-he-ab-t-g@w200@LTR@i0@tab0] "אב\tג"   group=A-contrast  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=36.096667 witw=36.096667 ovf=False start=0 cause=end-of-text  "אב\tג"
+        i=0 'א' xFromLeft=13.003333 w=13.513333
+        i=1 'ב' xFromLeft=-0.003333 w=13.006667
+        i=2 '\t' xFromLeft=26.52 w=0
+        i=3 'ג' xFromLeft=26.52 w=9.573333
+== [A-contrast/ltr-he-ab-t-g@w220@LTR@i0@default] "אב\tג"   group=A-contrast  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=105.573333 witw=105.573333 ovf=False start=0 cause=end-of-text  "אב\tג"
+        i=0 'א' xFromLeft=13.003333 w=13.513333
+        i=1 'ב' xFromLeft=-0.003333 w=13.006667
+        i=2 '\t' xFromLeft=26.52 w=69.48
+        i=3 'ג' xFromLeft=95.996667 w=9.573333
+== [A-contrast/ltr-he-ab-t-g@w220@LTR@i0@tab0] "אב\tג"   group=A-contrast  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=36.096667 witw=36.096667 ovf=False start=0 cause=end-of-text  "אב\tג"
+        i=0 'א' xFromLeft=13.003333 w=13.513333
+        i=1 'ב' xFromLeft=-0.003333 w=13.006667
+        i=2 '\t' xFromLeft=26.52 w=0
+        i=3 'ג' xFromLeft=26.52 w=9.573333
+== [A-contrast/ltr-he-ab-t-g@w260@LTR@i0@default] "אב\tג"   group=A-contrast  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=105.573333 witw=105.573333 ovf=False start=0 cause=end-of-text  "אב\tג"
+        i=0 'א' xFromLeft=13.003333 w=13.513333
+        i=1 'ב' xFromLeft=-0.003333 w=13.006667
+        i=2 '\t' xFromLeft=26.52 w=69.48
+        i=3 'ג' xFromLeft=95.996667 w=9.573333
+== [A-contrast/ltr-he-ab-t-g@w260@LTR@i0@tab0] "אב\tג"   group=A-contrast  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=36.096667 witw=36.096667 ovf=False start=0 cause=end-of-text  "אב\tג"
+        i=0 'א' xFromLeft=13.003333 w=13.513333
+        i=1 'ב' xFromLeft=-0.003333 w=13.006667
+        i=2 '\t' xFromLeft=26.52 w=0
+        i=3 'ג' xFromLeft=26.52 w=9.573333
+== [B-indent/lead-tab-a@w40@LTR@i0@default] "\ta"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=40 witw=40 ovf=False start=0 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=0 w=40
+   line 1: [1,2) nl=1 trailWs=1 w=13.346667 witw=13.346667 ovf=False start=0 cause=end-of-text  "a"
+== [B-indent/lead-tab-a@w40@LTR@i0@tab0] "\ta"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=13.35 witw=13.35 ovf=False start=0 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=0 w=0
+        i=1 'a' xFromLeft=0.003333 w=13.346667
+== [B-indent/lead-tab-a@w40@LTR@i24@default] "\ta"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=40 witw=40 ovf=False start=0 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=24 w=16
+   line 1: [1,2) nl=1 trailWs=1 w=37.346667 witw=37.346667 ovf=False start=0 cause=end-of-text  "a"
+== [B-indent/lead-tab-a@w40@LTR@i24@tab0] "\ta"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=37.35 witw=37.35 ovf=False start=0 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=24 w=0
+        i=1 'a' xFromLeft=24.003333 w=13.346667
+== [B-indent/lead-tab-a@w80@LTR@i0@default] "\ta"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=80 witw=80 ovf=False start=0 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=0 w=80
+   line 1: [1,2) nl=1 trailWs=1 w=13.346667 witw=13.346667 ovf=False start=0 cause=end-of-text  "a"
+== [B-indent/lead-tab-a@w80@LTR@i0@tab0] "\ta"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=13.35 witw=13.35 ovf=False start=0 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=0 w=0
+        i=1 'a' xFromLeft=0.003333 w=13.346667
+== [B-indent/lead-tab-a@w80@LTR@i24@default] "\ta"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=80 witw=80 ovf=False start=0 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=24 w=56
+   line 1: [1,2) nl=1 trailWs=1 w=37.346667 witw=37.346667 ovf=False start=0 cause=end-of-text  "a"
+== [B-indent/lead-tab-a@w80@LTR@i24@tab0] "\ta"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=37.35 witw=37.35 ovf=False start=0 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=24 w=0
+        i=1 'a' xFromLeft=24.003333 w=13.346667
+== [B-indent/lead-tab-a@w96@LTR@i0@default] "\ta"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=0 w=96
+   line 1: [1,2) nl=1 trailWs=1 w=13.346667 witw=13.346667 ovf=False start=0 cause=end-of-text  "a"
+== [B-indent/lead-tab-a@w96@LTR@i0@tab0] "\ta"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=13.35 witw=13.35 ovf=False start=0 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=0 w=0
+        i=1 'a' xFromLeft=0.003333 w=13.346667
+== [B-indent/lead-tab-a@w96@LTR@i24@default] "\ta"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=24 w=72
+   line 1: [1,2) nl=1 trailWs=1 w=37.346667 witw=37.346667 ovf=False start=0 cause=end-of-text  "a"
+== [B-indent/lead-tab-a@w96@LTR@i24@tab0] "\ta"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=37.35 witw=37.35 ovf=False start=0 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=24 w=0
+        i=1 'a' xFromLeft=24.003333 w=13.346667
+== [B-indent/lead-tab-a@w100@LTR@i0@default] "\ta"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=0 w=96
+   line 1: [1,2) nl=1 trailWs=1 w=13.346667 witw=13.346667 ovf=False start=0 cause=end-of-text  "a"
+== [B-indent/lead-tab-a@w100@LTR@i0@tab0] "\ta"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=13.35 witw=13.35 ovf=False start=0 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=0 w=0
+        i=1 'a' xFromLeft=0.003333 w=13.346667
+== [B-indent/lead-tab-a@w100@LTR@i24@default] "\ta"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=24 w=72
+   line 1: [1,2) nl=1 trailWs=1 w=37.346667 witw=37.346667 ovf=False start=0 cause=end-of-text  "a"
+== [B-indent/lead-tab-a@w100@LTR@i24@tab0] "\ta"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=37.35 witw=37.35 ovf=False start=0 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=24 w=0
+        i=1 'a' xFromLeft=24.003333 w=13.346667
+== [B-indent/lead-tab-a@w140@LTR@i0@default] "\ta"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=0 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=0 w=96
+        i=1 'a' xFromLeft=96 w=13.346667
+== [B-indent/lead-tab-a@w140@LTR@i0@tab0] "\ta"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=13.35 witw=13.35 ovf=False start=0 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=0 w=0
+        i=1 'a' xFromLeft=0.003333 w=13.346667
+== [B-indent/lead-tab-a@w140@LTR@i24@default] "\ta"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=0 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=24 w=72
+        i=1 'a' xFromLeft=96 w=13.346667
+== [B-indent/lead-tab-a@w140@LTR@i24@tab0] "\ta"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=37.35 witw=37.35 ovf=False start=0 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=24 w=0
+        i=1 'a' xFromLeft=24.003333 w=13.346667
+== [B-indent/lead-tab-a@w160@LTR@i0@default] "\ta"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=0 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=0 w=96
+        i=1 'a' xFromLeft=96 w=13.346667
+== [B-indent/lead-tab-a@w160@LTR@i0@tab0] "\ta"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=13.35 witw=13.35 ovf=False start=0 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=0 w=0
+        i=1 'a' xFromLeft=0.003333 w=13.346667
+== [B-indent/lead-tab-a@w160@LTR@i24@default] "\ta"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=0 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=24 w=72
+        i=1 'a' xFromLeft=96 w=13.346667
+== [B-indent/lead-tab-a@w160@LTR@i24@tab0] "\ta"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=37.35 witw=37.35 ovf=False start=0 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=24 w=0
+        i=1 'a' xFromLeft=24.003333 w=13.346667
+== [B-indent/lead-tab-a@w192@LTR@i0@default] "\ta"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=0 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=0 w=96
+        i=1 'a' xFromLeft=96 w=13.346667
+== [B-indent/lead-tab-a@w192@LTR@i0@tab0] "\ta"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=13.35 witw=13.35 ovf=False start=0 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=0 w=0
+        i=1 'a' xFromLeft=0.003333 w=13.346667
+== [B-indent/lead-tab-a@w192@LTR@i24@default] "\ta"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=0 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=24 w=72
+        i=1 'a' xFromLeft=96 w=13.346667
+== [B-indent/lead-tab-a@w192@LTR@i24@tab0] "\ta"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=37.35 witw=37.35 ovf=False start=0 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=24 w=0
+        i=1 'a' xFromLeft=24.003333 w=13.346667
+== [B-indent/lead-tab-a@w220@LTR@i0@default] "\ta"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=0 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=0 w=96
+        i=1 'a' xFromLeft=96 w=13.346667
+== [B-indent/lead-tab-a@w220@LTR@i0@tab0] "\ta"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=13.35 witw=13.35 ovf=False start=0 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=0 w=0
+        i=1 'a' xFromLeft=0.003333 w=13.346667
+== [B-indent/lead-tab-a@w220@LTR@i24@default] "\ta"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=0 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=24 w=72
+        i=1 'a' xFromLeft=96 w=13.346667
+== [B-indent/lead-tab-a@w220@LTR@i24@tab0] "\ta"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=37.35 witw=37.35 ovf=False start=0 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=24 w=0
+        i=1 'a' xFromLeft=24.003333 w=13.346667
+== [B-indent/lead-tab-b-t-c@w40@LTR@i0@default] "\tb\tc"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=40 witw=40 ovf=False start=0 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=0 w=40
+   line 1: [1,2) nl=0 trailWs=0 w=13.346667 witw=13.346667 ovf=False start=0 cause=before-tab  "b"
+   line 2: [2,3) nl=0 trailWs=0 w=40 witw=40 ovf=False start=0 cause=after-tab  "\t"
+        i=2 '\t' xFromLeft=0 w=40
+   line 3: [3,4) nl=1 trailWs=1 w=12 witw=12 ovf=False start=0 cause=end-of-text  "c"
+== [B-indent/lead-tab-b-t-c@w40@LTR@i0@tab0] "\tb\tc"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=25.353333 witw=25.353333 ovf=False start=0 cause=end-of-text  "\tb\tc"
+        i=0 '\t' xFromLeft=0 w=0
+        i=1 'b' xFromLeft=0.003333 w=13.346667
+        i=2 '\t' xFromLeft=13.35 w=0
+        i=3 'c' xFromLeft=13.353333 w=12
+== [B-indent/lead-tab-b-t-c@w40@LTR@i24@default] "\tb\tc"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=40 witw=40 ovf=False start=0 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=24 w=16
+   line 1: [1,2) nl=0 trailWs=0 w=37.346667 witw=37.346667 ovf=False start=0 cause=before-tab  "b"
+   line 2: [2,3) nl=0 trailWs=0 w=40 witw=40 ovf=False start=0 cause=after-tab  "\t"
+        i=2 '\t' xFromLeft=24 w=16
+   line 3: [3,4) nl=1 trailWs=1 w=36 witw=36 ovf=False start=0 cause=end-of-text  "c"
+== [B-indent/lead-tab-b-t-c@w40@LTR@i24@tab0] "\tb\tc"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=0 trailWs=0 w=37.35 witw=37.35 ovf=False start=0 cause=before-tab  "\tb"
+        i=0 '\t' xFromLeft=24 w=0
+        i=1 'b' xFromLeft=24.003333 w=13.346667
+   line 1: [2,4) nl=1 trailWs=1 w=36.003333 witw=36.003333 ovf=False start=0 cause=end-of-text  "\tc"
+        i=2 '\t' xFromLeft=24 w=0
+        i=3 'c' xFromLeft=24.003333 w=12
+== [B-indent/lead-tab-b-t-c@w80@LTR@i0@default] "\tb\tc"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=80 witw=80 ovf=False start=0 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=0 w=80
+   line 1: [1,2) nl=0 trailWs=0 w=13.346667 witw=13.346667 ovf=False start=0 cause=before-tab  "b"
+   line 2: [2,3) nl=0 trailWs=0 w=80 witw=80 ovf=False start=0 cause=after-tab  "\t"
+        i=2 '\t' xFromLeft=0 w=80
+   line 3: [3,4) nl=1 trailWs=1 w=12 witw=12 ovf=False start=0 cause=end-of-text  "c"
+== [B-indent/lead-tab-b-t-c@w80@LTR@i0@tab0] "\tb\tc"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=25.353333 witw=25.353333 ovf=False start=0 cause=end-of-text  "\tb\tc"
+        i=0 '\t' xFromLeft=0 w=0
+        i=1 'b' xFromLeft=0.003333 w=13.346667
+        i=2 '\t' xFromLeft=13.35 w=0
+        i=3 'c' xFromLeft=13.353333 w=12
+== [B-indent/lead-tab-b-t-c@w80@LTR@i24@default] "\tb\tc"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=80 witw=80 ovf=False start=0 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=24 w=56
+   line 1: [1,2) nl=0 trailWs=0 w=37.346667 witw=37.346667 ovf=False start=0 cause=before-tab  "b"
+   line 2: [2,3) nl=0 trailWs=0 w=80 witw=80 ovf=False start=0 cause=after-tab  "\t"
+        i=2 '\t' xFromLeft=24 w=56
+   line 3: [3,4) nl=1 trailWs=1 w=36 witw=36 ovf=False start=0 cause=end-of-text  "c"
+== [B-indent/lead-tab-b-t-c@w80@LTR@i24@tab0] "\tb\tc"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=49.353333 witw=49.353333 ovf=False start=0 cause=end-of-text  "\tb\tc"
+        i=0 '\t' xFromLeft=24 w=0
+        i=1 'b' xFromLeft=24.003333 w=13.346667
+        i=2 '\t' xFromLeft=37.35 w=0
+        i=3 'c' xFromLeft=37.353333 w=12
+== [B-indent/lead-tab-b-t-c@w96@LTR@i0@default] "\tb\tc"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=0 w=96
+   line 1: [1,2) nl=0 trailWs=0 w=13.346667 witw=13.346667 ovf=False start=0 cause=before-tab  "b"
+   line 2: [2,3) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=2 '\t' xFromLeft=0 w=96
+   line 3: [3,4) nl=1 trailWs=1 w=12 witw=12 ovf=False start=0 cause=end-of-text  "c"
+== [B-indent/lead-tab-b-t-c@w96@LTR@i0@tab0] "\tb\tc"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=25.353333 witw=25.353333 ovf=False start=0 cause=end-of-text  "\tb\tc"
+        i=0 '\t' xFromLeft=0 w=0
+        i=1 'b' xFromLeft=0.003333 w=13.346667
+        i=2 '\t' xFromLeft=13.35 w=0
+        i=3 'c' xFromLeft=13.353333 w=12
+== [B-indent/lead-tab-b-t-c@w96@LTR@i24@default] "\tb\tc"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=24 w=72
+   line 1: [1,2) nl=0 trailWs=0 w=37.346667 witw=37.346667 ovf=False start=0 cause=before-tab  "b"
+   line 2: [2,3) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=2 '\t' xFromLeft=24 w=72
+   line 3: [3,4) nl=1 trailWs=1 w=36 witw=36 ovf=False start=0 cause=end-of-text  "c"
+== [B-indent/lead-tab-b-t-c@w96@LTR@i24@tab0] "\tb\tc"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=49.353333 witw=49.353333 ovf=False start=0 cause=end-of-text  "\tb\tc"
+        i=0 '\t' xFromLeft=24 w=0
+        i=1 'b' xFromLeft=24.003333 w=13.346667
+        i=2 '\t' xFromLeft=37.35 w=0
+        i=3 'c' xFromLeft=37.353333 w=12
+== [B-indent/lead-tab-b-t-c@w100@LTR@i0@default] "\tb\tc"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=0 w=96
+   line 1: [1,2) nl=0 trailWs=0 w=13.346667 witw=13.346667 ovf=False start=0 cause=before-tab  "b"
+   line 2: [2,3) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=2 '\t' xFromLeft=0 w=96
+   line 3: [3,4) nl=1 trailWs=1 w=12 witw=12 ovf=False start=0 cause=end-of-text  "c"
+== [B-indent/lead-tab-b-t-c@w100@LTR@i0@tab0] "\tb\tc"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=25.353333 witw=25.353333 ovf=False start=0 cause=end-of-text  "\tb\tc"
+        i=0 '\t' xFromLeft=0 w=0
+        i=1 'b' xFromLeft=0.003333 w=13.346667
+        i=2 '\t' xFromLeft=13.35 w=0
+        i=3 'c' xFromLeft=13.353333 w=12
+== [B-indent/lead-tab-b-t-c@w100@LTR@i24@default] "\tb\tc"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=24 w=72
+   line 1: [1,2) nl=0 trailWs=0 w=37.346667 witw=37.346667 ovf=False start=0 cause=before-tab  "b"
+   line 2: [2,3) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=2 '\t' xFromLeft=24 w=72
+   line 3: [3,4) nl=1 trailWs=1 w=36 witw=36 ovf=False start=0 cause=end-of-text  "c"
+== [B-indent/lead-tab-b-t-c@w100@LTR@i24@tab0] "\tb\tc"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=49.353333 witw=49.353333 ovf=False start=0 cause=end-of-text  "\tb\tc"
+        i=0 '\t' xFromLeft=24 w=0
+        i=1 'b' xFromLeft=24.003333 w=13.346667
+        i=2 '\t' xFromLeft=37.35 w=0
+        i=3 'c' xFromLeft=37.353333 w=12
+== [B-indent/lead-tab-b-t-c@w140@LTR@i0@default] "\tb\tc"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=0 trailWs=0 w=109.346667 witw=109.346667 ovf=False start=0 cause=before-tab  "\tb"
+        i=0 '\t' xFromLeft=0 w=96
+        i=1 'b' xFromLeft=96 w=13.346667
+   line 1: [2,4) nl=1 trailWs=1 w=108 witw=108 ovf=False start=0 cause=end-of-text  "\tc"
+        i=2 '\t' xFromLeft=0 w=96
+        i=3 'c' xFromLeft=96 w=12
+== [B-indent/lead-tab-b-t-c@w140@LTR@i0@tab0] "\tb\tc"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=25.353333 witw=25.353333 ovf=False start=0 cause=end-of-text  "\tb\tc"
+        i=0 '\t' xFromLeft=0 w=0
+        i=1 'b' xFromLeft=0.003333 w=13.346667
+        i=2 '\t' xFromLeft=13.35 w=0
+        i=3 'c' xFromLeft=13.353333 w=12
+== [B-indent/lead-tab-b-t-c@w140@LTR@i24@default] "\tb\tc"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=0 trailWs=0 w=109.346667 witw=109.346667 ovf=False start=0 cause=before-tab  "\tb"
+        i=0 '\t' xFromLeft=24 w=72
+        i=1 'b' xFromLeft=96 w=13.346667
+   line 1: [2,4) nl=1 trailWs=1 w=108 witw=108 ovf=False start=0 cause=end-of-text  "\tc"
+        i=2 '\t' xFromLeft=24 w=72
+        i=3 'c' xFromLeft=96 w=12
+== [B-indent/lead-tab-b-t-c@w140@LTR@i24@tab0] "\tb\tc"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=49.353333 witw=49.353333 ovf=False start=0 cause=end-of-text  "\tb\tc"
+        i=0 '\t' xFromLeft=24 w=0
+        i=1 'b' xFromLeft=24.003333 w=13.346667
+        i=2 '\t' xFromLeft=37.35 w=0
+        i=3 'c' xFromLeft=37.353333 w=12
+== [B-indent/lead-tab-b-t-c@w160@LTR@i0@default] "\tb\tc"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=0 trailWs=0 w=109.346667 witw=109.346667 ovf=False start=0 cause=before-tab  "\tb"
+        i=0 '\t' xFromLeft=0 w=96
+        i=1 'b' xFromLeft=96 w=13.346667
+   line 1: [2,4) nl=1 trailWs=1 w=108 witw=108 ovf=False start=0 cause=end-of-text  "\tc"
+        i=2 '\t' xFromLeft=0 w=96
+        i=3 'c' xFromLeft=96 w=12
+== [B-indent/lead-tab-b-t-c@w160@LTR@i0@tab0] "\tb\tc"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=25.353333 witw=25.353333 ovf=False start=0 cause=end-of-text  "\tb\tc"
+        i=0 '\t' xFromLeft=0 w=0
+        i=1 'b' xFromLeft=0.003333 w=13.346667
+        i=2 '\t' xFromLeft=13.35 w=0
+        i=3 'c' xFromLeft=13.353333 w=12
+== [B-indent/lead-tab-b-t-c@w160@LTR@i24@default] "\tb\tc"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=0 trailWs=0 w=109.346667 witw=109.346667 ovf=False start=0 cause=before-tab  "\tb"
+        i=0 '\t' xFromLeft=24 w=72
+        i=1 'b' xFromLeft=96 w=13.346667
+   line 1: [2,4) nl=1 trailWs=1 w=108 witw=108 ovf=False start=0 cause=end-of-text  "\tc"
+        i=2 '\t' xFromLeft=24 w=72
+        i=3 'c' xFromLeft=96 w=12
+== [B-indent/lead-tab-b-t-c@w160@LTR@i24@tab0] "\tb\tc"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=49.353333 witw=49.353333 ovf=False start=0 cause=end-of-text  "\tb\tc"
+        i=0 '\t' xFromLeft=24 w=0
+        i=1 'b' xFromLeft=24.003333 w=13.346667
+        i=2 '\t' xFromLeft=37.35 w=0
+        i=3 'c' xFromLeft=37.353333 w=12
+== [B-indent/lead-tab-b-t-c@w192@LTR@i0@default] "\tb\tc"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=0 trailWs=0 w=109.346667 witw=109.346667 ovf=False start=0 cause=before-tab  "\tb"
+        i=0 '\t' xFromLeft=0 w=96
+        i=1 'b' xFromLeft=96 w=13.346667
+   line 1: [2,4) nl=1 trailWs=1 w=108 witw=108 ovf=False start=0 cause=end-of-text  "\tc"
+        i=2 '\t' xFromLeft=0 w=96
+        i=3 'c' xFromLeft=96 w=12
+== [B-indent/lead-tab-b-t-c@w192@LTR@i0@tab0] "\tb\tc"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=25.353333 witw=25.353333 ovf=False start=0 cause=end-of-text  "\tb\tc"
+        i=0 '\t' xFromLeft=0 w=0
+        i=1 'b' xFromLeft=0.003333 w=13.346667
+        i=2 '\t' xFromLeft=13.35 w=0
+        i=3 'c' xFromLeft=13.353333 w=12
+== [B-indent/lead-tab-b-t-c@w192@LTR@i24@default] "\tb\tc"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=0 trailWs=0 w=109.346667 witw=109.346667 ovf=False start=0 cause=before-tab  "\tb"
+        i=0 '\t' xFromLeft=24 w=72
+        i=1 'b' xFromLeft=96 w=13.346667
+   line 1: [2,4) nl=1 trailWs=1 w=108 witw=108 ovf=False start=0 cause=end-of-text  "\tc"
+        i=2 '\t' xFromLeft=24 w=72
+        i=3 'c' xFromLeft=96 w=12
+== [B-indent/lead-tab-b-t-c@w192@LTR@i24@tab0] "\tb\tc"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=49.353333 witw=49.353333 ovf=False start=0 cause=end-of-text  "\tb\tc"
+        i=0 '\t' xFromLeft=24 w=0
+        i=1 'b' xFromLeft=24.003333 w=13.346667
+        i=2 '\t' xFromLeft=37.35 w=0
+        i=3 'c' xFromLeft=37.353333 w=12
+== [B-indent/lead-tab-b-t-c@w220@LTR@i0@default] "\tb\tc"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=204 witw=204 ovf=False start=0 cause=end-of-text  "\tb\tc"
+        i=0 '\t' xFromLeft=0 w=96
+        i=1 'b' xFromLeft=96 w=13.346667
+        i=2 '\t' xFromLeft=109.346667 w=82.653333
+        i=3 'c' xFromLeft=192 w=12
+== [B-indent/lead-tab-b-t-c@w220@LTR@i0@tab0] "\tb\tc"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=25.353333 witw=25.353333 ovf=False start=0 cause=end-of-text  "\tb\tc"
+        i=0 '\t' xFromLeft=0 w=0
+        i=1 'b' xFromLeft=0.003333 w=13.346667
+        i=2 '\t' xFromLeft=13.35 w=0
+        i=3 'c' xFromLeft=13.353333 w=12
+== [B-indent/lead-tab-b-t-c@w220@LTR@i24@default] "\tb\tc"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=204 witw=204 ovf=False start=0 cause=end-of-text  "\tb\tc"
+        i=0 '\t' xFromLeft=24 w=72
+        i=1 'b' xFromLeft=96 w=13.346667
+        i=2 '\t' xFromLeft=109.346667 w=82.653333
+        i=3 'c' xFromLeft=192 w=12
+== [B-indent/lead-tab-b-t-c@w220@LTR@i24@tab0] "\tb\tc"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=49.353333 witw=49.353333 ovf=False start=0 cause=end-of-text  "\tb\tc"
+        i=0 '\t' xFromLeft=24 w=0
+        i=1 'b' xFromLeft=24.003333 w=13.346667
+        i=2 '\t' xFromLeft=37.35 w=0
+        i=3 'c' xFromLeft=37.353333 w=12
+== [B-indent/mid-tab-a-t-b@w40@LTR@i0@default] "a\tb"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=13.346667 witw=13.346667 ovf=False start=0 cause=before-tab  "a"
+   line 1: [1,2) nl=0 trailWs=0 w=40 witw=40 ovf=False start=0 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=0 w=40
+   line 2: [2,3) nl=1 trailWs=1 w=13.346667 witw=13.346667 ovf=False start=0 cause=end-of-text  "b"
+== [B-indent/mid-tab-a-t-b@w40@LTR@i0@tab0] "a\tb"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.696667 witw=26.696667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 '\t' xFromLeft=13.346667 w=0
+        i=2 'b' xFromLeft=13.35 w=13.346667
+== [B-indent/mid-tab-a-t-b@w40@LTR@i24@default] "a\tb"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=37.346667 witw=37.346667 ovf=False start=0 cause=before-tab  "a"
+   line 1: [1,2) nl=0 trailWs=0 w=40 witw=40 ovf=False start=0 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=24 w=16
+   line 2: [2,3) nl=1 trailWs=1 w=37.346667 witw=37.346667 ovf=False start=0 cause=end-of-text  "b"
+== [B-indent/mid-tab-a-t-b@w40@LTR@i24@tab0] "a\tb"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=37.346667 witw=37.346667 ovf=False start=0 cause=before-tab  "a"
+   line 1: [1,3) nl=1 trailWs=1 w=37.35 witw=37.35 ovf=False start=0 cause=end-of-text  "\tb"
+        i=1 '\t' xFromLeft=24 w=0
+        i=2 'b' xFromLeft=24.003333 w=13.346667
+== [B-indent/mid-tab-a-t-b@w80@LTR@i0@default] "a\tb"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=13.346667 witw=13.346667 ovf=False start=0 cause=before-tab  "a"
+   line 1: [1,2) nl=0 trailWs=0 w=80 witw=80 ovf=False start=0 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=0 w=80
+   line 2: [2,3) nl=1 trailWs=1 w=13.346667 witw=13.346667 ovf=False start=0 cause=end-of-text  "b"
+== [B-indent/mid-tab-a-t-b@w80@LTR@i0@tab0] "a\tb"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.696667 witw=26.696667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 '\t' xFromLeft=13.346667 w=0
+        i=2 'b' xFromLeft=13.35 w=13.346667
+== [B-indent/mid-tab-a-t-b@w80@LTR@i24@default] "a\tb"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=37.346667 witw=37.346667 ovf=False start=0 cause=before-tab  "a"
+   line 1: [1,2) nl=0 trailWs=0 w=80 witw=80 ovf=False start=0 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=24 w=56
+   line 2: [2,3) nl=1 trailWs=1 w=37.346667 witw=37.346667 ovf=False start=0 cause=end-of-text  "b"
+== [B-indent/mid-tab-a-t-b@w80@LTR@i24@tab0] "a\tb"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=50.696667 witw=50.696667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=24 w=13.346667
+        i=1 '\t' xFromLeft=37.346667 w=0
+        i=2 'b' xFromLeft=37.35 w=13.346667
+== [B-indent/mid-tab-a-t-b@w96@LTR@i0@default] "a\tb"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=13.346667 witw=13.346667 ovf=False start=0 cause=before-tab  "a"
+   line 1: [1,2) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=0 w=96
+   line 2: [2,3) nl=1 trailWs=1 w=13.346667 witw=13.346667 ovf=False start=0 cause=end-of-text  "b"
+== [B-indent/mid-tab-a-t-b@w96@LTR@i0@tab0] "a\tb"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.696667 witw=26.696667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 '\t' xFromLeft=13.346667 w=0
+        i=2 'b' xFromLeft=13.35 w=13.346667
+== [B-indent/mid-tab-a-t-b@w96@LTR@i24@default] "a\tb"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=37.346667 witw=37.346667 ovf=False start=0 cause=before-tab  "a"
+   line 1: [1,2) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=24 w=72
+   line 2: [2,3) nl=1 trailWs=1 w=37.346667 witw=37.346667 ovf=False start=0 cause=end-of-text  "b"
+== [B-indent/mid-tab-a-t-b@w96@LTR@i24@tab0] "a\tb"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=50.696667 witw=50.696667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=24 w=13.346667
+        i=1 '\t' xFromLeft=37.346667 w=0
+        i=2 'b' xFromLeft=37.35 w=13.346667
+== [B-indent/mid-tab-a-t-b@w100@LTR@i0@default] "a\tb"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=13.346667 witw=13.346667 ovf=False start=0 cause=before-tab  "a"
+   line 1: [1,2) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=0 w=96
+   line 2: [2,3) nl=1 trailWs=1 w=13.346667 witw=13.346667 ovf=False start=0 cause=end-of-text  "b"
+== [B-indent/mid-tab-a-t-b@w100@LTR@i0@tab0] "a\tb"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.696667 witw=26.696667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 '\t' xFromLeft=13.346667 w=0
+        i=2 'b' xFromLeft=13.35 w=13.346667
+== [B-indent/mid-tab-a-t-b@w100@LTR@i24@default] "a\tb"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=37.346667 witw=37.346667 ovf=False start=0 cause=before-tab  "a"
+   line 1: [1,2) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=24 w=72
+   line 2: [2,3) nl=1 trailWs=1 w=37.346667 witw=37.346667 ovf=False start=0 cause=end-of-text  "b"
+== [B-indent/mid-tab-a-t-b@w100@LTR@i24@tab0] "a\tb"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=50.696667 witw=50.696667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=24 w=13.346667
+        i=1 '\t' xFromLeft=37.346667 w=0
+        i=2 'b' xFromLeft=37.35 w=13.346667
+== [B-indent/mid-tab-a-t-b@w140@LTR@i0@default] "a\tb"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 '\t' xFromLeft=13.346667 w=82.653333
+        i=2 'b' xFromLeft=96 w=13.346667
+== [B-indent/mid-tab-a-t-b@w140@LTR@i0@tab0] "a\tb"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.696667 witw=26.696667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 '\t' xFromLeft=13.346667 w=0
+        i=2 'b' xFromLeft=13.35 w=13.346667
+== [B-indent/mid-tab-a-t-b@w140@LTR@i24@default] "a\tb"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=24 w=13.346667
+        i=1 '\t' xFromLeft=37.346667 w=58.653333
+        i=2 'b' xFromLeft=96 w=13.346667
+== [B-indent/mid-tab-a-t-b@w140@LTR@i24@tab0] "a\tb"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=50.696667 witw=50.696667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=24 w=13.346667
+        i=1 '\t' xFromLeft=37.346667 w=0
+        i=2 'b' xFromLeft=37.35 w=13.346667
+== [B-indent/mid-tab-a-t-b@w160@LTR@i0@default] "a\tb"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 '\t' xFromLeft=13.346667 w=82.653333
+        i=2 'b' xFromLeft=96 w=13.346667
+== [B-indent/mid-tab-a-t-b@w160@LTR@i0@tab0] "a\tb"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.696667 witw=26.696667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 '\t' xFromLeft=13.346667 w=0
+        i=2 'b' xFromLeft=13.35 w=13.346667
+== [B-indent/mid-tab-a-t-b@w160@LTR@i24@default] "a\tb"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=24 w=13.346667
+        i=1 '\t' xFromLeft=37.346667 w=58.653333
+        i=2 'b' xFromLeft=96 w=13.346667
+== [B-indent/mid-tab-a-t-b@w160@LTR@i24@tab0] "a\tb"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=50.696667 witw=50.696667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=24 w=13.346667
+        i=1 '\t' xFromLeft=37.346667 w=0
+        i=2 'b' xFromLeft=37.35 w=13.346667
+== [B-indent/mid-tab-a-t-b@w192@LTR@i0@default] "a\tb"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 '\t' xFromLeft=13.346667 w=82.653333
+        i=2 'b' xFromLeft=96 w=13.346667
+== [B-indent/mid-tab-a-t-b@w192@LTR@i0@tab0] "a\tb"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.696667 witw=26.696667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 '\t' xFromLeft=13.346667 w=0
+        i=2 'b' xFromLeft=13.35 w=13.346667
+== [B-indent/mid-tab-a-t-b@w192@LTR@i24@default] "a\tb"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=24 w=13.346667
+        i=1 '\t' xFromLeft=37.346667 w=58.653333
+        i=2 'b' xFromLeft=96 w=13.346667
+== [B-indent/mid-tab-a-t-b@w192@LTR@i24@tab0] "a\tb"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=50.696667 witw=50.696667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=24 w=13.346667
+        i=1 '\t' xFromLeft=37.346667 w=0
+        i=2 'b' xFromLeft=37.35 w=13.346667
+== [B-indent/mid-tab-a-t-b@w220@LTR@i0@default] "a\tb"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 '\t' xFromLeft=13.346667 w=82.653333
+        i=2 'b' xFromLeft=96 w=13.346667
+== [B-indent/mid-tab-a-t-b@w220@LTR@i0@tab0] "a\tb"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.696667 witw=26.696667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 '\t' xFromLeft=13.346667 w=0
+        i=2 'b' xFromLeft=13.35 w=13.346667
+== [B-indent/mid-tab-a-t-b@w220@LTR@i24@default] "a\tb"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=24 w=13.346667
+        i=1 '\t' xFromLeft=37.346667 w=58.653333
+        i=2 'b' xFromLeft=96 w=13.346667
+== [B-indent/mid-tab-a-t-b@w220@LTR@i24@tab0] "a\tb"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=50.696667 witw=50.696667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=24 w=13.346667
+        i=1 '\t' xFromLeft=37.346667 w=0
+        i=2 'b' xFromLeft=37.35 w=13.346667
+== [B-indent/notab-control@w40@LTR@i0@default] "ab"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=26.693333 witw=26.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent/notab-control@w40@LTR@i0@tab0] "ab"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=26.693333 witw=26.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent/notab-control@w40@LTR@i24@default] "ab"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=37.346667 witw=37.346667 ovf=False start=0 cause=mid-token  "a"
+   line 1: [1,2) nl=1 trailWs=1 w=37.346667 witw=37.346667 ovf=False start=0 cause=end-of-text  "b"
+== [B-indent/notab-control@w40@LTR@i24@tab0] "ab"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=37.346667 witw=37.346667 ovf=False start=0 cause=mid-token  "a"
+   line 1: [1,2) nl=1 trailWs=1 w=37.346667 witw=37.346667 ovf=False start=0 cause=end-of-text  "b"
+== [B-indent/notab-control@w80@LTR@i0@default] "ab"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=26.693333 witw=26.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent/notab-control@w80@LTR@i0@tab0] "ab"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=26.693333 witw=26.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent/notab-control@w80@LTR@i24@default] "ab"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=50.693333 witw=50.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent/notab-control@w80@LTR@i24@tab0] "ab"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=50.693333 witw=50.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent/notab-control@w96@LTR@i0@default] "ab"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=26.693333 witw=26.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent/notab-control@w96@LTR@i0@tab0] "ab"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=26.693333 witw=26.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent/notab-control@w96@LTR@i24@default] "ab"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=50.693333 witw=50.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent/notab-control@w96@LTR@i24@tab0] "ab"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=50.693333 witw=50.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent/notab-control@w100@LTR@i0@default] "ab"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=26.693333 witw=26.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent/notab-control@w100@LTR@i0@tab0] "ab"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=26.693333 witw=26.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent/notab-control@w100@LTR@i24@default] "ab"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=50.693333 witw=50.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent/notab-control@w100@LTR@i24@tab0] "ab"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=50.693333 witw=50.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent/notab-control@w140@LTR@i0@default] "ab"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=26.693333 witw=26.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent/notab-control@w140@LTR@i0@tab0] "ab"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=26.693333 witw=26.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent/notab-control@w140@LTR@i24@default] "ab"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=50.693333 witw=50.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent/notab-control@w140@LTR@i24@tab0] "ab"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=50.693333 witw=50.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent/notab-control@w160@LTR@i0@default] "ab"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=26.693333 witw=26.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent/notab-control@w160@LTR@i0@tab0] "ab"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=26.693333 witw=26.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent/notab-control@w160@LTR@i24@default] "ab"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=50.693333 witw=50.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent/notab-control@w160@LTR@i24@tab0] "ab"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=50.693333 witw=50.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent/notab-control@w192@LTR@i0@default] "ab"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=26.693333 witw=26.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent/notab-control@w192@LTR@i0@tab0] "ab"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=26.693333 witw=26.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent/notab-control@w192@LTR@i24@default] "ab"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=50.693333 witw=50.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent/notab-control@w192@LTR@i24@tab0] "ab"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=50.693333 witw=50.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent/notab-control@w220@LTR@i0@default] "ab"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=26.693333 witw=26.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent/notab-control@w220@LTR@i0@tab0] "ab"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=26.693333 witw=26.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent/notab-control@w220@LTR@i24@default] "ab"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=50.693333 witw=50.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent/notab-control@w220@LTR@i24@tab0] "ab"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=50.693333 witw=50.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent/lead-tab-only@w40@LTR@i0@default] "\t"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=1 trailWs=1 w=40 witw=40 ovf=False start=0 cause=end-of-text  "\t"
+        i=0 '\t' xFromLeft=0 w=40
+== [B-indent/lead-tab-only@w40@LTR@i0@tab0] "\t"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=1 trailWs=1 w=0.003333 witw=0.003333 ovf=False start=0 cause=end-of-text  "\t"
+        i=0 '\t' xFromLeft=0 w=0
+== [B-indent/lead-tab-only@w40@LTR@i24@default] "\t"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=1 trailWs=1 w=40 witw=40 ovf=False start=0 cause=end-of-text  "\t"
+        i=0 '\t' xFromLeft=24 w=16
+== [B-indent/lead-tab-only@w40@LTR@i24@tab0] "\t"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=1 trailWs=1 w=24.003333 witw=24.003333 ovf=False start=0 cause=end-of-text  "\t"
+        i=0 '\t' xFromLeft=24 w=0
+== [B-indent/lead-tab-only@w80@LTR@i0@default] "\t"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=1 trailWs=1 w=80 witw=80 ovf=False start=0 cause=end-of-text  "\t"
+        i=0 '\t' xFromLeft=0 w=80
+== [B-indent/lead-tab-only@w80@LTR@i0@tab0] "\t"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=1 trailWs=1 w=0.003333 witw=0.003333 ovf=False start=0 cause=end-of-text  "\t"
+        i=0 '\t' xFromLeft=0 w=0
+== [B-indent/lead-tab-only@w80@LTR@i24@default] "\t"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=1 trailWs=1 w=80 witw=80 ovf=False start=0 cause=end-of-text  "\t"
+        i=0 '\t' xFromLeft=24 w=56
+== [B-indent/lead-tab-only@w80@LTR@i24@tab0] "\t"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=1 trailWs=1 w=24.003333 witw=24.003333 ovf=False start=0 cause=end-of-text  "\t"
+        i=0 '\t' xFromLeft=24 w=0
+== [B-indent/lead-tab-only@w100@LTR@i0@default] "\t"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=1 trailWs=1 w=96 witw=96 ovf=False start=0 cause=end-of-text  "\t"
+        i=0 '\t' xFromLeft=0 w=96
+== [B-indent/lead-tab-only@w100@LTR@i0@tab0] "\t"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=1 trailWs=1 w=0.003333 witw=0.003333 ovf=False start=0 cause=end-of-text  "\t"
+        i=0 '\t' xFromLeft=0 w=0
+== [B-indent/lead-tab-only@w100@LTR@i24@default] "\t"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=1 trailWs=1 w=96 witw=96 ovf=False start=0 cause=end-of-text  "\t"
+        i=0 '\t' xFromLeft=24 w=72
+== [B-indent/lead-tab-only@w100@LTR@i24@tab0] "\t"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=1 trailWs=1 w=24.003333 witw=24.003333 ovf=False start=0 cause=end-of-text  "\t"
+        i=0 '\t' xFromLeft=24 w=0
+== [B-indent/lead-tab-only@w140@LTR@i0@default] "\t"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=1 trailWs=1 w=96 witw=96 ovf=False start=0 cause=end-of-text  "\t"
+        i=0 '\t' xFromLeft=0 w=96
+== [B-indent/lead-tab-only@w140@LTR@i0@tab0] "\t"   group=B-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=1 trailWs=1 w=0.003333 witw=0.003333 ovf=False start=0 cause=end-of-text  "\t"
+        i=0 '\t' xFromLeft=0 w=0
+== [B-indent/lead-tab-only@w140@LTR@i24@default] "\t"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=1 trailWs=1 w=96 witw=96 ovf=False start=0 cause=end-of-text  "\t"
+        i=0 '\t' xFromLeft=24 w=72
+== [B-indent/lead-tab-only@w140@LTR@i24@tab0] "\t"   group=B-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=1 trailWs=1 w=24.003333 witw=24.003333 ovf=False start=0 cause=end-of-text  "\t"
+        i=0 '\t' xFromLeft=24 w=0
+== [B-indent-extra/lead-tab-a@w40@LTR@i24p24@default] "\ta"   group=B-indent-extra  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=24 witw=24 ovf=True start=24 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=48 w=0
+   line 1: [1,2) nl=1 trailWs=1 w=37.346667 witw=37.346667 ovf=True start=24 cause=end-of-text  "a"
+== [B-indent-extra/lead-tab-a@w40@LTR@i24p24@tab0] "\ta"   group=B-indent-extra  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=24 witw=24 ovf=True start=24 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=48 w=0
+   line 1: [1,2) nl=1 trailWs=1 w=37.346667 witw=37.346667 ovf=True start=24 cause=end-of-text  "a"
+== [B-indent-extra/lead-tab-a@w40@LTR@i0p24@default] "\ta"   group=B-indent-extra  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=16 witw=16 ovf=False start=24 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=24 w=16
+   line 1: [1,2) nl=1 trailWs=1 w=13.346667 witw=13.346667 ovf=False start=24 cause=end-of-text  "a"
+== [B-indent-extra/lead-tab-a@w40@LTR@i0p24@tab0] "\ta"   group=B-indent-extra  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=13.35 witw=13.35 ovf=False start=24 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=24 w=0
+        i=1 'a' xFromLeft=24.003333 w=13.346667
+== [B-indent-extra/lead-tab-a@w40@LTR@i24nl@default] "\ta"   group=B-indent-extra  indent=24 paraIndent=0 firstLine=False
+   line 0: [0,1) nl=0 trailWs=0 w=40 witw=40 ovf=False start=0 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=24 w=16
+   line 1: [1,2) nl=1 trailWs=1 w=37.346667 witw=37.346667 ovf=False start=0 cause=end-of-text  "a"
+== [B-indent-extra/lead-tab-a@w40@LTR@i24nl@tab0] "\ta"   group=B-indent-extra  indent=24 paraIndent=0 firstLine=False
+   line 0: [0,2) nl=1 trailWs=1 w=37.35 witw=37.35 ovf=False start=0 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=24 w=0
+        i=1 'a' xFromLeft=24.003333 w=13.346667
+== [B-indent-extra/lead-tab-a@w80@LTR@i24p24@default] "\ta"   group=B-indent-extra  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=56 witw=56 ovf=False start=24 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=48 w=32
+   line 1: [1,2) nl=1 trailWs=1 w=37.346667 witw=37.346667 ovf=False start=24 cause=end-of-text  "a"
+== [B-indent-extra/lead-tab-a@w80@LTR@i24p24@tab0] "\ta"   group=B-indent-extra  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=37.35 witw=37.35 ovf=False start=24 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=48 w=0
+        i=1 'a' xFromLeft=48.003333 w=13.346667
+== [B-indent-extra/lead-tab-a@w80@LTR@i0p24@default] "\ta"   group=B-indent-extra  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=56 witw=56 ovf=False start=24 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=24 w=56
+   line 1: [1,2) nl=1 trailWs=1 w=13.346667 witw=13.346667 ovf=False start=24 cause=end-of-text  "a"
+== [B-indent-extra/lead-tab-a@w80@LTR@i0p24@tab0] "\ta"   group=B-indent-extra  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=13.35 witw=13.35 ovf=False start=24 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=24 w=0
+        i=1 'a' xFromLeft=24.003333 w=13.346667
+== [B-indent-extra/lead-tab-a@w80@LTR@i24nl@default] "\ta"   group=B-indent-extra  indent=24 paraIndent=0 firstLine=False
+   line 0: [0,1) nl=0 trailWs=0 w=80 witw=80 ovf=False start=0 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=24 w=56
+   line 1: [1,2) nl=1 trailWs=1 w=37.346667 witw=37.346667 ovf=False start=0 cause=end-of-text  "a"
+== [B-indent-extra/lead-tab-a@w80@LTR@i24nl@tab0] "\ta"   group=B-indent-extra  indent=24 paraIndent=0 firstLine=False
+   line 0: [0,2) nl=1 trailWs=1 w=37.35 witw=37.35 ovf=False start=0 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=24 w=0
+        i=1 'a' xFromLeft=24.003333 w=13.346667
+== [B-indent-extra/lead-tab-a@w140@LTR@i24p24@default] "\ta"   group=B-indent-extra  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=24 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=48 w=72
+        i=1 'a' xFromLeft=120 w=13.346667
+== [B-indent-extra/lead-tab-a@w140@LTR@i24p24@tab0] "\ta"   group=B-indent-extra  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=37.35 witw=37.35 ovf=False start=24 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=48 w=0
+        i=1 'a' xFromLeft=48.003333 w=13.346667
+== [B-indent-extra/lead-tab-a@w140@LTR@i0p24@default] "\ta"   group=B-indent-extra  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=24 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=24 w=96
+        i=1 'a' xFromLeft=120 w=13.346667
+== [B-indent-extra/lead-tab-a@w140@LTR@i0p24@tab0] "\ta"   group=B-indent-extra  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=13.35 witw=13.35 ovf=False start=24 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=24 w=0
+        i=1 'a' xFromLeft=24.003333 w=13.346667
+== [B-indent-extra/lead-tab-a@w140@LTR@i24nl@default] "\ta"   group=B-indent-extra  indent=24 paraIndent=0 firstLine=False
+   line 0: [0,2) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=0 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=24 w=72
+        i=1 'a' xFromLeft=96 w=13.346667
+== [B-indent-extra/lead-tab-a@w140@LTR@i24nl@tab0] "\ta"   group=B-indent-extra  indent=24 paraIndent=0 firstLine=False
+   line 0: [0,2) nl=1 trailWs=1 w=37.35 witw=37.35 ovf=False start=0 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=24 w=0
+        i=1 'a' xFromLeft=24.003333 w=13.346667
+== [B-indent-extra/lead-tab-b-t-c@w40@LTR@i24p24@default] "\tb\tc"   group=B-indent-extra  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=24 witw=24 ovf=True start=24 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=48 w=0
+   line 1: [1,2) nl=0 trailWs=0 w=37.346667 witw=37.346667 ovf=True start=24 cause=before-tab  "b"
+   line 2: [2,3) nl=0 trailWs=0 w=24 witw=24 ovf=True start=24 cause=after-tab  "\t"
+        i=2 '\t' xFromLeft=48 w=0
+   line 3: [3,4) nl=1 trailWs=1 w=36 witw=36 ovf=True start=24 cause=end-of-text  "c"
+== [B-indent-extra/lead-tab-b-t-c@w40@LTR@i24p24@tab0] "\tb\tc"   group=B-indent-extra  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=24 witw=24 ovf=True start=24 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=48 w=0
+   line 1: [1,2) nl=0 trailWs=0 w=37.346667 witw=37.346667 ovf=True start=24 cause=before-tab  "b"
+   line 2: [2,3) nl=0 trailWs=0 w=24 witw=24 ovf=True start=24 cause=after-tab  "\t"
+        i=2 '\t' xFromLeft=48 w=0
+   line 3: [3,4) nl=1 trailWs=1 w=36 witw=36 ovf=True start=24 cause=end-of-text  "c"
+== [B-indent-extra/lead-tab-b-t-c@w40@LTR@i0p24@default] "\tb\tc"   group=B-indent-extra  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=16 witw=16 ovf=False start=24 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=24 w=16
+   line 1: [1,2) nl=0 trailWs=0 w=13.346667 witw=13.346667 ovf=False start=24 cause=before-tab  "b"
+   line 2: [2,3) nl=0 trailWs=0 w=16 witw=16 ovf=False start=24 cause=after-tab  "\t"
+        i=2 '\t' xFromLeft=24 w=16
+   line 3: [3,4) nl=1 trailWs=1 w=12 witw=12 ovf=False start=24 cause=end-of-text  "c"
+== [B-indent-extra/lead-tab-b-t-c@w40@LTR@i0p24@tab0] "\tb\tc"   group=B-indent-extra  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=0 trailWs=0 w=13.35 witw=13.35 ovf=False start=24 cause=before-tab  "\tb"
+        i=0 '\t' xFromLeft=24 w=0
+        i=1 'b' xFromLeft=24.003333 w=13.346667
+   line 1: [2,4) nl=1 trailWs=1 w=12.003333 witw=12.003333 ovf=False start=24 cause=end-of-text  "\tc"
+        i=2 '\t' xFromLeft=24 w=0
+        i=3 'c' xFromLeft=24.003333 w=12
+== [B-indent-extra/lead-tab-b-t-c@w40@LTR@i24nl@default] "\tb\tc"   group=B-indent-extra  indent=24 paraIndent=0 firstLine=False
+   line 0: [0,1) nl=0 trailWs=0 w=40 witw=40 ovf=False start=0 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=24 w=16
+   line 1: [1,2) nl=0 trailWs=0 w=37.346667 witw=37.346667 ovf=False start=0 cause=before-tab  "b"
+   line 2: [2,3) nl=0 trailWs=0 w=40 witw=40 ovf=False start=0 cause=after-tab  "\t"
+        i=2 '\t' xFromLeft=24 w=16
+   line 3: [3,4) nl=1 trailWs=1 w=36 witw=36 ovf=False start=0 cause=end-of-text  "c"
+== [B-indent-extra/lead-tab-b-t-c@w40@LTR@i24nl@tab0] "\tb\tc"   group=B-indent-extra  indent=24 paraIndent=0 firstLine=False
+   line 0: [0,2) nl=0 trailWs=0 w=37.35 witw=37.35 ovf=False start=0 cause=before-tab  "\tb"
+        i=0 '\t' xFromLeft=24 w=0
+        i=1 'b' xFromLeft=24.003333 w=13.346667
+   line 1: [2,4) nl=1 trailWs=1 w=36.003333 witw=36.003333 ovf=False start=0 cause=end-of-text  "\tc"
+        i=2 '\t' xFromLeft=24 w=0
+        i=3 'c' xFromLeft=24.003333 w=12
+== [B-indent-extra/lead-tab-b-t-c@w80@LTR@i24p24@default] "\tb\tc"   group=B-indent-extra  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=56 witw=56 ovf=False start=24 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=48 w=32
+   line 1: [1,2) nl=0 trailWs=0 w=37.346667 witw=37.346667 ovf=False start=24 cause=before-tab  "b"
+   line 2: [2,3) nl=0 trailWs=0 w=56 witw=56 ovf=False start=24 cause=after-tab  "\t"
+        i=2 '\t' xFromLeft=48 w=32
+   line 3: [3,4) nl=1 trailWs=1 w=36 witw=36 ovf=False start=24 cause=end-of-text  "c"
+== [B-indent-extra/lead-tab-b-t-c@w80@LTR@i24p24@tab0] "\tb\tc"   group=B-indent-extra  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=49.353333 witw=49.353333 ovf=False start=24 cause=end-of-text  "\tb\tc"
+        i=0 '\t' xFromLeft=48 w=0
+        i=1 'b' xFromLeft=48.003333 w=13.346667
+        i=2 '\t' xFromLeft=61.35 w=0
+        i=3 'c' xFromLeft=61.353333 w=12
+== [B-indent-extra/lead-tab-b-t-c@w80@LTR@i0p24@default] "\tb\tc"   group=B-indent-extra  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=56 witw=56 ovf=False start=24 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=24 w=56
+   line 1: [1,2) nl=0 trailWs=0 w=13.346667 witw=13.346667 ovf=False start=24 cause=before-tab  "b"
+   line 2: [2,3) nl=0 trailWs=0 w=56 witw=56 ovf=False start=24 cause=after-tab  "\t"
+        i=2 '\t' xFromLeft=24 w=56
+   line 3: [3,4) nl=1 trailWs=1 w=12 witw=12 ovf=False start=24 cause=end-of-text  "c"
+== [B-indent-extra/lead-tab-b-t-c@w80@LTR@i0p24@tab0] "\tb\tc"   group=B-indent-extra  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=25.353333 witw=25.353333 ovf=False start=24 cause=end-of-text  "\tb\tc"
+        i=0 '\t' xFromLeft=24 w=0
+        i=1 'b' xFromLeft=24.003333 w=13.346667
+        i=2 '\t' xFromLeft=37.35 w=0
+        i=3 'c' xFromLeft=37.353333 w=12
+== [B-indent-extra/lead-tab-b-t-c@w80@LTR@i24nl@default] "\tb\tc"   group=B-indent-extra  indent=24 paraIndent=0 firstLine=False
+   line 0: [0,1) nl=0 trailWs=0 w=80 witw=80 ovf=False start=0 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=24 w=56
+   line 1: [1,2) nl=0 trailWs=0 w=37.346667 witw=37.346667 ovf=False start=0 cause=before-tab  "b"
+   line 2: [2,3) nl=0 trailWs=0 w=80 witw=80 ovf=False start=0 cause=after-tab  "\t"
+        i=2 '\t' xFromLeft=24 w=56
+   line 3: [3,4) nl=1 trailWs=1 w=36 witw=36 ovf=False start=0 cause=end-of-text  "c"
+== [B-indent-extra/lead-tab-b-t-c@w80@LTR@i24nl@tab0] "\tb\tc"   group=B-indent-extra  indent=24 paraIndent=0 firstLine=False
+   line 0: [0,4) nl=1 trailWs=1 w=49.353333 witw=49.353333 ovf=False start=0 cause=end-of-text  "\tb\tc"
+        i=0 '\t' xFromLeft=24 w=0
+        i=1 'b' xFromLeft=24.003333 w=13.346667
+        i=2 '\t' xFromLeft=37.35 w=0
+        i=3 'c' xFromLeft=37.353333 w=12
+== [B-indent-extra/lead-tab-b-t-c@w140@LTR@i24p24@default] "\tb\tc"   group=B-indent-extra  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=0 trailWs=0 w=109.346667 witw=109.346667 ovf=False start=24 cause=before-tab  "\tb"
+        i=0 '\t' xFromLeft=48 w=72
+        i=1 'b' xFromLeft=120 w=13.346667
+   line 1: [2,4) nl=1 trailWs=1 w=108 witw=108 ovf=False start=24 cause=end-of-text  "\tc"
+        i=2 '\t' xFromLeft=48 w=72
+        i=3 'c' xFromLeft=120 w=12
+== [B-indent-extra/lead-tab-b-t-c@w140@LTR@i24p24@tab0] "\tb\tc"   group=B-indent-extra  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=49.353333 witw=49.353333 ovf=False start=24 cause=end-of-text  "\tb\tc"
+        i=0 '\t' xFromLeft=48 w=0
+        i=1 'b' xFromLeft=48.003333 w=13.346667
+        i=2 '\t' xFromLeft=61.35 w=0
+        i=3 'c' xFromLeft=61.353333 w=12
+== [B-indent-extra/lead-tab-b-t-c@w140@LTR@i0p24@default] "\tb\tc"   group=B-indent-extra  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=0 trailWs=0 w=109.346667 witw=109.346667 ovf=False start=24 cause=before-tab  "\tb"
+        i=0 '\t' xFromLeft=24 w=96
+        i=1 'b' xFromLeft=120 w=13.346667
+   line 1: [2,4) nl=1 trailWs=1 w=108 witw=108 ovf=False start=24 cause=end-of-text  "\tc"
+        i=2 '\t' xFromLeft=24 w=96
+        i=3 'c' xFromLeft=120 w=12
+== [B-indent-extra/lead-tab-b-t-c@w140@LTR@i0p24@tab0] "\tb\tc"   group=B-indent-extra  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,4) nl=1 trailWs=1 w=25.353333 witw=25.353333 ovf=False start=24 cause=end-of-text  "\tb\tc"
+        i=0 '\t' xFromLeft=24 w=0
+        i=1 'b' xFromLeft=24.003333 w=13.346667
+        i=2 '\t' xFromLeft=37.35 w=0
+        i=3 'c' xFromLeft=37.353333 w=12
+== [B-indent-extra/lead-tab-b-t-c@w140@LTR@i24nl@default] "\tb\tc"   group=B-indent-extra  indent=24 paraIndent=0 firstLine=False
+   line 0: [0,2) nl=0 trailWs=0 w=109.346667 witw=109.346667 ovf=False start=0 cause=before-tab  "\tb"
+        i=0 '\t' xFromLeft=24 w=72
+        i=1 'b' xFromLeft=96 w=13.346667
+   line 1: [2,4) nl=1 trailWs=1 w=108 witw=108 ovf=False start=0 cause=end-of-text  "\tc"
+        i=2 '\t' xFromLeft=24 w=72
+        i=3 'c' xFromLeft=96 w=12
+== [B-indent-extra/lead-tab-b-t-c@w140@LTR@i24nl@tab0] "\tb\tc"   group=B-indent-extra  indent=24 paraIndent=0 firstLine=False
+   line 0: [0,4) nl=1 trailWs=1 w=49.353333 witw=49.353333 ovf=False start=0 cause=end-of-text  "\tb\tc"
+        i=0 '\t' xFromLeft=24 w=0
+        i=1 'b' xFromLeft=24.003333 w=13.346667
+        i=2 '\t' xFromLeft=37.35 w=0
+        i=3 'c' xFromLeft=37.353333 w=12
+== [B-indent-extra/mid-tab-a-t-b@w40@LTR@i24p24@default] "a\tb"   group=B-indent-extra  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=37.346667 witw=37.346667 ovf=True start=24 cause=before-tab  "a"
+   line 1: [1,2) nl=0 trailWs=0 w=24 witw=24 ovf=True start=24 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=48 w=0
+   line 2: [2,3) nl=1 trailWs=1 w=37.346667 witw=37.346667 ovf=True start=24 cause=end-of-text  "b"
+== [B-indent-extra/mid-tab-a-t-b@w40@LTR@i24p24@tab0] "a\tb"   group=B-indent-extra  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=37.346667 witw=37.346667 ovf=True start=24 cause=before-tab  "a"
+   line 1: [1,2) nl=0 trailWs=0 w=24 witw=24 ovf=True start=24 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=48 w=0
+   line 2: [2,3) nl=1 trailWs=1 w=37.346667 witw=37.346667 ovf=True start=24 cause=end-of-text  "b"
+== [B-indent-extra/mid-tab-a-t-b@w40@LTR@i0p24@default] "a\tb"   group=B-indent-extra  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=13.346667 witw=13.346667 ovf=False start=24 cause=before-tab  "a"
+   line 1: [1,2) nl=0 trailWs=0 w=16 witw=16 ovf=False start=24 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=24 w=16
+   line 2: [2,3) nl=1 trailWs=1 w=13.346667 witw=13.346667 ovf=False start=24 cause=end-of-text  "b"
+== [B-indent-extra/mid-tab-a-t-b@w40@LTR@i0p24@tab0] "a\tb"   group=B-indent-extra  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=13.346667 witw=13.346667 ovf=False start=24 cause=before-tab  "a"
+   line 1: [1,3) nl=1 trailWs=1 w=13.35 witw=13.35 ovf=False start=24 cause=end-of-text  "\tb"
+        i=1 '\t' xFromLeft=24 w=0
+        i=2 'b' xFromLeft=24.003333 w=13.346667
+== [B-indent-extra/mid-tab-a-t-b@w40@LTR@i24nl@default] "a\tb"   group=B-indent-extra  indent=24 paraIndent=0 firstLine=False
+   line 0: [0,1) nl=0 trailWs=0 w=37.346667 witw=37.346667 ovf=False start=0 cause=before-tab  "a"
+   line 1: [1,2) nl=0 trailWs=0 w=40 witw=40 ovf=False start=0 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=24 w=16
+   line 2: [2,3) nl=1 trailWs=1 w=37.346667 witw=37.346667 ovf=False start=0 cause=end-of-text  "b"
+== [B-indent-extra/mid-tab-a-t-b@w40@LTR@i24nl@tab0] "a\tb"   group=B-indent-extra  indent=24 paraIndent=0 firstLine=False
+   line 0: [0,1) nl=0 trailWs=0 w=37.346667 witw=37.346667 ovf=False start=0 cause=before-tab  "a"
+   line 1: [1,3) nl=1 trailWs=1 w=37.35 witw=37.35 ovf=False start=0 cause=end-of-text  "\tb"
+        i=1 '\t' xFromLeft=24 w=0
+        i=2 'b' xFromLeft=24.003333 w=13.346667
+== [B-indent-extra/mid-tab-a-t-b@w80@LTR@i24p24@default] "a\tb"   group=B-indent-extra  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=37.346667 witw=37.346667 ovf=False start=24 cause=before-tab  "a"
+   line 1: [1,2) nl=0 trailWs=0 w=56 witw=56 ovf=False start=24 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=48 w=32
+   line 2: [2,3) nl=1 trailWs=1 w=37.346667 witw=37.346667 ovf=False start=24 cause=end-of-text  "b"
+== [B-indent-extra/mid-tab-a-t-b@w80@LTR@i24p24@tab0] "a\tb"   group=B-indent-extra  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=50.696667 witw=50.696667 ovf=False start=24 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=48 w=13.346667
+        i=1 '\t' xFromLeft=61.346667 w=0
+        i=2 'b' xFromLeft=61.35 w=13.346667
+== [B-indent-extra/mid-tab-a-t-b@w80@LTR@i0p24@default] "a\tb"   group=B-indent-extra  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=13.346667 witw=13.346667 ovf=False start=24 cause=before-tab  "a"
+   line 1: [1,2) nl=0 trailWs=0 w=56 witw=56 ovf=False start=24 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=24 w=56
+   line 2: [2,3) nl=1 trailWs=1 w=13.346667 witw=13.346667 ovf=False start=24 cause=end-of-text  "b"
+== [B-indent-extra/mid-tab-a-t-b@w80@LTR@i0p24@tab0] "a\tb"   group=B-indent-extra  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.696667 witw=26.696667 ovf=False start=24 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=24 w=13.346667
+        i=1 '\t' xFromLeft=37.346667 w=0
+        i=2 'b' xFromLeft=37.35 w=13.346667
+== [B-indent-extra/mid-tab-a-t-b@w80@LTR@i24nl@default] "a\tb"   group=B-indent-extra  indent=24 paraIndent=0 firstLine=False
+   line 0: [0,1) nl=0 trailWs=0 w=37.346667 witw=37.346667 ovf=False start=0 cause=before-tab  "a"
+   line 1: [1,2) nl=0 trailWs=0 w=80 witw=80 ovf=False start=0 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=24 w=56
+   line 2: [2,3) nl=1 trailWs=1 w=37.346667 witw=37.346667 ovf=False start=0 cause=end-of-text  "b"
+== [B-indent-extra/mid-tab-a-t-b@w80@LTR@i24nl@tab0] "a\tb"   group=B-indent-extra  indent=24 paraIndent=0 firstLine=False
+   line 0: [0,3) nl=1 trailWs=1 w=50.696667 witw=50.696667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=24 w=13.346667
+        i=1 '\t' xFromLeft=37.346667 w=0
+        i=2 'b' xFromLeft=37.35 w=13.346667
+== [B-indent-extra/mid-tab-a-t-b@w140@LTR@i24p24@default] "a\tb"   group=B-indent-extra  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=24 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=48 w=13.346667
+        i=1 '\t' xFromLeft=61.346667 w=58.653333
+        i=2 'b' xFromLeft=120 w=13.346667
+== [B-indent-extra/mid-tab-a-t-b@w140@LTR@i24p24@tab0] "a\tb"   group=B-indent-extra  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=50.696667 witw=50.696667 ovf=False start=24 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=48 w=13.346667
+        i=1 '\t' xFromLeft=61.346667 w=0
+        i=2 'b' xFromLeft=61.35 w=13.346667
+== [B-indent-extra/mid-tab-a-t-b@w140@LTR@i0p24@default] "a\tb"   group=B-indent-extra  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=24 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=24 w=13.346667
+        i=1 '\t' xFromLeft=37.346667 w=82.653333
+        i=2 'b' xFromLeft=120 w=13.346667
+== [B-indent-extra/mid-tab-a-t-b@w140@LTR@i0p24@tab0] "a\tb"   group=B-indent-extra  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.696667 witw=26.696667 ovf=False start=24 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=24 w=13.346667
+        i=1 '\t' xFromLeft=37.346667 w=0
+        i=2 'b' xFromLeft=37.35 w=13.346667
+== [B-indent-extra/mid-tab-a-t-b@w140@LTR@i24nl@default] "a\tb"   group=B-indent-extra  indent=24 paraIndent=0 firstLine=False
+   line 0: [0,3) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=24 w=13.346667
+        i=1 '\t' xFromLeft=37.346667 w=58.653333
+        i=2 'b' xFromLeft=96 w=13.346667
+== [B-indent-extra/mid-tab-a-t-b@w140@LTR@i24nl@tab0] "a\tb"   group=B-indent-extra  indent=24 paraIndent=0 firstLine=False
+   line 0: [0,3) nl=1 trailWs=1 w=50.696667 witw=50.696667 ovf=False start=0 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=24 w=13.346667
+        i=1 '\t' xFromLeft=37.346667 w=0
+        i=2 'b' xFromLeft=37.35 w=13.346667
+== [B-indent-extra/notab-control@w40@LTR@i24p24@default] "ab"   group=B-indent-extra  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=37.346667 witw=37.346667 ovf=True start=24 cause=mid-token  "a"
+   line 1: [1,2) nl=1 trailWs=1 w=37.346667 witw=37.346667 ovf=True start=24 cause=end-of-text  "b"
+== [B-indent-extra/notab-control@w40@LTR@i24p24@tab0] "ab"   group=B-indent-extra  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=37.346667 witw=37.346667 ovf=True start=24 cause=mid-token  "a"
+   line 1: [1,2) nl=1 trailWs=1 w=37.346667 witw=37.346667 ovf=True start=24 cause=end-of-text  "b"
+== [B-indent-extra/notab-control@w40@LTR@i0p24@default] "ab"   group=B-indent-extra  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=13.346667 witw=13.346667 ovf=False start=24 cause=mid-token  "a"
+   line 1: [1,2) nl=1 trailWs=1 w=13.346667 witw=13.346667 ovf=False start=24 cause=end-of-text  "b"
+== [B-indent-extra/notab-control@w40@LTR@i0p24@tab0] "ab"   group=B-indent-extra  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=13.346667 witw=13.346667 ovf=False start=24 cause=mid-token  "a"
+   line 1: [1,2) nl=1 trailWs=1 w=13.346667 witw=13.346667 ovf=False start=24 cause=end-of-text  "b"
+== [B-indent-extra/notab-control@w40@LTR@i24nl@default] "ab"   group=B-indent-extra  indent=24 paraIndent=0 firstLine=False
+   line 0: [0,1) nl=0 trailWs=0 w=37.346667 witw=37.346667 ovf=False start=0 cause=mid-token  "a"
+   line 1: [1,2) nl=1 trailWs=1 w=37.346667 witw=37.346667 ovf=False start=0 cause=end-of-text  "b"
+== [B-indent-extra/notab-control@w40@LTR@i24nl@tab0] "ab"   group=B-indent-extra  indent=24 paraIndent=0 firstLine=False
+   line 0: [0,1) nl=0 trailWs=0 w=37.346667 witw=37.346667 ovf=False start=0 cause=mid-token  "a"
+   line 1: [1,2) nl=1 trailWs=1 w=37.346667 witw=37.346667 ovf=False start=0 cause=end-of-text  "b"
+== [B-indent-extra/notab-control@w80@LTR@i24p24@default] "ab"   group=B-indent-extra  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=50.693333 witw=50.693333 ovf=False start=24 cause=end-of-text  "ab"
+== [B-indent-extra/notab-control@w80@LTR@i24p24@tab0] "ab"   group=B-indent-extra  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=50.693333 witw=50.693333 ovf=False start=24 cause=end-of-text  "ab"
+== [B-indent-extra/notab-control@w80@LTR@i0p24@default] "ab"   group=B-indent-extra  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=26.693333 witw=26.693333 ovf=False start=24 cause=end-of-text  "ab"
+== [B-indent-extra/notab-control@w80@LTR@i0p24@tab0] "ab"   group=B-indent-extra  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=26.693333 witw=26.693333 ovf=False start=24 cause=end-of-text  "ab"
+== [B-indent-extra/notab-control@w80@LTR@i24nl@default] "ab"   group=B-indent-extra  indent=24 paraIndent=0 firstLine=False
+   line 0: [0,2) nl=1 trailWs=1 w=50.693333 witw=50.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent-extra/notab-control@w80@LTR@i24nl@tab0] "ab"   group=B-indent-extra  indent=24 paraIndent=0 firstLine=False
+   line 0: [0,2) nl=1 trailWs=1 w=50.693333 witw=50.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent-extra/notab-control@w140@LTR@i24p24@default] "ab"   group=B-indent-extra  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=50.693333 witw=50.693333 ovf=False start=24 cause=end-of-text  "ab"
+== [B-indent-extra/notab-control@w140@LTR@i24p24@tab0] "ab"   group=B-indent-extra  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=50.693333 witw=50.693333 ovf=False start=24 cause=end-of-text  "ab"
+== [B-indent-extra/notab-control@w140@LTR@i0p24@default] "ab"   group=B-indent-extra  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=26.693333 witw=26.693333 ovf=False start=24 cause=end-of-text  "ab"
+== [B-indent-extra/notab-control@w140@LTR@i0p24@tab0] "ab"   group=B-indent-extra  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=26.693333 witw=26.693333 ovf=False start=24 cause=end-of-text  "ab"
+== [B-indent-extra/notab-control@w140@LTR@i24nl@default] "ab"   group=B-indent-extra  indent=24 paraIndent=0 firstLine=False
+   line 0: [0,2) nl=1 trailWs=1 w=50.693333 witw=50.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [B-indent-extra/notab-control@w140@LTR@i24nl@tab0] "ab"   group=B-indent-extra  indent=24 paraIndent=0 firstLine=False
+   line 0: [0,2) nl=1 trailWs=1 w=50.693333 witw=50.693333 ovf=False start=0 cause=end-of-text  "ab"
+== [C-rtl-indent/he-lead-tab-a@w40@RTL@i0@default] "\tא"   group=C-rtl-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=40 witw=40 ovf=False start=0 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=0 w=40
+   line 1: [1,2) nl=1 trailWs=1 w=13.513333 witw=13.513333 ovf=False start=0 cause=end-of-text  "א"
+== [C-rtl-indent/he-lead-tab-a@w40@RTL@i0@tab0] "\tא"   group=C-rtl-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=13.516667 witw=13.516667 ovf=False start=0 cause=end-of-text  "\tא"
+        i=0 '\t' xFromLeft=13.516666 w=0
+        i=1 'א' xFromLeft=0 w=13.513333
+== [C-rtl-indent/he-lead-tab-a@w40@RTL@i24@default] "\tא"   group=C-rtl-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=40 witw=40 ovf=False start=0 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=0 w=16
+   line 1: [1,2) nl=1 trailWs=1 w=37.513333 witw=37.513333 ovf=False start=0 cause=end-of-text  "א"
+== [C-rtl-indent/he-lead-tab-a@w40@RTL@i24@tab0] "\tא"   group=C-rtl-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=37.516667 witw=37.516667 ovf=False start=0 cause=end-of-text  "\tא"
+        i=0 '\t' xFromLeft=13.516666 w=0
+        i=1 'א' xFromLeft=0 w=13.513333
+== [C-rtl-indent/he-lead-tab-a@w100@RTL@i0@default] "\tא"   group=C-rtl-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=0 w=96
+   line 1: [1,2) nl=1 trailWs=1 w=13.513333 witw=13.513333 ovf=False start=0 cause=end-of-text  "א"
+== [C-rtl-indent/he-lead-tab-a@w100@RTL@i0@tab0] "\tא"   group=C-rtl-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=13.516667 witw=13.516667 ovf=False start=0 cause=end-of-text  "\tא"
+        i=0 '\t' xFromLeft=13.516666 w=0
+        i=1 'א' xFromLeft=0 w=13.513333
+== [C-rtl-indent/he-lead-tab-a@w100@RTL@i24@default] "\tא"   group=C-rtl-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=0 w=72
+   line 1: [1,2) nl=1 trailWs=1 w=37.513333 witw=37.513333 ovf=False start=0 cause=end-of-text  "א"
+== [C-rtl-indent/he-lead-tab-a@w100@RTL@i24@tab0] "\tא"   group=C-rtl-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=37.516667 witw=37.516667 ovf=False start=0 cause=end-of-text  "\tא"
+        i=0 '\t' xFromLeft=13.516666 w=0
+        i=1 'א' xFromLeft=0 w=13.513333
+== [C-rtl-indent/he-lead-tab-a@w140@RTL@i0@default] "\tא"   group=C-rtl-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=109.513333 witw=109.513333 ovf=False start=0 cause=end-of-text  "\tא"
+        i=0 '\t' xFromLeft=13.513333 w=96
+        i=1 'א' xFromLeft=0 w=13.513333
+== [C-rtl-indent/he-lead-tab-a@w140@RTL@i0@tab0] "\tא"   group=C-rtl-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=13.516667 witw=13.516667 ovf=False start=0 cause=end-of-text  "\tא"
+        i=0 '\t' xFromLeft=13.516666 w=0
+        i=1 'א' xFromLeft=0 w=13.513333
+== [C-rtl-indent/he-lead-tab-a@w140@RTL@i24@default] "\tא"   group=C-rtl-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=109.513333 witw=109.513333 ovf=False start=0 cause=end-of-text  "\tא"
+        i=0 '\t' xFromLeft=13.513333 w=72
+        i=1 'א' xFromLeft=0 w=13.513333
+== [C-rtl-indent/he-lead-tab-a@w140@RTL@i24@tab0] "\tא"   group=C-rtl-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=37.516667 witw=37.516667 ovf=False start=0 cause=end-of-text  "\tא"
+        i=0 '\t' xFromLeft=13.516666 w=0
+        i=1 'א' xFromLeft=0 w=13.513333
+== [C-rtl-indent/he-lead-tab-a@w220@RTL@i0@default] "\tא"   group=C-rtl-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=109.513333 witw=109.513333 ovf=False start=0 cause=end-of-text  "\tא"
+        i=0 '\t' xFromLeft=13.513333 w=96
+        i=1 'א' xFromLeft=0 w=13.513333
+== [C-rtl-indent/he-lead-tab-a@w220@RTL@i0@tab0] "\tא"   group=C-rtl-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=13.516667 witw=13.516667 ovf=False start=0 cause=end-of-text  "\tא"
+        i=0 '\t' xFromLeft=13.516666 w=0
+        i=1 'א' xFromLeft=0 w=13.513333
+== [C-rtl-indent/he-lead-tab-a@w220@RTL@i24@default] "\tא"   group=C-rtl-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=109.513333 witw=109.513333 ovf=False start=0 cause=end-of-text  "\tא"
+        i=0 '\t' xFromLeft=13.513333 w=72
+        i=1 'א' xFromLeft=0 w=13.513333
+== [C-rtl-indent/he-lead-tab-a@w220@RTL@i24@tab0] "\tא"   group=C-rtl-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=37.516667 witw=37.516667 ovf=False start=0 cause=end-of-text  "\tא"
+        i=0 '\t' xFromLeft=13.516666 w=0
+        i=1 'א' xFromLeft=0 w=13.513333
+== [C-rtl-indent/he-mid-tab@w40@RTL@i0@default] "א\tב"   group=C-rtl-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=13.513333 witw=13.513333 ovf=False start=0 cause=before-tab  "א"
+   line 1: [1,2) nl=0 trailWs=0 w=40 witw=40 ovf=False start=0 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=0 w=40
+   line 2: [2,3) nl=1 trailWs=1 w=13.006667 witw=13.006667 ovf=False start=0 cause=end-of-text  "ב"
+== [C-rtl-indent/he-mid-tab@w40@RTL@i0@tab0] "א\tב"   group=C-rtl-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.523333 witw=26.523333 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=13.010001 w=13.513333
+        i=1 '\t' xFromLeft=13.010001 w=0
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [C-rtl-indent/he-mid-tab@w40@RTL@i24@default] "א\tב"   group=C-rtl-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=37.513333 witw=37.513333 ovf=False start=0 cause=before-tab  "א"
+   line 1: [1,2) nl=0 trailWs=0 w=40 witw=40 ovf=False start=0 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=0 w=16
+   line 2: [2,3) nl=1 trailWs=1 w=37.006667 witw=37.006667 ovf=False start=0 cause=end-of-text  "ב"
+== [C-rtl-indent/he-mid-tab@w40@RTL@i24@tab0] "א\tב"   group=C-rtl-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=37.513333 witw=37.513333 ovf=False start=0 cause=before-tab  "א"
+   line 1: [1,3) nl=1 trailWs=1 w=37.01 witw=37.01 ovf=False start=0 cause=end-of-text  "\tב"
+        i=1 '\t' xFromLeft=13.01 w=0
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [C-rtl-indent/he-mid-tab@w100@RTL@i0@default] "א\tב"   group=C-rtl-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=13.513333 witw=13.513333 ovf=False start=0 cause=before-tab  "א"
+   line 1: [1,2) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=0 w=96
+   line 2: [2,3) nl=1 trailWs=1 w=13.006667 witw=13.006667 ovf=False start=0 cause=end-of-text  "ב"
+== [C-rtl-indent/he-mid-tab@w100@RTL@i0@tab0] "א\tב"   group=C-rtl-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.523333 witw=26.523333 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=13.010001 w=13.513333
+        i=1 '\t' xFromLeft=13.010001 w=0
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [C-rtl-indent/he-mid-tab@w100@RTL@i24@default] "א\tב"   group=C-rtl-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=37.513333 witw=37.513333 ovf=False start=0 cause=before-tab  "א"
+   line 1: [1,2) nl=0 trailWs=0 w=96 witw=96 ovf=False start=0 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=0 w=72
+   line 2: [2,3) nl=1 trailWs=1 w=37.006667 witw=37.006667 ovf=False start=0 cause=end-of-text  "ב"
+== [C-rtl-indent/he-mid-tab@w100@RTL@i24@tab0] "א\tב"   group=C-rtl-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=50.523333 witw=50.523333 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=13.010001 w=13.513333
+        i=1 '\t' xFromLeft=13.010001 w=0
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [C-rtl-indent/he-mid-tab@w140@RTL@i0@default] "א\tב"   group=C-rtl-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.006667 witw=109.006667 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=95.493334 w=13.513333
+        i=1 '\t' xFromLeft=13.006667 w=82.486667
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [C-rtl-indent/he-mid-tab@w140@RTL@i0@tab0] "א\tב"   group=C-rtl-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.523333 witw=26.523333 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=13.010001 w=13.513333
+        i=1 '\t' xFromLeft=13.010001 w=0
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [C-rtl-indent/he-mid-tab@w140@RTL@i24@default] "א\tב"   group=C-rtl-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.006667 witw=109.006667 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=71.493334 w=13.513333
+        i=1 '\t' xFromLeft=13.006667 w=58.486667
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [C-rtl-indent/he-mid-tab@w140@RTL@i24@tab0] "א\tב"   group=C-rtl-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=50.523333 witw=50.523333 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=13.010001 w=13.513333
+        i=1 '\t' xFromLeft=13.010001 w=0
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [C-rtl-indent/he-mid-tab@w220@RTL@i0@default] "א\tב"   group=C-rtl-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.006667 witw=109.006667 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=95.493334 w=13.513333
+        i=1 '\t' xFromLeft=13.006667 w=82.486667
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [C-rtl-indent/he-mid-tab@w220@RTL@i0@tab0] "א\tב"   group=C-rtl-indent  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.523333 witw=26.523333 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=13.010001 w=13.513333
+        i=1 '\t' xFromLeft=13.010001 w=0
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [C-rtl-indent/he-mid-tab@w220@RTL@i24@default] "א\tב"   group=C-rtl-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.006667 witw=109.006667 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=71.493334 w=13.513333
+        i=1 '\t' xFromLeft=13.006667 w=58.486667
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [C-rtl-indent/he-mid-tab@w220@RTL@i24@tab0] "א\tב"   group=C-rtl-indent  indent=24 paraIndent=0 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=50.523333 witw=50.523333 ovf=False start=0 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=13.010001 w=13.513333
+        i=1 '\t' xFromLeft=13.010001 w=0
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [D-paraindent/lead-tab-a@w100@LTR@i0p24@default] "\ta"   group=D-paraindent  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=76 witw=76 ovf=False start=24 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=24 w=76
+   line 1: [1,2) nl=1 trailWs=1 w=13.346667 witw=13.346667 ovf=False start=24 cause=end-of-text  "a"
+== [D-paraindent/lead-tab-a@w100@LTR@i0p24@tab0] "\ta"   group=D-paraindent  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=13.35 witw=13.35 ovf=False start=24 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=24 w=0
+        i=1 'a' xFromLeft=24.003333 w=13.346667
+== [D-paraindent/lead-tab-a@w100@LTR@i24p24@default] "\ta"   group=D-paraindent  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=76 witw=76 ovf=False start=24 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=48 w=52
+   line 1: [1,2) nl=1 trailWs=1 w=37.346667 witw=37.346667 ovf=False start=24 cause=end-of-text  "a"
+== [D-paraindent/lead-tab-a@w100@LTR@i24p24@tab0] "\ta"   group=D-paraindent  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=37.35 witw=37.35 ovf=False start=24 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=48 w=0
+        i=1 'a' xFromLeft=48.003333 w=13.346667
+== [D-paraindent/lead-tab-a@w100@LTR@i0p48@default] "\ta"   group=D-paraindent  indent=0 paraIndent=48 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=52 witw=52 ovf=False start=48 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=48 w=52
+   line 1: [1,2) nl=1 trailWs=1 w=13.346667 witw=13.346667 ovf=False start=48 cause=end-of-text  "a"
+== [D-paraindent/lead-tab-a@w100@LTR@i0p48@tab0] "\ta"   group=D-paraindent  indent=0 paraIndent=48 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=13.35 witw=13.35 ovf=False start=48 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=48 w=0
+        i=1 'a' xFromLeft=48.003333 w=13.346667
+== [D-paraindent/lead-tab-a@w140@LTR@i0p24@default] "\ta"   group=D-paraindent  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=24 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=24 w=96
+        i=1 'a' xFromLeft=120 w=13.346667
+== [D-paraindent/lead-tab-a@w140@LTR@i0p24@tab0] "\ta"   group=D-paraindent  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=13.35 witw=13.35 ovf=False start=24 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=24 w=0
+        i=1 'a' xFromLeft=24.003333 w=13.346667
+== [D-paraindent/lead-tab-a@w140@LTR@i24p24@default] "\ta"   group=D-paraindent  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=24 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=48 w=72
+        i=1 'a' xFromLeft=120 w=13.346667
+== [D-paraindent/lead-tab-a@w140@LTR@i24p24@tab0] "\ta"   group=D-paraindent  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=37.35 witw=37.35 ovf=False start=24 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=48 w=0
+        i=1 'a' xFromLeft=48.003333 w=13.346667
+== [D-paraindent/lead-tab-a@w140@LTR@i0p48@default] "\ta"   group=D-paraindent  indent=0 paraIndent=48 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=92 witw=92 ovf=False start=48 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=48 w=92
+   line 1: [1,2) nl=1 trailWs=1 w=13.346667 witw=13.346667 ovf=False start=48 cause=end-of-text  "a"
+== [D-paraindent/lead-tab-a@w140@LTR@i0p48@tab0] "\ta"   group=D-paraindent  indent=0 paraIndent=48 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=13.35 witw=13.35 ovf=False start=48 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=48 w=0
+        i=1 'a' xFromLeft=48.003333 w=13.346667
+== [D-paraindent/lead-tab-a@w220@LTR@i0p24@default] "\ta"   group=D-paraindent  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=24 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=24 w=96
+        i=1 'a' xFromLeft=120 w=13.346667
+== [D-paraindent/lead-tab-a@w220@LTR@i0p24@tab0] "\ta"   group=D-paraindent  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=13.35 witw=13.35 ovf=False start=24 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=24 w=0
+        i=1 'a' xFromLeft=24.003333 w=13.346667
+== [D-paraindent/lead-tab-a@w220@LTR@i24p24@default] "\ta"   group=D-paraindent  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=24 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=48 w=72
+        i=1 'a' xFromLeft=120 w=13.346667
+== [D-paraindent/lead-tab-a@w220@LTR@i24p24@tab0] "\ta"   group=D-paraindent  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=37.35 witw=37.35 ovf=False start=24 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=48 w=0
+        i=1 'a' xFromLeft=48.003333 w=13.346667
+== [D-paraindent/lead-tab-a@w220@LTR@i0p48@default] "\ta"   group=D-paraindent  indent=0 paraIndent=48 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=48 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=48 w=96
+        i=1 'a' xFromLeft=144 w=13.346667
+== [D-paraindent/lead-tab-a@w220@LTR@i0p48@tab0] "\ta"   group=D-paraindent  indent=0 paraIndent=48 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=13.35 witw=13.35 ovf=False start=48 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=48 w=0
+        i=1 'a' xFromLeft=48.003333 w=13.346667
+== [D-paraindent/mid-tab-a-t-b@w100@LTR@i0p24@default] "a\tb"   group=D-paraindent  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=13.346667 witw=13.346667 ovf=False start=24 cause=before-tab  "a"
+   line 1: [1,2) nl=0 trailWs=0 w=76 witw=76 ovf=False start=24 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=24 w=76
+   line 2: [2,3) nl=1 trailWs=1 w=13.346667 witw=13.346667 ovf=False start=24 cause=end-of-text  "b"
+== [D-paraindent/mid-tab-a-t-b@w100@LTR@i0p24@tab0] "a\tb"   group=D-paraindent  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.696667 witw=26.696667 ovf=False start=24 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=24 w=13.346667
+        i=1 '\t' xFromLeft=37.346667 w=0
+        i=2 'b' xFromLeft=37.35 w=13.346667
+== [D-paraindent/mid-tab-a-t-b@w100@LTR@i24p24@default] "a\tb"   group=D-paraindent  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=37.346667 witw=37.346667 ovf=False start=24 cause=before-tab  "a"
+   line 1: [1,2) nl=0 trailWs=0 w=76 witw=76 ovf=False start=24 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=48 w=52
+   line 2: [2,3) nl=1 trailWs=1 w=37.346667 witw=37.346667 ovf=False start=24 cause=end-of-text  "b"
+== [D-paraindent/mid-tab-a-t-b@w100@LTR@i24p24@tab0] "a\tb"   group=D-paraindent  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=50.696667 witw=50.696667 ovf=False start=24 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=48 w=13.346667
+        i=1 '\t' xFromLeft=61.346667 w=0
+        i=2 'b' xFromLeft=61.35 w=13.346667
+== [D-paraindent/mid-tab-a-t-b@w100@LTR@i0p48@default] "a\tb"   group=D-paraindent  indent=0 paraIndent=48 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=13.346667 witw=13.346667 ovf=False start=48 cause=before-tab  "a"
+   line 1: [1,2) nl=0 trailWs=0 w=52 witw=52 ovf=False start=48 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=48 w=52
+   line 2: [2,3) nl=1 trailWs=1 w=13.346667 witw=13.346667 ovf=False start=48 cause=end-of-text  "b"
+== [D-paraindent/mid-tab-a-t-b@w100@LTR@i0p48@tab0] "a\tb"   group=D-paraindent  indent=0 paraIndent=48 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.696667 witw=26.696667 ovf=False start=48 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=48 w=13.346667
+        i=1 '\t' xFromLeft=61.346667 w=0
+        i=2 'b' xFromLeft=61.35 w=13.346667
+== [D-paraindent/mid-tab-a-t-b@w140@LTR@i0p24@default] "a\tb"   group=D-paraindent  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=24 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=24 w=13.346667
+        i=1 '\t' xFromLeft=37.346667 w=82.653333
+        i=2 'b' xFromLeft=120 w=13.346667
+== [D-paraindent/mid-tab-a-t-b@w140@LTR@i0p24@tab0] "a\tb"   group=D-paraindent  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.696667 witw=26.696667 ovf=False start=24 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=24 w=13.346667
+        i=1 '\t' xFromLeft=37.346667 w=0
+        i=2 'b' xFromLeft=37.35 w=13.346667
+== [D-paraindent/mid-tab-a-t-b@w140@LTR@i24p24@default] "a\tb"   group=D-paraindent  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=24 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=48 w=13.346667
+        i=1 '\t' xFromLeft=61.346667 w=58.653333
+        i=2 'b' xFromLeft=120 w=13.346667
+== [D-paraindent/mid-tab-a-t-b@w140@LTR@i24p24@tab0] "a\tb"   group=D-paraindent  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=50.696667 witw=50.696667 ovf=False start=24 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=48 w=13.346667
+        i=1 '\t' xFromLeft=61.346667 w=0
+        i=2 'b' xFromLeft=61.35 w=13.346667
+== [D-paraindent/mid-tab-a-t-b@w140@LTR@i0p48@default] "a\tb"   group=D-paraindent  indent=0 paraIndent=48 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=13.346667 witw=13.346667 ovf=False start=48 cause=before-tab  "a"
+   line 1: [1,2) nl=0 trailWs=0 w=92 witw=92 ovf=False start=48 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=48 w=92
+   line 2: [2,3) nl=1 trailWs=1 w=13.346667 witw=13.346667 ovf=False start=48 cause=end-of-text  "b"
+== [D-paraindent/mid-tab-a-t-b@w140@LTR@i0p48@tab0] "a\tb"   group=D-paraindent  indent=0 paraIndent=48 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.696667 witw=26.696667 ovf=False start=48 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=48 w=13.346667
+        i=1 '\t' xFromLeft=61.346667 w=0
+        i=2 'b' xFromLeft=61.35 w=13.346667
+== [D-paraindent/mid-tab-a-t-b@w220@LTR@i0p24@default] "a\tb"   group=D-paraindent  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=24 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=24 w=13.346667
+        i=1 '\t' xFromLeft=37.346667 w=82.653333
+        i=2 'b' xFromLeft=120 w=13.346667
+== [D-paraindent/mid-tab-a-t-b@w220@LTR@i0p24@tab0] "a\tb"   group=D-paraindent  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.696667 witw=26.696667 ovf=False start=24 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=24 w=13.346667
+        i=1 '\t' xFromLeft=37.346667 w=0
+        i=2 'b' xFromLeft=37.35 w=13.346667
+== [D-paraindent/mid-tab-a-t-b@w220@LTR@i24p24@default] "a\tb"   group=D-paraindent  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=24 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=48 w=13.346667
+        i=1 '\t' xFromLeft=61.346667 w=58.653333
+        i=2 'b' xFromLeft=120 w=13.346667
+== [D-paraindent/mid-tab-a-t-b@w220@LTR@i24p24@tab0] "a\tb"   group=D-paraindent  indent=24 paraIndent=24 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=50.696667 witw=50.696667 ovf=False start=24 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=48 w=13.346667
+        i=1 '\t' xFromLeft=61.346667 w=0
+        i=2 'b' xFromLeft=61.35 w=13.346667
+== [D-paraindent/mid-tab-a-t-b@w220@LTR@i0p48@default] "a\tb"   group=D-paraindent  indent=0 paraIndent=48 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=48 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=48 w=13.346667
+        i=1 '\t' xFromLeft=61.346667 w=82.653333
+        i=2 'b' xFromLeft=144 w=13.346667
+== [D-paraindent/mid-tab-a-t-b@w220@LTR@i0p48@tab0] "a\tb"   group=D-paraindent  indent=0 paraIndent=48 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.696667 witw=26.696667 ovf=False start=48 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=48 w=13.346667
+        i=1 '\t' xFromLeft=61.346667 w=0
+        i=2 'b' xFromLeft=61.35 w=13.346667
+== [D-paraindent/lead-tab-a@w220@LTR@i24p48@default] "\ta"   group=D-paraindent  indent=24 paraIndent=48 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=48 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=72 w=72
+        i=1 'a' xFromLeft=144 w=13.346667
+== [D-paraindent/lead-tab-a@w220@LTR@i24p48@tab0] "\ta"   group=D-paraindent  indent=24 paraIndent=48 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=37.35 witw=37.35 ovf=False start=48 cause=end-of-text  "\ta"
+        i=0 '\t' xFromLeft=72 w=0
+        i=1 'a' xFromLeft=72.003333 w=13.346667
+== [D-paraindent/mid-tab-a-t-b@w220@LTR@i24p48@default] "a\tb"   group=D-paraindent  indent=24 paraIndent=48 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.346667 witw=109.346667 ovf=False start=48 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=72 w=13.346667
+        i=1 '\t' xFromLeft=85.346667 w=58.653333
+        i=2 'b' xFromLeft=144 w=13.346667
+== [D-paraindent/mid-tab-a-t-b@w220@LTR@i24p48@tab0] "a\tb"   group=D-paraindent  indent=24 paraIndent=48 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=50.696667 witw=50.696667 ovf=False start=48 cause=end-of-text  "a\tb"
+        i=0 'a' xFromLeft=72 w=13.346667
+        i=1 '\t' xFromLeft=85.346667 w=0
+        i=2 'b' xFromLeft=85.35 w=13.346667
+== [D-paraindent/he-lead-tab-a@w100@RTL@i0p24@default] "\tא"   group=D-paraindent  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=76 witw=76 ovf=False start=24 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=0 w=76
+   line 1: [1,2) nl=1 trailWs=1 w=13.513333 witw=13.513333 ovf=False start=24 cause=end-of-text  "א"
+== [D-paraindent/he-lead-tab-a@w100@RTL@i0p24@tab0] "\tא"   group=D-paraindent  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=13.516667 witw=13.516667 ovf=False start=24 cause=end-of-text  "\tא"
+        i=0 '\t' xFromLeft=13.516666 w=0
+        i=1 'א' xFromLeft=0 w=13.513333
+== [D-paraindent/he-lead-tab-a@w100@RTL@i0p48@default] "\tא"   group=D-paraindent  indent=0 paraIndent=48 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=52 witw=52 ovf=False start=48 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=0 w=52
+   line 1: [1,2) nl=1 trailWs=1 w=13.513333 witw=13.513333 ovf=False start=48 cause=end-of-text  "א"
+== [D-paraindent/he-lead-tab-a@w100@RTL@i0p48@tab0] "\tא"   group=D-paraindent  indent=0 paraIndent=48 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=13.516667 witw=13.516667 ovf=False start=48 cause=end-of-text  "\tא"
+        i=0 '\t' xFromLeft=13.516666 w=0
+        i=1 'א' xFromLeft=0 w=13.513333
+== [D-paraindent/he-lead-tab-a@w140@RTL@i0p24@default] "\tא"   group=D-paraindent  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=109.513333 witw=109.513333 ovf=False start=24 cause=end-of-text  "\tא"
+        i=0 '\t' xFromLeft=13.513333 w=96
+        i=1 'א' xFromLeft=0 w=13.513333
+== [D-paraindent/he-lead-tab-a@w140@RTL@i0p24@tab0] "\tא"   group=D-paraindent  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=13.516667 witw=13.516667 ovf=False start=24 cause=end-of-text  "\tא"
+        i=0 '\t' xFromLeft=13.516666 w=0
+        i=1 'א' xFromLeft=0 w=13.513333
+== [D-paraindent/he-lead-tab-a@w140@RTL@i0p48@default] "\tא"   group=D-paraindent  indent=0 paraIndent=48 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=92 witw=92 ovf=False start=48 cause=after-tab  "\t"
+        i=0 '\t' xFromLeft=0 w=92
+   line 1: [1,2) nl=1 trailWs=1 w=13.513333 witw=13.513333 ovf=False start=48 cause=end-of-text  "א"
+== [D-paraindent/he-lead-tab-a@w140@RTL@i0p48@tab0] "\tא"   group=D-paraindent  indent=0 paraIndent=48 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=13.516667 witw=13.516667 ovf=False start=48 cause=end-of-text  "\tא"
+        i=0 '\t' xFromLeft=13.516666 w=0
+        i=1 'א' xFromLeft=0 w=13.513333
+== [D-paraindent/he-lead-tab-a@w220@RTL@i0p24@default] "\tא"   group=D-paraindent  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=109.513333 witw=109.513333 ovf=False start=24 cause=end-of-text  "\tא"
+        i=0 '\t' xFromLeft=13.513333 w=96
+        i=1 'א' xFromLeft=0 w=13.513333
+== [D-paraindent/he-lead-tab-a@w220@RTL@i0p24@tab0] "\tא"   group=D-paraindent  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=13.516667 witw=13.516667 ovf=False start=24 cause=end-of-text  "\tא"
+        i=0 '\t' xFromLeft=13.516666 w=0
+        i=1 'א' xFromLeft=0 w=13.513333
+== [D-paraindent/he-lead-tab-a@w220@RTL@i0p48@default] "\tא"   group=D-paraindent  indent=0 paraIndent=48 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=109.513333 witw=109.513333 ovf=False start=48 cause=end-of-text  "\tא"
+        i=0 '\t' xFromLeft=13.513333 w=96
+        i=1 'א' xFromLeft=0 w=13.513333
+== [D-paraindent/he-lead-tab-a@w220@RTL@i0p48@tab0] "\tא"   group=D-paraindent  indent=0 paraIndent=48 firstLine=True
+   line 0: [0,2) nl=1 trailWs=1 w=13.516667 witw=13.516667 ovf=False start=48 cause=end-of-text  "\tא"
+        i=0 '\t' xFromLeft=13.516666 w=0
+        i=1 'א' xFromLeft=0 w=13.513333
+== [D-paraindent/he-mid-tab@w100@RTL@i0p24@default] "א\tב"   group=D-paraindent  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=13.513333 witw=13.513333 ovf=False start=24 cause=before-tab  "א"
+   line 1: [1,2) nl=0 trailWs=0 w=76 witw=76 ovf=False start=24 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=0 w=76
+   line 2: [2,3) nl=1 trailWs=1 w=13.006667 witw=13.006667 ovf=False start=24 cause=end-of-text  "ב"
+== [D-paraindent/he-mid-tab@w100@RTL@i0p24@tab0] "א\tב"   group=D-paraindent  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.523333 witw=26.523333 ovf=False start=24 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=13.010001 w=13.513333
+        i=1 '\t' xFromLeft=13.010001 w=0
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [D-paraindent/he-mid-tab@w100@RTL@i0p48@default] "א\tב"   group=D-paraindent  indent=0 paraIndent=48 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=13.513333 witw=13.513333 ovf=False start=48 cause=before-tab  "א"
+   line 1: [1,2) nl=0 trailWs=0 w=52 witw=52 ovf=False start=48 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=0 w=52
+   line 2: [2,3) nl=1 trailWs=1 w=13.006667 witw=13.006667 ovf=False start=48 cause=end-of-text  "ב"
+== [D-paraindent/he-mid-tab@w100@RTL@i0p48@tab0] "א\tב"   group=D-paraindent  indent=0 paraIndent=48 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.523333 witw=26.523333 ovf=False start=48 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=13.010001 w=13.513333
+        i=1 '\t' xFromLeft=13.010001 w=0
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [D-paraindent/he-mid-tab@w140@RTL@i0p24@default] "א\tב"   group=D-paraindent  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.006667 witw=109.006667 ovf=False start=24 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=95.493334 w=13.513333
+        i=1 '\t' xFromLeft=13.006667 w=82.486667
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [D-paraindent/he-mid-tab@w140@RTL@i0p24@tab0] "א\tב"   group=D-paraindent  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.523333 witw=26.523333 ovf=False start=24 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=13.010001 w=13.513333
+        i=1 '\t' xFromLeft=13.010001 w=0
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [D-paraindent/he-mid-tab@w140@RTL@i0p48@default] "א\tב"   group=D-paraindent  indent=0 paraIndent=48 firstLine=True
+   line 0: [0,1) nl=0 trailWs=0 w=13.513333 witw=13.513333 ovf=False start=48 cause=before-tab  "א"
+   line 1: [1,2) nl=0 trailWs=0 w=92 witw=92 ovf=False start=48 cause=after-tab  "\t"
+        i=1 '\t' xFromLeft=0 w=92
+   line 2: [2,3) nl=1 trailWs=1 w=13.006667 witw=13.006667 ovf=False start=48 cause=end-of-text  "ב"
+== [D-paraindent/he-mid-tab@w140@RTL@i0p48@tab0] "א\tב"   group=D-paraindent  indent=0 paraIndent=48 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.523333 witw=26.523333 ovf=False start=48 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=13.010001 w=13.513333
+        i=1 '\t' xFromLeft=13.010001 w=0
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [D-paraindent/he-mid-tab@w220@RTL@i0p24@default] "א\tב"   group=D-paraindent  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.006667 witw=109.006667 ovf=False start=24 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=95.493334 w=13.513333
+        i=1 '\t' xFromLeft=13.006667 w=82.486667
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [D-paraindent/he-mid-tab@w220@RTL@i0p24@tab0] "א\tב"   group=D-paraindent  indent=0 paraIndent=24 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.523333 witw=26.523333 ovf=False start=24 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=13.010001 w=13.513333
+        i=1 '\t' xFromLeft=13.010001 w=0
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [D-paraindent/he-mid-tab@w220@RTL@i0p48@default] "א\tב"   group=D-paraindent  indent=0 paraIndent=48 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=109.006667 witw=109.006667 ovf=False start=48 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=95.493334 w=13.513333
+        i=1 '\t' xFromLeft=13.006667 w=82.486667
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [D-paraindent/he-mid-tab@w220@RTL@i0p48@tab0] "א\tב"   group=D-paraindent  indent=0 paraIndent=48 firstLine=True
+   line 0: [0,3) nl=1 trailWs=1 w=26.523333 witw=26.523333 ovf=False start=48 cause=end-of-text  "א\tב"
+        i=0 'א' xFromLeft=13.010001 w=13.513333
+        i=1 '\t' xFromLeft=13.010001 w=0
+        i=2 'ב' xFromLeft=0 w=13.006667
+== [P-probe/probe-lat@w1000@LTR@i0@default] "ab\t\tc"   group=P-probe  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,5) nl=1 trailWs=1 w=204 witw=204 ovf=False start=0 cause=end-of-text  "ab\t\tc"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 'b' xFromLeft=13.346667 w=13.346667
+        i=2 '\t' xFromLeft=26.693333 w=69.306667
+        i=3 '\t' xFromLeft=96 w=96
+        i=4 'c' xFromLeft=192 w=12
+== [P-probe/probe-lat@w1000@LTR@i0@tab0] "ab\t\tc"   group=P-probe  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,5) nl=1 trailWs=1 w=38.7 witw=38.7 ovf=False start=0 cause=end-of-text  "ab\t\tc"
+        i=0 'a' xFromLeft=0 w=13.346667
+        i=1 'b' xFromLeft=13.346667 w=13.346667
+        i=2 '\t' xFromLeft=26.693333 w=0
+        i=3 '\t' xFromLeft=26.696667 w=0
+        i=4 'c' xFromLeft=26.7 w=12
+== [P-probe/probe-lat@w1000@RTL@i0@default] "ab\t\tc"   group=P-probe  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,5) nl=1 trailWs=1 w=204 witw=204 ovf=False start=0 cause=end-of-text  "ab\t\tc"
+        i=0 'a' xFromLeft=177.306667 w=13.346667
+        i=1 'b' xFromLeft=190.653333 w=13.346667
+        i=2 '\t' xFromLeft=107.996667 w=69.306667
+        i=3 '\t' xFromLeft=11.996667 w=96
+        i=4 'c' xFromLeft=0 w=12
+== [P-probe/probe-lat@w1000@RTL@i0@tab0] "ab\t\tc"   group=P-probe  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,5) nl=1 trailWs=1 w=38.7 witw=38.7 ovf=False start=0 cause=end-of-text  "ab\t\tc"
+        i=0 'a' xFromLeft=12.006667 w=13.346667
+        i=1 'b' xFromLeft=25.353333 w=13.346667
+        i=2 '\t' xFromLeft=12.003334 w=0
+        i=3 '\t' xFromLeft=12 w=0
+        i=4 'c' xFromLeft=0 w=12
+== [P-probe/probe-he@w1000@LTR@i0@default] "אב\t\tג"   group=P-probe  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,5) nl=1 trailWs=1 w=201.573333 witw=201.573333 ovf=False start=0 cause=end-of-text  "אב\t\tג"
+        i=0 'א' xFromLeft=13.003333 w=13.513333
+        i=1 'ב' xFromLeft=-0.003333 w=13.006667
+        i=2 '\t' xFromLeft=26.52 w=69.48
+        i=3 '\t' xFromLeft=96 w=96
+        i=4 'ג' xFromLeft=191.996667 w=9.573333
+== [P-probe/probe-he@w1000@LTR@i0@tab0] "אב\t\tג"   group=P-probe  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,5) nl=1 trailWs=1 w=36.1 witw=36.1 ovf=False start=0 cause=end-of-text  "אב\t\tג"
+        i=0 'א' xFromLeft=13.003333 w=13.513333
+        i=1 'ב' xFromLeft=-0.003333 w=13.006667
+        i=2 '\t' xFromLeft=26.52 w=0
+        i=3 '\t' xFromLeft=26.523333 w=0
+        i=4 'ג' xFromLeft=26.523333 w=9.573333
+== [P-probe/probe-he@w1000@RTL@i0@default] "אב\t\tג"   group=P-probe  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,5) nl=1 trailWs=1 w=201.573333 witw=201.573333 ovf=False start=0 cause=end-of-text  "אב\t\tג"
+        i=0 'א' xFromLeft=188.06 w=13.513333
+        i=1 'ב' xFromLeft=175.053333 w=13.006667
+        i=2 '\t' xFromLeft=105.573333 w=69.48
+        i=3 '\t' xFromLeft=9.573333 w=96
+        i=4 'ג' xFromLeft=0 w=9.573333
+== [P-probe/probe-he@w1000@RTL@i0@tab0] "אב\t\tג"   group=P-probe  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,5) nl=1 trailWs=1 w=36.1 witw=36.1 ovf=False start=0 cause=end-of-text  "אב\t\tג"
+        i=0 'א' xFromLeft=22.586667 w=13.513333
+        i=1 'ב' xFromLeft=9.58 w=13.006667
+        i=2 '\t' xFromLeft=9.58 w=0
+        i=3 '\t' xFromLeft=9.576667 w=0
+        i=4 'ג' xFromLeft=0 w=9.573333
+== [P-probe/probe-ar@w1000@LTR@i0@default] "اب\t\tج"   group=P-probe  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,5) nl=1 trailWs=1 w=205.513333 witw=205.513333 ovf=False start=0 cause=end-of-text  "اب\t\tج"
+        i=0 'ا' xFromLeft=17.116667 w=4.97
+        i=1 'ب' xFromLeft=-0.003333 w=17.12
+        i=2 '\t' xFromLeft=22.09 w=73.91
+        i=3 '\t' xFromLeft=96 w=96
+        i=4 'ج' xFromLeft=191.996667 w=13.513333
+== [P-probe/probe-ar@w1000@LTR@i0@tab0] "اب\t\tج"   group=P-probe  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,5) nl=1 trailWs=1 w=35.61 witw=35.61 ovf=False start=0 cause=end-of-text  "اب\t\tج"
+        i=0 'ا' xFromLeft=17.116667 w=4.97
+        i=1 'ب' xFromLeft=-0.003333 w=17.12
+        i=2 '\t' xFromLeft=22.09 w=0
+        i=3 '\t' xFromLeft=22.093333 w=0
+        i=4 'ج' xFromLeft=22.093333 w=13.513333
+== [P-probe/probe-ar@w1000@RTL@i0@default] "اب\t\tج"   group=P-probe  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,5) nl=1 trailWs=1 w=205.513333 witw=205.513333 ovf=False start=0 cause=end-of-text  "اب\t\tج"
+        i=0 'ا' xFromLeft=200.543333 w=4.97
+        i=1 'ب' xFromLeft=183.423333 w=17.12
+        i=2 '\t' xFromLeft=109.513333 w=73.91
+        i=3 '\t' xFromLeft=13.513333 w=96
+        i=4 'ج' xFromLeft=0 w=13.513333
+== [P-probe/probe-ar@w1000@RTL@i0@tab0] "اب\t\tج"   group=P-probe  indent=0 paraIndent=0 firstLine=True
+   line 0: [0,5) nl=1 trailWs=1 w=35.61 witw=35.61 ovf=False start=0 cause=end-of-text  "اب\t\tج"
+        i=0 'ا' xFromLeft=30.64 w=4.97
+        i=1 'ب' xFromLeft=13.52 w=17.12
+        i=2 '\t' xFromLeft=13.52 w=0
+        i=3 '\t' xFromLeft=13.516667 w=0
+        i=4 'ج' xFromLeft=0 w=13.513333

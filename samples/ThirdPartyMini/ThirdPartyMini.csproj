@@ -1,0 +1,69 @@
+<Project>
+  <!--
+    ============================================================================
+    ThirdPartyMini —— **第三方形态**的最小 WPF 应用（`#37` B：把"第三方能渲染"变成仓内判据）
+    ============================================================================
+
+    【它与 samples/ 下其它样本的差别（这些差别就是它存在的理由）】
+      · **只通过 `build/third-party/WpfLinux.props` 接自产栈** —— 不照抄样本的引用清单；
+        那份 props 就是发给第三方的接线配方（`docs/THIRD-PARTY-APPS.md` 的模板）。
+      · **不 import 仓内 `BuildHygiene.props`**（真实外部工程没有这份文件），改用
+        `<EnableDefaultCompileItems>false</EnableDefaultCompileItems>` 显式列清单
+        ⇒ 仓卫生册 `build/MilBridge/tools/build-hygiene-roster.tsv` 里声明为
+        `notneeded` ＋ 见证 `no-compile-glob`（**不许**靠删产物让它"变绿"）。
+      · 刻意覆盖第三方真会撞的三件事：**`WindowChrome`**（曾经 `SetWindowRgn` 返 0 ⇒ 必崩）、
+        **图片解码**（走 WIC shim）、**BAML**（XAML 编译链）。
+      · 它**不进 `wpf-linux.sln`**：它模拟的是"别人家的工程"，由自己的 runner 构建与运行。
+
+    【怎么用】见同目录 `README.md` 的"运行"一节（⚠️ 命令行里的双横线参数写在 XML 注释里是**非法**的
+              —— XML 注释不许含连续两个减号，MSB4025 会当场拒绝加载本工程；这条注释本身就是那次踩坑）。
+    ============================================================================
+  -->
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+
+  <!-- ⚠️ 必须在 props 之前给：`WpfLinux.props` 读 $(WpfLinuxRoot) 来拼自产件路径 -->
+  <PropertyGroup>
+    <WpfLinuxRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../..'))</WpfLinuxRoot>
+  </PropertyGroup>
+
+  <Import Project="$(WpfLinuxRoot)/build/third-party/WpfLinux.props" />
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <AssemblyName>ThirdPartyMini</AssemblyName>
+    <RootNamespace>ThirdPartyMini</RootNamespace>
+    <Nullable>disable</Nullable>
+    <NoWarn>$(NoWarn);CS0067;CS0169;CA1416</NoWarn>
+    <!-- 第三方形态：显式列清单，不用默认 glob（卫生册的见证谓词就是它） -->
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="App.xaml.cs" />
+    <Compile Include="MainWindow.xaml.cs" />
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Page Include="MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+
+  <!-- XAML 编译链（net10.0 下 SDK 不会自动导入它；关掉 UseWPF 后必须显式给，否则静默不产 BAML） -->
+  <PropertyGroup>
+    <_ThirdPartyWinFX>$(MSBuildSDKsPath)/Microsoft.NET.Sdk.WindowsDesktop/targets/Microsoft.WinFX.targets</_ThirdPartyWinFX>
+  </PropertyGroup>
+  <Import Project="$(_ThirdPartyWinFX)" Condition="Exists('$(_ThirdPartyWinFX)')" />
+  <Target Name="ThirdPartyMiniCheckMarkupChain" BeforeTargets="PrepareResources">
+    <Error Condition="!Exists('$(_ThirdPartyWinFX)')"
+           Text="找不到 WinFX targets：$(_ThirdPartyWinFX)（XAML 不会被编译）" />
+    <Error Condition="!Exists('$(_PresentationBuildTasksAssembly)')"
+           Text="找不到自产 PBT：$(_PresentationBuildTasksAssembly)（先跑 WAVE_OWNER=you bash build/integration-wave.sh）" />
+  </Target>
+</Project>

@@ -1,0 +1,60 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- ⭐ `D-R8`（工程卫生）：不依赖 `$(BaseIntermediateOutputPath)` 指向哪里的产物目录排除。
+       实现在仓根 `BuildHygiene.props`（全仓唯一一份；理由与两种被否决的落点见 `build/MilBridge/W21B-report.md` §2）。
+       **故意不加 `Exists()` 条件**：文件找不到要大声失败。 -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('BuildHygiene.props'))" />
+
+  <!--
+    M7d · **复合字体短路验收探针**（补丁 J + 追加 1）。
+
+    同一份程序在「PC 重建**前**」与「PC 重建**后**」各跑一次，输出即"短路前后调用序列对照"
+    的实测依据：前 = 全线抛 OSVersionHelper / NRE；后 = 验收 ①-④ + 追加 1 全绿。
+
+    引用形态照搬 ContractProbe/TextLineProto：HintPath + Private ——
+    **只读引用已构建的 PresentationCore.dll / DirectWriteForwarder.dll**，本工程不重建任何东西。
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>MilBridge.CompositeFontProbe</AssemblyName>
+    <RootNamespace>MilBridge.CompositeFontProbe</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <BaseOutputPath>$(MSBuildThisFileDirectory)bin\</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)obj\</BaseIntermediateOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="PresentationCore">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/PresentationCore.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationCore.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="WindowsBase">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/WindowsBase.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/WindowsBase.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <!-- DWF 骨架（FontFace/FontCollection 等，internal + IVT 给 PC）——S7 用**反射**走真上游链 -->
+    <Reference Include="DirectWriteForwarder">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/DirectWriteForwarder.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWriteForwarder.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <!-- provider 是**独立程序集**（DWF 与 PC 都通过 HintPath 引用它）——S7 的取证直接用它的公开 API -->
+    <Reference Include="DirectWrite.Linux.Provider">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/DirectWrite.Linux/Provider/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWrite.Linux.Provider.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.IO.Packaging" Version="9.0.0" />
+    <PackageReference Include="System.Formats.Nrbf" Version="9.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.0" />
+    <PackageReference Include="System.Windows.Extensions" Version="9.0.0" />
+    <!-- S7 的取证要比较 provider 的 SKTypeface 实例身份 -->
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.88.9" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,11 @@
+dlopen OK: /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/.artifacts/publish/MilBridge.Linux/release_linux-x64/wpfgfx_cor3.so
+dlsym MilFontFace_RegisterFromFile = 0x7cfda2b51210
+dlsym MilChannel_SetNotificationWindow = 0x7cfda2b50e10
+dlsym MilGlyphRun_GetGlyphOutline      = 0x7cfda2b51320
+MilBridge_Diag_SelfDirectory = /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/.artifacts/publish/MilBridge.Linux/release_linux-x64
+MilFontFace_RegisterFromFile("/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/fonts/NotoSans-Regular.ttf", 0, 0) = 0x20000001
+missing file  -> 0x0
+faceIndex=-1  -> 0x0
+faceIndex=999 -> 0x0
+NULL path     -> 0x0
+simFlags=1    -> 0x20000002

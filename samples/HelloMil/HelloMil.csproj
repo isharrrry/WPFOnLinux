@@ -1,0 +1,57 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- ⭐ `D-R8`（工程卫生）：不依赖 `$(BaseIntermediateOutputPath)` 指向哪里的产物目录排除。
+       实现在仓根 `BuildHygiene.props`（全仓唯一一份；理由与两种被否决的落点见 `build/MilBridge/W21B-report.md` §2）。
+       **故意不加 `Exists()` 条件**：文件找不到要大声失败。 -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('BuildHygiene.props'))" />
+
+  <!--
+    T9-A3 端到端 demo：HelloMil。
+
+    ★ 它不是 HelloWpf。
+      HelloMil 直接对着我们自己的 WpfGfx.Linux 原生 API（MilChannel 资源表 +
+      MilRenderData 指令流 + SkiaRenderBackend + X11PresentationTarget + Text/）
+      构造视觉树并渲染。它证明的是「我们的 Linux 渲染后端能从 API 调用一路通到
+      真实 X11 窗口的真实像素」。
+
+      它**不**依赖 WPF 运行时 —— 没有 UseWPF，没有 Microsoft.WindowsDesktop.App，
+      没有 PresentationFramework/PresentationCore/WindowsBase。让真正的 WPF 程序
+      在 Linux 上跑起来需要 WPF 托管层（约 118 万行 C#）跨平台，那是 M2/M3 的事
+      （见 docs/T9-roadmap.md 路线 A1/A2）。
+
+    为什么 AssemblyName 必须是 HelloMil：
+      src/WpfGfx.Linux 的契约层类型全是 internal，靠 Interop/AssemblyInfo.cs 里的
+      [InternalsVisibleTo("HelloMil")] 开友元。改名字就读不到 MilVisual / RenderContext。
+  -->
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>annotations</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AssemblyName>HelloMil</AssemblyName>
+    <RootNamespace>HelloMil</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <!-- 友元程序集是 internal 可见性的前提，签名不能省 -->
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- 版本与主工程严格一致：SkiaSharp 4.x 有 SKPaint.TextSize → SKFont 的破坏性变更 -->
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.88.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/WpfGfx.Linux/WpfGfx.Linux.csproj" />
+  </ItemGroup>
+
+  <!--
+    screenshot.png 是端到端的硬证据，同时也是 HelloMil.Tests 的断言对象（测试按
+    相对路径回到本目录读它）。它是**交付物**而不是构建产物，所以不进 artifacts。
+  -->
+  <ItemGroup>
+    <None Include="screenshot.png" CopyToOutputDirectory="Never" />
+  </ItemGroup>
+
+</Project>

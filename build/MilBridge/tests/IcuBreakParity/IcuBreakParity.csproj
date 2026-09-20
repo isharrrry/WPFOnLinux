@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- ⭐ `D-R8`（工程卫生）：不依赖 `$(BaseIntermediateOutputPath)` 指向哪里的产物目录排除。
+       实现在仓根 `BuildHygiene.props`（全仓唯一一份；理由与两种被否决的落点见 `build/MilBridge/W21B-report.md` §2）。
+       **故意不加 `Exists()` 条件**：文件找不到要大声失败。 -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('BuildHygiene.props'))" />
+
+  <!--
+    T1 · **ICU 对拍预检**（B2 开工前的便宜检查）：
+    把 U1 交付的 DWrite layout 真值（73 例，含 58 个 kinsoku-*）
+    喂给 ICU 70 的 ubrk（UAX#14 行断），逐例对拍"行划分 / 断点"。
+
+    ⭐ 2026-09-11（T1b）改：**规则实现搬进了 shim**（`build/shims/PresentationCore.HbTextLine.cs`
+      的 `HbBreakEngine`），本工程从此**只驱动那一份**（`TEXTLINE_BREAK_ENGINE_ONLY` 只编引擎、
+      不引用 PresentationCore）—— 目的就是消灭"探针一套规则、实现另一套规则"这个失败模式。
+
+    本工程**不引用 PresentationCore**：只读 oracle JSON + P/Invoke libicuuc.so.70 + libharfbuzz.so.0。
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>MilBridge.IcuBreakParity</AssemblyName>
+    <RootNamespace>MilBridge.IcuBreakParity</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <BaseOutputPath>$(MSBuildThisFileDirectory)bin\</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)obj\</BaseIntermediateOutputPath>
+    <!-- 真源路径（默认）；门禁期做开发可用 -p:HbShimSrc=... 临时指向 staging 副本 -->
+    <HbShimSrc Condition="'$(HbShimSrc)' == ''">$(MSBuildThisFileDirectory)../../../shims/PresentationCore.HbTextLine.cs</HbShimSrc>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);TEXTLINE_BREAK_ENGINE_ONLY</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- ⭐ 编**真 shim 源文件**里的断行引擎（不是副本）：规则只有一份 -->
+    <Compile Include="$(HbShimSrc)" Link="PresentationCore.HbTextLine.cs" />
+  </ItemGroup>
+
+</Project>

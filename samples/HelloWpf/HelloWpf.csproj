@@ -1,0 +1,402 @@
+<Project>
+  <!-- ⭐ `D-R8`（工程卫生）：不依赖 `$(BaseIntermediateOutputPath)` 指向哪里的产物目录排除。
+       实现在仓根 `BuildHygiene.props`（全仓唯一一份；理由与两种被否决的落点见 `build/MilBridge/W21B-report.md` §2）。
+       **故意不加 `Exists()` 条件**：文件找不到要大声失败。 -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('BuildHygiene.props'))" />
+  <!--
+    ============================================================================
+    HelloWpf —— T3：Linux 上「自产四件套程序集 + 自产标记编译器」编译 WPF 程序
+    ============================================================================
+
+    T1 版本用 net10.0-windows + EnableWindowsTargeting=true + UseWPF=true，引用的是 SDK 从
+    Microsoft.WindowsDesktop.App.Ref 拉来的 **Windows 官方引用程序集**（XAML→BAML 链路验证，
+    与官方 BAML 逐字节一致，见 docs/T0T1-report.md）。
+
+    T3 把它改成 **纯 net10.0**：
+      · TargetFramework = net10.0（去掉 net10.0-windows / EnableWindowsTargeting / UseWPF）；
+      · 引用 = 我们自产的四件套 + 依赖的兄弟程序集，全部 HintPath 指向
+        build/*.Linux/bin/Debug/（相对本文件推导，保持可搬迁）；
+      · XAML 编译链不变：仍由 build/PresentationBuildTasks.Linux（PBT，Release）执行
+        MarkupCompilePass1/2，并由 build/WpfMarkupCompile.Linux.targets 校验。
+
+    ============================================================================
+    为什么还要显式 <Import> 两处 targets（关掉 UseWPF 之后的取舍）
+    ============================================================================
+    ① Microsoft.WinFX.targets（SDK 里的 WPF 标记编译 targets）
+       关掉 UseWPF 后 SDK **不会**再导入它：Microsoft.NET.Sdk.targets:1467 只在
+       '$(TargetPlatformIdentifier)' == 'Windows'（或 .NETFramework）时才把
+       Microsoft.NET.Sdk.WindowsDesktop.targets 挂进 AfterMicrosoftNETSdkTargets；
+       而 net10.0 的 TargetPlatformIdentifier 为空。后果不是"少几个默认值"，而是
+       MarkupCompilePass1 / MarkupCompilePass2 / FileClassification / MainResourcesGeneration
+       这些 **target 整条消失** → XAML 不会被编译，而且构建会"成功"（静默不产出 BAML）。
+       所以这里显式导入 Microsoft.WinFX.targets —— 它自身零 Import、不依赖 WindowsDesktop
+       targets 的任何属性（已核对），只提供「调用任务的 targets 壳」；任务本体仍由
+       $(_PresentationBuildTasksAssembly) 指向的 **Linux 版 PBT** 提供。
+
+       注意：这里**不**导入 Microsoft.NET.Sdk.WindowsDesktop.props/targets 整套 ——
+       那会带进 FrameworkReference(Microsoft.WindowsDesktop.App.WPF)（UseWPF=true 时）与
+       NETSDK1106 警告等 Windows 专属语义。只取 WinFX.targets 这一个文件。
+
+    ② build/WpfMarkupCompile.Linux.targets（仓库自带的接管校验，T1 产物）
+       必须在 WinFX.targets 之后导入，用于"任务程序集不存在就报错而不是静默跳过"。
+
+    ============================================================================
+    Page / ApplicationDefinition 项为什么手写
+    ============================================================================
+    WPF 的默认 XAML 通配（App.xaml→ApplicationDefinition、**/*.xaml→Page + ItemDefinitionGroup
+    里的 Generator/XamlRuntime/SubType）定义在 Microsoft.NET.Sdk.WindowsDesktop.props，其条件
+    $(_EnableWindowsDesktopGlobbing) 要求 UseWPF=true。UseWPF=false 后不再有隐式项，因此下面
+    显式声明这两个项并补齐同样的元数据（%(XamlRuntime) 供 FileClassifier 分流 BAML，
+    %(Generator)/%(SubType) 供 VS 显示）。这也是把"哪些 XAML 参与编译"从 SDK 魔法变成显式清单。
+  -->
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <!-- ★ T3：纯 Linux 目标框架。不带 -windows，不再需要 EnableWindowsTargeting。 -->
+    <TargetFramework>net10.0</TargetFramework>
+    <!-- ★ T3：不走 SDK 的 Windows WPF 路径（关掉它 = 不引 Microsoft.WindowsDesktop.App.*） -->
+    <UseWPF>false</UseWPF>
+
+    <RootNamespace>HelloWpf</RootNamespace>
+    <AssemblyName>HelloWpf</AssemblyName>
+    <Nullable>disable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <NoWarn>$(NoWarn);CS0067;CS0169;CA1416</NoWarn>
+
+    <!-- 自产程序集根目录（相对本文件推导 → 整个仓库可搬迁）。
+         GetFullPath 会消掉路径里的 ".."，使这里的路径与 RAR 输出的 @(ReferencePath) 逐字符可比；
+         不归一化的话下面的解析断言会因为 ".../samples/HelloWpf/../../build/..." 这种形态而误报。 -->
+    <WpfLinuxBinDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../../build'))</WpfLinuxBinDir>
+    <!-- 自产程序集的构建配置目录名（四件套当前都产在 Debug 下） -->
+    <WpfLinuxSelfBuiltConfiguration Condition="'$(WpfLinuxSelfBuiltConfiguration)' == ''">Debug</WpfLinuxSelfBuiltConfiguration>
+  </PropertyGroup>
+
+  <!--
+    ============================================================================
+    ★ T3 核心：自产程序集引用（HintPath → build/*.Linux/bin/Debug/）
+    ============================================================================
+    四件套：WindowsBase / System.Xaml / PresentationCore / PresentationFramework
+    兄弟程序集（被上面四个的公开签名与运行期依赖用到，必须同目录同版本一起给）：
+      DirectWriteForwarder（PresentationCore 的 IVT 依赖）
+      UIAutomationTypes / UIAutomationProvider（PresentationCore/Framework 的自动化面）
+      System.Windows.Input.Manipulations（PresentationCore 的输入操作面）
+
+    ⚠ 已知坑（Directory.Upstream.props 已记录）：net10.0 基础类库里有一个**同名空门面**
+      Microsoft.NETCore.App.Ref/ref/net10.0/WindowsBase.dll（4.0.0.0）。引用若被它顶掉，
+      编译期会以 CS0234/CS0246 这种"完全不提引用"的形式失败。本仓库的处置是把自产程序集
+      统一抬到 **4.0.0.1**（> 4.0.0.0），让 ResolvePackageFileConflicts 的"版本高者胜"选中自产件。
+      本文件末尾有 HelloWpfAssertLocalWpfReferences 目标，在**编译前**断言解析结果，
+      不再依赖"看编译过没过"来推断（T1 的教训：引用被顶掉时编译错误信息具有误导性）。
+  -->
+  <!--
+    ============================================================================
+    M7c 补充轮 · 自产程序集引用：**保留 HintPath + 只为 Provider 加 ProjectReference**
+    ============================================================================
+    【先说结论：为什么没有全量改成 ProjectReference】
+      主控建议的"全部改成 `<ProjectReference>`"实测**走不通（当前状态下）**，两个独立的
+      外部阻塞，都不是本文件能解的：
+
+      ① `PresentationFramework` 当前**编译不过**（实测 6 条错误）：
+             $ dotnet build build/PresentationFramework.Linux/PresentationFramework.Linux.csproj
+             error CS0115: "ElementMarkupObject.AssignRootContext(IValueSerializerContext)":
+                            没有找到适合的方法来重写
+             error CS0534: "ElementMarkupObject" 不实现继承的抽象成员
+                            "MarkupObject.AssignRootContext(IValueSerializerContext)"
+             （同上还有 MarkupObjectWrapper / FrameworkElementFactoryMarkupObject）
+             全部在 PresentationFramework/System/Windows/Markup/Primitives/*.cs ——
+             看起来是 **System.Xaml ↔ PresentationFramework 的版本错位**
+             （基类 MarkupObject 新加了抽象成员，PF 侧还没跟上）。
+         而 ProjectReference 会**构建**被引用工程 ⇒ `dotnet build samples/HelloWpf`
+         连带编 PF 并失败（实测：0 警告 / **6 错误**，全部来自 PF）。
+         ⇒ 只保留了 PF 的 HintPath（消费已构建好的 PF.dll）。
+
+      ② 其余 8 个自产件改成 ProjectReference 之后，**BAML 标记编译这一步失败**：
+             Microsoft.WinFX.targets(211,9): error MC1000: Unknown build error,
+             'Could not find assembly 'System.Xaml, Version=4.0.0.1, Culture=neutral,
+              PublicKeyToken=31bf3856ad364e35'. …'
+         即 PBT（build/PresentationBuildTasks.Linux）在 BAML 解析时按**程序集身份**
+         找 System.Xaml，而换成 ProjectReference 后它拿不到那条解析路径
+         （HintPath+CopyLocal 时会落到中间目录里，PBT 找得到）。
+         这属于 PBT / WpfMarkupCompile.Linux.targets 的行为面（T1/T3 的产物），
+         不在本轮可写边界内，也不该由 sample 侧绕过。
+
+      ⇒ 所以按主控给的**退路**：保留 HintPath，只为**真正缺边的那一个**补直接依赖。
+        这条路实测能过，而且正好把 #2（`DirectWrite.Linux.Provider` 与它背后的
+        SkiaSharp 依赖图）修掉 —— 它是叶子工程、能干净构建、且不在 BAML 解析路径上。
+
+    【保留 HintPath 的代价（已登记到 docs/U2-M7c-report.md）】
+      · `deps.json` 里自产件的条目类型是 `"reference"` 而不是 `"project"`；
+      · 依赖图不传递 ⇒ 每个消费者都得自己补私有依赖（本文件就是这么补的 Provider）。
+      长期正解：`build/*.Linux` 整体切成 ProjectReference（或本地 NuGet 源 /
+      `Directory.Build.props` 统一引用清单），并在那之前先恢复 PF 的 0 错与 PBT 的身份解析。
+
+    【T3 的 3 个构建期自检全部保留、未关】
+      HelloWpfCheckMarkupChain / HelloWpfAssertLocalWpfReferences / HelloWpfAssertXamlCompiled
+      都还在跑（`HelloWpfAssertLocalWpfReferences` 的期望清单是**文件路径**，
+      与这里用哪种引用形态无关，所以换形态它照样生效）。
+    ============================================================================
+  -->
+  <ItemGroup>
+    <Reference Include="WindowsBase">
+      <HintPath>$(WpfLinuxBinDir)/WindowsBase.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/WindowsBase.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="System.Xaml">
+      <HintPath>$(WpfLinuxBinDir)/System.Xaml.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/System.Xaml.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="PresentationCore">
+      <HintPath>$(WpfLinuxBinDir)/PresentationCore.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationCore.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="PresentationFramework">
+      <HintPath>$(WpfLinuxBinDir)/PresentationFramework.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationFramework.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="DirectWriteForwarder">
+      <HintPath>$(WpfLinuxBinDir)/DirectWriteForwarder.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWriteForwarder.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="UIAutomationTypes">
+      <HintPath>$(WpfLinuxBinDir)/UIAutomationTypes.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/UIAutomationTypes.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="UIAutomationProvider">
+      <HintPath>$(WpfLinuxBinDir)/UIAutomationProvider.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/UIAutomationProvider.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="System.Windows.Input.Manipulations">
+      <HintPath>$(WpfLinuxBinDir)/System.Windows.Input.Manipulations.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/System.Windows.Input.Manipulations.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+
+    <!-- ★ 主题程序集（M2 最后一环）：WPF 的控件样式只存在于外部主题程序集
+         （`OtherAssemblyAttrs.cs` 声明 ThemeInfo(ExternalAssembly, None)）。我们的 IsThemeActive()=0
+         ⇒ 主题名解析为 "classic" ⇒ 运行期按名 Assembly.Load("PresentationFramework.classic, Version=<PF 版本>, PKT=<WPF 公钥>")
+         （SystemResources.LoadExternalAssembly + GetFullAssemblyNameFromPartialName）。
+         ⚠ 实测：**只把 DLL 拷进 app 目录是不够的** —— 默认 ALC 按 deps.json/TPA 解析，
+         不进 deps.json 就 FileNotFoundException（而这条例外在上游被 catch(FileNotFoundException) 静默吞掉，
+         表现为"窗口能出来但一片空白、Window.Template == null"）。所以必须在这条引用里声明它。 -->
+    <Reference Include="PresentationFramework.Classic">
+      <HintPath>$(WpfLinuxBinDir)/PresentationFramework.Classic.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationFramework.Classic.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+
+    <!--
+      ★ 本次唯一的形态改变：`DirectWrite.Linux.Provider` 用 **ProjectReference** 而不是 HintPath。
+      为什么是它、为什么是现在：
+        · 它是 M7c 第 4 轮实测缺的那条边（PresentationCore 的模块初始化器
+          `FontFaceBridge.Install()` 在 JIT 期 FileNotFoundException）；
+        · 它是**叶子工程**（不依赖别的自产件），能干净构建，也不会扰动 BAML 解析路径
+          （实测：加上它之后 `dotnet build samples/HelloWpf` 仍然 0 错 0 警，
+           三个构建期自检照常通过）；
+        · ProjectReference 让 MSBuild 走**项目依赖图** ⇒ 它自己的依赖
+          （SkiaSharp 及其原生 `libSkiaSharp.so` 的部署）会自动传递进 deps.json 与 bin ——
+          这正是主控要的"一并解决 libSkiaSharp.so 部署问题"。
+      【为什么不用 <Reference> 就够】HintPath 只带那一个文件：provider.dll 会被复制，
+        但它背后的 SkiaSharp 依赖图不会 —— 运行期迟早再撞一次同类 FileNotFoundException。
+    -->
+    <ProjectReference Include="$(WpfLinuxBinDir)/DirectWrite.Linux/Provider/DirectWrite.Linux.Provider.csproj" />
+  </ItemGroup>
+
+  <!--
+    ============================================================================
+    M7c Phase 2 · HelloWpf 的**运行期探针**（默认不编译，只在需要时打开）
+    ============================================================================
+    为什么需要它：Phase 2 实测到「窗口真的出来了（xwininfo 640x400 IsViewable、标题正确、
+    消息齐活），但截屏纯白、MIL 台账 DrawnCommands=0、视觉树 {子=0 内容=无}」。
+    这时唯一还剩的两种可能是：
+      (R1) `HwndSource.RootVisual` 从未被赋值 ⇒ 可视树根本没挂上去（上游问题）；
+      (R2) 可视树挂上了，但 WPF 的 render pass 从未被调度 ⇒ 树没被序列化成 MIL 命令。
+    这两者的修法完全不同，而**外部观测（截屏/退出码/消息台账/MIL 计数器）都区分不了**：
+    两种情况下窗口都是白的、命令数都不涨。
+
+    探针文件放在**本工程边界内**的测试目录
+    （tests/WpfGfx.Linux.Tests/Presentation.Tests/M7cProbe/HelloWpfProbe.cs），
+    用 `<Compile Include>` + `Link` 链进来 —— 这样既不动 samples/HelloWpf 下任何既有源文件，
+    又能在需要时精确回答上面那两个问题（`HwndSource.RootVisual` / `ContentRendered` /
+    `CompositionTarget.Rendering` 三条都是 public API）。
+
+    开关：默认 **关闭**（`WpfLinuxHelloProbe` 未定义时这一项根本不参与编译 → 验收路径零影响）。
+    打开方式：`dotnet build samples/HelloWpf -p:WpfLinuxHelloProbe=true`，
+    或直接设环境变量 `WPF_LINUX_HELLO_PROBE=1`（runner 会照传）。
+  -->
+  <ItemGroup Condition="'$(WpfLinuxHelloProbe)' == 'true'">
+    <Compile Include="$(MSBuildThisFileDirectory)../../tests/WpfGfx.Linux.Tests/Presentation.Tests/M7cProbe/HelloWpfProbe.cs">
+      <Link>M7cProbe/HelloWpfProbe.cs</Link>
+    </Compile>
+  </ItemGroup>
+
+  <!--
+    ============================================================================
+    ⚠️ M7c 补充轮实测：本工程当前**构建不过**，但原因与本文件的引用形态无关
+    ============================================================================
+    现象（稳定复现，与引用怎么配无关）：
+        Microsoft.WinFX.targets(211,9): error MC1000: Could not find assembly
+        'System.Xaml, Version=4.0.0.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35'
+    **对照实验**：把本文件的 Provider 那一行整个删掉（即回到 15:47 那个
+    "构建 0 错 0 警"的原始引用集），MC1000 照样出现 ⇒ 外部状态变了，不是我改坏的。
+
+    根因（字节级实测）：树里存在**两个身份不同的 System.Xaml.dll**
+        build/System.Xaml.Linux/bin/Debug/System.Xaml.dll        654,336 B  未签名 ← HintPath 指向它
+        build/PresentationFramework.Linux/bin/Debug/System.Xaml.dll 701,440 B  已签名 ← 下游目录里的旧副本
+        build/ReachFramework.Linux/bin/Debug/System.Xaml.dll     701,440 B  已签名
+        build/System.Printing.Linux/bin/Debug/System.Xaml.dll    701,440 B  已签名
+        samples/HelloWpf/bin/Debug/net10.0/System.Xaml.dll       701,440 B  已签名 ← ★ 实际躺在这里的
+      （判据：强命名/公开签名的程序集，其 Assembly 表的公钥 blob 会以 Microsoft 公钥前缀
+        出现在 #Blob 堆里；AssemblyRef 只存 token，所以"完整公钥出现"= 该程序集自身带公钥。）
+    ⇒ 编译引用的是**未签名**那一份，而 RAR 的"同目录依赖解析"把 PresentationFramework
+      输出目录里**已签名**的旧副本复制进了 bin；PBT 解析 BAML 时按已签名身份去找，
+      引用清单里只有未签名那份 ⇒ MC1000。
+
+    同一根因还解释了 T2 实测的 `FileLoadException 0x80131040`（身份类故障的另一面），
+    以及"PC/PF 至今从未被真正运行过"。**修复必须在 build/ 侧**（本文件无能为力）：
+      ① 让自产件的签名状态**统一**——实测当前 WindowsBase / System.Xaml /
+         UIAutomationTypes / UIAutomationProvider **未签名**，而 PresentationCore /
+         PresentationFramework / DirectWriteForwarder **已 PublicSign**（WcpPublicKey.snk）；
+      ② 清掉下游输出目录里的**陈旧副本**（PF / ReachFramework / System.Printing 的 bin 里
+         那三份 701,440 B 的旧 System.Xaml.dll），并重建，让全树只有一份身份。
+    已按主控要求"必须先报告、不要动手"登记在 docs/U2-M7c-report.md 的缺口 #0。
+    ============================================================================
+  -->
+
+  <!--
+    运行期依赖补齐（T3 实测发现，见报告 §5.4）：
+    官方 WPF 里这些 **OOB BCL 包**由 Microsoft.WindowsDesktop.App 共享框架提供，
+    我们的纯 Linux 组合（自产件 + Microsoft.NETCore.App）里没有 → 运行期
+    FileNotFoundException。清单不是猜的：由自产 PresentationFramework / PresentationCore /
+    WindowsBase / System.Xaml / ReachFramework / System.Printing / PresentationUI 的
+    AssemblyRef 全量扫描得到（凡简单名不在 Microsoft.NETCore.App/10.0.11 里的即列出），
+    版本一律 9.0.0 = 与 AssemblyRef 的 9.0.0.0 精确对齐。全部可在本机 NuGet 缓存离线还原。
+  -->
+  <ItemGroup>
+    <PackageReference Include="System.IO.Packaging" Version="9.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.0" />
+    <PackageReference Include="System.Diagnostics.EventLog" Version="9.0.0" />
+    <PackageReference Include="System.Formats.Nrbf" Version="9.0.0" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="9.0.0" />
+    <PackageReference Include="System.Security.Permissions" Version="9.0.0" />
+    <!-- ── `#36` 波：官方包的**运行期**换成 Linux 原生替身 ─────────────────────────────
+        官方包在非 Windows 上把 `XamlAccessLevel`/`SoundPlayer` 等实现成**必抛**桩（只有 `runtimes/win` 是真的）
+        ⇒ 任何生成 `GeneratedInternalTypeHelper` 的程序集一装 BAML 就崩（实测：第三方应用 HandyControl）。
+        这里**整条换掉**官方包引用，改用 `build/System.Windows.Extensions.Linux/`：同名程序集、
+        `AssemblyVersion=9.0.0.0`（与 deps.json 对齐）、**不抛**实现。 -->
+    <PackageReference Include="System.Windows.Extensions" Version="9.0.0" ExcludeAssets="compile;runtime" />
+    <Reference Include="System.Windows.Extensions">
+      <HintPath>$(MSBuildThisFileDirectory)../../build/System.Windows.Extensions.Linux/bin/$(Configuration)/System.Windows.Extensions.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+
+
+  </ItemGroup>
+
+  <!--
+    XAML 输入（显式声明，替代 UseWPF=true 时的 SDK 通配；元数据与 SDK 的
+    ItemDefinitionGroup 保持一致：Generator=MSBuild:Compile / XamlRuntime=Wpf / SubType=Designer）。
+    ApplicationDefinition 全局只允许一个（WPF 约定），App.xaml 里用 StartupUri 拉起 MainWindow。
+  -->
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Page Include="MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <!-- 这两个文件已作为 XAML 编译输入，不再以 None 身份重复出现在工程里 -->
+    <None Remove="App.xaml;MainWindow.xaml" />
+  </ItemGroup>
+
+  <!--
+    ★ T3 核心：把 XAML 标记编译器换成我们在 Linux 上从上游源码编译出的版本。
+      必须在 Microsoft.WinFX.targets 被导入之前设置：WinFX.targets 里的定义带
+      Condition="'$(_PresentationBuildTasksAssembly)'==''"（先设值者胜）。
+  -->
+  <PropertyGroup>
+    <PbtLinuxDir>$(MSBuildThisFileDirectory)../../build/PresentationBuildTasks.Linux/</PbtLinuxDir>
+    <PbtLinuxConfiguration Condition="'$(PbtLinuxConfiguration)' == ''">Release</PbtLinuxConfiguration>
+    <_PresentationBuildTasksAssembly>$([System.IO.Path]::GetFullPath('$(PbtLinuxDir)bin/$(PbtLinuxConfiguration)/net10.0/PresentationBuildTasks.dll'))</_PresentationBuildTasksAssembly>
+    <!-- 标记编译链的默认值（关掉 UseWPF 后 WindowsDesktop.targets 不会再提供它们） -->
+    <DefaultXamlRuntime Condition="'$(DefaultXamlRuntime)' == ''">Wpf</DefaultXamlRuntime>
+  </PropertyGroup>
+
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+
+  <!--
+    ① 显式导入 SDK 的 WPF 标记编译 targets（net10.0 下 SDK 不会自动导入它，见文件头注释）。
+       路径用 $(MSBuildSDKsPath)（= <sdk>/Sdks）推导，不写死版本号。
+  -->
+  <PropertyGroup>
+    <_HelloWpfWinFXTargets>$(MSBuildSDKsPath)/Microsoft.NET.Sdk.WindowsDesktop/targets/Microsoft.WinFX.targets</_HelloWpfWinFXTargets>
+  </PropertyGroup>
+  <Import Project="$(_HelloWpfWinFXTargets)" Condition="Exists('$(_HelloWpfWinFXTargets)')" />
+  <PropertyGroup>
+    <_HelloWpfWinFXImported Condition="Exists('$(_HelloWpfWinFXTargets)')">true</_HelloWpfWinFXImported>
+  </PropertyGroup>
+
+  <!--
+    ② 接管校验 + XAML 产出断言 + 引用解析断言。
+       这三件事都放在"构建期自检"里，而不是只写在文档里：
+         · 链没接上  → 报错（否则就是静默不产出 BAML，构建却"成功"）；
+         · 引用被框架门面顶掉 → 在 ResolveAssemblyReferences 之后立刻报错（文件存在但没解析到）；
+         · XAML 没产出 BAML → 在 MainResourcesGeneration 之后报错。
+  -->
+  <Target Name="HelloWpfCheckMarkupChain" BeforeTargets="PrepareResources">
+    <Error Condition="'$(_HelloWpfWinFXImported)' != 'true'"
+           Text="找不到 SDK 的 WPF 标记编译 targets：$(_HelloWpfWinFXTargets)。关掉 UseWPF 后 net10.0 不再自动导入它，必须以显式 Import 提供，否则 XAML 不会被编译。" />
+    <Message Importance="high" Text="XAML 标记编译链：WinFX.targets=$(_HelloWpfWinFXTargets)" />
+    <Message Importance="high" Text="XAML 标记编译链：PBT=$(_PresentationBuildTasksAssembly)" />
+  </Target>
+
+  <!--
+    引用解析断言：对**存在的**自产程序集，要求它出现在 RAR 解析出的 @(ReferencePath) 里。
+    存在的自产件没被解析到 = 被 net10.0 的同名框架门面（WindowsBase 4.0.0.0）顶掉了，
+    这是静默丢引用、只在别处冒 CS0234/CS0246 的坑，必须在这里就抓住。
+  -->
+  <ItemGroup>
+    <_HelloWpfExpectedLocalRef Include="$(WpfLinuxBinDir)/WindowsBase.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/WindowsBase.dll" Condition="Exists('$(WpfLinuxBinDir)/WindowsBase.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/WindowsBase.dll')" />
+    <_HelloWpfExpectedLocalRef Include="$(WpfLinuxBinDir)/System.Xaml.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/System.Xaml.dll" Condition="Exists('$(WpfLinuxBinDir)/System.Xaml.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/System.Xaml.dll')" />
+    <_HelloWpfExpectedLocalRef Include="$(WpfLinuxBinDir)/PresentationCore.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationCore.dll" Condition="Exists('$(WpfLinuxBinDir)/PresentationCore.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationCore.dll')" />
+    <_HelloWpfExpectedLocalRef Include="$(WpfLinuxBinDir)/PresentationFramework.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationFramework.dll" Condition="Exists('$(WpfLinuxBinDir)/PresentationFramework.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationFramework.dll')" />
+    <_HelloWpfExpectedLocalRef Include="$(WpfLinuxBinDir)/DirectWriteForwarder.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWriteForwarder.dll" Condition="Exists('$(WpfLinuxBinDir)/DirectWriteForwarder.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWriteForwarder.dll')" />
+    <_HelloWpfExpectedLocalRef Include="$(WpfLinuxBinDir)/UIAutomationTypes.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/UIAutomationTypes.dll" Condition="Exists('$(WpfLinuxBinDir)/UIAutomationTypes.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/UIAutomationTypes.dll')" />
+    <_HelloWpfExpectedLocalRef Include="$(WpfLinuxBinDir)/UIAutomationProvider.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/UIAutomationProvider.dll" Condition="Exists('$(WpfLinuxBinDir)/UIAutomationProvider.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/UIAutomationProvider.dll')" />
+    <_HelloWpfExpectedLocalRef Include="$(WpfLinuxBinDir)/System.Windows.Input.Manipulations.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/System.Windows.Input.Manipulations.dll" Condition="Exists('$(WpfLinuxBinDir)/System.Windows.Input.Manipulations.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/System.Windows.Input.Manipulations.dll')" />
+  </ItemGroup>
+
+  <Target Name="HelloWpfAssertLocalWpfReferences"
+          AfterTargets="ResolveAssemblyReferences"
+          Condition="'$(HelloWpfAssertLocalWpfReferences)' != 'false'">
+    <PropertyGroup>
+      <_HelloWpfResolvedRefPaths>;@(ReferencePath);</_HelloWpfResolvedRefPaths>
+    </PropertyGroup>
+    <Error Condition="!$([System.String]::Copy('$(_HelloWpfResolvedRefPaths)').Contains(';%(_HelloWpfExpectedLocalRef.Identity);'))"
+           Text="自产程序集存在但未被解析进本次编译（很可能被 net10.0 的同名框架门面顶掉了）：%(_HelloWpfExpectedLocalRef.Identity)" />
+    <Message Importance="high"
+             Text="已确认解析到自产程序集：@(_HelloWpfExpectedLocalRef)" />
+  </Target>
+
+  <!-- XAML → BAML 产出断言（BAML 是 T1/T3 的验收物，缺了必须在这里失败而不是悄悄过） -->
+  <Target Name="HelloWpfAssertXamlCompiled"
+          AfterTargets="MainResourcesGeneration"
+          Condition="'$(HelloWpfAssertXamlCompiled)' != 'false'">
+    <ItemGroup>
+      <_HelloWpfExpectedBaml Include="@(Page->'$(IntermediateOutputPath)%(Filename).baml')" />
+      <_HelloWpfExpectedBaml Include="@(ApplicationDefinition->'$(IntermediateOutputPath)%(Filename).baml')" />
+    </ItemGroup>
+    <Error Condition="'@(_HelloWpfExpectedBaml)' == ''"
+           Text="工程里没有任何 XAML 输入项（Page/ApplicationDefinition）——XAML 编译链没接上。" />
+    <Error Condition="!Exists('%(_HelloWpfExpectedBaml.Identity)')"
+           Text="XAML 未编译成 BAML：%(_HelloWpfExpectedBaml.Identity)（检查 PBT 与 WinFX.targets 是否生效）" />
+    <Message Importance="high"
+             Text="已产出 BAML：@(_HelloWpfExpectedBaml)" />
+  </Target>
+
+  <!-- 仓库自带的接管校验（T1 产物）：任务程序集不存在就报错，并打印实际使用的 PBT 路径 -->
+  <Import Project="$(MSBuildThisFileDirectory)../../build/WpfMarkupCompile.Linux.targets" />
+</Project>

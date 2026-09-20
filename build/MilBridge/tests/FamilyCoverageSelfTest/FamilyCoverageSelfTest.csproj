@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- ⭐ `D-R8`（工程卫生）：不依赖 `$(BaseIntermediateOutputPath)` 指向哪里的产物目录排除。
+       实现在仓根 `BuildHygiene.props`（全仓唯一一份；理由与两种被否决的落点见 `build/MilBridge/W21B-report.md` §2）。
+       **故意不加 `Exists()` 条件**：文件找不到要大声失败。 -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('BuildHygiene.props'))" />
+
+  <!--
+    T1c · **覆盖查询自检**的探针（主控 2026-09-11 批准常设）。
+
+    它只做两件事，两档各跑一次（命令行与原始输出见 `build/MilBridge/T1c-report.md` §9）：
+      缺省档：证明"**缺省下逐字节不改变行为**" —— `Run()` 不输出、不查询（`FamilyCoverageQuery.Stats.Queries` 不变）；
+      打开档：`WPF_LINUX_COVERAGE_SELFTEST=1` ⇒ 把 provider 面与**直读 cmap**（独立第二实现）两条链并排打出来。
+
+    引用形态照搬 CompositeFontProbe：HintPath + Private，**只读引用已构建的 provider**，本工程不重建任何东西。
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>MilBridge.FamilyCoverageSelfTest</AssemblyName>
+    <RootNamespace>MilBridge.T1cCoverageSelfTestProbe</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <BaseOutputPath>$(MSBuildThisFileDirectory)bin\</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)obj\</BaseIntermediateOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="DirectWrite.Linux.Provider">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/DirectWrite.Linux/Provider/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWrite.Linux.Provider.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.88.9" />
+  </ItemGroup>
+
+</Project>

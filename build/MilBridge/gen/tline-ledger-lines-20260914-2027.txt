@@ -1,0 +1,13 @@
+# T1b · **行级**记账不一致清单（用例 | 行号 | 期望 | 实得 | 归类桶）
+# 被测 shim 源 sha256（本 harness 直接编入） = 3081D088CDA0431CFEF20988073C47258E72ADC3A1A51DF9E23FAA8D4FF126D8
+# PC 内 shim sha256                         = unknown(ARTIFACT-SRC-FP.txt 只有汇总行 fp=/n=，**无逐文件行** ⇒ 取不到，不猜)
+# hbtextline_shim_stale                     = true   （口径=源 mtime 1789388836 vs PC 产物 mtime 1789386681（basis=auth，与 run-wpfprobe.sh 的 hbt_stale() 同谓词）；**mtime 谓词、非内容比对** ⇒ 同内容重写会假阳（已登记为已知仪器局限；内容比对需要 PC 侧逐文件 sha，当前不可得））
+# 仪器 = run.sh 3E513E88A4FA4EC9 / Program.cs 0D45032B20CFBFEE   pc=4F2E621A4AD26CD0   applocal=4/4 一致
+# 测量对象（app-local 副本，应与权威一致）： PC=4F2E621A4AD26CD0 WB=E6216FE961A2BFB9 DWF=2F77DBDF5E7E2CD5 Provider=71BA86C6495347FE
+# 条数 = 6（**无上限，未截断**）
+M_modifier_w80 | 行#0 | 期望 Len=50 nl=0 ws=1 | 实得 Len=6 nl=0 ws=1 | 桶=行区间长度(Length)
+M_modifier_w80 | 行#1 | 期望 Len=13 nl=1 ws=1 | 实得 Len=6 nl=0 ws=1 | 桶=硬断计数(nl)
+M_modifier_w120 | 行#0 | 期望 Len=56 nl=0 ws=1 | 实得 Len=12 nl=0 ws=1 | 桶=行区间长度(Length)
+M_modifier_w120 | 行#1 | 期望 Len=7 nl=1 ws=1 | 实得 Len=14 nl=0 ws=1 | 桶=硬断计数(nl)
+M_modifier_w200 | 行#0 | 期望 Len=63 nl=1 ws=1 | 实得 Len=26 nl=0 ws=1 | 桶=硬断计数(nl)
+M_modifier_w320 | 行#0 | 期望 Len=63 nl=1 ws=1 | 实得 Len=44 nl=0 ws=1 | 桶=硬断计数(nl)

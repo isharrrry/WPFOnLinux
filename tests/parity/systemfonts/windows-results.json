@@ -1,0 +1,2719 @@
+{
+  "format": "wpf-linux-u1a-systemfonts/1",
+  "generatedAtUtc": "2026-09-11T08:20:01.3306253Z",
+  "sabotage": false,
+  "sabotageNote": "normal run",
+  "environment": {
+    "machineName": "BILINTU",
+    "osVersion": "Microsoft Windows NT 10.0.22631.0",
+    "is64BitProcess": true,
+    "sessionId": 0,
+    "userInteractive": false,
+    "frameworkDescription": ".NET 10.0.7",
+    "presentationCoreFileVersion": "10.0.726.21808",
+    "presentationCoreSha256": "964dbdf3bbb5b7e8606d40bd7c78727c46f9fbe3b5a0ff34aebb18706f3eaa50",
+    "wpfgfxCor3FileVersion": "10,0,726,21808 @Commit: b16286c2284fecf303dbc12a0bb152476d662e44",
+    "wpfgfxCor3Sha256": "f4f7a44a3480c0b7b2d5a603cb7d0c41d9ae9b2633a8b30eb59f66a2697045f3",
+    "windowsFontsDirectory": "C:\\Windows\\Fonts",
+    "userCulture": "zh-CN",
+    "systemCulture": "zh-CN"
+  },
+  "systemFonts": [
+    {
+      "property": "IconFontSize",
+      "type": "Double",
+      "value": 12
+    },
+    {
+      "property": "IconFontFamily",
+      "type": "FontFamily",
+      "source": "Microsoft YaHei UI",
+      "reportedSource": "Microsoft YaHei UI",
+      "familyNames": {
+        "en-us": "Microsoft YaHei UI",
+        "zh-cn": "Microsoft YaHei UI"
+      },
+      "typefaces": [
+        {
+          "weight": 290,
+          "style": "Normal",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYHL.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 29816,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI Light",
+            "zh-CN": "Microsoft YaHei UI Light"
+          },
+          "faceNames": {
+            "en-US": "Light",
+            "zh-CN": "Light"
+          },
+          "win32FaceNames": {
+            "en-US": "Regular",
+            "zh-CN": "Regular"
+          },
+          "versionStrings": ["en-US=Version 6.24", "zh-CN=Version 6.24"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYHL.TTC",
+          "sha256": "f25f39a6d56ec6d1b356254dd776219d71b7e6f3584b3ec1b83aab0ceb08881a"
+        },
+        {
+          "weight": 400,
+          "style": "Normal",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYH.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 30202,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "faceNames": {
+            "ca-ES": "Normal",
+            "cs-CZ": "obyčejné",
+            "da-DK": "Normal",
+            "de-DE": "Standard",
+            "el-GR": "Κανονικά",
+            "en-US": "Regular",
+            "es-ES": "Normal",
+            "es-MX": "Normal",
+            "eu-ES": "Arrunta",
+            "fi-FI": "Normaali",
+            "fr-CA": "Normal",
+            "fr-FR": "Normal",
+            "hu-HU": "Normál",
+            "it-IT": "Normale",
+            "nb-NO": "Normal",
+            "nl-NL": "Standaard",
+            "pl-PL": "Normalny",
+            "pt-BR": "Normal",
+            "pt-PT": "Normal",
+            "ru-RU": "Обычный",
+            "sk-SK": "Normálne",
+            "sl-SI": "Navadno",
+            "sv-SE": "Normal",
+            "tr-TR": "Normal",
+            "zh-CN": "Regular"
+          },
+          "win32FaceNames": {
+            "ca-ES": "Normal",
+            "cs-CZ": "obyčejné",
+            "da-DK": "Normal",
+            "de-DE": "Standard",
+            "el-GR": "Κανονικά",
+            "en-US": "Regular",
+            "es-ES": "Normal",
+            "es-MX": "Normal",
+            "eu-ES": "Arrunta",
+            "fi-FI": "Normaali",
+            "fr-CA": "Normal",
+            "fr-FR": "Normal",
+            "hu-HU": "Normál",
+            "it-IT": "Normale",
+            "nb-NO": "Normal",
+            "nl-NL": "Standaard",
+            "pl-PL": "Normalny",
+            "pt-BR": "Normal",
+            "pt-PT": "Normal",
+            "ru-RU": "Обычный",
+            "sk-SK": "Normálne",
+            "sl-SI": "Navadno",
+            "sv-SE": "Normal",
+            "tr-TR": "Normal",
+            "zh-CN": "Regular"
+          },
+          "versionStrings": ["en-US=Version 6.30", "zh-CN=Version 6.30"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYH.TTC",
+          "sha256": "3084f1f88369af6bf9989c909024164d953d1e38d08734f05f28ef24b2f9d577"
+        },
+        {
+          "weight": 700,
+          "style": "Normal",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYHBD.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 29949,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "faceNames": {
+            "ca-ES": "Negreta",
+            "cs-CZ": "tučné",
+            "da-DK": "fed",
+            "de-DE": "Fett",
+            "el-GR": "Έντονα",
+            "en-US": "Bold",
+            "es-ES": "Negrita",
+            "es-MX": "Negrita",
+            "eu-ES": "Lodia",
+            "fi-FI": "Lihavoitu",
+            "fr-CA": "Gras",
+            "fr-FR": "Gras",
+            "hu-HU": "Félkövér",
+            "it-IT": "Grassetto",
+            "nb-NO": "Halvfet",
+            "nl-NL": "Vet",
+            "pl-PL": "Pogrubiony",
+            "pt-BR": "Negrito",
+            "pt-PT": "Negrito",
+            "ru-RU": "Полужирный",
+            "sk-SK": "Tučné",
+            "sl-SI": "Krepko",
+            "sv-SE": "Fet",
+            "tr-TR": "Kalın",
+            "zh-CN": "Bold"
+          },
+          "win32FaceNames": {
+            "ca-ES": "Negreta",
+            "cs-CZ": "tučné",
+            "da-DK": "fed",
+            "de-DE": "Fett",
+            "el-GR": "Έντονα",
+            "en-US": "Bold",
+            "es-ES": "Negrita",
+            "es-MX": "Negrita",
+            "eu-ES": "Lodia",
+            "fi-FI": "Lihavoitu",
+            "fr-CA": "Gras",
+            "fr-FR": "Gras",
+            "hu-HU": "Félkövér",
+            "it-IT": "Grassetto",
+            "nb-NO": "Halvfet",
+            "nl-NL": "Vet",
+            "pl-PL": "Pogrubiony",
+            "pt-BR": "Negrito",
+            "pt-PT": "Negrito",
+            "ru-RU": "Полужирный",
+            "sk-SK": "Tučné",
+            "sl-SI": "Krepko",
+            "sv-SE": "Fet",
+            "tr-TR": "Kalın",
+            "zh-CN": "Bold"
+          },
+          "versionStrings": ["en-US=Version 6.30", "zh-CN=Version 6.30"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYHBD.TTC",
+          "sha256": "519309b7ab0479c4dc3ace5e291de5a8702175be5586e165bc810267bd4619a5"
+        },
+        {
+          "weight": 290,
+          "style": "Oblique",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYHL.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 29816,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI Light",
+            "zh-CN": "Microsoft YaHei UI Light"
+          },
+          "faceNames": {
+            "en-US": "Light",
+            "zh-CN": "Light"
+          },
+          "win32FaceNames": {
+            "en-US": "Regular",
+            "zh-CN": "Regular"
+          },
+          "versionStrings": ["en-US=Version 6.24", "zh-CN=Version 6.24"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYHL.TTC",
+          "sha256": "f25f39a6d56ec6d1b356254dd776219d71b7e6f3584b3ec1b83aab0ceb08881a"
+        },
+        {
+          "weight": 400,
+          "style": "Oblique",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYH.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 30202,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "faceNames": {
+            "ca-ES": "Normal",
+            "cs-CZ": "obyčejné",
+            "da-DK": "Normal",
+            "de-DE": "Standard",
+            "el-GR": "Κανονικά",
+            "en-US": "Regular",
+            "es-ES": "Normal",
+            "es-MX": "Normal",
+            "eu-ES": "Arrunta",
+            "fi-FI": "Normaali",
+            "fr-CA": "Normal",
+            "fr-FR": "Normal",
+            "hu-HU": "Normál",
+            "it-IT": "Normale",
+            "nb-NO": "Normal",
+            "nl-NL": "Standaard",
+            "pl-PL": "Normalny",
+            "pt-BR": "Normal",
+            "pt-PT": "Normal",
+            "ru-RU": "Обычный",
+            "sk-SK": "Normálne",
+            "sl-SI": "Navadno",
+            "sv-SE": "Normal",
+            "tr-TR": "Normal",
+            "zh-CN": "Regular"
+          },
+          "win32FaceNames": {
+            "ca-ES": "Normal",
+            "cs-CZ": "obyčejné",
+            "da-DK": "Normal",
+            "de-DE": "Standard",
+            "el-GR": "Κανονικά",
+            "en-US": "Regular",
+            "es-ES": "Normal",
+            "es-MX": "Normal",
+            "eu-ES": "Arrunta",
+            "fi-FI": "Normaali",
+            "fr-CA": "Normal",
+            "fr-FR": "Normal",
+            "hu-HU": "Normál",
+            "it-IT": "Normale",
+            "nb-NO": "Normal",
+            "nl-NL": "Standaard",
+            "pl-PL": "Normalny",
+            "pt-BR": "Normal",
+            "pt-PT": "Normal",
+            "ru-RU": "Обычный",
+            "sk-SK": "Normálne",
+            "sl-SI": "Navadno",
+            "sv-SE": "Normal",
+            "tr-TR": "Normal",
+            "zh-CN": "Regular"
+          },
+          "versionStrings": ["en-US=Version 6.30", "zh-CN=Version 6.30"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYH.TTC",
+          "sha256": "3084f1f88369af6bf9989c909024164d953d1e38d08734f05f28ef24b2f9d577"
+        },
+        {
+          "weight": 700,
+          "style": "Oblique",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYHBD.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 29949,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "faceNames": {
+            "ca-ES": "Negreta",
+            "cs-CZ": "tučné",
+            "da-DK": "fed",
+            "de-DE": "Fett",
+            "el-GR": "Έντονα",
+            "en-US": "Bold",
+            "es-ES": "Negrita",
+            "es-MX": "Negrita",
+            "eu-ES": "Lodia",
+            "fi-FI": "Lihavoitu",
+            "fr-CA": "Gras",
+            "fr-FR": "Gras",
+            "hu-HU": "Félkövér",
+            "it-IT": "Grassetto",
+            "nb-NO": "Halvfet",
+            "nl-NL": "Vet",
+            "pl-PL": "Pogrubiony",
+            "pt-BR": "Negrito",
+            "pt-PT": "Negrito",
+            "ru-RU": "Полужирный",
+            "sk-SK": "Tučné",
+            "sl-SI": "Krepko",
+            "sv-SE": "Fet",
+            "tr-TR": "Kalın",
+            "zh-CN": "Bold"
+          },
+          "win32FaceNames": {
+            "ca-ES": "Negreta",
+            "cs-CZ": "tučné",
+            "da-DK": "fed",
+            "de-DE": "Fett",
+            "el-GR": "Έντονα",
+            "en-US": "Bold",
+            "es-ES": "Negrita",
+            "es-MX": "Negrita",
+            "eu-ES": "Lodia",
+            "fi-FI": "Lihavoitu",
+            "fr-CA": "Gras",
+            "fr-FR": "Gras",
+            "hu-HU": "Félkövér",
+            "it-IT": "Grassetto",
+            "nb-NO": "Halvfet",
+            "nl-NL": "Vet",
+            "pl-PL": "Pogrubiony",
+            "pt-BR": "Negrito",
+            "pt-PT": "Negrito",
+            "ru-RU": "Полужирный",
+            "sk-SK": "Tučné",
+            "sl-SI": "Krepko",
+            "sv-SE": "Fet",
+            "tr-TR": "Kalın",
+            "zh-CN": "Bold"
+          },
+          "versionStrings": ["en-US=Version 6.30", "zh-CN=Version 6.30"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYHBD.TTC",
+          "sha256": "519309b7ab0479c4dc3ace5e291de5a8702175be5586e165bc810267bd4619a5"
+        }
+      ],
+      "resolvedFiles": ["C:\\WINDOWS\\FONTS\\MSYHL.TTC", "C:\\WINDOWS\\FONTS\\MSYH.TTC", "C:\\WINDOWS\\FONTS\\MSYHBD.TTC"],
+      "baseUri": null,
+      "nameMatchesFileFamilyName": "yes",
+      "sabotaged": false
+    },
+    {
+      "property": "IconFontStyle",
+      "type": "FontStyle",
+      "value": "Normal"
+    },
+    {
+      "property": "IconFontWeight",
+      "type": "FontWeight",
+      "openTypeWeight": 400
+    },
+    {
+      "property": "IconFontTextDecorations",
+      "type": "TextDecorationCollection",
+      "value": "count=0"
+    },
+    {
+      "property": "CaptionFontSize",
+      "type": "Double",
+      "value": 12
+    },
+    {
+      "property": "CaptionFontFamily",
+      "type": "FontFamily",
+      "source": "Microsoft YaHei UI",
+      "reportedSource": "Microsoft YaHei UI",
+      "familyNames": {
+        "en-us": "Microsoft YaHei UI",
+        "zh-cn": "Microsoft YaHei UI"
+      },
+      "typefaces": [
+        {
+          "weight": 290,
+          "style": "Normal",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYHL.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 29816,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI Light",
+            "zh-CN": "Microsoft YaHei UI Light"
+          },
+          "faceNames": {
+            "en-US": "Light",
+            "zh-CN": "Light"
+          },
+          "win32FaceNames": {
+            "en-US": "Regular",
+            "zh-CN": "Regular"
+          },
+          "versionStrings": ["en-US=Version 6.24", "zh-CN=Version 6.24"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYHL.TTC",
+          "sha256": "f25f39a6d56ec6d1b356254dd776219d71b7e6f3584b3ec1b83aab0ceb08881a"
+        },
+        {
+          "weight": 400,
+          "style": "Normal",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYH.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 30202,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "faceNames": {
+            "ca-ES": "Normal",
+            "cs-CZ": "obyčejné",
+            "da-DK": "Normal",
+            "de-DE": "Standard",
+            "el-GR": "Κανονικά",
+            "en-US": "Regular",
+            "es-ES": "Normal",
+            "es-MX": "Normal",
+            "eu-ES": "Arrunta",
+            "fi-FI": "Normaali",
+            "fr-CA": "Normal",
+            "fr-FR": "Normal",
+            "hu-HU": "Normál",
+            "it-IT": "Normale",
+            "nb-NO": "Normal",
+            "nl-NL": "Standaard",
+            "pl-PL": "Normalny",
+            "pt-BR": "Normal",
+            "pt-PT": "Normal",
+            "ru-RU": "Обычный",
+            "sk-SK": "Normálne",
+            "sl-SI": "Navadno",
+            "sv-SE": "Normal",
+            "tr-TR": "Normal",
+            "zh-CN": "Regular"
+          },
+          "win32FaceNames": {
+            "ca-ES": "Normal",
+            "cs-CZ": "obyčejné",
+            "da-DK": "Normal",
+            "de-DE": "Standard",
+            "el-GR": "Κανονικά",
+            "en-US": "Regular",
+            "es-ES": "Normal",
+            "es-MX": "Normal",
+            "eu-ES": "Arrunta",
+            "fi-FI": "Normaali",
+            "fr-CA": "Normal",
+            "fr-FR": "Normal",
+            "hu-HU": "Normál",
+            "it-IT": "Normale",
+            "nb-NO": "Normal",
+            "nl-NL": "Standaard",
+            "pl-PL": "Normalny",
+            "pt-BR": "Normal",
+            "pt-PT": "Normal",
+            "ru-RU": "Обычный",
+            "sk-SK": "Normálne",
+            "sl-SI": "Navadno",
+            "sv-SE": "Normal",
+            "tr-TR": "Normal",
+            "zh-CN": "Regular"
+          },
+          "versionStrings": ["en-US=Version 6.30", "zh-CN=Version 6.30"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYH.TTC",
+          "sha256": "3084f1f88369af6bf9989c909024164d953d1e38d08734f05f28ef24b2f9d577"
+        },
+        {
+          "weight": 700,
+          "style": "Normal",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYHBD.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 29949,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "faceNames": {
+            "ca-ES": "Negreta",
+            "cs-CZ": "tučné",
+            "da-DK": "fed",
+            "de-DE": "Fett",
+            "el-GR": "Έντονα",
+            "en-US": "Bold",
+            "es-ES": "Negrita",
+            "es-MX": "Negrita",
+            "eu-ES": "Lodia",
+            "fi-FI": "Lihavoitu",
+            "fr-CA": "Gras",
+            "fr-FR": "Gras",
+            "hu-HU": "Félkövér",
+            "it-IT": "Grassetto",
+            "nb-NO": "Halvfet",
+            "nl-NL": "Vet",
+            "pl-PL": "Pogrubiony",
+            "pt-BR": "Negrito",
+            "pt-PT": "Negrito",
+            "ru-RU": "Полужирный",
+            "sk-SK": "Tučné",
+            "sl-SI": "Krepko",
+            "sv-SE": "Fet",
+            "tr-TR": "Kalın",
+            "zh-CN": "Bold"
+          },
+          "win32FaceNames": {
+            "ca-ES": "Negreta",
+            "cs-CZ": "tučné",
+            "da-DK": "fed",
+            "de-DE": "Fett",
+            "el-GR": "Έντονα",
+            "en-US": "Bold",
+            "es-ES": "Negrita",
+            "es-MX": "Negrita",
+            "eu-ES": "Lodia",
+            "fi-FI": "Lihavoitu",
+            "fr-CA": "Gras",
+            "fr-FR": "Gras",
+            "hu-HU": "Félkövér",
+            "it-IT": "Grassetto",
+            "nb-NO": "Halvfet",
+            "nl-NL": "Vet",
+            "pl-PL": "Pogrubiony",
+            "pt-BR": "Negrito",
+            "pt-PT": "Negrito",
+            "ru-RU": "Полужирный",
+            "sk-SK": "Tučné",
+            "sl-SI": "Krepko",
+            "sv-SE": "Fet",
+            "tr-TR": "Kalın",
+            "zh-CN": "Bold"
+          },
+          "versionStrings": ["en-US=Version 6.30", "zh-CN=Version 6.30"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYHBD.TTC",
+          "sha256": "519309b7ab0479c4dc3ace5e291de5a8702175be5586e165bc810267bd4619a5"
+        },
+        {
+          "weight": 290,
+          "style": "Oblique",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYHL.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 29816,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI Light",
+            "zh-CN": "Microsoft YaHei UI Light"
+          },
+          "faceNames": {
+            "en-US": "Light",
+            "zh-CN": "Light"
+          },
+          "win32FaceNames": {
+            "en-US": "Regular",
+            "zh-CN": "Regular"
+          },
+          "versionStrings": ["en-US=Version 6.24", "zh-CN=Version 6.24"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYHL.TTC",
+          "sha256": "f25f39a6d56ec6d1b356254dd776219d71b7e6f3584b3ec1b83aab0ceb08881a"
+        },
+        {
+          "weight": 400,
+          "style": "Oblique",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYH.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 30202,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "faceNames": {
+            "ca-ES": "Normal",
+            "cs-CZ": "obyčejné",
+            "da-DK": "Normal",
+            "de-DE": "Standard",
+            "el-GR": "Κανονικά",
+            "en-US": "Regular",
+            "es-ES": "Normal",
+            "es-MX": "Normal",
+            "eu-ES": "Arrunta",
+            "fi-FI": "Normaali",
+            "fr-CA": "Normal",
+            "fr-FR": "Normal",
+            "hu-HU": "Normál",
+            "it-IT": "Normale",
+            "nb-NO": "Normal",
+            "nl-NL": "Standaard",
+            "pl-PL": "Normalny",
+            "pt-BR": "Normal",
+            "pt-PT": "Normal",
+            "ru-RU": "Обычный",
+            "sk-SK": "Normálne",
+            "sl-SI": "Navadno",
+            "sv-SE": "Normal",
+            "tr-TR": "Normal",
+            "zh-CN": "Regular"
+          },
+          "win32FaceNames": {
+            "ca-ES": "Normal",
+            "cs-CZ": "obyčejné",
+            "da-DK": "Normal",
+            "de-DE": "Standard",
+            "el-GR": "Κανονικά",
+            "en-US": "Regular",
+            "es-ES": "Normal",
+            "es-MX": "Normal",
+            "eu-ES": "Arrunta",
+            "fi-FI": "Normaali",
+            "fr-CA": "Normal",
+            "fr-FR": "Normal",
+            "hu-HU": "Normál",
+            "it-IT": "Normale",
+            "nb-NO": "Normal",
+            "nl-NL": "Standaard",
+            "pl-PL": "Normalny",
+            "pt-BR": "Normal",
+            "pt-PT": "Normal",
+            "ru-RU": "Обычный",
+            "sk-SK": "Normálne",
+            "sl-SI": "Navadno",
+            "sv-SE": "Normal",
+            "tr-TR": "Normal",
+            "zh-CN": "Regular"
+          },
+          "versionStrings": ["en-US=Version 6.30", "zh-CN=Version 6.30"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYH.TTC",
+          "sha256": "3084f1f88369af6bf9989c909024164d953d1e38d08734f05f28ef24b2f9d577"
+        },
+        {
+          "weight": 700,
+          "style": "Oblique",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYHBD.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 29949,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "faceNames": {
+            "ca-ES": "Negreta",
+            "cs-CZ": "tučné",
+            "da-DK": "fed",
+            "de-DE": "Fett",
+            "el-GR": "Έντονα",
+            "en-US": "Bold",
+            "es-ES": "Negrita",
+            "es-MX": "Negrita",
+            "eu-ES": "Lodia",
+            "fi-FI": "Lihavoitu",
+            "fr-CA": "Gras",
+            "fr-FR": "Gras",
+            "hu-HU": "Félkövér",
+            "it-IT": "Grassetto",
+            "nb-NO": "Halvfet",
+            "nl-NL": "Vet",
+            "pl-PL": "Pogrubiony",
+            "pt-BR": "Negrito",
+            "pt-PT": "Negrito",
+            "ru-RU": "Полужирный",
+            "sk-SK": "Tučné",
+            "sl-SI": "Krepko",
+            "sv-SE": "Fet",
+            "tr-TR": "Kalın",
+            "zh-CN": "Bold"
+          },
+          "win32FaceNames": {
+            "ca-ES": "Negreta",
+            "cs-CZ": "tučné",
+            "da-DK": "fed",
+            "de-DE": "Fett",
+            "el-GR": "Έντονα",
+            "en-US": "Bold",
+            "es-ES": "Negrita",
+            "es-MX": "Negrita",
+            "eu-ES": "Lodia",
+            "fi-FI": "Lihavoitu",
+            "fr-CA": "Gras",
+            "fr-FR": "Gras",
+            "hu-HU": "Félkövér",
+            "it-IT": "Grassetto",
+            "nb-NO": "Halvfet",
+            "nl-NL": "Vet",
+            "pl-PL": "Pogrubiony",
+            "pt-BR": "Negrito",
+            "pt-PT": "Negrito",
+            "ru-RU": "Полужирный",
+            "sk-SK": "Tučné",
+            "sl-SI": "Krepko",
+            "sv-SE": "Fet",
+            "tr-TR": "Kalın",
+            "zh-CN": "Bold"
+          },
+          "versionStrings": ["en-US=Version 6.30", "zh-CN=Version 6.30"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYHBD.TTC",
+          "sha256": "519309b7ab0479c4dc3ace5e291de5a8702175be5586e165bc810267bd4619a5"
+        }
+      ],
+      "resolvedFiles": ["C:\\WINDOWS\\FONTS\\MSYHL.TTC", "C:\\WINDOWS\\FONTS\\MSYH.TTC", "C:\\WINDOWS\\FONTS\\MSYHBD.TTC"],
+      "baseUri": null,
+      "nameMatchesFileFamilyName": "yes",
+      "sabotaged": false
+    },
+    {
+      "property": "CaptionFontStyle",
+      "type": "FontStyle",
+      "value": "Normal"
+    },
+    {
+      "property": "CaptionFontWeight",
+      "type": "FontWeight",
+      "openTypeWeight": 400
+    },
+    {
+      "property": "CaptionFontTextDecorations",
+      "type": "TextDecorationCollection",
+      "value": "count=0"
+    },
+    {
+      "property": "SmallCaptionFontSize",
+      "type": "Double",
+      "value": 12
+    },
+    {
+      "property": "SmallCaptionFontFamily",
+      "type": "FontFamily",
+      "source": "Microsoft YaHei UI",
+      "reportedSource": "Microsoft YaHei UI",
+      "familyNames": {
+        "en-us": "Microsoft YaHei UI",
+        "zh-cn": "Microsoft YaHei UI"
+      },
+      "typefaces": [
+        {
+          "weight": 290,
+          "style": "Normal",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYHL.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 29816,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI Light",
+            "zh-CN": "Microsoft YaHei UI Light"
+          },
+          "faceNames": {
+            "en-US": "Light",
+            "zh-CN": "Light"
+          },
+          "win32FaceNames": {
+            "en-US": "Regular",
+            "zh-CN": "Regular"
+          },
+          "versionStrings": ["en-US=Version 6.24", "zh-CN=Version 6.24"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYHL.TTC",
+          "sha256": "f25f39a6d56ec6d1b356254dd776219d71b7e6f3584b3ec1b83aab0ceb08881a"
+        },
+        {
+          "weight": 400,
+          "style": "Normal",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYH.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 30202,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "faceNames": {
+            "ca-ES": "Normal",
+            "cs-CZ": "obyčejné",
+            "da-DK": "Normal",
+            "de-DE": "Standard",
+            "el-GR": "Κανονικά",
+            "en-US": "Regular",
+            "es-ES": "Normal",
+            "es-MX": "Normal",
+            "eu-ES": "Arrunta",
+            "fi-FI": "Normaali",
+            "fr-CA": "Normal",
+            "fr-FR": "Normal",
+            "hu-HU": "Normál",
+            "it-IT": "Normale",
+            "nb-NO": "Normal",
+            "nl-NL": "Standaard",
+            "pl-PL": "Normalny",
+            "pt-BR": "Normal",
+            "pt-PT": "Normal",
+            "ru-RU": "Обычный",
+            "sk-SK": "Normálne",
+            "sl-SI": "Navadno",
+            "sv-SE": "Normal",
+            "tr-TR": "Normal",
+            "zh-CN": "Regular"
+          },
+          "win32FaceNames": {
+            "ca-ES": "Normal",
+            "cs-CZ": "obyčejné",
+            "da-DK": "Normal",
+            "de-DE": "Standard",
+            "el-GR": "Κανονικά",
+            "en-US": "Regular",
+            "es-ES": "Normal",
+            "es-MX": "Normal",
+            "eu-ES": "Arrunta",
+            "fi-FI": "Normaali",
+            "fr-CA": "Normal",
+            "fr-FR": "Normal",
+            "hu-HU": "Normál",
+            "it-IT": "Normale",
+            "nb-NO": "Normal",
+            "nl-NL": "Standaard",
+            "pl-PL": "Normalny",
+            "pt-BR": "Normal",
+            "pt-PT": "Normal",
+            "ru-RU": "Обычный",
+            "sk-SK": "Normálne",
+            "sl-SI": "Navadno",
+            "sv-SE": "Normal",
+            "tr-TR": "Normal",
+            "zh-CN": "Regular"
+          },
+          "versionStrings": ["en-US=Version 6.30", "zh-CN=Version 6.30"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYH.TTC",
+          "sha256": "3084f1f88369af6bf9989c909024164d953d1e38d08734f05f28ef24b2f9d577"
+        },
+        {
+          "weight": 700,
+          "style": "Normal",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYHBD.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 29949,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "faceNames": {
+            "ca-ES": "Negreta",
+            "cs-CZ": "tučné",
+            "da-DK": "fed",
+            "de-DE": "Fett",
+            "el-GR": "Έντονα",
+            "en-US": "Bold",
+            "es-ES": "Negrita",
+            "es-MX": "Negrita",
+            "eu-ES": "Lodia",
+            "fi-FI": "Lihavoitu",
+            "fr-CA": "Gras",
+            "fr-FR": "Gras",
+            "hu-HU": "Félkövér",
+            "it-IT": "Grassetto",
+            "nb-NO": "Halvfet",
+            "nl-NL": "Vet",
+            "pl-PL": "Pogrubiony",
+            "pt-BR": "Negrito",
+            "pt-PT": "Negrito",
+            "ru-RU": "Полужирный",
+            "sk-SK": "Tučné",
+            "sl-SI": "Krepko",
+            "sv-SE": "Fet",
+            "tr-TR": "Kalın",
+            "zh-CN": "Bold"
+          },
+          "win32FaceNames": {
+            "ca-ES": "Negreta",
+            "cs-CZ": "tučné",
+            "da-DK": "fed",
+            "de-DE": "Fett",
+            "el-GR": "Έντονα",
+            "en-US": "Bold",
+            "es-ES": "Negrita",
+            "es-MX": "Negrita",
+            "eu-ES": "Lodia",
+            "fi-FI": "Lihavoitu",
+            "fr-CA": "Gras",
+            "fr-FR": "Gras",
+            "hu-HU": "Félkövér",
+            "it-IT": "Grassetto",
+            "nb-NO": "Halvfet",
+            "nl-NL": "Vet",
+            "pl-PL": "Pogrubiony",
+            "pt-BR": "Negrito",
+            "pt-PT": "Negrito",
+            "ru-RU": "Полужирный",
+            "sk-SK": "Tučné",
+            "sl-SI": "Krepko",
+            "sv-SE": "Fet",
+            "tr-TR": "Kalın",
+            "zh-CN": "Bold"
+          },
+          "versionStrings": ["en-US=Version 6.30", "zh-CN=Version 6.30"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYHBD.TTC",
+          "sha256": "519309b7ab0479c4dc3ace5e291de5a8702175be5586e165bc810267bd4619a5"
+        },
+        {
+          "weight": 290,
+          "style": "Oblique",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYHL.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 29816,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI Light",
+            "zh-CN": "Microsoft YaHei UI Light"
+          },
+          "faceNames": {
+            "en-US": "Light",
+            "zh-CN": "Light"
+          },
+          "win32FaceNames": {
+            "en-US": "Regular",
+            "zh-CN": "Regular"
+          },
+          "versionStrings": ["en-US=Version 6.24", "zh-CN=Version 6.24"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYHL.TTC",
+          "sha256": "f25f39a6d56ec6d1b356254dd776219d71b7e6f3584b3ec1b83aab0ceb08881a"
+        },
+        {
+          "weight": 400,
+          "style": "Oblique",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYH.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 30202,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "faceNames": {
+            "ca-ES": "Normal",
+            "cs-CZ": "obyčejné",
+            "da-DK": "Normal",
+            "de-DE": "Standard",
+            "el-GR": "Κανονικά",
+            "en-US": "Regular",
+            "es-ES": "Normal",
+            "es-MX": "Normal",
+            "eu-ES": "Arrunta",
+            "fi-FI": "Normaali",
+            "fr-CA": "Normal",
+            "fr-FR": "Normal",
+            "hu-HU": "Normál",
+            "it-IT": "Normale",
+            "nb-NO": "Normal",
+            "nl-NL": "Standaard",
+            "pl-PL": "Normalny",
+            "pt-BR": "Normal",
+            "pt-PT": "Normal",
+            "ru-RU": "Обычный",
+            "sk-SK": "Normálne",
+            "sl-SI": "Navadno",
+            "sv-SE": "Normal",
+            "tr-TR": "Normal",
+            "zh-CN": "Regular"
+          },
+          "win32FaceNames": {
+            "ca-ES": "Normal",
+            "cs-CZ": "obyčejné",
+            "da-DK": "Normal",
+            "de-DE": "Standard",
+            "el-GR": "Κανονικά",
+            "en-US": "Regular",
+            "es-ES": "Normal",
+            "es-MX": "Normal",
+            "eu-ES": "Arrunta",
+            "fi-FI": "Normaali",
+            "fr-CA": "Normal",
+            "fr-FR": "Normal",
+            "hu-HU": "Normál",
+            "it-IT": "Normale",
+            "nb-NO": "Normal",
+            "nl-NL": "Standaard",
+            "pl-PL": "Normalny",
+            "pt-BR": "Normal",
+            "pt-PT": "Normal",
+            "ru-RU": "Обычный",
+            "sk-SK": "Normálne",
+            "sl-SI": "Navadno",
+            "sv-SE": "Normal",
+            "tr-TR": "Normal",
+            "zh-CN": "Regular"
+          },
+          "versionStrings": ["en-US=Version 6.30", "zh-CN=Version 6.30"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYH.TTC",
+          "sha256": "3084f1f88369af6bf9989c909024164d953d1e38d08734f05f28ef24b2f9d577"
+        },
+        {
+          "weight": 700,
+          "style": "Oblique",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYHBD.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 29949,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "faceNames": {
+            "ca-ES": "Negreta",
+            "cs-CZ": "tučné",
+            "da-DK": "fed",
+            "de-DE": "Fett",
+            "el-GR": "Έντονα",
+            "en-US": "Bold",
+            "es-ES": "Negrita",
+            "es-MX": "Negrita",
+            "eu-ES": "Lodia",
+            "fi-FI": "Lihavoitu",
+            "fr-CA": "Gras",
+            "fr-FR": "Gras",
+            "hu-HU": "Félkövér",
+            "it-IT": "Grassetto",
+            "nb-NO": "Halvfet",
+            "nl-NL": "Vet",
+            "pl-PL": "Pogrubiony",
+            "pt-BR": "Negrito",
+            "pt-PT": "Negrito",
+            "ru-RU": "Полужирный",
+            "sk-SK": "Tučné",
+            "sl-SI": "Krepko",
+            "sv-SE": "Fet",
+            "tr-TR": "Kalın",
+            "zh-CN": "Bold"
+          },
+          "win32FaceNames": {
+            "ca-ES": "Negreta",
+            "cs-CZ": "tučné",
+            "da-DK": "fed",
+            "de-DE": "Fett",
+            "el-GR": "Έντονα",
+            "en-US": "Bold",
+            "es-ES": "Negrita",
+            "es-MX": "Negrita",
+            "eu-ES": "Lodia",
+            "fi-FI": "Lihavoitu",
+            "fr-CA": "Gras",
+            "fr-FR": "Gras",
+            "hu-HU": "Félkövér",
+            "it-IT": "Grassetto",
+            "nb-NO": "Halvfet",
+            "nl-NL": "Vet",
+            "pl-PL": "Pogrubiony",
+            "pt-BR": "Negrito",
+            "pt-PT": "Negrito",
+            "ru-RU": "Полужирный",
+            "sk-SK": "Tučné",
+            "sl-SI": "Krepko",
+            "sv-SE": "Fet",
+            "tr-TR": "Kalın",
+            "zh-CN": "Bold"
+          },
+          "versionStrings": ["en-US=Version 6.30", "zh-CN=Version 6.30"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYHBD.TTC",
+          "sha256": "519309b7ab0479c4dc3ace5e291de5a8702175be5586e165bc810267bd4619a5"
+        }
+      ],
+      "resolvedFiles": ["C:\\WINDOWS\\FONTS\\MSYHL.TTC", "C:\\WINDOWS\\FONTS\\MSYH.TTC", "C:\\WINDOWS\\FONTS\\MSYHBD.TTC"],
+      "baseUri": null,
+      "nameMatchesFileFamilyName": "yes",
+      "sabotaged": false
+    },
+    {
+      "property": "SmallCaptionFontStyle",
+      "type": "FontStyle",
+      "value": "Normal"
+    },
+    {
+      "property": "SmallCaptionFontWeight",
+      "type": "FontWeight",
+      "openTypeWeight": 400
+    },
+    {
+      "property": "SmallCaptionFontTextDecorations",
+      "type": "TextDecorationCollection",
+      "value": "count=0"
+    },
+    {
+      "property": "MenuFontSize",
+      "type": "Double",
+      "value": 12
+    },
+    {
+      "property": "MenuFontFamily",
+      "type": "FontFamily",
+      "source": "Microsoft YaHei UI",
+      "reportedSource": "Microsoft YaHei UI",
+      "familyNames": {
+        "en-us": "Microsoft YaHei UI",
+        "zh-cn": "Microsoft YaHei UI"
+      },
+      "typefaces": [
+        {
+          "weight": 290,
+          "style": "Normal",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYHL.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 29816,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI Light",
+            "zh-CN": "Microsoft YaHei UI Light"
+          },
+          "faceNames": {
+            "en-US": "Light",
+            "zh-CN": "Light"
+          },
+          "win32FaceNames": {
+            "en-US": "Regular",
+            "zh-CN": "Regular"
+          },
+          "versionStrings": ["en-US=Version 6.24", "zh-CN=Version 6.24"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYHL.TTC",
+          "sha256": "f25f39a6d56ec6d1b356254dd776219d71b7e6f3584b3ec1b83aab0ceb08881a"
+        },
+        {
+          "weight": 400,
+          "style": "Normal",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYH.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 30202,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "faceNames": {
+            "ca-ES": "Normal",
+            "cs-CZ": "obyčejné",
+            "da-DK": "Normal",
+            "de-DE": "Standard",
+            "el-GR": "Κανονικά",
+            "en-US": "Regular",
+            "es-ES": "Normal",
+            "es-MX": "Normal",
+            "eu-ES": "Arrunta",
+            "fi-FI": "Normaali",
+            "fr-CA": "Normal",
+            "fr-FR": "Normal",
+            "hu-HU": "Normál",
+            "it-IT": "Normale",
+            "nb-NO": "Normal",
+            "nl-NL": "Standaard",
+            "pl-PL": "Normalny",
+            "pt-BR": "Normal",
+            "pt-PT": "Normal",
+            "ru-RU": "Обычный",
+            "sk-SK": "Normálne",
+            "sl-SI": "Navadno",
+            "sv-SE": "Normal",
+            "tr-TR": "Normal",
+            "zh-CN": "Regular"
+          },
+          "win32FaceNames": {
+            "ca-ES": "Normal",
+            "cs-CZ": "obyčejné",
+            "da-DK": "Normal",
+            "de-DE": "Standard",
+            "el-GR": "Κανονικά",
+            "en-US": "Regular",
+            "es-ES": "Normal",
+            "es-MX": "Normal",
+            "eu-ES": "Arrunta",
+            "fi-FI": "Normaali",
+            "fr-CA": "Normal",
+            "fr-FR": "Normal",
+            "hu-HU": "Normál",
+            "it-IT": "Normale",
+            "nb-NO": "Normal",
+            "nl-NL": "Standaard",
+            "pl-PL": "Normalny",
+            "pt-BR": "Normal",
+            "pt-PT": "Normal",
+            "ru-RU": "Обычный",
+            "sk-SK": "Normálne",
+            "sl-SI": "Navadno",
+            "sv-SE": "Normal",
+            "tr-TR": "Normal",
+            "zh-CN": "Regular"
+          },
+          "versionStrings": ["en-US=Version 6.30", "zh-CN=Version 6.30"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYH.TTC",
+          "sha256": "3084f1f88369af6bf9989c909024164d953d1e38d08734f05f28ef24b2f9d577"
+        },
+        {
+          "weight": 700,
+          "style": "Normal",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYHBD.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 29949,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "faceNames": {
+            "ca-ES": "Negreta",
+            "cs-CZ": "tučné",
+            "da-DK": "fed",
+            "de-DE": "Fett",
+            "el-GR": "Έντονα",
+            "en-US": "Bold",
+            "es-ES": "Negrita",
+            "es-MX": "Negrita",
+            "eu-ES": "Lodia",
+            "fi-FI": "Lihavoitu",
+            "fr-CA": "Gras",
+            "fr-FR": "Gras",
+            "hu-HU": "Félkövér",
+            "it-IT": "Grassetto",
+            "nb-NO": "Halvfet",
+            "nl-NL": "Vet",
+            "pl-PL": "Pogrubiony",
+            "pt-BR": "Negrito",
+            "pt-PT": "Negrito",
+            "ru-RU": "Полужирный",
+            "sk-SK": "Tučné",
+            "sl-SI": "Krepko",
+            "sv-SE": "Fet",
+            "tr-TR": "Kalın",
+            "zh-CN": "Bold"
+          },
+          "win32FaceNames": {
+            "ca-ES": "Negreta",
+            "cs-CZ": "tučné",
+            "da-DK": "fed",
+            "de-DE": "Fett",
+            "el-GR": "Έντονα",
+            "en-US": "Bold",
+            "es-ES": "Negrita",
+            "es-MX": "Negrita",
+            "eu-ES": "Lodia",
+            "fi-FI": "Lihavoitu",
+            "fr-CA": "Gras",
+            "fr-FR": "Gras",
+            "hu-HU": "Félkövér",
+            "it-IT": "Grassetto",
+            "nb-NO": "Halvfet",
+            "nl-NL": "Vet",
+            "pl-PL": "Pogrubiony",
+            "pt-BR": "Negrito",
+            "pt-PT": "Negrito",
+            "ru-RU": "Полужирный",
+            "sk-SK": "Tučné",
+            "sl-SI": "Krepko",
+            "sv-SE": "Fet",
+            "tr-TR": "Kalın",
+            "zh-CN": "Bold"
+          },
+          "versionStrings": ["en-US=Version 6.30", "zh-CN=Version 6.30"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYHBD.TTC",
+          "sha256": "519309b7ab0479c4dc3ace5e291de5a8702175be5586e165bc810267bd4619a5"
+        },
+        {
+          "weight": 290,
+          "style": "Oblique",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYHL.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 29816,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI Light",
+            "zh-CN": "Microsoft YaHei UI Light"
+          },
+          "faceNames": {
+            "en-US": "Light",
+            "zh-CN": "Light"
+          },
+          "win32FaceNames": {
+            "en-US": "Regular",
+            "zh-CN": "Regular"
+          },
+          "versionStrings": ["en-US=Version 6.24", "zh-CN=Version 6.24"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYHL.TTC",
+          "sha256": "f25f39a6d56ec6d1b356254dd776219d71b7e6f3584b3ec1b83aab0ceb08881a"
+        },
+        {
+          "weight": 400,
+          "style": "Oblique",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYH.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 30202,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "faceNames": {
+            "ca-ES": "Normal",
+            "cs-CZ": "obyčejné",
+            "da-DK": "Normal",
+            "de-DE": "Standard",
+            "el-GR": "Κανονικά",
+            "en-US": "Regular",
+            "es-ES": "Normal",
+            "es-MX": "Normal",
+            "eu-ES": "Arrunta",
+            "fi-FI": "Normaali",
+            "fr-CA": "Normal",
+            "fr-FR": "Normal",
+            "hu-HU": "Normál",
+            "it-IT": "Normale",
+            "nb-NO": "Normal",
+            "nl-NL": "Standaard",
+            "pl-PL": "Normalny",
+            "pt-BR": "Normal",
+            "pt-PT": "Normal",
+            "ru-RU": "Обычный",
+            "sk-SK": "Normálne",
+            "sl-SI": "Navadno",
+            "sv-SE": "Normal",
+            "tr-TR": "Normal",
+            "zh-CN": "Regular"
+          },
+          "win32FaceNames": {
+            "ca-ES": "Normal",
+            "cs-CZ": "obyčejné",
+            "da-DK": "Normal",
+            "de-DE": "Standard",
+            "el-GR": "Κανονικά",
+            "en-US": "Regular",
+            "es-ES": "Normal",
+            "es-MX": "Normal",
+            "eu-ES": "Arrunta",
+            "fi-FI": "Normaali",
+            "fr-CA": "Normal",
+            "fr-FR": "Normal",
+            "hu-HU": "Normál",
+            "it-IT": "Normale",
+            "nb-NO": "Normal",
+            "nl-NL": "Standaard",
+            "pl-PL": "Normalny",
+            "pt-BR": "Normal",
+            "pt-PT": "Normal",
+            "ru-RU": "Обычный",
+            "sk-SK": "Normálne",
+            "sl-SI": "Navadno",
+            "sv-SE": "Normal",
+            "tr-TR": "Normal",
+            "zh-CN": "Regular"
+          },
+          "versionStrings": ["en-US=Version 6.30", "zh-CN=Version 6.30"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYH.TTC",
+          "sha256": "3084f1f88369af6bf9989c909024164d953d1e38d08734f05f28ef24b2f9d577"
+        },
+        {
+          "weight": 700,
+          "style": "Oblique",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYHBD.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 29949,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "faceNames": {
+            "ca-ES": "Negreta",
+            "cs-CZ": "tučné",
+            "da-DK": "fed",
+            "de-DE": "Fett",
+            "el-GR": "Έντονα",
+            "en-US": "Bold",
+            "es-ES": "Negrita",
+            "es-MX": "Negrita",
+            "eu-ES": "Lodia",
+            "fi-FI": "Lihavoitu",
+            "fr-CA": "Gras",
+            "fr-FR": "Gras",
+            "hu-HU": "Félkövér",
+            "it-IT": "Grassetto",
+            "nb-NO": "Halvfet",
+            "nl-NL": "Vet",
+            "pl-PL": "Pogrubiony",
+            "pt-BR": "Negrito",
+            "pt-PT": "Negrito",
+            "ru-RU": "Полужирный",
+            "sk-SK": "Tučné",
+            "sl-SI": "Krepko",
+            "sv-SE": "Fet",
+            "tr-TR": "Kalın",
+            "zh-CN": "Bold"
+          },
+          "win32FaceNames": {
+            "ca-ES": "Negreta",
+            "cs-CZ": "tučné",
+            "da-DK": "fed",
+            "de-DE": "Fett",
+            "el-GR": "Έντονα",
+            "en-US": "Bold",
+            "es-ES": "Negrita",
+            "es-MX": "Negrita",
+            "eu-ES": "Lodia",
+            "fi-FI": "Lihavoitu",
+            "fr-CA": "Gras",
+            "fr-FR": "Gras",
+            "hu-HU": "Félkövér",
+            "it-IT": "Grassetto",
+            "nb-NO": "Halvfet",
+            "nl-NL": "Vet",
+            "pl-PL": "Pogrubiony",
+            "pt-BR": "Negrito",
+            "pt-PT": "Negrito",
+            "ru-RU": "Полужирный",
+            "sk-SK": "Tučné",
+            "sl-SI": "Krepko",
+            "sv-SE": "Fet",
+            "tr-TR": "Kalın",
+            "zh-CN": "Bold"
+          },
+          "versionStrings": ["en-US=Version 6.30", "zh-CN=Version 6.30"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYHBD.TTC",
+          "sha256": "519309b7ab0479c4dc3ace5e291de5a8702175be5586e165bc810267bd4619a5"
+        }
+      ],
+      "resolvedFiles": ["C:\\WINDOWS\\FONTS\\MSYHL.TTC", "C:\\WINDOWS\\FONTS\\MSYH.TTC", "C:\\WINDOWS\\FONTS\\MSYHBD.TTC"],
+      "baseUri": null,
+      "nameMatchesFileFamilyName": "yes",
+      "sabotaged": false
+    },
+    {
+      "property": "MenuFontStyle",
+      "type": "FontStyle",
+      "value": "Normal"
+    },
+    {
+      "property": "MenuFontWeight",
+      "type": "FontWeight",
+      "openTypeWeight": 400
+    },
+    {
+      "property": "MenuFontTextDecorations",
+      "type": "TextDecorationCollection",
+      "value": "count=0"
+    },
+    {
+      "property": "StatusFontSize",
+      "type": "Double",
+      "value": 12
+    },
+    {
+      "property": "StatusFontFamily",
+      "type": "FontFamily",
+      "source": "Microsoft YaHei UI",
+      "reportedSource": "Microsoft YaHei UI",
+      "familyNames": {
+        "en-us": "Microsoft YaHei UI",
+        "zh-cn": "Microsoft YaHei UI"
+      },
+      "typefaces": [
+        {
+          "weight": 290,
+          "style": "Normal",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYHL.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 29816,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI Light",
+            "zh-CN": "Microsoft YaHei UI Light"
+          },
+          "faceNames": {
+            "en-US": "Light",
+            "zh-CN": "Light"
+          },
+          "win32FaceNames": {
+            "en-US": "Regular",
+            "zh-CN": "Regular"
+          },
+          "versionStrings": ["en-US=Version 6.24", "zh-CN=Version 6.24"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYHL.TTC",
+          "sha256": "f25f39a6d56ec6d1b356254dd776219d71b7e6f3584b3ec1b83aab0ceb08881a"
+        },
+        {
+          "weight": 400,
+          "style": "Normal",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYH.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 30202,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "faceNames": {
+            "ca-ES": "Normal",
+            "cs-CZ": "obyčejné",
+            "da-DK": "Normal",
+            "de-DE": "Standard",
+            "el-GR": "Κανονικά",
+            "en-US": "Regular",
+            "es-ES": "Normal",
+            "es-MX": "Normal",
+            "eu-ES": "Arrunta",
+            "fi-FI": "Normaali",
+            "fr-CA": "Normal",
+            "fr-FR": "Normal",
+            "hu-HU": "Normál",
+            "it-IT": "Normale",
+            "nb-NO": "Normal",
+            "nl-NL": "Standaard",
+            "pl-PL": "Normalny",
+            "pt-BR": "Normal",
+            "pt-PT": "Normal",
+            "ru-RU": "Обычный",
+            "sk-SK": "Normálne",
+            "sl-SI": "Navadno",
+            "sv-SE": "Normal",
+            "tr-TR": "Normal",
+            "zh-CN": "Regular"
+          },
+          "win32FaceNames": {
+            "ca-ES": "Normal",
+            "cs-CZ": "obyčejné",
+            "da-DK": "Normal",
+            "de-DE": "Standard",
+            "el-GR": "Κανονικά",
+            "en-US": "Regular",
+            "es-ES": "Normal",
+            "es-MX": "Normal",
+            "eu-ES": "Arrunta",
+            "fi-FI": "Normaali",
+            "fr-CA": "Normal",
+            "fr-FR": "Normal",
+            "hu-HU": "Normál",
+            "it-IT": "Normale",
+            "nb-NO": "Normal",
+            "nl-NL": "Standaard",
+            "pl-PL": "Normalny",
+            "pt-BR": "Normal",
+            "pt-PT": "Normal",
+            "ru-RU": "Обычный",
+            "sk-SK": "Normálne",
+            "sl-SI": "Navadno",
+            "sv-SE": "Normal",
+            "tr-TR": "Normal",
+            "zh-CN": "Regular"
+          },
+          "versionStrings": ["en-US=Version 6.30", "zh-CN=Version 6.30"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYH.TTC",
+          "sha256": "3084f1f88369af6bf9989c909024164d953d1e38d08734f05f28ef24b2f9d577"
+        },
+        {
+          "weight": 700,
+          "style": "Normal",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYHBD.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 29949,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "faceNames": {
+            "ca-ES": "Negreta",
+            "cs-CZ": "tučné",
+            "da-DK": "fed",
+            "de-DE": "Fett",
+            "el-GR": "Έντονα",
+            "en-US": "Bold",
+            "es-ES": "Negrita",
+            "es-MX": "Negrita",
+            "eu-ES": "Lodia",
+            "fi-FI": "Lihavoitu",
+            "fr-CA": "Gras",
+            "fr-FR": "Gras",
+            "hu-HU": "Félkövér",
+            "it-IT": "Grassetto",
+            "nb-NO": "Halvfet",
+            "nl-NL": "Vet",
+            "pl-PL": "Pogrubiony",
+            "pt-BR": "Negrito",
+            "pt-PT": "Negrito",
+            "ru-RU": "Полужирный",
+            "sk-SK": "Tučné",
+            "sl-SI": "Krepko",
+            "sv-SE": "Fet",
+            "tr-TR": "Kalın",
+            "zh-CN": "Bold"
+          },
+          "win32FaceNames": {
+            "ca-ES": "Negreta",
+            "cs-CZ": "tučné",
+            "da-DK": "fed",
+            "de-DE": "Fett",
+            "el-GR": "Έντονα",
+            "en-US": "Bold",
+            "es-ES": "Negrita",
+            "es-MX": "Negrita",
+            "eu-ES": "Lodia",
+            "fi-FI": "Lihavoitu",
+            "fr-CA": "Gras",
+            "fr-FR": "Gras",
+            "hu-HU": "Félkövér",
+            "it-IT": "Grassetto",
+            "nb-NO": "Halvfet",
+            "nl-NL": "Vet",
+            "pl-PL": "Pogrubiony",
+            "pt-BR": "Negrito",
+            "pt-PT": "Negrito",
+            "ru-RU": "Полужирный",
+            "sk-SK": "Tučné",
+            "sl-SI": "Krepko",
+            "sv-SE": "Fet",
+            "tr-TR": "Kalın",
+            "zh-CN": "Bold"
+          },
+          "versionStrings": ["en-US=Version 6.30", "zh-CN=Version 6.30"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYHBD.TTC",
+          "sha256": "519309b7ab0479c4dc3ace5e291de5a8702175be5586e165bc810267bd4619a5"
+        },
+        {
+          "weight": 290,
+          "style": "Oblique",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYHL.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 29816,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI Light",
+            "zh-CN": "Microsoft YaHei UI Light"
+          },
+          "faceNames": {
+            "en-US": "Light",
+            "zh-CN": "Light"
+          },
+          "win32FaceNames": {
+            "en-US": "Regular",
+            "zh-CN": "Regular"
+          },
+          "versionStrings": ["en-US=Version 6.24", "zh-CN=Version 6.24"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYHL.TTC",
+          "sha256": "f25f39a6d56ec6d1b356254dd776219d71b7e6f3584b3ec1b83aab0ceb08881a"
+        },
+        {
+          "weight": 400,
+          "style": "Oblique",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYH.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 30202,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "faceNames": {
+            "ca-ES": "Normal",
+            "cs-CZ": "obyčejné",
+            "da-DK": "Normal",
+            "de-DE": "Standard",
+            "el-GR": "Κανονικά",
+            "en-US": "Regular",
+            "es-ES": "Normal",
+            "es-MX": "Normal",
+            "eu-ES": "Arrunta",
+            "fi-FI": "Normaali",
+            "fr-CA": "Normal",
+            "fr-FR": "Normal",
+            "hu-HU": "Normál",
+            "it-IT": "Normale",
+            "nb-NO": "Normal",
+            "nl-NL": "Standaard",
+            "pl-PL": "Normalny",
+            "pt-BR": "Normal",
+            "pt-PT": "Normal",
+            "ru-RU": "Обычный",
+            "sk-SK": "Normálne",
+            "sl-SI": "Navadno",
+            "sv-SE": "Normal",
+            "tr-TR": "Normal",
+            "zh-CN": "Regular"
+          },
+          "win32FaceNames": {
+            "ca-ES": "Normal",
+            "cs-CZ": "obyčejné",
+            "da-DK": "Normal",
+            "de-DE": "Standard",
+            "el-GR": "Κανονικά",
+            "en-US": "Regular",
+            "es-ES": "Normal",
+            "es-MX": "Normal",
+            "eu-ES": "Arrunta",
+            "fi-FI": "Normaali",
+            "fr-CA": "Normal",
+            "fr-FR": "Normal",
+            "hu-HU": "Normál",
+            "it-IT": "Normale",
+            "nb-NO": "Normal",
+            "nl-NL": "Standaard",
+            "pl-PL": "Normalny",
+            "pt-BR": "Normal",
+            "pt-PT": "Normal",
+            "ru-RU": "Обычный",
+            "sk-SK": "Normálne",
+            "sl-SI": "Navadno",
+            "sv-SE": "Normal",
+            "tr-TR": "Normal",
+            "zh-CN": "Regular"
+          },
+          "versionStrings": ["en-US=Version 6.30", "zh-CN=Version 6.30"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYH.TTC",
+          "sha256": "3084f1f88369af6bf9989c909024164d953d1e38d08734f05f28ef24b2f9d577"
+        },
+        {
+          "weight": 700,
+          "style": "Oblique",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYHBD.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 29949,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "faceNames": {
+            "ca-ES": "Negreta",
+            "cs-CZ": "tučné",
+            "da-DK": "fed",
+            "de-DE": "Fett",
+            "el-GR": "Έντονα",
+            "en-US": "Bold",
+            "es-ES": "Negrita",
+            "es-MX": "Negrita",
+            "eu-ES": "Lodia",
+            "fi-FI": "Lihavoitu",
+            "fr-CA": "Gras",
+            "fr-FR": "Gras",
+            "hu-HU": "Félkövér",
+            "it-IT": "Grassetto",
+            "nb-NO": "Halvfet",
+            "nl-NL": "Vet",
+            "pl-PL": "Pogrubiony",
+            "pt-BR": "Negrito",
+            "pt-PT": "Negrito",
+            "ru-RU": "Полужирный",
+            "sk-SK": "Tučné",
+            "sl-SI": "Krepko",
+            "sv-SE": "Fet",
+            "tr-TR": "Kalın",
+            "zh-CN": "Bold"
+          },
+          "win32FaceNames": {
+            "ca-ES": "Negreta",
+            "cs-CZ": "tučné",
+            "da-DK": "fed",
+            "de-DE": "Fett",
+            "el-GR": "Έντονα",
+            "en-US": "Bold",
+            "es-ES": "Negrita",
+            "es-MX": "Negrita",
+            "eu-ES": "Lodia",
+            "fi-FI": "Lihavoitu",
+            "fr-CA": "Gras",
+            "fr-FR": "Gras",
+            "hu-HU": "Félkövér",
+            "it-IT": "Grassetto",
+            "nb-NO": "Halvfet",
+            "nl-NL": "Vet",
+            "pl-PL": "Pogrubiony",
+            "pt-BR": "Negrito",
+            "pt-PT": "Negrito",
+            "ru-RU": "Полужирный",
+            "sk-SK": "Tučné",
+            "sl-SI": "Krepko",
+            "sv-SE": "Fet",
+            "tr-TR": "Kalın",
+            "zh-CN": "Bold"
+          },
+          "versionStrings": ["en-US=Version 6.30", "zh-CN=Version 6.30"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYHBD.TTC",
+          "sha256": "519309b7ab0479c4dc3ace5e291de5a8702175be5586e165bc810267bd4619a5"
+        }
+      ],
+      "resolvedFiles": ["C:\\WINDOWS\\FONTS\\MSYHL.TTC", "C:\\WINDOWS\\FONTS\\MSYH.TTC", "C:\\WINDOWS\\FONTS\\MSYHBD.TTC"],
+      "baseUri": null,
+      "nameMatchesFileFamilyName": "yes",
+      "sabotaged": false
+    },
+    {
+      "property": "StatusFontStyle",
+      "type": "FontStyle",
+      "value": "Normal"
+    },
+    {
+      "property": "StatusFontWeight",
+      "type": "FontWeight",
+      "openTypeWeight": 400
+    },
+    {
+      "property": "StatusFontTextDecorations",
+      "type": "TextDecorationCollection",
+      "value": "count=0"
+    },
+    {
+      "property": "MessageFontSize",
+      "type": "Double",
+      "value": 12
+    },
+    {
+      "property": "MessageFontFamily",
+      "type": "FontFamily",
+      "source": "Microsoft YaHei UI",
+      "reportedSource": "Microsoft YaHei UI",
+      "familyNames": {
+        "en-us": "Microsoft YaHei UI",
+        "zh-cn": "Microsoft YaHei UI"
+      },
+      "typefaces": [
+        {
+          "weight": 290,
+          "style": "Normal",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYHL.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 29816,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI Light",
+            "zh-CN": "Microsoft YaHei UI Light"
+          },
+          "faceNames": {
+            "en-US": "Light",
+            "zh-CN": "Light"
+          },
+          "win32FaceNames": {
+            "en-US": "Regular",
+            "zh-CN": "Regular"
+          },
+          "versionStrings": ["en-US=Version 6.24", "zh-CN=Version 6.24"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYHL.TTC",
+          "sha256": "f25f39a6d56ec6d1b356254dd776219d71b7e6f3584b3ec1b83aab0ceb08881a"
+        },
+        {
+          "weight": 400,
+          "style": "Normal",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYH.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 30202,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "faceNames": {
+            "ca-ES": "Normal",
+            "cs-CZ": "obyčejné",
+            "da-DK": "Normal",
+            "de-DE": "Standard",
+            "el-GR": "Κανονικά",
+            "en-US": "Regular",
+            "es-ES": "Normal",
+            "es-MX": "Normal",
+            "eu-ES": "Arrunta",
+            "fi-FI": "Normaali",
+            "fr-CA": "Normal",
+            "fr-FR": "Normal",
+            "hu-HU": "Normál",
+            "it-IT": "Normale",
+            "nb-NO": "Normal",
+            "nl-NL": "Standaard",
+            "pl-PL": "Normalny",
+            "pt-BR": "Normal",
+            "pt-PT": "Normal",
+            "ru-RU": "Обычный",
+            "sk-SK": "Normálne",
+            "sl-SI": "Navadno",
+            "sv-SE": "Normal",
+            "tr-TR": "Normal",
+            "zh-CN": "Regular"
+          },
+          "win32FaceNames": {
+            "ca-ES": "Normal",
+            "cs-CZ": "obyčejné",
+            "da-DK": "Normal",
+            "de-DE": "Standard",
+            "el-GR": "Κανονικά",
+            "en-US": "Regular",
+            "es-ES": "Normal",
+            "es-MX": "Normal",
+            "eu-ES": "Arrunta",
+            "fi-FI": "Normaali",
+            "fr-CA": "Normal",
+            "fr-FR": "Normal",
+            "hu-HU": "Normál",
+            "it-IT": "Normale",
+            "nb-NO": "Normal",
+            "nl-NL": "Standaard",
+            "pl-PL": "Normalny",
+            "pt-BR": "Normal",
+            "pt-PT": "Normal",
+            "ru-RU": "Обычный",
+            "sk-SK": "Normálne",
+            "sl-SI": "Navadno",
+            "sv-SE": "Normal",
+            "tr-TR": "Normal",
+            "zh-CN": "Regular"
+          },
+          "versionStrings": ["en-US=Version 6.30", "zh-CN=Version 6.30"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYH.TTC",
+          "sha256": "3084f1f88369af6bf9989c909024164d953d1e38d08734f05f28ef24b2f9d577"
+        },
+        {
+          "weight": 700,
+          "style": "Normal",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYHBD.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 29949,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "faceNames": {
+            "ca-ES": "Negreta",
+            "cs-CZ": "tučné",
+            "da-DK": "fed",
+            "de-DE": "Fett",
+            "el-GR": "Έντονα",
+            "en-US": "Bold",
+            "es-ES": "Negrita",
+            "es-MX": "Negrita",
+            "eu-ES": "Lodia",
+            "fi-FI": "Lihavoitu",
+            "fr-CA": "Gras",
+            "fr-FR": "Gras",
+            "hu-HU": "Félkövér",
+            "it-IT": "Grassetto",
+            "nb-NO": "Halvfet",
+            "nl-NL": "Vet",
+            "pl-PL": "Pogrubiony",
+            "pt-BR": "Negrito",
+            "pt-PT": "Negrito",
+            "ru-RU": "Полужирный",
+            "sk-SK": "Tučné",
+            "sl-SI": "Krepko",
+            "sv-SE": "Fet",
+            "tr-TR": "Kalın",
+            "zh-CN": "Bold"
+          },
+          "win32FaceNames": {
+            "ca-ES": "Negreta",
+            "cs-CZ": "tučné",
+            "da-DK": "fed",
+            "de-DE": "Fett",
+            "el-GR": "Έντονα",
+            "en-US": "Bold",
+            "es-ES": "Negrita",
+            "es-MX": "Negrita",
+            "eu-ES": "Lodia",
+            "fi-FI": "Lihavoitu",
+            "fr-CA": "Gras",
+            "fr-FR": "Gras",
+            "hu-HU": "Félkövér",
+            "it-IT": "Grassetto",
+            "nb-NO": "Halvfet",
+            "nl-NL": "Vet",
+            "pl-PL": "Pogrubiony",
+            "pt-BR": "Negrito",
+            "pt-PT": "Negrito",
+            "ru-RU": "Полужирный",
+            "sk-SK": "Tučné",
+            "sl-SI": "Krepko",
+            "sv-SE": "Fet",
+            "tr-TR": "Kalın",
+            "zh-CN": "Bold"
+          },
+          "versionStrings": ["en-US=Version 6.30", "zh-CN=Version 6.30"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYHBD.TTC",
+          "sha256": "519309b7ab0479c4dc3ace5e291de5a8702175be5586e165bc810267bd4619a5"
+        },
+        {
+          "weight": 290,
+          "style": "Oblique",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYHL.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 29816,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI Light",
+            "zh-CN": "Microsoft YaHei UI Light"
+          },
+          "faceNames": {
+            "en-US": "Light",
+            "zh-CN": "Light"
+          },
+          "win32FaceNames": {
+            "en-US": "Regular",
+            "zh-CN": "Regular"
+          },
+          "versionStrings": ["en-US=Version 6.24", "zh-CN=Version 6.24"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYHL.TTC",
+          "sha256": "f25f39a6d56ec6d1b356254dd776219d71b7e6f3584b3ec1b83aab0ceb08881a"
+        },
+        {
+          "weight": 400,
+          "style": "Oblique",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYH.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 30202,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "faceNames": {
+            "ca-ES": "Normal",
+            "cs-CZ": "obyčejné",
+            "da-DK": "Normal",
+            "de-DE": "Standard",
+            "el-GR": "Κανονικά",
+            "en-US": "Regular",
+            "es-ES": "Normal",
+            "es-MX": "Normal",
+            "eu-ES": "Arrunta",
+            "fi-FI": "Normaali",
+            "fr-CA": "Normal",
+            "fr-FR": "Normal",
+            "hu-HU": "Normál",
+            "it-IT": "Normale",
+            "nb-NO": "Normal",
+            "nl-NL": "Standaard",
+            "pl-PL": "Normalny",
+            "pt-BR": "Normal",
+            "pt-PT": "Normal",
+            "ru-RU": "Обычный",
+            "sk-SK": "Normálne",
+            "sl-SI": "Navadno",
+            "sv-SE": "Normal",
+            "tr-TR": "Normal",
+            "zh-CN": "Regular"
+          },
+          "win32FaceNames": {
+            "ca-ES": "Normal",
+            "cs-CZ": "obyčejné",
+            "da-DK": "Normal",
+            "de-DE": "Standard",
+            "el-GR": "Κανονικά",
+            "en-US": "Regular",
+            "es-ES": "Normal",
+            "es-MX": "Normal",
+            "eu-ES": "Arrunta",
+            "fi-FI": "Normaali",
+            "fr-CA": "Normal",
+            "fr-FR": "Normal",
+            "hu-HU": "Normál",
+            "it-IT": "Normale",
+            "nb-NO": "Normal",
+            "nl-NL": "Standaard",
+            "pl-PL": "Normalny",
+            "pt-BR": "Normal",
+            "pt-PT": "Normal",
+            "ru-RU": "Обычный",
+            "sk-SK": "Normálne",
+            "sl-SI": "Navadno",
+            "sv-SE": "Normal",
+            "tr-TR": "Normal",
+            "zh-CN": "Regular"
+          },
+          "versionStrings": ["en-US=Version 6.30", "zh-CN=Version 6.30"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYH.TTC",
+          "sha256": "3084f1f88369af6bf9989c909024164d953d1e38d08734f05f28ef24b2f9d577"
+        },
+        {
+          "weight": 700,
+          "style": "Oblique",
+          "stretch": "Normal",
+          "glyphTypeface": true,
+          "fontUri": "file:///C:/WINDOWS/FONTS/MSYHBD.TTC#1",
+          "isCompositeFont": false,
+          "glyphCount": 29949,
+          "familyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "win32FamilyNames": {
+            "en-US": "Microsoft YaHei UI",
+            "zh-CN": "Microsoft YaHei UI"
+          },
+          "faceNames": {
+            "ca-ES": "Negreta",
+            "cs-CZ": "tučné",
+            "da-DK": "fed",
+            "de-DE": "Fett",
+            "el-GR": "Έντονα",
+            "en-US": "Bold",
+            "es-ES": "Negrita",
+            "es-MX": "Negrita",
+            "eu-ES": "Lodia",
+            "fi-FI": "Lihavoitu",
+            "fr-CA": "Gras",
+            "fr-FR": "Gras",
+            "hu-HU": "Félkövér",
+            "it-IT": "Grassetto",
+            "nb-NO": "Halvfet",
+            "nl-NL": "Vet",
+            "pl-PL": "Pogrubiony",
+            "pt-BR": "Negrito",
+            "pt-PT": "Negrito",
+            "ru-RU": "Полужирный",
+            "sk-SK": "Tučné",
+            "sl-SI": "Krepko",
+            "sv-SE": "Fet",
+            "tr-TR": "Kalın",
+            "zh-CN": "Bold"
+          },
+          "win32FaceNames": {
+            "ca-ES": "Negreta",
+            "cs-CZ": "tučné",
+            "da-DK": "fed",
+            "de-DE": "Fett",
+            "el-GR": "Έντονα",
+            "en-US": "Bold",
+            "es-ES": "Negrita",
+            "es-MX": "Negrita",
+            "eu-ES": "Lodia",
+            "fi-FI": "Lihavoitu",
+            "fr-CA": "Gras",
+            "fr-FR": "Gras",
+            "hu-HU": "Félkövér",
+            "it-IT": "Grassetto",
+            "nb-NO": "Halvfet",
+            "nl-NL": "Vet",
+            "pl-PL": "Pogrubiony",
+            "pt-BR": "Negrito",
+            "pt-PT": "Negrito",
+            "ru-RU": "Полужирный",
+            "sk-SK": "Tučné",
+            "sl-SI": "Krepko",
+            "sv-SE": "Fet",
+            "tr-TR": "Kalın",
+            "zh-CN": "Bold"
+          },
+          "versionStrings": ["en-US=Version 6.30", "zh-CN=Version 6.30"],
+          "localFile": "C:\\WINDOWS\\FONTS\\MSYHBD.TTC",
+          "sha256": "519309b7ab0479c4dc3ace5e291de5a8702175be5586e165bc810267bd4619a5"
+        }
+      ],
+      "resolvedFiles": ["C:\\WINDOWS\\FONTS\\MSYHL.TTC", "C:\\WINDOWS\\FONTS\\MSYH.TTC", "C:\\WINDOWS\\FONTS\\MSYHBD.TTC"],
+      "baseUri": null,
+      "nameMatchesFileFamilyName": "yes",
+      "sabotaged": false
+    },
+    {
+      "property": "MessageFontStyle",
+      "type": "FontStyle",
+      "value": "Normal"
+    },
+    {
+      "property": "MessageFontWeight",
+      "type": "FontWeight",
+      "openTypeWeight": 400
+    },
+    {
+      "property": "MessageFontTextDecorations",
+      "type": "TextDecorationCollection",
+      "value": "count=0"
+    },
+    {
+      "property": "IconFontSizeKey",
+      "type": "ResourceKey",
+      "value": "IconFontSize"
+    },
+    {
+      "property": "IconFontFamilyKey",
+      "type": "ResourceKey",
+      "value": "IconFontFamily"
+    },
+    {
+      "property": "IconFontStyleKey",
+      "type": "ResourceKey",
+      "value": "IconFontStyle"
+    },
+    {
+      "property": "IconFontWeightKey",
+      "type": "ResourceKey",
+      "value": "IconFontWeight"
+    },
+    {
+      "property": "IconFontTextDecorationsKey",
+      "type": "ResourceKey",
+      "value": "IconFontTextDecorations"
+    },
+    {
+      "property": "CaptionFontSizeKey",
+      "type": "ResourceKey",
+      "value": "CaptionFontSize"
+    },
+    {
+      "property": "CaptionFontFamilyKey",
+      "type": "ResourceKey",
+      "value": "CaptionFontFamily"
+    },
+    {
+      "property": "CaptionFontStyleKey",
+      "type": "ResourceKey",
+      "value": "CaptionFontStyle"
+    },
+    {
+      "property": "CaptionFontWeightKey",
+      "type": "ResourceKey",
+      "value": "CaptionFontWeight"
+    },
+    {
+      "property": "CaptionFontTextDecorationsKey",
+      "type": "ResourceKey",
+      "value": "CaptionFontTextDecorations"
+    },
+    {
+      "property": "SmallCaptionFontSizeKey",
+      "type": "ResourceKey",
+      "value": "SmallCaptionFontSize"
+    },
+    {
+      "property": "SmallCaptionFontFamilyKey",
+      "type": "ResourceKey",
+      "value": "SmallCaptionFontFamily"
+    },
+    {
+      "property": "SmallCaptionFontStyleKey",
+      "type": "ResourceKey",
+      "value": "SmallCaptionFontStyle"
+    },
+    {
+      "property": "SmallCaptionFontWeightKey",
+      "type": "ResourceKey",
+      "value": "SmallCaptionFontWeight"
+    },
+    {
+      "property": "SmallCaptionFontTextDecorationsKey",
+      "type": "ResourceKey",
+      "value": "SmallCaptionFontTextDecorations"
+    },
+    {
+      "property": "MenuFontSizeKey",
+      "type": "ResourceKey",
+      "value": "MenuFontSize"
+    },
+    {
+      "property": "MenuFontFamilyKey",
+      "type": "ResourceKey",
+      "value": "MenuFontFamily"
+    },
+    {
+      "property": "MenuFontStyleKey",
+      "type": "ResourceKey",
+      "value": "MenuFontStyle"
+    },
+    {
+      "property": "MenuFontWeightKey",
+      "type": "ResourceKey",
+      "value": "MenuFontWeight"
+    },
+    {
+      "property": "MenuFontTextDecorationsKey",
+      "type": "ResourceKey",
+      "value": "MenuFontTextDecorations"
+    },
+    {
+      "property": "StatusFontSizeKey",
+      "type": "ResourceKey",
+      "value": "StatusFontSize"
+    },
+    {
+      "property": "StatusFontFamilyKey",
+      "type": "ResourceKey",
+      "value": "StatusFontFamily"
+    },
+    {
+      "property": "StatusFontStyleKey",
+      "type": "ResourceKey",
+      "value": "StatusFontStyle"
+    },
+    {
+      "property": "StatusFontWeightKey",
+      "type": "ResourceKey",
+      "value": "StatusFontWeight"
+    },
+    {
+      "property": "StatusFontTextDecorationsKey",
+      "type": "ResourceKey",
+      "value": "StatusFontTextDecorations"
+    },
+    {
+      "property": "MessageFontSizeKey",
+      "type": "ResourceKey",
+      "value": "MessageFontSize"
+    },
+    {
+      "property": "MessageFontFamilyKey",
+      "type": "ResourceKey",
+      "value": "MessageFontFamily"
+    },
+    {
+      "property": "MessageFontStyleKey",
+      "type": "ResourceKey",
+      "value": "MessageFontStyle"
+    },
+    {
+      "property": "MessageFontWeightKey",
+      "type": "ResourceKey",
+      "value": "MessageFontWeight"
+    },
+    {
+      "property": "MessageFontTextDecorationsKey",
+      "type": "ResourceKey",
+      "value": "MessageFontTextDecorations"
+    }
+  ],
+  "systemFontFamilies": {
+    "count": 91,
+    "firstFiveInEnumerationOrder": ["Cascadia Code", "Cascadia Mono", "Arial", "Bahnschrift", "Calibri"],
+    "enumerationOrderStableAcrossTwoCalls": true,
+    "firstFiveSecondCall": ["Cascadia Code", "Cascadia Mono", "Arial", "Bahnschrift", "Calibri"],
+    "messageFontFamilySource": "Microsoft YaHei UI",
+    "messageFontFamilyLocalizedNames": {
+      "en-us": "Microsoft YaHei UI",
+      "zh-cn": "Microsoft YaHei UI"
+    },
+    "messageFontFamilyInCollection": {
+      "byEquals": true,
+      "bySourceString": true,
+      "byLocalizedFamilyName": true,
+      "verdict": "YES - present (matched by name)",
+      "note": "byEquals uses object identity; WPF returns a fresh FontFamily instance for SystemFonts, so identity is expected to be false even when the family is present - the meaningful comparisons are by name and by file."
+    },
+    "familiesSharingMessageFontFile": ["Microsoft YaHei", "Microsoft YaHei", "Microsoft YaHei", "Microsoft YaHei UI", "Microsoft YaHei UI", "Microsoft YaHei UI"],
+    "systemTypefacesCount": 563,
+    "messageFontFileInSystemTypefaces": true,
+    "allFamilies": ["Cascadia Code", "Cascadia Mono", "Arial", "Bahnschrift", "Calibri", "Cambria", "Cambria Math", "Candara", "Comic Sans MS", "Consolas", "Constantia", "Corbel", "Courier New", "Ebrima", "Franklin Gothic", "Gabriola", "Gadugi", "Georgia", "Impact", "Ink Free", "Javanese Text", "Leelawadee UI", "Lucida Console", "Lucida Sans Unicode", "Malgun Gothic", "Microsoft Himalaya", "Microsoft JhengHei", "Microsoft JhengHei UI", "Microsoft New Tai Lue", "Microsoft PhagsPa", "Microsoft Sans Serif", "Microsoft Tai Le", "Microsoft YaHei", "Microsoft YaHei UI", "Microsoft Yi Baiti", "MingLiU-ExtB", "PMingLiU-ExtB", "MingLiU_HKSCS-ExtB", "Mongolian Baiti", "MS Gothic", "MS UI Gothic", "MS PGothic", "MV Boli", "Myanmar Text", "Nirmala UI", "Palatino Linotype", "Sans Serif Collection", "Segoe Fluent Icons", "Segoe MDL2 Assets", "Segoe Print", "Segoe Script", "Segoe UI", "Segoe UI Emoji", "Segoe UI Historic", "Segoe UI Symbol", "Segoe UI Variable Small", "Segoe UI Variable Text", "Segoe UI Variable Display", "SimSun", "NSimSun", "SimSun-ExtB", "Sitka Small", "Sitka Text", "Sitka Subheading", "Sitka Heading", "Sitka Display", "Sitka Banner", "Sylfaen", "Symbol", "Tahoma", "Times New Roman", "Trebuchet MS", "Verdana", "Webdings", "Wingdings", "Yu Gothic", "Yu Gothic UI", "DengXian", "FangSong", "KaiTi", "SimHei", "HoloLens MDL2 Assets", "Kingsoft UE", "DejaVu Math TeX Gyre", "MT Extra", "DejaVu Sans Mono", "Marlett", "Global User Interface", "Global Monospace", "Global Sans Serif", "Global Serif"]
+  },
+  "rawSpi": {
+    "nonClientMetrics": {
+      "call": "SystemParametersInfo(SPI_GETNONCLIENTMETRICS)",
+      "cbSize": 504,
+      "ok": true,
+      "lastError": 0
+    },
+    "logFonts": [
+      {
+        "which": "lfMessageFont",
+        "faceName": "Microsoft YaHei UI",
+        "height": -12,
+        "weight": 400,
+        "italic": false,
+        "charSet": 1,
+        "pitchAndFamily": 0
+      },
+      {
+        "which": "lfCaptionFont",
+        "faceName": "Microsoft YaHei UI",
+        "height": -12,
+        "weight": 400,
+        "italic": false,
+        "charSet": 1,
+        "pitchAndFamily": 0
+      },
+      {
+        "which": "lfSmCaptionFont",
+        "faceName": "Microsoft YaHei UI",
+        "height": -12,
+        "weight": 400,
+        "italic": false,
+        "charSet": 1,
+        "pitchAndFamily": 0
+      },
+      {
+        "which": "lfMenuFont",
+        "faceName": "Microsoft YaHei UI",
+        "height": -12,
+        "weight": 400,
+        "italic": false,
+        "charSet": 1,
+        "pitchAndFamily": 0
+      },
+      {
+        "which": "lfStatusFont",
+        "faceName": "Microsoft YaHei UI",
+        "height": -12,
+        "weight": 400,
+        "italic": false,
+        "charSet": 1,
+        "pitchAndFamily": 0
+      },
+      {
+        "which": "SPI_GETICONTITLELOGFONT",
+        "faceName": "Microsoft YaHei UI",
+        "height": -12,
+        "weight": 400,
+        "italic": false,
+        "charSet": 1,
+        "pitchAndFamily": 0
+      }
+    ],
+    "registryWindowMetrics": [
+      {
+        "name": "MessageFont",
+        "present": true,
+        "kind": "REG_BINARY",
+        "bytes": 92,
+        "faceNameFromBlob": "Microsoft YaHei UI",
+        "hex": "EBFFFFFF0000000000000000000000009001000000000001000005004D006900630072006F0073006F006600740020005900610048006500690020005500490000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "CaptionFont",
+        "present": true,
+        "kind": "REG_BINARY",
+        "bytes": 92,
+        "faceNameFromBlob": "Microsoft YaHei UI",
+        "hex": "EBFFFFFF0000000000000000000000009001000000000001000005004D006900630072006F0073006F006600740020005900610048006500690020005500490000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "SmCaptionFont",
+        "present": true,
+        "kind": "REG_BINARY",
+        "bytes": 92,
+        "faceNameFromBlob": "Microsoft YaHei UI",
+        "hex": "EBFFFFFF0000000000000000000000009001000000000001000005004D006900630072006F0073006F006600740020005900610048006500690020005500490000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "MenuFont",
+        "present": true,
+        "kind": "REG_BINARY",
+        "bytes": 92,
+        "faceNameFromBlob": "Microsoft YaHei UI",
+        "hex": "EBFFFFFF0000000000000000000000009001000000000001000005004D006900630072006F0073006F006600740020005900610048006500690020005500490000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "StatusFont",
+        "present": true,
+        "kind": "REG_BINARY",
+        "bytes": 92,
+        "faceNameFromBlob": "Microsoft YaHei UI",
+        "hex": "EBFFFFFF0000000000000000000000009001000000000001000005004D006900630072006F0073006F006600740020005900610048006500690020005500490000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "IconFont",
+        "present": true,
+        "kind": "REG_BINARY",
+        "bytes": 92,
+        "faceNameFromBlob": "Microsoft YaHei UI",
+        "hex": "EBFFFFFF0000000000000000000000009001000000000001000005004D006900630072006F0073006F006600740020005900610048006500690020005500490000000000000000000000000000000000000000000000000000000000"
+      }
+    ],
+    "currentThemeRegistryValue": "C:\\Windows\\resources\\Themes\\aero.theme",
+    "themeFiles": [
+      {
+        "file": "C:\\Windows\\Resources\\Themes\\aero.theme",
+        "bytes": 1940,
+        "sha256": "9dcb7383396a3b0a4d13ce0bc887baf457107db5e4f2b27da2393045f253e9c4",
+        "hasWindowMetricsSection": false,
+        "windowMetricFontLines": []
+      },
+      {
+        "file": "C:\\Windows\\Resources\\Themes\\dark.theme",
+        "bytes": 1937,
+        "sha256": "60ecd4f138a433e34fe9418a75b1e7e9c57434180e2d0dac71295276690cb8d7",
+        "hasWindowMetricsSection": false,
+        "windowMetricFontLines": []
+      },
+      {
+        "file": "C:\\Windows\\Resources\\Themes\\spotlight.theme",
+        "bytes": 1970,
+        "sha256": "0c430c1fd416ca90a05213fa418c23cb13d2eb136e56579520bd62ff606e537e",
+        "hasWindowMetricsSection": false,
+        "windowMetricFontLines": []
+      },
+      {
+        "file": "C:\\Windows\\Resources\\Themes\\themeA.theme",
+        "bytes": 2241,
+        "sha256": "61f4f009e8fa54a86abe042754d9472c4ad97d0a265484a3c2d8947569581b55",
+        "hasWindowMetricsSection": false,
+        "windowMetricFontLines": []
+      },
+      {
+        "file": "C:\\Windows\\Resources\\Themes\\themeB.theme",
+        "bytes": 2241,
+        "sha256": "a525d1df801ac1b88284ea3d501c265b6c65d37ab51f18f0d2de9dad042d2a92",
+        "hasWindowMetricsSection": false,
+        "windowMetricFontLines": []
+      },
+      {
+        "file": "C:\\Windows\\Resources\\Themes\\themeC.theme",
+        "bytes": 2243,
+        "sha256": "f9de7d4372a0bb480cc781f3ee1321c73a9dbf4b57b6da0f4d3800f4c4855421",
+        "hasWindowMetricsSection": false,
+        "windowMetricFontLines": []
+      },
+      {
+        "file": "C:\\Windows\\Resources\\Themes\\themeD.theme",
+        "bytes": 2243,
+        "sha256": "7d1c35d175486b75815a71fe8c95d2d6d1dd907414b2f65b0444163d0e718f10",
+        "hasWindowMetricsSection": false,
+        "windowMetricFontLines": []
+      }
+    ],
+    "fontSubstitutes": [
+      {
+        "alias": "MS Shell Dlg 2",
+        "target": "Tahoma"
+      },
+      {
+        "alias": "Tahoma Armenian",
+        "target": "Tahoma"
+      },
+      {
+        "alias": "MS Shell Dlg",
+        "target": "Microsoft Sans Serif"
+      }
+    ],
+    "readOnly": "SPI_GET* and registry reads only; nothing was written, no theme was changed"
+  },
+  "textRenderingDefaults": {
+    "TextFormattingMode.default": "Ideal",
+    "TextRenderingMode.default": "Auto",
+    "TextHintingMode.default": "Auto",
+    "TextFormattingMode.onTextBlock": "Ideal",
+    "dpiScale": 1,
+    "note": "TextOptions.GetTextFormattingMode on a fresh DependencyObject returns the process default that a TextBlock inherits when nothing sets it explicitly."
+  },
+  "negativeControl": {
+    "bogusFamily": "__NoSuchFontFamily_U1__",
+    "resolvedFiles": [],
+    "ok": true,
+    "why": "a family that does not exist must not resolve to a font file; otherwise the resolution check in this tool proves nothing"
+  },
+  "failures": []
+}

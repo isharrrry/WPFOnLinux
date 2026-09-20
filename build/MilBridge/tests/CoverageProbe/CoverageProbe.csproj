@@ -1,0 +1,94 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(MSBuildThisFileDirectory)../../../../build/SelfBuiltConfig.props" />
+
+  <!--
+    T1d · **R1 覆盖回退探针**（主控 2026-09-11 批准：**新开一个 exe**，不塞进 DirectBranchCheck）
+
+    为什么独立：
+      · `DirectBranchCheck` 是**波前的默认值闸门**（D1–D6），它必须**永不因为原生库加载失败而假红**
+        ⇒ 不能把 SkiaSharp / Provider 与它绑死；
+      · 本探针要真的走**字体栈**（PC 的 FontFamily/TryGetTypeface + provider 的 SKTypeface），
+        所以它自己带 SkiaSharp（**版本锁 2.88.9，与 T3/M7c 同一把**）与 Provider 引用。
+
+    它驱动的是什么（关键）：
+      · **真 shim 源**（`build/shims/PresentationCore.HbTextLine.cs`，以 `TEXTLINE_SHIM_DIRECT` 编译）；
+      · 走的是**应用路径**：`HbTextFallback.TryFormatLine(TextSource, …)` —— 即 D3 接线后
+        应用真正落到的那一段（不是 harness 的单字体入口）；
+      · 用**多 run 的假 TextSource** 喂它 ⇒ 这一条正是 R1 要修的"run 级字体 + 按码点覆盖回退"。
+
+    身份：程序集名 = `PresentationCore.Tests` + 与 PC 同一把公钥公开签名 ⇒ 借用 PC 的 IVT 名额
+      （internal 可见），这样 `TEXTLINE_SHIM_DIRECT` 那一支才编得动（与 DirectBranchCheck 同一手法）。
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <!-- ⭐ 必须是这个名字（PC 的 IVT 名单里就是它） -->
+    <AssemblyName>PresentationCore.Tests</AssemblyName>
+    <RootNamespace>MilBridge.CoverageProbe</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <BaseOutputPath>$(MSBuildThisFileDirectory)bin\</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)obj\</BaseIntermediateOutputPath>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign>true</PublicSign>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)../../../../build/keys/WcpPublicKey.snk</AssemblyOriginatorKeyFile>
+    <NoWarn>$(NoWarn);CS8002;CS0436;CS0012</NoWarn>
+    <HbShimSrc Condition="'$(HbShimSrc)' == ''">$(MSBuildThisFileDirectory)../../../shims/PresentationCore.HbTextLine.cs</HbShimSrc>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);TEXTLINE_SHIM_DIRECT</DefineConstants>
+  </PropertyGroup>
+
+  <!-- 【`D-G26` · 落地车道 W30B】探针自报身份：把本探针编译进去的那一份 `Program.cs` 的
+       内容 sha256 嵌进程序集元数据（照抄 W17C 的 `HbTextLineShimSha.targets` 惯例）。
+       ⚠️【W30B 修正 W29E 草稿的一处真缺陷】**`<Import>` 必须是 `<Project>` 的直下子元素**：
+          W29E 的 `probe-identity.diff` 把它写进了下面的 `<ItemGroup>` 里（与 `<Compile>` 并列）
+          ⇒ MSBuild 把它当成一个**名为 `Import` 的 item**（`Project` 沦为它的元数据），
+          **本 targets 根本不会被导入** ⇒ `CoverageProbeSourceSha` 元数据永不生成 ⇒
+          探针自报行恒为 `sha256=NOINFO` ⇒ 本闸对**所有**臂恒 `NOINFO`（"上线即哑"）。
+          实测：`python3 ET.parse` 判 `Import` 改前归 `ItemGroup` 子节点、改后归 `Project` 子节点。 -->
+  <Import Project="$(MSBuildThisFileDirectory)ProbeIdentity.targets" />
+
+  <ItemGroup>
+    <!-- ⭐ 编**真 shim 源文件**（与编进 PresentationCore 的是同一份） -->
+    <Compile Include="$(HbShimSrc)" Link="PresentationCore.HbTextLine.cs" />
+    <Compile Include="Program.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="PresentationCore">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/PresentationCore.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationCore.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="WindowsBase">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/WindowsBase.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/WindowsBase.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="DirectWriteForwarder">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/DirectWriteForwarder.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWriteForwarder.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <!-- provider 也要在输出目录里（PC 运行期要加载它） -->
+    <Reference Include="DirectWrite.Linux.Provider">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/DirectWrite.Linux/Provider/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWrite.Linux.Provider.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- ⚠️ 版本锁：与 T3/M7c 的 SkiaSharp 一致，不许动 -->
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.88.9" />
+    <!-- PC 的 FontFamily/Typeface 链在**运行期**要这几个（与 HbTextLineParity 同一套；
+         缺了就是 `FileNotFoundException: System.IO.Packaging` —— 本探针第一版实测踩到） -->
+    <PackageReference Include="System.IO.Packaging" Version="9.0.0" />
+    <PackageReference Include="System.Formats.Nrbf" Version="9.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.0" />
+    <PackageReference Include="System.Windows.Extensions" Version="9.0.0" />
+  </ItemGroup>
+
+</Project>

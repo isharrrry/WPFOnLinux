@@ -1,0 +1,60 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- ⭐ `D-R8`（工程卫生）：不依赖 `$(BaseIntermediateOutputPath)` 指向哪里的产物目录排除。
+       实现在仓根 `BuildHygiene.props`（全仓唯一一份；理由与两种被否决的落点见 `build/MilBridge/W21B-report.md` §2）。
+       **故意不加 `Exists()` 条件**：文件找不到要大声失败。 -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('BuildHygiene.props'))" />
+
+  <!--
+    T9-A3 HelloMil 的端到端测试。
+
+    为什么独立于 Windowing.Tests / Rendering.Tests：
+      · Rendering.Tests 用了 InternalsVisibleTo("WpfGfx.Linux.Rendering.Tests")，
+        不能把我的友元加进去（不允许改 src/ 之外的可见性声明）—— 我只能加
+        InternalsVisibleTo("HelloMil")。
+      · 我不直接调 WpfGfx.Linux 的 internal，而是走 samples/HelloMil 的**公共**
+        API（HelloMilScene / HelloMilPaths / HelloMilScreenshot）。这样既隔离了
+        T9-A3 的工作面，又让测试本身成为"demo 公开 API 设计是否合理"的一手验证。
+
+    X11 类别用例（trait Category=X11）：开 X server 模拟端到端的窗口截屏。
+    在无 DISPLAY 的环境里由 X11Probe 守门，发现期就 Skip，不是 Failed。
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>annotations</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>WpfGfx.Linux.Tests.HelloMil</RootNamespace>
+    <AssemblyName>WpfGfx.Linux.HelloMil.Tests</AssemblyName>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.88.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- demo 与测试同源。X11 这条路在 tests 里走 HelloMilScene + HelloMilScreenshot -->
+    <ProjectReference Include="../../../samples/HelloMil/HelloMil.csproj" />
+  </ItemGroup>
+
+
+  <!--
+    债务 #1（测试 flaky 的根因治理）：**显式**声明并行度，不让它取决于 xunit 的默认值。
+    为什么必须显式：`MilChannelRegistry`/`MilHandleTables` 等是**进程级静态表**，
+    而多数用例开头的 `ResetProcessStateForTests()` **刻意不清通道注册表**
+    （理由见 src/WpfGfx.Linux/Interop/MilNative.Exports.cs:266-280）⇒ 一个用例泄漏的通道会活到后面的用例。
+    默认值（v2 为"并行跑集合"）会随版本/机器变化 ⇒ "同一命令有时红"里混进了"默认值变了"这个变量。
+    这里取 **false**（串行跑集合）：它是与"共享进程级静态表"这一事实**相符**的那一档；
+    真并发问题另有长期仪器（`WPF_LINUX_CHANNEL_LEAK_TRACE=1` 的通道泄漏守卫）负责暴露，不靠默认值碰运气。
+  -->
+  <ItemGroup>
+    <None Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

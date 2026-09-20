@@ -1,0 +1,83 @@
+DirectWrite CJK shaping oracle - human readable dump
+generated: 2026-09-11T01:00:16.2986020Z
+font: NotoSansCJK-Regular.ttc  sha256 b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a
+
+=== face 2 (SC)  glyphs=65535 upem=1000 ascent=1160 descent=288 lineGap=0
+[han-simplified] "汉字排版测试：这是一段需要换行的中文文本。"  (24 DIP, face SC)
+    glyphs   : 23037 15365 19127 25783 23422 38482 63150 40121 20333 9481 22784 43470 37329 19046 36710 27699 9544 20036 20036 20759 1398
+    advances : 24 24 24 24 24 24 24 24 24 24 24 24 24 24 24 24 24 24 24 24 24
+    total    : 504 DIP
+    note     : simplified Chinese Han + fullwidth colon/period
+[han-mixed-script] "日本語の漢字とかな、한글 조판, 简体汉字。"  (24 DIP, face SC)
+    glyphs   : 20220 20759 37861 1505 58935 15365 1499 1470 1501 1397 58199 48123 63108 54891 57611 13 1 29967 9966 23037 15365 1398
+    advances : 24 24 24 24 24 24 24 24 24 24 22.08 22.08 6.72 22.08 22.08 6.672 5.376 24 24 24 24 24
+    total    : 467.088 DIP
+    note     : Han + kana + hangul in one run (real script boundaries)
+[kana] "ひらがなとカタカナのテストです。"  (24 DIP, face SC)
+    glyphs   : 1509 1532 1471 1501 1499 1564 1584 1564 1595 1505 1591 1578 1593 1498 1484 1398
+    advances : 24 24 24 24 24 24 24 24 24 24 24 24 24 24 21.6 24
+    total    : 381.6 DIP
+    note     : hiragana + katakana + ideographic full stop
+[hangul] "한글 조판 테스트입니다."  (24 DIP, face SC)
+    glyphs   : 58199 48123 63108 54891 57611 63108 57159 53407 57523 54656 49347 49375 15
+    advances : 22.08 22.08 6.72 22.08 22.08 6.72 22.08 22.08 22.08 22.08 22.08 22.08 6.672
+    total    : 240.912 DIP
+    note     : hangul syllables + space
+[fullwidth-punct] "全角标点：，。！？；：「」（）【】"  (24 DIP, face SC)
+    glyphs   : 10899 37449 21085 24992 63150 59058 1398 63147 63152 63151 63150 1408 1409 59054 59055 1412 1413
+    advances : 24 24 24 24 24 24 24 24 24 24 24 24 24 24 24 24 24
+    total    : 408 DIP
+    note     : fullwidth punctuation only
+[mixed-latin-cjk] "WPF 在 Linux 上渲染文本 with Latin 123"  (24 DIP, face SC)
+    glyphs   : 56 49 39 1 13255 1 45 74 79 86 89 1 9493 23799 21004 20036 20759 1 88 74 85 73 1 45 66 85 74 79 1 18 19 20
+    advances : 21.072001 15.192 13.248 5.376 24 5.376 13.032001 6.6 14.64 14.568 11.952 5.376 24 24 24 24 24 5.376 19.248001 6.6 9.048 14.568 5.376 13.032001 13.152 9.048 6.6 14.64 5.376 13.32 13.32 13.32
+    total    : 432.456003 DIP
+    note     : Latin + CJK + digits (the string that was .notdef before)
+[latin-only-in-cjk-font] "Hello WPF"  (24 DIP, face SC)
+    glyphs   : 41 70 77 77 80 1 56 49 39
+    advances : 17.472 13.296 6.816 6.816 14.544 5.376 21.072001 15.192 13.248
+    total    : 113.832001 DIP
+    note     : Latin served by the CJK font itself (no fallback)
+[han-simplified] "汉字排版测试：这是一段需要换行的中文文本。"  (11 DIP, face SC)
+    glyphs   : 23037 15365 19127 25783 23422 38482 63150 40121 20333 9481 22784 43470 37329 19046 36710 27699 9544 20036 20036 20759 1398
+    advances : 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11
+    total    : 231 DIP
+    note     : simplified Chinese Han + fullwidth colon/period
+[han-mixed-script] "日本語の漢字とかな、한글 조판, 简体汉字。"  (11 DIP, face SC)
+    glyphs   : 20220 20759 37861 1505 58935 15365 1499 1470 1501 1397 58199 48123 63108 54891 57611 13 1 29967 9966 23037 15365 1398
+    advances : 11 11 11 11 11 11 11 11 11 11 10.12 10.12 3.08 10.12 10.12 3.058 2.464 11 11 11 11 11
+    total    : 214.082 DIP
+    note     : Han + kana + hangul in one run (real script boundaries)
+[kana] "ひらがなとカタカナのテストです。"  (11 DIP, face SC)
+    glyphs   : 1509 1532 1471 1501 1499 1564 1584 1564 1595 1505 1591 1578 1593 1498 1484 1398
+    advances : 11 11 11 11 11 11 11 11 11 11 11 11 11 11 9.9 11
+    total    : 174.9 DIP
+    note     : hiragana + katakana + ideographic full stop
+[hangul] "한글 조판 테스트입니다."  (11 DIP, face SC)
+    glyphs   : 58199 48123 63108 54891 57611 63108 57159 53407 57523 54656 49347 49375 15
+    advances : 10.12 10.12 3.08 10.12 10.12 3.08 10.12 10.12 10.12 10.12 10.12 10.12 3.058
+    total    : 110.417999 DIP
+    note     : hangul syllables + space
+[fullwidth-punct] "全角标点：，。！？；：「」（）【】"  (11 DIP, face SC)
+    glyphs   : 10899 37449 21085 24992 63150 59058 1398 63147 63152 63151 63150 1408 1409 59054 59055 1412 1413
+    advances : 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11
+    total    : 187 DIP
+    note     : fullwidth punctuation only
+[mixed-latin-cjk] "WPF 在 Linux 上渲染文本 with Latin 123"  (11 DIP, face SC)
+    glyphs   : 56 49 39 1 13255 1 45 74 79 86 89 1 9493 23799 21004 20036 20759 1 88 74 85 73 1 45 66 85 74 79 1 18 19 20
+    advances : 9.658 6.963 6.072 2.464 11 2.464 5.973 3.025 6.71 6.677 5.478 2.464 11 11 11 11 11 2.464 8.822 3.025 4.147 6.677 2.464 5.973 6.028 4.147 3.025 6.71 2.464 6.105 6.105 6.105
+    total    : 198.209 DIP
+    note     : Latin + CJK + digits (the string that was .notdef before)
+[latin-only-in-cjk-font] "Hello WPF"  (11 DIP, face SC)
+    glyphs   : 41 70 77 77 80 1 56 49 39
+    advances : 8.008 6.094 3.124 3.124 6.666 2.464 9.658 6.963 6.072
+    total    : 52.173 DIP
+    note     : Latin served by the CJK font itself (no fallback)
+[locl-han-forms] "直画骨角写门今令"  locl: glyph sequences identical across JP/SC/TC = False
+    JP: 27873 27078 45132 37448 10973 43012 9770 9808
+    SC: 27874 27079 45133 37449 10974 43013 9771 9809
+    TC: 27874 27080 45134 37448 10974 43013 9772 9810
+[locl-han-2] "汉字字体说明"  locl: glyph sequences identical across JP/SC/TC = False
+    JP: 23037 15364 15364 9966 38513 20282
+    SC: 23037 15365 15365 9966 38513 20282
+    TC: 23037 15365 15365 9966 38513 20282

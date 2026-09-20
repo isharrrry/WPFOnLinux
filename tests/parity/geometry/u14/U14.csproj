@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- ⭐ `D-R8`（工程卫生）：不依赖 `$(BaseIntermediateOutputPath)` 指向哪里的产物目录排除。
+       实现在仓根 `BuildHygiene.props`（全仓唯一一份；理由与两种被否决的落点见 `build/MilBridge/W21B-report.md` §2）。
+       **故意不加 `Exists()` 条件**：文件找不到要大声失败。 -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('BuildHygiene.props'))" />
+
+  <!--
+    U14：展平密度差异的量化 + 上游 CBezierFlattener 原型。
+
+    ⚠️ 刻意**不引用** src/WpfGfx.Linux：本轮 lane 规定不改 src/（M7b 在改），
+    不引用就不会与他们的半成品编译状态互相拖累。输入全部来自
+    tests/parity/geometry/ 的数据文件；"我方算法"在本项目里按源码逐行复刻。
+  -->
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>U14</AssemblyName>
+    <RootNamespace>WpfGfx.Linux.Parity.U14</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- 只借数据模型与 JSON 工具（这两个文件不依赖 SkiaSharp / WpfGfx.Linux） -->
+    <Compile Include="../harness/GeometryCases.cs" />
+    <Compile Include="../harness/GeometryRunner.cs" />
+  </ItemGroup>
+
+</Project>

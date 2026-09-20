@@ -1,0 +1,486 @@
+{
+  "format": "wpf-linux-u1-kinsoku-table/1",
+  "generatedUtc": "2026-09-11T01:16:57.7441369Z",
+  "engine": "DirectWrite IDWriteTextLayout (word wrapping = WRAP), Noto Sans CJK SC, 24 DIP",
+  "fontSha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+  "construction": {
+    "start": "text = 7 kanji fillers \u002B X \u002B tail, container = 168 DIP = exactly 7 full-width chars; line1 ending at char 6 means X was pulled to line 2 (prohibited at line start), ending at 7 means allowed",
+    "end": "text = 6 kanji fillers \u002B X \u002B tail, container = 168 DIP; line1 ending at char 6 means X was pushed to line 2 (prohibited at line end), ending at 7 means allowed",
+    "control": "X = \u7532 (kanji) must be allowed in both directions, otherwise the probe construction is wrong",
+    "conflict": "deliberately unsatisfiable layouts; verdict is n/a, inspect line1Text/line2Text"
+  },
+  "rows": [
+    {
+      "char": "\u3001",
+      "kind": "start",
+      "verdict": "PROHIBITED at line start (7th filler pulled down to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u5E9A\u3001\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\u3002",
+      "kind": "start",
+      "verdict": "PROHIBITED at line start (7th filler pulled down to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u5E9A\u3002\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\uFF0C",
+      "kind": "start",
+      "verdict": "PROHIBITED at line start (7th filler pulled down to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u5E9A\uFF0C\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\uFF0E",
+      "kind": "start",
+      "verdict": "PROHIBITED at line start (7th filler pulled down to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u5E9A\uFF0E\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\uFF1A",
+      "kind": "start",
+      "verdict": "PROHIBITED at line start (7th filler pulled down to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u5E9A\uFF1A\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\uFF1B",
+      "kind": "start",
+      "verdict": "PROHIBITED at line start (7th filler pulled down to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u5E9A\uFF1B\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\uFF01",
+      "kind": "start",
+      "verdict": "PROHIBITED at line start (7th filler pulled down to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u5E9A\uFF01\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\uFF1F",
+      "kind": "start",
+      "verdict": "PROHIBITED at line start (7th filler pulled down to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u5E9A\uFF1F\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\uFF09",
+      "kind": "start",
+      "verdict": "PROHIBITED at line start (7th filler pulled down to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u5E9A\uFF09\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\uFF3D",
+      "kind": "start",
+      "verdict": "PROHIBITED at line start (7th filler pulled down to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u5E9A\uFF3D\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\uFF5D",
+      "kind": "start",
+      "verdict": "PROHIBITED at line start (7th filler pulled down to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u5E9A\uFF5D\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\u300D",
+      "kind": "start",
+      "verdict": "PROHIBITED at line start (7th filler pulled down to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u5E9A\u300D\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\u300F",
+      "kind": "start",
+      "verdict": "PROHIBITED at line start (7th filler pulled down to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u5E9A\u300F\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\u3011",
+      "kind": "start",
+      "verdict": "PROHIBITED at line start (7th filler pulled down to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u5E9A\u3011\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\u300B",
+      "kind": "start",
+      "verdict": "PROHIBITED at line start (7th filler pulled down to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u5E9A\u300B\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\u3009",
+      "kind": "start",
+      "verdict": "PROHIBITED at line start (7th filler pulled down to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u5E9A\u3009\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\u3015",
+      "kind": "start",
+      "verdict": "PROHIBITED at line start (7th filler pulled down to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u5E9A\u3015\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\u30FB",
+      "kind": "start",
+      "verdict": "PROHIBITED at line start (7th filler pulled down to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u5E9A\u30FB\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\u30FC",
+      "kind": "start",
+      "verdict": "PROHIBITED at line start (7th filler pulled down to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u5E9A\u30FC\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\u3005",
+      "kind": "start",
+      "verdict": "PROHIBITED at line start (7th filler pulled down to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u5E9A\u3005\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\u3041",
+      "kind": "start",
+      "verdict": "PROHIBITED at line start (7th filler pulled down to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u5E9A\u3041\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\u3043",
+      "kind": "start",
+      "verdict": "PROHIBITED at line start (7th filler pulled down to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u5E9A\u3043\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\u3045",
+      "kind": "start",
+      "verdict": "PROHIBITED at line start (7th filler pulled down to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u5E9A\u3045\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\u3047",
+      "kind": "start",
+      "verdict": "PROHIBITED at line start (7th filler pulled down to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u5E9A\u3047\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\u3049",
+      "kind": "start",
+      "verdict": "PROHIBITED at line start (7th filler pulled down to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u5E9A\u3049\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\u3063",
+      "kind": "start",
+      "verdict": "PROHIBITED at line start (7th filler pulled down to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u5E9A\u3063\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\u3083",
+      "kind": "start",
+      "verdict": "PROHIBITED at line start (7th filler pulled down to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u5E9A\u3083\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\u3085",
+      "kind": "start",
+      "verdict": "PROHIBITED at line start (7th filler pulled down to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u5E9A\u3085\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\u3087",
+      "kind": "start",
+      "verdict": "PROHIBITED at line start (7th filler pulled down to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u5E9A\u3087\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\u2026",
+      "kind": "start",
+      "verdict": "PROHIBITED at line start (7th filler pulled down to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u5E9A\u2026\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\u2010",
+      "kind": "start",
+      "verdict": "PROHIBITED at line start (7th filler pulled down to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u5E9A\u2010\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\u7532",
+      "kind": "start",
+      "verdict": "allowed at line start",
+      "lineCount": 3,
+      "line1EndChar": 7,
+      "line1AdvanceDip": 168,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1\u5E9A",
+      "line2Text": "\u7532\u8F9B\u58EC\u7678\u5B50\u4E11\u5BC5"
+    },
+    {
+      "char": "\uFF08",
+      "kind": "end",
+      "verdict": "PROHIBITED at line end (probe char pushed to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\uFF08\u8F9B\u58EC\u7678\u5B50\u4E11\u5BC5"
+    },
+    {
+      "char": "\uFF3B",
+      "kind": "end",
+      "verdict": "PROHIBITED at line end (probe char pushed to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\uFF3B\u8F9B\u58EC\u7678\u5B50\u4E11\u5BC5"
+    },
+    {
+      "char": "\uFF5B",
+      "kind": "end",
+      "verdict": "PROHIBITED at line end (probe char pushed to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\uFF5B\u8F9B\u58EC\u7678\u5B50\u4E11\u5BC5"
+    },
+    {
+      "char": "\u300C",
+      "kind": "end",
+      "verdict": "PROHIBITED at line end (probe char pushed to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u300C\u8F9B\u58EC\u7678\u5B50\u4E11\u5BC5"
+    },
+    {
+      "char": "\u300E",
+      "kind": "end",
+      "verdict": "PROHIBITED at line end (probe char pushed to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u300E\u8F9B\u58EC\u7678\u5B50\u4E11\u5BC5"
+    },
+    {
+      "char": "\u3010",
+      "kind": "end",
+      "verdict": "PROHIBITED at line end (probe char pushed to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u3010\u8F9B\u58EC\u7678\u5B50\u4E11\u5BC5"
+    },
+    {
+      "char": "\u300A",
+      "kind": "end",
+      "verdict": "PROHIBITED at line end (probe char pushed to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u300A\u8F9B\u58EC\u7678\u5B50\u4E11\u5BC5"
+    },
+    {
+      "char": "\u3008",
+      "kind": "end",
+      "verdict": "PROHIBITED at line end (probe char pushed to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u3008\u8F9B\u58EC\u7678\u5B50\u4E11\u5BC5"
+    },
+    {
+      "char": "\u3014",
+      "kind": "end",
+      "verdict": "PROHIBITED at line end (probe char pushed to line 2)",
+      "lineCount": 3,
+      "line1EndChar": 6,
+      "line1AdvanceDip": 144,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u3014\u8F9B\u58EC\u7678\u5B50\u4E11\u5BC5"
+    },
+    {
+      "char": "\u201C",
+      "kind": "end",
+      "verdict": "other (line1 ends at 5)",
+      "lineCount": 3,
+      "line1EndChar": 5,
+      "line1AdvanceDip": 120,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A",
+      "line2Text": "\u5DF1\u201C\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\u2018",
+      "kind": "end",
+      "verdict": "other (line1 ends at 5)",
+      "lineCount": 3,
+      "line1EndChar": 5,
+      "line1AdvanceDip": 120,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A",
+      "line2Text": "\u5DF1\u2018\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\u7532",
+      "kind": "end",
+      "verdict": "allowed at line end",
+      "lineCount": 3,
+      "line1EndChar": 7,
+      "line1AdvanceDip": 168,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1\u7532",
+      "line2Text": "\u8F9B\u58EC\u7678\u5B50\u4E11\u5BC5\u536F"
+    },
+    {
+      "char": "\u300C\uFF08",
+      "kind": "conflict",
+      "verdict": "n/a",
+      "lineCount": 3,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u300C\uFF08\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\u300C\u300D",
+      "kind": "conflict",
+      "verdict": "n/a",
+      "lineCount": 3,
+      "line1Text": "\u7532\u4E59\u4E19\u4E01\u620A\u5DF1",
+      "line2Text": "\u300C\u300D\u8F9B\u58EC\u7678\u5B50\u4E11"
+    },
+    {
+      "char": "\uFF0C",
+      "kind": "conflict",
+      "verdict": "n/a",
+      "lineCount": 13,
+      "line1Text": "\u7532",
+      "line2Text": "\u4E59"
+    },
+    {
+      "char": "\uFF0C\u3002\u300D",
+      "kind": "conflict",
+      "verdict": "n/a",
+      "lineCount": 9,
+      "line1Text": "\u7532\u4E59",
+      "line2Text": "\u4E19\u4E01"
+    }
+  ]
+}

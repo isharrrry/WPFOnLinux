@@ -1,0 +1,129 @@
+== T1 / MilBridge · Phase 1-C 闭环：托管层 [DllImport] → NativeAOT wpfgfx_cor3.so ==
+resolver: lib loaded = False, install conflict = False
+diag reflection probe: available = 1, probecode = 0
+AOT 镜像内部 native 目录已注入 = 1（libSkiaSharp 探测用）
+
+[A] 机制
+  PASS  A1    无 resolver 时 wpfgfx_cor3.dll 默认探测必失败
+              NativeLibrary.Load("wpfgfx_cor3.dll") → DllNotFoundException（证明问题真实存在）
+  PASS  A2    resolver 已把 wpfgfx_cor3.dll 指向 AOT .so
+              TryResolve → True, handle=0x585D21BB8C50, IsLoaded=True
+  PASS  A3    MilNative.ExportManifest 条目数 == 109（上游 108 + 跨运行时字体面登记 1）
+              got 109
+  PASS  A4    MilNative.MissingExports() 在 AOT 镜像里为空（裁剪没裁掉）
+              missing = 0
+  PASS  A5    NotImplExportNames 计数（29 − SetNotificationWindow 1 = 28）
+              got 28
+  PASS  A6    CreateChannel 后 .so 内通道表 +1
+              hr=0x00000000 handle=0x10000001 count 0→1
+
+[B] 通道语义 / HRESULT
+  PASS  B1    GetMarshalType(有效通道) → S_OK + SameThread(1)
+              hr=0x00000000 marshalType=1
+  PASS  B2    GetMarshalType(伪句柄) → E_HANDLE
+              hr=0x80070006 expect 0x80070006
+  PASS  B3    CreateChannel(参考通道=伪句柄) → E_HANDLE
+              hr=0x80070006
+  PASS  B4    CloseBatch(干净批次) → S_OK
+              hr=0x00000000
+  PASS  B5    SetNotificationWindow：登记 S_OK / 幂等 S_OK / message=0 E_INVALIDARG / 解绑 S_OK+幂等
+              bind=0x00000000 bindAgain=0x00000000 msgNull=0x80070057(expect 0x80070057) unbind=0x00000000 unbindAgain=0x00000000
+  PASS  B6    DestroyChannel 后同一句柄 → E_HANDLE（句柄值不复用）
+              first=0x00000000 second=0x80070006
+  PASS  B7    CreateChannel(参考通道=有效) → S_OK（共享分区）
+              hr=0x00000000 sibling=0x10000003
+  PASS  B8    WgxConnection_SameThreadPresent(0) → S_OK（刷空批次）
+              hr=0x00000000
+
+[C] 资源表（全部通过真 ABI 可观测）
+  PASS  C1    CreateOrAddRef(TYPE_VISUAL, 空句柄) → S_OK + 新句柄非 0
+              hr=0x00000000 handle=0x00000001
+  PASS  C2    GetRefCount → S_OK，RefCount == 1
+              hr=0x00000000 refCount=1
+  PASS  C3    再次 CreateOrAddRef(同句柄) → AddRef，RefCount == 2
+              hr=0x00000000 refCount=2
+  PASS  C4    ReleaseOnChannel → S_OK，deleted=0，RefCount 2→1
+              hr=0x00000000 deleted=0 refCount=1
+  PASS  C5    GetRefCount(伪通道) → E_HANDLE
+              hr=0x80070006
+  PASS  C6    DuplicateHandle 跨分区 → E_INVALIDARG
+              hr=0x80070057
+  PASS  C7    DuplicateHandle 同分区 → S_OK，目标通道 RefCount ≥ 1
+              hr=0x00000000 dup=0x00000001 targetRefCount=1
+  PASS  C8    ReleaseOnChannel(不存在的句柄) → E_HANDLE
+              hr=0x80070006
+
+[D] 命令闭环（真的被既有 MilCommandDispatcher 解码）
+  PASS  D1    BeginCommand(8B头, cbExtra=16) + AppendCommandData(16B) + EndCommand + Commit → 全 S_OK
+              begin=0x00000000 append=0x00000000 end=0x00000000 commit=0x00000000
+  PASS  D2    channel.CommittedCommands == 1
+              hr=0x00000000 value=1 expect=1
+  PASS  D3    MilResource_SendCommand(整条 24B 命令, sendInSeparateBatch=1) → S_OK
+              hr=0x00000000
+  PASS  D4    SendCommand(null,…) / SendCommand(…,cbSize=0) → E_INVALIDARG
+              null=0x80070057 zero=0x80070057
+  PASS  D5    SendCommand(E_NOTIMPL 命令 0x0a) → E_NOTIMPL
+              hr=0x80004001
+  PASS  D6    channel.NotImplCommands == 1
+              hr=0x00000000 value=1 expect=1
+  PASS  D7    SendCommand(短于 FixedSize 的命令) → E_INVALIDARG
+              hr=0x80070057（dispatcher 的长度校验生效）
+  PASS  D8    嵌套 BeginCommand → E_UNEXPECTED
+              hr=0x8000FFFF
+  PASS  D9    BeginCommand 未 EndCommand 就 Commit → E_UNEXPECTED
+              hr=0x8000FFFF
+  PASS  D10   AppendCommandData 超出 cbExtra → E_INVALIDARG
+              hr=0x80070057
+  PASS  D11   MilCmdChannelDeleteResource 经命令流被执行 → 资源真的从通道表消失
+              commit=0x00000000 GetRefCount(after)=0x80070006（before refCount=1）
+  PASS  D12   对照：Type@0 正确但 Handle 错位到 offset 8 → 资源仍在（证明 Handle 只在 offset 4 被读）
+              commit=0x00000000；GetRefCount(after)=0x00000000 refCount=1（期望 S_OK / 1）
+
+[E] 结构体字节布局（显式 offset / 宽度断言）
+  PASS  E1    MILCMD 头布局 Type@0(u32) / Handle@4(u32) / 总宽 8
+              由 D11（Handle@4 正确 → 资源消失）与 D12（Handle 错位到 offset 8 → 资源保留）差分证明
+  PASS  E2a   MilMatrix3x2D=double* 被接受：ArcToBezier 产出 > 0 段
+              cPieces(identity)=4 cPieces(translate)=4
+  PASS  E2b   offset 32/40 的 DX/DY 真的被当成平移用（逐点 Δ=(100,200)，容差 1e-4）
+              cPieces=4，4 点全部命中，最大偏差 7.629E-006（float 精度）
+  PASS  E2c   对照：100 写 offset 16（S_21 槽）≠ 写 offset 32（DX 槽），证明 DX 只在 offset 32 被读
+              cPieces=4，错位矩阵首点=(-292.9205322265625,-2.664127826690674)，与平移结果不可互换
+  PASS  E3    DUCE.ResourceHandle by value = 4 字节（E2A/2E 结构体 ABI）
+              C1/C3/C6/D11 全部以 by-value 4 字节传递，跨 ABI 无错位
+  PASS  E4    MilPoint / MilSize 按值 16 字节（2×double）
+              E2a 的 ptStart/rRadii/ptEnd 均按值传递且数值被正确解释
+
+[G] MILQueryInterface 对外部（WIC）句柄
+  PASS  G1    非 WIC / 未登记的句柄 → E_HANDLE（fail-safe，默认行为不变）
+              hr=0x80070006 ppv=0x0
+  PASS  G2    空句柄 → E_INVALIDARG
+              hr=0x80070057 ppv=0x0
+      WIC 句柄 = 0x3  源图 = /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/tests/artifacts/rendering/solid_rectangle.png (240x180)
+  PASS  G3    QI(IID_IWICBitmapSource) → S_OK + 同一句柄
+              hr=0x00000000 ppv=0x3 expect=0x3
+  PASS  G4    QI(IID_IUnknown) → S_OK + 同一句柄
+              hr=0x00000000 ppv=0x3
+  PASS  G5    白名单外的 4 个 IID → 全部 E_NOINTERFACE 且 ppv=0
+              扫了 4 个 IID：IID_IWICImagingFactory,IID_IWICBitmapFrameDecode,全零 GUID,随便一个 GUID
+  PASS  G6    500×(QI+Release) 跨边界配平：live 回基线、**peak 不涨**、两侧账本都不动
+              循环失败=0/1000；live 3→3（应相等）；**peak 3→3（应相等）**；句柄仍认领=True 仍可用=True；MILAddRef 前=0 后=0（应都 0）
+  PASS  G6b   复用同一工厂/解码器连建 300 个帧（> 表上限 256）全部成功 ⇒ Release 真的在回收槽位
+              创建失败=0 QI失败=0 Release失败=0 槽位复用异常=0；live 5→5（应回到基线）；peak=6（远小于 300 ⇒ 在复用）；第1轮 handle=0x6 第300轮 handle=0x6
+  PASS  G7    MIL 设备对象：IID_IUnknown→S_OK+AddRef；其它 IID→E_NOINTERFACE（原语义不变）
+              非IUnknown: hr=0x80004002 ppv=0x0（期望 E_NOINTERFACE/0）；IUnknown: hr=0x00000000 同句柄=True；AddRef后计数=3（QI+显式各一次）
+
+[F] 跨运行时字体面登记（.so 自有导出）
+  PASS  F1    NativeLibrary.GetExport(wpfgfx_cor3.so, MilFontFace_RegisterFromFile) 命中
+              so=0x585D21BB8C50 addr=0x7518F1B52270
+  PASS  F2    MilFontFace_RegisterFromFile(NotoSans-Regular.ttf, faceIndex=0, simFlags=0) → 非 0 令牌
+              path=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/fonts/NotoSans-Regular.ttf token=0x20000002
+  PASS  F3    失败路径全部返回 0（文件不存在 / faceIndex<0 / faceIndex 越界 / null 路径）
+              missing=0x0 negIndex=0x0 oobIndex=0x0 nullPath=0x0
+  PASS  F4    令牌被 .so 内的 MilGlyphRun_GetGlyphOutline 解析成功 → S_OK + 非空轮廓
+              hr=0x00000000 size=800 bytes fillRule=1 ptr=0x585D222C87A0
+  PASS  F5    对照：伪造字体面令牌 → E_HANDLE
+              hr=0x80070006 expect 0x80070006 ptr=0x0
+  PASS  F6    simFlags 参与登记：Bold/Oblique 得到各自独立的令牌
+              bold=0x20000003 oblique=0x20000004 plain=0x20000002
+
+== 通过 54 / 失败 0 / 跳过 0 ==

@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    B2/B3/B4 的 Windows 真机 oracle：走**公开 API** System.Windows.Media.TextFormatting
+    （TextFormatter.Create().FormatLine(...)），不是 FormattedText.Width 那种整块数字。
+
+    只用 WPF 自带的托管程序集，无 NuGet 依赖。
+  -->
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AssemblyName>LayoutOracle</AssemblyName>
+    <RootNamespace>WpfOracleLayout</RootNamespace>
+    <!-- 排版受 locale 影响，必须用真实 globalization，不能用 invariant 模式 -->
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+</Project>

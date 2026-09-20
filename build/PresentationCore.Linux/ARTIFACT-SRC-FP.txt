@@ -1,0 +1,62 @@
+# ARTIFACT-SRC-FP.txt 由 build/artifact-src-fp.py **生成**，不要手改。
+# 维度 A（src）：上游被编译的源 + 本工程生成物/垫片 + 决定它们的应用器脚本 + port-lib 输入
+# 维度 B（peer）：本工程 csproj 引用的**本仓内产物**字节（自指已排除）—— 2026-09-14 加
+#   【为什么】PF ⇄ Reach 真互引 ⇒ Roslyn 把被引件字节纳入输入哈希 ⇒ 该对无字节不动点、`pf` 每波必变；
+#   只覆盖 src 时 `state=ok` 是**必要不充分**（源没变、peer 变了 ⇒ 产物照样变）。
+# 排除：build/PresentationCore.Linux/{bin,obj}/**、.artifacts/**、本文件自己
+# 重算比对：python3 build/artifact-src-fp.py --check（缺本文件 / 缺被引产物 / 旧格式 ⇒ noinfo，**不报绿**）
+fp=4298d1b991bdfea7
+n=1373
+peer_fp=4e434fab7468feeb
+peer_n=8
+tool_sha256=e856e2e65e6c59cadd8e68b6a39c00b483992f9fdd459fb94c8b0221f8e597fd
+# 被引产物（sha256 前 16 + 仓库相对路径；**产物字节**，不是源）
+peer=1f9511a7ef395bfe  build/DirectWrite.Linux/Provider/bin/Debug/DirectWrite.Linux.Provider.dll
+peer=24e819debc1e5b13  build/DirectWriteForwarder.Linux/bin/Debug/DirectWriteForwarder.dll
+peer=4499439dff4b1e54  build/System.Windows.Extensions.Linux/bin/Debug/System.Windows.Extensions.dll
+peer=c264f0ec86fad755  build/System.Windows.Input.Manipulations.Linux/bin/Debug/System.Windows.Input.Manipulations.dll
+peer=856b84d2af114acb  build/System.Xaml.Linux/bin/Debug/System.Xaml.dll
+peer=76c3e977594876c9  build/UIAutomationProvider.Linux/bin/Debug/UIAutomationProvider.dll
+peer=2654da315acd2046  build/UIAutomationTypes.Linux/bin/Debug/UIAutomationTypes.dll
+peer=19de048ecb968daa  build/WindowsBase.Linux/bin/Debug/WindowsBase.dll
+# 逐文件（**源侧**）：sha256 前 16 + 仓库相对路径；只列**本仓自有输入**（`upstream/**` 不列，用 --list 看全量）
+file=d2e034e81ce265bc  build/MilBridge/src/MilBridge.Resolver/MilCoreDllImportResolver.cs
+file=19a42240f59af073  build/PresentationCore.Linux/FamilyCollection.Linux.cs
+file=b7a5621f00aad1cd  build/PresentationCore.Linux/FontCacheUtil.Linux.cs
+file=f56e647e21c29ef0  build/PresentationCore.Linux/HwndKeyboardInputProvider.Linux.cs
+file=4b88cb1be27d41b5  build/PresentationCore.Linux/HwndSource.Linux.cs
+file=309c5280207061e0  build/PresentationCore.Linux/HwndTarget.Linux.cs
+file=70a5d54ba859fdd7  build/PresentationCore.Linux/InputManager.Linux.cs
+file=3a079a8f23dbdc02  build/PresentationCore.Linux/InputProviderSite.Linux.cs
+file=d816fd8379184813  build/PresentationCore.Linux/MimeTypeMapper.Linux.cs
+file=91077d36783d221c  build/PresentationCore.Linux/OleServicesContext.Linux.cs
+file=66cc785da6da9f87  build/PresentationCore.Linux/SR.g.cs
+file=04b64eaaf77572ee  build/PresentationCore.Linux/SecurityHelper.Linux.cs
+file=5f729e403fc6c7b1  build/PresentationCore.Linux/SimpleTextLine.Linux.cs
+file=fd57318ade379427  build/PresentationCore.Linux/StylusLogic.Linux.cs
+file=8c94b39877a62b52  build/PresentationCore.Linux/TextCompositionManager.Linux.cs
+file=fa058b134c64e068  build/PresentationCore.Linux/TextFormatterImp.Linux.cs
+file=18ef64f370306faf  build/PresentationCore.Linux/WispTabletDeviceCollection.Linux.cs
+file=bf18b988deb5a4be  build/PresentationCore.Linux/reapply-patches.py
+file=900dad4a3d1ca2d2  build/port-lib.py
+file=693b56ac590ef85d  build/shims/LinuxAssemblyIdentity.cs
+file=fa0137aea3c4acde  build/shims/PresentationCore.AssemblyAttrs.cs
+file=125cfaa3c9851cfd  build/shims/PresentationCore.Factory.Linux.cs
+file=d06088eb854df1ab  build/shims/PresentationCore.FontBridge.cs
+file=e89fed55fd8e32bc  build/shims/PresentationCore.HbTextLine.cs
+file=9e685cd9c69df69b  build/shims/PresentationCore.OleApi.Stubs.cs
+file=670d4e37592c3a64  build/shims/Win32ShimResolver.cs
+file=0a52507b8acd350d  src/WpfGfx.Linux.Native/tools/patch-presentationcore-apartment.py
+file=3610e096981daab8  src/WpfGfx.Linux.Native/tools/patch-presentationcore-compositefont.py
+file=00d0d8c22cb1a1db  src/WpfGfx.Linux.Native/tools/patch-presentationcore-fontcache.py
+file=81f821ae225eb3a0  src/WpfGfx.Linux.Native/tools/patch-presentationcore-hbtextline-shimsha.py
+file=1ac574eb8c9f5576  src/WpfGfx.Linux.Native/tools/patch-presentationcore-hwndtarget-trace.py
+file=e257247a3dacdb6e  src/WpfGfx.Linux.Native/tools/patch-presentationcore-inputsite-trace.py
+file=19a2e6cafba38627  src/WpfGfx.Linux.Native/tools/patch-presentationcore-inputtrace.py
+file=4eccc308340a7c23  src/WpfGfx.Linux.Native/tools/patch-presentationcore-lineheight-trace.py
+file=dc41b2541071bea5  src/WpfGfx.Linux.Native/tools/patch-presentationcore-mimetype.py
+file=13dac17d5a798f53  src/WpfGfx.Linux.Native/tools/patch-presentationcore-olecontext.py
+file=f1a8f73ff9a4e1f8  src/WpfGfx.Linux.Native/tools/patch-presentationcore-registry.py
+file=131bd986945b71e8  src/WpfGfx.Linux.Native/tools/patch-presentationcore-securityzone.py
+file=6c5707169950fcab  src/WpfGfx.Linux.Native/tools/patch-presentationcore-textline-fallback.py
+file=1e29cf7d3d0b8600  src/WpfGfx.Linux.Native/tools/patch-swe-linux.py

@@ -1,0 +1,3252 @@
+{
+  "total": 357,
+  "by_dll": {
+    "ole32.dll": 11,
+    "msdrm.dll": 49,
+    "PresentationHost.dll": 14,
+    "ntdll.dll": 2,
+    "oleaut32.dll": 3,
+    "gdi32.dll": 18,
+    "kernel32.dll": 34,
+    "winspool.drv": 2,
+    "PresentationNative.dll": 39,
+    "user32.dll": 128,
+    "wtsapi32.dll": 4,
+    "shcore.dll": 2,
+    "uxtheme.dll": 7,
+    "shell32.dll": 3,
+    "oleacc.dll": 1,
+    "imm32.dll": 18,
+    "shfolder.dll": 1,
+    "urlmon.dll": 4,
+    "advapi32.dll": 8,
+    "winmm.dll": 1,
+    "wininet.dll": 3,
+    "psapi.dll": 1,
+    "msctf.dll": 4
+  },
+  "by_category": {
+    "com": 13,
+    "other": 12,
+    "hosting_security": 111,
+    "input_text": 32,
+    "os_runtime": 42,
+    "window": 125,
+    "input": 22
+  },
+  "entries": [
+    {
+      "dll": "ole32.dll",
+      "function": "StgCreateDocfileOnILockBytes",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/IO/Packaging/CompoundFile/PrivateUnsafeNativeCompoundFileMethods.cs",
+      "line": 20,
+      "layer": "WindowsBase",
+      "category": "com"
+    },
+    {
+      "dll": "ole32.dll",
+      "function": "StgOpenStorageOnILockBytes",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/IO/Packaging/CompoundFile/PrivateUnsafeNativeCompoundFileMethods.cs",
+      "line": 28,
+      "layer": "WindowsBase",
+      "category": "com"
+    },
+    {
+      "dll": "ole32.dll",
+      "function": "StgCreateStorageEx",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/IO/Packaging/CompoundFile/PrivateUnsafeNativeCompoundFileMethods.cs",
+      "line": 38,
+      "layer": "WindowsBase",
+      "category": "com"
+    },
+    {
+      "dll": "ole32.dll",
+      "function": "StgOpenStorageEx",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/IO/Packaging/CompoundFile/PrivateUnsafeNativeCompoundFileMethods.cs",
+      "line": 50,
+      "layer": "WindowsBase",
+      "category": "com"
+    },
+    {
+      "dll": "ole32.dll",
+      "function": "PropVariantClear",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/IO/Packaging/CompoundFile/PrivateUnsafeNativeCompoundFileMethods.cs",
+      "line": 62,
+      "layer": "WindowsBase",
+      "category": "com"
+    },
+    {
+      "dll": "ole32.dll",
+      "function": "PropVariantClear",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Interop/NativeStructs.cs",
+      "line": 25,
+      "layer": "WindowsBase",
+      "category": "other"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMCreateClientSession",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 28,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMCloseSession",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 40,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationHost.dll",
+      "function": "DRMCloseHandle",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 50,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMCloseHandle",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 52,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMCloseQueryHandle",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 61,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationHost.dll",
+      "function": "DRMCloseEnvironmentHandle",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 72,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMCloseEnvironmentHandle",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 74,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationHost.dll",
+      "function": "DRMInitEnvironment",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 81,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMInitEnvironment",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 83,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMIsActivated",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 94,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMActivate",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 100,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationHost.dll",
+      "function": "DRMCreateLicenseStorageSession",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 110,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMCreateLicenseStorageSession",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 112,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMAcquireLicense",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 122,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMEnumerateLicense",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 132,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationHost.dll",
+      "function": "DRMGetServiceLocation",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 142,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMGetServiceLocation",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 144,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMDeconstructCertificateChain",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 155,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMParseUnboundLicense",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 162,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMGetUnboundLicenseObjectCount",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 167,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationHost.dll",
+      "function": "DRMGetBoundLicenseObject",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 174,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMGetBoundLicenseObject",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 176,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMGetUnboundLicenseObject",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 184,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMGetUnboundLicenseAttribute",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 191,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationHost.dll",
+      "function": "DRMGetBoundLicenseAttribute",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 201,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMGetBoundLicenseAttribute",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 203,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMCreateIssuanceLicense",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 213,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMCreateUser",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 224,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMGetUsers",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 231,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMGetUserRights",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 237,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMGetUserInfo",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 244,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMGetRightInfo",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 254,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMCreateRight",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 262,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMGetIssuanceLicenseTemplate",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 272,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMClosePubHandle",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 282,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMAddRightWithUser",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 286,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMSetMetaData",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 293,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMGetIssuanceLicenseInfo",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 303,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMGetSecurityProvider",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 317,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMDeleteLicense",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 325,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMSetNameAndDescription",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 330,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMGetNameAndDescription",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 338,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationHost.dll",
+      "function": "DRMGetSignedIssuanceLicense",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 349,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMGetSignedIssuanceLicense",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 351,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMGetOwnerLicense",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 366,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationHost.dll",
+      "function": "DRMCreateBoundLicense",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 373,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMCreateBoundLicense",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 375,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationHost.dll",
+      "function": "DRMCreateEnablingBitsDecryptor",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 386,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMCreateEnablingBitsDecryptor",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 388,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationHost.dll",
+      "function": "DRMCreateEnablingBitsEncryptor",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 398,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMCreateEnablingBitsEncryptor",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 400,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationHost.dll",
+      "function": "DRMDecrypt",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 410,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMDecrypt",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 412,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationHost.dll",
+      "function": "DRMEncrypt",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 423,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMEncrypt",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 425,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationHost.dll",
+      "function": "DRMGetInfo",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 436,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMGetInfo",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 438,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMGetApplicationSpecificData",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 447,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMSetApplicationSpecificData",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 456,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMGetIntervalTime",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 464,
+      "layer": "WindowsBase",
+      "category": "input_text"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMSetIntervalTime",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 469,
+      "layer": "WindowsBase",
+      "category": "input_text"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMGetRevocationPoint",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 475,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "msdrm.dll",
+      "function": "DRMSetRevocationPoint",
+      "entry_point": null,
+      "file": "WindowsBase/MS/Internal/Security/RightsManagement/PrivateUnsafeNativeMethods.cs",
+      "line": 490,
+      "layer": "WindowsBase",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "ntdll.dll",
+      "function": "DbgUserBreakPoint",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/ManagedWndProcTracker.cs",
+      "line": 196,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "ntdll.dll",
+      "function": "DbgPrint",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/ManagedWndProcTracker.cs",
+      "line": 199,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "oleaut32.dll",
+      "function": "SysAllocString",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/NativeMethodsCLR.cs",
+      "line": 2014,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "com"
+    },
+    {
+      "dll": "oleaut32.dll",
+      "function": "SysFreeString",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/NativeMethodsCLR.cs",
+      "line": 2017,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "com"
+    },
+    {
+      "dll": "gdi32.dll",
+      "function": "SetEnhMetaFileBits",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/NativeMethodsOther.cs",
+      "line": 194,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "LocalFree",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/NativeMethodsOther.cs",
+      "line": 564,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "gdi32.dll",
+      "function": "EndDoc",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/NativeMethodsOther.cs",
+      "line": 1297,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "gdi32.dll",
+      "function": "ExtEscape",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/NativeMethodsOther.cs",
+      "line": 1331,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "gdi32.dll",
+      "function": "StartDoc",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/NativeMethodsOther.cs",
+      "line": 1359,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "winspool.drv",
+      "function": "OpenPrinterA",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/NativeMethodsOther.cs",
+      "line": 1369,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "winspool.drv",
+      "function": "ClosePrinter",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/NativeMethodsOther.cs",
+      "line": 1377,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "gdi32.dll",
+      "function": "EndPage",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/NativeMethodsOther.cs",
+      "line": 1385,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "gdi32.dll",
+      "function": "StartPage",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/NativeMethodsOther.cs",
+      "line": 1393,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "EnableWindowWrapper",
+      "entry_point": "EnableWindowWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 35,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "GetWindowLongWrapper",
+      "entry_point": "GetWindowLongWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 40,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "GetWindowLongPtrWrapper",
+      "entry_point": "GetWindowLongPtrWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 43,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "GlobalDeleteAtomWrapper",
+      "entry_point": "GlobalDeleteAtomWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 46,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "GetMenuBarInfoWrapper",
+      "entry_point": "GetMenuBarInfoWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 51,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "GetWindowWrapper",
+      "entry_point": "GetWindowWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 54,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "MapWindowPointsWrapper",
+      "entry_point": "MapWindowPointsWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 57,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "MapWindowPointsWrapper",
+      "entry_point": "MapWindowPointsWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 60,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "GetAncestorWrapper",
+      "entry_point": "GetAncestorWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 65,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "FindWindowExWrapper",
+      "entry_point": "FindWindowExWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 68,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "GetMenuBarInfoWrapper",
+      "entry_point": "GetMenuBarInfoWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 71,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "GetTextExtentPoint32Wrapper",
+      "entry_point": "GetTextExtentPoint32Wrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 74,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "GetWindowWrapper",
+      "entry_point": "GetWindowWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 77,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "GetWindowTextWrapper",
+      "entry_point": "GetWindowTextWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 80,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "MapWindowPointsWrapper",
+      "entry_point": "MapWindowPointsWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 83,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "MapWindowPointsWrapper",
+      "entry_point": "MapWindowPointsWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 86,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "SetScrollPosWrapper",
+      "entry_point": "SetScrollPosWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 89,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "EnableWindowWrapper",
+      "entry_point": "EnableWindowWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 95,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "GetAncestorWrapper",
+      "entry_point": "GetAncestorWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 98,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "GetKeyboardLayoutListWrapper",
+      "entry_point": "GetKeyboardLayoutListWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 101,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "GetParentWrapper",
+      "entry_point": "GetParentWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 104,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "GetWindowWrapper",
+      "entry_point": "GetWindowWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 107,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "GetWindowLongWrapper",
+      "entry_point": "GetWindowLongWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 110,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "GetWindowLongWrapper",
+      "entry_point": "GetWindowLongWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 113,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "GetWindowLongWrapper",
+      "entry_point": "GetWindowLongWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 116,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "GetWindowLongPtrWrapper",
+      "entry_point": "GetWindowLongPtrWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 119,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "GetWindowLongPtrWrapper",
+      "entry_point": "GetWindowLongPtrWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 122,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "GetWindowLongPtrWrapper",
+      "entry_point": "GetWindowLongPtrWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 125,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "GetWindowTextWrapper",
+      "entry_point": "GetWindowTextWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 128,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "GetWindowTextLengthWrapper",
+      "entry_point": "GetWindowTextLengthWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 131,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "MapWindowPointsWrapper",
+      "entry_point": "MapWindowPointsWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 134,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "SetFocusWrapper",
+      "entry_point": "SetFocusWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 137,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "SetWindowLongWrapper",
+      "entry_point": "SetWindowLongWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 140,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "SetWindowLongWrapper",
+      "entry_point": "SetWindowLongWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 143,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "SetWindowLongWrapper",
+      "entry_point": "SetWindowLongWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 146,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "SetWindowLongPtrWrapper",
+      "entry_point": "SetWindowLongPtrWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 149,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "SetWindowLongPtrWrapper",
+      "entry_point": "SetWindowLongPtrWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 152,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "SetWindowLongPtrWrapper",
+      "entry_point": "SetWindowLongPtrWrapper",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 155,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "PresentationNative.dll",
+      "function": "LsDisableSpecialCharacterLigature",
+      "entry_point": "LsDisableSpecialCharacterLigature",
+      "file": "Shared/MS/Win32/NativeMethodsSetLastError.cs",
+      "line": 160,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "ProcessIdToSessionId",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 482,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "GetCurrentThreadId",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 486,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetCapture",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 489,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "IsWindowVisible",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 492,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "ReleaseCapture",
+      "entry_point": "ReleaseCapture",
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 495,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "ReleaseCapture",
+      "entry_point": "ReleaseCapture",
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 498,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetWindowRect",
+      "entry_point": "GetWindowRect",
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 501,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetClientRect",
+      "entry_point": "GetClientRect",
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 504,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "AdjustWindowRectEx",
+      "entry_point": "AdjustWindowRectEx",
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 507,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "MonitorFromRect",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 510,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "MonitorFromPoint",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 513,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "ActivateKeyboardLayout",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 516,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetKeyboardLayout",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 519,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "SetTimer",
+      "entry_point": "SetTimer",
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 522,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input_text"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "SetTimer",
+      "entry_point": "SetTimer",
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 525,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input_text"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "KillTimer",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 528,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input_text"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "IsWindowUnicode",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 531,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetDoubleClickTime",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 534,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input_text"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "IsWindowEnabled",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 537,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetCursor",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 540,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetMonitorInfo",
+      "entry_point": "GetMonitorInfo",
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 543,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetMonitorInfo",
+      "entry_point": "GetMonitorInfo",
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 546,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "MonitorFromWindow",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 549,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "MapVirtualKey",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 553,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "SetCapture",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 556,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "SetCursor",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 559,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "TrackMouseEvent",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 562,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "LoadCursor",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 565,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "GetTickCount",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 570,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "ScreenToClient",
+      "entry_point": "ScreenToClient",
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 574,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "WTSQuerySessionInformation",
+      "entry_point": "WTSQuerySessionInformation",
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 578,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "wtsapi32.dll",
+      "function": "WTSQuerySessionInformation",
+      "entry_point": "WTSQuerySessionInformation",
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 581,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "wtsapi32.dll",
+      "function": "WTSFreeMemory",
+      "entry_point": "WTSFreeMemory",
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 589,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "shcore.dll",
+      "function": "GetProcessDpiAwareness",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 626,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetWindowDpiAwarenessContext",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 644,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "AreDpiAwarenessContextsEqual",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 666,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetDpiForWindow",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 687,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetDpiForSystem",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 707,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetThreadDpiHostingBehavior",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsCLR.cs",
+      "line": 720,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "uxtheme.dll",
+      "function": "IsThemeActive",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsOther.cs",
+      "line": 133,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "SetCaretPos",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsOther.cs",
+      "line": 136,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "DestroyCaret",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsOther.cs",
+      "line": 139,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetCaretBlinkTime",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsOther.cs",
+      "line": 143,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input_text"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "GetStringTypeEx",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsOther.cs",
+      "line": 146,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetSysColor",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsOther.cs",
+      "line": 149,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "IsDebuggerPresent",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsOther.cs",
+      "line": 153,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "QueryPerformanceCounter",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsOther.cs",
+      "line": 159,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "QueryPerformanceFrequency",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsOther.cs",
+      "line": 162,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetMessageTime",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/SafeNativeMethodsOther.cs",
+      "line": 165,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input_text"
+    },
+    {
+      "dll": "uxtheme.dll",
+      "function": "GetCurrentThemeName",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 45,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "RegisterWindowMessage",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 49,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "SetWindowPos",
+      "entry_point": "SetWindowPos",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 53,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetWindow",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 56,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "shcore.dll",
+      "function": "IsProcessDPIAware",
+      "entry_point": "IsProcessDPIAware",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 59,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "IsProcessDPIAware",
+      "entry_point": "IsProcessDPIAware",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 62,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "EnableNonClientDpiScaling",
+      "entry_point": "EnableNonClientDpiScaling",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 65,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "EnableNonClientDpiScaling",
+      "entry_point": "EnableNonClientDpiScaling",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 68,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetClassName",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 71,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "SetWindowTheme",
+      "entry_point": "SetWindowTheme",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 74,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "uxtheme.dll",
+      "function": "SetWindowTheme",
+      "entry_point": "SetWindowTheme",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 77,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "gdi32.dll",
+      "function": "CreateCompatibleBitmap",
+      "entry_point": "CreateCompatibleBitmap",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 80,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "gdi32.dll",
+      "function": "GetStockObject",
+      "entry_point": "GetStockObject",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 83,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "FillRect",
+      "entry_point": "FillRect",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 86,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "gdi32.dll",
+      "function": "GetBitmapBits",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 89,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "ShowWindow",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 92,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "gdi32.dll",
+      "function": "DeleteObject",
+      "entry_point": "DeleteObject",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 105,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "gdi32.dll",
+      "function": "SelectObject",
+      "entry_point": "SelectObject",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 108,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "PrintWindow",
+      "entry_point": "PrintWindow",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 111,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "RedrawWindow",
+      "entry_point": "RedrawWindow",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 114,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "shell32.dll",
+      "function": "ShellExecute",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 117,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "shell32.dll",
+      "function": "ShellExecuteEx",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 158,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "MultiByteToWideChar",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 164,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "keybd_event",
+      "entry_point": "keybd_event",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 168,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "GetModuleFileName",
+      "entry_point": "GetModuleFileName",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 173,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "TranslateMessage",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 210,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "DispatchMessage",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 214,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input"
+    },
+    {
+      "dll": "oleacc.dll",
+      "function": "ObjectFromLresult",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 218,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input_text"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "OleInitialize",
+      "entry_point": "OleInitialize",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 221,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "ole32.dll",
+      "function": "OleInitialize",
+      "entry_point": "OleInitialize",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 224,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "com"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "EnumThreadWindows",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 232,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "ole32.dll",
+      "function": "CloseHandle",
+      "entry_point": "CloseHandle",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 235,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "com"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "CloseHandle",
+      "entry_point": "CloseHandle",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 238,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "gdi32.dll",
+      "function": "CreateCompatibleDC",
+      "entry_point": "CreateCompatibleDC",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 257,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "UnmapViewOfFile",
+      "entry_point": "UnmapViewOfFile",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 261,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "gdi32.dll",
+      "function": "GetObject",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 303,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetCursorPos",
+      "entry_point": "GetCursorPos",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 306,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetCursorPos",
+      "entry_point": "GetCursorPos",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 309,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetCursorPos",
+      "entry_point": "GetCursorPos",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 322,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetWindowThreadProcessId",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 343,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetKeyState",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 346,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input"
+    },
+    {
+      "dll": "ole32.dll",
+      "function": "DoDragDrop",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 349,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "com"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "InvalidateRect",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 352,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "imm32.dll",
+      "function": "ImmSetConversionStatus",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 386,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input_text"
+    },
+    {
+      "dll": "imm32.dll",
+      "function": "ImmGetConversionStatus",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 389,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input_text"
+    },
+    {
+      "dll": "imm32.dll",
+      "function": "ImmGetContext",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 392,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input_text"
+    },
+    {
+      "dll": "imm32.dll",
+      "function": "ImmReleaseContext",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 395,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input_text"
+    },
+    {
+      "dll": "imm32.dll",
+      "function": "ImmAssociateContext",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 398,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input_text"
+    },
+    {
+      "dll": "imm32.dll",
+      "function": "ImmSetOpenStatus",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 401,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input_text"
+    },
+    {
+      "dll": "imm32.dll",
+      "function": "ImmGetOpenStatus",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 404,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input_text"
+    },
+    {
+      "dll": "imm32.dll",
+      "function": "ImmNotifyIME",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 407,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input_text"
+    },
+    {
+      "dll": "imm32.dll",
+      "function": "ImmGetProperty",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 410,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input_text"
+    },
+    {
+      "dll": "imm32.dll",
+      "function": "ImmGetCompositionString",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 414,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input_text"
+    },
+    {
+      "dll": "imm32.dll",
+      "function": "ImmGetCompositionString",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 418,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input_text"
+    },
+    {
+      "dll": "imm32.dll",
+      "function": "ImmGetCompositionString",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 422,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input_text"
+    },
+    {
+      "dll": "imm32.dll",
+      "function": "ImmGetCompositionString",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 426,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input_text"
+    },
+    {
+      "dll": "imm32.dll",
+      "function": "ImmConfigureIME",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 429,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input_text"
+    },
+    {
+      "dll": "imm32.dll",
+      "function": "ImmConfigureIME",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 432,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input_text"
+    },
+    {
+      "dll": "imm32.dll",
+      "function": "ImmSetCompositionWindow",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 435,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input_text"
+    },
+    {
+      "dll": "imm32.dll",
+      "function": "ImmSetCandidateWindow",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 438,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input_text"
+    },
+    {
+      "dll": "imm32.dll",
+      "function": "ImmGetDefaultIMEWnd",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 441,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input_text"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetAncestor",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 489,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "IsChild",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 492,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetModuleHandle",
+      "entry_point": "GetModuleHandle",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 495,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "GetModuleHandle",
+      "entry_point": "GetModuleHandle",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 498,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "CallWindowProc",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 513,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "GetProcAddress",
+      "entry_point": "GetProcAddress",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 517,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "GetProcAddress",
+      "entry_point": "GetProcAddress",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 538,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "LoadLibrary",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 541,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "LoadLibraryEx",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 707,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "GetModuleHandleEx",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 734,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "FreeLibrary",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 741,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetSystemMetrics",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 746,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "SystemParametersInfo",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 750,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "SystemParametersInfo",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 753,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "SystemParametersInfo",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 756,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "SystemParametersInfo",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 759,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "SystemParametersInfo",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 762,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "ClientToScreen",
+      "entry_point": "ClientToScreen",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 765,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "ClientToScreen",
+      "entry_point": "ClientToScreen",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 768,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetDesktopWindow",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 779,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetForegroundWindow",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 782,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "ole32.dll",
+      "function": "RegisterDragDrop",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 785,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "com"
+    },
+    {
+      "dll": "ole32.dll",
+      "function": "RevokeDragDrop",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 788,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "com"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "PeekMessage",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 792,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "SetProp",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 796,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "PostMessage",
+      "entry_point": "PostMessage",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 801,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "PostMessage",
+      "entry_point": "PostMessage",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 812,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "BeginPaint",
+      "entry_point": "BeginPaint",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 816,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "BeginPaint",
+      "entry_point": "BeginPaint",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 819,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "EndPaint",
+      "entry_point": "EndPaint",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 827,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetDC",
+      "entry_point": "GetDC",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 835,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "ReleaseDC",
+      "entry_point": "ReleaseDC",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 848,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "gdi32.dll",
+      "function": "GetDeviceCaps",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 857,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetActiveWindow",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 860,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "SetForegroundWindow",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 863,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "UpdateLayeredWindow",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 867,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "SetActiveWindow",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 870,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "SetCursor",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 876,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "DestroyCursor",
+      "entry_point": "DestroyCursor",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 881,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "DestroyIcon",
+      "entry_point": "DestroyIcon",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 889,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "gdi32.dll",
+      "function": "DeleteObject",
+      "entry_point": "DeleteObject",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 910,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "gdi32.dll",
+      "function": "CreateDIBSection",
+      "entry_point": "CreateDIBSection",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 932,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "gdi32.dll",
+      "function": "CreateBitmap",
+      "entry_point": "CreateBitmap",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 954,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "CreateIconIndirect",
+      "entry_point": "CreateIconIndirect",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 969,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "IsWindow",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 984,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "gdi32.dll",
+      "function": "DeleteDC",
+      "entry_point": "DeleteDC",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 988,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetMessageW",
+      "entry_point": "GetMessageW",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 1004,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "WindowFromPoint",
+      "entry_point": "WindowFromPoint",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 1031,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "CreateWindowEx",
+      "entry_point": "CreateWindowEx",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 1041,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "DestroyWindow",
+      "entry_point": "DestroyWindow",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 1060,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "SetWinEventHook",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 1070,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "UnhookWinEvent",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 1073,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input"
+    },
+    {
+      "dll": "oleaut32.dll",
+      "function": "VariantClear",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 2624,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "com"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetRawInputDeviceList",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 2653,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetRawInputDeviceInfo",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 2659,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "SetThreadDpiAwarenessContext",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 2684,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "EnumDisplayMonitors",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCLR.cs",
+      "line": 2747,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "shfolder.dll",
+      "function": "SHGetFolderPath",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCompiler.cs",
+      "line": 26,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "urlmon.dll",
+      "function": "FindMimeFromData",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsCompiler.cs",
+      "line": 30,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input_text"
+    },
+    {
+      "dll": "advapi32.dll",
+      "function": "EventRegister",
+      "entry_point": "EventRegister",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsEventTrace.cs",
+      "line": 40,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "other"
+    },
+    {
+      "dll": "advapi32.dll",
+      "function": "EventUnregister",
+      "entry_point": "EventUnregister",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsEventTrace.cs",
+      "line": 48,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "other"
+    },
+    {
+      "dll": "advapi32.dll",
+      "function": "EventWrite",
+      "entry_point": "EventWrite",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsEventTrace.cs",
+      "line": 54,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "other"
+    },
+    {
+      "dll": "advapi32.dll",
+      "function": "RegisterTraceGuidsW",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsEventTrace.cs",
+      "line": 131,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "other"
+    },
+    {
+      "dll": "advapi32.dll",
+      "function": "UnregisterTraceGuids",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsEventTrace.cs",
+      "line": 135,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "other"
+    },
+    {
+      "dll": "advapi32.dll",
+      "function": "GetTraceEnableFlags",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsEventTrace.cs",
+      "line": 138,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "other"
+    },
+    {
+      "dll": "advapi32.dll",
+      "function": "GetTraceEnableLevel",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsEventTrace.cs",
+      "line": 141,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "other"
+    },
+    {
+      "dll": "advapi32.dll",
+      "function": "TraceEvent",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsEventTrace.cs",
+      "line": 178,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "other"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "GetTempFileName",
+      "entry_point": "GetTempFileName",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 17,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "shell32.dll",
+      "function": "ExtractIconEx",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 31,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "CreateCaret",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 39,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "ShowCaret",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 42,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "HideCaret",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 45,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "LoadImage",
+      "entry_point": "LoadImage",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 48,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "LoadImage",
+      "entry_point": "LoadImage",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 51,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "urlmon.dll",
+      "function": "CoInternetSetFeatureEnabled",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 54,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "urlmon.dll",
+      "function": "CoInternetCreateSecurityManager",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 57,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "CreateFile",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 106,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetMessageExtraInfo",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 119,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "SetMessageExtraInfo",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 122,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "WaitForMultipleObjectsEx",
+      "entry_point": "WaitForMultipleObjectsEx",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 127,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "MsgWaitForMultipleObjectsEx",
+      "entry_point": "MsgWaitForMultipleObjectsEx",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 143,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "RegisterClassEx",
+      "entry_point": "RegisterClassEx",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 158,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "UnregisterClass",
+      "entry_point": "UnregisterClass",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 172,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "ChangeWindowMessageFilter",
+      "entry_point": "ChangeWindowMessageFilter",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 186,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "ChangeWindowMessageFilterEx",
+      "entry_point": "ChangeWindowMessageFilterEx",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 190,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input"
+    },
+    {
+      "dll": "urlmon.dll",
+      "function": "ObtainUserAgentString",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 230,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "SendMessage",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 257,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "SendMessage",
+      "entry_point": "SendMessage",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 262,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "RegisterPowerSettingNotification",
+      "entry_point": "RegisterPowerSettingNotification",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 265,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "UnregisterPowerSettingNotification",
+      "entry_point": "UnregisterPowerSettingNotification",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 268,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "SendMessage",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 272,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetLayeredWindowAttributes",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 280,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "CreateFileMapping",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 328,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "MapViewOfFileEx",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 331,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "winmm.dll",
+      "function": "PlaySound",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 494,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "wininet.dll",
+      "function": "InternetGetCookieExW",
+      "entry_point": "InternetGetCookieExW",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 509,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "wininet.dll",
+      "function": "InternetSetCookieExW",
+      "entry_point": "InternetSetCookieExW",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 513,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "hosting_security"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "mouse_event",
+      "entry_point": "mouse_event",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 518,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "GetLocaleInfoW",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 525,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "FindNLSString",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 528,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "psapi.dll",
+      "function": "GetModuleFileNameEx",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 532,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "SetWindowText",
+      "entry_point": "SetWindowText",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 541,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "SetWindowText",
+      "entry_point": "SetWindowText",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 544,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetIconInfo",
+      "entry_point": "GetIconInfo",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 555,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetWindowPlacement",
+      "entry_point": "GetWindowPlacement",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 607,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "SetWindowPlacement",
+      "entry_point": "SetWindowPlacement",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 619,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "SystemParametersInfo",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 631,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "SystemParametersInfo",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 634,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "uxtheme.dll",
+      "function": "SetWindowThemeAttribute",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 658,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "uxtheme.dll",
+      "function": "BeginPanningFeedback",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 672,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "uxtheme.dll",
+      "function": "UpdatePanningFeedback",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 701,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "uxtheme.dll",
+      "function": "EndPanningFeedback",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 722,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "SetEvent",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 727,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "GetMouseMovePointsEx",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 733,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "GetFileSizeEx",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 755,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "GetOEMCP",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 777,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "wininet.dll",
+      "function": "GetUrlCacheConfigInfoW",
+      "entry_point": "GetUrlCacheConfigInfoW",
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 805,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "other"
+    },
+    {
+      "dll": "wtsapi32.dll",
+      "function": "WTSRegisterSessionNotification",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 813,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "other"
+    },
+    {
+      "dll": "wtsapi32.dll",
+      "function": "WTSUnRegisterSessionNotification",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 817,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "other"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "GetCurrentProcess",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 821,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "kernel32.dll",
+      "function": "DuplicateHandle",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 827,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "os_runtime"
+    },
+    {
+      "dll": "user32.dll",
+      "function": "IsIconic",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsOther.cs",
+      "line": 879,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "window"
+    },
+    {
+      "dll": "msctf.dll",
+      "function": "TF_CreateThreadMgr",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsTextServices.cs",
+      "line": 17,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input_text"
+    },
+    {
+      "dll": "msctf.dll",
+      "function": "TF_CreateInputProcessorProfiles",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsTextServices.cs",
+      "line": 21,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input_text"
+    },
+    {
+      "dll": "msctf.dll",
+      "function": "TF_CreateDisplayAttributeMgr",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsTextServices.cs",
+      "line": 26,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input_text"
+    },
+    {
+      "dll": "msctf.dll",
+      "function": "TF_CreateCategoryMgr",
+      "entry_point": null,
+      "file": "Shared/MS/Win32/UnsafeNativeMethodsTextServices.cs",
+      "line": 30,
+      "layer": "Shared/MS/Win32(linked)",
+      "category": "input_text"
+    }
+  ]
+}

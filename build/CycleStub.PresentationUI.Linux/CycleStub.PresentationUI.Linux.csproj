@@ -1,0 +1,80 @@
+<Project>
+  <!--
+    ==========================================================================
+    CycleStub.PresentationUI —— PresentationUI 的**编译期/运行期最小替身**
+    ==========================================================================
+    为什么存在（结构性理由）：
+      PresentationFramework.csproj:1377 引用
+        $(WpfCycleBreakersDir)PresentationUI\PresentationUI-PresentationFramework-impl-cycle.csproj
+      用来拿到 MS.Internal.Documents.FindToolBar（PresentationUI 的文档查找工具条），
+      以打破 PresentationFramework ⇄ PresentationUI 的编译期循环。
+      而**本仓库的上游快照里没有 CycleBreakers/ 目录**（实测 find 为空），该工程不可移植。
+
+    为什么不做「真移植」：
+      FindToolBar 是**带 BAML 的控件**（PresentationUI/MS/Internal/Documents/FindToolBar.xaml，
+      根元素 `<ToolBar>`，code-behind 依赖 InitializeComponent() 生成的 BAML 装载代码）。
+      要真编它需要：PresentationUI 工程 + XAML 标记编译链 + 它自己的主题资源；
+      而它又依赖 PresentationFramework（循环）→ 仍需 cycle-breaker。
+      结论：按主控裁定走 stub 口径 —— 保留公开 API 形态，行为不伪造。
+
+    本替身的形态（逐项来自真源码 PresentationUI/MS/Internal/Documents/FindToolBar.xaml.cs）：
+      internal partial class FindToolBar（真基类 = System.Windows.Controls.ToolBar，见 FindToolBar.xaml 根元素）
+        · ctor、SearchText(get)、SearchUp(get/set)、MatchCase/MatchWholeWord/MatchDiacritic/
+          MatchKashida/MatchAlefHamza(get/set)、DocumentLoaded(get/set)、FindEnabled(get)、
+          event EventHandler FindClicked、GoToTextBox()
+      PF 实测用到的 11 个成员全部覆盖（见 ApiSubset 文件内注释）。
+      基类改取 System.Windows.UIElement（PresentationCore）+ 自声明 SetResourceReference：
+      真基类 ToolBar 属 PresentationFramework，替身若继承它会形成
+      「PF → PresentationUI 替身 → 真 PF」的**编译期**循环（运行期允许、编译期不行）。
+
+    身份与运行期语义：
+      · AssemblyName = **PresentationUI**、AssemblyVersion 4.0.0.1、WCP 公开签名
+        → 身份与未来真移植的 PresentationUI.dll 相同，可直接替换。
+      · 本替身**就是**当前运行期的 PresentationUI（未移植真件），因此
+        PF 对 FindToolBar 的调用会走到这里的空实现：工具条**不含任何模板/按钮**，
+        查找功能不可用（文档查看器的 Find 按钮不会出现）。
+        ⇒ 这是**明确的运行期功能降级**，与「伪造可用行为」无关：没有任何方法假装成功，
+           GoToTextBox()/事件均不产生虚假结果；找不到模板时 PF 自己的
+           `PART_FindToolBarHost` 逻辑会走它原有的空引用分支。
+      · 恢复条件：移植 PresentationUI（含 BAML 标记编译 + 其主题资源）后，
+        产出同名 PresentationUI.dll 覆盖本替身即可（身份一致）。
+
+    参考方：PresentationFramework.Linux.csproj 的 <Private>true</Private>（要随 PF 一起进输出目录）。
+    ==========================================================================
+  -->
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+  <Import Project="$(MSBuildThisFileDirectory)../Directory.Upstream.props" />
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>PresentationUI</AssemblyName>
+    <RootNamespace>MS.Internal</RootNamespace>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+    <!-- CS8002：本替身公开签名而 WindowsBase 在本工程中未签名（主控口径）—— 上游两者都签名故无此警告；
+         CS0067：FindClicked 在替身里无人订阅（真实实现里由 XAML 模板订阅） -->
+    <NoWarn>$(NoWarn);0618;CS1591;CS8002;CS0067;CA1416;CA1420;WPF0001</NoWarn>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign>true</PublicSign>
+    <AssemblyOriginatorKeyFile>$(WpfLinuxRoot)build/keys/WcpPublicKey.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="PresentationCore"><HintPath>$(WpfLinuxRoot)build/PresentationCore.Linux/bin/Debug/PresentationCore.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="System.Xaml"><HintPath>$(WpfLinuxRoot)build/System.Xaml.Linux/bin/Debug/System.Xaml.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="WindowsBase"><HintPath>$(WpfLinuxRoot)build/WindowsBase.Linux/bin/Debug/WindowsBase.dll</HintPath><Private>true</Private></Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="FindToolBar.ApiSubset.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/shims/LinuxAssemblyIdentity.cs" />
+  </ItemGroup>
+
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+</Project>

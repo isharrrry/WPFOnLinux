@@ -1,0 +1,422 @@
+{
+ "#tuple": "WFP_ARTIFACTS bridge_sha=e0d01832a3efea53 bridge_bytes=4937968 pc_sha=c43d351639856680 pf_sha=e5c6f5a7eeef9b81 provider_sha=71ba86c6495347fe win32shim_sha=f84d65a62e0c7fa4 wic_shim_sha=03b67fbcd7c385b6 hbtextline_shim_sha=13992b58905d00e0 hbtextline_shim_stale=no hbtextline_stale_basis=auth hbtextline_src_mtime=1789302292 pc_compare_mtime=1789302844",
+ "#crop": "470x400+0+0",
+ "#background": "#1B2436",
+ "#method": "墨迹=与底色欧氏距离>40；原始分辨率；裁图原点=窗口左上角；列轮廓见 profile_*",
+ "#noise_floor": "rep-a 与 rep-b 两次采样**逐行完全一致** ⇒ 噪声底=0",
+ "#boxes(with slot/t0/t1)": {
+  "text-rtl-pure": {
+   "x": 86,
+   "y": 198,
+   "w": 65,
+   "h": 16,
+   "layout_slot": "0.0,18.0,546.5,20.3",
+   "t0": "86.3,198.0",
+   "t1": "21.0,198.0"
+  },
+  "text-rtl-pure/he": {
+   "x": 86,
+   "y": 198,
+   "w": 65,
+   "h": 16,
+   "layout_slot": "0.0,18.0,546.5,20.3",
+   "t0": "86.3,198.0",
+   "t1": "21.0,198.0"
+  },
+  "text-rtl-pure/heLTR": {
+   "x": 21,
+   "y": 218,
+   "w": 65,
+   "h": 16,
+   "layout_slot": "0.0,38.3,546.5,20.3",
+   "t0": "21.0,218.3",
+   "t1": "86.3,218.3"
+  },
+  "text-rtl-pure/ar": {
+   "x": 95,
+   "y": 239,
+   "w": 74,
+   "h": 16,
+   "layout_slot": "0.0,58.6,546.5,20.3",
+   "t0": "94.8,238.6",
+   "t1": "21.0,238.6"
+  },
+  "text-rtl-pure/heNum": {
+   "x": 117,
+   "y": 259,
+   "w": 96,
+   "h": 16,
+   "layout_slot": "0.0,78.9,546.5,20.3",
+   "t0": "117.4,258.9",
+   "t1": "21.0,258.9"
+  },
+  "text-rtl-pure/arNum": {
+   "x": 89,
+   "y": 279,
+   "w": 68,
+   "h": 16,
+   "layout_slot": "0.0,99.2,546.5,20.3",
+   "t0": "89.1,279.2",
+   "t1": "21.0,279.2"
+  }
+ },
+ "#hblines_B": [
+  "HBLINE B#0 cpFirst=0 cpLast=30 len=30 nl=1 h=16.2969 bl=12.9951 w=192.5342 hostOrigin=(0.0000,0.0000) glyphRuns=1 runOrigins(已烘入宿主原点)=[(0.000,12.995)] delta(firstRunOriginY-(hostOriginY+Baseline))=0.0000 inv=1 pw=546.4800 W=192.5342 pw-W=353.9458",
+  "HBLINE B#0 cpFirst=0 cpLast=30 len=30 nl=0 h=15.1328 bl=12.0669 w=294.1567 hostOrigin=(0.0000,0.0000) glyphRuns=3 runOrigins(已烘入宿主原点)=[(0.000,12.067) (143.000,12.067) (242.157,12.067)] delta(firstRunOriginY-(hostOriginY+Baseline))=0.0000 inv=0 pw=300.0000 W=294.1567 pw-W=5.8433",
+  "HBLINE B#30 cpFirst=30 cpLast=55 len=25 nl=0 h=15.1328 bl=12.0669 w=299.0000 hostOrigin=(0.0000,15.1328) glyphRuns=5 runOrigins(已烘入宿主原点)=[(0.000,27.200) (169.000,27.200) (182.000,27.200) (234.000,27.200) (247.000,27.200)] delta(firstRunOriginY-(hostOriginY+Baseline))=0.0000 inv=0 pw=300.0000 W=299.0000 pw-W=1.0000",
+  "HBLINE B#55 cpFirst=55 cpLast=62 len=7 nl=1 h=15.1328 bl=12.0669 w=78.0000 hostOrigin=(0.0000,30.2656) glyphRuns=1 runOrigins(已烘入宿主原点)=[(0.000,42.333)] delta(firstRunOriginY-(hostOriginY+Baseline))=0.0000 inv=0 pw=300.0000 W=78.0000 pw-W=222.0000",
+  "HBLINE B#0 cpFirst=0 cpLast=23 len=23 nl=0 h=15.1328 bl=12.0669 w=299.0000 hostOrigin=(0.0000,0.0000) glyphRuns=1 runOrigins(已烘入宿主原点)=[(0.000,12.067)] delta(firstRunOriginY-(hostOriginY+Baseline))=0.0000 inv=0 pw=300.0000 W=299.0000 pw-W=1.0000",
+  "HBLINE B#23 cpFirst=23 cpLast=51 len=28 nl=0 h=15.1328 bl=12.0669 w=254.8140 hostOrigin=(0.0000,15.1328) glyphRuns=2 runOrigins(已烘入宿主原点)=[(0.000,27.200) (143.000,27.200)] delta(firstRunOriginY-(hostOriginY+Baseline))=0.0000 inv=0 pw=300.0000 W=254.8140 pw-W=45.1860",
+  "HBLINE B#0 cpFirst=0 cpLast=10 len=10 nl=1 h=16.2969 bl=12.9951 w=65.2559 hostOrigin=(0.0000,0.0000) glyphRuns=1 runOrigins(已烘入宿主原点)=[(0.000,12.995)] delta(firstRunOriginY-(hostOriginY+Baseline))=0.0000 inv=1 pw=65.2559 W=65.2559 pw-W=0.0000",
+  "HBLINE B#0 cpFirst=0 cpLast=10 len=10 nl=1 h=16.2969 bl=12.9951 w=65.2559 hostOrigin=(0.0000,0.0000) glyphRuns=1 runOrigins(已烘入宿主原点)=[(0.000,12.995)] delta(firstRunOriginY-(hostOriginY+Baseline))=0.0000 inv=0 pw=65.2559 W=65.2559 pw-W=0.0000",
+  "HBLINE B#0 cpFirst=0 cpLast=14 len=14 nl=1 h=16.2969 bl=12.9951 w=73.8486 hostOrigin=(0.0000,0.0000) glyphRuns=1 runOrigins(已烘入宿主原点)=[(0.000,12.995)] delta(firstRunOriginY-(hostOriginY+Baseline))=0.0000 inv=1 pw=73.8486 W=73.8486 pw-W=0.0000",
+  "HBLINE B#0 cpFirst=0 cpLast=14 len=14 nl=1 h=16.2969 bl=12.9951 w=96.4277 hostOrigin=(0.0000,0.0000) glyphRuns=1 runOrigins(已烘入宿主原点)=[(0.000,12.995)] delta(firstRunOriginY-(hostOriginY+Baseline))=0.0000 inv=1 pw=96.4277 W=96.4277 pw-W=0.0000",
+  "HBLINE B#0 cpFirst=0 cpLast=11 len=11 nl=1 h=16.2969 bl=12.9951 w=68.0586 hostOrigin=(0.0000,0.0000) glyphRuns=1 runOrigins(已烘入宿主原点)=[(0.000,12.995)] delta(firstRunOriginY-(hostOriginY+Baseline))=0.0000 inv=1 pw=68.0586 W=68.0586 pw-W=0.0000",
+  "HBLINE B#0 cpFirst=0 cpLast=12 len=12 nl=1 h=15.1328 bl=12.0669 w=143.0000 hostOrigin=(0.0000,0.0000) glyphRuns=1 runOrigins(已烘入宿主原点)=[(0.000,12.067)] delta(firstRunOriginY-(hostOriginY+Baseline))=0.0000 inv=0 pw=278.0000 W=143.0000 pw-W=135.0000",
+  "HBLINE B#0 cpFirst=0 cpLast=9 len=9 nl=1 h=13.9688 bl=11.1387 w=81.3633 hostOrigin=(0.0000,0.0000) glyphRuns=3 runOrigins(已烘入宿主原点)=[(0.000,11.139) (4.682,11.139) (76.682,11.139)] delta(firstRunOriginY-(hostOriginY+Baseline))=0.0000 inv=0 pw=278.0000 W=81.3633 pw-W=196.6367",
+  "HBLINE B#0 cpFirst=0 cpLast=35 len=35 nl=1 h=13.9688 bl=11.1387 w=248.7070 hostOrigin=(0.0000,0.0000) glyphRuns=2 runOrigins(已烘入宿主原点)=[(0.000,11.139) (24.000,11.139)] delta(firstRunOriginY-(hostOriginY+Baseline))=0.0000 inv=0 pw=278.0000 W=248.7070 pw-W=29.2930"
+ ],
+ "#lines": [
+  {
+   "label": "he_pure_RTL",
+   "colour": "FF2D95",
+   "y_range": [
+    209,
+    220
+   ],
+   "envelope_x": [
+    13,
+    42
+   ],
+   "width_px": 30,
+   "ink_px": 119,
+   "profile_binned8": [
+    35,
+    28,
+    33,
+    23
+   ],
+   "profile_first16": [
+    6,
+    9,
+    4,
+    2,
+    1,
+    7,
+    6,
+    0,
+    0,
+    8,
+    8,
+    0,
+    4,
+    4,
+    1,
+    3
+   ],
+   "profile_last16": [
+    1,
+    3,
+    6,
+    6,
+    4,
+    1,
+    0,
+    0,
+    8,
+    8,
+    2,
+    2,
+    2,
+    3,
+    8,
+    6
+   ],
+   "rep_b_identical": true,
+   "layout_box": {
+    "x": 86,
+    "y": 198,
+    "w": 65,
+    "h": 16,
+    "layout_slot": "0.0,18.0,546.5,20.3",
+    "t0": "86.3,198.0",
+    "t1": "21.0,198.0"
+   }
+  },
+  {
+   "label": "he_same_string_LTR",
+   "colour": "00FF7F",
+   "y_range": [
+    230,
+    241
+   ],
+   "envelope_x": [
+    22,
+    88
+   ],
+   "width_px": 67,
+   "ink_px": 260,
+   "profile_binned8": [
+    37,
+    35,
+    22,
+    40,
+    21,
+    26,
+    33,
+    28,
+    18
+   ],
+   "profile_first16": [
+    2,
+    8,
+    7,
+    3,
+    6,
+    6,
+    2,
+    3,
+    6,
+    4,
+    4,
+    4,
+    1,
+    4,
+    6,
+    6
+   ],
+   "profile_last16": [
+    4,
+    1,
+    4,
+    6,
+    6,
+    4,
+    2,
+    0,
+    8,
+    8,
+    2,
+    2,
+    2,
+    3,
+    8,
+    7
+   ],
+   "rep_b_identical": true,
+   "layout_box": {
+    "x": 21,
+    "y": 218,
+    "w": 65,
+    "h": 16,
+    "layout_slot": "0.0,38.3,546.5,20.3",
+    "t0": "21.0,218.3",
+    "t1": "86.3,218.3"
+   }
+  },
+  {
+   "label": "ar_pure_RTL",
+   "colour": "00E5FF",
+   "y_range": [
+    250,
+    265
+   ],
+   "envelope_x": [
+    13,
+    52
+   ],
+   "width_px": 40,
+   "ink_px": 219,
+   "profile_binned8": [
+    40,
+    53,
+    46,
+    49,
+    31
+   ],
+   "profile_first16": [
+    2,
+    2,
+    6,
+    7,
+    0,
+    0,
+    11,
+    12,
+    2,
+    2,
+    12,
+    12,
+    12,
+    2,
+    5,
+    6
+   ],
+   "profile_last16": [
+    2,
+    2,
+    12,
+    12,
+    10,
+    0,
+    5,
+    6,
+    4,
+    6,
+    4,
+    6,
+    4,
+    3,
+    2,
+    2
+   ],
+   "rep_b_identical": true,
+   "layout_box": {
+    "x": 95,
+    "y": 239,
+    "w": 74,
+    "h": 16,
+    "layout_slot": "0.0,58.6,546.5,20.3",
+    "t0": "94.8,238.6",
+    "t1": "21.0,238.6"
+   }
+  },
+  {
+   "label": "he_with_digits_RTL",
+   "colour": "ADFF2F",
+   "y_range": [
+    272,
+    283
+   ],
+   "envelope_x": [
+    12,
+    73
+   ],
+   "width_px": 62,
+   "ink_px": 246,
+   "profile_binned8": [
+    33,
+    42,
+    31,
+    13,
+    39,
+    29,
+    34,
+    25
+   ],
+   "profile_first16": [
+    2,
+    3,
+    3,
+    11,
+    11,
+    1,
+    1,
+    1,
+    0,
+    5,
+    5,
+    6,
+    5,
+    7,
+    8,
+    6
+   ],
+   "profile_last16": [
+    1,
+    4,
+    6,
+    6,
+    4,
+    2,
+    0,
+    0,
+    8,
+    8,
+    2,
+    2,
+    3,
+    3,
+    8,
+    7
+   ],
+   "rep_b_identical": true,
+   "layout_box": {
+    "x": 117,
+    "y": 259,
+    "w": 96,
+    "h": 16,
+    "layout_slot": "0.0,78.9,546.5,20.3",
+    "t0": "117.4,258.9",
+    "t1": "21.0,258.9"
+   }
+  },
+  {
+   "label": "ar_with_punct_digits_RTL",
+   "colour": "C084FC",
+   "y_range": [
+    293,
+    303
+   ],
+   "envelope_x": [
+    12,
+    46
+   ],
+   "width_px": 35,
+   "ink_px": 123,
+   "profile_binned8": [
+    8,
+    33,
+    41,
+    20,
+    21
+   ],
+   "profile_first16": [
+    4,
+    4,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    2,
+    3,
+    3,
+    11,
+    11,
+    1,
+    1,
+    1
+   ],
+   "profile_last16": [
+    6,
+    5,
+    6,
+    8,
+    6,
+    0,
+    0,
+    0,
+    3,
+    3,
+    4,
+    3,
+    7,
+    11,
+    8,
+    2
+   ],
+   "rep_b_identical": true,
+   "layout_box": {
+    "x": 89,
+    "y": 279,
+    "w": 68,
+    "h": 16,
+    "layout_slot": "0.0,99.2,546.5,20.3",
+    "t0": "89.1,279.2",
+    "t1": "21.0,279.2"
+   }
+  }
+ ]
+}

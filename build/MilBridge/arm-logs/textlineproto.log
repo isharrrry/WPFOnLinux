@@ -1,0 +1,75 @@
+== 轨道A/B1 · TextLine 落地脚手架（编真 shim 源文件 + 9 个欠账回退计数）==
+== 轨道A 契约探针 ==
+Win32 shim 在本目录 = True
+font = /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/fonts/NotoSans-Bold.ttf (exists=True)
+PresentationCore = PresentationCore, Version=4.0.0.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35
+WindowsBase      = WindowsBase, Version=4.0.0.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35
+
+  FAIL  P1  new GlyphTypeface(new Uri(file://…))
+        FileFormatException: File 'file:///home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/fonts/NotoSans-Bold.ttf' has an invalid file format.
+        栈: at System.Windows.Media.GlyphTypeface.Initialize(Uri typefaceSource, StyleSimulations styleSimulations) in /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationCore/System/Windows/Media/GlyphTypeface.cs:line 145 | at System.Windows.Media.GlyphTypeface..ctor(Uri typefaceSource, StyleSimulations styleSimulations) in /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationCore/System/Windows/Media/GlyphTypeface.cs:line 66 | at System.Windows.Media.GlyphTypeface..ctor(Uri typefaceSource) in /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationCore/System/Windows/Media/GlyphTypeface.cs:line 55 | 
+  PASS  P2  new FontFamily("Noto Sans") + Typeface 解析
+        解析到 GlyphTypeface，GlyphCount=6196
+      TextBounds: public ctor=0  non-public ctor=1
+      TextRunBounds: public ctor=0  non-public ctor=1
+  PASS  P3  TextBounds 只能反射构造（public ctor = 0）
+        反射成功：Rectangle=0,0,10,10（ctor 参数 3 个）
+  PASS  P4  new DrawingVisual().RenderOpen() 在纯 PC 下可用
+        拿到 DrawingContext 并画了一个矩形（Draw 覆盖可以被真正驱动）
+  PASS  P5  DWF Font → GlyphTypeface(内部 ctor) → **真 GlyphTypeface**
+        GlyphCount=3884 Version=2.015 Baseline=1.0690 FaceNames=1
+  FAIL  P6  BeginInit + 属性 setter 构造 GlyphRun
+        InvalidOperationException: The operation fails because the object is not fully initialized.
+        栈: at System.Windows.Media.GlyphRun.CheckInitialized() in /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationCore/System/Windows/Media/GlyphRun.cs:line 2344 | at System.Windows.Media.GlyphRun.get_GlyphIndices() in /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationCore/System/Windows/Media/GlyphRun.cs:line 1072 | at MilBridge.ContractProbe.Program.Main() in /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/tests/ContractProbe/Program.cs:line 211 | 
+
+== 探针：通过 4 / 失败 2 ==
+
+== 轨道A · TextLine 契约限时原型 ==
+libharfbuzz = 2.7.4
+font        = /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/fonts/NotoSans-Bold.ttf
+text        = "Hello WPF on Linux — AVATAR To office ffi"  emSize=24  ppd=1
+
+[HB 直算]  字形 37 个，总宽 493.4880px，upem=1000
+           glyphs = [43 72 79 79 82 3 58 51 41 3 82 81 3 47 76 81 88 91 3 513 3 36 57 36 55 36 53 3 55 82 3 82 1656 70 72 3 1656]
+
+  PASS  A1  拿到真 GlyphTypeface（DWF Font → 内部 ctor）
+        GlyphCount=3884 Version=2.015 Baseline=1.0690
+[HbTextLine] Width=493.4880  Height=32.6880  Baseline=25.6560  Length=41
+
+  PASS  A2  GetTextRunSpans() 返回 1 个 span 且长度正确
+        spans=1 length=41
+  PASS  A3  GetTextBounds() 返回真 TextBounds（反射构造 internal ctor）
+        矩形=0,0,493.48800000000006,32.688（宽 493.4880 vs TextLine.Width 493.4880）；TextRunBounds=1 个
+  PASS  A4  Draw() 的 null 守卫正确（本体一行；真驱动需活窗口）
+        null DrawingContext → ArgumentNullException ✓；InvertAxes≠None 守卫未能覆盖（无头环境拿不到 DrawingContext）
+  PASS  A5  GlyphRun 构造成功且逐项与 HarfBuzz 直算一致
+        GlyphRun.GlyphIndices=37 个，AdvanceWidths[0..2]=[18.3600 14.3280 7.1520]；与 HB 直算逐项相等 = True
+  PASS  A6  把 GlyphRun 光栅化到 SKSurface → 真的有字形像素
+        非白像素 = 3954 / 51200（7.72%）；PNG = 4722 字节
+      [IGR] run#0 cp=[0,41) FontUri=file:///home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/fonts/NotoSans-Bold.ttf GlyphIndices=[43,72,79,79,82,3,58,51,41,3,82,81,3,47,76,81,88,91,3,513,3,36,57,36,55,36,53,3,55,82,3,82,1656,70,72,3,1656] AdvanceWidths=[18.36,14.328000000000001,7.152,7.152,15,6.24,23.208000000000002,14.904,13.176,6.24,15,15.6,6.24,13.416,7.176,15.6,15.6,13.872,6.24,24,6.24,15.648,14.64,14.928,12.168000000000001,16.608,15.744,6.24,12.168000000000001,15,6.24,15,25.704,12.384,14.328000000000001,6.24,25.704] (notdef=-1)
+      [IGR] 共 1 个 run
+      [IGR-FB] run#0 cp=[0,2) FontUri=file:///usr/share/fonts/truetype/dejavu/DejaVuSans.ttf GlyphIndices=[36,37] (notdef=-1)
+      [IGR-FB] run#1 cp=[2,3) FontUri=file:///usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc GlyphIndices=[9498] (notdef=-1)
+      [IGR-FB] run#2 cp=[3,5) FontUri=file:///usr/share/fonts/truetype/dejavu/DejaVuSans.ttf GlyphIndices=[38,39] (notdef=-1)
+      [IGR-FB] 行 1 行，共 3 个 run
+  PASS  A7  5 个仍未欠账成员安全回退且各命中 1；其余真实现成员命中恒 0（一个都没抛）
+        抛出 0 个；总计 5/5；Collapse=0 GetBackspaceCaretCharacterHit=1 GetCharacterHitFromDistance=1 GetDistanceFromCharacterHit=1 GetIndexedGlyphRuns=0 GetNextCaretCharacterHit=1 GetPreviousCaretCharacterHit=1 GetTextCollapsedRanges=0 GetTextLineBreak=0
+        返回值：GetTextLineBreak→null，GetTextCollapsedRanges→null，Collapse→HbTextLine，GetIndexedGlyphRuns→List`1，GetIndexedGlyphRuns(回退对照:含U+4E0E)→Int32，GetCharacterHitFromDistance→CharacterHit，GetDistanceFromCharacterHit→Double，GetNextCaretCharacterHit→CharacterHit，GetPreviousCaretCharacterHit→CharacterHit，GetBackspaceCaretCharacterHit→CharacterHit
+  PASS  A7b  B2 三个成员的真机口径：普通文本 GetTextLineBreak()==null、未折叠 GetTextCollapsedRanges()==null、非可折叠行 Collapse(空参)==this、且**不发零记录**
+        breakNull=2 零记录=0 折叠不可行=2 未折叠返回null=2
+  PASS  A8  严格模式（WPF_LINUX_TEXTLINE_STRICT=1）下：**仍欠账的会抛、已真实现的不抛**（探针口径 = `StillOwedMembers`，现 5 个）
+        欠账抛=True（探针 `GetCharacterHitFromDistance`，在册）；已实现却抛=False（探针 `GetIndexedGlyphRuns`+B2 三个）
+
+[汇总行] HB_TEXTLINE enabled=0 lines=1 draw=0 getTextBounds=0 getTextRunSpans=0 fallbackTotal=6 Collapse=0 GetBackspaceCaretCharacterHit=1 GetCharacterHitFromDistance=2 GetDistanceFromCharacterHit=1 GetIndexedGlyphRuns=0 GetNextCaretCharacterHit=1 GetPreviousCaretCharacterHit=1 GetTextCollapsedRanges=0 GetTextLineBreak=0 paragraphs=1 breakNull=3 breakZeroRecords=0 modifierLines=0 collapseCalls=3 collapseIneligible=3 collapseTooWide=0 collapseEmptyArgsThrow=0 collapseApplied=0 collapseUnsupported=0 collapsedRangesNull=3 collapsedRangesReturned=0 forcedBreakLines=0 kinsokuPulls=0 dependentLengthQueries=0 invertedLines=0 invertedNoWidth=0 antiMatrixMismatch=0
+  PASS  A9  开关 WPF_LINUX_TEXTLINE **未设时为关**（默认 OFF）
+        未设 ⇒ Enabled=False
+
+[对照] 同一串文本：
+  快路径（cmap+hmtx 名义字形）: 41 字形，总宽 500.5425px
+  HarfBuzz shaping          : 37 字形，总宽 493.4880px
+  差                        : -4 字形，Δ=-7.0545px
+  （与 M7c4 的基线同量级：真实字体 37 vs 快路径 41、Δ≈−7px）
+
+[证据] PNG = /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/gen/textline-proto.png（4722 字节，3954 个非白像素）
+
+== 通过 10 / 失败 0 ==

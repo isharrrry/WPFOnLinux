@@ -1,0 +1,26 @@
+==================== T2e · LineHeight 维度对拍（真值 = 真机 results-cd2.json）====================
+被测 shim 源 = build/shims/PresentationCore.HbTextLine.cs  sha256=(缺)
+真值         = tests/parity/windows/layout-b34/results-cd2.json（只读）
+自检模式     = 关
+编译状态     = dotnet build -c Release -m:1 --nologo（**无 --no-build**）；本程序运行时会打印是否 0 错 0 警见构建输出
+
+── 逐例三列（Height / TextHeight / Baseline：真值 vs 我们）──
+  LH_lat_words_lh10        LineHeight=10      行0: Height 真值= 10.0000 我们= 10.0000 ✓ | TextHeight= 21.7933 vs  21.7920 ✓ | Baseline=  7.8500 vs   7.8488 ✓
+  LH_lat_words_lh22        LineHeight=21.793  行0: Height 真值= 21.7933 我们= 21.7930 ✓ | TextHeight= 21.7933 vs  21.7920 ✓ | Baseline= 17.1067 vs  17.1048 ✓
+  LH_lat_words_lh30        LineHeight=30      行0: Height 真值= 30.0000 我们= 30.0000 ✓ | TextHeight= 21.7933 vs  21.7920 ✓ | Baseline= 23.5467 vs  23.5463 ✓
+  LH_lat_words_lh50        LineHeight=50      行0: Height 真值= 50.0000 我们= 50.0000 ✓ | TextHeight= 21.7933 vs  21.7920 ✓ | Baseline= 39.2433 vs  39.2438 ✓
+  LH_lat_words_lh30_ac1    LineHeight=30      行0: Height 真值= 30.0000 我们= 30.0000 ✓ | TextHeight= 21.7933 vs  21.7920 ✓ | Baseline= 23.5467 vs  23.5463 ✓
+  LH_cjk_punct_lh10        LineHeight=10      行0: Height 真值= 10.0000 我们= 10.0000 ✓ | TextHeight= 21.1167 vs  23.1680 ✗ | Baseline=  8.0167 vs   8.0110 ✓
+  LH_cjk_punct_lh22        LineHeight=21.793  行0: Height 真值= 21.7933 我们= 21.7930 ✓ | TextHeight= 21.1167 vs  23.1680 ✗ | Baseline= 17.4733 vs  17.4585 ✓
+  LH_cjk_punct_lh30        LineHeight=30      行0: Height 真值= 30.0000 我们= 30.0000 ✓ | TextHeight= 21.1167 vs  23.1680 ✗ | Baseline= 24.0500 vs  24.0331 ✓
+  LH_cjk_punct_lh50        LineHeight=50      行0: Height 真值= 50.0000 我们= 50.0000 ✓ | TextHeight= 21.1167 vs  23.1680 ✗ | Baseline= 40.0867 vs  40.0552 ✓
+  LH_cjk_punct_lh30_ac1    LineHeight=30      行0: Height 真值= 30.0000 我们= 30.0000 ✓ | TextHeight= 21.1167 vs  23.1680 ✗ | Baseline= 24.0500 vs  24.0331 ✓
+
+T2E_SUMMARY cases=10 height_ok=10/10 textheight_ok=5/10 baseline_ok=10/10 extent_ok=5/10 lines=40
+  ❌ TextHeight 不一致 5/10 例
+
+── Extent（**确认缺陷**，只取证不改实现）──
+  真值语义 = **墨迹上伸**（ink ascent）；我们 = **行高**（`Extent => _height`）
+  本批 10 例：Extent 一致 5/10 ⇒ 我们 5 例全不对（与 1298 行那批同源）
+
+== T2e 失败 1 项 ==

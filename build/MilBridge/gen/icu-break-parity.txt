@@ -1,0 +1,294 @@
+==================== ICU(UAX#14)+2 条 DWrite 规则 vs DWrite 行断对拍（73 例）====================
+ICU  = 70.1.0.0  (libicuuc.so.70)
+HB   = 2.7.4  (libharfbuzz.so.0)
+字体  Noto Sans          → /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/fonts/NotoSans-Regular.ttf
+字体  Noto Sans|700|0    → /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/fonts/NotoSans-Bold.ttf
+字体  Noto Sans|400|2    → /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/fonts/NotoSans-Italic.ttf
+字体  Noto Sans|700|2    → /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/fonts/NotoSans-BoldItalic.ttf
+字体  Noto Sans|notdef-cjk|400|0 → /usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc
+字体  Noto Sans CJK JP   → /usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc
+字体  Noto Sans CJK SC   → /usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc
+
+oracle = 73 例；引擎 = DirectWrite IDWriteTextLayout::GetMetrics + GetLineMetrics (+ HitTestTextRange/Position)
+
+──────── Stage A：DWrite 的换行点是否 ∈（ICU 断点集 + 2 条覆盖规则）────────
+   en-long                      OK（覆盖规则：+0 / -0）
+   en-words                     OK（覆盖规则：+0 / -0）
+   en-hyphen                    OK（覆盖规则：+0 / -0）
+   en-narrow                    OK（覆盖规则：+0 / -0）
+   en-newline                   OK（覆盖规则：+0 / -0）
+   en-oneword                   **依赖强制断 fallback（非差异）**：DWrite 在 8,19,28,35,42,48,56 断，断点集里没有 ⇒ 交给「无断点可放 ⇒ 按宽度强制断」（Stage B 判它是否复现）
+   mixed                        OK（覆盖规则：+0 / -0）
+   cjk-only                     OK（覆盖规则：+0 / -0）
+   bold-wrap                    OK（覆盖规则：+0 / -0）
+   italic-wrap                  OK（覆盖规则：+0 / -0）
+   cjk-para                     OK（覆盖规则：+0 / -0）
+   cjk-punct-head               OK（覆盖规则：+0 / -0）
+   cjk-kinji-comma              OK（覆盖规则：+0 / -0）
+   cjk-kinji-close              OK（覆盖规则：+0 / -0）
+   cjk-kinji-period             OK（覆盖规则：+0 / -0）
+   cjk-narrow                   OK（覆盖规则：+0 / -0）
+   cjk-latin-mix                OK（覆盖规则：+0 / -0）
+   cjk-long-token               **依赖强制断 fallback（非差异）**：DWrite 在 24,34,45 断，断点集里没有 ⇒ 交给「无断点可放 ⇒ 按宽度强制断」（Stage B 判它是否复现）
+   cjk-fullwidth                **依赖强制断 fallback（非差异）**：DWrite 在 9 断，断点集里没有 ⇒ 交给「无断点可放 ⇒ 按宽度强制断」（Stage B 判它是否复现）
+   cjk-newlines                 OK（覆盖规则：+0 / -0）
+   cjk-kana                     OK（覆盖规则：+0 / -0）
+   cjk-hangul                   OK（覆盖规则：+0 / -0）
+   cjk-small                    OK（覆盖规则：+0 / -0）
+   facecmp-sc                   OK（覆盖规则：+0 / -0）
+   facecmp-jp                   OK（覆盖规则：+0 / -0）
+   kinsoku-start-U+3001         OK（覆盖规则：+0 / -0）
+   kinsoku-start-U+3002         OK（覆盖规则：+0 / -0）
+   kinsoku-start-U+FF0C         OK（覆盖规则：+0 / -0）
+   kinsoku-start-U+FF0E         OK（覆盖规则：+0 / -0）
+   kinsoku-start-U+FF1A         OK（覆盖规则：+0 / -0）
+   kinsoku-start-U+FF1B         OK（覆盖规则：+0 / -0）
+   kinsoku-start-U+FF01         OK（覆盖规则：+0 / -0）
+   kinsoku-start-U+FF1F         OK（覆盖规则：+0 / -0）
+   kinsoku-start-U+FF09         OK（覆盖规则：+0 / -0）
+   kinsoku-start-U+FF3D         OK（覆盖规则：+0 / -0）
+   kinsoku-start-U+FF5D         OK（覆盖规则：+0 / -0）
+   kinsoku-start-U+300D         OK（覆盖规则：+0 / -0）
+   kinsoku-start-U+300F         OK（覆盖规则：+0 / -0）
+   kinsoku-start-U+3011         OK（覆盖规则：+0 / -0）
+   kinsoku-start-U+300B         OK（覆盖规则：+0 / -0）
+   kinsoku-start-U+3009         OK（覆盖规则：+0 / -0）
+   kinsoku-start-U+3015         OK（覆盖规则：+0 / -0）
+   kinsoku-start-U+30FB         OK（覆盖规则：+0 / -0）
+   kinsoku-start-U+30FC         OK（覆盖规则：+0 / -0）
+   kinsoku-start-U+3005         OK（覆盖规则：+0 / -0）
+   kinsoku-start-U+3041         OK（覆盖规则：+0 / -0）
+   kinsoku-start-U+3043         OK（覆盖规则：+0 / -0）
+   kinsoku-start-U+3045         OK（覆盖规则：+0 / -0）
+   kinsoku-start-U+3047         OK（覆盖规则：+0 / -0）
+   kinsoku-start-U+3049         OK（覆盖规则：+0 / -0）
+   kinsoku-start-U+3063         OK（覆盖规则：+0 / -0）
+   kinsoku-start-U+3083         OK（覆盖规则：+0 / -0）
+   kinsoku-start-U+3085         OK（覆盖规则：+0 / -0）
+   kinsoku-start-U+3087         OK（覆盖规则：+0 / -0）
+   kinsoku-start-U+2026         OK（覆盖规则：+1 / -0）
+   kinsoku-start-U+2010         OK（覆盖规则：+0 / -0）
+   kinsoku-start-control        OK（覆盖规则：+0 / -0）
+   kinsoku-end-U+FF08           OK（覆盖规则：+0 / -0）
+   kinsoku-end-U+FF3B           OK（覆盖规则：+0 / -0）
+   kinsoku-end-U+FF5B           OK（覆盖规则：+0 / -0）
+   kinsoku-end-U+300C           OK（覆盖规则：+0 / -0）
+   kinsoku-end-U+300E           OK（覆盖规则：+0 / -0）
+   kinsoku-end-U+3010           OK（覆盖规则：+0 / -0）
+   kinsoku-end-U+300A           OK（覆盖规则：+0 / -0）
+   kinsoku-end-U+3008           OK（覆盖规则：+0 / -0）
+   kinsoku-end-U+3014           OK（覆盖规则：+0 / -0）
+   kinsoku-end-U+201C           OK（覆盖规则：+0 / -0）
+   kinsoku-end-U+2018           OK（覆盖规则：+0 / -0）
+   kinsoku-end-control          OK（覆盖规则：+0 / -0）
+   kinsoku-conflict-openpair    OK（覆盖规则：+0 / -0）
+   kinsoku-conflict-both        OK（覆盖规则：+0 / -0）
+   kinsoku-conflict-1char       **依赖强制断 fallback（非差异）**：DWrite 在 7 断，断点集里没有 ⇒ 交给「无断点可放 ⇒ 按宽度强制断」（Stage B 判它是否复现）
+   kinsoku-conflict-2char       **依赖强制断 fallback（非差异）**：DWrite 在 7 断，断点集里没有 ⇒ 交给「无断点可放 ⇒ 按宽度强制断」（Stage B 判它是否复现）
+   → Stage A：**真不一致 0 例**（判据见 Stage B）；依赖强制断 fallback 的例数 5
+
+──────── Stage B：ICU 断点集 + 贪心填宽 + 真 HarfBuzz advance ⇒ 行划分逐例逐行对拍 ────────
+   [en-long 字体=NotoSans-Regular.ttf w=400 style=0]
+   en-long                      w=200    em=24   DWrite=[0,16) [16,31) [31,48) [48,65) [65,84) [84,92) [92,102) ICU+规则=[0,16) [16,31) [31,48) [48,65) [65,84) [84,92) [92,102) OK
+   [en-words 字体=NotoSans-Regular.ttf w=400 style=0]
+   en-words                     w=150    em=24   DWrite=[0,8) [8,19) [19,34) [34,45) [45,56) [56,63) [63,71) ICU+规则=[0,8) [8,19) [19,34) [34,45) [45,56) [56,63) [63,71) OK
+   [en-hyphen 字体=NotoSans-Regular.ttf w=400 style=0]
+   en-hyphen                    w=160    em=24   DWrite=[0,11) [11,24) [24,33) [33,43) [43,50) [50,60) [60,69) [69,74) ICU+规则=[0,11) [11,24) [24,33) [33,43) [43,50) [50,60) [60,69) [69,74) OK
+   [en-narrow 字体=NotoSans-Regular.ttf w=400 style=0]
+   en-narrow                    w=90     em=24   DWrite=[0,4) [4,10) [10,16) [16,20) [20,26) [26,31) [31,40) [40,43) ICU+规则=[0,4) [4,10) [10,16) [16,20) [20,26) [26,31) [31,40) [40,43) OK
+   [en-newline 字体=NotoSans-Regular.ttf w=400 style=0]
+   en-newline                   w=300    em=24   DWrite=[0,10) [11,22) [23,23) [24,51) [51,54)       ICU+规则=[0,10) [11,22) [23,23) [24,51) [51,54)       OK
+   [en-oneword 字体=NotoSans-Regular.ttf w=400 style=0]
+   en-oneword                   w=100    em=24   DWrite=[0,8) [8,19) [19,28) [28,35) [35,42) [42,48) [48,56) [56,60) ICU+规则=[0,8) [8,19) [19,28) [28,35) [35,42) [42,48) [48,56) [56,60) OK
+   [mixed 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   mixed                        w=200    em=24   DWrite=[0,13) [13,28) [28,40) [40,54) [54,62)       ICU+规则=[0,13) [13,28) [28,40) [40,54) [54,62)       OK
+   [cjk-only 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   cjk-only                     w=180    em=24   DWrite=[0,7) [7,14) [14,21) [21,28) [28,32)         ICU+规则=[0,7) [7,14) [14,21) [21,28) [28,32)         OK
+   [bold-wrap 字体=NotoSans-Bold.ttf w=700 style=0]
+   bold-wrap                    w=180    em=24   DWrite=[0,10) [10,20) [20,35) [35,48) [48,57) [57,64) ICU+规则=[0,10) [10,20) [20,35) [35,48) [48,57) [57,64) OK
+   [italic-wrap 字体=NotoSans-Italic.ttf w=400 style=2]
+   italic-wrap                  w=180    em=24   DWrite=[0,16) [16,31) [31,48) [48,57) [57,64)       ICU+规则=[0,16) [16,31) [31,48) [48,57) [57,64)       OK
+   [cjk-para 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   cjk-para                     w=200    em=24   DWrite=[0,8) [8,16) [16,24) [24,32) [32,36)         ICU+规则=[0,8) [8,16) [16,24) [24,32) [32,36)         OK
+   [cjk-punct-head 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   cjk-punct-head               w=180    em=24   DWrite=[0,6) [6,12) [12,18) [18,25) [25,32) [32,38) [38,40) ICU+规则=[0,6) [6,12) [12,18) [18,25) [25,32) [32,38) [38,40) OK
+   [cjk-kinji-comma 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   cjk-kinji-comma              w=168    em=24   DWrite=[0,6) [6,13) [13,15)                         ICU+规则=[0,6) [6,13) [13,15)                         OK
+   [cjk-kinji-close 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   cjk-kinji-close              w=168    em=24   DWrite=[0,6) [6,13) [13,14)                         ICU+规则=[0,6) [6,13) [13,14)                         OK
+   [cjk-kinji-period 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   cjk-kinji-period             w=168    em=24   DWrite=[0,6) [6,13) [13,14)                         ICU+规则=[0,6) [6,13) [13,14)                         OK
+   [cjk-narrow 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   cjk-narrow                   w=90     em=24   DWrite=[0,3) [3,6) [6,9) [9,12) [12,15) [15,18) [18,21) [21,24) [24,27) [27,29) ICU+规则=[0,3) [3,6) [6,9) [9,12) [12,15) [15,18) [18,21) [21,24) [24,27) [27,29) OK
+   [cjk-latin-mix 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   cjk-latin-mix                w=200    em=24   DWrite=[0,7) [7,21) [21,35) [35,43) [43,49)         ICU+规则=[0,7) [7,21) [21,35) [35,43) [43,49)         OK
+   [cjk-long-token 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   cjk-long-token               w=150    em=24   DWrite=[0,6) [6,12) [12,24) [24,34) [34,45) [45,53) [53,58) ICU+规则=[0,6) [6,12) [12,24) [24,34) [34,45) [45,53) [53,58) OK
+   [cjk-fullwidth 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   cjk-fullwidth                w=160    em=24   DWrite=[0,3) [3,9) [9,15) [15,21) [21,23)           ICU+规则=[0,3) [3,9) [9,15) [15,21) [21,23)           OK
+   [cjk-newlines 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   cjk-newlines                 w=300    em=24   DWrite=[0,3) [4,7) [8,8) [9,21)                     ICU+规则=[0,3) [4,7) [8,8) [9,21)                     OK
+   [cjk-kana 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   cjk-kana                     w=180    em=24   DWrite=[0,7) [7,14) [14,21) [21,28) [28,35) [35,38) ICU+规则=[0,7) [7,14) [14,21) [21,28) [28,35) [35,38) OK
+   [cjk-hangul 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   cjk-hangul                   w=180    em=24   DWrite=[0,9) [9,17) [17,27) [27,36) [36,38)         ICU+规则=[0,9) [9,17) [17,27) [27,36) [36,38)         OK
+   [cjk-small 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   cjk-small                    w=150    em=11   DWrite=[0,13) [13,26)                               ICU+规则=[0,13) [13,26)                               OK
+   [facecmp-sc 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   facecmp-sc                   w=160    em=24   DWrite=[0,6) [6,12) [12,18) [18,24) [24,30) [30,33) ICU+规则=[0,6) [6,12) [12,18) [18,24) [24,30) [30,33) OK
+   [facecmp-jp 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   facecmp-jp                   w=160    em=24   DWrite=[0,6) [6,12) [12,18) [18,24) [24,30) [30,33) ICU+规则=[0,6) [6,12) [12,18) [18,24) [24,30) [30,33) OK
+   [kinsoku-start-U+3001 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-U+3001         w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-start-U+3002 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-U+3002         w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-start-U+FF0C 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-U+FF0C         w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-start-U+FF0E 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-U+FF0E         w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-start-U+FF1A 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-U+FF1A         w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-start-U+FF1B 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-U+FF1B         w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-start-U+FF01 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-U+FF01         w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-start-U+FF1F 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-U+FF1F         w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-start-U+FF09 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-U+FF09         w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-start-U+FF3D 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-U+FF3D         w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-start-U+FF5D 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-U+FF5D         w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-start-U+300D 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-U+300D         w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-start-U+300F 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-U+300F         w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-start-U+3011 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-U+3011         w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-start-U+300B 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-U+300B         w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-start-U+3009 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-U+3009         w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-start-U+3015 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-U+3015         w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-start-U+30FB 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-U+30FB         w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-start-U+30FC 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-U+30FC         w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-start-U+3005 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-U+3005         w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-start-U+3041 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-U+3041         w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-start-U+3043 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-U+3043         w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-start-U+3045 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-U+3045         w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-start-U+3047 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-U+3047         w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-start-U+3049 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-U+3049         w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-start-U+3063 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-U+3063         w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-start-U+3083 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-U+3083         w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-start-U+3085 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-U+3085         w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-start-U+3087 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-U+3087         w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-start-U+2026 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-U+2026         w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-start-U+2010 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-U+2010         w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-start-control 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-start-control        w=168    em=24   DWrite=[0,7) [7,14) [14,16)                         ICU+规则=[0,7) [7,14) [14,16)                         OK
+   [kinsoku-end-U+FF08 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-end-U+FF08           w=168    em=24   DWrite=[0,6) [6,13) [13,15)                         ICU+规则=[0,6) [6,13) [13,15)                         OK
+   [kinsoku-end-U+FF3B 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-end-U+FF3B           w=168    em=24   DWrite=[0,6) [6,13) [13,15)                         ICU+规则=[0,6) [6,13) [13,15)                         OK
+   [kinsoku-end-U+FF5B 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-end-U+FF5B           w=168    em=24   DWrite=[0,6) [6,13) [13,15)                         ICU+规则=[0,6) [6,13) [13,15)                         OK
+   [kinsoku-end-U+300C 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-end-U+300C           w=168    em=24   DWrite=[0,6) [6,13) [13,15)                         ICU+规则=[0,6) [6,13) [13,15)                         OK
+   [kinsoku-end-U+300E 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-end-U+300E           w=168    em=24   DWrite=[0,6) [6,13) [13,15)                         ICU+规则=[0,6) [6,13) [13,15)                         OK
+   [kinsoku-end-U+3010 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-end-U+3010           w=168    em=24   DWrite=[0,6) [6,13) [13,15)                         ICU+规则=[0,6) [6,13) [13,15)                         OK
+   [kinsoku-end-U+300A 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-end-U+300A           w=168    em=24   DWrite=[0,6) [6,13) [13,15)                         ICU+规则=[0,6) [6,13) [13,15)                         OK
+   [kinsoku-end-U+3008 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-end-U+3008           w=168    em=24   DWrite=[0,6) [6,13) [13,15)                         ICU+规则=[0,6) [6,13) [13,15)                         OK
+   [kinsoku-end-U+3014 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-end-U+3014           w=168    em=24   DWrite=[0,6) [6,13) [13,15)                         ICU+规则=[0,6) [6,13) [13,15)                         OK
+   [kinsoku-end-U+201C 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-end-U+201C           w=168    em=24   DWrite=[0,5) [5,12) [12,15)                         ICU+规则=[0,5) [5,12) [12,15)                         OK
+   [kinsoku-end-U+2018 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-end-U+2018           w=168    em=24   DWrite=[0,5) [5,12) [12,15)                         ICU+规则=[0,5) [5,12) [12,15)                         OK
+   [kinsoku-end-control 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-end-control          w=168    em=24   DWrite=[0,7) [7,14) [14,15)                         ICU+规则=[0,7) [7,14) [14,15)                         OK
+   [kinsoku-conflict-openpair 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-conflict-openpair    w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-conflict-both 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-conflict-both        w=168    em=24   DWrite=[0,6) [6,13) [13,16)                         ICU+规则=[0,6) [6,13) [13,16)                         OK
+   [kinsoku-conflict-1char 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-conflict-1char       w=24     em=24   DWrite=[0,1) [1,2) [2,3) [3,4) [4,5) [5,6) [6,7) [7,8) [8,9) [9,10) [10,11) [11,12) [12,13) ICU+规则=[0,1) [1,2) [2,3) [3,4) [4,5) [5,6) [6,7) [7,8) [8,9) [9,10) [10,11) [11,12) [12,13) OK
+   [kinsoku-conflict-2char 字体=NotoSansCJK-Regular.ttc w=400 style=0]
+   kinsoku-conflict-2char       w=48     em=24   DWrite=[0,2) [2,4) [4,5) [5,7) [7,9) [9,11) [11,13) [13,15) [15,17) ICU+规则=[0,2) [2,4) [4,5) [5,7) [7,9) [9,11) [11,13) [13,15) [15,17) OK
+   → Stage B：**逐例全等 73 例 / 不同 0 例**（共 73 例）
+
+──────── Stage C：kinsoku 表 48 行逐字符 —— ICU 是否允许「把标点留到行首/行尾」的那个断点 ────────
+   、 (start   ) DWrite line1End=6   ICU前可断=否    后可断=是    ⇒ 一致
+   。 (start   ) DWrite line1End=6   ICU前可断=否    后可断=是    ⇒ 一致
+   ， (start   ) DWrite line1End=6   ICU前可断=否    后可断=是    ⇒ 一致
+   ． (start   ) DWrite line1End=6   ICU前可断=否    后可断=是    ⇒ 一致
+   ： (start   ) DWrite line1End=6   ICU前可断=否    后可断=是    ⇒ 一致
+   ； (start   ) DWrite line1End=6   ICU前可断=否    后可断=是    ⇒ 一致
+   ！ (start   ) DWrite line1End=6   ICU前可断=否    后可断=是    ⇒ 一致
+   ？ (start   ) DWrite line1End=6   ICU前可断=否    后可断=是    ⇒ 一致
+   ） (start   ) DWrite line1End=6   ICU前可断=否    后可断=是    ⇒ 一致
+   ］ (start   ) DWrite line1End=6   ICU前可断=否    后可断=是    ⇒ 一致
+   ｝ (start   ) DWrite line1End=6   ICU前可断=否    后可断=是    ⇒ 一致
+   」 (start   ) DWrite line1End=6   ICU前可断=否    后可断=是    ⇒ 一致
+   』 (start   ) DWrite line1End=6   ICU前可断=否    后可断=是    ⇒ 一致
+   】 (start   ) DWrite line1End=6   ICU前可断=否    后可断=是    ⇒ 一致
+   》 (start   ) DWrite line1End=6   ICU前可断=否    后可断=是    ⇒ 一致
+   〉 (start   ) DWrite line1End=6   ICU前可断=否    后可断=是    ⇒ 一致
+   〕 (start   ) DWrite line1End=6   ICU前可断=否    后可断=是    ⇒ 一致
+   ・ (start   ) DWrite line1End=6   ICU前可断=否    后可断=是    ⇒ 一致
+   ー (start   ) DWrite line1End=6   ICU前可断=否    后可断=是    ⇒ 一致
+   々 (start   ) DWrite line1End=6   ICU前可断=否    后可断=是    ⇒ 一致
+   ぁ (start   ) DWrite line1End=6   ICU前可断=否    后可断=是    ⇒ 一致
+   ぃ (start   ) DWrite line1End=6   ICU前可断=否    后可断=是    ⇒ 一致
+   ぅ (start   ) DWrite line1End=6   ICU前可断=否    后可断=是    ⇒ 一致
+   ぇ (start   ) DWrite line1End=6   ICU前可断=否    后可断=是    ⇒ 一致
+   ぉ (start   ) DWrite line1End=6   ICU前可断=否    后可断=是    ⇒ 一致
+   っ (start   ) DWrite line1End=6   ICU前可断=否    后可断=是    ⇒ 一致
+   ゃ (start   ) DWrite line1End=6   ICU前可断=否    后可断=是    ⇒ 一致
+   ゅ (start   ) DWrite line1End=6   ICU前可断=否    后可断=是    ⇒ 一致
+   ょ (start   ) DWrite line1End=6   ICU前可断=否    后可断=是    ⇒ 一致
+   … (start   ) DWrite line1End=6   ICU前可断=否    后可断=是    ⇒ 一致
+   ‐ (start   ) DWrite line1End=6   ICU前可断=否    后可断=是    ⇒ 一致
+   甲 (start   ) DWrite line1End=6   ICU前可断=是    后可断=是    ⇒ 一致
+   （ (end     ) DWrite line1End=6   ICU前可断=是    后可断=否    ⇒ 一致
+   ［ (end     ) DWrite line1End=6   ICU前可断=是    后可断=否    ⇒ 一致
+   ｛ (end     ) DWrite line1End=6   ICU前可断=是    后可断=否    ⇒ 一致
+   「 (end     ) DWrite line1End=6   ICU前可断=是    后可断=否    ⇒ 一致
+   『 (end     ) DWrite line1End=6   ICU前可断=是    后可断=否    ⇒ 一致
+   【 (end     ) DWrite line1End=6   ICU前可断=是    后可断=否    ⇒ 一致
+   《 (end     ) DWrite line1End=6   ICU前可断=是    后可断=否    ⇒ 一致
+   〈 (end     ) DWrite line1End=6   ICU前可断=是    后可断=否    ⇒ 一致
+   〔 (end     ) DWrite line1End=6   ICU前可断=是    后可断=否    ⇒ 一致
+   “ (end     ) DWrite line1End=5   ICU前可断=是    后可断=否    ⇒ conflict（由 Stage B 判）
+   ‘ (end     ) DWrite line1End=5   ICU前可断=否    后可断=否    ⇒ conflict（由 Stage B 判）
+   甲 (end     ) DWrite line1End=6   ICU前可断=是    后可断=是    ⇒ 一致
+   「（ (conflict) DWrite line1End=6   ICU前可断=是    后可断=否    ⇒ conflict（由 Stage B 判）
+   「」 (conflict) DWrite line1End=6   ICU前可断=是    后可断=否    ⇒ conflict（由 Stage B 判）
+   ， (conflict) DWrite line1End=1   ICU前可断=否    后可断=是    ⇒ conflict（由 Stage B 判）
+   ，。」 (conflict) DWrite line1End=2   ICU前可断=否    后可断=否    ⇒ conflict（由 Stage B 判）
+   → Stage C：禁则 40 一致 / 0 不一致；对照(allow) 2 例一致；conflict 6 例（不判，Stage B 覆盖）
+
+==================== 结论 ====================
+Stage A 真不一致 = 0（紧急断行 5 例归 fallback，**非差异**）
+Stage B 逐例不同 = 0（判据：必须 0）
+Stage C 禁则不一致 = 0（必须 0）
+⇒ **一致**：73 例逐例全等（= ICU 断点集 + 2 条按 DWrite 真值覆盖 UAX#14 的规则 + 强制断 fallback）

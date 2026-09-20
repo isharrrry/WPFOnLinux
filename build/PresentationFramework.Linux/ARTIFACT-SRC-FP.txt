@@ -1,0 +1,42 @@
+# ARTIFACT-SRC-FP.txt 由 build/artifact-src-fp.py **生成**，不要手改。
+# 维度 A（src）：上游被编译的源 + 本工程生成物/垫片 + 决定它们的应用器脚本 + port-lib 输入
+# 维度 B（peer）：本工程 csproj 引用的**本仓内产物**字节（自指已排除）—— 2026-09-14 加
+#   【为什么】PF ⇄ Reach 真互引 ⇒ Roslyn 把被引件字节纳入输入哈希 ⇒ 该对无字节不动点、`pf` 每波必变；
+#   只覆盖 src 时 `state=ok` 是**必要不充分**（源没变、peer 变了 ⇒ 产物照样变）。
+# 排除：build/PresentationFramework.Linux/{bin,obj}/**、.artifacts/**、本文件自己
+# 重算比对：python3 build/artifact-src-fp.py --check（缺本文件 / 缺被引产物 / 旧格式 ⇒ noinfo，**不报绿**）
+fp=76cd3743d1b7a56b
+n=1362
+peer_fp=7b7e9645c4e6fd3e
+peer_n=9
+tool_sha256=e856e2e65e6c59cadd8e68b6a39c00b483992f9fdd459fb94c8b0221f8e597fd
+# 被引产物（sha256 前 16 + 仓库相对路径；**产物字节**，不是源）
+peer=09484aaa846c6956  build/CycleStub.PresentationUI.Linux/bin/Debug/PresentationUI.dll
+peer=9465f9dce39e2dfc  build/PresentationCore.Linux/bin/Debug/PresentationCore.dll
+peer=33b372daa826733e  build/ReachFramework.Linux/bin/Debug/ReachFramework.dll
+peer=5ccc76227e5e520d  build/System.Printing.Linux/bin/Debug/System.Printing.dll
+peer=4499439dff4b1e54  build/System.Windows.Extensions.Linux/bin/Debug/System.Windows.Extensions.dll
+peer=856b84d2af114acb  build/System.Xaml.Linux/bin/Debug/System.Xaml.dll
+peer=76c3e977594876c9  build/UIAutomationProvider.Linux/bin/Debug/UIAutomationProvider.dll
+peer=2654da315acd2046  build/UIAutomationTypes.Linux/bin/Debug/UIAutomationTypes.dll
+peer=19de048ecb968daa  build/WindowsBase.Linux/bin/Debug/WindowsBase.dll
+# 逐文件（**源侧**）：sha256 前 16 + 仓库相对路径；只列**本仓自有输入**（`upstream/**` 不列，用 --list 看全量）
+file=6d508ccc41d0e07b  build/PresentationFramework.Linux/DeferredTextReference.Linux.cs
+file=3af06981155e89aa  build/PresentationFramework.Linux/FrameworkElement.Linux.cs
+file=7f27cbcfa50ca41f  build/PresentationFramework.Linux/SR.g.cs
+file=e62edb1f82ba753a  build/PresentationFramework.Linux/SystemResources.Linux.cs
+file=6067276d0fc3a8da  build/PresentationFramework.Linux/TextBlock.Linux.cs
+file=6d769e8508f42b40  build/PresentationFramework.Linux/TextBox.Linux.cs
+file=a371e5b48b40447b  build/PresentationFramework.Linux/TextBoxBase.Linux.cs
+file=2859b73dd347fd8b  build/PresentationFramework.Linux/TextContainer.Linux.cs
+file=bb4f98dc236d5e25  build/PresentationFramework.Linux/TextEditorTyping.Linux.cs
+file=3ae3f5af556c0f2a  build/PresentationFramework.Linux/reapply-patches.py
+file=900dad4a3d1ca2d2  build/port-lib.py
+file=693b56ac590ef85d  build/shims/LinuxAssemblyIdentity.cs
+file=4429ff9a973a8375  build/shims/PresentationFramework.AssemblyAttrs.Shim.cs
+file=a76b6a7edd8bfd8a  build/shims/PresentationFramework.NrbfFrameworkObjects.Shim.cs
+file=1b9852b037da70f1  src/WpfGfx.Linux.Native/tools/patch-presentationframework-mirror-trace.py
+file=9206ea83512f6fd5  src/WpfGfx.Linux.Native/tools/patch-presentationframework-textbox-textdp-trace.py
+file=f8dbac9ac4c5a5ea  src/WpfGfx.Linux.Native/tools/patch-presentationframework-texteditor-trace.py
+file=8e694cf5cd187121  src/WpfGfx.Linux.Native/tools/patch-presentationframework-xamlaccess.py
+file=1e29cf7d3d0b8600  src/WpfGfx.Linux.Native/tools/patch-swe-linux.py

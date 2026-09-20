@@ -1,0 +1,211 @@
+<Project>
+  <!-- ⭐ `D-R8`（工程卫生）：不依赖 `$(BaseIntermediateOutputPath)` 指向哪里的产物目录排除。
+       实现在仓根 `BuildHygiene.props`（全仓唯一一份；理由与两种被否决的落点见 `build/MilBridge/W21B-report.md` §2）。
+       **故意不加 `Exists()` 条件**：文件找不到要大声失败。 -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('BuildHygiene.props'))" />
+  <!--
+    ============================================================================
+    WpfFeatureProbe —— 「默认配置门禁」用的**第二个真 WPF 样例**
+    ============================================================================
+
+    【它为什么存在】
+      HelloWpf 只画了「一个窗口 + 几段文字 + 几个形状」，而 M2 的验收件是**带字体 env**
+      跑出来的（`HLWPF_UI_FONT=…/UI-NoLayout.ttf`）。主控复验发现：**同一个二进制、不设任何
+      字体 env** 时文字整段不画（`未画种类 1`）——也就是说，**我们过去的验收面是
+      「一个样例 × 带 env 覆盖」，而真应用拿到的是「默认配置」**。
+
+      本样例就是为「默认配置」这条面造的：它刻意用**真应用才会用**的一堆东西
+      （折行/省略号/三档对齐、数据绑定、ListBox+ScrollViewer 真滚动、程序生成位图、
+      圆角 + DropShadowEffect、鼠标命中改可见状态），任何一环在默认配置下不工作，
+      `未画种类` / 截图 / 读图三样都会露出来。
+
+    【技术形态】
+      完全照 samples/HelloWpf 的既有做法（T3 + M7c 补充轮）：
+        · TargetFramework = net10.0（**纯 Linux**，无 net10.0-windows / EnableWindowsTargeting / UseWPF）；
+        · 引用 = 自产四件套 + 兄弟程序集 + 主题件，全部 HintPath 指向 build/*.Linux/bin/Debug/；
+        · XAML 编译仍由 build/PresentationBuildTasks.Linux（PBT，Release）执行，
+          并显式 Import SDK 的 Microsoft.WinFX.targets（net10.0 下 SDK 不会自动导入它，
+          详见 HelloWpf.csproj 里那段推导）；
+        · OOB BCL 运行期依赖（PF 在共享框架之外引用它们）用 NuGet 包补齐。
+
+    【与 HelloWpf 唯一的形态差别：DirectWrite.Linux.Provider 用 HintPath 而不是 ProjectReference】
+      HelloWpf 用的是 `<ProjectReference>`（会**构建** build/DirectWrite.Linux/Provider）。
+      本轮边界规定 `build/DirectWrite.Linux/**` 归 T2（正在重建 WIC），**不许碰** ——
+      所以这里改成"只读消费已构建好的产物 + 用 NuGet 补上它背后的 SkiaSharp 依赖图"：
+        · `<Reference>` + HintPath → 拿到 DirectWrite.Linux.Provider.dll（进 bin + deps.json）；
+        · `SkiaSharp` + `SkiaSharp.NativeAssets.Linux` 2.88.9（版本取 T2 工程里
+          build/DirectWrite.Linux/Directory.Build.props 的 $(SkiaSharpVersion)）→ 拿到
+          SkiaSharp.dll 与 runtimes/*/native/libSkiaSharp.so。
+      净效果与 ProjectReference 相同（Provider + Skia 依赖图都进 bin），但**不构建别人的工程**。
+  -->
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <UseWPF>false</UseWPF>
+
+    <RootNamespace>WpfFeatureProbe</RootNamespace>
+    <AssemblyName>WpfFeatureProbe</AssemblyName>
+    <Nullable>disable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <NoWarn>$(NoWarn);CS0067;CS0169;CA1416</NoWarn>
+
+    <!-- 自产程序集根目录（相对本文件推导 + GetFullPath 归一化，理由见 HelloWpf.csproj） -->
+    <WpfLinuxBinDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../../build'))</WpfLinuxBinDir>
+    <WpfLinuxSelfBuiltConfiguration Condition="'$(WpfLinuxSelfBuiltConfiguration)' == ''">Debug</WpfLinuxSelfBuiltConfiguration>
+  </PropertyGroup>
+
+  <!-- ★ 自产程序集引用（8 件 + 主题件） -->
+  <ItemGroup>
+    <Reference Include="WindowsBase">
+      <HintPath>$(WpfLinuxBinDir)/WindowsBase.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/WindowsBase.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="System.Xaml">
+      <HintPath>$(WpfLinuxBinDir)/System.Xaml.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/System.Xaml.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="PresentationCore">
+      <HintPath>$(WpfLinuxBinDir)/PresentationCore.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationCore.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="PresentationFramework">
+      <HintPath>$(WpfLinuxBinDir)/PresentationFramework.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationFramework.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="DirectWriteForwarder">
+      <HintPath>$(WpfLinuxBinDir)/DirectWriteForwarder.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWriteForwarder.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="UIAutomationTypes">
+      <HintPath>$(WpfLinuxBinDir)/UIAutomationTypes.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/UIAutomationTypes.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="UIAutomationProvider">
+      <HintPath>$(WpfLinuxBinDir)/UIAutomationProvider.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/UIAutomationProvider.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="System.Windows.Input.Manipulations">
+      <HintPath>$(WpfLinuxBinDir)/System.Windows.Input.Manipulations.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/System.Windows.Input.Manipulations.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+
+    <!-- 主题件：控件样式只存在于外部主题程序集（IsThemeActive()=0 ⇒ "classic"）。
+         不进 deps.json 就会被静默吞掉 → 「窗口出来了但一片空白」。详见 HelloWpf.csproj。 -->
+    <Reference Include="PresentationFramework.Classic">
+      <HintPath>$(WpfLinuxBinDir)/PresentationFramework.Classic.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationFramework.Classic.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+
+    <!-- DirectWrite.Linux.Provider：PresentationCore 的模块初始化器（FontFaceBridge.Install）
+         在 JIT 期按名加载它。只读消费 T2 已构建好的产物（本轮不构建别人的工程）。 -->
+    <Reference Include="DirectWrite.Linux.Provider">
+      <HintPath>$(WpfLinuxBinDir)/DirectWrite.Linux/Provider/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWrite.Linux.Provider.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Provider 背后的 SkiaSharp 依赖图（它自己那条 ProjectReference 会给，我们走包）-->
+  <ItemGroup>
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.88.9" />
+  </ItemGroup>
+
+  <!-- OOB BCL 运行期依赖（清单由自产件 AssemblyRef 扫描得出，见 docs/T3-hellowpf-csproj.md §5.4）-->
+  <ItemGroup>
+    <PackageReference Include="System.IO.Packaging" Version="9.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.0" />
+    <PackageReference Include="System.Diagnostics.EventLog" Version="9.0.0" />
+    <PackageReference Include="System.Formats.Nrbf" Version="9.0.0" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="9.0.0" />
+    <PackageReference Include="System.Security.Permissions" Version="9.0.0" />
+    <!-- ── `#36` 波：官方包的**运行期**换成 Linux 原生替身 ─────────────────────────────
+        官方包在非 Windows 上把 `XamlAccessLevel`/`SoundPlayer` 等实现成**必抛**桩（只有 `runtimes/win` 是真的）
+        ⇒ 任何生成 `GeneratedInternalTypeHelper` 的程序集一装 BAML 就崩（实测：第三方应用 HandyControl）。
+        这里**整条换掉**官方包引用，改用 `build/System.Windows.Extensions.Linux/`：同名程序集、
+        `AssemblyVersion=9.0.0.0`（与 deps.json 对齐）、**不抛**实现。 -->
+    <PackageReference Include="System.Windows.Extensions" Version="9.0.0" ExcludeAssets="compile;runtime" />
+    <Reference Include="System.Windows.Extensions">
+      <HintPath>$(MSBuildThisFileDirectory)../../build/System.Windows.Extensions.Linux/bin/$(Configuration)/System.Windows.Extensions.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+
+
+  </ItemGroup>
+
+  <!-- XAML 输入（UseWPF=false 后没有隐式通配，必须显式声明）-->
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Page Include="MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <None Remove="App.xaml;MainWindow.xaml" />
+  </ItemGroup>
+
+  <!-- ★ PBT 接管：必须在 Microsoft.WinFX.targets 被导入之前设值（先设值者胜）-->
+  <PropertyGroup>
+    <PbtLinuxDir>$(MSBuildThisFileDirectory)../../build/PresentationBuildTasks.Linux/</PbtLinuxDir>
+    <PbtLinuxConfiguration Condition="'$(PbtLinuxConfiguration)' == ''">Release</PbtLinuxConfiguration>
+    <_PresentationBuildTasksAssembly>$([System.IO.Path]::GetFullPath('$(PbtLinuxDir)bin/$(PbtLinuxConfiguration)/net10.0/PresentationBuildTasks.dll'))</_PresentationBuildTasksAssembly>
+    <DefaultXamlRuntime Condition="'$(DefaultXamlRuntime)' == ''">Wpf</DefaultXamlRuntime>
+  </PropertyGroup>
+
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+
+  <!-- 显式导入 SDK 的 WPF 标记编译 targets（net10.0 下 SDK 不会自动导入）-->
+  <PropertyGroup>
+    <_WfpWinFXTargets>$(MSBuildSDKsPath)/Microsoft.NET.Sdk.WindowsDesktop/targets/Microsoft.WinFX.targets</_WfpWinFXTargets>
+  </PropertyGroup>
+  <Import Project="$(_WfpWinFXTargets)" Condition="Exists('$(_WfpWinFXTargets)')" />
+  <PropertyGroup>
+    <_WfpWinFXImported Condition="Exists('$(_WfpWinFXTargets)')">true</_WfpWinFXImported>
+  </PropertyGroup>
+
+  <!-- ── 构建期自检（T3 的 3 条，原样搬过来）──────────────────────────────── -->
+  <Target Name="WfpCheckMarkupChain" BeforeTargets="PrepareResources">
+    <Error Condition="'$(_WfpWinFXImported)' != 'true'"
+           Text="找不到 SDK 的 WPF 标记编译 targets：$(_WfpWinFXTargets)。关掉 UseWPF 后 net10.0 不再自动导入它。" />
+    <Message Importance="high" Text="XAML 标记编译链：PBT=$(_PresentationBuildTasksAssembly)" />
+  </Target>
+
+  <ItemGroup>
+    <_WfpExpectedLocalRef Include="$(WpfLinuxBinDir)/WindowsBase.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/WindowsBase.dll" Condition="Exists('$(WpfLinuxBinDir)/WindowsBase.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/WindowsBase.dll')" />
+    <_WfpExpectedLocalRef Include="$(WpfLinuxBinDir)/System.Xaml.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/System.Xaml.dll" Condition="Exists('$(WpfLinuxBinDir)/System.Xaml.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/System.Xaml.dll')" />
+    <_WfpExpectedLocalRef Include="$(WpfLinuxBinDir)/PresentationCore.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationCore.dll" Condition="Exists('$(WpfLinuxBinDir)/PresentationCore.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationCore.dll')" />
+    <_WfpExpectedLocalRef Include="$(WpfLinuxBinDir)/PresentationFramework.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationFramework.dll" Condition="Exists('$(WpfLinuxBinDir)/PresentationFramework.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationFramework.dll')" />
+    <_WfpExpectedLocalRef Include="$(WpfLinuxBinDir)/PresentationFramework.Classic.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationFramework.Classic.dll" Condition="Exists('$(WpfLinuxBinDir)/PresentationFramework.Classic.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationFramework.Classic.dll')" />
+    <_WfpExpectedLocalRef Include="$(WpfLinuxBinDir)/DirectWrite.Linux/Provider/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWrite.Linux.Provider.dll" Condition="Exists('$(WpfLinuxBinDir)/DirectWrite.Linux/Provider/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWrite.Linux.Provider.dll')" />
+  </ItemGroup>
+
+  <Target Name="WfpAssertLocalRefs" AfterTargets="ResolveAssemblyReferences"
+          Condition="'$(WfpAssertLocalRefs)' != 'false'">
+    <PropertyGroup>
+      <_WfpResolvedRefPaths>;@(ReferencePath);</_WfpResolvedRefPaths>
+    </PropertyGroup>
+    <Error Condition="!$([System.String]::Copy('$(_WfpResolvedRefPaths)').Contains(';%(_WfpExpectedLocalRef.Identity);'))"
+           Text="自产程序集存在但未被解析进本次编译（很可能被同名框架门面顶掉）：%(_WfpExpectedLocalRef.Identity)" />
+    <Message Importance="high" Text="已确认解析到自产程序集：@(_WfpExpectedLocalRef)" />
+  </Target>
+
+  <Target Name="WfpAssertXamlCompiled" AfterTargets="MainResourcesGeneration"
+          Condition="'$(WfpAssertXamlCompiled)' != 'false'">
+    <ItemGroup>
+      <_WfpExpectedBaml Include="@(Page->'$(IntermediateOutputPath)%(Filename).baml')" />
+      <_WfpExpectedBaml Include="@(ApplicationDefinition->'$(IntermediateOutputPath)%(Filename).baml')" />
+    </ItemGroup>
+    <Error Condition="'@(_WfpExpectedBaml)' == ''" Text="工程里没有任何 XAML 输入项。" />
+    <Error Condition="!Exists('%(_WfpExpectedBaml.Identity)')"
+           Text="XAML 未编译成 BAML：%(_WfpExpectedBaml.Identity)" />
+    <Message Importance="high" Text="已产出 BAML：@(_WfpExpectedBaml)" />
+  </Target>
+
+  <Import Project="$(MSBuildThisFileDirectory)../../build/WpfMarkupCompile.Linux.targets" />
+</Project>

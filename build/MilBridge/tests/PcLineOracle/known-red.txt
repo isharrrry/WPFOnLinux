@@ -1,0 +1,155 @@
+# W17B · PcLineOracle 已登记保留红（--known-red 表）
+#
+# 口径：本表**只**登记"**本臂表达不出来的输入**"，不登记任何产品缺陷。
+# 判据依据 = build/MilBridge/W17A-report.md §7.2（实测）+ §3 的 pre-fix stdout（sha16 5d0b58c0d2ef5c57）。
+#
+# ── 唯一一组：`@…@tab0` 臂（`incrementalTabArm == DefaultIncrementalTab=0`）共 136 条 ──
+# 机制（代码级）：`TextParagraphProperties.DefaultIncrementalTab` 由宿主表达，但 PC 的宽松接线点
+#   `WpfLinuxLenientFallback.TryFormatLine`（生成物 :230）**没有这个形参**，`:256`/站点1 调用点也不传
+#   ⇒ shim 的 `defaultIncrementalTab` 恒为 NaN ⇒ `FormatParagraph` 取框架默认 `4×emSize = 96`
+#   （shim :1876 `double tabInterval = double.IsNaN(defaultIncrementalTab) ? 4.0 * emSize : defaultIncrementalTab;`）。
+# ⇒ 这一族的 tab 网格间距（96 vs 案例要求 0）**不是本臂能表达的输入**，与 `Indent`/`PI` 接线（P2）
+#   是**两个不同的量**：P2 只改 `indentDip`/`paragraphIndentDip` 两个槽。据 W17A-report.md §7.2 实测，
+#   这一族 144 条可比例里 136 条红、8 条绿。
+# 归属（**不是**"产品对"）：这是**登记在册的产品缺口 + 本臂的表达限制**两件事叠在一起 ——
+#   产品侧缺口 = `DefaultIncrementalTab` 没有接到工厂（属 PC 接线点，**不在 P2 的射程内**，本波只登记）；
+#   本臂侧 = 臂无从把这个输入喂下去（PC 的形参表里没有它）。
+# ⚠️ 故本表的 136 条是**"修 P2 也修不掉"**的，不许读成"P2 修好了这些"，也不许读成"产品没问题"。
+# ⚠️ 本表**不含**任何 `@…@default` 臂的条目：那 92 条全部属于 P2 的射程，修前必须全红、修后必须全绿。
+#
+A-anchor/lat-a-t-b@w100@LTR@i0@tab0  # A-anchor I=0 PI=0 | 修前: 行数 期望=1 实得=3
+A-anchor/lat-a-t-b@w140@LTR@i0@tab0  # A-anchor I=0 PI=0 | 修前: 行#0 width 期望=26.696667 实得=109.347656 Δ=82.650989
+A-anchor/lat-a-t-b@w192@LTR@i0@tab0  # A-anchor I=0 PI=0 | 修前: 行#0 width 期望=26.696667 实得=109.347656 Δ=82.650989
+A-anchor/lat-a-t-b@w200@LTR@i0@tab0  # A-anchor I=0 PI=0 | 修前: 行#0 width 期望=26.696667 实得=109.347656 Δ=82.650989
+A-anchor/lat-a-t-b@w220@LTR@i0@tab0  # A-anchor I=0 PI=0 | 修前: 行#0 width 期望=26.696667 实得=109.347656 Δ=82.650989
+A-anchor/lat-a-t-b@w260@LTR@i0@tab0  # A-anchor I=0 PI=0 | 修前: 行#0 width 期望=26.696667 实得=109.347656 Δ=82.650989
+A-anchor/lat-a-t-b@w96@LTR@i0@tab0  # A-anchor I=0 PI=0 | 修前: 行数 期望=1 实得=3
+A-anchor/lat-ab-t-c@w100@LTR@i0@tab0  # A-anchor I=0 PI=0 | 修前: 行数 期望=1 实得=3
+A-anchor/lat-ab-t-c@w140@LTR@i0@tab0  # A-anchor I=0 PI=0 | 修前: 行#0 width 期望=38.696667 实得=108.000000 Δ=69.303333
+A-anchor/lat-ab-t-c@w192@LTR@i0@tab0  # A-anchor I=0 PI=0 | 修前: 行#0 width 期望=38.696667 实得=108.000000 Δ=69.303333
+A-anchor/lat-ab-t-c@w200@LTR@i0@tab0  # A-anchor I=0 PI=0 | 修前: 行#0 width 期望=38.696667 实得=108.000000 Δ=69.303333
+A-anchor/lat-ab-t-c@w220@LTR@i0@tab0  # A-anchor I=0 PI=0 | 修前: 行#0 width 期望=38.696667 实得=108.000000 Δ=69.303333
+A-anchor/lat-ab-t-c@w260@LTR@i0@tab0  # A-anchor I=0 PI=0 | 修前: 行#0 width 期望=38.696667 实得=108.000000 Δ=69.303333
+A-anchor/lat-ab-t-c@w96@LTR@i0@tab0  # A-anchor I=0 PI=0 | 修前: 行数 期望=1 实得=3
+B-indent-extra/lead-tab-a@w140@LTR@i0p24@tab0  # B-indent-extra I=0 PI=24 | 修前: 行数 期望=1 实得=2
+B-indent-extra/lead-tab-a@w140@LTR@i24nl@tab0  # B-indent-extra I=24 PI=0 | 修前: 行#0 width 期望=37.350000 实得=109.347656 Δ=71.997656
+B-indent-extra/lead-tab-a@w140@LTR@i24p24@tab0  # B-indent-extra I=24 PI=24 | 修前: 行数 期望=1 实得=2
+B-indent-extra/lead-tab-a@w40@LTR@i0p24@tab0  # B-indent-extra I=0 PI=24 | 修前: 行数 期望=1 实得=2
+B-indent-extra/lead-tab-a@w40@LTR@i24nl@tab0  # B-indent-extra I=24 PI=0 | 修前: 行数 期望=1 实得=2
+B-indent-extra/lead-tab-a@w40@LTR@i24p24@tab0  # B-indent-extra I=24 PI=24 | 修前: 行#0 width 期望=24.000000 实得=7200.000000 Δ=7176.000000
+B-indent-extra/lead-tab-a@w80@LTR@i0p24@tab0  # B-indent-extra I=0 PI=24 | 修前: 行数 期望=1 实得=2
+B-indent-extra/lead-tab-a@w80@LTR@i24nl@tab0  # B-indent-extra I=24 PI=0 | 修前: 行数 期望=1 实得=2
+B-indent-extra/lead-tab-a@w80@LTR@i24p24@tab0  # B-indent-extra I=24 PI=24 | 修前: 行数 期望=1 实得=2
+B-indent-extra/lead-tab-b-t-c@w140@LTR@i0p24@tab0  # B-indent-extra I=0 PI=24 | 修前: 行数 期望=1 实得=4
+B-indent-extra/lead-tab-b-t-c@w140@LTR@i24nl@tab0  # B-indent-extra I=24 PI=0 | 修前: 行数 期望=1 实得=2
+B-indent-extra/lead-tab-b-t-c@w140@LTR@i24p24@tab0  # B-indent-extra I=24 PI=24 | 修前: 行数 期望=1 实得=4
+B-indent-extra/lead-tab-b-t-c@w40@LTR@i0p24@tab0  # B-indent-extra I=0 PI=24 | 修前: 行数 期望=2 实得=4
+B-indent-extra/lead-tab-b-t-c@w40@LTR@i24nl@tab0  # B-indent-extra I=24 PI=0 | 修前: 行数 期望=2 实得=4
+B-indent-extra/lead-tab-b-t-c@w40@LTR@i24p24@tab0  # B-indent-extra I=24 PI=24 | 修前: 行#0 width 期望=24.000000 实得=7200.000000 Δ=7176.000000
+B-indent-extra/lead-tab-b-t-c@w80@LTR@i0p24@tab0  # B-indent-extra I=0 PI=24 | 修前: 行数 期望=1 实得=4
+B-indent-extra/lead-tab-b-t-c@w80@LTR@i24nl@tab0  # B-indent-extra I=24 PI=0 | 修前: 行数 期望=1 实得=4
+B-indent-extra/lead-tab-b-t-c@w80@LTR@i24p24@tab0  # B-indent-extra I=24 PI=24 | 修前: 行数 期望=1 实得=4
+B-indent-extra/mid-tab-a-t-b@w140@LTR@i0p24@tab0  # B-indent-extra I=0 PI=24 | 修前: 行数 期望=1 实得=3
+B-indent-extra/mid-tab-a-t-b@w140@LTR@i24nl@tab0  # B-indent-extra I=24 PI=0 | 修前: 行#0 width 期望=50.696667 实得=109.347656 Δ=58.650989
+B-indent-extra/mid-tab-a-t-b@w140@LTR@i24p24@tab0  # B-indent-extra I=24 PI=24 | 修前: 行数 期望=1 实得=3
+B-indent-extra/mid-tab-a-t-b@w40@LTR@i0p24@tab0  # B-indent-extra I=0 PI=24 | 修前: 行数 期望=2 实得=3
+B-indent-extra/mid-tab-a-t-b@w40@LTR@i24nl@tab0  # B-indent-extra I=24 PI=0 | 修前: 行数 期望=2 实得=3
+B-indent-extra/mid-tab-a-t-b@w40@LTR@i24p24@tab0  # B-indent-extra I=24 PI=24 | 修前: 行#0 width 期望=37.346667 实得=7213.347656 Δ=7176.000989
+B-indent-extra/mid-tab-a-t-b@w80@LTR@i0p24@tab0  # B-indent-extra I=0 PI=24 | 修前: 行数 期望=1 实得=3
+B-indent-extra/mid-tab-a-t-b@w80@LTR@i24nl@tab0  # B-indent-extra I=24 PI=0 | 修前: 行数 期望=1 实得=3
+B-indent-extra/mid-tab-a-t-b@w80@LTR@i24p24@tab0  # B-indent-extra I=24 PI=24 | 修前: 行数 期望=1 实得=3
+B-indent-extra/notab-control@w140@LTR@i0p24@tab0  # B-indent-extra I=0 PI=24 | 修前: 行数 期望=1 实得=2
+B-indent-extra/notab-control@w140@LTR@i24nl@tab0  # B-indent-extra I=24 PI=0 | 修前: 行#0 width 期望=50.693333 实得=26.695312 Δ=-23.998021
+B-indent-extra/notab-control@w140@LTR@i24p24@tab0  # B-indent-extra I=24 PI=24 | 修前: 行数 期望=1 实得=2
+B-indent-extra/notab-control@w40@LTR@i0p24@tab0  # B-indent-extra I=0 PI=24 | 修前: 行#0 width 期望=13.346667 实得=7213.347656 Δ=7200.000989
+B-indent-extra/notab-control@w40@LTR@i24nl@tab0  # B-indent-extra I=24 PI=0 | 修前: 行数 期望=2 实得=1
+B-indent-extra/notab-control@w40@LTR@i24p24@tab0  # B-indent-extra I=24 PI=24 | 修前: 行#0 width 期望=37.346667 实得=7213.347656 Δ=7176.000989
+B-indent-extra/notab-control@w80@LTR@i0p24@tab0  # B-indent-extra I=0 PI=24 | 修前: 行数 期望=1 实得=2
+B-indent-extra/notab-control@w80@LTR@i24nl@tab0  # B-indent-extra I=24 PI=0 | 修前: 行#0 width 期望=50.693333 实得=26.695312 Δ=-23.998021
+B-indent-extra/notab-control@w80@LTR@i24p24@tab0  # B-indent-extra I=24 PI=24 | 修前: 行数 期望=1 实得=2
+B-indent/lead-tab-a@w100@LTR@i0@tab0  # B-indent I=0 PI=0 | 修前: 行数 期望=1 实得=2
+B-indent/lead-tab-a@w100@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行数 期望=1 实得=2
+B-indent/lead-tab-a@w140@LTR@i0@tab0  # B-indent I=0 PI=0 | 修前: 行#0 width 期望=13.350000 实得=109.347656 Δ=95.997656
+B-indent/lead-tab-a@w140@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行#0 width 期望=37.350000 实得=109.347656 Δ=71.997656
+B-indent/lead-tab-a@w160@LTR@i0@tab0  # B-indent I=0 PI=0 | 修前: 行#0 width 期望=13.350000 实得=109.347656 Δ=95.997656
+B-indent/lead-tab-a@w160@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行#0 width 期望=37.350000 实得=109.347656 Δ=71.997656
+B-indent/lead-tab-a@w192@LTR@i0@tab0  # B-indent I=0 PI=0 | 修前: 行#0 width 期望=13.350000 实得=109.347656 Δ=95.997656
+B-indent/lead-tab-a@w192@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行#0 width 期望=37.350000 实得=109.347656 Δ=71.997656
+B-indent/lead-tab-a@w220@LTR@i0@tab0  # B-indent I=0 PI=0 | 修前: 行#0 width 期望=13.350000 实得=109.347656 Δ=95.997656
+B-indent/lead-tab-a@w220@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行#0 width 期望=37.350000 实得=109.347656 Δ=71.997656
+B-indent/lead-tab-a@w40@LTR@i0@tab0  # B-indent I=0 PI=0 | 修前: 行数 期望=1 实得=2
+B-indent/lead-tab-a@w40@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行数 期望=1 实得=2
+B-indent/lead-tab-a@w80@LTR@i0@tab0  # B-indent I=0 PI=0 | 修前: 行数 期望=1 实得=2
+B-indent/lead-tab-a@w80@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行数 期望=1 实得=2
+B-indent/lead-tab-a@w96@LTR@i0@tab0  # B-indent I=0 PI=0 | 修前: 行数 期望=1 实得=2
+B-indent/lead-tab-a@w96@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行数 期望=1 实得=2
+B-indent/lead-tab-b-t-c@w100@LTR@i0@tab0  # B-indent I=0 PI=0 | 修前: 行数 期望=1 实得=4
+B-indent/lead-tab-b-t-c@w100@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行数 期望=1 实得=4
+B-indent/lead-tab-b-t-c@w140@LTR@i0@tab0  # B-indent I=0 PI=0 | 修前: 行数 期望=1 实得=2
+B-indent/lead-tab-b-t-c@w140@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行数 期望=1 实得=2
+B-indent/lead-tab-b-t-c@w160@LTR@i0@tab0  # B-indent I=0 PI=0 | 修前: 行数 期望=1 实得=2
+B-indent/lead-tab-b-t-c@w160@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行数 期望=1 实得=2
+B-indent/lead-tab-b-t-c@w192@LTR@i0@tab0  # B-indent I=0 PI=0 | 修前: 行数 期望=1 实得=2
+B-indent/lead-tab-b-t-c@w192@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行数 期望=1 实得=2
+B-indent/lead-tab-b-t-c@w220@LTR@i0@tab0  # B-indent I=0 PI=0 | 修前: 行#0 width 期望=25.353333 实得=204.000000 Δ=178.646667
+B-indent/lead-tab-b-t-c@w220@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行#0 width 期望=49.353333 实得=204.000000 Δ=154.646667
+B-indent/lead-tab-b-t-c@w40@LTR@i0@tab0  # B-indent I=0 PI=0 | 修前: 行数 期望=1 实得=4
+B-indent/lead-tab-b-t-c@w40@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行数 期望=2 实得=4
+B-indent/lead-tab-b-t-c@w80@LTR@i0@tab0  # B-indent I=0 PI=0 | 修前: 行数 期望=1 实得=4
+B-indent/lead-tab-b-t-c@w80@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行数 期望=1 实得=4
+B-indent/lead-tab-b-t-c@w96@LTR@i0@tab0  # B-indent I=0 PI=0 | 修前: 行数 期望=1 实得=4
+B-indent/lead-tab-b-t-c@w96@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行数 期望=1 实得=4
+B-indent/lead-tab-only@w100@LTR@i0@tab0  # B-indent I=0 PI=0 | 修前: 行#0 width 期望=0.003333 实得=96.000000 Δ=95.996667
+B-indent/lead-tab-only@w100@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行#0 width 期望=24.003333 实得=96.000000 Δ=71.996667
+B-indent/lead-tab-only@w140@LTR@i0@tab0  # B-indent I=0 PI=0 | 修前: 行#0 width 期望=0.003333 实得=96.000000 Δ=95.996667
+B-indent/lead-tab-only@w140@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行#0 width 期望=24.003333 实得=96.000000 Δ=71.996667
+B-indent/lead-tab-only@w40@LTR@i0@tab0  # B-indent I=0 PI=0 | 修前: 行#0 width 期望=0.003333 实得=40.000000 Δ=39.996667
+B-indent/lead-tab-only@w40@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行#0 width 期望=24.003333 实得=40.000000 Δ=15.996667
+B-indent/lead-tab-only@w80@LTR@i0@tab0  # B-indent I=0 PI=0 | 修前: 行#0 width 期望=0.003333 实得=80.000000 Δ=79.996667
+B-indent/lead-tab-only@w80@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行#0 width 期望=24.003333 实得=80.000000 Δ=55.996667
+B-indent/mid-tab-a-t-b@w100@LTR@i0@tab0  # B-indent I=0 PI=0 | 修前: 行数 期望=1 实得=3
+B-indent/mid-tab-a-t-b@w100@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行数 期望=1 实得=3
+B-indent/mid-tab-a-t-b@w140@LTR@i0@tab0  # B-indent I=0 PI=0 | 修前: 行#0 width 期望=26.696667 实得=109.347656 Δ=82.650989
+B-indent/mid-tab-a-t-b@w140@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行#0 width 期望=50.696667 实得=109.347656 Δ=58.650989
+B-indent/mid-tab-a-t-b@w160@LTR@i0@tab0  # B-indent I=0 PI=0 | 修前: 行#0 width 期望=26.696667 实得=109.347656 Δ=82.650989
+B-indent/mid-tab-a-t-b@w160@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行#0 width 期望=50.696667 实得=109.347656 Δ=58.650989
+B-indent/mid-tab-a-t-b@w192@LTR@i0@tab0  # B-indent I=0 PI=0 | 修前: 行#0 width 期望=26.696667 实得=109.347656 Δ=82.650989
+B-indent/mid-tab-a-t-b@w192@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行#0 width 期望=50.696667 实得=109.347656 Δ=58.650989
+B-indent/mid-tab-a-t-b@w220@LTR@i0@tab0  # B-indent I=0 PI=0 | 修前: 行#0 width 期望=26.696667 实得=109.347656 Δ=82.650989
+B-indent/mid-tab-a-t-b@w220@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行#0 width 期望=50.696667 实得=109.347656 Δ=58.650989
+B-indent/mid-tab-a-t-b@w40@LTR@i0@tab0  # B-indent I=0 PI=0 | 修前: 行数 期望=1 实得=3
+B-indent/mid-tab-a-t-b@w40@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行数 期望=2 实得=3
+B-indent/mid-tab-a-t-b@w80@LTR@i0@tab0  # B-indent I=0 PI=0 | 修前: 行数 期望=1 实得=3
+B-indent/mid-tab-a-t-b@w80@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行数 期望=1 实得=3
+B-indent/mid-tab-a-t-b@w96@LTR@i0@tab0  # B-indent I=0 PI=0 | 修前: 行数 期望=1 实得=3
+B-indent/mid-tab-a-t-b@w96@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行数 期望=1 实得=3
+B-indent/notab-control@w100@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行#0 width 期望=50.693333 实得=26.695312 Δ=-23.998021
+B-indent/notab-control@w140@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行#0 width 期望=50.693333 实得=26.695312 Δ=-23.998021
+B-indent/notab-control@w160@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行#0 width 期望=50.693333 实得=26.695312 Δ=-23.998021
+B-indent/notab-control@w192@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行#0 width 期望=50.693333 实得=26.695312 Δ=-23.998021
+B-indent/notab-control@w220@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行#0 width 期望=50.693333 实得=26.695312 Δ=-23.998021
+B-indent/notab-control@w40@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行数 期望=2 实得=1
+B-indent/notab-control@w80@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行#0 width 期望=50.693333 实得=26.695312 Δ=-23.998021
+B-indent/notab-control@w96@LTR@i24@tab0  # B-indent I=24 PI=0 | 修前: 行#0 width 期望=50.693333 实得=26.695312 Δ=-23.998021
+D-paraindent/lead-tab-a@w100@LTR@i0p24@tab0  # D-paraindent I=0 PI=24 | 修前: 行数 期望=1 实得=2
+D-paraindent/lead-tab-a@w100@LTR@i0p48@tab0  # D-paraindent I=0 PI=48 | 修前: 行数 期望=1 实得=2
+D-paraindent/lead-tab-a@w100@LTR@i24p24@tab0  # D-paraindent I=24 PI=24 | 修前: 行数 期望=1 实得=2
+D-paraindent/lead-tab-a@w140@LTR@i0p24@tab0  # D-paraindent I=0 PI=24 | 修前: 行数 期望=1 实得=2
+D-paraindent/lead-tab-a@w140@LTR@i0p48@tab0  # D-paraindent I=0 PI=48 | 修前: 行数 期望=1 实得=2
+D-paraindent/lead-tab-a@w140@LTR@i24p24@tab0  # D-paraindent I=24 PI=24 | 修前: 行数 期望=1 实得=2
+D-paraindent/lead-tab-a@w220@LTR@i0p24@tab0  # D-paraindent I=0 PI=24 | 修前: 行数 期望=1 实得=2
+D-paraindent/lead-tab-a@w220@LTR@i0p48@tab0  # D-paraindent I=0 PI=48 | 修前: 行数 期望=1 实得=2
+D-paraindent/lead-tab-a@w220@LTR@i24p24@tab0  # D-paraindent I=24 PI=24 | 修前: 行数 期望=1 实得=2
+D-paraindent/lead-tab-a@w220@LTR@i24p48@tab0  # D-paraindent I=24 PI=48 | 修前: 行数 期望=1 实得=2
+D-paraindent/mid-tab-a-t-b@w100@LTR@i0p24@tab0  # D-paraindent I=0 PI=24 | 修前: 行数 期望=1 实得=3
+D-paraindent/mid-tab-a-t-b@w100@LTR@i0p48@tab0  # D-paraindent I=0 PI=48 | 修前: 行数 期望=1 实得=3
+D-paraindent/mid-tab-a-t-b@w100@LTR@i24p24@tab0  # D-paraindent I=24 PI=24 | 修前: 行数 期望=1 实得=3
+D-paraindent/mid-tab-a-t-b@w140@LTR@i0p24@tab0  # D-paraindent I=0 PI=24 | 修前: 行数 期望=1 实得=3
+D-paraindent/mid-tab-a-t-b@w140@LTR@i0p48@tab0  # D-paraindent I=0 PI=48 | 修前: 行数 期望=1 实得=3
+D-paraindent/mid-tab-a-t-b@w140@LTR@i24p24@tab0  # D-paraindent I=24 PI=24 | 修前: 行数 期望=1 实得=3
+D-paraindent/mid-tab-a-t-b@w220@LTR@i0p24@tab0  # D-paraindent I=0 PI=24 | 修前: 行数 期望=1 实得=3
+D-paraindent/mid-tab-a-t-b@w220@LTR@i0p48@tab0  # D-paraindent I=0 PI=48 | 修前: 行数 期望=1 实得=3
+D-paraindent/mid-tab-a-t-b@w220@LTR@i24p24@tab0  # D-paraindent I=24 PI=24 | 修前: 行数 期望=1 实得=3
+D-paraindent/mid-tab-a-t-b@w220@LTR@i24p48@tab0  # D-paraindent I=24 PI=48 | 修前: 行数 期望=1 实得=3
+P-probe/probe-lat@w1000@LTR@i0@tab0  # P-probe I=0 PI=0 | 修前: 行#0 width 期望=38.700000 实得=204.000000 Δ=165.300000
+P-probe/probe-lat@w1000@RTL@i0@tab0  # P-probe I=0 PI=0 | 修前: 行#0 width 期望=38.700000 实得=204.000000 Δ=165.300000

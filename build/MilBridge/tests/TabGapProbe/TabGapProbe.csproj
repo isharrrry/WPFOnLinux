@@ -1,0 +1,68 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(MSBuildThisFileDirectory)../../../../build/SelfBuiltConfig.props" />
+
+  <!--
+    `#42`（`D-T4` 定位探针）· **产品入口上的 tab 响应性**：
+      · 驱动的是 `System.Windows.Media.TextFormatting.TextFormatter.Create()` + `FormatLine`（**两个都是 public**）
+        ⇒ 真正被测的是 PC 的接线点，而不是工厂/仪器（与三支 tab 臂的区别正在这里：那些臂**直接调** HbTextLineFactory）。
+      · 语料极小且自明：同一段含 `\t` 的文本 × 4 个 `DefaultIncrementalTab`（0 / 4 / 24 / 48），
+        打印"行数 + 每行宽度"。**真机**在 tab 值不同时行数/宽度**会变**（`tab-anchor` 真值：60/119 变），
+        而我方（`D-T4` 登记）实测 **0/119 变** ⇒ 本探针就是把这件事做成**产品入口上的可判红读数**。
+      · 判据：`TABGAP_RESPONSIVE=no` = 复现 `D-T4`（tab 值没传到有效宽度计算）；`yes` = 已生效。
+      · **本臂不编 shim 源、不改产品**：纯读者（`#42` 修法落地后，这一格就该从 no 变 yes）。
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <!-- ⭐ 必须是这个名字（PC 的 IVT 名单里就是它，见 OtherAssemblyAttrs.cs:19） -->
+    <AssemblyName>TabGapProbe</AssemblyName>
+    <RootNamespace>MilBridge.ProductEntryArm</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <BaseOutputPath>$(MSBuildThisFileDirectory)bin\</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)obj\</BaseIntermediateOutputPath>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign>true</PublicSign>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)../../../../build/keys/WcpPublicKey.snk</AssemblyOriginatorKeyFile>
+    <NoWarn>$(NoWarn);CS8002;CS0436;CS0012</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 被测件 = **权威 pc**（Debug）。与 `build/MilBridge/tools/tline-gate.sh:138` 同一份。 -->
+    <Reference Include="PresentationCore">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/PresentationCore.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationCore.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="WindowsBase">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/WindowsBase.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/WindowsBase.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="DirectWriteForwarder">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/DirectWriteForwarder.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWriteForwarder.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <!-- provider 也要在输出目录里（PC 运行期要加载它） -->
+    <Reference Include="DirectWrite.Linux.Provider">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/DirectWrite.Linux/Provider/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWrite.Linux.Provider.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- ⚠️ 版本锁：与 T3/M7c/CoverageProbe/PcLineOracle 一致，不许动 -->
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.88.9" />
+    <PackageReference Include="System.IO.Packaging" Version="9.0.0" />
+    <PackageReference Include="System.Formats.Nrbf" Version="9.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.0" />
+    <PackageReference Include="System.Windows.Extensions" Version="9.0.0" />
+  </ItemGroup>
+
+</Project>

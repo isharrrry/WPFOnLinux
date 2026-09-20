@@ -1,0 +1,21 @@
+# sidecar · `gen/t2d-width-diff.txt` 的 provenance（**T1b 2026-09-14 加；不改该 artifact 一个字节**）
+# 为什么加：T1c 报"这份 artifact 头里没有被测件 sha"（另两份有）。改它字节 ⇒ 此前所有引用它的读数当场失效 ⇒ 用 sidecar。
+artifact                  = gen/t2d-width-diff.txt
+artifact_sha256           = d1c46e980309df6d888dcdb1b6f73a2b9bfa3b204f4d783805e39ca1952884d4
+artifact_mtime            = 2026-09-14 19:23:54
+artifact_size_bytes       = 123638
+artifact_head_verbatim    =
+  | # T2d · 宽度逐行明细（**每行一条**；与 t2d-extent-mismatches.txt 同格式，便于并排看）
+  | # 列：用例 | 行# | cp 区间 | 真值宽 | 我们宽 | 差 | 桶
+  | # 口径：桶 = 0（逐位等）/ ≤0.34 DIP（= 1 个 ideal unit）/ >0.34 DIP；三桶之和 == 行数（机检）
+  | # 被测 shim sha256 = 7C2E0107A9C8618027D327179269ABEE6D8D329EC1CD89194A412B06B1687274
+  | # 合计 1298 行；0=167 ≤0.34=1084 >0.34=47；本清单只列差>0 的行，共 1131 条
+  | A1_lat_words_w20 | 行#0 | cp=[0,2) | 真值宽=18.7833 | 我们宽=18.7840 | 差=0.0007 | 桶=≤0.34 DIP
+# 被测件 sha 的来源（同趟、同 harness 调用）：另两份 artifact 的头行自报同一个 shim sha
+provenance_source         = gen/tline-detail-full.txt 与 gen/t2d-extent-mismatches.txt 的头行（同一趟 `run.sh tline` 产出）
+dut_shim_sha256           = 7C2E0107A9C8618027D327179269ABEE6D8D329EC1CD89194A412B06B1687274
+dut_shim_sha256_line      = # 被测 shim sha256 = 7C2E0107A9C8618027D327179269ABEE6D8D329EC1CD89194A412B06B1687274
+instrument                = bash build/MilBridge/run.sh tline（产出上述三份 artifact 的那一趟）
+judged_field              = TextLine.Width vs 真机 w（桶 0 / <=0.34 DIP / >0.34 DIP）
+# 【#12 harness 版本升级时一并做】生成器**无条件**印 "# 被测 shim sha256 = …" 头行（别单独 bump 版本：
+#   单独 bump 会让 #10 的读数变成"跨 harness 版本不可比"，违反纪律 15）。

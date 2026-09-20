@@ -1,0 +1,70 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(MSBuildThisFileDirectory)../../../../build/SelfBuiltConfig.props" />
+
+  <!--
+    W17D · **PC 公开 min/max 入口（`TextFormatter.FormatMinMaxParagraphWidth`）的判据臂**
+      —— `WAVE17-PREREGISTRATION.md` §1 P3（`D-T2` 真身：min 探针的 `TextModifier` 作用域实参）的红证仪器。
+
+    为什么**新开一个工程**：
+      · `build/MilBridge/tests/PcLineOracle/**` 是 **W17A 的交付件**、其读数已在册（纪律 34：不许动）；
+      · 本臂只驱动 **public** `TextFormatter`（`TextFormatter`/`TextSource`/`TextRun`/`TextModifier`/
+        `TextParagraphProperties` 全是 public）⇒ 红证本身**零 IVT**；IVT 只借来读**正控**
+        （`MS.Internal.TextFormatting.WpfLinuxLenientTextFallback.Diagnostics`）。
+    身份：程序集名 = `PresentationCore.Tests` + 与 PC 同一把公钥公开签名 ⇒ 借 PC 的 IVT 名额。
+
+    被测件 = **权威 pc**（`build/PresentationCore.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationCore.dll`，`<Private>true</Private>` ⇒
+    拷进本臂输出目录；程序里印**已加载**那一份的 sha16 ⇒ 读数可归属到具体 pc 件）。
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <!-- ⭐ 必须是这个名字（PC 的 IVT 名单里就是它）—— 只为读 Diagnostics 正控 -->
+    <AssemblyName>PresentationCore.Tests</AssemblyName>
+    <RootNamespace>MilBridge.MinMaxProbe</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <BaseOutputPath>$(MSBuildThisFileDirectory)bin\</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)obj\</BaseIntermediateOutputPath>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign>true</PublicSign>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)../../../../build/keys/WcpPublicKey.snk</AssemblyOriginatorKeyFile>
+    <NoWarn>$(NoWarn);CS8002;CS0436;CS0012</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="PresentationCore">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/PresentationCore.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationCore.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="WindowsBase">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/WindowsBase.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/WindowsBase.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="DirectWriteForwarder">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/DirectWriteForwarder.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWriteForwarder.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="DirectWrite.Linux.Provider">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/DirectWrite.Linux/Provider/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWrite.Linux.Provider.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- ⚠️ 版本锁：与 T3/M7c/CoverageProbe/PcLineOracle 一致，不许动 -->
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.88.9" />
+    <PackageReference Include="System.IO.Packaging" Version="9.0.0" />
+    <PackageReference Include="System.Formats.Nrbf" Version="9.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.0" />
+    <PackageReference Include="System.Windows.Extensions" Version="9.0.0" />
+  </ItemGroup>
+
+</Project>

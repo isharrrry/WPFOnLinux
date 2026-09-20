@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Windows-side SystemFonts / SPI oracle for the WPF-on-Linux parity project.
+       Dumps every SystemFonts static property, the family -> font-file resolution
+       behind it, the relationship with Fonts.SystemFontFamilies, and the raw
+       SPI / registry / theme data that shows where those values come from. -->
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>disable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>U1SystemFontsOracle</AssemblyName>
+    <RootNamespace>U1SystemFontsOracle</RootNamespace>
+    <!-- WPF font APIs construct CultureInfo instances (e.g. "en-us"); invariant globalization
+         makes FontFamily.FamilyNames throw CultureNotFoundException. Must stay false here. -->
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+</Project>

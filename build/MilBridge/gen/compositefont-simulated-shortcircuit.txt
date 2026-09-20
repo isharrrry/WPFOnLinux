@@ -1,0 +1,94 @@
+==================== M7d 复合字体短路验收探针（补丁 J + 追加 1）====================
+⚠️ [模拟模式] 已把 SystemCompositeFonts._systemCompositeFontsNames 清空 ⇒ FindFamily 一律 null（= 补丁 J 的 FindFamily 侧语义；仅本探针进程内，磁盘上什么都没改）
+
+字体文件      : /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/fonts/NotoSans-Regular.ttf
+WPF_LINUX_FONT_DIR : /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/fonts
+PresentationCore    : /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/tests/CompositeFontProbe/bin/Release/PresentationCore.dll
+                      sha256=5c8406d6182159854f8ff7b0a5cf70aceb41115cd681c14f8c16f8527c211022  4071424 B  mtime=2026-09-10 18:20:07
+Provider(DWF/PC 共用) : /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/tests/CompositeFontProbe/bin/Release/DirectWrite.Linux.Provider.dll
+                      sha256=870c9504dc70532b86e67676543bea0b9bd7cd1207e4269a928c8c28853883bc  93184 B  mtime=2026-09-10 17:40:03
+
+── S1（验收①）new FontFamily("Noto Sans") → new Typeface(...) → TryGetGlyphTypeface
+   GlyphCount = 3884
+   Version    = 2.015
+   Baseline   = 1.069
+   Height     = 1.362
+   Weight/Style/Stretch = Normal / Normal / Normal
+   FontUri    = file:///home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/fonts/NotoSans-Regular.ttf
+   CharToGlyph 表大小 = 2965
+   结论: PASS —— 成功，且与基线逐项等价（GlyphCount=3884, Version=2.015）
+
+── S2（验收②）new FontFamily("Arial") —— 未安装；要求：**不得**抛 OSVersionHelper 那条
+   new FontFamily("Arial").Source = Arial；canonical 名字表：
+     Source = Arial
+     [0] FamilyName=ARIAL  LocationUri=(null)  EscapedFileName=(null)
+   Typeface.FallbackFontFamily = FontFamily("#GLOBAL USER INTERFACE")
+     Source = #GLOBAL USER INTERFACE
+     [0] FamilyName=GLOBAL USER INTERFACE  LocationUri=(null)  EscapedFileName=(null)
+   FontFamily.NullFontFamilyCanonicalName.FamilyName = ARIAL
+   结论: FAIL —— **换地方冒**：NRE（补丁 J ② 必须消掉它，FAIL）： NullReferenceException: Object reference not set to an instance of an object.
+        at System.Windows.Media.Typeface.ConstructCachedTypeface() in /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationCore/System/Windows/Media/Typeface.cs:line 786
+        at System.Windows.Media.Typeface.get_CachedTypeface() in /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationCore/System/Windows/Media/Typeface.cs:line 716
+        at System.Windows.Media.Typeface.TryGetGlyphTypeface(GlyphTypeface& glyphTypeface) in /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationCore/System/Windows/Media/Typeface.cs:line 178
+        at Program.ItemS2_NotInstalledFamily() in /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/tests/CompositeFontProbe/Program.cs:line 144
+
+── S2b（短路点取证，非验收项）SystemCompositeFonts.FindFamily(name) 逐名对照
+   （FindFamily 名字不在 4 个之内 ⇒ GetIndexOfFamily 返回 -1 ⇒ 直接 null，**不加载**）
+   FindFamily(Arial                 ) = null
+   FindFamily(Noto Sans             ) = null
+   FindFamily(Global User Interface ) = null
+   FindFamily(Global Monospace      ) = null
+   FindFamily(Global Sans Serif     ) = null
+   FindFamily(Global Serif          ) = null
+   new FontFamily("Arial").Source = Arial；canonical 名字表：
+     Source = Arial
+     [0] FamilyName=ARIAL  LocationUri=(null)  EscapedFileName=(null)
+   [SKIP] S2b 是取证项，不计入通过/失败
+
+── S3（验收③）私有字体 URI：new FontFamily(baseUri, "./NotoSans-Regular.ttf#Noto Sans")
+   family.Source = ./NotoSans-Regular.ttf#Noto Sans
+   FontUri = file:///home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/fonts/NotoSans-Regular.ttf  GlyphCount=3884 Version=2.015
+   结论: PASS —— 成功（私有字体 URI 路径可用）
+
+── S4（验收④的一部分）MS.Internal.FontCache.Util.Dpi / WindowsFontsUriObject（补丁 I 的回归面）
+   Util.Dpi                    = 96
+   Util.WindowsFontsLocalPath  = /usr/share/fonts/
+   Util.WindowsFontsUriObject  = file:///usr/share/fonts/
+   结论: PASS —— Util 静态构造可用（Window 静态构造链上的那一步）
+
+── S5（验收④的强化）Fonts.SystemFontFamilies 枚举 —— 直接压补丁 J 的第(2)(3)处（枚举与计数一致）
+   结论: FAIL —— 抛异常 → TypeInitializationException: The type initializer for 'System.Windows.Media.Fonts' threw an exception.
+        at System.Windows.Media.Fonts.get_SystemFontFamilies() in /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationCore/System/Windows/Media/Fonts.cs:line 195
+        at Program.ItemS5_SystemFontFamilies() in /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/tests/CompositeFontProbe/Program.cs:line 311
+        [InnerException] Exception: OSVersionHelper.GetOsVersion Could not detect OS!
+
+── S6（追加 1）new GlyphTypeface(new Uri(path)) —— 最低要求：诚实失败，不是 NRE
+   结论: FAIL —— **仍是 NRE**（最低要求未达成）→ NullReferenceException: Object reference not set to an instance of an object.
+        at MS.Internal.FontCache.FontFaceLayoutInfo.IntMap.TryGetValue(Int32 key, UInt16& value) in /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationCore/MS/internal/FontCache/FontFaceLayoutInfo.cs:line 642
+        at MS.Internal.FontCache.FontFaceLayoutInfo..ctor(Font font) in /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationCore/MS/internal/FontCache/FontFaceLayoutInfo.cs:line 70
+        at System.Windows.Media.GlyphTypeface.Initialize(Uri typefaceSource, StyleSimulations styleSimulations) in /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationCore/System/Windows/Media/GlyphTypeface.cs:line 150
+        at System.Windows.Media.GlyphTypeface..ctor(Uri typefaceSource, StyleSimulations styleSimulations) in /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationCore/System/Windows/Media/GlyphTypeface.cs:line 66
+        at System.Windows.Media.GlyphTypeface..ctor(Uri typefaceSource) in /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationCore/System/Windows/Media/GlyphTypeface.cs:line 55
+        at Program.ItemS6_GlyphTypefaceUri() in /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/tests/CompositeFontProbe/Program.cs:line 335
+
+── S7（根因取证，非验收项）上游守卫那条链：「面 → 所属 Font」反查能不能对上
+   FromDirectory(parent, recurse:false): families=1 typefaces=4  (parent=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/fonts)
+   FromFile(path) 两次是否同一个 SKTypeface 实例 : False
+   FromDirectory(parent).GetFontFromFontFace(FromFile(path)) = **null**
+   ↑ provider 的反查按 **SKTypeface 引用相等**匹配（LinuxFontCollection.cs:443 ReferenceEquals(font.Typeface, fontFace.Typeface)）
+   DWriteFactory.GetFontCollectionFromFile(uri) → MS.Internal.Text.TextInterface.FontCollection
+   真链 GetFontFromFontFace(face) = **null**
+   ⇒ 补丁「追加 1」的守卫判据（CanRoundTripFace）= false ⇒ 返回 null ⇒ 上游抛 FileFormatException
+   [SKIP] S7 是取证项，不计入通过/失败
+── S8（补丁 J ② 成分实测，非验收项）provider 首个族 → PhysicalFontFamily → 真 metrics？
+   _defaultFamilyCollection._fontCollection: FamilyCount=1
+   [0] = MS.Internal.Text.TextInterface.FontFamily  （名字属性：provider.OrdinalName=Noto Sans）
+   new PhysicalFontFamily([0]).GetTypefaceMetrics(Normal) = GlyphTypeface
+   ⇒ 真 GlyphTypeface：GlyphCount=3884 Version=2.015 FontUri=file:///home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/fonts/NotoSans-Regular.ttf
+   ⇒ 结论：补丁 J ② 之后 "找不到的族名" 落到该族 ⇒ TryGetGlyphTypeface=true（provider 回退）
+   [SKIP] S8 是取证项，不计入通过/失败
+
+
+== 通过 3 / 失败 3 / 跳过 3 ==
+（重建**前**跑：S1/S2/S3/S5 失败是预期的，它们就是本次要修的东西；重建**后**跑：应当 0 失败。）
+退出码=1

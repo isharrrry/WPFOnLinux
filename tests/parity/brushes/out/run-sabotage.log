@@ -1,0 +1,128 @@
+U1BrushOracle: outDir=C:\wpf-oracle-brush\out-sabotage sabotage=True
+  [ok  ] core_image_none_v1same                         colors=  21 painted=  397 model=203/203 vpOrigin=relative-to-bounding-box
+  [ok  ] core_image_tile_v1same                         colors=  25 painted=  397 model=203/203 vpOrigin=relative-to-bounding-box
+  [ok  ] core_image_flipx_v1same                        colors=  25 painted=  397 model=203/203 vpOrigin=relative-to-bounding-box
+  [ok  ] core_image_flipy_v1same                        colors=  25 painted=  397 model=203/203 vpOrigin=relative-to-bounding-box
+  [ok  ] core_image_flipxy_v1same                       colors=  25 painted=  397 model=203/203 vpOrigin=relative-to-bounding-box
+  [ok  ] core_image_none_v2tiling                       colors=  15 painted=   70 model=423/423 vpOrigin=relative-to-bounding-box
+  [ok  ] core_image_tile_v2tiling                       colors=  36 painted=  444 model=243/243 vpOrigin=relative-to-bounding-box
+  [FAIL] core_image_flipx_v2tiling                      colors=  36 painted=  444 model=164/238 vpOrigin=relative-to-bounding-box
+  [FAIL] core_image_flipy_v2tiling                      colors=  36 painted=  444 model=183/243 vpOrigin=relative-to-bounding-box
+  [FAIL] core_image_flipxy_v2tiling                     colors=  36 painted=  444 model=128/238 vpOrigin=relative-to-bounding-box
+  [ok  ] core_image_none_v3offset                       colors=  16 painted=   89 model=386/386 vpOrigin=relative-to-bounding-box
+  [ok  ] core_image_tile_v3offset                       colors=  43 painted=  436 model=219/219 vpOrigin=relative-to-bounding-box
+  [FAIL] core_image_flipx_v3offset                      colors=  43 painted=  436 model=126/212 vpOrigin=relative-to-bounding-box
+  [FAIL] core_image_flipy_v3offset                      colors=  43 painted=  436 model=134/229 vpOrigin=relative-to-bounding-box
+  [FAIL] core_image_flipxy_v3offset                     colors=  43 painted=  436 model=86/224 vpOrigin=relative-to-bounding-box
+  [ok  ] core_drawing_none_v1same                       colors=  13 painted=  397 model=203/203 vpOrigin=relative-to-bounding-box
+  [ok  ] core_drawing_tile_v1same                       colors=  13 painted=  397 model=203/203 vpOrigin=relative-to-bounding-box
+  [ok  ] core_drawing_flipx_v1same                      colors=  13 painted=  397 model=203/203 vpOrigin=relative-to-bounding-box
+  [ok  ] core_drawing_flipy_v1same                      colors=  13 painted=  397 model=203/203 vpOrigin=relative-to-bounding-box
+  [ok  ] core_drawing_flipxy_v1same                     colors=  13 painted=  397 model=203/203 vpOrigin=relative-to-bounding-box
+  [ok  ] core_drawing_none_v2tiling                     colors=  11 painted=   70 model=423/423 vpOrigin=relative-to-bounding-box
+  [ok  ] core_drawing_tile_v2tiling                     colors=  11 painted=  444 model=243/243 vpOrigin=relative-to-bounding-box
+  [FAIL] core_drawing_flipx_v2tiling                    colors=  11 painted=  444 model=167/238 vpOrigin=relative-to-bounding-box
+  [FAIL] core_drawing_flipy_v2tiling                    colors=  11 painted=  444 model=183/243 vpOrigin=relative-to-bounding-box
+  [FAIL] core_drawing_flipxy_v2tiling                   colors=  11 painted=  444 model=131/238 vpOrigin=relative-to-bounding-box
+  [ok  ] core_drawing_none_v3offset                     colors=  11 painted=   89 model=386/386 vpOrigin=relative-to-bounding-box
+  [ok  ] core_drawing_tile_v3offset                     colors=  13 painted=  436 model=219/219 vpOrigin=relative-to-bounding-box
+  [FAIL] core_drawing_flipx_v3offset                    colors=  13 painted=  436 model=126/212 vpOrigin=relative-to-bounding-box
+  [FAIL] core_drawing_flipy_v3offset                    colors=  13 painted=  436 model=136/229 vpOrigin=relative-to-bounding-box
+  [FAIL] core_drawing_flipxy_v3offset                   colors=  13 painted=  436 model=88/224 vpOrigin=relative-to-bounding-box
+  [ok  ] visual_none_v1same                             colors=  16 painted=  397 model=146/146 vpOrigin=relative-to-bounding-box
+  [ok  ] visual_tile_v1same                             colors=  16 painted=  397 model=146/146 vpOrigin=relative-to-bounding-box
+  [ok  ] visual_flipx_v1same                            colors=  16 painted=  397 model=146/146 vpOrigin=relative-to-bounding-box
+  [ok  ] visual_flipy_v1same                            colors=  16 painted=  397 model=146/146 vpOrigin=relative-to-bounding-box
+  [ok  ] visual_flipxy_v1same                           colors=  16 painted=  397 model=146/146 vpOrigin=relative-to-bounding-box
+  [ok  ] visual_none_v2tiling                           colors=   9 painted=   70 model=412/412 vpOrigin=relative-to-bounding-box
+  [ok  ] visual_tile_v2tiling                           colors=   9 painted=  444 model=183/183 vpOrigin=relative-to-bounding-box
+  [ok  ] visual_flipx_v2tiling                          colors=   9 painted=  444 model=121/184 vpOrigin=relative-to-bounding-box
+  [ok  ] visual_flipy_v2tiling                          colors=   9 painted=  444 model=140/185 vpOrigin=relative-to-bounding-box
+  [ok  ] visual_flipxy_v2tiling                         colors=   9 painted=  444 model=95/186 vpOrigin=relative-to-bounding-box
+  [ok  ] visual_none_v3offset                           colors=  10 painted=   89 model=378/378 vpOrigin=relative-to-bounding-box
+  [ok  ] visual_tile_v3offset                           colors=  15 painted=  436 model=161/161 vpOrigin=relative-to-bounding-box
+  [ok  ] visual_flipx_v3offset                          colors=  15 painted=  436 model=86/158 vpOrigin=relative-to-bounding-box
+  [ok  ] visual_flipy_v3offset                          colors=  15 painted=  436 model=97/180 vpOrigin=relative-to-bounding-box
+  [ok  ] visual_flipxy_v3offset                         colors=  15 painted=  436 model=60/178 vpOrigin=relative-to-bounding-box
+  [ok  ] stretch_none_left_v1same                       colors=   8 painted=   17 model=0/0 vpOrigin=relative-to-bounding-box
+  [ok  ] stretch_none_left_v2tile                       colors=  10 painted=  134 model=0/0 vpOrigin=relative-to-bounding-box
+  [ok  ] stretch_none_center_v1same                     colors=   9 painted=   16 model=0/0 vpOrigin=relative-to-bounding-box
+  [ok  ] stretch_none_center_v2tile                     colors=  10 painted=  111 model=0/0 vpOrigin=relative-to-bounding-box
+  [ok  ] stretch_uniform_left_v1same                    colors=  23 painted=  226 model=0/0 vpOrigin=relative-to-bounding-box
+  [ok  ] stretch_uniform_left_v2tile                    colors=  26 painted=  260 model=0/0 vpOrigin=relative-to-bounding-box
+  [ok  ] stretch_uniform_center_v1same                  colors=  20 painted=  224 model=0/0 vpOrigin=relative-to-bounding-box
+  [ok  ] stretch_uniform_center_v2tile                  colors=  24 painted=  242 model=0/0 vpOrigin=relative-to-bounding-box
+  [ok  ] stretch_uniformtofill_left_v1same              colors=  35 painted=  388 model=0/0 vpOrigin=relative-to-bounding-box
+  [ok  ] stretch_uniformtofill_left_v2tile              colors=  31 painted=  388 model=0/0 vpOrigin=relative-to-bounding-box
+  [ok  ] stretch_uniformtofill_center_v1same            colors=  36 painted=  388 model=0/0 vpOrigin=relative-to-bounding-box
+  [ok  ] stretch_uniformtofill_center_v2tile            colors=  40 painted=  388 model=0/0 vpOrigin=relative-to-bounding-box
+  [ok  ] stretch_fill_left_v1same                       colors=  21 painted=  397 model=203/203 vpOrigin=relative-to-bounding-box
+  [ok  ] stretch_fill_left_v2tile                       colors=  36 painted=  444 model=243/243 vpOrigin=relative-to-bounding-box
+  [ok  ] stretch_fill_center_v1same                     colors=  21 painted=  397 model=203/203 vpOrigin=relative-to-bounding-box
+  [ok  ] stretch_fill_center_v2tile                     colors=  36 painted=  444 model=243/243 vpOrigin=relative-to-bounding-box
+  [ok  ] units_vpabs_viewboxabs_tile                    colors=  25 painted=  454 model=229/229 vpOrigin=absolute-rect-local-origin
+  [ok  ] units_vpabs_viewboxrel_tile                    colors=  25 painted=  454 model=229/229 vpOrigin=absolute-rect-local-origin
+  [ok  ] units_vprel_viewboxrel_flipx                   colors=  43 painted=  436 model=126/212 vpOrigin=relative-to-bounding-box
+  [ok  ] units_viewbox_subregion_2x_tile                colors=  38 painted=  444 model=0/0 vpOrigin=relative-to-bounding-box
+  [ok  ] units_drawing_viewbox_subregion_2x_flipx       colors=   5 painted=  444 model=0/0 vpOrigin=relative-to-bounding-box
+  [ok  ] frac_image_none_v1same                         colors=  23 painted=  397 model=203/203 vpOrigin=relative-to-bounding-box
+  [ok  ] frac_image_tile_v2tiling                       colors=  40 painted=  444 model=227/227 vpOrigin=relative-to-bounding-box
+  [ok  ] frac_image_flipx_v2tiling                      colors=  40 painted=  444 model=157/228 vpOrigin=relative-to-bounding-box
+  [ok  ] frac_drawing_flipx_v2tiling                    colors=  43 painted=  444 model=161/228 vpOrigin=relative-to-bounding-box
+  [ok  ] alpha_tile_v2tiling_opaque_bg                  colors=  36 painted=  444 model=0/0 vpOrigin=relative-to-bounding-box
+  [ok  ] alpha_flipx_v2tiling_opaque_bg                 colors=  36 painted=  444 model=0/0 vpOrigin=relative-to-bounding-box
+  [ok  ] alpha_tile_v2tiling_transparent_bg             colors=  36 painted=  444 model=0/0 vpOrigin=relative-to-bounding-box
+  [ok  ] alpha_flipy_v2tiling_transparent_bg            colors=  36 painted=  444 model=0/0 vpOrigin=relative-to-bounding-box
+
+cases=74 failures=51 sabotage=True selfTest=ok
+  ! core_image_flipx_v2tiling: model agreement 164/238 (68.91 %) - documented tile model does not explain WPF pixels. First: grid/g10,0 (104,20) model=#FF20A040 actual=#FFD02020; grid/g12,0 (120,20) model=#FF20A040 actual=#FF926262; grid/g15,0 (145,20) model=#FF00FFFF actual=#FF0AE3C6; grid/g16,0 (154,20) model=#FFD02020 actual=#FF20A040; grid/g17,0 (162,20) model=#FFD02020 actual=#FF20A040; grid/g18,0 (170,20) model=#FFD02020 actual=#FF20A040; grid/g10,1 (104,27) model=#FF20A040 actual=#FFD02020; grid/g12,1 (120,27) model=#FF20A040 actual=#FFD02020
+  ! core_image_flipy_v2tiling: model agreement 183/243 (75.31 %) - documented tile model does not explain WPF pixels. First: grid/g0,7 (20,72) model=#FF2050D0 actual=#FFD02020; grid/g1,7 (28,72) model=#FF2050D0 actual=#FFD02020; grid/g2,7 (37,72) model=#FF2050D0 actual=#FFD02020; grid/g4,7 (54,72) model=#FF202830 actual=#FF05DCDD; grid/g5,7 (62,72) model=#FF202830 actual=#FF05DCDD; grid/g6,7 (70,72) model=#FFE0C020 actual=#FF20A040; grid/g7,7 (78,72) model=#FFE0C020 actual=#FFFFFFFF; grid/g8,7 (87,72) model=#FFE0C020 actual=#FF20A040
+  ! core_image_flipxy_v2tiling: model agreement 128/238 (53.78 %) - documented tile model does not explain WPF pixels. First: grid/g10,0 (104,20) model=#FF20A040 actual=#FFD02020; grid/g12,0 (120,20) model=#FF20A040 actual=#FF926262; grid/g15,0 (145,20) model=#FF00FFFF actual=#FF0AE3C6; grid/g16,0 (154,20) model=#FFD02020 actual=#FF20A040; grid/g17,0 (162,20) model=#FFD02020 actual=#FF20A040; grid/g18,0 (170,20) model=#FFD02020 actual=#FF20A040; grid/g10,1 (104,27) model=#FF20A040 actual=#FFD02020; grid/g12,1 (120,27) model=#FF20A040 actual=#FFD02020
+  ! core_image_flipx_v3offset: model agreement 126/212 (59.43 %) - documented tile model does not explain WPF pixels. First: grid/g0,1 (20,27) model=#FFE0C020 actual=#FF2050D0; grid/g4,1 (54,27) model=#FF2050D0 actual=#FFE0C020; grid/g5,1 (62,27) model=#FF2050D0 actual=#FFE0C020; grid/g6,1 (70,27) model=#FF2050D0 actual=#FFE0C020; grid/g17,1 (162,27) model=#FFE0C020 actual=#FF2050D0; grid/g18,1 (170,27) model=#FFE0C020 actual=#FF2050D0; grid/g19,1 (178,27) model=#FFE0C020 actual=#FF2050D0; grid/g23,1 (212,27) model=#FF2050D0 actual=#FFE0C020
+  ! core_image_flipy_v3offset: model agreement 134/229 (58.52 %) - documented tile model does not explain WPF pixels. First: grid/g1,0 (28,20) model=#FF8040FF actual=#FF382E64; grid/g11,0 (112,20) model=#FF8040FF actual=#FF202830; grid/g21,0 (195,20) model=#FF8040FF actual=#FF202830; grid/g0,1 (20,27) model=#FFD02020 actual=#FF2050D0; grid/g4,1 (54,27) model=#FF20A040 actual=#FFE0C020; grid/g5,1 (62,27) model=#FF20A040 actual=#FFE0C020; grid/g6,1 (70,27) model=#FF20A040 actual=#FFE0C020; grid/g8,1 (87,27) model=#FFD02020 actual=#FF2050D0
+  ! core_image_flipxy_v3offset: model agreement 86/224 (38.39 %) - documented tile model does not explain WPF pixels. First: grid/g2,0 (37,20) model=#FF8040FF actual=#FF202830; grid/g11,0 (112,20) model=#FF8040FF actual=#FF202830; grid/g17,0 (162,20) model=#FF202830 actual=#FFFF00FF; grid/g18,0 (170,20) model=#FF202830 actual=#FFBD0CC2; grid/g0,1 (20,27) model=#FF20A040 actual=#FF2050D0; grid/g4,1 (54,27) model=#FFD02020 actual=#FFE0C020; grid/g5,1 (62,27) model=#FFD02020 actual=#FFE0C020; grid/g6,1 (70,27) model=#FFD02020 actual=#FFE0C020
+  ! core_drawing_flipx_v2tiling: model agreement 167/238 (70.17 %) - documented tile model does not explain WPF pixels. First: grid/g10,0 (104,20) model=#FF20A040 actual=#FFD02020; grid/g12,0 (120,20) model=#FF20A040 actual=#FFD02020; grid/g16,0 (154,20) model=#FFD02020 actual=#FF20A040; grid/g17,0 (162,20) model=#FFD02020 actual=#FF20A040; grid/g18,0 (170,20) model=#FFD02020 actual=#FF20A040; grid/g10,1 (104,27) model=#FF20A040 actual=#FFD02020; grid/g12,1 (120,27) model=#FF20A040 actual=#FFD02020; grid/g16,1 (154,27) model=#FFD02020 actual=#FF20A040
+  ! core_drawing_flipy_v2tiling: model agreement 183/243 (75.31 %) - documented tile model does not explain WPF pixels. First: grid/g0,7 (20,72) model=#FF2050D0 actual=#FFD02020; grid/g1,7 (28,72) model=#FF2050D0 actual=#FFD02020; grid/g2,7 (37,72) model=#FF2050D0 actual=#FFD02020; grid/g4,7 (54,72) model=#FF202830 actual=#FF00FFFF; grid/g5,7 (62,72) model=#FF202830 actual=#FF00FFFF; grid/g6,7 (70,72) model=#FFE0C020 actual=#FF20A040; grid/g7,7 (78,72) model=#FFE0C020 actual=#FFFFFFFF; grid/g8,7 (87,72) model=#FFE0C020 actual=#FF20A040
+  ! core_drawing_flipxy_v2tiling: model agreement 131/238 (55.04 %) - documented tile model does not explain WPF pixels. First: grid/g10,0 (104,20) model=#FF20A040 actual=#FFD02020; grid/g12,0 (120,20) model=#FF20A040 actual=#FFD02020; grid/g16,0 (154,20) model=#FFD02020 actual=#FF20A040; grid/g17,0 (162,20) model=#FFD02020 actual=#FF20A040; grid/g18,0 (170,20) model=#FFD02020 actual=#FF20A040; grid/g10,1 (104,27) model=#FF20A040 actual=#FFD02020; grid/g12,1 (120,27) model=#FF20A040 actual=#FFD02020; grid/g16,1 (154,27) model=#FFD02020 actual=#FF20A040
+  ! core_drawing_flipx_v3offset: model agreement 126/212 (59.43 %) - documented tile model does not explain WPF pixels. First: grid/g0,1 (20,27) model=#FFE0C020 actual=#FF2050D0; grid/g4,1 (54,27) model=#FF2050D0 actual=#FFE0C020; grid/g5,1 (62,27) model=#FF2050D0 actual=#FFE0C020; grid/g6,1 (70,27) model=#FF2050D0 actual=#FFE0C020; grid/g17,1 (162,27) model=#FFE0C020 actual=#FF2050D0; grid/g18,1 (170,27) model=#FFE0C020 actual=#FF2050D0; grid/g19,1 (178,27) model=#FFE0C020 actual=#FF2050D0; grid/g23,1 (212,27) model=#FF2050D0 actual=#FFE0C020
+  ! core_drawing_flipy_v3offset: model agreement 136/229 (59.39 %) - documented tile model does not explain WPF pixels. First: grid/g1,0 (28,20) model=#FF8040FF actual=#FF5936AB; grid/g11,0 (112,20) model=#FF8040FF actual=#FF202830; grid/g21,0 (195,20) model=#FF8040FF actual=#FF202830; grid/g0,1 (20,27) model=#FFD02020 actual=#FF2050D0; grid/g4,1 (54,27) model=#FF20A040 actual=#FFE0C020; grid/g5,1 (62,27) model=#FF20A040 actual=#FFE0C020; grid/g6,1 (70,27) model=#FF20A040 actual=#FFE0C020; grid/g8,1 (87,27) model=#FFD02020 actual=#FF2050D0
+  ! core_drawing_flipxy_v3offset: model agreement 88/224 (39.29 %) - documented tile model does not explain WPF pixels. First: grid/g2,0 (37,20) model=#FF8040FF actual=#FF202830; grid/g11,0 (112,20) model=#FF8040FF actual=#FF202830; grid/g17,0 (162,20) model=#FF202830 actual=#FFFF00FF; grid/g18,0 (170,20) model=#FF202830 actual=#FFFF00FF; grid/g0,1 (20,27) model=#FF20A040 actual=#FF2050D0; grid/g4,1 (54,27) model=#FFD02020 actual=#FFE0C020; grid/g5,1 (62,27) model=#FFD02020 actual=#FFE0C020; grid/g6,1 (70,27) model=#FFD02020 actual=#FFE0C020
+  ! NO DISCRIMINATION: core|image|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center Tile vs FlipX are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: core|image|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center Tile vs FlipY are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: core|image|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center Tile vs FlipXY are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: core|image|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center FlipX vs FlipY are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: core|image|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center FlipX vs FlipXY are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: core|image|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center FlipY vs FlipXY are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: core|image|v3offset|v[0.3,0.2,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center Tile vs FlipX are pixel-identical at all 436 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: core|image|v3offset|v[0.3,0.2,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center Tile vs FlipY are pixel-identical at all 436 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: core|image|v3offset|v[0.3,0.2,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center Tile vs FlipXY are pixel-identical at all 436 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: core|image|v3offset|v[0.3,0.2,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center FlipX vs FlipY are pixel-identical at all 436 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: core|image|v3offset|v[0.3,0.2,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center FlipX vs FlipXY are pixel-identical at all 436 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: core|image|v3offset|v[0.3,0.2,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center FlipY vs FlipXY are pixel-identical at all 436 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: core|drawing|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center Tile vs FlipX are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: core|drawing|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center Tile vs FlipY are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: core|drawing|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center Tile vs FlipXY are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: core|drawing|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center FlipX vs FlipY are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: core|drawing|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center FlipX vs FlipXY are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: core|drawing|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center FlipY vs FlipXY are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: core|drawing|v3offset|v[0.3,0.2,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center Tile vs FlipX are pixel-identical at all 436 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: core|drawing|v3offset|v[0.3,0.2,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center Tile vs FlipY are pixel-identical at all 436 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: core|drawing|v3offset|v[0.3,0.2,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center Tile vs FlipXY are pixel-identical at all 436 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: core|drawing|v3offset|v[0.3,0.2,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center FlipX vs FlipY are pixel-identical at all 436 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: core|drawing|v3offset|v[0.3,0.2,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center FlipX vs FlipXY are pixel-identical at all 436 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: core|drawing|v3offset|v[0.3,0.2,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center FlipY vs FlipXY are pixel-identical at all 436 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: visual|visual|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center Tile vs FlipX are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: visual|visual|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center Tile vs FlipY are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: visual|visual|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center Tile vs FlipXY are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: visual|visual|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center FlipX vs FlipY are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: visual|visual|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center FlipX vs FlipXY are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: visual|visual|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center FlipY vs FlipXY are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: visual|visual|v3offset|v[0.3,0.2,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center Tile vs FlipX are pixel-identical at all 436 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: visual|visual|v3offset|v[0.3,0.2,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center Tile vs FlipY are pixel-identical at all 436 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: visual|visual|v3offset|v[0.3,0.2,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center Tile vs FlipXY are pixel-identical at all 436 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: visual|visual|v3offset|v[0.3,0.2,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center FlipX vs FlipY are pixel-identical at all 436 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: visual|visual|v3offset|v[0.3,0.2,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center FlipX vs FlipXY are pixel-identical at all 436 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: visual|visual|v3offset|v[0.3,0.2,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center FlipY vs FlipXY are pixel-identical at all 436 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: fractional|image|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center Tile vs FlipX are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: alpha|alphaImage|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center Tile vs FlipX are pixel-identical at all 444 samples - this case cannot tell them apart
+  ! NO DISCRIMINATION: alpha|alphaImage|v2tiling|v[0,0,0.4,0.4]|RelativeToBoundingBox|stretch=Fill|align=Center/Center Tile vs FlipY are pixel-identical at all 444 samples - this case cannot tell them apart

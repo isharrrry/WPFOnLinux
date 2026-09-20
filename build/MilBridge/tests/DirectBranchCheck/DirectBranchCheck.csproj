@@ -1,0 +1,64 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(MSBuildThisFileDirectory)../../../../build/SelfBuiltConfig.props" />
+
+  <!--
+    T1b · **直构分支编译闸门**（#if TEXTLINE_SHIM_DIRECT）
+    ============================================================================
+    问题：`TEXTLINE_SHIM_DIRECT` 那一支**只有编进 PresentationCore 时才成立**，
+      在本工程的任何 harness 里都编不到（internal 不可见）⇒ 它一直是"从未被编译过的代码"。
+      主控每次起集成波才会第一次发现它编不过 —— 那是最贵的失败方式（整波白跑 20 分钟）。
+
+    做法（不需要重建 PC、不改任何别人的文件）：
+      PC 的 `OtherAssemblyAttrs.cs:19` 声明了
+        [assembly: InternalsVisibleTo("PresentationCore.Tests, PublicKey=<WCP>")]
+      ⇒ 本工程**把程序集名取成 PresentationCore.Tests**、用同一把公钥**公开签名**
+        （`build/keys/WcpPublicKey.snk`），于是 PC 的 internal 成员对本工程可见，
+        直构分支就能真的被编译器检查。
+
+    ⇒ 这就是"落 shim 之前的编译闸门"：`dotnet build` 这一条过不去，就别落。
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <!-- ⭐ 必须是这个名字（PC 的 IVT 名单里就是它） -->
+    <AssemblyName>PresentationCore.Tests</AssemblyName>
+    <RootNamespace>MilBridge.DirectBranchCheck</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <BaseOutputPath>$(MSBuildThisFileDirectory)bin\</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)obj\</BaseIntermediateOutputPath>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign>true</PublicSign>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)../../../../build/keys/WcpPublicKey.snk</AssemblyOriginatorKeyFile>
+    <NoWarn>$(NoWarn);CS8002;CS0436;CS0012</NoWarn>
+    <HbShimSrc Condition="'$(HbShimSrc)' == ''">$(MSBuildThisFileDirectory)../../../shims/PresentationCore.HbTextLine.cs</HbShimSrc>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);TEXTLINE_SHIM_DIRECT</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="$(HbShimSrc)" Link="PresentationCore.HbTextLine.cs" />
+    <Compile Include="Probe.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="PresentationCore">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/PresentationCore.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationCore.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="WindowsBase">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/WindowsBase.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/WindowsBase.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="DirectWriteForwarder">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/DirectWriteForwarder.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWriteForwarder.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>

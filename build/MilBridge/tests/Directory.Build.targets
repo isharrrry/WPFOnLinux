@@ -1,0 +1,27 @@
+<Project>
+  <!-- ==========================================================================
+       让 Release 构建**显式**把权威 Provider 拷进探针的启动目录（债务 #20 同族）。
+
+       为什么需要：这些探针的 app-local `DirectWrite.Linux.Provider.dll` 就是它被
+       `dotnet bin/Release/…` 启动时的加载源；而它此前只在 **HintPath 的增量拷贝**时刷新
+       ⇒ "没重建过的探针"会用到旧 Provider（实测：权威 71ba86c6 时，
+       CompositeFontProbe/ContractProbe 仍是 0939c055(10:15)）⇒ 会得出**"补丁无效"的假红**。
+
+       做法：AfterTargets="Build" 且 SkipUnchangedFiles="false"（**不依赖增量判断**）。
+       权威路径可用 /p:ProviderAuthorityPath=… 覆盖（验收②就靠这条证明它拷的是**权威**而不是写死路径）。
+       口径与校验：build/DirectWrite.Linux/wic-shim/check-applocal-sync.sh（只报不改）。
+       ========================================================================== -->
+  <PropertyGroup>
+    <ProviderAuthorityPath Condition="'$(ProviderAuthorityPath)' == ''">$(MSBuildThisFileDirectory)../../../build/DirectWrite.Linux/Provider/bin/Debug/DirectWrite.Linux.Provider.dll</ProviderAuthorityPath>
+  </PropertyGroup>
+
+  <Target Name="SyncProviderAuthority"
+          AfterTargets="Build"
+          Condition="Exists('$(ProviderAuthorityPath)')">
+    <Copy SourceFiles="$(ProviderAuthorityPath)"
+          DestinationFolder="$(OutDir)"
+          SkipUnchangedFiles="false" />
+    <Message Importance="high"
+             Text="[SyncProviderAuthority] 已把权威 Provider 拷入 $(OutDir)（源 $(ProviderAuthorityPath)，不依赖增量）" />
+  </Target>
+</Project>

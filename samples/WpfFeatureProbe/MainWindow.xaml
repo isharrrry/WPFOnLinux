@@ -1,0 +1,30 @@
+<Window x:Class="WpfFeatureProbe.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="WpfFeatureProbe — feature breadth probe" Width="900" Height="900"
+        Background="#FF10141C">
+    <Grid Margin="12">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="300" />
+        </Grid.ColumnDefinitions>
+
+        <!-- 左列：功能块（由代码逐个加进 ProbeHost），整列可滚动（块多，必然超出视口） -->
+        <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" Margin="0,0,12,0">
+            <StackPanel x:Name="ProbeHost" />
+        </ScrollViewer>
+
+        <!-- 右列：**每块判定**（同一份台账的屏上副本 ⇒ 读图即可核对，不必只信日志） -->
+        <Border Grid.Column="1" Background="#FF18213A" BorderBrush="#FF3C4E6B" BorderThickness="1"
+                CornerRadius="8" Padding="10">
+            <StackPanel>
+                <TextBlock Text="功能块台账（屏上副本）" FontSize="13" FontWeight="Bold" Foreground="#FFE9F1FF" />
+                <TextBlock x:Name="SummaryText" Text="(等待各块自报)" FontSize="12" Foreground="#FFF5A524"
+                           TextWrapping="Wrap" Margin="0,6,0,8" />
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Height="760">
+                    <StackPanel x:Name="VerdictHost" />
+                </ScrollViewer>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

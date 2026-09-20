@@ -1,0 +1,57 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- ⭐ `D-R8`（工程卫生）：不依赖 `$(BaseIntermediateOutputPath)` 指向哪里的产物目录排除。
+       实现在仓根 `BuildHygiene.props`（全仓唯一一份；理由与两种被否决的落点见 `build/MilBridge/W21B-report.md` §2）。
+       **故意不加 `Exists()` 条件**：文件找不到要大声失败。 -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('BuildHygiene.props'))" />
+
+  <!--
+    T4 渲染层（Rendering/）的离屏 golden image 测试工程。
+
+    设计约束（handoff §6 L3 + 本轮任务要求）：
+      · 全部渲染走 Skia CPU 后端的 SKSurface，**不需要 X server / Xvfb**
+      · 基准图与实测图逐像素比对，容差 Δ≤2，超阈值输出 diff 图（差异标红）
+      · 确定性三件套：DPI 固定 96、只用 build/fonts 打包字体、AA 设置与 golden 生成一致
+
+    程序集名必须是 WpfGfx.Linux.Rendering.Tests —— Rendering/AssemblyInfo.cs 的
+    InternalsVisibleTo 按这个名字开友元，改了就读不到 internal 的契约类型。
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>WpfGfx.Linux.Tests.Rendering</RootNamespace>
+    <AssemblyName>WpfGfx.Linux.Rendering.Tests</AssemblyName>
+    <!-- 基准图与实测图都落在仓库内固定路径，不受 bin/ 影响 -->
+    <EnableDefaultNoneItems>true</EnableDefaultNoneItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+    <!-- 版本随主工程，禁止升 4.x -->
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.88.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../../src/WpfGfx.Linux/WpfGfx.Linux.csproj" />
+  </ItemGroup>
+
+
+  <!--
+    债务 #1（测试 flaky 的根因治理）：**显式**声明并行度，不让它取决于 xunit 的默认值。
+    为什么必须显式：`MilChannelRegistry`/`MilHandleTables` 等是**进程级静态表**，
+    而多数用例开头的 `ResetProcessStateForTests()` **刻意不清通道注册表**
+    （理由见 src/WpfGfx.Linux/Interop/MilNative.Exports.cs:266-280）⇒ 一个用例泄漏的通道会活到后面的用例。
+    默认值（v2 为"并行跑集合"）会随版本/机器变化 ⇒ "同一命令有时红"里混进了"默认值变了"这个变量。
+    这里取 **false**（串行跑集合）：它是与"共享进程级静态表"这一事实**相符**的那一档；
+    真并发问题另有长期仪器（`WPF_LINUX_CHANNEL_LEAK_TRACE=1` 的通道泄漏守卫）负责暴露，不靠默认值碰运气。
+  -->
+  <ItemGroup>
+    <None Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

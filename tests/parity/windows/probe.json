@@ -1,0 +1,209 @@
+{
+  "format": "wpf-linux-u1a-probe/1",
+  "collectedAtUtc": "2026-09-10T06:15:50.9506332Z",
+  "outDir": "C:\\u1-parity\\out",
+  "renderTargetBitmapUsable": true,
+  "host": {
+    "machineName": "BILINTU",
+    "userName": "PC",
+    "osVersion": "Microsoft Windows NT 10.0.22631.0",
+    "osDescription": "Microsoft Windows 10.0.22631",
+    "osArchitecture": "X64",
+    "processArchitecture": "X64",
+    "clrVersion": "10.0.7",
+    "is64BitProcess": true,
+    "processorCount": 8,
+    "sessionId": "0",
+    "sessionName": "",
+    "userInteractive": false
+  },
+  "runtime": {
+    "frameworkDescription": ".NET 10.0.7",
+    "appBaseDirectory": "C:\\u1-parity\\src\\U1Parity\\bin\\Debug\\net10.0-windows\\",
+    "presentationCorePath": "C:\\Program Files\\dotnet\\shared\\Microsoft.WindowsDesktop.App\\10.0.7\\PresentationCore.dll",
+    "presentationCoreVersion": "10.0.0.0",
+    "windowsBaseVersion": "10.0.0.0",
+    "dotnetInfo": ".NET SDK:\r\n Version:           10.0.203\r\n Commit:            c23858a6d8\r\n Workload version:  10.0.200-manifests.f8ca1cb9\r\n MSBuild version:   18.3.3+c23858a6d\r\n\r\nRuntime Environment:\r\n OS Name:     Windows\r\n OS Version:  10.0.22631\r\n OS Platform: Windows\r\n RID:         win-x64\r\n Base Path:   C:\\Program Files\\dotnet\\sdk\\10.0.203\\\r\n\r\n.NET workloads installed:\r\nThere are no installed workloads to display.\r\nConfigured to use workload sets when installing new manifests.\r\nNo workload sets are installed. Run \"dotnet workload restore\" to install a workload set.\r\n\r\nHost:\r\n  Version:      10.0.7\r\n  Architecture: x64\r\n  Commit:       b16286c228\r\n\r\n.NET SDKs installed:\r\n  10.0.203 [C:\\Program Files\\dotnet\\sdk]\r\n\r\n.NET runtimes installed:\r\n  Microsoft.AspNetCore.App 6.0.36 [C:\\Program Files\\dotnet\\shared\\Microsoft.AspNetCore.App]\r\n  Microsoft.AspNetCore.App 8.0.26 [C:\\Program Files\\dotnet\\shared\\Microsoft.AspNetCore.App]\r\n  Microsoft.AspNetCore.App 10.0.7 [C:\\Program Files\\dotnet\\shared\\Microsoft.AspNetCore.App]\r\n  Microsoft.NETCore.App 6.0.7 [C:\\Program Files\\dotnet\\shared\\Microsoft.NETCore.App]\r\n  Microsoft.NETCore.App 6.0.36 [C:\\Program Files\\dotnet\\shared\\Microsoft.NETCore.App]\r\n  Microsoft.NETCore.App 8.0.26 [C:\\Program Files\\dotnet\\shared\\Microsoft.NETCore.App]\r\n  Microsoft.NETCore.App 10.0.7 [C:\\Program Files\\dotnet\\shared\\Microsoft.NETCore.App]\r\n  Microsoft.WindowsDesktop.App 6.0.7 [C:\\Program Files\\dotnet\\shared\\Microsoft.WindowsDesktop.App]\r\n  Microsoft.WindowsDesktop.App 6.0.36 [C:\\Program Files\\dotnet\\shared\\Microsoft.WindowsDesktop.App]\r\n  Microsoft.WindowsDesktop.App 8.0.26 [C:\\Program Files\\dotnet\\shared\\Microsoft.WindowsDesktop.App]\r\n  Microsoft.WindowsDesktop.App 10.0.7 [C:\\Program Files\\dotnet\\shared\\Microsoft.WindowsDesktop.App]\r\n\r\nOther architectures found:\r\n  x86   [C:\\Program Files (x86)\\dotnet]\r\n    registered at [HKLM\\SOFTWARE\\dotnet\\Setup\\InstalledVersions\\x86\\InstallLocation]\r\n\r\nEnvironment variables:\r\n  DOTNET_CLI_TELEMETRY_OPTOUT              [1]\r\n  DOTNET_CLI_UI_LANGUAGE                   [en]\r\n  DOTNET_NOLOGO                            [1]\r\n\r\nglobal.json file:\r\n  Not found\r\n\r\nLearn more:\r\n  https://aka.ms/dotnet/info\r\n\r\nDownload .NET:\r\n  https://aka.ms/dotnet/download\r\n"
+  },
+  "nativeDlls": [
+    {
+      "path": "C:\\Program Files\\dotnet\\shared\\Microsoft.WindowsDesktop.App\\10.0.7\\wpfgfx_cor3.dll",
+      "sizeBytes": 1952016,
+      "lastWriteTimeUtc": "2026-04-17T12:01:14.0000000Z",
+      "fileVersion": "10,0,726,21808 @Commit: b16286c2284fecf303dbc12a0bb152476d662e44 | product=10.0.7-servicing.26217.108 @Commit: b16286c2284fecf303dbc12a0bb152476d662e44",
+      "sha256": "f4f7a44a3480c0b7b2d5a603cb7d0c41d9ae9b2633a8b30eb59f66a2697045f3"
+    },
+    {
+      "path": "C:\\Program Files\\dotnet\\shared\\Microsoft.WindowsDesktop.App\\6.0.36\\wpfgfx_cor3.dll",
+      "sizeBytes": 1963816,
+      "lastWriteTimeUtc": "2024-10-25T17:51:46.0000000Z",
+      "fileVersion": "6,0,3624,51603 @Commit: a7dff252f2a6b0ff48ffe946a20584f61282aa13 | product=6.0.36-servicing.24516.3 @Commit: a7dff252f2a6b0ff48ffe946a20584f61282aa13",
+      "sha256": "5245476eed26c58e120dbad3cb138f8d7fac755836b611def109fee0d78aecb9"
+    },
+    {
+      "path": "C:\\Program Files\\dotnet\\shared\\Microsoft.WindowsDesktop.App\\6.0.7\\wpfgfx_cor3.dll",
+      "sizeBytes": 1958528,
+      "lastWriteTimeUtc": "2022-06-24T09:35:26.0000000Z",
+      "fileVersion": "6,0,722,32202 @Commit: 5063a17b211e70ca0ff6fed1b57e9d04727c25a8 | product=6.0.7-servicing.22322.2 @Commit: 5063a17b211e70ca0ff6fed1b57e9d04727c25a8",
+      "sha256": "77da66001b484969da19a9c2d5b329db6cf30cc175aa7906b0687d2644feada1"
+    },
+    {
+      "path": "C:\\Program Files\\dotnet\\shared\\Microsoft.WindowsDesktop.App\\8.0.26\\wpfgfx_cor3.dll",
+      "sizeBytes": 1951544,
+      "lastWriteTimeUtc": "2026-03-19T22:44:56.0000000Z",
+      "fileVersion": "8,0,2626,16904 @Commit: cf6069ee160d39d8c7eb3e27e4b3e9841db59c8a | product=8.0.26-servicing.26169.4 @Commit: cf6069ee160d39d8c7eb3e27e4b3e9841db59c8a",
+      "sha256": "07c3631d158122ac48110bf81b1f67aa80c6965c8996ac1dda534b2766970b83"
+    }
+  ],
+  "renderPath": {
+    "pixelFormat": "Pbgra32",
+    "width": 256,
+    "height": 256,
+    "dpi": 96,
+    "visual": "DrawingVisual + DrawingContext (no Window, no HwndTarget, no Dispatcher.Run)",
+    "pngSourceFormat": "Bgra32 (FormatConvertedBitmap from Pbgra32, straight alpha)"
+  },
+  "sceneCount": 15,
+  "totalProbes": 110,
+  "predictionsChecked": 92,
+  "predictionsFailed": 0,
+  "pngs": [
+    {
+      "id": "scene01_solid",
+      "file": "scene01_solid.png",
+      "sizeBytes": 953,
+      "sha256": "51bc78bc373b32c966ac11932676126bac28b648fb2abe090e62d0cf8d639819",
+      "probeCount": 7,
+      "nonWhitePixels": 13200,
+      "distinctRgbColors": 3
+    },
+    {
+      "id": "scene02_roundrect",
+      "file": "scene02_roundrect.png",
+      "sizeBytes": 2795,
+      "sha256": "24c83a6d1ff4b785a1b6298395d0e47f98813eff235e9fe41a4cb9522f0891be",
+      "probeCount": 7,
+      "nonWhitePixels": 18698,
+      "distinctRgbColors": 105
+    },
+    {
+      "id": "scene03_ellipse",
+      "file": "scene03_ellipse.png",
+      "sizeBytes": 5416,
+      "sha256": "74b948eefcb58a2dd3487401ae45fa0d8144012df46f6a19955411fc72361663",
+      "probeCount": 7,
+      "nonWhitePixels": 16063,
+      "distinctRgbColors": 128
+    },
+    {
+      "id": "scene04_linear_gradient",
+      "file": "scene04_linear_gradient.png",
+      "sizeBytes": 2707,
+      "sha256": "71d5696394a7e264f5d41032f94986934541277bb08266c48cbaf50257f70531",
+      "probeCount": 7,
+      "nonWhitePixels": 37632,
+      "distinctRgbColors": 880
+    },
+    {
+      "id": "scene05_radial_gradient",
+      "file": "scene05_radial_gradient.png",
+      "sizeBytes": 28490,
+      "sha256": "2ff98fe4ca1126c37e11dad4f3c457996db09bed350962c28a195d24aa10e9c2",
+      "probeCount": 6,
+      "nonWhitePixels": 55680,
+      "distinctRgbColors": 333
+    },
+    {
+      "id": "scene06_dash",
+      "file": "scene06_dash.png",
+      "sizeBytes": 1686,
+      "sha256": "62ba3e8ecc453928375ec6b41094ecc9eea2e713c668d392417387edd9ad1d7e",
+      "probeCount": 9,
+      "nonWhitePixels": 7152,
+      "distinctRgbColors": 16
+    },
+    {
+      "id": "scene07_opacity",
+      "file": "scene07_opacity.png",
+      "sizeBytes": 3327,
+      "sha256": "3bcb947e59582d3d2dae13cfd18e3e1c2403982f9c1e3eae7bc7c82ca38e1b9f",
+      "probeCount": 8,
+      "nonWhitePixels": 65536,
+      "distinctRgbColors": 204
+    },
+    {
+      "id": "scene08_clip_rect",
+      "file": "scene08_clip_rect.png",
+      "sizeBytes": 986,
+      "sha256": "de4c21f5da455fe8216834701a2ba9f4177bc7c8a36e6808b1f6a79df96cc641",
+      "probeCount": 6,
+      "nonWhitePixels": 32576,
+      "distinctRgbColors": 4
+    },
+    {
+      "id": "scene09_clip_path_fillrule",
+      "file": "scene09_clip_path_fillrule.png",
+      "sizeBytes": 14439,
+      "sha256": "376bc8f095e3c9a597b0ac10aa1923832ef056c1e803983c2dcccaeee4e25a71",
+      "probeCount": 8,
+      "nonWhitePixels": 25384,
+      "distinctRgbColors": 924
+    },
+    {
+      "id": "scene10_transform",
+      "file": "scene10_transform.png",
+      "sizeBytes": 6131,
+      "sha256": "8be2d0c592de151fb875070f6dffe434dffee8a2805c8f85ce92498cde5f0729",
+      "probeCount": 8,
+      "nonWhitePixels": 6929,
+      "distinctRgbColors": 325
+    },
+    {
+      "id": "scene11_arc_sweep_large",
+      "file": "scene11_arc_sweep_large.png",
+      "sizeBytes": 8267,
+      "sha256": "b0e61edac3b2eaceb7672507a39876898e9f0e4523e335f6a332d69b52fdfebe",
+      "probeCount": 8,
+      "nonWhitePixels": 11630,
+      "distinctRgbColors": 255
+    },
+    {
+      "id": "scene12_arc_ellipse",
+      "file": "scene12_arc_ellipse.png",
+      "sizeBytes": 4917,
+      "sha256": "d535f6e7e4c12b842eb33ecc03e6361a7190cdb90ec13af44b1a3681599f9f46",
+      "probeCount": 8,
+      "nonWhitePixels": 5972,
+      "distinctRgbColors": 128
+    },
+    {
+      "id": "scene13_arc_degenerate",
+      "file": "scene13_arc_degenerate.png",
+      "sizeBytes": 5089,
+      "sha256": "785473824174521939fa04a07fa6abeb0e5e00860c2efa8ec3cfbff1a21d2454",
+      "probeCount": 9,
+      "nonWhitePixels": 8051,
+      "distinctRgbColors": 229
+    },
+    {
+      "id": "scene14_combine_union_xor",
+      "file": "scene14_combine_union_xor.png",
+      "sizeBytes": 7296,
+      "sha256": "5f22bdf95227d91b6c638379b891b2fadedc61bf7d9b8f38e723e891435513d5",
+      "probeCount": 6,
+      "nonWhitePixels": 14739,
+      "distinctRgbColors": 372
+    },
+    {
+      "id": "scene15_combine_intersect_exclude",
+      "file": "scene15_combine_intersect_exclude.png",
+      "sizeBytes": 5779,
+      "sha256": "41e392e2ce2771cc008cb11e830e183a8ad7e6fffc6bb7f7e7b1edeeaec2c5a4",
+      "probeCount": 6,
+      "nonWhitePixels": 5786,
+      "distinctRgbColors": 283
+    }
+  ],
+  "elapsedSeconds": 0.173,
+  "log": ["scene01_solid: 953 bytes, 7 probes, nonWhite=13200, colors=3, probes-on-disk-mismatch=0", "scene02_roundrect: 2795 bytes, 7 probes, nonWhite=18698, colors=105, probes-on-disk-mismatch=0", "scene03_ellipse: 5416 bytes, 7 probes, nonWhite=16063, colors=128, probes-on-disk-mismatch=0", "scene04_linear_gradient: 2707 bytes, 7 probes, nonWhite=37632, colors=880, probes-on-disk-mismatch=0", "scene05_radial_gradient: 28490 bytes, 6 probes, nonWhite=55680, colors=333, probes-on-disk-mismatch=0", "scene06_dash: 1686 bytes, 9 probes, nonWhite=7152, colors=16, probes-on-disk-mismatch=0", "scene07_opacity: 3327 bytes, 8 probes, nonWhite=65536, colors=204, probes-on-disk-mismatch=0", "scene08_clip_rect: 986 bytes, 6 probes, nonWhite=32576, colors=4, probes-on-disk-mismatch=0", "scene09_clip_path_fillrule: 14439 bytes, 8 probes, nonWhite=25384, colors=924, probes-on-disk-mismatch=0", "scene10_transform: 6131 bytes, 8 probes, nonWhite=6929, colors=325, probes-on-disk-mismatch=0", "scene11_arc_sweep_large: 8267 bytes, 8 probes, nonWhite=11630, colors=255, probes-on-disk-mismatch=0", "scene12_arc_ellipse: 4917 bytes, 8 probes, nonWhite=5972, colors=128, probes-on-disk-mismatch=0", "scene13_arc_degenerate: 5089 bytes, 9 probes, nonWhite=8051, colors=229, probes-on-disk-mismatch=0", "scene14_combine_union_xor: 7296 bytes, 6 probes, nonWhite=14739, colors=372, probes-on-disk-mismatch=0", "scene15_combine_intersect_exclude: 5779 bytes, 6 probes, nonWhite=5786, colors=283, probes-on-disk-mismatch=0"]
+}

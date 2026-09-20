@@ -1,0 +1,213 @@
+--- proxy bootstrap: C:\u1-parity\src\U1Proxy\wpfgfx_cor3.dll
+  SetDllImportResolver: OK
+=== U1b route 2: Harmony over System.Windows.Media.Composition.Channel ===
+Harmony version: 2.4.2.0
+PresentationCore: C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\10.0.7\PresentationCore.dll
+PresentationCore version: 10.0.0.0
+--- PresentationCore types mentioning Channel / Duce / DUCE ---
+  internal MS.Internal.WICBitmapAlphaChannelOption
+  public   System.Windows.Media.PixelFormatChannelMask
+  internal System.Windows.Media.Composition.ChannelMarshalType
+  internal System.Windows.Media.Composition.DUCE
+  internal System.Windows.Media.MediaContext+ChannelManager
+  internal System.Windows.Media.Composition.DUCE+UnsafeNativeMethods
+  internal System.Windows.Media.Composition.DUCE+MilMessage
+  internal System.Windows.Media.Composition.DUCE+ChannelSet
+  internal System.Windows.Media.Composition.DUCE+Channel
+  internal System.Windows.Media.Composition.DUCE+Resource
+  internal System.Windows.Media.Composition.DUCE+ResourceHandle
+  internal System.Windows.Media.Composition.DUCE+Map`1
+  internal System.Windows.Media.Composition.DUCE+Map
+  internal System.Windows.Media.Composition.DUCE+ShareableDUCEMultiChannelResource
+  internal System.Windows.Media.Composition.DUCE+MultiChannelResource
+  internal System.Windows.Media.Composition.DUCE+CompositionNode
+  internal System.Windows.Media.Composition.DUCE+Viewport3DVisualNode
+  internal System.Windows.Media.Composition.DUCE+Visual3DNode
+  internal System.Windows.Media.Composition.DUCE+CompositionTarget
+  internal System.Windows.Media.Composition.DUCE+ETWEvent
+  internal System.Windows.Media.Composition.DUCE+IResource
+  internal System.Windows.Media.Composition.DUCE+MILCMD_PARTITION_REGISTERFORNOTIFICATIONS
+  internal System.Windows.Media.Composition.DUCE+MILCMD_CHANNEL_REQUESTTIER
+  internal System.Windows.Media.Composition.DUCE+MILCMD_PARTITION_SETVBLANKSYNCMODE
+  internal System.Windows.Media.Composition.DUCE+MILCMD_PARTITION_NOTIFYPRESENT
+  internal System.Windows.Media.Composition.DUCE+MILCMD_D3DIMAGE
+  internal System.Windows.Media.Composition.DUCE+MILCMD_D3DIMAGE_PRESENT
+  internal System.Windows.Media.Composition.DUCE+MILCMD_BITMAP_INVALIDATE
+  internal System.Windows.Media.Composition.DUCE+MILCMD_DOUBLERESOURCE
+  internal System.Windows.Media.Composition.DUCE+MILCMD_COLORRESOURCE
+  internal System.Windows.Media.Composition.DUCE+MILCMD_POINTRESOURCE
+  internal System.Windows.Media.Composition.DUCE+MILCMD_RECTRESOURCE
+  internal System.Windows.Media.Composition.DUCE+MILCMD_SIZERESOURCE
+  internal System.Windows.Media.Composition.DUCE+MILCMD_MATRIXRESOURCE
+  internal System.Windows.Media.Composition.DUCE+MILCMD_POINT3DRESOURCE
+  internal System.Windows.Media.Composition.DUCE+MILCMD_VECTOR3DRESOURCE
+  internal System.Windows.Media.Composition.DUCE+MILCMD_QUATERNIONRESOURCE
+  internal System.Windows.Media.Composition.DUCE+MILCMD_RENDERDATA
+  internal System.Windows.Media.Composition.DUCE+MILCMD_ETWEVENTRESOURCE
+  internal System.Windows.Media.Composition.DUCE+MILCMD_VISUAL_SETOFFSET
+  internal System.Windows.Media.Composition.DUCE+MILCMD_VISUAL_SETTRANSFORM
+  internal System.Windows.Media.Composition.DUCE+MILCMD_VISUAL_SETEFFECT
+  internal System.Windows.Media.Composition.DUCE+MILCMD_VISUAL_SETCACHEMODE
+  internal System.Windows.Media.Composition.DUCE+MILCMD_VISUAL_SETCLIP
+  internal System.Windows.Media.Composition.DUCE+MILCMD_VISUAL_SETALPHA
+  internal System.Windows.Media.Composition.DUCE+MILCMD_VISUAL_SETRENDEROPTIONS
+  internal System.Windows.Media.Composition.DUCE+MILCMD_VISUAL_SETCONTENT
+  internal System.Windows.Media.Composition.DUCE+MILCMD_VISUAL_SETALPHAMASK
+  internal System.Windows.Media.Composition.DUCE+MILCMD_VISUAL_REMOVEALLCHILDREN
+  internal System.Windows.Media.Composition.DUCE+MILCMD_VISUAL_REMOVECHILD
+  internal System.Windows.Media.Composition.DUCE+MILCMD_VISUAL_INSERTCHILDAT
+  internal System.Windows.Media.Composition.DUCE+MILCMD_VISUAL_SETGUIDELINECOLLECTION
+  internal System.Windows.Media.Composition.DUCE+MILCMD_VISUAL_SETSCROLLABLEAREACLIP
+  internal System.Windows.Media.Composition.DUCE+MILCMD_VIEWPORT3DVISUAL_SETCAMERA
+  internal System.Windows.Media.Composition.DUCE+MILCMD_VIEWPORT3DVISUAL_SETVIEWPORT
+  internal System.Windows.Media.Composition.DUCE+MILCMD_VIEWPORT3DVISUAL_SET3DCHILD
+  internal System.Windows.Media.Composition.DUCE+MILCMD_VISUAL3D_SETCONTENT
+  internal System.Windows.Media.Composition.DUCE+MILCMD_VISUAL3D_SETTRANSFORM
+  internal System.Windows.Media.Composition.DUCE+MILCMD_VISUAL3D_REMOVEALLCHILDREN
+  internal System.Windows.Media.Composition.DUCE+MILCMD_VISUAL3D_REMOVECHILD
+  internal System.Windows.Media.Composition.DUCE+MILCMD_VISUAL3D_INSERTCHILDAT
+  internal System.Windows.Media.Composition.DUCE+MILCMD_HWNDTARGET_CREATE
+  internal System.Windows.Media.Composition.DUCE+MILCMD_HWNDTARGET_SUPPRESSLAYERED
+  internal System.Windows.Media.Composition.DUCE+MILCMD_TARGET_UPDATEWINDOWSETTINGS
+  internal System.Windows.Media.Composition.DUCE+MILCMD_GENERICTARGET_CREATE
+  internal System.Windows.Media.Composition.DUCE+MILCMD_TARGET_SETROOT
+  internal System.Windows.Media.Composition.DUCE+MILCMD_TARGET_SETCLEARCOLOR
+  internal System.Windows.Media.Composition.DUCE+MILCMD_TARGET_INVALIDATE
+  internal System.Windows.Media.Composition.DUCE+MILCMD_TARGET_SETFLAGS
+  internal System.Windows.Media.Composition.DUCE+MILCMD_HWNDTARGET_DPICHANGED
+  internal System.Windows.Media.Composition.DUCE+MILCMD_GLYPHRUN_CREATE
+  internal System.Windows.Media.Composition.DUCE+MILCMD_DOUBLEBUFFEREDBITMAP
+  internal System.Windows.Media.Composition.DUCE+MILCMD_DOUBLEBUFFEREDBITMAP_COPYFORWARD
+  internal System.Windows.Media.Composition.DUCE+MILCMD_PARTITION_NOTIFYPOLICYCHANGEFORNONINTERACTIVEMODE
+  internal System.Windows.Media.Composition.DUCE+MILCMD_AXISANGLEROTATION3D
+  internal System.Windows.Media.Composition.DUCE+MILCMD_QUATERNIONROTATION3D
+  internal System.Windows.Media.Composition.DUCE+MILCMD_PERSPECTIVECAMERA
+  internal System.Windows.Media.Composition.DUCE+MILCMD_ORTHOGRAPHICCAMERA
+  internal System.Windows.Media.Composition.DUCE+MILCMD_MATRIXCAMERA
+  internal System.Windows.Media.Composition.DUCE+MILCMD_MODEL3DGROUP
+  internal System.Windows.Media.Composition.DUCE+MILCMD_AMBIENTLIGHT
+  internal System.Windows.Media.Composition.DUCE+MILCMD_DIRECTIONALLIGHT
+  internal System.Windows.Media.Composition.DUCE+MILCMD_POINTLIGHT
+  internal System.Windows.Media.Composition.DUCE+MILCMD_SPOTLIGHT
+  internal System.Windows.Media.Composition.DUCE+MILCMD_GEOMETRYMODEL3D
+  internal System.Windows.Media.Composition.DUCE+MILCMD_MESHGEOMETRY3D
+  internal System.Windows.Media.Composition.DUCE+MILCMD_MATERIALGROUP
+  internal System.Windows.Media.Composition.DUCE+MILCMD_DIFFUSEMATERIAL
+  internal System.Windows.Media.Composition.DUCE+MILCMD_SPECULARMATERIAL
+  internal System.Windows.Media.Composition.DUCE+MILCMD_EMISSIVEMATERIAL
+  internal System.Windows.Media.Composition.DUCE+MILCMD_TRANSFORM3DGROUP
+  internal System.Windows.Media.Composition.DUCE+MILCMD_TRANSLATETRANSFORM3D
+  internal System.Windows.Media.Composition.DUCE+MILCMD_SCALETRANSFORM3D
+  internal System.Windows.Media.Composition.DUCE+MILCMD_ROTATETRANSFORM3D
+  internal System.Windows.Media.Composition.DUCE+MILCMD_MATRIXTRANSFORM3D
+  internal System.Windows.Media.Composition.DUCE+MILCMD_PIXELSHADER
+  internal System.Windows.Media.Composition.DUCE+MILCMD_IMPLICITINPUTBRUSH
+  internal System.Windows.Media.Composition.DUCE+MILCMD_BLUREFFECT
+  internal System.Windows.Media.Composition.DUCE+MILCMD_DROPSHADOWEFFECT
+  internal System.Windows.Media.Composition.DUCE+MILCMD_SHADEREFFECT
+  internal System.Windows.Media.Composition.DUCE+MILCMD_DRAWINGIMAGE
+  internal System.Windows.Media.Composition.DUCE+MILCMD_TRANSFORMGROUP
+  internal System.Windows.Media.Composition.DUCE+MILCMD_TRANSLATETRANSFORM
+  internal System.Windows.Media.Composition.DUCE+MILCMD_SCALETRANSFORM
+  internal System.Windows.Media.Composition.DUCE+MILCMD_SKEWTRANSFORM
+  internal System.Windows.Media.Composition.DUCE+MILCMD_ROTATETRANSFORM
+  internal System.Windows.Media.Composition.DUCE+MILCMD_MATRIXTRANSFORM
+  internal System.Windows.Media.Composition.DUCE+MILCMD_LINEGEOMETRY
+  internal System.Windows.Media.Composition.DUCE+MILCMD_RECTANGLEGEOMETRY
+  internal System.Windows.Media.Composition.DUCE+MILCMD_ELLIPSEGEOMETRY
+  internal System.Windows.Media.Composition.DUCE+MILCMD_GEOMETRYGROUP
+  internal System.Windows.Media.Composition.DUCE+MILCMD_COMBINEDGEOMETRY
+  internal System.Windows.Media.Composition.DUCE+MILCMD_PATHGEOMETRY
+  internal System.Windows.Media.Composition.DUCE+MILCMD_SOLIDCOLORBRUSH
+  internal System.Windows.Media.Composition.DUCE+MILCMD_LINEARGRADIENTBRUSH
+  internal System.Windows.Media.Composition.DUCE+MILCMD_RADIALGRADIENTBRUSH
+  internal System.Windows.Media.Composition.DUCE+MILCMD_IMAGEBRUSH
+  internal System.Windows.Media.Composition.DUCE+MILCMD_DRAWINGBRUSH
+  internal System.Windows.Media.Composition.DUCE+MILCMD_VISUALBRUSH
+  internal System.Windows.Media.Composition.DUCE+MILCMD_BITMAPCACHEBRUSH
+  internal System.Windows.Media.Composition.DUCE+MILCMD_DASHSTYLE
+  internal System.Windows.Media.Composition.DUCE+MILCMD_PEN
+  internal System.Windows.Media.Composition.DUCE+MILCMD_GEOMETRYDRAWING
+  internal System.Windows.Media.Composition.DUCE+MILCMD_GLYPHRUNDRAWING
+  internal System.Windows.Media.Composition.DUCE+MILCMD_IMAGEDRAWING
+  internal System.Windows.Media.Composition.DUCE+MILCMD_VIDEODRAWING
+  internal System.Windows.Media.Composition.DUCE+MILCMD_DRAWINGGROUP
+  internal System.Windows.Media.Composition.DUCE+MILCMD_GUIDELINESET
+  internal System.Windows.Media.Composition.DUCE+MILCMD_BITMAPCACHE
+  internal System.Windows.Media.Composition.DUCE+ResourceType
+  internal System.Windows.Media.Composition.DUCE+MIL_GRADIENTSTOP
+  internal System.Windows.Media.Composition.DUCE+MilMessage+Type
+  internal System.Windows.Media.Composition.DUCE+MilMessage+CapsData
+  internal System.Windows.Media.Composition.DUCE+MilMessage+PartitionIsZombieStatus
+  internal System.Windows.Media.Composition.DUCE+MilMessage+SyncModeStatus
+  internal System.Windows.Media.Composition.DUCE+MilMessage+Presented
+  internal System.Windows.Media.Composition.DUCE+MilMessage+Message
+  internal System.Windows.Media.Composition.DUCE+Map`1+Entry
+  internal System.Windows.Media.Composition.DUCE+Map+Entry
+Channel type: System.Windows.Media.Composition.DUCE+Channel, PresentationCore, Version=10.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35
+--- declared instance methods ---
+  Void Commit()
+  Void CloseBatch()
+  Void SyncFlush()
+  Void Close()
+  Void Present()
+  Boolean CreateOrAddRefOnChannel(Object instance, ResourceHandle&& handle, ResourceType resourceType)
+  ResourceHandle DuplicateHandle(ResourceHandle original, Channel targetChannel)
+  Boolean ReleaseOnChannel(ResourceHandle handle)
+  UInt32 GetRefCount(ResourceHandle handle)
+  Boolean get_IsConnected()
+  ChannelMarshalType get_MarshalType()
+  Boolean get_IsSynchronous()
+  Boolean get_IsOutOfBandChannel()
+  Void SendCommand(Byte* pCommandData, Int32 cSize)
+  Void SendCommand(Byte* pCommandData, Int32 cSize, Boolean sendInSeparateBatch)
+  Void BeginCommand(Byte* pbCommandData, Int32 cbSize, Int32 cbExtra)
+  Void AppendCommandData(Byte* pbCommandData, Int32 cbSize)
+  Void EndCommand()
+  Void SendCommandBitmapSource(ResourceHandle imageHandle, BitmapSourceSafeMILHandle pBitmapSource)
+  Void SendCommandMedia(ResourceHandle mediaHandle, SafeMediaHandle pMedia, Boolean notifyUceDirect)
+  Void SetNotificationWindow(IntPtr hwnd, WindowMessage message)
+  Void WaitForNextMessage()
+  Boolean PeekNextMessage(Message&& out message)
+nopatch: no Harmony patch applied
+--- patching ---
+--- workload 1: offscreen RenderTargetBitmap over the U1a scene set ---
+  scene 1 scene01_solid begin
+  scene 1 done (commands so far 0 channels)
+  scene 2 scene02_roundrect begin
+  scene 2 done (commands so far 0 channels)
+  scene 3 scene03_ellipse begin
+  scene 3 done (commands so far 0 channels)
+  scene 4 scene04_linear_gradient begin
+  scene 4 done (commands so far 0 channels)
+  scene 5 scene05_radial_gradient begin
+  scene 5 done (commands so far 0 channels)
+  scene 6 scene06_dash begin
+  scene 6 done (commands so far 0 channels)
+  scene 7 scene07_opacity begin
+  scene 7 done (commands so far 0 channels)
+  scene 8 scene08_clip_rect begin
+  scene 8 done (commands so far 0 channels)
+  scene 9 scene09_clip_path_fillrule begin
+  scene 9 done (commands so far 0 channels)
+  scene 10 scene10_transform begin
+  scene 10 done (commands so far 0 channels)
+  scene 11 scene11_arc_sweep_large begin
+  scene 11 done (commands so far 0 channels)
+  scene 12 scene12_arc_ellipse begin
+  scene 12 done (commands so far 0 channels)
+  scene 13 scene13_arc_degenerate begin
+  scene 13 done (commands so far 0 channels)
+  scene 14 scene14_combine_union_xor begin
+  scene 14 done (commands so far 0 channels)
+  scene 15 scene15_combine_intersect_exclude begin
+  scene 15 done (commands so far 0 channels)
+rendered scenes: 15
+--- workload 2: windowed render (session 0 experiment) ---
+  window shown, handle=3866754
+  dispatcher exited
+window workload finished
+--- last recorded commands before exit ---
+--- stream summary ---
+  hook invocations / null pointer occurrences:
+  NO CHANNEL TRAFFIC CAPTURED

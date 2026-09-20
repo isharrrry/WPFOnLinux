@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- ⭐ `D-R8`（工程卫生）：不依赖 `$(BaseIntermediateOutputPath)` 指向哪里的产物目录排除。
+       实现在仓根 `BuildHygiene.props`（全仓唯一一份；理由与两种被否决的落点见 `build/MilBridge/W21B-report.md` §2）。
+       **故意不加 `Exists()` 条件**：文件找不到要大声失败。 -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('BuildHygiene.props'))" />
+
+  <!--
+    T1 Phase 1-C：闭环测试。
+    本工程是**普通托管控制台**（不含 NativeAOT），扮演"模拟托管层"：
+      · 用与上游 exports.cs 完全相同的 [DllImport("wpfgfx_cor3.dll")] 形状声明
+      · 靠 MilCoreDllImportResolver 把库名映射到 NativeAOT 实现 wpfgfx_cor3.so
+      · 从 CreateChannel 一路走到 Commit，断言 HRESULT / 句柄语义 / 命令解码 / 结构体字节布局
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AssemblyName>MilBridge.ClosedLoop</AssemblyName>
+    <RootNamespace>MilBridge.ClosedLoop</RootNamespace>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <NoWarn>$(NoWarn);CS8981</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- 复用被测解析器本体源码，保证测的就是要接线的那份实现 -->
+    <Compile Include="../../src/MilBridge.Resolver/MilCoreDllImportResolver.cs" Link="MilCoreDllImportResolver.cs" />
+    <Compile Include="../../src/MilBridge.Resolver/MilCoreStandaloneInstaller.cs" Link="MilCoreStandaloneInstaller.cs" />
+  </ItemGroup>
+
+</Project>

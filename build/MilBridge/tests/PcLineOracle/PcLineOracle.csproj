@@ -1,0 +1,77 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(MSBuildThisFileDirectory)../../../../build/SelfBuiltConfig.props" />
+
+  <!--
+    W17A · **PC `TextFormatter` 路径的逐行 oracle 臂**（`WAVE17-PREREGISTRATION.md` §1 P2 的红证仪器）
+
+    为什么**新开一个工程**（而不是像 `R17A-recon.md` §3.1 建议的那样加进 `CoverageProbe`）：
+      · `CoverageProbe/Program.cs` 是**三支已注册 tab 臂的真仪器**（纪律 34 明写：改它必须重取三支臂
+        + 重钉 `known-red.json` 的 generation）⇒ 为了让 P2 的红证**零成本、不污染世代绑定**，
+        本臂独立成工程。**未改** `CoverageProbe/**` 一个字节（本工程建完后 `sha256sum` 自证）。
+
+    它驱动的是什么（关键，与三支 tab 臂的**唯一**区别）：
+      · 三支 tab 臂直接调 `HbTextLineFactory.FormatParagraph`（**工厂**）；
+      · 本臂走 **PC 的 `TextFormatter`**（`TextFormatter.Create()` + `FormatLine`，两者都是 **public**）
+        ⇒ 真正被测的是 PC 的接线点 `TextFormatterImp.Linux.cs:575`
+        （`WpfLinuxLenientTextFallback.TryFormatLine(…, paragraphIndent: settings.Pap.ParagraphIndent)`）。
+      · 今天是**唯一一支**驱动 PC `TextFormatter` 的臂（`R17A-recon.md` §4 注 1 的 13 宿主 0 命中）。
+
+    身份：程序集名 = `PresentationCore.Tests` + 与 PC 同一把公钥公开签名 ⇒ 借用 PC 的 IVT 名额。
+      用途（**只有一个**）：读 `WpfLinuxLenientTextFallback.Diagnostics`（internal）当**正控**
+      —— 证明"真的走到了宽松档被测代码"，而不是别的一层。**不**编 shim 源（本臂不调工厂）。
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <!-- ⭐ 必须是这个名字（PC 的 IVT 名单里就是它，见 OtherAssemblyAttrs.cs:19） -->
+    <AssemblyName>PresentationCore.Tests</AssemblyName>
+    <RootNamespace>MilBridge.PcLineOracle</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <BaseOutputPath>$(MSBuildThisFileDirectory)bin\</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)obj\</BaseIntermediateOutputPath>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign>true</PublicSign>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)../../../../build/keys/WcpPublicKey.snk</AssemblyOriginatorKeyFile>
+    <NoWarn>$(NoWarn);CS8002;CS0436;CS0012</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 被测件 = **权威 pc**（Debug）。与 `build/MilBridge/tools/tline-gate.sh:138` 同一份。 -->
+    <Reference Include="PresentationCore">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/PresentationCore.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationCore.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="WindowsBase">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/WindowsBase.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/WindowsBase.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="DirectWriteForwarder">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/DirectWriteForwarder.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWriteForwarder.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <!-- provider 也要在输出目录里（PC 运行期要加载它） -->
+    <Reference Include="DirectWrite.Linux.Provider">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/DirectWrite.Linux/Provider/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWrite.Linux.Provider.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- ⚠️ 版本锁：与 T3/M7c/CoverageProbe 一致，不许动 -->
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.88.9" />
+    <PackageReference Include="System.IO.Packaging" Version="9.0.0" />
+    <PackageReference Include="System.Formats.Nrbf" Version="9.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.0" />
+    <PackageReference Include="System.Windows.Extensions" Version="9.0.0" />
+  </ItemGroup>
+
+</Project>

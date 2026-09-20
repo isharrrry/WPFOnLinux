@@ -1,0 +1,63 @@
+<Window x:Class="HelloWpf.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="HelloWpf on Linux" Width="640" Height="400"
+        Background="{StaticResource PanelBrush}">
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- 文本 -->
+        <TextBlock Grid.Row="0" Text="Hello WPF on Linux"
+                   FontSize="24" FontWeight="Bold"
+                   Foreground="White" Margin="0,0,0,12" />
+
+        <Canvas Grid.Row="1">
+            <!-- 矩形 + 纯色填充 -->
+            <Rectangle Canvas.Left="0" Canvas.Top="0"
+                       Width="180" Height="100"
+                       Fill="Tomato" Stroke="White" StrokeThickness="2" />
+
+            <!-- 椭圆 + 线性渐变填充 -->
+            <Ellipse Canvas.Left="200" Canvas.Top="0"
+                     Width="140" Height="100" Stroke="White" StrokeThickness="2">
+                <Ellipse.Fill>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="Gold" Offset="0" />
+                        <GradientStop Color="MediumPurple" Offset="1" />
+                    </LinearGradientBrush>
+                </Ellipse.Fill>
+            </Ellipse>
+
+            <!-- 路径 + 变换（旋转 + 缩放） -->
+            <Path Canvas.Left="360" Canvas.Top="0"
+                  Fill="MediumSeaGreen" Stroke="White" StrokeThickness="2"
+                  Data="M 0,80 L 60,0 L 120,80 Z">
+                <Path.RenderTransform>
+                    <TransformGroup>
+                        <RotateTransform Angle="15" CenterX="60" CenterY="40" />
+                        <ScaleTransform ScaleX="0.9" ScaleY="0.9" CenterX="60" CenterY="40" />
+                    </TransformGroup>
+                </Path.RenderTransform>
+            </Path>
+
+            <!-- 径向渐变 + 半径渐变画刷 -->
+            <Ellipse Canvas.Left="0" Canvas.Top="120" Width="120" Height="120">
+                <Ellipse.Fill>
+                    <RadialGradientBrush GradientOrigin="0.35,0.35">
+                        <GradientStop Color="White" Offset="0" />
+                        <GradientStop Color="DeepSkyBlue" Offset="1" />
+                    </RadialGradientBrush>
+                </Ellipse.Fill>
+            </Ellipse>
+
+            <!-- 文本（带字号/字重/前景色） -->
+            <TextBlock Canvas.Left="140" Canvas.Top="150"
+                       Text="Rectangle / Ellipse / Path / Gradient / Transform / Text"
+                       Foreground="White" FontSize="13" />
+        </Canvas>
+    </Grid>
+</Window>

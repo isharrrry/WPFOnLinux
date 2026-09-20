@@ -1,0 +1,114 @@
+====================================================================================================
+B2/B3/B4 真机 oracle · 数据完整性核验
+====================================================================================================
+cases.json      : 614 用例
+results         : 614 用例
+selfCheck       : ok=True 行数=3222 fileFontMismatch=0
+
+【1】对拍面覆盖：宽度档数 / 每行 Length·Width·Start 是否齐全
+  MaxTextWidth 不同档数 : 21
+  档位（DIP → 用例数）  : 20:19, 30:19, 40:43, 50:19, 60:25, 70:19, 80:44, 100:19, 120:56, 150:19, 180:19, 200:52, 240:25, 280:19, 320:44, 400:19, 480:19, 560:43, 700:19, 900:33, inf:40
+  分组                  : {'A': 459, 'B': 30, 'F': 120, 'M': 5}
+  不同文本样本          : 15
+  总行数                : 3222
+  每行公开属性个数分布  : {23: 3170, 21: 52}   （TextLine 公开属性数 = 21）
+  Length/Width/Start 缺失: 0
+  行起点链断裂          : 0（每行 lineIndexInText == 上一行 lineIndexInText+Length）
+  ⚠️ TextLine.Start 取值分布: {0: 3222}  → **恒为 0，不是段落内偏移**；
+     行起点只能由调用方累加 Length 得到（本 dump 的 lineIndexInText 就是这个累加值，链断裂 0 处）
+
+【2】GetTextLineBreak() 到底返回了什么
+  TextLineBreak 公开属性数: 0  → 公开面**没有任何可读属性**
+  实测：null 3220 行 / 非 null 2 行（共 3222）
+    非 null 证据: M_modifier_w80 行#0 type=FullTextLine len=50
+      → {"isNull": false, "publicProperties": {}, "publicPropertyCount": 0, "toString": "System.Windows.Media.TextFormatting.TextLineBreak", "cloneIsSameReference": false, "cloneEqualsOriginal": false}
+    非 null 证据: M_modifier_w120 行#0 type=FullTextLine len=56
+      → {"isNull": false, "publicProperties": {}, "publicPropertyCount": 0, "toString": "System.Windows.Media.TextFormatting.TextLineBreak", "cloneIsSameReference": false, "cloneEqualsOriginal": false}
+  结论：TextLineBreak **可以被拿到**，但它携带的东西在公开面上是空的（0 属性）；
+        唯一有真值的场景是 TextSource 里有 TextModifier（见 M_modifier_* 用例），
+        这也解释了为什么 3220/3222 行都是 null：普通 TextCharacters 源不产生 modifier scope。
+  apiFacts.TextLineBreak_publicPropertyCount = 0；行运行时实现分布见下
+  行实现分布: {'MS.Internal.TextFormatting.TextMetrics+FullTextLine': 3170, 'MS.Internal.TextFormatting.SimpleTextLine': 52}
+
+【3】Collapse / GetTextCollapsedRanges
+  未折叠的行 GetTextCollapsedRanges() 返回 null : 3222 行；返回非 null: 0 行
+  Collapse(new TextCollapsingProperties[0])     : hasCollapsed=false 共 2775 行（空参 = 原样复制）
+  Collapse(TextTrailingCharacterEllipsis(w/2))  : hasCollapsed=true 430 行 / false 2792 行
+  真实折叠样本（HasCollapsed=true 的原始数字）：
+    [F_lat_words_w40] 源='The quick brown fox jumps over the lazy dog and the waffle office ffl flourish.'
+      行起点=0 行文本='The ' 行Width=27.807 行TrailingWS=1
+      折叠约束宽=13.903 → 折后 Length=4 Width=21.553 文本='The ' HasCollapsed=True
+      collapsedRange: TextSourceCharacterIndex=1(**段落系**) Length=3 Width=6.253 → 被折叠掉的原文本='he '
+    [F_lat_words_w80] 源='The quick brown fox jumps over the lazy dog and the waffle office ffl flourish.'
+      行起点=0 行文本='The quick ' 行Width=72.043 行TrailingWS=1
+      折叠约束宽=36.022 → 折后 Length=10 Width=31.440 文本='The quick ' HasCollapsed=True
+      collapsedRange: TextSourceCharacterIndex=2(**段落系**) Length=8 Width=40.603 → 被折叠掉的原文本='e quick '
+    [F_lat_words_w120] 源='The quick brown fox jumps over the lazy dog and the waffle office ffl flourish.'
+      行起点=0 行文本='The quick ' 行Width=72.043 行TrailingWS=1
+      折叠约束宽=36.022 → 折后 Length=10 Width=31.440 文本='The quick ' HasCollapsed=True
+      collapsedRange: TextSourceCharacterIndex=2(**段落系**) Length=8 Width=40.603 → 被折叠掉的原文本='e quick '
+    [F_lat_words_w200] 源='The quick brown fox jumps over the lazy dog and the waffle office ffl flourish.'
+      行起点=0 行文本='The quick brown fox ' 行Width=151.640 行TrailingWS=1
+      折叠约束宽=75.820 → 折后 Length=20 Width=68.477 文本='The quick brown fox ' HasCollapsed=True
+      collapsedRange: TextSourceCharacterIndex=7(**段落系**) Length=13 Width=83.163 → 被折叠掉的原文本='ck brown fox '
+  空白类文本的折叠（B 组，含前导/尾随/连续空格与 Tab）：
+    [B_spaces_w120] 行='  leading and   ' TrailingWS=3 Width=97.003 → 折叠 HasCollapsed=False ranges=[]
+    [B_spaces_w120] 行='inner    and ' TrailingWS=1 Width=84.873 → 折叠 HasCollapsed=False ranges=[]
+    [B_spaces_w120] 行='trailing    ' TrailingWS=5 Width=53.147 → 折叠 HasCollapsed=False ranges=[]
+    [B_spaces_w60] 行='  ' TrailingWS=2 Width=0.000 → 折叠 HasCollapsed=False ranges=[]
+    [B_spaces_w60] 行='leading ' TrailingWS=1 Width=55.820 → 折叠 HasCollapsed=False ranges=[]
+    [B_spaces_w60] 行='and   ' TrailingWS=3 Width=28.703 → 折叠 HasCollapsed=False ranges=[]
+    [B_spaces_w60] 行='inner    ' TrailingWS=4 Width=39.530 → 折叠 HasCollapsed=False ranges=[]
+    [B_spaces_w60] 行='and ' TrailingWS=1 Width=28.703 → 折叠 HasCollapsed=False ranges=[]
+    [B_spaces_w60] 行='trailing    ' TrailingWS=5 Width=53.147 → 折叠 HasCollapsed=False ranges=[]
+    [B_tabs_w120] 行='a\tb\t\tc\td' TrailingWS=1 Width=36.350 → 折叠 HasCollapsed=False ranges=[]
+    [B_tabs_trim] 行='a\tb\t\tc\td' TrailingWS=1 Width=36.350 → 折叠 HasCollapsed=False ranges=[]
+  apiFacts.TextLine_Collapse_overloads = ['System.Windows.Media.TextFormatting.TextLine Collapse(System.Windows.Media.TextFormatting.TextCollapsingProperties[])']
+  apiFacts.TextLine_Collapse_TextLine_exists = False  → 任务书里提到的 Collapse(TextLine) **不存在**
+
+【4】逐 run 范围
+  apiFacts.TextLine_GetTextRunBounds_exists = False  → 该 API **不存在**；等价物是 GetTextBounds(firstCharIndex, textLength)
+  apiFacts.TextLine_GetTextBounds_exists    = True
+  apiFacts.TextLine_GetTextCollapsedRanges_exists = True
+  含 textBounds 的行数: 3222/3222；其中**有逐 run 子范围**的: 3154/3222
+  （缺的那些行属 SimpleTextLine 快路径 / 空白行；GetTextBounds 的第一个参数是**段落系**索引，传 0 只有行起点=0 的行有结果——第一版就踩了这个坑）
+  样例 [A1_lat_words_w120 行0]: [{"Rectangle": {"IsEmpty": false, "Location": {"X": 0, "Y": 0}, "Size": {"IsEmpty": false, "Width": 76.20333333333333, "Height": 21.793333333333333}, "X": 0, "Y": 0, "Width": 76.20333333333333, "Height": 21.7933333333333
+
+【5】行区间 / 空行 / 硬断 —— 逐条判定（原始证据）
+  [B_hard_lf_w120] 源文本 'first line\nsecond line\nthird'（UTF-16 长度 28）
+    Start=0 Length=11 NewlineLength=1 Width=61.003 区间原文='first line\n' closed=True
+    Start=0 Length=12 NewlineLength=1 Width=85.097 区间原文='second line\n' closed=True
+    Start=0 Length=6 NewlineLength=1 Width=35.917 区间原文='third' closed=True
+    consumedLength=29（= 源长度 28 + 1）
+  [F_hard_lf_w120] 源文本 'first line\nsecond line\nthird'（UTF-16 长度 28）
+    Start=0 Length=11 NewlineLength=1 Width=61.003 区间原文='first line\n' closed=True
+    Start=0 Length=12 NewlineLength=1 Width=85.097 区间原文='second line\n' closed=True
+    Start=0 Length=6 NewlineLength=1 Width=35.917 区间原文='third' closed=True
+    consumedLength=29（= 源长度 28 + 1）
+  → 判定：**行区间包含硬断字符本身**（Length 把 '\n' 算进去，NewlineLength 单独给出它占几个）；
+          段落最后一行 Length 只覆盖剩余文本，NewlineLength=1 表示段落结束标记（EOP）。
+  [B_blank_lines_w120] 源文本 'para one\n\n\npara three'（三个连续 LF）
+    Start=0 Length=9 Width=66.83 Height=21.793 Baseline=17.103 NewlineLength=1 区间原文='para one\n'
+    Start=0 Length=1 Width=0 Height=21.793 Baseline=17.103 NewlineLength=1 区间原文='\n'
+    Start=0 Length=1 Width=0 Height=21.793 Baseline=17.103 NewlineLength=1 区间原文='\n'
+    Start=0 Length=11 Width=78.23666666666668 Height=21.793 Baseline=17.103 NewlineLength=1 区间原文='para three'
+  → 判定：空行**不是零长度行**，而是一个 Length=1、内容就是 '\n' 的普通行；
+          它的 Width=0（不占宽）但 Height/Baseline 与普通行完全相同（照样占一行高）。
+  [B_spaces_w120] 源文本 '  leading and   inner    and trailing    '
+    Length=16 Width=97.003 WidthIncludingTrailingWhitespace=109.483 TrailingWhitespaceLength=3 区间原文='  leading and   '
+    Length=13 Width=84.873 WidthIncludingTrailingWhitespace=89.033 TrailingWhitespaceLength=1 区间原文='inner    and '
+    Length=13 Width=53.147 WidthIncludingTrailingWhitespace=69.787 TrailingWhitespaceLength=5 区间原文='trailing    '
+  [B_tabs_w120] 源文本 'a\tb\t\tc\td'
+    Length=9 Width=36.350 WidthIncludingTrailingWhitespace=36.350 TrailingWhitespaceLength=1 区间原文='a\tb\t\tc\td'
+  [B_nbsp_zwsp_w120] 源文本 'no\xa0break\xa0nbsp 与 zero\u200bwidth\u200bspace'
+    Length=14 Width=107.787 WidthIncludingTrailingWhitespace=111.947 TrailingWhitespaceLength=1 区间原文='no\xa0break\xa0nbsp '
+    Length=13 Width=94.877 WidthIncludingTrailingWhitespace=94.877 TrailingWhitespaceLength=0 区间原文='与 zero\u200bwidth\u200b'
+    Length=6 Width=43.183 WidthIncludingTrailingWhitespace=43.183 TrailingWhitespaceLength=1 区间原文='space'
+  → 判定：行尾空白**占行区间**（Length 含它）且**不占 Width**（Width 已扣除），
+          差额由 WidthIncludingTrailingWhitespace 给出，个数由 TrailingWhitespaceLength 给出。
+
+【6】竖排文本（负结果）
+  TextFormatting 命名空间里含 vertical/writingmode/upright/rotate/tategaki/orientation 的公开成员:
+    ['InvertAxes.Vertical (Field)']
+  FlowDirection 枚举值: ['LeftToRight', 'RightToLeft']
+  （唯一的命中 InvertAxes.Vertical 是 Draw() 的坐标轴翻转参数，与竖排排版无关）

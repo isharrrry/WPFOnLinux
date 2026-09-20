@@ -1,0 +1,63 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- ⭐ `D-R8`（工程卫生）：不依赖 `$(BaseIntermediateOutputPath)` 指向哪里的产物目录排除。
+       实现在仓根 `BuildHygiene.props`（全仓唯一一份；理由与两种被否决的落点见 `build/MilBridge/W21B-report.md` §2）。
+       **故意不加 `Exists()` 条件**：文件找不到要大声失败。 -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('BuildHygiene.props'))" />
+
+  <!--
+    T5（X11 窗口与呈现）+ T6（文本渲染）的测试工程。
+
+    装配名必须是 WpfGfx.Linux.Windowing.Tests —— Windowing/AssemblyInfo.cs 的
+    InternalsVisibleTo 按这个名字开友元，改了就读不到 internal 的 IPresentationTarget /
+    MilGlyphRun / MilResourceProvider 等类型。
+
+    版本组合与主工程 + Rendering.Tests 保持一致，禁止升 SkiaSharp 4.x。
+
+    两条独立赛道：
+      · Windowing/  需要真实 X server（Xvfb）。用例打 [Trait("Category","X11")]，
+                    无 DISPLAY 时由 X11Guard 直接 Skip，`dotnet test` 不会红。
+      · Text/       纯 Skia CPU 离屏渲染，不需要 X，永远可跑。
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>WpfGfx.Linux.Tests.Windowing</RootNamespace>
+    <AssemblyName>WpfGfx.Linux.Windowing.Tests</AssemblyName>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.88.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../../src/WpfGfx.Linux/WpfGfx.Linux.csproj" />
+  </ItemGroup>
+
+  <!-- golden 图是基准资产，必须进 Git；artifacts 是产物，可随时删 -->
+  <ItemGroup>
+    <None Include="golden/**/*.png" CopyToOutputDirectory="Never" />
+  </ItemGroup>
+
+
+  <!--
+    债务 #1（测试 flaky 的根因治理）：**显式**声明并行度，不让它取决于 xunit 的默认值。
+    为什么必须显式：`MilChannelRegistry`/`MilHandleTables` 等是**进程级静态表**，
+    而多数用例开头的 `ResetProcessStateForTests()` **刻意不清通道注册表**
+    （理由见 src/WpfGfx.Linux/Interop/MilNative.Exports.cs:266-280）⇒ 一个用例泄漏的通道会活到后面的用例。
+    默认值（v2 为"并行跑集合"）会随版本/机器变化 ⇒ "同一命令有时红"里混进了"默认值变了"这个变量。
+    这里取 **false**（串行跑集合）：它是与"共享进程级静态表"这一事实**相符**的那一档；
+    真并发问题另有长期仪器（`WPF_LINUX_CHANNEL_LEAK_TRACE=1` 的通道泄漏守卫）负责暴露，不靠默认值碰运气。
+  -->
+  <ItemGroup>
+    <None Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

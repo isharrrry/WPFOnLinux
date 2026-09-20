@@ -1,0 +1,193 @@
+TAB_LINES_PROBE sha256=a6d0352b8646711157c563fbb6882ceba7ef8989606ba2f4178a6c8cd5849a40 path=build/MilBridge/tests/CoverageProbe/Program.cs
+TAB_LINES CASE he-notab@w40@em24@RTL@default 臂=RTL 跳过=面缺字形5
+TAB_LINES OVERFLOWED he-notab@w40@em24@RTL@default 行=2 NOINFO=面缺字形(本列依赖字形)5
+TAB_LINES CASE he-notab@w40@em24@RTL@tab0 臂=RTL 跳过=面缺字形5
+TAB_LINES OVERFLOWED he-notab@w40@em24@RTL@tab0 行=2 NOINFO=面缺字形(本列依赖字形)5
+TAB_LINES CASE he-notab@w80@em24@RTL@default 臂=RTL 跳过=面缺字形5
+TAB_LINES OVERFLOWED he-notab@w80@em24@RTL@default 行=1 NOINFO=面缺字形(本列依赖字形)5
+TAB_LINES CASE he-notab@w80@em24@RTL@tab0 臂=RTL 跳过=面缺字形5
+TAB_LINES OVERFLOWED he-notab@w80@em24@RTL@tab0 行=1 NOINFO=面缺字形(本列依赖字形)5
+TAB_LINES CASE he-notab@w160@em24@RTL@default 臂=RTL 跳过=面缺字形5
+TAB_LINES OVERFLOWED he-notab@w160@em24@RTL@default 行=1 NOINFO=面缺字形(本列依赖字形)5
+TAB_LINES CASE he-notab@w160@em24@RTL@tab0 臂=RTL 跳过=面缺字形5
+TAB_LINES OVERFLOWED he-notab@w160@em24@RTL@tab0 行=1 NOINFO=面缺字形(本列依赖字形)5
+TAB_LINES CASE he-notab@w320@em24@RTL@default 臂=RTL 跳过=面缺字形5
+TAB_LINES OVERFLOWED he-notab@w320@em24@RTL@default 行=1 NOINFO=面缺字形(本列依赖字形)5
+TAB_LINES CASE he-notab@w320@em24@RTL@tab0 臂=RTL 跳过=面缺字形5
+TAB_LINES OVERFLOWED he-notab@w320@em24@RTL@tab0 行=1 NOINFO=面缺字形(本列依赖字形)5
+TAB_LINES CASE he-tab-single@w40@em24@RTL@default 臂=RTL 跳过=面缺字形2
+TAB_LINES OVERFLOWED he-tab-single@w40@em24@RTL@default 行=3 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE he-tab-single@w40@em24@RTL@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES OVERFLOWED he-tab-single@w40@em24@RTL@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE he-tab-single@w80@em24@RTL@default 臂=RTL 跳过=面缺字形2
+TAB_LINES OVERFLOWED he-tab-single@w80@em24@RTL@default 行=3 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE he-tab-single@w80@em24@RTL@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES OVERFLOWED he-tab-single@w80@em24@RTL@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE he-tab-single@w160@em24@RTL@default 臂=RTL 跳过=面缺字形2
+TAB_LINES OVERFLOWED he-tab-single@w160@em24@RTL@default 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE he-tab-single@w160@em24@RTL@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES OVERFLOWED he-tab-single@w160@em24@RTL@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE he-tab-single@w320@em24@RTL@default 臂=RTL 跳过=面缺字形2
+TAB_LINES OVERFLOWED he-tab-single@w320@em24@RTL@default 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE he-tab-single@w320@em24@RTL@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES OVERFLOWED he-tab-single@w320@em24@RTL@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE he-tab-head@w40@em24@RTL@default 臂=RTL 跳过=面缺字形1
+TAB_LINES OVERFLOWED he-tab-head@w40@em24@RTL@default 行=2 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE he-tab-head@w40@em24@RTL@tab0 臂=RTL 跳过=面缺字形1
+TAB_LINES OVERFLOWED he-tab-head@w40@em24@RTL@tab0 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE he-tab-head@w80@em24@RTL@default 臂=RTL 跳过=面缺字形1
+TAB_LINES OVERFLOWED he-tab-head@w80@em24@RTL@default 行=2 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE he-tab-head@w80@em24@RTL@tab0 臂=RTL 跳过=面缺字形1
+TAB_LINES OVERFLOWED he-tab-head@w80@em24@RTL@tab0 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE he-tab-head@w160@em24@RTL@default 臂=RTL 跳过=面缺字形1
+TAB_LINES OVERFLOWED he-tab-head@w160@em24@RTL@default 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE he-tab-head@w160@em24@RTL@tab0 臂=RTL 跳过=面缺字形1
+TAB_LINES OVERFLOWED he-tab-head@w160@em24@RTL@tab0 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE he-tab-head@w320@em24@RTL@default 臂=RTL 跳过=面缺字形1
+TAB_LINES OVERFLOWED he-tab-head@w320@em24@RTL@default 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE he-tab-head@w320@em24@RTL@tab0 臂=RTL 跳过=面缺字形1
+TAB_LINES OVERFLOWED he-tab-head@w320@em24@RTL@tab0 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE he-tab-tail@w40@em24@RTL@default 臂=RTL 跳过=面缺字形1
+TAB_LINES OVERFLOWED he-tab-tail@w40@em24@RTL@default 行=2 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE he-tab-tail@w40@em24@RTL@tab0 臂=RTL 跳过=面缺字形1
+TAB_LINES OVERFLOWED he-tab-tail@w40@em24@RTL@tab0 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE he-tab-tail@w80@em24@RTL@default 臂=RTL 跳过=面缺字形1
+TAB_LINES OVERFLOWED he-tab-tail@w80@em24@RTL@default 行=2 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE he-tab-tail@w80@em24@RTL@tab0 臂=RTL 跳过=面缺字形1
+TAB_LINES OVERFLOWED he-tab-tail@w80@em24@RTL@tab0 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE he-tab-tail@w160@em24@RTL@default 臂=RTL 跳过=面缺字形1
+TAB_LINES OVERFLOWED he-tab-tail@w160@em24@RTL@default 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE he-tab-tail@w160@em24@RTL@tab0 臂=RTL 跳过=面缺字形1
+TAB_LINES OVERFLOWED he-tab-tail@w160@em24@RTL@tab0 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE he-tab-tail@w320@em24@RTL@default 臂=RTL 跳过=面缺字形1
+TAB_LINES OVERFLOWED he-tab-tail@w320@em24@RTL@default 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE he-tab-tail@w320@em24@RTL@tab0 臂=RTL 跳过=面缺字形1
+TAB_LINES OVERFLOWED he-tab-tail@w320@em24@RTL@tab0 行=1 NOINFO=面缺字形(本列依赖字形)1
+TAB_LINES CASE he-tab-adj@w40@em24@RTL@default 臂=RTL 跳过=面缺字形2
+TAB_LINES OVERFLOWED he-tab-adj@w40@em24@RTL@default 行=4 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE he-tab-adj@w40@em24@RTL@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES OVERFLOWED he-tab-adj@w40@em24@RTL@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE he-tab-adj@w80@em24@RTL@default 臂=RTL 跳过=面缺字形2
+TAB_LINES OVERFLOWED he-tab-adj@w80@em24@RTL@default 行=4 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE he-tab-adj@w80@em24@RTL@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES OVERFLOWED he-tab-adj@w80@em24@RTL@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE he-tab-adj@w160@em24@RTL@default 臂=RTL 跳过=面缺字形2
+TAB_LINES OVERFLOWED he-tab-adj@w160@em24@RTL@default 行=2 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE he-tab-adj@w160@em24@RTL@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES OVERFLOWED he-tab-adj@w160@em24@RTL@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE he-tab-adj@w320@em24@RTL@default 臂=RTL 跳过=面缺字形2
+TAB_LINES OVERFLOWED he-tab-adj@w320@em24@RTL@default 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE he-tab-adj@w320@em24@RTL@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES OVERFLOWED he-tab-adj@w320@em24@RTL@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES Q2 he-tab-only@w40@em24@RTL@default 行#0 行宽=40.0000 tab左xfl=0.0000 P-xfl=40.0000 间隔=96.0 商=0.416667
+TAB_LINES Q2 he-tab-only@w40@em24@RTL@default 行#1 行宽=40.0000 tab左xfl=0.0000 P-xfl=40.0000 间隔=96.0 商=0.416667
+TAB_LINES CASE he-tab-only@w40@em24@RTL@default 臂=RTL wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED he-tab-only@w40@em24@RTL@default 行=2 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE he-tab-only@w40@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED he-tab-only@w40@em24@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES Q2 he-tab-only@w80@em24@RTL@default 行#0 行宽=80.0000 tab左xfl=0.0000 P-xfl=80.0000 间隔=96.0 商=0.833333
+TAB_LINES Q2 he-tab-only@w80@em24@RTL@default 行#1 行宽=80.0000 tab左xfl=0.0000 P-xfl=80.0000 间隔=96.0 商=0.833333
+TAB_LINES CASE he-tab-only@w80@em24@RTL@default 臂=RTL wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED he-tab-only@w80@em24@RTL@default 行=2 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE he-tab-only@w80@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED he-tab-only@w80@em24@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES Q2 he-tab-only@w160@em24@RTL@default 行#0 行宽=96.0000 tab左xfl=0.0000 P-xfl=96.0000 间隔=96.0 商=1.000000
+TAB_LINES Q2 he-tab-only@w160@em24@RTL@default 行#1 行宽=96.0000 tab左xfl=0.0000 P-xfl=96.0000 间隔=96.0 商=1.000000
+TAB_LINES CASE he-tab-only@w160@em24@RTL@default 臂=RTL wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED he-tab-only@w160@em24@RTL@default 行=2 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE he-tab-only@w160@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED he-tab-only@w160@em24@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES Q2 he-tab-only@w320@em24@RTL@default 行#0 行宽=192.0000 tab左xfl=96.0000 P-xfl=96.0000 间隔=96.0 商=1.000000
+TAB_LINES Q2 he-tab-only@w320@em24@RTL@default 行#0 行宽=192.0000 tab左xfl=0.0000 P-xfl=192.0000 间隔=96.0 商=2.000000
+TAB_LINES CASE he-tab-only@w320@em24@RTL@default 臂=RTL wrap=1 结构=PASS 位置=跳过(bidi 重排)
+TAB_LINES OVERFLOWED he-tab-only@w320@em24@RTL@default 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE he-tab-only@w320@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=PASS
+TAB_LINES OVERFLOWED he-tab-only@w320@em24@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+TAB_LINES CASE he-tab-b34@w40@em24@RTL@default 臂=RTL 跳过=面缺字形4
+TAB_LINES OVERFLOWED he-tab-b34@w40@em24@RTL@default 行=8 NOINFO=面缺字形(本列依赖字形)4
+TAB_LINES CASE he-tab-b34@w40@em24@RTL@tab0 臂=RTL 跳过=面缺字形4
+TAB_LINES OVERFLOWED he-tab-b34@w40@em24@RTL@tab0 行=2 NOINFO=面缺字形(本列依赖字形)4
+TAB_LINES CASE he-tab-b34@w80@em24@RTL@default 臂=RTL 跳过=面缺字形4
+TAB_LINES OVERFLOWED he-tab-b34@w80@em24@RTL@default 行=8 NOINFO=面缺字形(本列依赖字形)4
+TAB_LINES CASE he-tab-b34@w80@em24@RTL@tab0 臂=RTL 跳过=面缺字形4
+TAB_LINES OVERFLOWED he-tab-b34@w80@em24@RTL@tab0 行=1 NOINFO=面缺字形(本列依赖字形)4
+TAB_LINES CASE he-tab-b34@w160@em24@RTL@default 臂=RTL 跳过=面缺字形4
+TAB_LINES OVERFLOWED he-tab-b34@w160@em24@RTL@default 行=4 NOINFO=面缺字形(本列依赖字形)4
+TAB_LINES CASE he-tab-b34@w160@em24@RTL@tab0 臂=RTL 跳过=面缺字形4
+TAB_LINES OVERFLOWED he-tab-b34@w160@em24@RTL@tab0 行=1 NOINFO=面缺字形(本列依赖字形)4
+TAB_LINES CASE he-tab-b34@w320@em24@RTL@default 臂=RTL 跳过=面缺字形4
+TAB_LINES OVERFLOWED he-tab-b34@w320@em24@RTL@default 行=2 NOINFO=面缺字形(本列依赖字形)4
+TAB_LINES CASE he-tab-b34@w320@em24@RTL@tab0 臂=RTL 跳过=面缺字形4
+TAB_LINES OVERFLOWED he-tab-b34@w320@em24@RTL@tab0 行=1 NOINFO=面缺字形(本列依赖字形)4
+TAB_LINES CASE ar-tab-single@w40@em24@RTL@default 臂=RTL 跳过=面缺字形2
+TAB_LINES OVERFLOWED ar-tab-single@w40@em24@RTL@default 行=3 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE ar-tab-single@w40@em24@RTL@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES OVERFLOWED ar-tab-single@w40@em24@RTL@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE ar-tab-single@w80@em24@RTL@default 臂=RTL 跳过=面缺字形2
+TAB_LINES OVERFLOWED ar-tab-single@w80@em24@RTL@default 行=3 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE ar-tab-single@w80@em24@RTL@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES OVERFLOWED ar-tab-single@w80@em24@RTL@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE ar-tab-single@w160@em24@RTL@default 臂=RTL 跳过=面缺字形2
+TAB_LINES OVERFLOWED ar-tab-single@w160@em24@RTL@default 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE ar-tab-single@w160@em24@RTL@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES OVERFLOWED ar-tab-single@w160@em24@RTL@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE ar-tab-single@w320@em24@RTL@default 臂=RTL 跳过=面缺字形2
+TAB_LINES OVERFLOWED ar-tab-single@w320@em24@RTL@default 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE ar-tab-single@w320@em24@RTL@tab0 臂=RTL 跳过=面缺字形2
+TAB_LINES OVERFLOWED ar-tab-single@w320@em24@RTL@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE ar-tab-b34@w40@em24@RTL@default 臂=RTL 跳过=面缺字形4
+TAB_LINES OVERFLOWED ar-tab-b34@w40@em24@RTL@default 行=8 NOINFO=面缺字形(本列依赖字形)4
+TAB_LINES CASE ar-tab-b34@w40@em24@RTL@tab0 臂=RTL 跳过=面缺字形4
+TAB_LINES OVERFLOWED ar-tab-b34@w40@em24@RTL@tab0 行=2 NOINFO=面缺字形(本列依赖字形)4
+TAB_LINES CASE ar-tab-b34@w80@em24@RTL@default 臂=RTL 跳过=面缺字形4
+TAB_LINES OVERFLOWED ar-tab-b34@w80@em24@RTL@default 行=8 NOINFO=面缺字形(本列依赖字形)4
+TAB_LINES CASE ar-tab-b34@w80@em24@RTL@tab0 臂=RTL 跳过=面缺字形4
+TAB_LINES OVERFLOWED ar-tab-b34@w80@em24@RTL@tab0 行=1 NOINFO=面缺字形(本列依赖字形)4
+TAB_LINES CASE ar-tab-b34@w160@em24@RTL@default 臂=RTL 跳过=面缺字形4
+TAB_LINES OVERFLOWED ar-tab-b34@w160@em24@RTL@default 行=4 NOINFO=面缺字形(本列依赖字形)4
+TAB_LINES CASE ar-tab-b34@w160@em24@RTL@tab0 臂=RTL 跳过=面缺字形4
+TAB_LINES OVERFLOWED ar-tab-b34@w160@em24@RTL@tab0 行=1 NOINFO=面缺字形(本列依赖字形)4
+TAB_LINES CASE ar-tab-b34@w320@em24@RTL@default 臂=RTL 跳过=面缺字形4
+TAB_LINES OVERFLOWED ar-tab-b34@w320@em24@RTL@default 行=2 NOINFO=面缺字形(本列依赖字形)4
+TAB_LINES CASE ar-tab-b34@w320@em24@RTL@tab0 臂=RTL 跳过=面缺字形4
+TAB_LINES OVERFLOWED ar-tab-b34@w320@em24@RTL@tab0 行=1 NOINFO=面缺字形(本列依赖字形)4
+TAB_LINES CASE he-tab-single@w40@em24@LTR@default 臂=LTR 跳过=面缺字形2
+TAB_LINES OVERFLOWED he-tab-single@w40@em24@LTR@default 行=3 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE he-tab-single@w40@em24@LTR@tab0 臂=LTR 跳过=面缺字形2
+TAB_LINES OVERFLOWED he-tab-single@w40@em24@LTR@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE he-tab-single@w160@em24@LTR@default 臂=LTR 跳过=面缺字形2
+TAB_LINES OVERFLOWED he-tab-single@w160@em24@LTR@default 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE he-tab-single@w160@em24@LTR@tab0 臂=LTR 跳过=面缺字形2
+TAB_LINES OVERFLOWED he-tab-single@w160@em24@LTR@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE he-tab-adj@w40@em24@LTR@default 臂=LTR 跳过=面缺字形2
+TAB_LINES OVERFLOWED he-tab-adj@w40@em24@LTR@default 行=4 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE he-tab-adj@w40@em24@LTR@tab0 臂=LTR 跳过=面缺字形2
+TAB_LINES OVERFLOWED he-tab-adj@w40@em24@LTR@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE he-tab-adj@w160@em24@LTR@default 臂=LTR 跳过=面缺字形2
+TAB_LINES OVERFLOWED he-tab-adj@w160@em24@LTR@default 行=2 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE he-tab-adj@w160@em24@LTR@tab0 臂=LTR 跳过=面缺字形2
+TAB_LINES OVERFLOWED he-tab-adj@w160@em24@LTR@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+TAB_LINES CASE he-tab-b34@w40@em24@LTR@default 臂=LTR 跳过=面缺字形4
+TAB_LINES OVERFLOWED he-tab-b34@w40@em24@LTR@default 行=8 NOINFO=面缺字形(本列依赖字形)4
+TAB_LINES CASE he-tab-b34@w40@em24@LTR@tab0 臂=LTR 跳过=面缺字形4
+TAB_LINES OVERFLOWED he-tab-b34@w40@em24@LTR@tab0 行=2 NOINFO=面缺字形(本列依赖字形)4
+TAB_LINES CASE he-tab-b34@w160@em24@LTR@default 臂=LTR 跳过=面缺字形4
+TAB_LINES OVERFLOWED he-tab-b34@w160@em24@LTR@default 行=4 NOINFO=面缺字形(本列依赖字形)4
+TAB_LINES CASE he-tab-b34@w160@em24@LTR@tab0 臂=LTR 跳过=面缺字形4
+TAB_LINES OVERFLOWED he-tab-b34@w160@em24@LTR@tab0 行=1 NOINFO=面缺字形(本列依赖字形)4
+TAB_LINES 文件=tab-rtl-oracle.json
+TAB_LINES   ar-tab-b34            结构 0/8；位置可比 0 其中过 0
+TAB_LINES   ar-tab-single         结构 0/8；位置可比 0 其中过 0
+TAB_LINES   he-notab              结构 0/8；位置可比 0 其中过 0
+TAB_LINES   he-tab-adj            结构 0/12；位置可比 0 其中过 0
+TAB_LINES   he-tab-b34            结构 0/12；位置可比 0 其中过 0
+TAB_LINES   he-tab-head           结构 0/8；位置可比 0 其中过 0
+TAB_LINES   he-tab-only           结构 8/8；位置可比 7 其中过 7
+TAB_LINES   he-tab-single         结构 0/12；位置可比 0 其中过 0
+TAB_LINES   he-tab-tail           结构 0/8；位置可比 0 其中过 0
+TAB_LINES 合计 cases=84 判定过=8 结构败=0 不可比(缺字形)=76 其中 bidi 重排例=1；Q3 clamp 铺满整行 4/4；Q2 真值侧 tab 左缘自右缘量=网格倍数 4/8，我方侧 2/6
+TAB_LINES 最大差=0.0000 @
+TAB_LINES OVERFLOWED 红=0 绿=0 判定行=0 NOINFO=163 红例=0 NOINFO例=84 对齐=NOINFO NOINFO字形=152 NOINFO字形外=11 真值True=0 诊断发丝边界行=0 量=我方 line.HasOverflowed 真值=lines[k].hasOverflowed 口径=盒原点+行宽 > 段落宽（**严格 >**，相等⇒false；无容差；布尔全等）
+TAB_LINES OVERFLOWED 对账 逐例求和 红=0 绿=0 NOINFO=163 ⇒ 与汇总一致
+TAB_LINES 未给 --known-red ⇒ 任何失败都算**未登记**（rc=1）；本档旧行为是恒 rc=0，已改。
+TAB_LINES 退出码=0（未登记失败 0 / 失败共 0 / 登记表 <未给>）

@@ -1,0 +1,21 @@
+WPF oracle - is the TextEndOfSegment position inside or outside the scope? (RAW machine output)
+generated: 2026-09-14T14:07:59.8161941Z
+machine: Microsoft Windows NT 10.0.22631.0 | .NET 10.0.7 | PresentationCore 10.0.0.0
+font: Arial sha256=baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c
+Dpi=96 emSize=24
+buffer="cccccccccc<OPEN>abc<CLOSE>cccccccccccc"  openIndex=10 closeIndex=14 bufferLength=27
+
+calibration: the close marker (zero width) sits at box position 158.693333; the character before it ends at 158.693333
+
+== [w=128.693] lines=3 line0=[0,10) text="cccccccccc" endVsClose=-4 breakIsNull=True
+== [w=156.693] lines=2 line0=[0,13) text="cccccccccc<OPEN>ab" endVsClose=-1 breakIsNull=False
+== [w=157.693] lines=2 line0=[0,13) text="cccccccccc<OPEN>ab" endVsClose=-1 breakIsNull=False
+== [w=158.692] lines=2 line0=[0,13) text="cccccccccc<OPEN>ab" endVsClose=-1 breakIsNull=False
+== [w=158.693] lines=2 line0=[0,13) text="cccccccccc<OPEN>ab" endVsClose=-1 breakIsNull=False
+== [w=158.694] lines=2 line0=[0,14) text="cccccccccc<OPEN>abc" endVsClose=0 breakIsNull=False
+== [w=159.693] lines=2 line0=[0,14) text="cccccccccc<OPEN>abc" endVsClose=0 breakIsNull=False
+== [w=170.692] lines=2 line0=[0,14) text="cccccccccc<OPEN>abc" endVsClose=0 breakIsNull=False
+== [w=170.693] lines=2 line0=[0,14) text="cccccccccc<OPEN>abc" endVsClose=0 breakIsNull=False
+== [w=170.694] lines=2 line0=[0,16) text="cccccccccc<OPEN>abc<CLOSE>c" endVsClose=2 breakIsNull=True
+== [w=182.693] lines=2 line0=[0,16) text="cccccccccc<OPEN>abc<CLOSE>c" endVsClose=2 breakIsNull=True
+== [w=4000] lines=1 line0=[0,27) text="cccccccccc<OPEN>abc<CLOSE>cccccccccccc" endVsClose=13 breakIsNull=True

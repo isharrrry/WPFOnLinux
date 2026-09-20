@@ -1,0 +1,22 @@
+{
+ "#tuple": "WFP_ARTIFACTS bridge_sha=e0d01832a3efea53 bridge_bytes=4937968 pc_sha=c43d351639856680 pf_sha=dee475f0bf7175cf provider_sha=71ba86c6495347fe win32shim_sha=f84d65a62e0c7fa4 wic_shim_sha=03b67fbcd7c385b6 hbtextline_shim_sha=e019db5646217ba0 hbtextline_shim_stale=yes hbtextline_stale_basis=auth hbtextline_src_mtime=1789305622 pc_compare_mtime=1789305016 windowsbase_sha=8c073fab0da88169",
+ "#switch": "WPF_LINUX_DRAW_CENSUS=1,WPF_LINUX_MIL_TRACE=1,WPF_LINUX_GLYPH_CENSUS=1（既有开关，无产物改动）",
+ "#provenance_family_lines": {
+  "TransformProvenance": 0,
+  "VisualProjection": 0,
+  "TransformResolver": 0,
+  "offset=(": 0,
+  "MilVisualNode": 0
+ },
+ "#verdict": "判不了（缺读数）：T2b 的变换溯源族在当前桥（e0d01832a3efea53）里一行都没有（四类名字全 0）⇒ 三选一无法判；需 T2b 给确切开关名或确认是否需随桥重发",
+ "#full_precision": {
+  "unit": "DIP（窗口坐标系，TransformToAncestor(Window)）",
+  "he_pure_RTL_box": "WFP_BOXID=text-rtl-pure/he x=86 y=198 w=65 h=16 slot=0.0000,17.9700,546.4800,20.2969 t0=86.2559,198.0343 t1=21.0000,198.0343 unit=DIP",
+  "he_same_string_LTR_box": "WFP_BOXID=text-rtl-pure/heLTR x=21 y=218 w=65 h=16 slot=0.0000,38.2669,546.4800,20.2969 t0=21.0000,218.3311 t1=86.2559,218.3311 unit=DIP",
+  "M1_offsetX_full_precision": "65.255859375（上一趟 M1' 原文；TextBlock#397a684 RenderSize=65.256x16.297）",
+  "W_from_t0_t1": "86.2559 - 21.0000 = 65.2559 DIP",
+  "W_minus_t1": "44.255859 DIP ⇒ T2b 的 0.354 DIP 缺口不是我这侧四舍五入造成的"
+ },
+ "#unit_note": "墨迹包络是设备像素；ppd=25/24 ⇒ RTL [13,42]px=[12.48,40.32]DIP、LTR [22,88]px=[21.12,84.48]DIP ⇒ 墨迹法 Δright=44.16DIP vs 代数 44.61024DIP；像素法不确定度 ±1px≈±0.96DIP > 0.354DIP ⇒ 该缺口只能靠内部读数闭合",
+ "#geometry": "本趟几何与上趟逐行相同（未改产物）"
+}

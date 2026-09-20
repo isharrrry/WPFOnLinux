@@ -1,0 +1,1409 @@
+{
+  "format": "wpf-linux-u1a-parity/1",
+  "windowsData": "15 \u4E2A\u573A\u666F\uFF08/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/tests/parity/windows\uFF09",
+  "tightTolerance": 2,
+  "aaTolerance": 16,
+  "sceneCount": 15,
+  "scenes": [
+    {
+      "id": "scene01_solid",
+      "description": "opaque axis-aligned rectangle fills, no AA dependence",
+      "differingTight": 0,
+      "tightRatio": 0,
+      "differingLoose": 0,
+      "differingInterior": 0,
+      "maxChannelDelta": 0,
+      "maxChannelDeltaInterior": 0,
+      "probes": 7,
+      "probeFailures": 0,
+      "probeWorstDelta": 0,
+      "instructions": 3,
+      "stackBalanced": true,
+      "classification": "\u2460\u5B8C\u5168\u4E00\u81F4",
+      "actualPng": "actual/scene01_solid.png",
+      "diffPng": "diff/scene01_solid.diff.png",
+      "probeDetails": [
+        {
+          "x": 0,
+          "y": 0,
+          "kind": "interior",
+          "note": "background white",
+          "windows": "#FFFFFFFF",
+          "linux": "#FFFFFFFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 100,
+          "y": 70,
+          "kind": "interior",
+          "note": "inside blue rect",
+          "windows": "#2E5FA3FF",
+          "linux": "#2E5FA3FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 200,
+          "y": 180,
+          "kind": "interior",
+          "note": "inside gray rect",
+          "windows": "#B0B0B0FF",
+          "linux": "#B0B0B0FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 160,
+          "y": 60,
+          "kind": "interior",
+          "note": "background between the two rects",
+          "windows": "#FFFFFFFF",
+          "linux": "#FFFFFFFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 250,
+          "y": 250,
+          "kind": "interior",
+          "note": "background bottom-right",
+          "windows": "#FFFFFFFF",
+          "linux": "#FFFFFFFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 36,
+          "y": 36,
+          "kind": "interior",
+          "note": "4px inside blue rect top-left corner",
+          "windows": "#2E5FA3FF",
+          "linux": "#2E5FA3FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 148,
+          "y": 108,
+          "kind": "interior",
+          "note": "4px inside blue rect bottom-right corner",
+          "windows": "#2E5FA3FF",
+          "linux": "#2E5FA3FF",
+          "maxDelta": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "scene02_roundrect",
+      "description": "rounded rectangle, fill \u002B 6px stroke, corner radius 24",
+      "differingTight": 300,
+      "tightRatio": 0.004578,
+      "differingLoose": 108,
+      "differingInterior": 0,
+      "maxChannelDelta": 47,
+      "maxChannelDeltaInterior": 0,
+      "probes": 7,
+      "probeFailures": 0,
+      "probeWorstDelta": 0,
+      "instructions": 2,
+      "stackBalanced": true,
+      "classification": "\u2462AA/\u53D6\u6837\u5DEE\u5F02",
+      "actualPng": "actual/scene02_roundrect.png",
+      "diffPng": "diff/scene02_roundrect.diff.png",
+      "probeDetails": [
+        {
+          "x": 120,
+          "y": 95,
+          "kind": "interior",
+          "note": "fill centre",
+          "windows": "#CC3333FF",
+          "linux": "#CC3333FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 60,
+          "y": 95,
+          "kind": "interior",
+          "note": "fill, 20px right of left edge",
+          "windows": "#CC3333FF",
+          "linux": "#CC3333FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 40,
+          "y": 95,
+          "kind": "interior",
+          "note": "stroke centre on the straight left edge",
+          "windows": "#1A1A1AFF",
+          "linux": "#1A1A1AFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 120,
+          "y": 40,
+          "kind": "interior",
+          "note": "stroke centre on the straight top edge",
+          "windows": "#1A1A1AFF",
+          "linux": "#1A1A1AFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 45,
+          "y": 45,
+          "kind": "interior",
+          "note": "on the rounded corner stroke: 26.2px from the arc centre, the 6px stroke spans 21..27",
+          "windows": "#1A1A1AFF",
+          "linux": "#1A1A1AFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 180,
+          "y": 130,
+          "kind": "interior",
+          "note": "fill near bottom-right corner",
+          "windows": "#CC3333FF",
+          "linux": "#CC3333FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 198,
+          "y": 148,
+          "kind": "interior",
+          "note": "outside the rounded corner arc -\u003E background",
+          "windows": "#FFFFFFFF",
+          "linux": "#FFFFFFFF",
+          "maxDelta": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "scene03_ellipse",
+      "description": "ellipse fill \u002B 8px stroke, rx != ry",
+      "differingTight": 942,
+      "tightRatio": 0.014374,
+      "differingLoose": 464,
+      "differingInterior": 0,
+      "maxChannelDelta": 79,
+      "maxChannelDeltaInterior": 0,
+      "probes": 7,
+      "probeFailures": 0,
+      "probeWorstDelta": 0,
+      "instructions": 2,
+      "stackBalanced": true,
+      "classification": "\u2462AA/\u53D6\u6837\u5DEE\u5F02",
+      "actualPng": "actual/scene03_ellipse.png",
+      "diffPng": "diff/scene03_ellipse.diff.png",
+      "probeDetails": [
+        {
+          "x": 128,
+          "y": 128,
+          "kind": "interior",
+          "note": "fill centre",
+          "windows": "#33AA55FF",
+          "linux": "#33AA55FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 128,
+          "y": 80,
+          "kind": "interior",
+          "note": "fill near top (stroke inner edge at y=76)",
+          "windows": "#33AA55FF",
+          "linux": "#33AA55FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 128,
+          "y": 72,
+          "kind": "interior",
+          "note": "stroke centre at top (y=cy-ry)",
+          "windows": "#0000CCFF",
+          "linux": "#0000CCFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 128,
+          "y": 58,
+          "kind": "interior",
+          "note": "background above the ellipse",
+          "windows": "#FFFFFFFF",
+          "linux": "#FFFFFFFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 200,
+          "y": 128,
+          "kind": "interior",
+          "note": "fill near right",
+          "windows": "#33AA55FF",
+          "linux": "#33AA55FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 208,
+          "y": 128,
+          "kind": "interior",
+          "note": "stroke centre at right (x=cx\u002Brx)",
+          "windows": "#0000CCFF",
+          "linux": "#0000CCFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 128,
+          "y": 190,
+          "kind": "interior",
+          "note": "background below the ellipse",
+          "windows": "#FFFFFFFF",
+          "linux": "#FFFFFFFF",
+          "maxDelta": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "scene04_linear_gradient",
+      "description": "linear gradients: 3 absolute stops, black-\u003Ewhite midpoint probe, SpreadMethod.Reflect",
+      "differingTight": 0,
+      "tightRatio": 0,
+      "differingLoose": 0,
+      "differingInterior": 0,
+      "maxChannelDelta": 1,
+      "maxChannelDeltaInterior": 0,
+      "probes": 7,
+      "probeFailures": 0,
+      "probeWorstDelta": 1,
+      "instructions": 4,
+      "stackBalanced": true,
+      "classification": "\u2460\u5B8C\u5168\u4E00\u81F4",
+      "actualPng": "actual/scene04_linear_gradient.png",
+      "diffPng": "diff/scene04_linear_gradient.diff.png",
+      "probeDetails": [
+        {
+          "x": 16,
+          "y": 56,
+          "kind": "interior",
+          "note": "t=0.0593 at the pixel centre -\u003E sRGB lerp gives (225,30,0)",
+          "windows": "#E11E00FF",
+          "linux": "#E11E00FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 128,
+          "y": 56,
+          "kind": "interior",
+          "note": "t=0.5028 -\u003E just past the middle stop, (0,254,1)",
+          "windows": "#00FE01FF",
+          "linux": "#00FE01FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 72,
+          "y": 56,
+          "kind": "interior",
+          "note": "t=0.2811 -\u003E (112,143,0) under sRGB lerp, (191,187,0) under linear",
+          "windows": "#6F9000FF",
+          "linux": "#708F00FF",
+          "maxDelta": 1,
+          "passed": true
+        },
+        {
+          "x": 239,
+          "y": 95,
+          "kind": "interior",
+          "note": "t=0.9976 -\u003E (0,1,254)",
+          "windows": "#0001FEFF",
+          "linux": "#0001FEFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 128,
+          "y": 182,
+          "kind": "interior",
+          "note": "black-\u003Ewhite at t=0.5022: 128 proves sRGB interpolation, linear scRGB would give ~188",
+          "windows": "#808080FF",
+          "linux": "#808080FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 128,
+          "y": 238,
+          "kind": "interior",
+          "note": "reflect: t=1.0045 folds to 0.9955 -\u003E (1,0,254)",
+          "windows": "#0100FEFF",
+          "linux": "#0100FEFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 192,
+          "y": 238,
+          "kind": "interior",
+          "note": "reflect: t=1.5759 folds to 0.4241 -\u003E (147,0,108)",
+          "windows": "#92006DFF",
+          "linux": "#93006CFF",
+          "maxDelta": 1,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "scene05_radial_gradient",
+      "description": "radial gradients: concentric \u002B offset GradientOrigin, radius 0.4/0.5 of bbox",
+      "differingTight": 0,
+      "tightRatio": 0,
+      "differingLoose": 0,
+      "differingInterior": 0,
+      "maxChannelDelta": 1,
+      "maxChannelDeltaInterior": 0,
+      "probes": 6,
+      "probeFailures": 0,
+      "probeWorstDelta": 1,
+      "instructions": 3,
+      "stackBalanced": true,
+      "classification": "\u2460\u5B8C\u5168\u4E00\u81F4",
+      "actualPng": "actual/scene05_radial_gradient.png",
+      "diffPng": "diff/scene05_radial_gradient.diff.png",
+      "probeDetails": [
+        {
+          "x": 66,
+          "y": 128,
+          "kind": "interior",
+          "note": "cell A centre == gradient centre, t~0.009 -\u003E near-white",
+          "windows": "#FDFDFEFF",
+          "linux": "#FDFDFEFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 10,
+          "y": 10,
+          "kind": "interior",
+          "note": "cell A corner: normalised distance 1.37 \u003E 1 -\u003E clamped last stop",
+          "windows": "#1040A0FF",
+          "linux": "#1040A0FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 12,
+          "y": 128,
+          "kind": "interior",
+          "note": "cell A left edge: t close to 1, not clamped",
+          "windows": "#234FA7FF",
+          "linux": "#234FA7FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 190,
+          "y": 128,
+          "kind": "interior",
+          "note": "cell B centre, origin offset -\u003E t \u003C 1",
+          "windows": "#9AAFD7FF",
+          "linux": "#9AAFD7FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 167,
+          "y": 80,
+          "kind": "interior",
+          "note": "cell B gradient origin, t~0.01 -\u003E near-white",
+          "windows": "#FCFDFEFF",
+          "linux": "#FDFDFEFF",
+          "maxDelta": 1,
+          "passed": true
+        },
+        {
+          "x": 246,
+          "y": 246,
+          "kind": "interior",
+          "note": "cell B bottom-right corner: normalised distance 1.73 \u003E 1 -\u003E clamped last stop",
+          "windows": "#1040A0FF",
+          "linux": "#1040A0FF",
+          "maxDelta": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "scene06_dash",
+      "description": "dash styles: absolute dash arrays in multiples of the 6px stroke width, offsets, dash caps",
+      "differingTight": 1080,
+      "tightRatio": 0.016479,
+      "differingLoose": 960,
+      "differingInterior": 118,
+      "maxChannelDelta": 255,
+      "maxChannelDeltaInterior": 255,
+      "probes": 9,
+      "probeFailures": 0,
+      "probeWorstDelta": 0,
+      "instructions": 9,
+      "stackBalanced": true,
+      "classification": "\u2461\u5DF2\u77E5\u7B80\u5316\uFF08DashCap\uFF09",
+      "actualPng": "actual/scene06_dash.png",
+      "diffPng": "diff/scene06_dash.diff.png",
+      "probeDetails": [
+        {
+          "x": 28,
+          "y": 24,
+          "kind": "interior",
+          "note": "{4,2} offset 0: on-dash (on 24px from x=16)",
+          "windows": "#000080FF",
+          "linux": "#000080FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 46,
+          "y": 24,
+          "kind": "interior",
+          "note": "{4,2} offset 0: gap (off 12px from x=40)",
+          "windows": "#FFFFFFFF",
+          "linux": "#FFFFFFFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 64,
+          "y": 24,
+          "kind": "interior",
+          "note": "{4,2} offset 0: on-dash (from x=52)",
+          "windows": "#000080FF",
+          "linux": "#000080FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 22,
+          "y": 56,
+          "kind": "interior",
+          "note": "{2,1}: on-dash (on 12px from x=16)",
+          "windows": "#000080FF",
+          "linux": "#000080FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 31,
+          "y": 56,
+          "kind": "interior",
+          "note": "{2,1}: gap (off 6px from x=28)",
+          "windows": "#FFFFFFFF",
+          "linux": "#FFFFFFFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 31,
+          "y": 88,
+          "kind": "interior",
+          "note": "{2,1,0.5,1}: gap (off 6px from x=28)",
+          "windows": "#FFFFFFFF",
+          "linux": "#FFFFFFFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 35,
+          "y": 88,
+          "kind": "interior",
+          "note": "{2,1,0.5,1}: on-dash (on 3px from x=34)",
+          "windows": "#000080FF",
+          "linux": "#000080FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 22,
+          "y": 184,
+          "kind": "interior",
+          "note": "{4,2} offset=2 (12px phase shift): on-dash",
+          "windows": "#000080FF",
+          "linux": "#000080FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 34,
+          "y": 184,
+          "kind": "interior",
+          "note": "{4,2} offset=2: gap (off from x=28)",
+          "windows": "#FFFFFFFF",
+          "linux": "#FFFFFFFF",
+          "maxDelta": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "scene07_opacity",
+      "description": "DrawinContext.PushOpacity(0.5) over a two-colour background, a 0.75 group with two 50%-alpha children, and a brush-alpha rect",
+      "differingTight": 336,
+      "tightRatio": 0.005127,
+      "differingLoose": 36,
+      "differingInterior": 0,
+      "maxChannelDelta": 30,
+      "maxChannelDeltaInterior": 0,
+      "probes": 8,
+      "probeFailures": 0,
+      "probeWorstDelta": 0,
+      "instructions": 11,
+      "stackBalanced": true,
+      "classification": "\u2462AA/\u53D6\u6837\u5DEE\u5F02",
+      "actualPng": "actual/scene07_opacity.png",
+      "diffPng": "diff/scene07_opacity.diff.png",
+      "probeDetails": [
+        {
+          "x": 64,
+          "y": 64,
+          "kind": "interior",
+          "note": "Opacity 0.5 white over red -\u003E (255,128,128)",
+          "windows": "#FF8080FF",
+          "linux": "#FF8080FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 192,
+          "y": 64,
+          "kind": "interior",
+          "note": "Opacity 0.5 white over blue -\u003E (128,128,255)",
+          "windows": "#8080FFFF",
+          "linux": "#8080FFFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 100,
+          "y": 150,
+          "kind": "interior",
+          "note": "opacity group, yellow child only over red: 0.75*0.50196 -\u003E (255,96,0); per-primitive alpha gives the same here",
+          "windows": "#FF6000FF",
+          "linux": "#FF6000FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 122,
+          "y": 150,
+          "kind": "interior",
+          "note": "opacity group overlap over red -\u003E (159,144,0). A true group layer is required; per-primitive alpha would give (159,156,0)",
+          "windows": "#9F9000FF",
+          "linux": "#9F9000FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 134,
+          "y": 150,
+          "kind": "interior",
+          "note": "opacity group overlap over blue -\u003E (48,144,111); per-primitive would give (48,156,111)",
+          "windows": "#30906FFF",
+          "linux": "#30906FFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 170,
+          "y": 150,
+          "kind": "interior",
+          "note": "opacity group, green child only over blue -\u003E (0,96,159)",
+          "windows": "#00609FFF",
+          "linux": "#00609FFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 64,
+          "y": 220,
+          "kind": "interior",
+          "note": "#80FFFFFF brush alpha over red -\u003E (255,128,128)",
+          "windows": "#FF8080FF",
+          "linux": "#FF8080FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 192,
+          "y": 220,
+          "kind": "interior",
+          "note": "#80FFFFFF brush alpha over blue -\u003E (128,128,255)",
+          "windows": "#8080FFFF",
+          "linux": "#8080FFFF",
+          "maxDelta": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "scene08_clip_rect",
+      "description": "rectangular clips: one fill inside clip A, a second fill inside the nested A^B; the nested clip must intersect with A, not replace it",
+      "differingTight": 0,
+      "tightRatio": 0,
+      "differingLoose": 0,
+      "differingInterior": 0,
+      "maxChannelDelta": 0,
+      "maxChannelDeltaInterior": 0,
+      "probes": 6,
+      "probeFailures": 0,
+      "probeWorstDelta": 0,
+      "instructions": 10,
+      "stackBalanced": true,
+      "classification": "\u2460\u5B8C\u5168\u4E00\u81F4",
+      "actualPng": "actual/scene08_clip_rect.png",
+      "diffPng": "diff/scene08_clip_rect.diff.png",
+      "probeDetails": [
+        {
+          "x": 20,
+          "y": 20,
+          "kind": "interior",
+          "note": "orange marker drawn after the clip was popped",
+          "windows": "#FF8800FF",
+          "linux": "#FF8800FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 60,
+          "y": 60,
+          "kind": "interior",
+          "note": "inside clip A (40..216) but outside B (80..180) -\u003E first fill only",
+          "windows": "#2266CCFF",
+          "linux": "#2266CCFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 100,
+          "y": 100,
+          "kind": "interior",
+          "note": "inside A and B -\u003E second fill on top",
+          "windows": "#AA22EEFF",
+          "linux": "#AA22EEFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 200,
+          "y": 200,
+          "kind": "interior",
+          "note": "inside A (x=200 \u003C 216) but outside B -\u003E first fill only",
+          "windows": "#2266CCFF",
+          "linux": "#2266CCFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 190,
+          "y": 190,
+          "kind": "interior",
+          "note": "2px past B\u0027s 180 edge -\u003E A only",
+          "windows": "#2266CCFF",
+          "linux": "#2266CCFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 230,
+          "y": 230,
+          "kind": "interior",
+          "note": "outside clip A -\u003E background",
+          "windows": "#FFFFFFFF",
+          "linux": "#FFFFFFFF",
+          "maxDelta": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "scene09_clip_path_fillrule",
+      "description": "PathGeometry clip (filled\u002Bstroked triangle) plus pentagram fill-rule discrimination Nonzero vs EvenOdd",
+      "differingTight": 1622,
+      "tightRatio": 0.02475,
+      "differingLoose": 504,
+      "differingInterior": 0,
+      "maxChannelDelta": 49,
+      "maxChannelDeltaInterior": 0,
+      "probes": 8,
+      "probeFailures": 0,
+      "probeWorstDelta": 0,
+      "instructions": 7,
+      "stackBalanced": true,
+      "classification": "\u2462AA/\u53D6\u6837\u5DEE\u5F02",
+      "actualPng": "actual/scene09_clip_path_fillrule.png",
+      "diffPng": "diff/scene09_clip_path_fillrule.diff.png",
+      "probeDetails": [
+        {
+          "x": 128,
+          "y": 150,
+          "kind": "interior",
+          "note": "inside triangle clip, t=(x\u002By)/512=0.5449 -\u003E (232,201,23)",
+          "windows": "#E8C917FF",
+          "linux": "#E8C917FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 60,
+          "y": 140,
+          "kind": "interior",
+          "note": "outside triangle -\u003E background",
+          "windows": "#FFFFFFFF",
+          "linux": "#FFFFFFFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 128,
+          "y": 60,
+          "kind": "interior",
+          "note": "inside triangle near apex, t=0.3691 -\u003E first segment (red-\u003E#FFDD00) at f=0.738 -\u003E (255,163,0)",
+          "windows": "#FFA300FF",
+          "linux": "#FFA300FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 128,
+          "y": 28,
+          "kind": "edge",
+          "note": "triangle apex vertex, 2px stroke",
+          "windows": "#000000FF",
+          "linux": "#000000FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 52,
+          "y": 52,
+          "kind": "interior",
+          "note": "pentagram centre, FillRule.Nonzero -\u003E winding 2 -\u003E filled",
+          "windows": "#2266CCFF",
+          "linux": "#2266CCFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 204,
+          "y": 52,
+          "kind": "interior",
+          "note": "pentagram centre, FillRule.EvenOdd -\u003E winding 2 -\u003E NOT filled",
+          "windows": "#FFFFFFFF",
+          "linux": "#FFFFFFFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 49,
+          "y": 30,
+          "kind": "interior",
+          "note": "pentagram top arm (winding 1) -\u003E filled under both rules",
+          "windows": "#2266CCFF",
+          "linux": "#2266CCFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 201,
+          "y": 30,
+          "kind": "interior",
+          "note": "pentagram top arm (winding 1) -\u003E filled under both rules",
+          "windows": "#CC6622FF",
+          "linux": "#CC6622FF",
+          "maxDelta": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "scene10_transform",
+      "description": "nested transforms: rotate\u002Btranslate, scale\u002Brotate\u002Btranslate, non-uniform scale of a stroke",
+      "differingTight": 843,
+      "tightRatio": 0.012863,
+      "differingLoose": 213,
+      "differingInterior": 0,
+      "maxChannelDelta": 52,
+      "maxChannelDeltaInterior": 0,
+      "probes": 8,
+      "probeFailures": 0,
+      "probeWorstDelta": 0,
+      "instructions": 11,
+      "stackBalanced": true,
+      "classification": "\u2462AA/\u53D6\u6837\u5DEE\u5F02",
+      "actualPng": "actual/scene10_transform.png",
+      "diffPng": "diff/scene10_transform.diff.png",
+      "probeDetails": [
+        {
+          "x": 29,
+          "y": 52,
+          "kind": "interior",
+          "note": "group a: local (10,20) rotated 30deg then \u002B30,\u002B30 -\u003E fill",
+          "windows": "#1188FFFF",
+          "linux": "#1188FFFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 46,
+          "y": 62,
+          "kind": "interior",
+          "note": "group a: local (30,20) centre -\u003E fill",
+          "windows": "#1188FFFF",
+          "linux": "#1188FFFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 32,
+          "y": 37,
+          "kind": "interior",
+          "note": "group a: red corner marker centre local (3,3)",
+          "windows": "#FF0000FF",
+          "linux": "#FF0000FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 187,
+          "y": 135,
+          "kind": "interior",
+          "note": "group b: local (30,20) through scale(1.5,0.75) rot(-25) translate(140,140)",
+          "windows": "#CC88FFFF",
+          "linux": "#CC88FFFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 40,
+          "y": 35,
+          "kind": "interior",
+          "note": "group c: left edge x=40 with x-scale 2 -\u003E 8px wide stroke",
+          "windows": "#116611FF",
+          "linux": "#116611FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 100,
+          "y": 20,
+          "kind": "interior",
+          "note": "group c: top edge y=20, y-scale 1 -\u003E 4px stroke",
+          "windows": "#116611FF",
+          "linux": "#116611FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 100,
+          "y": 35,
+          "kind": "interior",
+          "note": "group c interior has no fill -\u003E background",
+          "windows": "#FFFFFFFF",
+          "linux": "#FFFFFFFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 10,
+          "y": 10,
+          "kind": "interior",
+          "note": "background (outside every transformed group)",
+          "windows": "#FFFFFFFF",
+          "linux": "#FFFFFFFF",
+          "maxDelta": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "scene11_arc_sweep_large",
+      "description": "ArcSegment specialty: SweepDirection x IsLargeArc over two chords; each arc is closed\u002Bfilled so the enclosed segment is probeable. Cells L-\u003ER: small-cw, large-cw, small-ccw, large-ccw. Row 1 repeats with a slanted chord.",
+      "differingTight": 1842,
+      "tightRatio": 0.028107,
+      "differingLoose": 556,
+      "differingInterior": 0,
+      "maxChannelDelta": 88,
+      "maxChannelDeltaInterior": 0,
+      "probes": 8,
+      "probeFailures": 0,
+      "probeWorstDelta": 0,
+      "instructions": 41,
+      "stackBalanced": true,
+      "classification": "\u2462AA/\u53D6\u6837\u5DEE\u5F02",
+      "actualPng": "actual/scene11_arc_sweep_large.png",
+      "diffPng": "diff/scene11_arc_sweep_large.diff.png",
+      "probeDetails": [
+        {
+          "x": 32,
+          "y": 56,
+          "kind": "interior",
+          "note": "cell0 (small-cw) inside the sliver above the chord -\u003E filled. A no-op smallArc would leave this white",
+          "windows": "#A9D0F5FF",
+          "linux": "#A9D0F5FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 96,
+          "y": 40,
+          "kind": "interior",
+          "note": "cell1 (large-cw) inside the big segment above the chord -\u003E filled. small-cw would leave this white",
+          "windows": "#A9D0F5FF",
+          "linux": "#A9D0F5FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 160,
+          "y": 70,
+          "kind": "interior",
+          "note": "cell2 (small-ccw) below the chord within the 12.1px sagitta -\u003E filled. cw would leave this white",
+          "windows": "#A9D0F5FF",
+          "linux": "#A9D0F5FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 224,
+          "y": 100,
+          "kind": "interior",
+          "note": "cell3 (large-ccw) below the chord, 3.3px inside the arc; small-ccw only reaches y=76 so it would be white",
+          "windows": "#A9D0F5FF",
+          "linux": "#A9D0F5FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 32,
+          "y": 178,
+          "kind": "interior",
+          "note": "geom2 (slanted chord) cell0 local (32,50) - signature probe, value is empirical",
+          "windows": "#FFE0B2FF",
+          "linux": "#FFE0B2FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 96,
+          "y": 178,
+          "kind": "interior",
+          "note": "geom2 cell1 local (32,50) - signature probe",
+          "windows": "#FFE0B2FF",
+          "linux": "#FFE0B2FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 160,
+          "y": 198,
+          "kind": "interior",
+          "note": "geom2 cell2 local (32,70) - signature probe",
+          "windows": "#FFE0B2FF",
+          "linux": "#FFE0B2FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 224,
+          "y": 198,
+          "kind": "interior",
+          "note": "geom2 cell3 local (32,70) - signature probe",
+          "windows": "#FFE0B2FF",
+          "linux": "#FFE0B2FF",
+          "maxDelta": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "scene12_arc_ellipse",
+      "description": "ArcSegment with RadiusX != RadiusY and non-zero RotationAngle; chord (-35,0)-\u003E(35,0) about each 128x128 cell centre. Probes are 5px either side of the chord midpoint; only cell(0,0) is analytically predicted.",
+      "differingTight": 713,
+      "tightRatio": 0.01088,
+      "differingLoose": 293,
+      "differingInterior": 0,
+      "maxChannelDelta": 100,
+      "maxChannelDeltaInterior": 0,
+      "probes": 8,
+      "probeFailures": 0,
+      "probeWorstDelta": 0,
+      "instructions": 21,
+      "stackBalanced": true,
+      "classification": "\u2462AA/\u53D6\u6837\u5DEE\u5F02",
+      "actualPng": "actual/scene12_arc_ellipse.png",
+      "diffPng": "diff/scene12_arc_ellipse.diff.png",
+      "probeDetails": [
+        {
+          "x": 64,
+          "y": 59,
+          "kind": "interior",
+          "note": "cell(0,0) local (0,-5): inside the 8.2px sagitta of the rx=45/ry=22 small arc -\u003E filled; value empirical for the other three cells",
+          "windows": "#D5E8D4FF",
+          "linux": "#D5E8D4FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 64,
+          "y": 69,
+          "kind": "interior",
+          "note": "cell(0,0) local (0,\u002B5): below the chord -\u003E background",
+          "windows": "#FFFFFFFF",
+          "linux": "#FFFFFFFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 192,
+          "y": 59,
+          "kind": "interior",
+          "note": "cell(1,0) local (0,-5) - signature probe",
+          "windows": "#D5E8D4FF",
+          "linux": "#D5E8D4FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 192,
+          "y": 69,
+          "kind": "interior",
+          "note": "cell(1,0) local (0,\u002B5) - signature probe",
+          "windows": "#FFFFFFFF",
+          "linux": "#FFFFFFFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 64,
+          "y": 187,
+          "kind": "interior",
+          "note": "cell(0,1) local (0,-5) - signature probe",
+          "windows": "#FFFFFFFF",
+          "linux": "#FFFFFFFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 64,
+          "y": 197,
+          "kind": "interior",
+          "note": "cell(0,1) local (0,\u002B5) - signature probe",
+          "windows": "#D5E8D4FF",
+          "linux": "#D5E8D4FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 192,
+          "y": 187,
+          "kind": "interior",
+          "note": "cell(1,1) local (0,-5) - signature probe",
+          "windows": "#FFFFFFFF",
+          "linux": "#FFFFFFFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 192,
+          "y": 197,
+          "kind": "interior",
+          "note": "cell(1,1) local (0,\u002B5) - signature probe",
+          "windows": "#D5E8D4FF",
+          "linux": "#D5E8D4FF",
+          "maxDelta": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "scene13_arc_degenerate",
+      "description": "degenerate ArcSegments: radii too small (scaled up), radius == chord/2 (IsLargeArc is a no-op: cell(1,0) and cell(0,1) must render identically), zero radius, radius 5000",
+      "differingTight": 929,
+      "tightRatio": 0.014175,
+      "differingLoose": 521,
+      "differingInterior": 0,
+      "maxChannelDelta": 212,
+      "maxChannelDeltaInterior": 0,
+      "probes": 9,
+      "probeFailures": 0,
+      "probeWorstDelta": 0,
+      "instructions": 22,
+      "stackBalanced": true,
+      "classification": "\u2462AA/\u53D6\u6837\u5DEE\u5F02 \u002B miter \u7A81\u523A\uFF08\u89C1\u62A5\u544A \u503A\u52A1 #7-D3/D4\uFF09",
+      "actualPng": "actual/scene13_arc_degenerate.png",
+      "diffPng": "diff/scene13_arc_degenerate.diff.png",
+      "probeDetails": [
+        {
+          "x": 64,
+          "y": 54,
+          "kind": "interior",
+          "note": "cell(0,0) local (0,-10): rx=10,ry=5 scaled x4 to 40,20 fills the upper half of the ellipse -\u003E filled. No scaling would leave this white",
+          "windows": "#DAE8FCFF",
+          "linux": "#DAE8FCFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 64,
+          "y": 74,
+          "kind": "interior",
+          "note": "cell(0,0) below the chord -\u003E background",
+          "windows": "#FFFFFFFF",
+          "linux": "#FFFFFFFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 192,
+          "y": 54,
+          "kind": "interior",
+          "note": "cell(1,0) r == chord/2, IsLargeArc=true -\u003E upper semicircle filled",
+          "windows": "#F8CECCFF",
+          "linux": "#F8CECCFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 192,
+          "y": 74,
+          "kind": "interior",
+          "note": "cell(1,0) below the chord -\u003E background",
+          "windows": "#FFFFFFFF",
+          "linux": "#FFFFFFFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 64,
+          "y": 182,
+          "kind": "interior",
+          "note": "cell(0,1) same params but IsLargeArc=false -\u003E must be identical to cell(1,0)",
+          "windows": "#F8CECCFF",
+          "linux": "#F8CECCFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 64,
+          "y": 202,
+          "kind": "interior",
+          "note": "cell(0,1) below the chord -\u003E background, must be identical to cell(1,0)",
+          "windows": "#FFFFFFFF",
+          "linux": "#FFFFFFFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 192,
+          "y": 212,
+          "kind": "interior",
+          "note": "cell(1,1) rx=ry=0 degenerates to the 3px straight line at local y=20",
+          "windows": "#6B2B8BFF",
+          "linux": "#6B2B8BFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 192,
+          "y": 192,
+          "kind": "interior",
+          "note": "cell(1,1) between the two lines -\u003E background",
+          "windows": "#FFFFFFFF",
+          "linux": "#FFFFFFFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 192,
+          "y": 172,
+          "kind": "interior",
+          "note": "cell(1,1) rx=ry=5000 arc: sagitta is 0.16px so the 3px stroke covers y in 170.3..173.3 (or 168.3..171.3 if it bulges the other way) -\u003E no expect recorded",
+          "windows": "#6B2B8BFF",
+          "linux": "#6B2B8BFF",
+          "maxDelta": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "scene14_combine_union_xor",
+      "description": "CombinedGeometry Union (left cell) vs Xor (right cell) of two overlapping circles r=40 with centres 40px apart",
+      "differingTight": 1325,
+      "tightRatio": 0.020218,
+      "differingLoose": 599,
+      "differingInterior": 3,
+      "maxChannelDelta": 85,
+      "maxChannelDeltaInterior": 37,
+      "probes": 6,
+      "probeFailures": 0,
+      "probeWorstDelta": 0,
+      "instructions": 11,
+      "stackBalanced": true,
+      "classification": "\u2462AA/\u53D6\u6837\u5DEE\u5F02",
+      "actualPng": "actual/scene14_combine_union_xor.png",
+      "diffPng": "diff/scene14_combine_union_xor.diff.png",
+      "probeDetails": [
+        {
+          "x": 20,
+          "y": 64,
+          "kind": "interior",
+          "note": "union: A-only region -\u003E filled",
+          "windows": "#00A060FF",
+          "linux": "#00A060FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 68,
+          "y": 64,
+          "kind": "interior",
+          "note": "union: A^B overlap -\u003E filled",
+          "windows": "#00A060FF",
+          "linux": "#00A060FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 112,
+          "y": 64,
+          "kind": "interior",
+          "note": "union: B-only region -\u003E filled",
+          "windows": "#00A060FF",
+          "linux": "#00A060FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 148,
+          "y": 64,
+          "kind": "interior",
+          "note": "xor: A-only region -\u003E filled",
+          "windows": "#00A060FF",
+          "linux": "#00A060FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 196,
+          "y": 64,
+          "kind": "interior",
+          "note": "xor: A^B overlap -\u003E NOT filled",
+          "windows": "#FFFFFFFF",
+          "linux": "#FFFFFFFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 240,
+          "y": 64,
+          "kind": "interior",
+          "note": "xor: B-only region -\u003E filled",
+          "windows": "#00A060FF",
+          "linux": "#00A060FF",
+          "maxDelta": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "scene15_combine_intersect_exclude",
+      "description": "CombinedGeometry Intersect (left) vs Exclude (right). Exclude probe set resolves debt #8: A-B, not symmetric difference, not B-A.",
+      "differingTight": 922,
+      "tightRatio": 0.014069,
+      "differingLoose": 274,
+      "differingInterior": 0,
+      "maxChannelDelta": 81,
+      "maxChannelDeltaInterior": 0,
+      "probes": 6,
+      "probeFailures": 0,
+      "probeWorstDelta": 0,
+      "instructions": 11,
+      "stackBalanced": true,
+      "classification": "\u2462AA/\u53D6\u6837\u5DEE\u5F02",
+      "actualPng": "actual/scene15_combine_intersect_exclude.png",
+      "diffPng": "diff/scene15_combine_intersect_exclude.diff.png",
+      "probeDetails": [
+        {
+          "x": 20,
+          "y": 64,
+          "kind": "interior",
+          "note": "intersect: A-only -\u003E NOT filled",
+          "windows": "#FFFFFFFF",
+          "linux": "#FFFFFFFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 68,
+          "y": 64,
+          "kind": "interior",
+          "note": "intersect: A^B overlap -\u003E filled",
+          "windows": "#00A060FF",
+          "linux": "#00A060FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 112,
+          "y": 64,
+          "kind": "interior",
+          "note": "intersect: B-only -\u003E NOT filled",
+          "windows": "#FFFFFFFF",
+          "linux": "#FFFFFFFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 148,
+          "y": 64,
+          "kind": "interior",
+          "note": "exclude (A-B): A-only -\u003E filled",
+          "windows": "#00A060FF",
+          "linux": "#00A060FF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 196,
+          "y": 64,
+          "kind": "interior",
+          "note": "exclude (A-B): A^B overlap -\u003E NOT filled. This probe decides debt #8: Exclude is A-B, NOT the symmetric difference",
+          "windows": "#FFFFFFFF",
+          "linux": "#FFFFFFFF",
+          "maxDelta": 0,
+          "passed": true
+        },
+        {
+          "x": 240,
+          "y": 64,
+          "kind": "interior",
+          "note": "exclude (A-B): B-only -\u003E NOT filled. Symmetric difference would fill this",
+          "windows": "#FFFFFFFF",
+          "linux": "#FFFFFFFF",
+          "maxDelta": 0,
+          "passed": true
+        }
+      ]
+    }
+  ]
+}

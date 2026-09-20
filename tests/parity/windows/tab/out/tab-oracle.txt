@@ -1,0 +1,470 @@
+WPF tab metrics oracle (human readable)
+generated: 2026-09-14T10:27:52.4570034Z
+font: Arial (file:///C:/WINDOWS/FONTS/ARIAL.TTF)   emSize=24 DIP   Dpi=96
+
+== [no-tab] "abc def" w=40 LeftToRight
+   overflowed=True trailingWsLen=1
+   line: length=8 newline=1 width=78.72 widthInclTrailingWs=78.72 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 b@13.346667/13.346667 c@26.693333/12  @38.693333/6.666667 d@45.36/13.346667 e@58.706667/13.346667 f@72.053333/6.666667
+== [no-tab] "abc def" w=40 RightToLeft
+   overflowed=True trailingWsLen=1
+   line: length=8 newline=1 width=78.72 widthInclTrailingWs=78.72 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 b@13.346667/13.346667 c@26.693334/12  @38.693333/6.666667 d@45.36/13.346667 e@58.706667/13.346667 f@72.053333/6.666667
+== [no-tab] "abc def" w=80 LeftToRight
+   overflowed=False trailingWsLen=1
+   line: length=8 newline=1 width=78.72 widthInclTrailingWs=78.72 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 b@13.346667/13.346667 c@26.693333/12  @38.693333/6.666667 d@45.36/13.346667 e@58.706667/13.346667 f@72.053333/6.666667
+== [no-tab] "abc def" w=80 RightToLeft
+   overflowed=False trailingWsLen=1
+   line: length=8 newline=1 width=78.72 widthInclTrailingWs=78.72 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 b@13.346667/13.346667 c@26.693334/12  @38.693333/6.666667 d@45.36/13.346667 e@58.706667/13.346667 f@72.053333/6.666667
+== [no-tab] "abc def" w=160 LeftToRight
+   overflowed=False trailingWsLen=1
+   line: length=8 newline=1 width=78.72 widthInclTrailingWs=78.72 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 b@13.346667/13.346667 c@26.693333/12  @38.693333/6.666667 d@45.36/13.346667 e@58.706667/13.346667 f@72.053333/6.666667
+== [no-tab] "abc def" w=160 RightToLeft
+   overflowed=False trailingWsLen=1
+   line: length=8 newline=1 width=78.72 widthInclTrailingWs=78.72 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 b@13.346667/13.346667 c@26.693334/12  @38.693333/6.666667 d@45.36/13.346667 e@58.706667/13.346667 f@72.053333/6.666667
+== [no-tab] "abc def" w=320 LeftToRight
+   overflowed=False trailingWsLen=1
+   line: length=8 newline=1 width=78.72 widthInclTrailingWs=78.72 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 b@13.346667/13.346667 c@26.693333/12  @38.693333/6.666667 d@45.36/13.346667 e@58.706667/13.346667 f@72.053333/6.666667
+== [no-tab] "abc def" w=320 RightToLeft
+   overflowed=False trailingWsLen=1
+   line: length=8 newline=1 width=78.72 widthInclTrailingWs=78.72 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 b@13.346667/13.346667 c@26.693334/12  @38.693333/6.666667 d@45.36/13.346667 e@58.706667/13.346667 f@72.053333/6.666667
+== [no-tab] "abc def" w=10000 LeftToRight
+   overflowed=False trailingWsLen=1
+   line: length=8 newline=1 width=78.72 widthInclTrailingWs=78.72 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 b@13.346667/13.346667 c@26.693333/12  @38.693333/6.666667 d@45.36/13.346667 e@58.706667/13.346667 f@72.053333/6.666667
+== [no-tab] "abc def" w=10000 RightToLeft
+   overflowed=False trailingWsLen=1
+   line: length=8 newline=1 width=78.72 widthInclTrailingWs=78.72 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 b@13.346667/13.346667 c@26.693334/12  @38.693333/6.666667 d@45.36/13.346667 e@58.706667/13.346667 f@72.053333/6.666667
+== [no-tab-short] "ab" w=40 LeftToRight
+   overflowed=False trailingWsLen=1
+   line: length=3 newline=1 width=26.693333 widthInclTrailingWs=26.693333 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 b@13.346667/13.346667
+== [no-tab-short] "ab" w=40 RightToLeft
+   overflowed=False trailingWsLen=1
+   line: length=3 newline=1 width=26.693333 widthInclTrailingWs=26.693333 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 b@13.346666/13.346667
+== [no-tab-short] "ab" w=80 LeftToRight
+   overflowed=False trailingWsLen=1
+   line: length=3 newline=1 width=26.693333 widthInclTrailingWs=26.693333 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 b@13.346667/13.346667
+== [no-tab-short] "ab" w=80 RightToLeft
+   overflowed=False trailingWsLen=1
+   line: length=3 newline=1 width=26.693333 widthInclTrailingWs=26.693333 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 b@13.346666/13.346667
+== [no-tab-short] "ab" w=160 LeftToRight
+   overflowed=False trailingWsLen=1
+   line: length=3 newline=1 width=26.693333 widthInclTrailingWs=26.693333 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 b@13.346667/13.346667
+== [no-tab-short] "ab" w=160 RightToLeft
+   overflowed=False trailingWsLen=1
+   line: length=3 newline=1 width=26.693333 widthInclTrailingWs=26.693333 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 b@13.346666/13.346667
+== [no-tab-short] "ab" w=320 LeftToRight
+   overflowed=False trailingWsLen=1
+   line: length=3 newline=1 width=26.693333 widthInclTrailingWs=26.693333 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 b@13.346667/13.346667
+== [no-tab-short] "ab" w=320 RightToLeft
+   overflowed=False trailingWsLen=1
+   line: length=3 newline=1 width=26.693333 widthInclTrailingWs=26.693333 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 b@13.346666/13.346667
+== [no-tab-short] "ab" w=10000 LeftToRight
+   overflowed=False trailingWsLen=1
+   line: length=3 newline=1 width=26.693333 widthInclTrailingWs=26.693333 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 b@13.346667/13.346667
+== [no-tab-short] "ab" w=10000 RightToLeft
+   overflowed=False trailingWsLen=1
+   line: length=3 newline=1 width=26.693333 widthInclTrailingWs=26.693333 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 b@13.346666/13.346667
+== [tab-mid] "a\tb" w=40 LeftToRight
+   overflowed=True trailingWsLen=1
+   line: length=4 newline=1 width=109.346667 widthInclTrailingWs=109.346667 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 \t@13.346667/82.653333 b@96/13.346667
+   tabs:  [i=1 x=13.346667 advance=82.653333 reachedStop=96]
+== [tab-mid] "a\tb" w=40 RightToLeft
+   overflowed=True trailingWsLen=1
+   line: length=4 newline=1 width=109.346667 widthInclTrailingWs=109.346667 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@96/13.346667 \t@13.343334/82.653333 b@0/13.346667
+   tabs:  [i=1 x=13.343334 advance=82.653333 reachedStop=13.343334]
+== [tab-mid] "a\tb" w=80 LeftToRight
+   overflowed=True trailingWsLen=1
+   line: length=4 newline=1 width=109.346667 widthInclTrailingWs=109.346667 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 \t@13.346667/82.653333 b@96/13.346667
+   tabs:  [i=1 x=13.346667 advance=82.653333 reachedStop=96]
+== [tab-mid] "a\tb" w=80 RightToLeft
+   overflowed=True trailingWsLen=1
+   line: length=4 newline=1 width=109.346667 widthInclTrailingWs=109.346667 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@96/13.346667 \t@13.343334/82.653333 b@0/13.346667
+   tabs:  [i=1 x=13.343334 advance=82.653333 reachedStop=13.343334]
+== [tab-mid] "a\tb" w=160 LeftToRight
+   overflowed=False trailingWsLen=1
+   line: length=4 newline=1 width=109.346667 widthInclTrailingWs=109.346667 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 \t@13.346667/82.653333 b@96/13.346667
+   tabs:  [i=1 x=13.346667 advance=82.653333 reachedStop=96]
+== [tab-mid] "a\tb" w=160 RightToLeft
+   overflowed=False trailingWsLen=1
+   line: length=4 newline=1 width=109.346667 widthInclTrailingWs=109.346667 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@96/13.346667 \t@13.343334/82.653333 b@0/13.346667
+   tabs:  [i=1 x=13.343334 advance=82.653333 reachedStop=13.343334]
+== [tab-mid] "a\tb" w=320 LeftToRight
+   overflowed=False trailingWsLen=1
+   line: length=4 newline=1 width=109.346667 widthInclTrailingWs=109.346667 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 \t@13.346667/82.653333 b@96/13.346667
+   tabs:  [i=1 x=13.346667 advance=82.653333 reachedStop=96]
+== [tab-mid] "a\tb" w=320 RightToLeft
+   overflowed=False trailingWsLen=1
+   line: length=4 newline=1 width=109.346667 widthInclTrailingWs=109.346667 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@96/13.346667 \t@13.343334/82.653333 b@0/13.346667
+   tabs:  [i=1 x=13.343334 advance=82.653333 reachedStop=13.343334]
+== [tab-mid] "a\tb" w=10000 LeftToRight
+   overflowed=False trailingWsLen=1
+   line: length=4 newline=1 width=109.346667 widthInclTrailingWs=109.346667 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 \t@13.346667/82.653333 b@96/13.346667
+   tabs:  [i=1 x=13.346667 advance=82.653333 reachedStop=96]
+== [tab-mid] "a\tb" w=10000 RightToLeft
+   overflowed=False trailingWsLen=1
+   line: length=4 newline=1 width=109.346667 widthInclTrailingWs=109.346667 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@96/13.346667 \t@13.343334/82.653333 b@0/13.346667
+   tabs:  [i=1 x=13.343334 advance=82.653333 reachedStop=13.343334]
+== [tab-head] "\ta" w=40 LeftToRight
+   overflowed=True trailingWsLen=1
+   line: length=3 newline=1 width=109.346667 widthInclTrailingWs=109.346667 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: \t@0/96 a@96/13.346667
+   tabs:  [i=0 x=0 advance=96 reachedStop=96]
+== [tab-head] "\ta" w=40 RightToLeft
+   overflowed=True trailingWsLen=1
+   line: length=3 newline=1 width=109.346667 widthInclTrailingWs=109.346667 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: \t@13.343334/96 a@0/13.346667
+   tabs:  [i=0 x=13.343334 advance=96 reachedStop=13.343334]
+== [tab-head] "\ta" w=80 LeftToRight
+   overflowed=True trailingWsLen=1
+   line: length=3 newline=1 width=109.346667 widthInclTrailingWs=109.346667 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: \t@0/96 a@96/13.346667
+   tabs:  [i=0 x=0 advance=96 reachedStop=96]
+== [tab-head] "\ta" w=80 RightToLeft
+   overflowed=True trailingWsLen=1
+   line: length=3 newline=1 width=109.346667 widthInclTrailingWs=109.346667 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: \t@13.343334/96 a@0/13.346667
+   tabs:  [i=0 x=13.343334 advance=96 reachedStop=13.343334]
+== [tab-head] "\ta" w=160 LeftToRight
+   overflowed=False trailingWsLen=1
+   line: length=3 newline=1 width=109.346667 widthInclTrailingWs=109.346667 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: \t@0/96 a@96/13.346667
+   tabs:  [i=0 x=0 advance=96 reachedStop=96]
+== [tab-head] "\ta" w=160 RightToLeft
+   overflowed=False trailingWsLen=1
+   line: length=3 newline=1 width=109.346667 widthInclTrailingWs=109.346667 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: \t@13.343334/96 a@0/13.346667
+   tabs:  [i=0 x=13.343334 advance=96 reachedStop=13.343334]
+== [tab-head] "\ta" w=320 LeftToRight
+   overflowed=False trailingWsLen=1
+   line: length=3 newline=1 width=109.346667 widthInclTrailingWs=109.346667 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: \t@0/96 a@96/13.346667
+   tabs:  [i=0 x=0 advance=96 reachedStop=96]
+== [tab-head] "\ta" w=320 RightToLeft
+   overflowed=False trailingWsLen=1
+   line: length=3 newline=1 width=109.346667 widthInclTrailingWs=109.346667 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: \t@13.343334/96 a@0/13.346667
+   tabs:  [i=0 x=13.343334 advance=96 reachedStop=13.343334]
+== [tab-head] "\ta" w=10000 LeftToRight
+   overflowed=False trailingWsLen=1
+   line: length=3 newline=1 width=109.346667 widthInclTrailingWs=109.346667 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: \t@0/96 a@96/13.346667
+   tabs:  [i=0 x=0 advance=96 reachedStop=96]
+== [tab-head] "\ta" w=10000 RightToLeft
+   overflowed=False trailingWsLen=1
+   line: length=3 newline=1 width=109.346667 widthInclTrailingWs=109.346667 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: \t@13.343334/96 a@0/13.346667
+   tabs:  [i=0 x=13.343334 advance=96 reachedStop=13.343334]
+== [tab-tail] "a\t" w=40 LeftToRight
+   overflowed=True trailingWsLen=1
+   line: length=3 newline=1 width=96 widthInclTrailingWs=96 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 \t@13.346667/82.653333
+   tabs:  [i=1 x=13.346667 advance=82.653333 reachedStop=96]
+== [tab-tail] "a\t" w=40 RightToLeft
+   overflowed=True trailingWsLen=1
+   line: length=3 newline=1 width=96 widthInclTrailingWs=96 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@82.656666/13.346667 \t@0/82.653333
+   tabs:  [i=1 x=0 advance=82.653333 reachedStop=0]
+== [tab-tail] "a\t" w=80 LeftToRight
+   overflowed=True trailingWsLen=1
+   line: length=3 newline=1 width=96 widthInclTrailingWs=96 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 \t@13.346667/82.653333
+   tabs:  [i=1 x=13.346667 advance=82.653333 reachedStop=96]
+== [tab-tail] "a\t" w=80 RightToLeft
+   overflowed=True trailingWsLen=1
+   line: length=3 newline=1 width=96 widthInclTrailingWs=96 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@82.656666/13.346667 \t@0/82.653333
+   tabs:  [i=1 x=0 advance=82.653333 reachedStop=0]
+== [tab-tail] "a\t" w=160 LeftToRight
+   overflowed=False trailingWsLen=1
+   line: length=3 newline=1 width=96 widthInclTrailingWs=96 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 \t@13.346667/82.653333
+   tabs:  [i=1 x=13.346667 advance=82.653333 reachedStop=96]
+== [tab-tail] "a\t" w=160 RightToLeft
+   overflowed=False trailingWsLen=1
+   line: length=3 newline=1 width=96 widthInclTrailingWs=96 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@82.656666/13.346667 \t@0/82.653333
+   tabs:  [i=1 x=0 advance=82.653333 reachedStop=0]
+== [tab-tail] "a\t" w=320 LeftToRight
+   overflowed=False trailingWsLen=1
+   line: length=3 newline=1 width=96 widthInclTrailingWs=96 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 \t@13.346667/82.653333
+   tabs:  [i=1 x=13.346667 advance=82.653333 reachedStop=96]
+== [tab-tail] "a\t" w=320 RightToLeft
+   overflowed=False trailingWsLen=1
+   line: length=3 newline=1 width=96 widthInclTrailingWs=96 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@82.656666/13.346667 \t@0/82.653333
+   tabs:  [i=1 x=0 advance=82.653333 reachedStop=0]
+== [tab-tail] "a\t" w=10000 LeftToRight
+   overflowed=False trailingWsLen=1
+   line: length=3 newline=1 width=96 widthInclTrailingWs=96 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 \t@13.346667/82.653333
+   tabs:  [i=1 x=13.346667 advance=82.653333 reachedStop=96]
+== [tab-tail] "a\t" w=10000 RightToLeft
+   overflowed=False trailingWsLen=1
+   line: length=3 newline=1 width=96 widthInclTrailingWs=96 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@82.656666/13.346667 \t@0/82.653333
+   tabs:  [i=1 x=0 advance=82.653333 reachedStop=0]
+== [tab-only] "\t" w=40 LeftToRight
+   overflowed=True trailingWsLen=1
+   line: length=2 newline=1 width=96 widthInclTrailingWs=96 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: \t@0/96
+   tabs:  [i=0 x=0 advance=96 reachedStop=96]
+== [tab-only] "\t" w=40 RightToLeft
+   overflowed=True trailingWsLen=1
+   line: length=2 newline=1 width=96 widthInclTrailingWs=96 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: \t@0/96
+   tabs:  [i=0 x=0 advance=96 reachedStop=0]
+== [tab-only] "\t" w=80 LeftToRight
+   overflowed=True trailingWsLen=1
+   line: length=2 newline=1 width=96 widthInclTrailingWs=96 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: \t@0/96
+   tabs:  [i=0 x=0 advance=96 reachedStop=96]
+== [tab-only] "\t" w=80 RightToLeft
+   overflowed=True trailingWsLen=1
+   line: length=2 newline=1 width=96 widthInclTrailingWs=96 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: \t@0/96
+   tabs:  [i=0 x=0 advance=96 reachedStop=0]
+== [tab-only] "\t" w=160 LeftToRight
+   overflowed=False trailingWsLen=1
+   line: length=2 newline=1 width=96 widthInclTrailingWs=96 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: \t@0/96
+   tabs:  [i=0 x=0 advance=96 reachedStop=96]
+== [tab-only] "\t" w=160 RightToLeft
+   overflowed=False trailingWsLen=1
+   line: length=2 newline=1 width=96 widthInclTrailingWs=96 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: \t@0/96
+   tabs:  [i=0 x=0 advance=96 reachedStop=0]
+== [tab-only] "\t" w=320 LeftToRight
+   overflowed=False trailingWsLen=1
+   line: length=2 newline=1 width=96 widthInclTrailingWs=96 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: \t@0/96
+   tabs:  [i=0 x=0 advance=96 reachedStop=96]
+== [tab-only] "\t" w=320 RightToLeft
+   overflowed=False trailingWsLen=1
+   line: length=2 newline=1 width=96 widthInclTrailingWs=96 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: \t@0/96
+   tabs:  [i=0 x=0 advance=96 reachedStop=0]
+== [tab-only] "\t" w=10000 LeftToRight
+   overflowed=False trailingWsLen=1
+   line: length=2 newline=1 width=96 widthInclTrailingWs=96 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: \t@0/96
+   tabs:  [i=0 x=0 advance=96 reachedStop=96]
+== [tab-only] "\t" w=10000 RightToLeft
+   overflowed=False trailingWsLen=1
+   line: length=2 newline=1 width=96 widthInclTrailingWs=96 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: \t@0/96
+   tabs:  [i=0 x=0 advance=96 reachedStop=0]
+== [tab-two-mid] "a\tb\tc" w=40 LeftToRight
+   overflowed=True trailingWsLen=1
+   line: length=6 newline=1 width=204 widthInclTrailingWs=204 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 \t@13.346667/82.653333 b@96/13.346667 \t@109.346667/82.653333 c@192/12
+   tabs:  [i=1 x=13.346667 advance=82.653333 reachedStop=96] [i=3 x=109.346667 advance=82.653333 reachedStop=192]
+== [tab-two-mid] "a\tb\tc" w=40 RightToLeft
+   overflowed=True trailingWsLen=1
+   line: length=6 newline=1 width=204 widthInclTrailingWs=204 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@190.653333/13.346667 \t@107.996667/82.653333 b@94.653333/13.346667 \t@11.996667/82.653333 c@0/12
+   tabs:  [i=1 x=107.996667 advance=82.653333 reachedStop=107.996667] [i=3 x=11.996667 advance=82.653333 reachedStop=11.996667]
+== [tab-two-mid] "a\tb\tc" w=80 LeftToRight
+   overflowed=True trailingWsLen=1
+   line: length=6 newline=1 width=204 widthInclTrailingWs=204 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 \t@13.346667/82.653333 b@96/13.346667 \t@109.346667/82.653333 c@192/12
+   tabs:  [i=1 x=13.346667 advance=82.653333 reachedStop=96] [i=3 x=109.346667 advance=82.653333 reachedStop=192]
+== [tab-two-mid] "a\tb\tc" w=80 RightToLeft
+   overflowed=True trailingWsLen=1
+   line: length=6 newline=1 width=204 widthInclTrailingWs=204 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@190.653333/13.346667 \t@107.996667/82.653333 b@94.653333/13.346667 \t@11.996667/82.653333 c@0/12
+   tabs:  [i=1 x=107.996667 advance=82.653333 reachedStop=107.996667] [i=3 x=11.996667 advance=82.653333 reachedStop=11.996667]
+== [tab-two-mid] "a\tb\tc" w=160 LeftToRight
+   overflowed=True trailingWsLen=1
+   line: length=6 newline=1 width=204 widthInclTrailingWs=204 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 \t@13.346667/82.653333 b@96/13.346667 \t@109.346667/82.653333 c@192/12
+   tabs:  [i=1 x=13.346667 advance=82.653333 reachedStop=96] [i=3 x=109.346667 advance=82.653333 reachedStop=192]
+== [tab-two-mid] "a\tb\tc" w=160 RightToLeft
+   overflowed=True trailingWsLen=1
+   line: length=6 newline=1 width=204 widthInclTrailingWs=204 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@190.653333/13.346667 \t@107.996667/82.653333 b@94.653333/13.346667 \t@11.996667/82.653333 c@0/12
+   tabs:  [i=1 x=107.996667 advance=82.653333 reachedStop=107.996667] [i=3 x=11.996667 advance=82.653333 reachedStop=11.996667]
+== [tab-two-mid] "a\tb\tc" w=320 LeftToRight
+   overflowed=False trailingWsLen=1
+   line: length=6 newline=1 width=204 widthInclTrailingWs=204 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 \t@13.346667/82.653333 b@96/13.346667 \t@109.346667/82.653333 c@192/12
+   tabs:  [i=1 x=13.346667 advance=82.653333 reachedStop=96] [i=3 x=109.346667 advance=82.653333 reachedStop=192]
+== [tab-two-mid] "a\tb\tc" w=320 RightToLeft
+   overflowed=False trailingWsLen=1
+   line: length=6 newline=1 width=204 widthInclTrailingWs=204 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@190.653333/13.346667 \t@107.996667/82.653333 b@94.653333/13.346667 \t@11.996667/82.653333 c@0/12
+   tabs:  [i=1 x=107.996667 advance=82.653333 reachedStop=107.996667] [i=3 x=11.996667 advance=82.653333 reachedStop=11.996667]
+== [tab-two-mid] "a\tb\tc" w=10000 LeftToRight
+   overflowed=False trailingWsLen=1
+   line: length=6 newline=1 width=204 widthInclTrailingWs=204 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 \t@13.346667/82.653333 b@96/13.346667 \t@109.346667/82.653333 c@192/12
+   tabs:  [i=1 x=13.346667 advance=82.653333 reachedStop=96] [i=3 x=109.346667 advance=82.653333 reachedStop=192]
+== [tab-two-mid] "a\tb\tc" w=10000 RightToLeft
+   overflowed=False trailingWsLen=1
+   line: length=6 newline=1 width=204 widthInclTrailingWs=204 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@190.653333/13.346667 \t@107.996667/82.653333 b@94.653333/13.346667 \t@11.996667/82.653333 c@0/12
+   tabs:  [i=1 x=107.996667 advance=82.653333 reachedStop=107.996667] [i=3 x=11.996667 advance=82.653333 reachedStop=11.996667]
+== [tab-two-only] "\t\t" w=40 LeftToRight
+   overflowed=True trailingWsLen=1
+   line: length=3 newline=1 width=192 widthInclTrailingWs=192 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: \t@0/96 \t@96/96
+   tabs:  [i=0 x=0 advance=96 reachedStop=96] [i=1 x=96 advance=96 reachedStop=192]
+== [tab-two-only] "\t\t" w=40 RightToLeft
+   overflowed=True trailingWsLen=1
+   line: length=3 newline=1 width=192 widthInclTrailingWs=192 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: \t@96/96 \t@0/96
+   tabs:  [i=0 x=96 advance=96 reachedStop=96] [i=1 x=0 advance=96 reachedStop=0]
+== [tab-two-only] "\t\t" w=80 LeftToRight
+   overflowed=True trailingWsLen=1
+   line: length=3 newline=1 width=192 widthInclTrailingWs=192 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: \t@0/96 \t@96/96
+   tabs:  [i=0 x=0 advance=96 reachedStop=96] [i=1 x=96 advance=96 reachedStop=192]
+== [tab-two-only] "\t\t" w=80 RightToLeft
+   overflowed=True trailingWsLen=1
+   line: length=3 newline=1 width=192 widthInclTrailingWs=192 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: \t@96/96 \t@0/96
+   tabs:  [i=0 x=96 advance=96 reachedStop=96] [i=1 x=0 advance=96 reachedStop=0]
+== [tab-two-only] "\t\t" w=160 LeftToRight
+   overflowed=True trailingWsLen=1
+   line: length=3 newline=1 width=192 widthInclTrailingWs=192 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: \t@0/96 \t@96/96
+   tabs:  [i=0 x=0 advance=96 reachedStop=96] [i=1 x=96 advance=96 reachedStop=192]
+== [tab-two-only] "\t\t" w=160 RightToLeft
+   overflowed=True trailingWsLen=1
+   line: length=3 newline=1 width=192 widthInclTrailingWs=192 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: \t@96/96 \t@0/96
+   tabs:  [i=0 x=96 advance=96 reachedStop=96] [i=1 x=0 advance=96 reachedStop=0]
+== [tab-two-only] "\t\t" w=320 LeftToRight
+   overflowed=False trailingWsLen=1
+   line: length=3 newline=1 width=192 widthInclTrailingWs=192 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: \t@0/96 \t@96/96
+   tabs:  [i=0 x=0 advance=96 reachedStop=96] [i=1 x=96 advance=96 reachedStop=192]
+== [tab-two-only] "\t\t" w=320 RightToLeft
+   overflowed=False trailingWsLen=1
+   line: length=3 newline=1 width=192 widthInclTrailingWs=192 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: \t@96/96 \t@0/96
+   tabs:  [i=0 x=96 advance=96 reachedStop=96] [i=1 x=0 advance=96 reachedStop=0]
+== [tab-two-only] "\t\t" w=10000 LeftToRight
+   overflowed=False trailingWsLen=1
+   line: length=3 newline=1 width=192 widthInclTrailingWs=192 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: \t@0/96 \t@96/96
+   tabs:  [i=0 x=0 advance=96 reachedStop=96] [i=1 x=96 advance=96 reachedStop=192]
+== [tab-two-only] "\t\t" w=10000 RightToLeft
+   overflowed=False trailingWsLen=1
+   line: length=3 newline=1 width=192 widthInclTrailingWs=192 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: \t@96/96 \t@0/96
+   tabs:  [i=0 x=96 advance=96 reachedStop=96] [i=1 x=0 advance=96 reachedStop=0]
+== [tab-double-mid] "a\t\tb" w=40 LeftToRight
+   overflowed=True trailingWsLen=1
+   line: length=5 newline=1 width=205.346667 widthInclTrailingWs=205.346667 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 \t@13.346667/82.653333 \t@96/96 b@192/13.346667
+   tabs:  [i=1 x=13.346667 advance=82.653333 reachedStop=96] [i=2 x=96 advance=96 reachedStop=192]
+== [tab-double-mid] "a\t\tb" w=40 RightToLeft
+   overflowed=True trailingWsLen=1
+   line: length=5 newline=1 width=205.346667 widthInclTrailingWs=205.346667 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@192/13.346667 \t@109.343334/82.653333 \t@13.343334/96 b@0/13.346667
+   tabs:  [i=1 x=109.343334 advance=82.653333 reachedStop=109.343334] [i=2 x=13.343334 advance=96 reachedStop=13.343334]
+== [tab-double-mid] "a\t\tb" w=80 LeftToRight
+   overflowed=True trailingWsLen=1
+   line: length=5 newline=1 width=205.346667 widthInclTrailingWs=205.346667 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 \t@13.346667/82.653333 \t@96/96 b@192/13.346667
+   tabs:  [i=1 x=13.346667 advance=82.653333 reachedStop=96] [i=2 x=96 advance=96 reachedStop=192]
+== [tab-double-mid] "a\t\tb" w=80 RightToLeft
+   overflowed=True trailingWsLen=1
+   line: length=5 newline=1 width=205.346667 widthInclTrailingWs=205.346667 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@192/13.346667 \t@109.343334/82.653333 \t@13.343334/96 b@0/13.346667
+   tabs:  [i=1 x=109.343334 advance=82.653333 reachedStop=109.343334] [i=2 x=13.343334 advance=96 reachedStop=13.343334]
+== [tab-double-mid] "a\t\tb" w=160 LeftToRight
+   overflowed=True trailingWsLen=1
+   line: length=5 newline=1 width=205.346667 widthInclTrailingWs=205.346667 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 \t@13.346667/82.653333 \t@96/96 b@192/13.346667
+   tabs:  [i=1 x=13.346667 advance=82.653333 reachedStop=96] [i=2 x=96 advance=96 reachedStop=192]
+== [tab-double-mid] "a\t\tb" w=160 RightToLeft
+   overflowed=True trailingWsLen=1
+   line: length=5 newline=1 width=205.346667 widthInclTrailingWs=205.346667 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@192/13.346667 \t@109.343334/82.653333 \t@13.343334/96 b@0/13.346667
+   tabs:  [i=1 x=109.343334 advance=82.653333 reachedStop=109.343334] [i=2 x=13.343334 advance=96 reachedStop=13.343334]
+== [tab-double-mid] "a\t\tb" w=320 LeftToRight
+   overflowed=False trailingWsLen=1
+   line: length=5 newline=1 width=205.346667 widthInclTrailingWs=205.346667 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 \t@13.346667/82.653333 \t@96/96 b@192/13.346667
+   tabs:  [i=1 x=13.346667 advance=82.653333 reachedStop=96] [i=2 x=96 advance=96 reachedStop=192]
+== [tab-double-mid] "a\t\tb" w=320 RightToLeft
+   overflowed=False trailingWsLen=1
+   line: length=5 newline=1 width=205.346667 widthInclTrailingWs=205.346667 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@192/13.346667 \t@109.343334/82.653333 \t@13.343334/96 b@0/13.346667
+   tabs:  [i=1 x=109.343334 advance=82.653333 reachedStop=109.343334] [i=2 x=13.343334 advance=96 reachedStop=13.343334]
+== [tab-double-mid] "a\t\tb" w=10000 LeftToRight
+   overflowed=False trailingWsLen=1
+   line: length=5 newline=1 width=205.346667 widthInclTrailingWs=205.346667 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@0/13.346667 \t@13.346667/82.653333 \t@96/96 b@192/13.346667
+   tabs:  [i=1 x=13.346667 advance=82.653333 reachedStop=96] [i=2 x=96 advance=96 reachedStop=192]
+== [tab-double-mid] "a\t\tb" w=10000 RightToLeft
+   overflowed=False trailingWsLen=1
+   line: length=5 newline=1 width=205.346667 widthInclTrailingWs=205.346667 height=27.596667 baseline=22.12
+   per-char xFromLeft/width: a@192/13.346667 \t@109.343334/82.653333 \t@13.343334/96 b@0/13.346667
+   tabs:  [i=1 x=109.343334 advance=82.653333 reachedStop=109.343334] [i=2 x=13.343334 advance=96 reachedStop=13.343334]
+== [emSize=12] "\t" LeftToRight  lineWidth=48   [i=0 x=0 advance=48 reachedStop=48]
+== [emSize=12] "\t" RightToLeft  lineWidth=48   [i=0 x=0 advance=48 reachedStop=0]
+== [emSize=12] "a\tb" LeftToRight  lineWidth=54.673333   [i=1 x=6.673333 advance=41.326667 reachedStop=48]
+== [emSize=12] "a\tb" RightToLeft  lineWidth=54.673333   [i=1 x=6.67 advance=41.326667 reachedStop=6.67]
+== [emSize=12] "a\tb\tc" LeftToRight  lineWidth=102   [i=1 x=6.673333 advance=41.326667 reachedStop=48] [i=3 x=54.673333 advance=41.326667 reachedStop=96]
+== [emSize=12] "a\tb\tc" RightToLeft  lineWidth=102   [i=1 x=53.996667 advance=41.326667 reachedStop=53.996667] [i=3 x=5.996667 advance=41.326667 reachedStop=5.996667]
+== [emSize=48] "\t" LeftToRight  lineWidth=192   [i=0 x=0 advance=192 reachedStop=192]
+== [emSize=48] "\t" RightToLeft  lineWidth=192   [i=0 x=0 advance=192 reachedStop=0]
+== [emSize=48] "a\tb" LeftToRight  lineWidth=218.696667   [i=1 x=26.696667 advance=165.303333 reachedStop=192]
+== [emSize=48] "a\tb" RightToLeft  lineWidth=218.696667   [i=1 x=26.693334 advance=165.303333 reachedStop=26.693334]
+== [emSize=48] "a\tb\tc" LeftToRight  lineWidth=408   [i=1 x=26.696667 advance=165.303333 reachedStop=192] [i=3 x=218.696667 advance=165.303333 reachedStop=384]
+== [emSize=48] "a\tb\tc" RightToLeft  lineWidth=408   [i=1 x=215.996667 advance=165.303333 reachedStop=215.996667] [i=3 x=23.996667 advance=165.303333 reachedStop=23.996667]
+== [indent=24] "a\tb" LeftToRight
+   line width=109.346667  tabs:  [i=1 x=37.346667 advance=58.653333 reachedStop=96]
+== [indent=24] "a\tb" RightToLeft
+   line width=109.346667  tabs:  [i=1 x=13.343334 advance=58.653333 reachedStop=13.343334]
+== [indent=24] "\ta" LeftToRight
+   line width=109.346667  tabs:  [i=0 x=24 advance=72 reachedStop=96]
+== [indent=24] "\ta" RightToLeft
+   line width=109.346667  tabs:  [i=0 x=13.343334 advance=72 reachedStop=13.343334]
+== [indent=24] "a\tb\tc" LeftToRight
+   line width=204  tabs:  [i=1 x=37.346667 advance=58.653333 reachedStop=96] [i=3 x=109.346667 advance=82.653333 reachedStop=192]
+== [indent=24] "a\tb\tc" RightToLeft
+   line width=204  tabs:  [i=1 x=107.996667 advance=58.653333 reachedStop=107.996667] [i=3 x=11.996667 advance=82.653333 reachedStop=11.996667]
+== [indent=48] "a\tb" LeftToRight
+   line width=109.346667  tabs:  [i=1 x=61.346667 advance=34.653333 reachedStop=96]
+== [indent=48] "a\tb" RightToLeft
+   line width=109.346667  tabs:  [i=1 x=13.343334 advance=34.653333 reachedStop=13.343334]
+== [indent=48] "\ta" LeftToRight
+   line width=109.346667  tabs:  [i=0 x=48 advance=48 reachedStop=96]
+== [indent=48] "\ta" RightToLeft
+   line width=109.346667  tabs:  [i=0 x=13.343334 advance=48 reachedStop=13.343334]
+== [indent=48] "a\tb\tc" LeftToRight
+   line width=204  tabs:  [i=1 x=61.346667 advance=34.653333 reachedStop=96] [i=3 x=109.346667 advance=82.653333 reachedStop=192]
+== [indent=48] "a\tb\tc" RightToLeft
+   line width=204  tabs:  [i=1 x=107.996667 advance=34.653333 reachedStop=107.996667] [i=3 x=11.996667 advance=82.653333 reachedStop=11.996667]

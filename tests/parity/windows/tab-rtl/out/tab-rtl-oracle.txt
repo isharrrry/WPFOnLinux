@@ -1,0 +1,375 @@
+WPF tab oracle - RTL paragraph + PURE RTL content (human readable)
+generated: 2026-09-14T10:50:40.6575582Z
+font: Arial (file:///C:/WINDOWS/FONTS/ARIAL.TTF)   Dpi=96   TextWrapping=Wrap   TextAlignment=Left   LineHeight=0(natural)
+arms: default (DefaultIncrementalTab not overridden)  |  tab0 (DefaultIncrementalTab = 0)
+content: PURE Hebrew / PURE Arabic (no Latin) so bidi cannot reorder anything
+
+== [he-notab@w40@em24@RTL@default] "אבג דה"
+   line 0: [0,4) nl=0 trailWs=1 w=36.093333 witw=42.76 ovf=False cause=at-space  "אבג "
+   line 1: [4,6) nl=1 trailWs=1 w=26.65 witw=26.65 ovf=False cause=end-of-text  "דה"
+== [he-notab@w40@em24@RTL@tab0] "אבג דה"
+   line 0: [0,4) nl=0 trailWs=1 w=36.093333 witw=42.76 ovf=False cause=at-space  "אבג "
+   line 1: [4,6) nl=1 trailWs=1 w=26.65 witw=26.65 ovf=False cause=end-of-text  "דה"
+== [he-notab@w80@em24@RTL@default] "אבג דה"
+   line 0: [0,6) nl=1 trailWs=1 w=69.41 witw=69.41 ovf=False cause=end-of-text  "אבג דה"
+== [he-notab@w80@em24@RTL@tab0] "אבג דה"
+   line 0: [0,6) nl=1 trailWs=1 w=69.41 witw=69.41 ovf=False cause=end-of-text  "אבג דה"
+== [he-notab@w160@em24@RTL@default] "אבג דה"
+   line 0: [0,6) nl=1 trailWs=1 w=69.41 witw=69.41 ovf=False cause=end-of-text  "אבג דה"
+== [he-notab@w160@em24@RTL@tab0] "אבג דה"
+   line 0: [0,6) nl=1 trailWs=1 w=69.41 witw=69.41 ovf=False cause=end-of-text  "אבג דה"
+== [he-notab@w320@em24@RTL@default] "אבג דה"
+   line 0: [0,6) nl=1 trailWs=1 w=69.41 witw=69.41 ovf=False cause=end-of-text  "אבג דה"
+== [he-notab@w320@em24@RTL@tab0] "אבג דה"
+   line 0: [0,6) nl=1 trailWs=1 w=69.41 witw=69.41 ovf=False cause=end-of-text  "אבג דה"
+== [he-tab-single@w40@em24@RTL@default] "א\tב"
+   line 0: [0,1) nl=0 trailWs=0 w=13.513333 witw=13.513333 ovf=False cause=before-tab  "א"
+   line 1: [1,2) nl=0 trailWs=0 w=40 witw=40 ovf=False cause=after-tab  "\t"
+   line 2: [2,3) nl=1 trailWs=1 w=13.006667 witw=13.006667 ovf=False cause=end-of-text  "ב"
+== [he-tab-single@w40@em24@RTL@tab0] "א\tב"
+   line 0: [0,3) nl=1 trailWs=1 w=26.523333 witw=26.523333 ovf=False cause=end-of-text  "א\tב"
+== [he-tab-single@w80@em24@RTL@default] "א\tב"
+   line 0: [0,1) nl=0 trailWs=0 w=13.513333 witw=13.513333 ovf=False cause=before-tab  "א"
+   line 1: [1,2) nl=0 trailWs=0 w=80 witw=80 ovf=False cause=after-tab  "\t"
+   line 2: [2,3) nl=1 trailWs=1 w=13.006667 witw=13.006667 ovf=False cause=end-of-text  "ב"
+== [he-tab-single@w80@em24@RTL@tab0] "א\tב"
+   line 0: [0,3) nl=1 trailWs=1 w=26.523333 witw=26.523333 ovf=False cause=end-of-text  "א\tב"
+== [he-tab-single@w160@em24@RTL@default] "א\tב"
+   line 0: [0,3) nl=1 trailWs=1 w=109.006667 witw=109.006667 ovf=False cause=end-of-text  "א\tב"
+== [he-tab-single@w160@em24@RTL@tab0] "א\tב"
+   line 0: [0,3) nl=1 trailWs=1 w=26.523333 witw=26.523333 ovf=False cause=end-of-text  "א\tב"
+== [he-tab-single@w320@em24@RTL@default] "א\tב"
+   line 0: [0,3) nl=1 trailWs=1 w=109.006667 witw=109.006667 ovf=False cause=end-of-text  "א\tב"
+== [he-tab-single@w320@em24@RTL@tab0] "א\tב"
+   line 0: [0,3) nl=1 trailWs=1 w=26.523333 witw=26.523333 ovf=False cause=end-of-text  "א\tב"
+== [he-tab-head@w40@em24@RTL@default] "\tא"
+   line 0: [0,1) nl=0 trailWs=0 w=40 witw=40 ovf=False cause=after-tab  "\t"
+   line 1: [1,2) nl=1 trailWs=1 w=13.513333 witw=13.513333 ovf=False cause=end-of-text  "א"
+== [he-tab-head@w40@em24@RTL@tab0] "\tא"
+   line 0: [0,2) nl=1 trailWs=1 w=13.516667 witw=13.516667 ovf=False cause=end-of-text  "\tא"
+== [he-tab-head@w80@em24@RTL@default] "\tא"
+   line 0: [0,1) nl=0 trailWs=0 w=80 witw=80 ovf=False cause=after-tab  "\t"
+   line 1: [1,2) nl=1 trailWs=1 w=13.513333 witw=13.513333 ovf=False cause=end-of-text  "א"
+== [he-tab-head@w80@em24@RTL@tab0] "\tא"
+   line 0: [0,2) nl=1 trailWs=1 w=13.516667 witw=13.516667 ovf=False cause=end-of-text  "\tא"
+== [he-tab-head@w160@em24@RTL@default] "\tא"
+   line 0: [0,2) nl=1 trailWs=1 w=109.513333 witw=109.513333 ovf=False cause=end-of-text  "\tא"
+== [he-tab-head@w160@em24@RTL@tab0] "\tא"
+   line 0: [0,2) nl=1 trailWs=1 w=13.516667 witw=13.516667 ovf=False cause=end-of-text  "\tא"
+== [he-tab-head@w320@em24@RTL@default] "\tא"
+   line 0: [0,2) nl=1 trailWs=1 w=109.513333 witw=109.513333 ovf=False cause=end-of-text  "\tא"
+== [he-tab-head@w320@em24@RTL@tab0] "\tא"
+   line 0: [0,2) nl=1 trailWs=1 w=13.516667 witw=13.516667 ovf=False cause=end-of-text  "\tא"
+== [he-tab-tail@w40@em24@RTL@default] "א\t"
+   line 0: [0,1) nl=0 trailWs=0 w=13.513333 witw=13.513333 ovf=False cause=before-tab  "א"
+   line 1: [1,2) nl=1 trailWs=1 w=40 witw=40 ovf=False cause=end-of-text  "\t"
+== [he-tab-tail@w40@em24@RTL@tab0] "א\t"
+   line 0: [0,2) nl=1 trailWs=1 w=13.516667 witw=13.516667 ovf=False cause=end-of-text  "א\t"
+== [he-tab-tail@w80@em24@RTL@default] "א\t"
+   line 0: [0,1) nl=0 trailWs=0 w=13.513333 witw=13.513333 ovf=False cause=before-tab  "א"
+   line 1: [1,2) nl=1 trailWs=1 w=80 witw=80 ovf=False cause=end-of-text  "\t"
+== [he-tab-tail@w80@em24@RTL@tab0] "א\t"
+   line 0: [0,2) nl=1 trailWs=1 w=13.516667 witw=13.516667 ovf=False cause=end-of-text  "א\t"
+== [he-tab-tail@w160@em24@RTL@default] "א\t"
+   line 0: [0,2) nl=1 trailWs=1 w=96 witw=96 ovf=False cause=end-of-text  "א\t"
+== [he-tab-tail@w160@em24@RTL@tab0] "א\t"
+   line 0: [0,2) nl=1 trailWs=1 w=13.516667 witw=13.516667 ovf=False cause=end-of-text  "א\t"
+== [he-tab-tail@w320@em24@RTL@default] "א\t"
+   line 0: [0,2) nl=1 trailWs=1 w=96 witw=96 ovf=False cause=end-of-text  "א\t"
+== [he-tab-tail@w320@em24@RTL@tab0] "א\t"
+   line 0: [0,2) nl=1 trailWs=1 w=13.516667 witw=13.516667 ovf=False cause=end-of-text  "א\t"
+== [he-tab-adj@w40@em24@RTL@default] "א\t\tב"
+   line 0: [0,1) nl=0 trailWs=0 w=13.513333 witw=13.513333 ovf=False cause=before-tab  "א"
+   line 1: [1,2) nl=0 trailWs=0 w=40 witw=40 ovf=False cause=after-tab  "\t"
+   line 2: [2,3) nl=0 trailWs=0 w=40 witw=40 ovf=False cause=after-tab  "\t"
+   line 3: [3,4) nl=1 trailWs=1 w=13.006667 witw=13.006667 ovf=False cause=end-of-text  "ב"
+== [he-tab-adj@w40@em24@RTL@tab0] "א\t\tב"
+   line 0: [0,4) nl=1 trailWs=1 w=26.526667 witw=26.526667 ovf=False cause=end-of-text  "א\t\tב"
+== [he-tab-adj@w80@em24@RTL@default] "א\t\tב"
+   line 0: [0,1) nl=0 trailWs=0 w=13.513333 witw=13.513333 ovf=False cause=before-tab  "א"
+   line 1: [1,2) nl=0 trailWs=0 w=80 witw=80 ovf=False cause=after-tab  "\t"
+   line 2: [2,3) nl=0 trailWs=0 w=80 witw=80 ovf=False cause=after-tab  "\t"
+   line 3: [3,4) nl=1 trailWs=1 w=13.006667 witw=13.006667 ovf=False cause=end-of-text  "ב"
+== [he-tab-adj@w80@em24@RTL@tab0] "א\t\tב"
+   line 0: [0,4) nl=1 trailWs=1 w=26.526667 witw=26.526667 ovf=False cause=end-of-text  "א\t\tב"
+== [he-tab-adj@w160@em24@RTL@default] "א\t\tב"
+   line 0: [0,2) nl=0 trailWs=0 w=96 witw=96 ovf=False cause=after-tab  "א\t"
+   line 1: [2,4) nl=1 trailWs=1 w=109.006667 witw=109.006667 ovf=False cause=end-of-text  "\tב"
+== [he-tab-adj@w160@em24@RTL@tab0] "א\t\tב"
+   line 0: [0,4) nl=1 trailWs=1 w=26.526667 witw=26.526667 ovf=False cause=end-of-text  "א\t\tב"
+== [he-tab-adj@w320@em24@RTL@default] "א\t\tב"
+   line 0: [0,4) nl=1 trailWs=1 w=205.006667 witw=205.006667 ovf=False cause=end-of-text  "א\t\tב"
+== [he-tab-adj@w320@em24@RTL@tab0] "א\t\tב"
+   line 0: [0,4) nl=1 trailWs=1 w=26.526667 witw=26.526667 ovf=False cause=end-of-text  "א\t\tב"
+== [he-tab-only@w40@em24@RTL@default] "\t\t"
+   line 0: [0,1) nl=0 trailWs=0 w=40 witw=40 ovf=False cause=after-tab  "\t"
+   line 1: [1,2) nl=1 trailWs=1 w=40 witw=40 ovf=False cause=end-of-text  "\t"
+== [he-tab-only@w40@em24@RTL@tab0] "\t\t"
+   line 0: [0,2) nl=1 trailWs=1 w=0.006667 witw=0.006667 ovf=False cause=end-of-text  "\t\t"
+== [he-tab-only@w80@em24@RTL@default] "\t\t"
+   line 0: [0,1) nl=0 trailWs=0 w=80 witw=80 ovf=False cause=after-tab  "\t"
+   line 1: [1,2) nl=1 trailWs=1 w=80 witw=80 ovf=False cause=end-of-text  "\t"
+== [he-tab-only@w80@em24@RTL@tab0] "\t\t"
+   line 0: [0,2) nl=1 trailWs=1 w=0.006667 witw=0.006667 ovf=False cause=end-of-text  "\t\t"
+== [he-tab-only@w160@em24@RTL@default] "\t\t"
+   line 0: [0,1) nl=0 trailWs=0 w=96 witw=96 ovf=False cause=after-tab  "\t"
+   line 1: [1,2) nl=1 trailWs=1 w=96 witw=96 ovf=False cause=end-of-text  "\t"
+== [he-tab-only@w160@em24@RTL@tab0] "\t\t"
+   line 0: [0,2) nl=1 trailWs=1 w=0.006667 witw=0.006667 ovf=False cause=end-of-text  "\t\t"
+== [he-tab-only@w320@em24@RTL@default] "\t\t"
+   line 0: [0,2) nl=1 trailWs=1 w=192 witw=192 ovf=False cause=end-of-text  "\t\t"
+== [he-tab-only@w320@em24@RTL@tab0] "\t\t"
+   line 0: [0,2) nl=1 trailWs=1 w=0.006667 witw=0.006667 ovf=False cause=end-of-text  "\t\t"
+== [he-tab-b34@w40@em24@RTL@default] "א\tב\t\tג\tד"
+   line 0: [0,1) nl=0 trailWs=0 w=13.513333 witw=13.513333 ovf=False cause=before-tab  "א"
+   line 1: [1,2) nl=0 trailWs=0 w=40 witw=40 ovf=False cause=after-tab  "\t"
+   line 2: [2,3) nl=0 trailWs=0 w=13.006667 witw=13.006667 ovf=False cause=before-tab  "ב"
+   line 3: [3,4) nl=0 trailWs=0 w=40 witw=40 ovf=False cause=after-tab  "\t"
+   line 4: [4,5) nl=0 trailWs=0 w=40 witw=40 ovf=False cause=after-tab  "\t"
+   line 5: [5,6) nl=0 trailWs=0 w=9.573333 witw=9.573333 ovf=False cause=before-tab  "ג"
+   line 6: [6,7) nl=0 trailWs=0 w=40 witw=40 ovf=False cause=after-tab  "\t"
+   line 7: [7,8) nl=1 trailWs=1 w=12.2 witw=12.2 ovf=False cause=end-of-text  "ד"
+== [he-tab-b34@w40@em24@RTL@tab0] "א\tב\t\tג\tד"
+   line 0: [0,6) nl=0 trailWs=0 w=36.103333 witw=36.103333 ovf=False cause=before-tab  "א\tב\t\tג"
+   line 1: [6,8) nl=1 trailWs=1 w=12.203333 witw=12.203333 ovf=False cause=end-of-text  "\tד"
+== [he-tab-b34@w80@em24@RTL@default] "א\tב\t\tג\tד"
+   line 0: [0,1) nl=0 trailWs=0 w=13.513333 witw=13.513333 ovf=False cause=before-tab  "א"
+   line 1: [1,2) nl=0 trailWs=0 w=80 witw=80 ovf=False cause=after-tab  "\t"
+   line 2: [2,3) nl=0 trailWs=0 w=13.006667 witw=13.006667 ovf=False cause=before-tab  "ב"
+   line 3: [3,4) nl=0 trailWs=0 w=80 witw=80 ovf=False cause=after-tab  "\t"
+   line 4: [4,5) nl=0 trailWs=0 w=80 witw=80 ovf=False cause=after-tab  "\t"
+   line 5: [5,6) nl=0 trailWs=0 w=9.573333 witw=9.573333 ovf=False cause=before-tab  "ג"
+   line 6: [6,7) nl=0 trailWs=0 w=80 witw=80 ovf=False cause=after-tab  "\t"
+   line 7: [7,8) nl=1 trailWs=1 w=12.2 witw=12.2 ovf=False cause=end-of-text  "ד"
+== [he-tab-b34@w80@em24@RTL@tab0] "א\tב\t\tג\tד"
+   line 0: [0,8) nl=1 trailWs=1 w=48.306667 witw=48.306667 ovf=False cause=end-of-text  "א\tב\t\tג\tד"
+== [he-tab-b34@w160@em24@RTL@default] "א\tב\t\tג\tד"
+   line 0: [0,3) nl=0 trailWs=0 w=109.006667 witw=109.006667 ovf=False cause=before-tab  "א\tב"
+   line 1: [3,4) nl=0 trailWs=0 w=96 witw=96 ovf=False cause=after-tab  "\t"
+   line 2: [4,6) nl=0 trailWs=0 w=105.573333 witw=105.573333 ovf=False cause=before-tab  "\tג"
+   line 3: [6,8) nl=1 trailWs=1 w=108.2 witw=108.2 ovf=False cause=end-of-text  "\tד"
+== [he-tab-b34@w160@em24@RTL@tab0] "א\tב\t\tג\tד"
+   line 0: [0,8) nl=1 trailWs=1 w=48.306667 witw=48.306667 ovf=False cause=end-of-text  "א\tב\t\tג\tד"
+== [he-tab-b34@w320@em24@RTL@default] "א\tב\t\tג\tד"
+   line 0: [0,6) nl=0 trailWs=0 w=297.573333 witw=297.573333 ovf=False cause=before-tab  "א\tב\t\tג"
+   line 1: [6,8) nl=1 trailWs=1 w=108.2 witw=108.2 ovf=False cause=end-of-text  "\tד"
+== [he-tab-b34@w320@em24@RTL@tab0] "א\tב\t\tג\tד"
+   line 0: [0,8) nl=1 trailWs=1 w=48.306667 witw=48.306667 ovf=False cause=end-of-text  "א\tב\t\tג\tד"
+== [ar-tab-single@w40@em24@RTL@default] "ا\tب"
+   line 0: [0,1) nl=0 trailWs=0 w=4.97 witw=4.97 ovf=False cause=before-tab  "ا"
+   line 1: [1,2) nl=0 trailWs=0 w=40 witw=40 ovf=False cause=after-tab  "\t"
+   line 2: [2,3) nl=1 trailWs=1 w=17.12 witw=17.12 ovf=False cause=end-of-text  "ب"
+== [ar-tab-single@w40@em24@RTL@tab0] "ا\tب"
+   line 0: [0,3) nl=1 trailWs=1 w=22.093333 witw=22.093333 ovf=False cause=end-of-text  "ا\tب"
+== [ar-tab-single@w80@em24@RTL@default] "ا\tب"
+   line 0: [0,1) nl=0 trailWs=0 w=4.97 witw=4.97 ovf=False cause=before-tab  "ا"
+   line 1: [1,2) nl=0 trailWs=0 w=80 witw=80 ovf=False cause=after-tab  "\t"
+   line 2: [2,3) nl=1 trailWs=1 w=17.12 witw=17.12 ovf=False cause=end-of-text  "ب"
+== [ar-tab-single@w80@em24@RTL@tab0] "ا\tب"
+   line 0: [0,3) nl=1 trailWs=1 w=22.093333 witw=22.093333 ovf=False cause=end-of-text  "ا\tب"
+== [ar-tab-single@w160@em24@RTL@default] "ا\tب"
+   line 0: [0,3) nl=1 trailWs=1 w=113.12 witw=113.12 ovf=False cause=end-of-text  "ا\tب"
+== [ar-tab-single@w160@em24@RTL@tab0] "ا\tب"
+   line 0: [0,3) nl=1 trailWs=1 w=22.093333 witw=22.093333 ovf=False cause=end-of-text  "ا\tب"
+== [ar-tab-single@w320@em24@RTL@default] "ا\tب"
+   line 0: [0,3) nl=1 trailWs=1 w=113.12 witw=113.12 ovf=False cause=end-of-text  "ا\tب"
+== [ar-tab-single@w320@em24@RTL@tab0] "ا\tب"
+   line 0: [0,3) nl=1 trailWs=1 w=22.093333 witw=22.093333 ovf=False cause=end-of-text  "ا\tب"
+== [ar-tab-b34@w40@em24@RTL@default] "ا\tب\t\tج\tد"
+   line 0: [0,1) nl=0 trailWs=0 w=4.97 witw=4.97 ovf=False cause=before-tab  "ا"
+   line 1: [1,2) nl=0 trailWs=0 w=40 witw=40 ovf=False cause=after-tab  "\t"
+   line 2: [2,3) nl=0 trailWs=0 w=17.12 witw=17.12 ovf=False cause=before-tab  "ب"
+   line 3: [3,4) nl=0 trailWs=0 w=40 witw=40 ovf=False cause=after-tab  "\t"
+   line 4: [4,5) nl=0 trailWs=0 w=40 witw=40 ovf=False cause=after-tab  "\t"
+   line 5: [5,6) nl=0 trailWs=0 w=13.513333 witw=13.513333 ovf=False cause=before-tab  "ج"
+   line 6: [6,7) nl=0 trailWs=0 w=40 witw=40 ovf=False cause=after-tab  "\t"
+   line 7: [7,8) nl=1 trailWs=1 w=8.096667 witw=8.096667 ovf=False cause=end-of-text  "د"
+== [ar-tab-b34@w40@em24@RTL@tab0] "ا\tب\t\tج\tد"
+   line 0: [0,6) nl=0 trailWs=0 w=35.613333 witw=35.613333 ovf=False cause=before-tab  "ا\tب\t\tج"
+   line 1: [6,8) nl=1 trailWs=1 w=8.1 witw=8.1 ovf=False cause=end-of-text  "\tد"
+== [ar-tab-b34@w80@em24@RTL@default] "ا\tب\t\tج\tد"
+   line 0: [0,1) nl=0 trailWs=0 w=4.97 witw=4.97 ovf=False cause=before-tab  "ا"
+   line 1: [1,2) nl=0 trailWs=0 w=80 witw=80 ovf=False cause=after-tab  "\t"
+   line 2: [2,3) nl=0 trailWs=0 w=17.12 witw=17.12 ovf=False cause=before-tab  "ب"
+   line 3: [3,4) nl=0 trailWs=0 w=80 witw=80 ovf=False cause=after-tab  "\t"
+   line 4: [4,5) nl=0 trailWs=0 w=80 witw=80 ovf=False cause=after-tab  "\t"
+   line 5: [5,6) nl=0 trailWs=0 w=13.513333 witw=13.513333 ovf=False cause=before-tab  "ج"
+   line 6: [6,7) nl=0 trailWs=0 w=80 witw=80 ovf=False cause=after-tab  "\t"
+   line 7: [7,8) nl=1 trailWs=1 w=8.096667 witw=8.096667 ovf=False cause=end-of-text  "د"
+== [ar-tab-b34@w80@em24@RTL@tab0] "ا\tب\t\tج\tد"
+   line 0: [0,8) nl=1 trailWs=1 w=43.713333 witw=43.713333 ovf=False cause=end-of-text  "ا\tب\t\tج\tد"
+== [ar-tab-b34@w160@em24@RTL@default] "ا\tب\t\tج\tد"
+   line 0: [0,3) nl=0 trailWs=0 w=113.12 witw=113.12 ovf=False cause=before-tab  "ا\tب"
+   line 1: [3,4) nl=0 trailWs=0 w=96 witw=96 ovf=False cause=after-tab  "\t"
+   line 2: [4,6) nl=0 trailWs=0 w=109.513333 witw=109.513333 ovf=False cause=before-tab  "\tج"
+   line 3: [6,8) nl=1 trailWs=1 w=104.096667 witw=104.096667 ovf=False cause=end-of-text  "\tد"
+== [ar-tab-b34@w160@em24@RTL@tab0] "ا\tب\t\tج\tد"
+   line 0: [0,8) nl=1 trailWs=1 w=43.713333 witw=43.713333 ovf=False cause=end-of-text  "ا\tب\t\tج\tد"
+== [ar-tab-b34@w320@em24@RTL@default] "ا\tب\t\tج\tد"
+   line 0: [0,6) nl=0 trailWs=0 w=301.513333 witw=301.513333 ovf=False cause=before-tab  "ا\tب\t\tج"
+   line 1: [6,8) nl=1 trailWs=1 w=104.096667 witw=104.096667 ovf=False cause=end-of-text  "\tد"
+== [ar-tab-b34@w320@em24@RTL@tab0] "ا\tب\t\tج\tد"
+   line 0: [0,8) nl=1 trailWs=1 w=43.713333 witw=43.713333 ovf=False cause=end-of-text  "ا\tب\t\tج\tد"
+== [he-tab-single@w40@em24@LTR@default] "א\tב"
+   line 0: [0,1) nl=0 trailWs=0 w=13.513333 witw=13.513333 ovf=False cause=before-tab  "א"
+   line 1: [1,2) nl=0 trailWs=0 w=40 witw=40 ovf=False cause=after-tab  "\t"
+   line 2: [2,3) nl=1 trailWs=1 w=13.006667 witw=13.006667 ovf=False cause=end-of-text  "ב"
+== [he-tab-single@w40@em24@LTR@tab0] "א\tב"
+   line 0: [0,3) nl=1 trailWs=1 w=26.523333 witw=26.523333 ovf=False cause=end-of-text  "א\tב"
+== [he-tab-single@w160@em24@LTR@default] "א\tב"
+   line 0: [0,3) nl=1 trailWs=1 w=109.006667 witw=109.006667 ovf=False cause=end-of-text  "א\tב"
+== [he-tab-single@w160@em24@LTR@tab0] "א\tב"
+   line 0: [0,3) nl=1 trailWs=1 w=26.523333 witw=26.523333 ovf=False cause=end-of-text  "א\tב"
+== [he-tab-adj@w40@em24@LTR@default] "א\t\tב"
+   line 0: [0,1) nl=0 trailWs=0 w=13.513333 witw=13.513333 ovf=False cause=before-tab  "א"
+   line 1: [1,2) nl=0 trailWs=0 w=40 witw=40 ovf=False cause=after-tab  "\t"
+   line 2: [2,3) nl=0 trailWs=0 w=40 witw=40 ovf=False cause=after-tab  "\t"
+   line 3: [3,4) nl=1 trailWs=1 w=13.006667 witw=13.006667 ovf=False cause=end-of-text  "ב"
+== [he-tab-adj@w40@em24@LTR@tab0] "א\t\tב"
+   line 0: [0,4) nl=1 trailWs=1 w=26.526667 witw=26.526667 ovf=False cause=end-of-text  "א\t\tב"
+== [he-tab-adj@w160@em24@LTR@default] "א\t\tב"
+   line 0: [0,2) nl=0 trailWs=0 w=96 witw=96 ovf=False cause=after-tab  "א\t"
+   line 1: [2,4) nl=1 trailWs=1 w=109.006667 witw=109.006667 ovf=False cause=end-of-text  "\tב"
+== [he-tab-adj@w160@em24@LTR@tab0] "א\t\tב"
+   line 0: [0,4) nl=1 trailWs=1 w=26.526667 witw=26.526667 ovf=False cause=end-of-text  "א\t\tב"
+== [he-tab-b34@w40@em24@LTR@default] "א\tב\t\tג\tד"
+   line 0: [0,1) nl=0 trailWs=0 w=13.513333 witw=13.513333 ovf=False cause=before-tab  "א"
+   line 1: [1,2) nl=0 trailWs=0 w=40 witw=40 ovf=False cause=after-tab  "\t"
+   line 2: [2,3) nl=0 trailWs=0 w=13.006667 witw=13.006667 ovf=False cause=before-tab  "ב"
+   line 3: [3,4) nl=0 trailWs=0 w=40 witw=40 ovf=False cause=after-tab  "\t"
+   line 4: [4,5) nl=0 trailWs=0 w=40 witw=40 ovf=False cause=after-tab  "\t"
+   line 5: [5,6) nl=0 trailWs=0 w=9.573333 witw=9.573333 ovf=False cause=before-tab  "ג"
+   line 6: [6,7) nl=0 trailWs=0 w=40 witw=40 ovf=False cause=after-tab  "\t"
+   line 7: [7,8) nl=1 trailWs=1 w=12.2 witw=12.2 ovf=False cause=end-of-text  "ד"
+== [he-tab-b34@w40@em24@LTR@tab0] "א\tב\t\tג\tד"
+   line 0: [0,6) nl=0 trailWs=0 w=36.103333 witw=36.103333 ovf=False cause=before-tab  "א\tב\t\tג"
+   line 1: [6,8) nl=1 trailWs=1 w=12.203333 witw=12.203333 ovf=False cause=end-of-text  "\tד"
+== [he-tab-b34@w160@em24@LTR@default] "א\tב\t\tג\tד"
+   line 0: [0,3) nl=0 trailWs=0 w=109.006667 witw=109.006667 ovf=False cause=before-tab  "א\tב"
+   line 1: [3,4) nl=0 trailWs=0 w=96 witw=96 ovf=False cause=after-tab  "\t"
+   line 2: [4,6) nl=0 trailWs=0 w=105.573333 witw=105.573333 ovf=False cause=before-tab  "\tג"
+   line 3: [6,8) nl=1 trailWs=1 w=108.2 witw=108.2 ovf=False cause=end-of-text  "\tד"
+== [he-tab-b34@w160@em24@LTR@tab0] "א\tב\t\tג\tד"
+   line 0: [0,8) nl=1 trailWs=1 w=48.306667 witw=48.306667 ovf=False cause=end-of-text  "א\tב\t\tג\tד"
+
+=== DERIVED ANSWERS ===
+-- Q1_rtlStopAnchoredAtRightEdge
+   case=he-tab-single@w160@em24@RTL@default  flow=RightToLeft  lineWidth=109.006667  interval=96  tabLeftEdge=13.006667  tabRightEdge=95.493334  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=13.513333  betterEdge=LEFT edge sits on the grid  
+   case=he-tab-single@w320@em24@RTL@default  flow=RightToLeft  lineWidth=109.006667  interval=96  tabLeftEdge=13.006667  tabRightEdge=95.493334  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=13.513333  betterEdge=LEFT edge sits on the grid  
+   case=he-tab-head@w160@em24@RTL@default  flow=RightToLeft  lineWidth=109.513333  interval=96  tabLeftEdge=13.513333  tabRightEdge=109.513333  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=0  betterEdge=ambiguous  
+   case=he-tab-head@w320@em24@RTL@default  flow=RightToLeft  lineWidth=109.513333  interval=96  tabLeftEdge=13.513333  tabRightEdge=109.513333  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=0  betterEdge=ambiguous  
+   case=he-tab-tail@w160@em24@RTL@default  flow=RightToLeft  lineWidth=96  interval=96  tabLeftEdge=0  tabRightEdge=82.486667  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=13.513333  betterEdge=LEFT edge sits on the grid  
+   case=he-tab-tail@w320@em24@RTL@default  flow=RightToLeft  lineWidth=96  interval=96  tabLeftEdge=0  tabRightEdge=82.486667  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=13.513333  betterEdge=LEFT edge sits on the grid  
+   case=he-tab-adj@w160@em24@RTL@default  flow=RightToLeft  lineWidth=96  interval=96  tabLeftEdge=0  tabRightEdge=82.486667  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=13.513333  betterEdge=LEFT edge sits on the grid  
+   case=he-tab-adj@w160@em24@RTL@default  flow=RightToLeft  lineWidth=109.006667  interval=96  tabLeftEdge=13.006667  tabRightEdge=109.006667  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=0  betterEdge=ambiguous  
+   case=he-tab-adj@w320@em24@RTL@default  flow=RightToLeft  lineWidth=205.006667  interval=96  tabLeftEdge=109.006667  tabRightEdge=191.493334  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=13.513333  betterEdge=LEFT edge sits on the grid  
+   case=he-tab-adj@w320@em24@RTL@default  flow=RightToLeft  lineWidth=205.006667  interval=96  tabLeftEdge=13.006667  tabRightEdge=109.006667  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=0  betterEdge=ambiguous  
+   case=he-tab-only@w160@em24@RTL@default  flow=RightToLeft  lineWidth=96  interval=96  tabLeftEdge=0  tabRightEdge=96  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=0  betterEdge=ambiguous  
+   case=he-tab-only@w160@em24@RTL@default  flow=RightToLeft  lineWidth=96  interval=96  tabLeftEdge=0  tabRightEdge=96  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=0  betterEdge=ambiguous  
+   case=he-tab-only@w320@em24@RTL@default  flow=RightToLeft  lineWidth=192  interval=96  tabLeftEdge=96  tabRightEdge=192  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=0  betterEdge=ambiguous  
+   case=he-tab-only@w320@em24@RTL@default  flow=RightToLeft  lineWidth=192  interval=96  tabLeftEdge=0  tabRightEdge=96  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=0  betterEdge=ambiguous  
+   case=he-tab-b34@w160@em24@RTL@default  flow=RightToLeft  lineWidth=109.006667  interval=96  tabLeftEdge=13.006667  tabRightEdge=95.493334  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=13.513333  betterEdge=LEFT edge sits on the grid  
+   case=he-tab-b34@w160@em24@RTL@default  flow=RightToLeft  lineWidth=96  interval=96  tabLeftEdge=0  tabRightEdge=96  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=0  betterEdge=ambiguous  
+   case=he-tab-b34@w160@em24@RTL@default  flow=RightToLeft  lineWidth=105.573333  interval=96  tabLeftEdge=9.573333  tabRightEdge=105.573333  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=0  betterEdge=ambiguous  
+   case=he-tab-b34@w160@em24@RTL@default  flow=RightToLeft  lineWidth=108.2  interval=96  tabLeftEdge=12.2  tabRightEdge=108.2  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=0  betterEdge=ambiguous  
+   case=he-tab-b34@w320@em24@RTL@default  flow=RightToLeft  lineWidth=297.573333  interval=96  tabLeftEdge=201.573333  tabRightEdge=284.06  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=13.513333  betterEdge=LEFT edge sits on the grid  
+   case=he-tab-b34@w320@em24@RTL@default  flow=RightToLeft  lineWidth=297.573333  interval=96  tabLeftEdge=105.573333  tabRightEdge=188.566666  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=13.006667  betterEdge=LEFT edge sits on the grid  
+   case=he-tab-b34@w320@em24@RTL@default  flow=RightToLeft  lineWidth=297.573333  interval=96  tabLeftEdge=9.573333  tabRightEdge=105.573333  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=0  betterEdge=ambiguous  
+   case=he-tab-b34@w320@em24@RTL@default  flow=RightToLeft  lineWidth=108.2  interval=96  tabLeftEdge=12.2  tabRightEdge=108.2  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=0  betterEdge=ambiguous  
+   case=ar-tab-single@w160@em24@RTL@default  flow=RightToLeft  lineWidth=113.12  interval=96  tabLeftEdge=17.12  tabRightEdge=108.15  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=4.97  betterEdge=LEFT edge sits on the grid  
+   case=ar-tab-single@w320@em24@RTL@default  flow=RightToLeft  lineWidth=113.12  interval=96  tabLeftEdge=17.12  tabRightEdge=108.15  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=4.97  betterEdge=LEFT edge sits on the grid  
+   case=ar-tab-b34@w160@em24@RTL@default  flow=RightToLeft  lineWidth=113.12  interval=96  tabLeftEdge=17.12  tabRightEdge=108.15  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=4.97  betterEdge=LEFT edge sits on the grid  
+   case=ar-tab-b34@w160@em24@RTL@default  flow=RightToLeft  lineWidth=96  interval=96  tabLeftEdge=0  tabRightEdge=96  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=0  betterEdge=ambiguous  
+   case=ar-tab-b34@w160@em24@RTL@default  flow=RightToLeft  lineWidth=109.513333  interval=96  tabLeftEdge=13.513333  tabRightEdge=109.513333  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=0  betterEdge=ambiguous  
+   case=ar-tab-b34@w160@em24@RTL@default  flow=RightToLeft  lineWidth=104.096667  interval=96  tabLeftEdge=8.096667  tabRightEdge=104.096667  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=0  betterEdge=ambiguous  
+   case=ar-tab-b34@w320@em24@RTL@default  flow=RightToLeft  lineWidth=301.513333  interval=96  tabLeftEdge=205.513333  tabRightEdge=296.543333  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=4.97  betterEdge=LEFT edge sits on the grid  
+   case=ar-tab-b34@w320@em24@RTL@default  flow=RightToLeft  lineWidth=301.513333  interval=96  tabLeftEdge=109.513333  tabRightEdge=188.393333  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=17.12  betterEdge=LEFT edge sits on the grid  
+   case=ar-tab-b34@w320@em24@RTL@default  flow=RightToLeft  lineWidth=301.513333  interval=96  tabLeftEdge=13.513333  tabRightEdge=109.513333  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=0  betterEdge=ambiguous  
+   case=ar-tab-b34@w320@em24@RTL@default  flow=RightToLeft  lineWidth=104.096667  interval=96  tabLeftEdge=8.096667  tabRightEdge=104.096667  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=0  betterEdge=ambiguous  
+   case=he-tab-single@w160@em24@LTR@default  flow=LeftToRight  lineWidth=109.006667  interval=96  tabLeftEdge=13.513333  tabRightEdge=96  leftEdgeDistFromGrid=0.506666  rightEdgeDistFromGrid=13.006667  betterEdge=LEFT edge sits on the grid  
+   case=he-tab-adj@w160@em24@LTR@default  flow=LeftToRight  lineWidth=96  interval=96  tabLeftEdge=13.513333  tabRightEdge=96  leftEdgeDistFromGrid=13.513333  rightEdgeDistFromGrid=0  betterEdge=RIGHT edge sits on the grid  
+   case=he-tab-adj@w160@em24@LTR@default  flow=LeftToRight  lineWidth=109.006667  interval=96  tabLeftEdge=0  tabRightEdge=96  leftEdgeDistFromGrid=13.006667  rightEdgeDistFromGrid=13.006667  betterEdge=ambiguous  
+   case=he-tab-b34@w160@em24@LTR@default  flow=LeftToRight  lineWidth=109.006667  interval=96  tabLeftEdge=13.513333  tabRightEdge=96  leftEdgeDistFromGrid=0.506666  rightEdgeDistFromGrid=13.006667  betterEdge=LEFT edge sits on the grid  
+   case=he-tab-b34@w160@em24@LTR@default  flow=LeftToRight  lineWidth=96  interval=96  tabLeftEdge=0  tabRightEdge=96  leftEdgeDistFromGrid=0  rightEdgeDistFromGrid=0  betterEdge=ambiguous  
+   case=he-tab-b34@w160@em24@LTR@default  flow=LeftToRight  lineWidth=105.573333  interval=96  tabLeftEdge=0  tabRightEdge=96  leftEdgeDistFromGrid=9.573333  rightEdgeDistFromGrid=9.573333  betterEdge=ambiguous  
+   case=he-tab-b34@w160@em24@LTR@default  flow=LeftToRight  lineWidth=108.2  interval=96  tabLeftEdge=0  tabRightEdge=96  leftEdgeDistFromGrid=12.2  rightEdgeDistFromGrid=12.2  betterEdge=ambiguous  
+-- Q2_reachedStopEdge
+   case=he-tab-single@w160@em24@RTL@default  flow=RightToLeft  tabLeftEdge=13.006667  tabRightEdge=95.493334  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=13.513333  stopEdge=LEFT edge  
+   case=he-tab-single@w320@em24@RTL@default  flow=RightToLeft  tabLeftEdge=13.006667  tabRightEdge=95.493334  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=13.513333  stopEdge=LEFT edge  
+   case=he-tab-head@w160@em24@RTL@default  flow=RightToLeft  tabLeftEdge=13.513333  tabRightEdge=109.513333  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=0  stopEdge=ambiguous  
+   case=he-tab-head@w320@em24@RTL@default  flow=RightToLeft  tabLeftEdge=13.513333  tabRightEdge=109.513333  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=0  stopEdge=ambiguous  
+   case=he-tab-tail@w160@em24@RTL@default  flow=RightToLeft  tabLeftEdge=0  tabRightEdge=82.486667  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=13.513333  stopEdge=LEFT edge  
+   case=he-tab-tail@w320@em24@RTL@default  flow=RightToLeft  tabLeftEdge=0  tabRightEdge=82.486667  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=13.513333  stopEdge=LEFT edge  
+   case=he-tab-adj@w160@em24@RTL@default  flow=RightToLeft  tabLeftEdge=0  tabRightEdge=82.486667  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=13.513333  stopEdge=LEFT edge  
+   case=he-tab-adj@w160@em24@RTL@default  flow=RightToLeft  tabLeftEdge=13.006667  tabRightEdge=109.006667  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=0  stopEdge=ambiguous  
+   case=he-tab-adj@w320@em24@RTL@default  flow=RightToLeft  tabLeftEdge=109.006667  tabRightEdge=191.493334  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=13.513333  stopEdge=LEFT edge  
+   case=he-tab-adj@w320@em24@RTL@default  flow=RightToLeft  tabLeftEdge=13.006667  tabRightEdge=109.006667  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=0  stopEdge=ambiguous  
+   case=he-tab-only@w160@em24@RTL@default  flow=RightToLeft  tabLeftEdge=0  tabRightEdge=96  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=0  stopEdge=ambiguous  
+   case=he-tab-only@w160@em24@RTL@default  flow=RightToLeft  tabLeftEdge=0  tabRightEdge=96  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=0  stopEdge=ambiguous  
+   case=he-tab-only@w320@em24@RTL@default  flow=RightToLeft  tabLeftEdge=96  tabRightEdge=192  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=0  stopEdge=ambiguous  
+   case=he-tab-only@w320@em24@RTL@default  flow=RightToLeft  tabLeftEdge=0  tabRightEdge=96  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=0  stopEdge=ambiguous  
+   case=he-tab-b34@w160@em24@RTL@default  flow=RightToLeft  tabLeftEdge=13.006667  tabRightEdge=95.493334  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=13.513333  stopEdge=LEFT edge  
+   case=he-tab-b34@w160@em24@RTL@default  flow=RightToLeft  tabLeftEdge=0  tabRightEdge=96  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=0  stopEdge=ambiguous  
+   case=he-tab-b34@w160@em24@RTL@default  flow=RightToLeft  tabLeftEdge=9.573333  tabRightEdge=105.573333  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=0  stopEdge=ambiguous  
+   case=he-tab-b34@w160@em24@RTL@default  flow=RightToLeft  tabLeftEdge=12.2  tabRightEdge=108.2  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=0  stopEdge=ambiguous  
+   case=he-tab-b34@w320@em24@RTL@default  flow=RightToLeft  tabLeftEdge=201.573333  tabRightEdge=284.06  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=13.513333  stopEdge=LEFT edge  
+   case=he-tab-b34@w320@em24@RTL@default  flow=RightToLeft  tabLeftEdge=105.573333  tabRightEdge=188.566666  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=13.006667  stopEdge=LEFT edge  
+   case=he-tab-b34@w320@em24@RTL@default  flow=RightToLeft  tabLeftEdge=9.573333  tabRightEdge=105.573333  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=0  stopEdge=ambiguous  
+   case=he-tab-b34@w320@em24@RTL@default  flow=RightToLeft  tabLeftEdge=12.2  tabRightEdge=108.2  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=0  stopEdge=ambiguous  
+   case=ar-tab-single@w160@em24@RTL@default  flow=RightToLeft  tabLeftEdge=17.12  tabRightEdge=108.15  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=4.97  stopEdge=LEFT edge  
+   case=ar-tab-single@w320@em24@RTL@default  flow=RightToLeft  tabLeftEdge=17.12  tabRightEdge=108.15  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=4.97  stopEdge=LEFT edge  
+   case=ar-tab-b34@w160@em24@RTL@default  flow=RightToLeft  tabLeftEdge=17.12  tabRightEdge=108.15  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=4.97  stopEdge=LEFT edge  
+   case=ar-tab-b34@w160@em24@RTL@default  flow=RightToLeft  tabLeftEdge=0  tabRightEdge=96  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=0  stopEdge=ambiguous  
+   case=ar-tab-b34@w160@em24@RTL@default  flow=RightToLeft  tabLeftEdge=13.513333  tabRightEdge=109.513333  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=0  stopEdge=ambiguous  
+   case=ar-tab-b34@w160@em24@RTL@default  flow=RightToLeft  tabLeftEdge=8.096667  tabRightEdge=104.096667  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=0  stopEdge=ambiguous  
+   case=ar-tab-b34@w320@em24@RTL@default  flow=RightToLeft  tabLeftEdge=205.513333  tabRightEdge=296.543333  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=4.97  stopEdge=LEFT edge  
+   case=ar-tab-b34@w320@em24@RTL@default  flow=RightToLeft  tabLeftEdge=109.513333  tabRightEdge=188.393333  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=17.12  stopEdge=LEFT edge  
+   case=ar-tab-b34@w320@em24@RTL@default  flow=RightToLeft  tabLeftEdge=13.513333  tabRightEdge=109.513333  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=0  stopEdge=ambiguous  
+   case=ar-tab-b34@w320@em24@RTL@default  flow=RightToLeft  tabLeftEdge=8.096667  tabRightEdge=104.096667  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=0  stopEdge=ambiguous  
+   case=he-tab-single@w160@em24@LTR@default  flow=LeftToRight  tabLeftEdge=13.513333  tabRightEdge=96  distFromRightEdgeToLeftEdgeModInterval=0.506666  distFromRightEdgeToRightEdgeModInterval=13.006667  stopEdge=LEFT edge  
+   case=he-tab-adj@w160@em24@LTR@default  flow=LeftToRight  tabLeftEdge=13.513333  tabRightEdge=96  distFromRightEdgeToLeftEdgeModInterval=13.513333  distFromRightEdgeToRightEdgeModInterval=0  stopEdge=RIGHT edge  
+   case=he-tab-adj@w160@em24@LTR@default  flow=LeftToRight  tabLeftEdge=0  tabRightEdge=96  distFromRightEdgeToLeftEdgeModInterval=13.006667  distFromRightEdgeToRightEdgeModInterval=13.006667  stopEdge=ambiguous  
+   case=he-tab-b34@w160@em24@LTR@default  flow=LeftToRight  tabLeftEdge=13.513333  tabRightEdge=96  distFromRightEdgeToLeftEdgeModInterval=0.506666  distFromRightEdgeToRightEdgeModInterval=13.006667  stopEdge=LEFT edge  
+   case=he-tab-b34@w160@em24@LTR@default  flow=LeftToRight  tabLeftEdge=0  tabRightEdge=96  distFromRightEdgeToLeftEdgeModInterval=0  distFromRightEdgeToRightEdgeModInterval=0  stopEdge=ambiguous  
+   case=he-tab-b34@w160@em24@LTR@default  flow=LeftToRight  tabLeftEdge=0  tabRightEdge=96  distFromRightEdgeToLeftEdgeModInterval=9.573333  distFromRightEdgeToRightEdgeModInterval=9.573333  stopEdge=ambiguous  
+   case=he-tab-b34@w160@em24@LTR@default  flow=LeftToRight  tabLeftEdge=0  tabRightEdge=96  distFromRightEdgeToLeftEdgeModInterval=12.2  distFromRightEdgeToRightEdgeModInterval=12.2  stopEdge=ambiguous  
+-- Q3_clampedTabs
+   case=he-tab-single@w40@em24@RTL@default  flow=RightToLeft  container=40  lineWidth=40  tabLeftEdge=0  tabRightEdge=40  tabWidth=40  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=he-tab-single@w80@em24@RTL@default  flow=RightToLeft  container=80  lineWidth=80  tabLeftEdge=0  tabRightEdge=80  tabWidth=80  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=he-tab-head@w40@em24@RTL@default  flow=RightToLeft  container=40  lineWidth=40  tabLeftEdge=0  tabRightEdge=40  tabWidth=40  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=he-tab-head@w80@em24@RTL@default  flow=RightToLeft  container=80  lineWidth=80  tabLeftEdge=0  tabRightEdge=80  tabWidth=80  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=he-tab-tail@w40@em24@RTL@default  flow=RightToLeft  container=40  lineWidth=40  tabLeftEdge=0  tabRightEdge=40  tabWidth=40  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=he-tab-tail@w80@em24@RTL@default  flow=RightToLeft  container=80  lineWidth=80  tabLeftEdge=0  tabRightEdge=80  tabWidth=80  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=he-tab-adj@w40@em24@RTL@default  flow=RightToLeft  container=40  lineWidth=40  tabLeftEdge=0  tabRightEdge=40  tabWidth=40  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=he-tab-adj@w40@em24@RTL@default  flow=RightToLeft  container=40  lineWidth=40  tabLeftEdge=0  tabRightEdge=40  tabWidth=40  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=he-tab-adj@w80@em24@RTL@default  flow=RightToLeft  container=80  lineWidth=80  tabLeftEdge=0  tabRightEdge=80  tabWidth=80  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=he-tab-adj@w80@em24@RTL@default  flow=RightToLeft  container=80  lineWidth=80  tabLeftEdge=0  tabRightEdge=80  tabWidth=80  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=he-tab-only@w40@em24@RTL@default  flow=RightToLeft  container=40  lineWidth=40  tabLeftEdge=0  tabRightEdge=40  tabWidth=40  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=he-tab-only@w40@em24@RTL@default  flow=RightToLeft  container=40  lineWidth=40  tabLeftEdge=0  tabRightEdge=40  tabWidth=40  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=he-tab-only@w80@em24@RTL@default  flow=RightToLeft  container=80  lineWidth=80  tabLeftEdge=0  tabRightEdge=80  tabWidth=80  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=he-tab-only@w80@em24@RTL@default  flow=RightToLeft  container=80  lineWidth=80  tabLeftEdge=0  tabRightEdge=80  tabWidth=80  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=he-tab-b34@w40@em24@RTL@default  flow=RightToLeft  container=40  lineWidth=40  tabLeftEdge=0  tabRightEdge=40  tabWidth=40  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=he-tab-b34@w40@em24@RTL@default  flow=RightToLeft  container=40  lineWidth=40  tabLeftEdge=0  tabRightEdge=40  tabWidth=40  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=he-tab-b34@w40@em24@RTL@default  flow=RightToLeft  container=40  lineWidth=40  tabLeftEdge=0  tabRightEdge=40  tabWidth=40  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=he-tab-b34@w40@em24@RTL@default  flow=RightToLeft  container=40  lineWidth=40  tabLeftEdge=0  tabRightEdge=40  tabWidth=40  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=he-tab-b34@w80@em24@RTL@default  flow=RightToLeft  container=80  lineWidth=80  tabLeftEdge=0  tabRightEdge=80  tabWidth=80  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=he-tab-b34@w80@em24@RTL@default  flow=RightToLeft  container=80  lineWidth=80  tabLeftEdge=0  tabRightEdge=80  tabWidth=80  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=he-tab-b34@w80@em24@RTL@default  flow=RightToLeft  container=80  lineWidth=80  tabLeftEdge=0  tabRightEdge=80  tabWidth=80  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=he-tab-b34@w80@em24@RTL@default  flow=RightToLeft  container=80  lineWidth=80  tabLeftEdge=0  tabRightEdge=80  tabWidth=80  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=ar-tab-single@w40@em24@RTL@default  flow=RightToLeft  container=40  lineWidth=40  tabLeftEdge=0  tabRightEdge=40  tabWidth=40  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=ar-tab-single@w80@em24@RTL@default  flow=RightToLeft  container=80  lineWidth=80  tabLeftEdge=0  tabRightEdge=80  tabWidth=80  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=ar-tab-b34@w40@em24@RTL@default  flow=RightToLeft  container=40  lineWidth=40  tabLeftEdge=0  tabRightEdge=40  tabWidth=40  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=ar-tab-b34@w40@em24@RTL@default  flow=RightToLeft  container=40  lineWidth=40  tabLeftEdge=0  tabRightEdge=40  tabWidth=40  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=ar-tab-b34@w40@em24@RTL@default  flow=RightToLeft  container=40  lineWidth=40  tabLeftEdge=0  tabRightEdge=40  tabWidth=40  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=ar-tab-b34@w40@em24@RTL@default  flow=RightToLeft  container=40  lineWidth=40  tabLeftEdge=0  tabRightEdge=40  tabWidth=40  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=ar-tab-b34@w80@em24@RTL@default  flow=RightToLeft  container=80  lineWidth=80  tabLeftEdge=0  tabRightEdge=80  tabWidth=80  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=ar-tab-b34@w80@em24@RTL@default  flow=RightToLeft  container=80  lineWidth=80  tabLeftEdge=0  tabRightEdge=80  tabWidth=80  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=ar-tab-b34@w80@em24@RTL@default  flow=RightToLeft  container=80  lineWidth=80  tabLeftEdge=0  tabRightEdge=80  tabWidth=80  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=ar-tab-b34@w80@em24@RTL@default  flow=RightToLeft  container=80  lineWidth=80  tabLeftEdge=0  tabRightEdge=80  tabWidth=80  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=he-tab-single@w40@em24@LTR@default  flow=LeftToRight  container=40  lineWidth=40  tabLeftEdge=0  tabRightEdge=40  tabWidth=40  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=he-tab-adj@w40@em24@LTR@default  flow=LeftToRight  container=40  lineWidth=40  tabLeftEdge=0  tabRightEdge=40  tabWidth=40  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=he-tab-adj@w40@em24@LTR@default  flow=LeftToRight  container=40  lineWidth=40  tabLeftEdge=0  tabRightEdge=40  tabWidth=40  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=he-tab-b34@w40@em24@LTR@default  flow=LeftToRight  container=40  lineWidth=40  tabLeftEdge=0  tabRightEdge=40  tabWidth=40  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=he-tab-b34@w40@em24@LTR@default  flow=LeftToRight  container=40  lineWidth=40  tabLeftEdge=0  tabRightEdge=40  tabWidth=40  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=he-tab-b34@w40@em24@LTR@default  flow=LeftToRight  container=40  lineWidth=40  tabLeftEdge=0  tabRightEdge=40  tabWidth=40  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  
+   case=he-tab-b34@w40@em24@LTR@default  flow=LeftToRight  container=40  lineWidth=40  tabLeftEdge=0  tabRightEdge=40  tabWidth=40  note=single-tab line whose width equals the container: the tab advance was clamped to the line width  

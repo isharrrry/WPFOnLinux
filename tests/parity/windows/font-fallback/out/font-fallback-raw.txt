@@ -1,0 +1,311 @@
+WPF oracle - missing-glyph advance / font fallback (RAW machine output)
+generated: 2026-09-14T14:05:08.9094920Z
+machine: Microsoft Windows NT 10.0.22631.0 | .NET 10.0.7 | PresentationCore 10.0.0.0
+Dpi=96 emSize=24 paragraphWidth=400 TextWrapping=Wrap TextAlignment=Left
+observed font/glyph come from the PUBLIC API TextLine.GetIndexedGlyphRuns() -> GlyphRun.GlyphTypeface / .GlyphIndices
+
+system font coverage U+4E0E: 15/91 families, 80/563 faces cover it
+system font coverage U+6C49: 10/91 families, 50/563 faces cover it
+system font coverage U+05D0: 10/91 families, 97/563 faces cover it
+system font coverage U+0627: 10/91 families, 86/563 faces cover it
+system font coverage U+2192: 41/91 families, 289/563 faces cover it
+system font coverage U+E000: 2/91 families, 8/563 faces cover it
+system font coverage U+10FFFD: 0/91 families, 0/563 faces cover it
+
+== [A-missing-glyph/U+4E0E@single-Arial] char='与' len=1
+   setting: single-Arial (single font family) spec=Typeface("Arial")
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/ARIAL.TTF covers=False glyph=-1 glyphAdvEm=n/a notdefAdvEm=0.75 notdefAdvDip=18
+   measured: advance=24 lineWidth=24 oneEm=True equalsNotdef=False equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/YUGOTHM.TTC#1 families=Yu Gothic UI glyph=3883 isNotdef=False fallback=True bidi=0
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/YUGOTHM.TTC#1 glyphs=[3883] adv=24 emSize=24 bidi=0
+== [A-missing-glyph/U+4E0E@single-TimesNewRoman] char='与' len=1
+   setting: single-TimesNewRoman (single font family) spec=Typeface("Times New Roman")
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/TIMES.TTF covers=False glyph=-1 glyphAdvEm=n/a notdefAdvEm=0.777832 notdefAdvDip=18.667969
+   measured: advance=24 lineWidth=24 oneEm=True equalsNotdef=False equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/YUGOTHM.TTC#1 families=Yu Gothic UI glyph=3883 isNotdef=False fallback=True bidi=0
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/YUGOTHM.TTC#1 glyphs=[3883] adv=24 emSize=24 bidi=0
+== [A-missing-glyph/U+4E0E@file-NotoSans-Regular] char='与' len=1
+   setting: file-NotoSans-Regular (FILE font family) spec=FontFamily(new Uri("file:///C:/u1-shaping/fonts/"), "./#" + <family name read from the ttf>)
+   specified font: resolved=True uri=file:///C:/U1-SHAPING/FONTS/NOTOSANS-REGULAR.TTF covers=False glyph=-1 glyphAdvEm=n/a notdefAdvEm=0.6 notdefAdvDip=14.4
+   measured: advance=24 lineWidth=24 oneEm=True equalsNotdef=False equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/YUGOTHM.TTC#1 families=Yu Gothic UI glyph=3883 isNotdef=False fallback=True bidi=0
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/YUGOTHM.TTC#1 glyphs=[3883] adv=24 emSize=24 bidi=0
+== [A-missing-glyph/U+4E0E@list-Arial-SegoeUISymbol] char='与' len=1
+   setting: list-Arial-SegoeUISymbol (font family LIST) spec=FontFamily("Arial, Segoe UI Symbol")
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/ARIAL.TTF covers=False glyph=-1 glyphAdvEm=n/a notdefAdvEm=0.75 notdefAdvDip=18
+   measured: advance=24 lineWidth=24 oneEm=True equalsNotdef=False equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/YUGOTHM.TTC#1 families=Yu Gothic UI glyph=3883 isNotdef=False fallback=True bidi=0
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/YUGOTHM.TTC#1 glyphs=[3883] adv=24 emSize=24 bidi=0
+== [A-missing-glyph/U+4E0E@typeface-declared-fallback-YaHei] char='与' len=1
+   setting: typeface-declared-fallback-YaHei (Typeface with a declared fallbackFontFamily) spec=Typeface(FontFamily("Arial"), Normal, Normal, Normal, fallbackFontFamily: FontFamily("Microsoft YaHei"))
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/ARIAL.TTF covers=False glyph=-1 glyphAdvEm=n/a notdefAdvEm=0.75 notdefAdvDip=18
+   measured: advance=24 lineWidth=24 oneEm=True equalsNotdef=False equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/MSYH.TTC families=Microsoft YaHei glyph=1034 isNotdef=False fallback=True bidi=0
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/MSYH.TTC glyphs=[1034] adv=24 emSize=24 bidi=0
+== [A-missing-glyph/U+4E0E@explicit-covering-Microsoft YaHei] char='与' len=1
+   setting: explicit-covering-Microsoft YaHei (explicit family that DOES cover the code point) spec=Typeface("Microsoft YaHei")
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/MSYH.TTC covers=True glyph=1034 glyphAdvEm=1 notdefAdvEm=0.697266 notdefAdvDip=16.734375
+   measured: advance=24 lineWidth=24 oneEm=True equalsNotdef=False equalsOwnGlyph=True
+   observed: font=file:///C:/WINDOWS/FONTS/MSYH.TTC families=Microsoft YaHei glyph=1034 isNotdef=False fallback=False bidi=0
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/MSYH.TTC glyphs=[1034] adv=24 emSize=24 bidi=0
+== [A-missing-glyph/U+6C49@single-Arial] char='汉' len=1
+   setting: single-Arial (single font family) spec=Typeface("Arial")
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/ARIAL.TTF covers=False glyph=-1 glyphAdvEm=n/a notdefAdvEm=0.75 notdefAdvDip=18
+   measured: advance=24 lineWidth=24 oneEm=True equalsNotdef=False equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/MSJH.TTC#1 families=Microsoft JhengHei UI glyph=15408 isNotdef=False fallback=True bidi=0
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/MSJH.TTC#1 glyphs=[15408] adv=24 emSize=24 bidi=0
+== [A-missing-glyph/U+6C49@single-TimesNewRoman] char='汉' len=1
+   setting: single-TimesNewRoman (single font family) spec=Typeface("Times New Roman")
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/TIMES.TTF covers=False glyph=-1 glyphAdvEm=n/a notdefAdvEm=0.777832 notdefAdvDip=18.667969
+   measured: advance=24 lineWidth=24 oneEm=True equalsNotdef=False equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/MSJH.TTC#1 families=Microsoft JhengHei UI glyph=15408 isNotdef=False fallback=True bidi=0
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/MSJH.TTC#1 glyphs=[15408] adv=24 emSize=24 bidi=0
+== [A-missing-glyph/U+6C49@file-NotoSans-Regular] char='汉' len=1
+   setting: file-NotoSans-Regular (FILE font family) spec=FontFamily(new Uri("file:///C:/u1-shaping/fonts/"), "./#" + <family name read from the ttf>)
+   specified font: resolved=True uri=file:///C:/U1-SHAPING/FONTS/NOTOSANS-REGULAR.TTF covers=False glyph=-1 glyphAdvEm=n/a notdefAdvEm=0.6 notdefAdvDip=14.4
+   measured: advance=24 lineWidth=24 oneEm=True equalsNotdef=False equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/MSJH.TTC#1 families=Microsoft JhengHei UI glyph=15408 isNotdef=False fallback=True bidi=0
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/MSJH.TTC#1 glyphs=[15408] adv=24 emSize=24 bidi=0
+== [A-missing-glyph/U+6C49@list-Arial-SegoeUISymbol] char='汉' len=1
+   setting: list-Arial-SegoeUISymbol (font family LIST) spec=FontFamily("Arial, Segoe UI Symbol")
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/ARIAL.TTF covers=False glyph=-1 glyphAdvEm=n/a notdefAdvEm=0.75 notdefAdvDip=18
+   measured: advance=24 lineWidth=24 oneEm=True equalsNotdef=False equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/MSJH.TTC#1 families=Microsoft JhengHei UI glyph=15408 isNotdef=False fallback=True bidi=0
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/MSJH.TTC#1 glyphs=[15408] adv=24 emSize=24 bidi=0
+== [A-missing-glyph/U+6C49@typeface-declared-fallback-YaHei] char='汉' len=1
+   setting: typeface-declared-fallback-YaHei (Typeface with a declared fallbackFontFamily) spec=Typeface(FontFamily("Arial"), Normal, Normal, Normal, fallbackFontFamily: FontFamily("Microsoft YaHei"))
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/ARIAL.TTF covers=False glyph=-1 glyphAdvEm=n/a notdefAdvEm=0.75 notdefAdvDip=18
+   measured: advance=24 lineWidth=24 oneEm=True equalsNotdef=False equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/MSYH.TTC families=Microsoft YaHei glyph=2126 isNotdef=False fallback=True bidi=0
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/MSYH.TTC glyphs=[2126] adv=24 emSize=24 bidi=0
+== [A-missing-glyph/U+6C49@explicit-covering-Microsoft YaHei] char='汉' len=1
+   setting: explicit-covering-Microsoft YaHei (explicit family that DOES cover the code point) spec=Typeface("Microsoft YaHei")
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/MSYH.TTC covers=True glyph=2126 glyphAdvEm=1 notdefAdvEm=0.697266 notdefAdvDip=16.734375
+   measured: advance=24 lineWidth=24 oneEm=True equalsNotdef=False equalsOwnGlyph=True
+   observed: font=file:///C:/WINDOWS/FONTS/MSYH.TTC families=Microsoft YaHei glyph=2126 isNotdef=False fallback=False bidi=0
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/MSYH.TTC glyphs=[2126] adv=24 emSize=24 bidi=0
+== [A-missing-glyph/U+05D0@single-Arial] char='א' len=1
+   setting: single-Arial (single font family) spec=Typeface("Arial")
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/ARIAL.TTF covers=True glyph=672 glyphAdvEm=0.562988 notdefAdvEm=0.75 notdefAdvDip=18
+   measured: advance=13.513333 lineWidth=13.513333 oneEm=False equalsNotdef=False equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/ARIAL.TTF families=Arial glyph=672 isNotdef=False fallback=False bidi=1
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/ARIAL.TTF glyphs=[672] adv=13.512 emSize=24 bidi=1
+== [A-missing-glyph/U+05D0@single-TimesNewRoman] char='א' len=1
+   setting: single-TimesNewRoman (single font family) spec=Typeface("Times New Roman")
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/TIMES.TTF covers=True glyph=672 glyphAdvEm=0.481445 notdefAdvEm=0.777832 notdefAdvDip=18.667969
+   measured: advance=11.553333 lineWidth=11.553333 oneEm=False equalsNotdef=False equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/TIMES.TTF families=Times New Roman glyph=672 isNotdef=False fallback=False bidi=1
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/TIMES.TTF glyphs=[672] adv=11.544 emSize=24 bidi=1
+== [A-missing-glyph/U+05D0@file-NotoSans-Regular] char='א' len=1
+   setting: file-NotoSans-Regular (FILE font family) spec=FontFamily(new Uri("file:///C:/u1-shaping/fonts/"), "./#" + <family name read from the ttf>)
+   specified font: resolved=True uri=file:///C:/U1-SHAPING/FONTS/NOTOSANS-REGULAR.TTF covers=False glyph=-1 glyphAdvEm=n/a notdefAdvEm=0.6 notdefAdvDip=14.4
+   measured: advance=15.28 lineWidth=15.28 oneEm=False equalsNotdef=False equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/SEGOEUI.TTF families=Segoe UI glyph=2920 isNotdef=False fallback=True bidi=1
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/SEGOEUI.TTF glyphs=[2920] adv=15.288 emSize=24 bidi=1
+== [A-missing-glyph/U+05D0@list-Arial-SegoeUISymbol] char='א' len=1
+   setting: list-Arial-SegoeUISymbol (font family LIST) spec=FontFamily("Arial, Segoe UI Symbol")
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/ARIAL.TTF covers=True glyph=672 glyphAdvEm=0.562988 notdefAdvEm=0.75 notdefAdvDip=18
+   measured: advance=13.513333 lineWidth=13.513333 oneEm=False equalsNotdef=False equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/ARIAL.TTF families=Arial glyph=672 isNotdef=False fallback=False bidi=1
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/ARIAL.TTF glyphs=[672] adv=13.512 emSize=24 bidi=1
+== [A-missing-glyph/U+05D0@typeface-declared-fallback-YaHei] char='א' len=1
+   setting: typeface-declared-fallback-YaHei (Typeface with a declared fallbackFontFamily) spec=Typeface(FontFamily("Arial"), Normal, Normal, Normal, fallbackFontFamily: FontFamily("Microsoft YaHei"))
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/ARIAL.TTF covers=True glyph=672 glyphAdvEm=0.562988 notdefAdvEm=0.75 notdefAdvDip=18
+   measured: advance=13.513333 lineWidth=13.513333 oneEm=False equalsNotdef=False equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/ARIAL.TTF families=Arial glyph=672 isNotdef=False fallback=False bidi=1
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/ARIAL.TTF glyphs=[672] adv=13.512 emSize=24 bidi=1
+== [A-missing-glyph/U+05D0@explicit-covering-Segoe UI] char='א' len=1
+   setting: explicit-covering-Segoe UI (explicit family that DOES cover the code point) spec=Typeface("Segoe UI")
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/SEGOEUI.TTF covers=True glyph=2920 glyphAdvEm=0.636719 notdefAdvEm=0.645508 notdefAdvDip=15.492188
+   measured: advance=15.28 lineWidth=15.28 oneEm=False equalsNotdef=False equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/SEGOEUI.TTF families=Segoe UI glyph=2920 isNotdef=False fallback=False bidi=1
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/SEGOEUI.TTF glyphs=[2920] adv=15.288 emSize=24 bidi=1
+== [A-missing-glyph/U+0627@single-Arial] char='ا' len=1
+   setting: single-Arial (single font family) spec=Typeface("Arial")
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/ARIAL.TTF covers=True glyph=909 glyphAdvEm=0.207031 notdefAdvEm=0.75 notdefAdvDip=18
+   measured: advance=4.97 lineWidth=4.97 oneEm=False equalsNotdef=False equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/ARIAL.TTF families=Arial glyph=909 isNotdef=False fallback=False bidi=1
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/ARIAL.TTF glyphs=[909] adv=4.968 emSize=24 bidi=1
+== [A-missing-glyph/U+0627@single-TimesNewRoman] char='ا' len=1
+   setting: single-TimesNewRoman (single font family) spec=Typeface("Times New Roman")
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/TIMES.TTF covers=True glyph=909 glyphAdvEm=0.207031 notdefAdvEm=0.777832 notdefAdvDip=18.667969
+   measured: advance=4.97 lineWidth=4.97 oneEm=False equalsNotdef=False equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/TIMES.TTF families=Times New Roman glyph=909 isNotdef=False fallback=False bidi=1
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/TIMES.TTF glyphs=[909] adv=4.968 emSize=24 bidi=1
+== [A-missing-glyph/U+0627@file-NotoSans-Regular] char='ا' len=1
+   setting: file-NotoSans-Regular (FILE font family) spec=FontFamily(new Uri("file:///C:/u1-shaping/fonts/"), "./#" + <family name read from the ttf>)
+   specified font: resolved=True uri=file:///C:/U1-SHAPING/FONTS/NOTOSANS-REGULAR.TTF covers=False glyph=-1 glyphAdvEm=n/a notdefAdvEm=0.6 notdefAdvDip=14.4
+   measured: advance=6.013333 lineWidth=6.013333 oneEm=False equalsNotdef=False equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/SEGOEUI.TTF families=Segoe UI glyph=2317 isNotdef=False fallback=True bidi=1
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/SEGOEUI.TTF glyphs=[2317] adv=6.024 emSize=24 bidi=1
+== [A-missing-glyph/U+0627@list-Arial-SegoeUISymbol] char='ا' len=1
+   setting: list-Arial-SegoeUISymbol (font family LIST) spec=FontFamily("Arial, Segoe UI Symbol")
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/ARIAL.TTF covers=True glyph=909 glyphAdvEm=0.207031 notdefAdvEm=0.75 notdefAdvDip=18
+   measured: advance=4.97 lineWidth=4.97 oneEm=False equalsNotdef=False equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/ARIAL.TTF families=Arial glyph=909 isNotdef=False fallback=False bidi=1
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/ARIAL.TTF glyphs=[909] adv=4.968 emSize=24 bidi=1
+== [A-missing-glyph/U+0627@typeface-declared-fallback-YaHei] char='ا' len=1
+   setting: typeface-declared-fallback-YaHei (Typeface with a declared fallbackFontFamily) spec=Typeface(FontFamily("Arial"), Normal, Normal, Normal, fallbackFontFamily: FontFamily("Microsoft YaHei"))
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/ARIAL.TTF covers=True glyph=909 glyphAdvEm=0.207031 notdefAdvEm=0.75 notdefAdvDip=18
+   measured: advance=4.97 lineWidth=4.97 oneEm=False equalsNotdef=False equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/ARIAL.TTF families=Arial glyph=909 isNotdef=False fallback=False bidi=1
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/ARIAL.TTF glyphs=[909] adv=4.968 emSize=24 bidi=1
+== [A-missing-glyph/U+0627@explicit-covering-Segoe UI] char='ا' len=1
+   setting: explicit-covering-Segoe UI (explicit family that DOES cover the code point) spec=Typeface("Segoe UI")
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/SEGOEUI.TTF covers=True glyph=2317 glyphAdvEm=0.250488 notdefAdvEm=0.645508 notdefAdvDip=15.492188
+   measured: advance=6.013333 lineWidth=6.013333 oneEm=False equalsNotdef=False equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/SEGOEUI.TTF families=Segoe UI glyph=2317 isNotdef=False fallback=False bidi=1
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/SEGOEUI.TTF glyphs=[2317] adv=6.024 emSize=24 bidi=1
+== [A-missing-glyph/U+2192@single-Arial] char='→' len=1
+   setting: single-Arial (single font family) spec=Typeface("Arial")
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/ARIAL.TTF covers=True glyph=314 glyphAdvEm=1 notdefAdvEm=0.75 notdefAdvDip=18
+   measured: advance=24 lineWidth=24 oneEm=True equalsNotdef=False equalsOwnGlyph=True
+   observed: font=file:///C:/WINDOWS/FONTS/ARIAL.TTF families=Arial glyph=314 isNotdef=False fallback=False bidi=0
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/ARIAL.TTF glyphs=[314] adv=24 emSize=24 bidi=0
+== [A-missing-glyph/U+2192@single-TimesNewRoman] char='→' len=1
+   setting: single-TimesNewRoman (single font family) spec=Typeface("Times New Roman")
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/TIMES.TTF covers=True glyph=314 glyphAdvEm=1 notdefAdvEm=0.777832 notdefAdvDip=18.667969
+   measured: advance=24 lineWidth=24 oneEm=True equalsNotdef=False equalsOwnGlyph=True
+   observed: font=file:///C:/WINDOWS/FONTS/TIMES.TTF families=Times New Roman glyph=314 isNotdef=False fallback=False bidi=0
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/TIMES.TTF glyphs=[314] adv=24 emSize=24 bidi=0
+== [A-missing-glyph/U+2192@file-NotoSans-Regular] char='→' len=1
+   setting: file-NotoSans-Regular (FILE font family) spec=FontFamily(new Uri("file:///C:/u1-shaping/fonts/"), "./#" + <family name read from the ttf>)
+   specified font: resolved=True uri=file:///C:/U1-SHAPING/FONTS/NOTOSANS-REGULAR.TTF covers=False glyph=-1 glyphAdvEm=n/a notdefAdvEm=0.6 notdefAdvDip=14.4
+   measured: advance=20.706667 lineWidth=20.706667 oneEm=False equalsNotdef=False equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/SEGOEUI.TTF families=Segoe UI glyph=2862 isNotdef=False fallback=True bidi=0
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/SEGOEUI.TTF glyphs=[2862] adv=20.712 emSize=24 bidi=0
+== [A-missing-glyph/U+2192@list-Arial-SegoeUISymbol] char='→' len=1
+   setting: list-Arial-SegoeUISymbol (font family LIST) spec=FontFamily("Arial, Segoe UI Symbol")
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/ARIAL.TTF covers=True glyph=314 glyphAdvEm=1 notdefAdvEm=0.75 notdefAdvDip=18
+   measured: advance=24 lineWidth=24 oneEm=True equalsNotdef=False equalsOwnGlyph=True
+   observed: font=file:///C:/WINDOWS/FONTS/ARIAL.TTF families=Arial glyph=314 isNotdef=False fallback=False bidi=0
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/ARIAL.TTF glyphs=[314] adv=24 emSize=24 bidi=0
+== [A-missing-glyph/U+2192@typeface-declared-fallback-YaHei] char='→' len=1
+   setting: typeface-declared-fallback-YaHei (Typeface with a declared fallbackFontFamily) spec=Typeface(FontFamily("Arial"), Normal, Normal, Normal, fallbackFontFamily: FontFamily("Microsoft YaHei"))
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/ARIAL.TTF covers=True glyph=314 glyphAdvEm=1 notdefAdvEm=0.75 notdefAdvDip=18
+   measured: advance=24 lineWidth=24 oneEm=True equalsNotdef=False equalsOwnGlyph=True
+   observed: font=file:///C:/WINDOWS/FONTS/ARIAL.TTF families=Arial glyph=314 isNotdef=False fallback=False bidi=0
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/ARIAL.TTF glyphs=[314] adv=24 emSize=24 bidi=0
+== [A-missing-glyph/U+2192@explicit-covering-Microsoft YaHei] char='→' len=1
+   setting: explicit-covering-Microsoft YaHei (explicit family that DOES cover the code point) spec=Typeface("Microsoft YaHei")
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/MSYH.TTC covers=True glyph=594 glyphAdvEm=1 notdefAdvEm=0.697266 notdefAdvDip=16.734375
+   measured: advance=24 lineWidth=24 oneEm=True equalsNotdef=False equalsOwnGlyph=True
+   observed: font=file:///C:/WINDOWS/FONTS/MSYH.TTC families=Microsoft YaHei glyph=594 isNotdef=False fallback=False bidi=0
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/MSYH.TTC glyphs=[594] adv=24 emSize=24 bidi=0
+== [A-missing-glyph/U+E000@single-Arial] char='' len=1
+   setting: single-Arial (single font family) spec=Typeface("Arial")
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/ARIAL.TTF covers=False glyph=-1 glyphAdvEm=n/a notdefAdvEm=0.75 notdefAdvDip=18
+   measured: advance=18 lineWidth=18 oneEm=False equalsNotdef=True equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/ARIAL.TTF families=Arial glyph=0 isNotdef=True fallback=False bidi=0
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/ARIAL.TTF glyphs=[0] adv=18 emSize=24 bidi=0
+== [A-missing-glyph/U+E000@single-TimesNewRoman] char='' len=1
+   setting: single-TimesNewRoman (single font family) spec=Typeface("Times New Roman")
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/TIMES.TTF covers=False glyph=-1 glyphAdvEm=n/a notdefAdvEm=0.777832 notdefAdvDip=18.667969
+   measured: advance=18.666667 lineWidth=18.666667 oneEm=False equalsNotdef=False equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/TIMES.TTF families=Times New Roman glyph=0 isNotdef=True fallback=False bidi=0
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/TIMES.TTF glyphs=[0] adv=18.672 emSize=24 bidi=0
+== [A-missing-glyph/U+E000@file-NotoSans-Regular] char='' len=1
+   setting: file-NotoSans-Regular (FILE font family) spec=FontFamily(new Uri("file:///C:/u1-shaping/fonts/"), "./#" + <family name read from the ttf>)
+   specified font: resolved=True uri=file:///C:/U1-SHAPING/FONTS/NOTOSANS-REGULAR.TTF covers=False glyph=-1 glyphAdvEm=n/a notdefAdvEm=0.6 notdefAdvDip=14.4
+   measured: advance=14.4 lineWidth=14.4 oneEm=False equalsNotdef=True equalsOwnGlyph=False
+   observed: font=file:///C:/U1-SHAPING/FONTS/NOTOSANS-REGULAR.TTF families=Noto Sans glyph=0 isNotdef=True fallback=False bidi=0
+      glyphRun @0+1 font=file:///C:/U1-SHAPING/FONTS/NOTOSANS-REGULAR.TTF glyphs=[0] adv=14.4 emSize=24 bidi=0
+== [A-missing-glyph/U+E000@list-Arial-SegoeUISymbol] char='' len=1
+   setting: list-Arial-SegoeUISymbol (font family LIST) spec=FontFamily("Arial, Segoe UI Symbol")
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/ARIAL.TTF covers=False glyph=-1 glyphAdvEm=n/a notdefAdvEm=0.75 notdefAdvDip=18
+   measured: advance=24 lineWidth=24 oneEm=True equalsNotdef=False equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/SEGUISYM.TTF families=Segoe UI Symbol glyph=4366 isNotdef=False fallback=True bidi=0
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/SEGUISYM.TTF glyphs=[4366] adv=24 emSize=24 bidi=0
+== [A-missing-glyph/U+E000@typeface-declared-fallback-YaHei] char='' len=1
+   setting: typeface-declared-fallback-YaHei (Typeface with a declared fallbackFontFamily) spec=Typeface(FontFamily("Arial"), Normal, Normal, Normal, fallbackFontFamily: FontFamily("Microsoft YaHei"))
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/ARIAL.TTF covers=False glyph=-1 glyphAdvEm=n/a notdefAdvEm=0.75 notdefAdvDip=18
+   measured: advance=18 lineWidth=18 oneEm=False equalsNotdef=True equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/ARIAL.TTF families=Arial glyph=0 isNotdef=True fallback=False bidi=0
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/ARIAL.TTF glyphs=[0] adv=18 emSize=24 bidi=0
+== [A-missing-glyph/U+E000@explicit-covering-Segoe UI Symbol] char='' len=1
+   setting: explicit-covering-Segoe UI Symbol (explicit family that DOES cover the code point) spec=Typeface("Segoe UI Symbol")
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/SEGUISYM.TTF covers=True glyph=4366 glyphAdvEm=1 notdefAdvEm=0.645508 notdefAdvDip=15.492188
+   measured: advance=24 lineWidth=24 oneEm=True equalsNotdef=False equalsOwnGlyph=True
+   observed: font=file:///C:/WINDOWS/FONTS/SEGUISYM.TTF families=Segoe UI Symbol glyph=4366 isNotdef=False fallback=False bidi=0
+      glyphRun @0+1 font=file:///C:/WINDOWS/FONTS/SEGUISYM.TTF glyphs=[4366] adv=24 emSize=24 bidi=0
+== [A-missing-glyph/U+10FFFD@single-Arial] char='􏿽' len=2
+   setting: single-Arial (single font family) spec=Typeface("Arial")
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/ARIAL.TTF covers=False glyph=-1 glyphAdvEm=n/a notdefAdvEm=0.75 notdefAdvDip=18
+   measured: advance=18 lineWidth=18 oneEm=False equalsNotdef=True equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/ARIAL.TTF families=Arial glyph=0 isNotdef=True fallback=False bidi=0
+      glyphRun @0+2 font=file:///C:/WINDOWS/FONTS/ARIAL.TTF glyphs=[0] adv=18 emSize=24 bidi=0
+== [A-missing-glyph/U+10FFFD@single-TimesNewRoman] char='􏿽' len=2
+   setting: single-TimesNewRoman (single font family) spec=Typeface("Times New Roman")
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/TIMES.TTF covers=False glyph=-1 glyphAdvEm=n/a notdefAdvEm=0.777832 notdefAdvDip=18.667969
+   measured: advance=18.666667 lineWidth=18.666667 oneEm=False equalsNotdef=False equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/TIMES.TTF families=Times New Roman glyph=0 isNotdef=True fallback=False bidi=0
+      glyphRun @0+2 font=file:///C:/WINDOWS/FONTS/TIMES.TTF glyphs=[0] adv=18.672 emSize=24 bidi=0
+== [A-missing-glyph/U+10FFFD@file-NotoSans-Regular] char='􏿽' len=2
+   setting: file-NotoSans-Regular (FILE font family) spec=FontFamily(new Uri("file:///C:/u1-shaping/fonts/"), "./#" + <family name read from the ttf>)
+   specified font: resolved=True uri=file:///C:/U1-SHAPING/FONTS/NOTOSANS-REGULAR.TTF covers=False glyph=-1 glyphAdvEm=n/a notdefAdvEm=0.6 notdefAdvDip=14.4
+   measured: advance=14.4 lineWidth=14.4 oneEm=False equalsNotdef=True equalsOwnGlyph=False
+   observed: font=file:///C:/U1-SHAPING/FONTS/NOTOSANS-REGULAR.TTF families=Noto Sans glyph=0 isNotdef=True fallback=False bidi=0
+      glyphRun @0+2 font=file:///C:/U1-SHAPING/FONTS/NOTOSANS-REGULAR.TTF glyphs=[0] adv=14.4 emSize=24 bidi=0
+== [A-missing-glyph/U+10FFFD@list-Arial-SegoeUISymbol] char='􏿽' len=2
+   setting: list-Arial-SegoeUISymbol (font family LIST) spec=FontFamily("Arial, Segoe UI Symbol")
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/ARIAL.TTF covers=False glyph=-1 glyphAdvEm=n/a notdefAdvEm=0.75 notdefAdvDip=18
+   measured: advance=18 lineWidth=18 oneEm=False equalsNotdef=True equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/ARIAL.TTF families=Arial glyph=0 isNotdef=True fallback=False bidi=0
+      glyphRun @0+2 font=file:///C:/WINDOWS/FONTS/ARIAL.TTF glyphs=[0] adv=18 emSize=24 bidi=0
+== [A-missing-glyph/U+10FFFD@typeface-declared-fallback-YaHei] char='􏿽' len=2
+   setting: typeface-declared-fallback-YaHei (Typeface with a declared fallbackFontFamily) spec=Typeface(FontFamily("Arial"), Normal, Normal, Normal, fallbackFontFamily: FontFamily("Microsoft YaHei"))
+   specified font: resolved=True uri=file:///C:/WINDOWS/FONTS/ARIAL.TTF covers=False glyph=-1 glyphAdvEm=n/a notdefAdvEm=0.75 notdefAdvDip=18
+   measured: advance=18 lineWidth=18 oneEm=False equalsNotdef=True equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/ARIAL.TTF families=Arial glyph=0 isNotdef=True fallback=False bidi=0
+      glyphRun @0+2 font=file:///C:/WINDOWS/FONTS/ARIAL.TTF glyphs=[0] adv=18 emSize=24 bidi=0
+== [A-missing-glyph/U+10FFFD@explicit-covering-NONE-FOUND] char='􏿽' len=2
+   setting: explicit-covering-NONE-FOUND (explicit family that DOES cover the code point) spec=no candidate family covers this code point
+   specified font: resolved=False uri= covers=False glyph=-1 glyphAdvEm=n/a notdefAdvEm=n/a notdefAdvDip=n/a
+   measured: advance=18 lineWidth=18 oneEm=False equalsNotdef=False equalsOwnGlyph=False
+   observed: font=file:///C:/WINDOWS/FONTS/ARIAL.TTF families=Arial glyph=0 isNotdef=True fallback=False bidi=0
+      glyphRun @0+2 font=file:///C:/WINDOWS/FONTS/ARIAL.TTF glyphs=[0] adv=18 emSize=24 bidi=0
+== [I-directional-embedding/latin-scope-ltr-para@w40@identity] visible="abcאבג" mode=identity
+   line 0: [0,4) text="<OPEN>abc" w=38.693333 bidi=0 breakIsNull=False  OPEN@0 char@0 char@13.346667 char@26.693333
+   line 1: [4,9) text="<CLOSE>אבג" w=36.093333 bidi=1 breakIsNull=True  CLOSE@36.09 char@22.576667 char@9.57 char@-0.003333
+== [I-directional-embedding/latin-scope-ltr-para@w40@ltr-embed] visible="abcאבג" mode=ltr-embed
+   line 0: [0,4) text="<OPEN>abc" w=38.693333 bidi=0 breakIsNull=False  OPEN@0 char@0 char@13.346667 char@26.693333
+   line 1: [4,9) text="<CLOSE>אבג" w=36.093333 bidi=1 breakIsNull=True  CLOSE@36.09 char@22.576667 char@9.57 char@-0.003333
+== [I-directional-embedding/latin-scope-ltr-para@w40@rtl-embed] visible="abcאבג" mode=rtl-embed
+   line 0: [0,4) text="<OPEN>abc" w=38.693333 bidi=0 breakIsNull=False  OPEN@0 char@0 char@13.346667 char@26.693333
+   line 1: [4,9) text="<CLOSE>אבג" w=36.093333 bidi=1 breakIsNull=True  CLOSE@36.09 char@22.576667 char@9.57 char@-0.003333
+== [I-directional-embedding/latin-scope-ltr-para@w140@identity] visible="abcאבג" mode=identity
+   line 0: [0,9) text="<OPEN>abc<CLOSE>אבג" w=74.786667 bidi=0 breakIsNull=True  OPEN@0 char@0 char@13.346667 char@26.693333 CLOSE@38.693333 char@61.27 char@48.263333 char@38.69
+== [I-directional-embedding/latin-scope-ltr-para@w140@ltr-embed] visible="abcאבג" mode=ltr-embed
+   line 0: [0,9) text="<OPEN>abc<CLOSE>אבג" w=74.786667 bidi=0 breakIsNull=True  OPEN@0 char@0 char@13.346667 char@26.693333 CLOSE@38.693333 char@61.27 char@48.263333 char@38.69
+== [I-directional-embedding/latin-scope-ltr-para@w140@rtl-embed] visible="abcאבג" mode=rtl-embed
+   line 0: [0,9) text="<OPEN>abc<CLOSE>אבג" w=74.786667 bidi=0 breakIsNull=True  OPEN@0 char@0 char@13.346667 char@26.693333 CLOSE@38.693333 char@61.27 char@48.263333 char@38.69
+== [I-directional-embedding/hebrew-scope-ltr-para@w40@identity] visible="אבגabc" mode=identity
+   line 0: [0,4) text="<OPEN>אבג" w=36.093333 bidi=1 breakIsNull=False  OPEN@36.09 char@22.576667 char@9.57 char@-0.003333
+   line 1: [4,9) text="<CLOSE>abc" w=38.693333 bidi=0 breakIsNull=True  CLOSE@0 char@0 char@13.346667 char@26.693333
+== [I-directional-embedding/hebrew-scope-ltr-para@w40@ltr-embed] visible="אבגabc" mode=ltr-embed
+   line 0: [0,4) text="<OPEN>אבג" w=36.093333 bidi=1 breakIsNull=False  OPEN@36.09 char@22.576667 char@9.57 char@-0.003333
+   line 1: [4,9) text="<CLOSE>abc" w=38.693333 bidi=0 breakIsNull=True  CLOSE@0 char@0 char@13.346667 char@26.693333
+== [I-directional-embedding/hebrew-scope-ltr-para@w40@rtl-embed] visible="אבגabc" mode=rtl-embed
+   line 0: [0,4) text="<OPEN>אבג" w=36.093333 bidi=1 breakIsNull=False  OPEN@36.09 char@22.576667 char@9.57 char@-0.003333
+   line 1: [4,9) text="<CLOSE>abc" w=38.693333 bidi=0 breakIsNull=True  CLOSE@0 char@0 char@13.346667 char@26.693333
+== [I-directional-embedding/hebrew-scope-ltr-para@w140@identity] visible="אבגabc" mode=identity
+   line 0: [0,9) text="<OPEN>אבג<CLOSE>abc" w=74.786667 bidi=1 breakIsNull=True  OPEN@36.09 char@22.576667 char@9.57 char@-0.003333 CLOSE@-0.003333 char@36.093333 char@49.44 char@62.786667
+== [I-directional-embedding/hebrew-scope-ltr-para@w140@ltr-embed] visible="אבגabc" mode=ltr-embed
+   line 0: [0,9) text="<OPEN>אבג<CLOSE>abc" w=74.786667 bidi=1 breakIsNull=True  OPEN@36.09 char@22.576667 char@9.57 char@-0.003333 CLOSE@-0.003333 char@36.093333 char@49.44 char@62.786667
+== [I-directional-embedding/hebrew-scope-ltr-para@w140@rtl-embed] visible="אבגabc" mode=rtl-embed
+   line 0: [0,9) text="<OPEN>אבג<CLOSE>abc" w=74.786667 bidi=1 breakIsNull=True  OPEN@36.09 char@22.576667 char@9.57 char@-0.003333 CLOSE@-0.003333 char@36.093333 char@49.44 char@62.786667
+== [I-directional-embedding/hebrew-scope-rtl-para@w40@identity] visible="אבגabc" mode=identity
+   line 0: [0,4) text="<OPEN>אבג" w=36.093333 bidi=1 breakIsNull=False  OPEN@0 char@0 char@13.513333 char@26.52
+   line 1: [4,9) text="<CLOSE>abc" w=38.693333 bidi=0 breakIsNull=True  CLOSE@38.69 char@25.343333 char@11.996667 char@-0.003333
+== [I-directional-embedding/hebrew-scope-rtl-para@w40@ltr-embed] visible="אבגabc" mode=ltr-embed
+   line 0: [0,4) text="<OPEN>אבג" w=36.093333 bidi=1 breakIsNull=False  OPEN@0 char@0 char@13.513333 char@26.52
+   line 1: [4,9) text="<CLOSE>abc" w=38.693333 bidi=0 breakIsNull=True  CLOSE@38.69 char@25.343333 char@11.996667 char@-0.003333
+== [I-directional-embedding/hebrew-scope-rtl-para@w40@rtl-embed] visible="אבגabc" mode=rtl-embed
+   line 0: [0,4) text="<OPEN>אבג" w=36.093333 bidi=1 breakIsNull=False  OPEN@0 char@0 char@13.513333 char@26.52
+   line 1: [4,9) text="<CLOSE>abc" w=38.693333 bidi=0 breakIsNull=True  CLOSE@38.69 char@25.343333 char@11.996667 char@-0.003333
+== [I-directional-embedding/hebrew-scope-rtl-para@w140@identity] visible="אבגabc" mode=identity
+   line 0: [0,9) text="<OPEN>אבג<CLOSE>abc" w=74.786667 bidi=1 breakIsNull=True  OPEN@0 char@0 char@13.513333 char@26.52 CLOSE@36.093333 char@61.436667 char@48.09 char@36.09
+== [I-directional-embedding/hebrew-scope-rtl-para@w140@ltr-embed] visible="אבגabc" mode=ltr-embed
+   line 0: [0,9) text="<OPEN>אבג<CLOSE>abc" w=74.786667 bidi=1 breakIsNull=True  OPEN@0 char@0 char@13.513333 char@26.52 CLOSE@36.093333 char@61.436667 char@48.09 char@36.09
+== [I-directional-embedding/hebrew-scope-rtl-para@w140@rtl-embed] visible="אבגabc" mode=rtl-embed
+   line 0: [0,9) text="<OPEN>אבג<CLOSE>abc" w=74.786667 bidi=1 breakIsNull=True  OPEN@0 char@0 char@13.513333 char@26.52 CLOSE@36.093333 char@61.436667 char@48.09 char@36.09

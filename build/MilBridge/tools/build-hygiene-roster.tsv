@@ -1,0 +1,151 @@
+# build-hygiene-roster.tsv —— `D-G21` 的**声明册**（`build/MilBridge/tools/build-hygiene-import-check.sh` 读；**纯文本、零 dotnet**）
+#
+# 【为什么要有这一份】老判据的反向档（`unlisted`）**只在 `grep -cF "$IMPORT_LINE" > 0` 时才可能触发**
+#   ⇒ 它只能看见"**带了规范 Import 却不在名单里**"的工程，**看不见**"**本该接线却没接线**"的工程
+#   （那正是 `D-R8` 暴露的形态）⇒ 已登记为 `D-G21`。本册把"**表态**"从"有没有 Import"里解耦出来。
+#
+# 【格式】5 列，TAB 分隔，`#` 开头为注释；列序 = class / proj / witness / reason / declared_by
+#   class   ∈ wired | notneeded | suspended
+#             wired      = 该接线、且已经接线（判据断言：**恰好 1 行**规范 Import）
+#             notneeded  = **声明**不需要接线（判据**复算 witness**，不成立 ⇒ 红）
+#             suspended  = **声明**今天先不接线（判据**复算 witness**，不成立 ⇒ 红 =「你不再有借口」）
+#   witness = **见证谓词**表达式，`+` 连接表示"全部必须成立"；未知谓词 ⇒ **NOINFO**（不许当绿）
+#             import-line            ：该工程**恰好 1 行**规范 Import
+#             no-compile-glob        ：工程自设 `EnableDefaultItems=false` 或 `EnableDefaultCompileItems=false`
+#             not-in-build-coverage  ：该工程**不在**本仓"会构建它"的覆盖面里（`#30` W30C 新；见下）
+#             foreign-intermediate   ：本仓构建它的**每一条**命令行都把中间/产物目录指到仓外（`#30` W30C 新）
+#             fp-locked              ：该相对路径在 `bash build/bridge-src-fp.sh --list` 的清单里
+#             ⛔ no-in-repo-obj      ：**已退休**（`#30` W30C 按 `D-G33` 删除；判"目录下无 obj/ 与 bin/"
+#                                      ⇒ **删掉构建产物就能让它成立** = 免罪符）。写它 ⇒ `UNKNOWN-WITNESS`
+#                                      ⇒ **`NOINFO`**（不许当绿），必须改用上面两条之一。
+#   reason  = 人类可读的理由（**不参与判定**，只为审阅）
+#   declared_by = 谁在什么时候表的态（**不参与判定**）
+#
+# 【`#30` W30C 落地（`D-G33`）：把 17 行 `suspended` 的见证从 `no-in-repo-obj` 换成
+#   `not-in-build-coverage`，`MilBridge.Linux` 那行换成 `fp-locked+foreign-intermediate`】
+#   ① **为什么换**：`no-in-repo-obj` 判的是"**工程目录下有没有 `obj/`/`bin/`**"，那是**构建产物**
+#      ⇒ `rm -rf <proj>/obj` 就能让它成立（`#29` W29F 已如实记为边界 ⇒ 登记 `D-G33`），
+#      而且产物一回来又变红（抖动）。
+#   ② **新见证判什么**：判"**本仓有没有一条会在工程目录下编译它的通道**" —— 输入只有**源文本**：
+#      ① `wpf-linux.sln` 的工程成员 ∨ ② `bridge-src-fp.sh --list` 清单 ∨ ③ `*.sh`/`*.py` 语料里
+#      的构建命令行 ∨ ④ 它们的 `<ProjectReference>` 闭包。⇒ **建/删 `obj/` 一个字节都不进判据**。
+#   ③ **方向性**：本册**没有**为了让树变绿而放松任何一条 —— 17 行的**判定今天都是绿的**（真树上
+#      `witness_expired=0`），换见证**没有**把任何红洗绿；原判据里**唯一**"有牙"的形态
+#      （产物出现 ⇒ 红）被**换成更强的一种**："它一旦进入本仓的构建覆盖面 ⇒ 红"（`D-R8` 向量
+#      真正可行使的那一刻，而不是它的一个副作用）。
+#   ④ **抖动面**：这两条谓词与构建**无关** ⇒ 构建不再改变它们的真值（`--selftest` case L 实测：
+#      在 `suspended` 工程下造出 `obj/*.cs` 之后**仍然 PASS**）。
+#
+# 【维护契约】新增一份 csproj ⇒ **必须**在本册加一行（否则判据 `UNDECLARED` 立即点名）；
+#   接线/摘线 ⇒ 必须改本册的 class（否则 `CLASS-CONFLICT` / `WITNESS-EXPIRED` 点名）。
+#   本册是**独立于被测树**的声明：判据不"遍历推名单"（遍历推必然跟着坏件一起缩水，`D-R4` 同族）。
+#
+# 【`#29` W29F 落地实况（**读者先看这三条，别把今天的红当故障**）】
+#   ① **本册今天使真树判红**（`rc=1`）：`src/WpfGfx.Linux/WpfGfx.Linux.csproj` 声明为
+#      `suspended` + 见证 `no-in-repo-obj`，而该见证**今天不成立**（仓内 `obj/Debug/net10.0/`
+#      下两份 `*.cs` 在场、默认 `Compile` glob 生效 ⇒ P1 判定 `p1=ARMED`）
+#      ⇒ `FAIL kind=WITNESS-EXPIRED` 点名它。**这是主控裁定 2 要的状态**：
+#      该工程**实测暴露却未接线**，应当**红着**直到被接线。
+#   ② **该红的解法只有两条**（都不许走第三条"把见证改回 `fp-locked`"）：**接线**（改成 `wired`
+#      并加规范 `<Import>` —— 注意它会移动 `BRIDGE_SRC_FP`，须安排在 `IN_FP_0` 采样之前的独立准备趟），
+#      或者**由主控改判据/改机制**并同趟改本册。⚠️ **也不要靠"删掉 `src/WpfGfx.Linux/obj/`"让它变绿**：
+#      那是构建产物，下一次构建就会回来 ⇒ 那会得到一次**假绿**（见 `W29F-report.md` §边界）。
+#   ③ 三节条数：`wired` 40 / `notneeded` 23 / `suspended` 19 = **82**（＝候选 csproj 数，
+#      与 `CAND_MIN=82` 同数但**不同量**：前者是"表态数"，后者是"树上的文件数"；
+#      判据**不**用本册的行数去推候选集）。
+#
+# ⏪ 【`#30` W30C 现场更正（**这些数会随波次变，引数请现算**）】
+#   · 三节条数**今天**是 `wired` **41** / `notneeded` 23 / `suspended` **18** = 82
+#     （`#29` 收官时主控按 `D-G32` 把 `src/WpfGfx.Linux/WpfGfx.Linux.csproj` 真修成 `wired`）
+#     ⇒ 判据内嵌的 `EXPECT_N` 也已是 **41**（两者必须同数，否则 `wired-length-mismatch` ⇒ NOINFO）。
+#   · 上面 ①/② 两条描述的是 `#29` **当时**的状态：**真树今天不红了**（`BHYGIENE_IMPORT=PASS`、`rc=0`）。
+#   · 那句「**不要靠"删掉 `src/WpfGfx.Linux/obj/`"让它变绿**」今天**不再只是一句告诫**：
+#     `#30` W30C 已按 `D-G33` 把见证换成**结构性**谓词 ⇒ **"删产物"在判据上不再有任何效果**（实测：
+#     无 obj／有 obj／有 obj 再删，三趟 stdout **逐字节相同**）。
+
+notneeded	build/CycleStub.PresentationFramework.Linux/CycleStub.PresentationFramework.Linux.csproj	no-compile-glob	工程自设 EnableDefaultCompileItems=false ⇒ 默认 Compile glob 不生效 ⇒ 仓内 obj/**/*.cs 收不进来（D-R8 的 CS0579 向量在本工程不存在）	W28F/#27 现场复算（W21B §1.4 同一判据）
+notneeded	build/CycleStub.PresentationUI.Linux/CycleStub.PresentationUI.Linux.csproj	no-compile-glob	工程自设 EnableDefaultCompileItems=false ⇒ 默认 Compile glob 不生效 ⇒ 仓内 obj/**/*.cs 收不进来（D-R8 的 CS0579 向量在本工程不存在）	W28F/#27 现场复算（W21B §1.4 同一判据）
+notneeded	build/CycleStub.ReachFramework.Linux/CycleStub.ReachFramework.Linux.csproj	no-compile-glob	工程自设 EnableDefaultCompileItems=false ⇒ 默认 Compile glob 不生效 ⇒ 仓内 obj/**/*.cs 收不进来（D-R8 的 CS0579 向量在本工程不存在）	W28F/#27 现场复算（W21B §1.4 同一判据）
+wired	build/DirectWrite.Linux/FallbackCriteria/FallbackCriteria.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+wired	build/DirectWrite.Linux/FontEntryClosedLoop/DirectWrite.Linux.FontEntryClosedLoop.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+wired	build/DirectWrite.Linux/Probe/DirectWrite.Linux.Probe.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+wired	build/DirectWrite.Linux/Provider/DirectWrite.Linux.Provider.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+wired	build/DirectWrite.Linux/SystemFontsProbe/DirectWrite.Linux.SystemFontsProbe.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+wired	build/DirectWrite.Linux/Tests/DirectWrite.Linux.Tests.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+wired	build/DirectWrite.Linux/WicClosedLoop/DirectWrite.Linux.WicClosedLoop.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+wired	build/DirectWrite.Linux/WicSeamProbe/DirectWrite.Linux.WicSeamProbe.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+wired	build/DirectWrite.Linux/WicWriteClosedLoop/DirectWrite.Linux.WicWriteClosedLoop.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+wired	build/DirectWrite.Linux/WiringSmoke/DirectWrite.Linux.WiringSmoke.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+notneeded	build/DirectWriteForwarder.Linux/DirectWriteForwarder.Linux.csproj	no-compile-glob	工程自设 EnableDefaultCompileItems=false ⇒ 默认 Compile glob 不生效 ⇒ 仓内 obj/**/*.cs 收不进来（D-R8 的 CS0579 向量在本工程不存在）	W28F/#27 现场复算（W21B §1.4 同一判据）
+notneeded	build/MilBridge/alt-route-b/ProbeB/ProbeB.csproj	no-compile-glob	工程自设 EnableDefaultCompileItems=false ⇒ 默认 Compile glob 不生效 ⇒ 仓内 obj/**/*.cs 收不进来（D-R8 的 CS0579 向量在本工程不存在）	W28F/#27 现场复算（W21B §1.4 同一判据）
+wired	build/MilBridge/spike/AotLib/AotLib.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+wired	build/MilBridge/spike/SmokeTest/SmokeTest.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+suspended	build/MilBridge/src/MilBridge.Linux/MilBridge.Linux.csproj	fp-locked+foreign-intermediate	工程在 BRIDGE_SRC_FP 里（bridge-src-fp.sh:42-46 收 src/WpfGfx.Linux 与 build/MilBridge 下的 *.csproj）⇒ 加一行 Import 会移动波输入指纹 …按 W21B §4.1 挂起，待主控裁定。⏪ #30 W30C：第二个合取项由 no-in-repo-obj（判产物）换成 foreign-intermediate（判结构：publish-milbridge.sh:34-35 那条构建命令行带 -p:ArtifactsPath= ⇒ 合规构建不会在工程目录下留 obj/）	#30 W30C 改第二合取项（D-G33）；原 W21B §2.2/§4.1（实测暴露但有意不修）
+wired	build/MilBridge/tests/BboxProbe/BboxProbe.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+wired	build/MilBridge/tests/ClosedLoop/ClosedLoop.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+wired	build/MilBridge/tests/CompositeFontProbe/CompositeFontProbe.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+wired	build/MilBridge/tests/ContractProbe/ContractProbe.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+notneeded	build/MilBridge/tests/CoverageProbe/CoverageProbe.csproj	no-compile-glob	工程自设 EnableDefaultCompileItems=false ⇒ 默认 Compile glob 不生效 ⇒ 仓内 obj/**/*.cs 收不进来（D-R8 的 CS0579 向量在本工程不存在）	W28F/#27 现场复算（W21B §1.4 同一判据）
+wired	build/MilBridge/tests/D5CbrProbe/D5CbrProbe.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+notneeded	build/MilBridge/tests/DirectBranchCheck/DirectBranchCheck.csproj	no-compile-glob	工程自设 EnableDefaultCompileItems=false ⇒ 默认 Compile glob 不生效 ⇒ 仓内 obj/**/*.cs 收不进来（D-R8 的 CS0579 向量在本工程不存在）	W28F/#27 现场复算（W21B §1.4 同一判据）
+wired	build/MilBridge/tests/FamilyCoverageSelfTest/FamilyCoverageSelfTest.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+wired	build/MilBridge/tests/FrameProbe/FrameProbe.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+wired	build/MilBridge/tests/HbSpike/HbSpike.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+wired	build/MilBridge/tests/HbTextLineParity/HbTextLineParity.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+wired	build/MilBridge/tests/IcuBreakParity/IcuBreakParity.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+notneeded	build/MilBridge/tests/InputTraceProbe/InputTraceProbe.csproj	no-compile-glob	工程自设 EnableDefaultCompileItems=false ⇒ 默认 Compile glob 不生效 ⇒ 仓内 obj/**/*.cs 收不进来（D-R8 的 CS0579 向量在本工程不存在）	W28F/#27 现场复算（W21B §1.4 同一判据）
+wired	build/MilBridge/tests/LsProbe/LsProbe.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+notneeded	build/MilBridge/tests/MinMaxProbe/MinMaxProbe.csproj	no-compile-glob	工程自设 EnableDefaultCompileItems=false ⇒ 默认 Compile glob 不生效 ⇒ 仓内 obj/**/*.cs 收不进来（D-R8 的 CS0579 向量在本工程不存在）	W28F/#27 现场复算（W21B §1.4 同一判据）
+notneeded	build/MilBridge/tests/PcLineOracle/PcLineOracle.csproj	no-compile-glob	工程自设 EnableDefaultCompileItems=false ⇒ 默认 Compile glob 不生效 ⇒ 仓内 obj/**/*.cs 收不进来（D-R8 的 CS0579 向量在本工程不存在）	W28F/#27 现场复算（W21B §1.4 同一判据）
+wired	build/MilBridge/tests/ResolverGuardProbe/ResolverGuardProbe.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+notneeded	build/MilBridge/tests/ShimShaReader/ShimShaReader.csproj	no-compile-glob	工程自设 EnableDefaultCompileItems=false ⇒ 默认 Compile glob 不生效 ⇒ 仓内 obj/**/*.cs 收不进来（D-R8 的 CS0579 向量在本工程不存在）	W28F/#27 现场复算（W21B §1.4 同一判据）
+notneeded	build/MilBridge/tests/StrictTierProbe/StrictTierProbe.csproj	no-compile-glob	工程自设 EnableDefaultCompileItems=false ⇒ 默认 Compile glob 不生效 ⇒ 仓内 obj/**/*.cs 收不进来（D-R8 的 CS0579 向量在本工程不存在）	W28F/#27 现场复算（W21B §1.4 同一判据）
+wired	build/MilBridge/tests/T2Repro/T2Repro.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+wired	build/MilBridge/tests/T2eLineHeight/T2eLineHeight.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+wired	build/MilBridge/tests/TextLineProto/TextLineProto.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+notneeded	build/PresentationBuildTasks.Linux/PresentationBuildTasks.Linux.csproj	no-compile-glob	工程自设 EnableDefaultItems=false ⇒ 默认 Compile glob 不生效 ⇒ 仓内 obj/**/*.cs 收不进来（D-R8 的 CS0579 向量在本工程不存在）	W28F/#27 现场复算（W21B §1.4 同一判据）
+notneeded	build/PresentationCore.Linux/PresentationCore.Linux.csproj	no-compile-glob	工程自设 EnableDefaultCompileItems=false ⇒ 默认 Compile glob 不生效 ⇒ 仓内 obj/**/*.cs 收不进来（D-R8 的 CS0579 向量在本工程不存在）	W28F/#27 现场复算（W21B §1.4 同一判据）
+notneeded	build/PresentationFramework.Classic.Linux/PresentationFramework.Classic.Linux.csproj	no-compile-glob	工程自设 EnableDefaultCompileItems=false ⇒ 默认 Compile glob 不生效 ⇒ 仓内 obj/**/*.cs 收不进来（D-R8 的 CS0579 向量在本工程不存在）	W28F/#27 现场复算（W21B §1.4 同一判据）
+notneeded	build/PresentationFramework.Linux/PresentationFramework.Linux.csproj	no-compile-glob	工程自设 EnableDefaultCompileItems=false ⇒ 默认 Compile glob 不生效 ⇒ 仓内 obj/**/*.cs 收不进来（D-R8 的 CS0579 向量在本工程不存在）	W28F/#27 现场复算（W21B §1.4 同一判据）
+notneeded	build/ReachFramework.Linux/ReachFramework.Linux.csproj	no-compile-glob	工程自设 EnableDefaultCompileItems=false ⇒ 默认 Compile glob 不生效 ⇒ 仓内 obj/**/*.cs 收不进来（D-R8 的 CS0579 向量在本工程不存在）	W28F/#27 现场复算（W21B §1.4 同一判据）
+notneeded	build/System.Printing.Linux/System.Printing.Linux.csproj	no-compile-glob	工程自设 EnableDefaultCompileItems=false ⇒ 默认 Compile glob 不生效 ⇒ 仓内 obj/**/*.cs 收不进来（D-R8 的 CS0579 向量在本工程不存在）	W28F/#27 现场复算（W21B §1.4 同一判据）
+notneeded	build/System.Windows.Input.Manipulations.Linux/System.Windows.Input.Manipulations.Linux.csproj	no-compile-glob	工程自设 EnableDefaultCompileItems=false ⇒ 默认 Compile glob 不生效 ⇒ 仓内 obj/**/*.cs 收不进来（D-R8 的 CS0579 向量在本工程不存在）	W28F/#27 现场复算（W21B §1.4 同一判据）
+notneeded	build/System.Xaml.Linux/System.Xaml.Linux.csproj	no-compile-glob	工程自设 EnableDefaultCompileItems=false ⇒ 默认 Compile glob 不生效 ⇒ 仓内 obj/**/*.cs 收不进来（D-R8 的 CS0579 向量在本工程不存在）	W28F/#27 现场复算（W21B §1.4 同一判据）
+notneeded	build/System.Windows.Extensions.Linux/System.Windows.Extensions.Linux.csproj	no-compile-glob	#34 波新增：官方包在非 Windows 上把 XamlAccessLevel 实现成必抛桩 ⇒ 本工程给 Linux 原生替身（AssemblyName=System.Windows.Extensions）。工程自设 EnableDefaultCompileItems=false ⇒ 默认 Compile glob 不生效 ⇒ 不需要接线	#34 主控
+notneeded	build/UIAutomationProvider.Linux/UIAutomationProvider.Linux.csproj	no-compile-glob	工程自设 EnableDefaultCompileItems=false ⇒ 默认 Compile glob 不生效 ⇒ 仓内 obj/**/*.cs 收不进来（D-R8 的 CS0579 向量在本工程不存在）	W28F/#27 现场复算（W21B §1.4 同一判据）
+notneeded	build/UIAutomationTypes.Linux/UIAutomationTypes.Linux.csproj	no-compile-glob	工程自设 EnableDefaultCompileItems=false ⇒ 默认 Compile glob 不生效 ⇒ 仓内 obj/**/*.cs 收不进来（D-R8 的 CS0579 向量在本工程不存在）	W28F/#27 现场复算（W21B §1.4 同一判据）
+notneeded	build/WindowsBase.Linux/WindowsBase.Linux.csproj	no-compile-glob	工程自设 EnableDefaultCompileItems=false ⇒ 默认 Compile glob 不生效 ⇒ 仓内 obj/**/*.cs 收不进来（D-R8 的 CS0579 向量在本工程不存在）	W28F/#27 现场复算（W21B §1.4 同一判据）
+notneeded	build/MilBridge/tests/ProductEntryArm/ProductEntryArm.csproj	no-compile-glob	【`#31` W31A 新臂】产品入口臂（走 `TextFormatter.Create()`＋`FormatLine` 的真正产品路径，跑 `layout-b34-compact.json` 的 5 个 `M_modifier_*` 例）。它与 `D5CbrProbe` 同形态：csproj `:38` 显式 `<EnableDefaultCompileItems>false</EnableDefaultCompileItems>` ⇒ **默认 `Compile` glob 不生效** ⇒ 不会把仓内 `obj/**.cs` 收进编译 ⇒ **不需要 `BuildHygiene.props`**。⚠️ 它是**新候选**（候选数 82 → 83）⇒ 必须同趟把 `build-hygiene-import-check.sh` 的 `CAND_MIN` 由 82 改成 83（那处**只在 `--selftest` 下红**，漏改**不会**在 `verify-all` 报红 —— 最容易漏的一步）。	#31 主控
+notneeded	samples/ThirdPartyMini/ThirdPartyMini.csproj	no-compile-glob	第三方形态样本：**不** import 仓内 BuildHygiene.props（真实外部工程没有它），用 EnableDefaultCompileItems=false 显式列清单 ⇒ 默认 Compile glob 不可能吃进 obj/*.cs；带它的 runner 把产物**复制到仓外**再跑（`samples/ThirdPartyMini/run-thirdparty-mini.sh`）	#37 B（主控；`docs/WAVE37-PREREGISTRATION.md` §2）
+notneeded	build/MilBridge/tests/TabGapProbe/TabGapProbe.csproj	no-compile-glob	`D-T4` 的**产品入口**定位探针（`#42`）：显式 `<Compile Include>` ＋ EnableDefaultCompileItems=false ⇒ 默认 glob 不可能吃进 obj/*.cs；不参与任何产品构建	#42（主控；`docs/WAVE41-PREREGISTRATION.md` 同族）
+wired	build/wic-abi-reference/AbiProbe/AbiProbe.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+wired	samples/HelloMil/HelloMil.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+wired	samples/HelloWpf/HelloWpf.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+wired	samples/WpfFeatureProbe/WpfFeatureProbe.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+wired	samples/WpfTextDemo/WpfTextDemo.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+wired	src/WpfGfx.Linux/WpfGfx.Linux.csproj	import-line	【`#30` 主控落地：由 `suspended` 改为 `wired`】`#29` 的 `D-G21` 判据把它按裁定 2 判红（`WITNESS-EXPIRED`，`p1=ARMED`）⇒ 主控**接住这个红并真修**：`<Project>` 下加一行规范 `<Import … BuildHygiene.props …>`。⚠️ 本次同趟三处：本行 ＋ csproj ＋ **判据内嵌 golden 名单与 `EXPECT_N` 40→41**（缺第三处 ⇒ `wired-length-mismatch n=41 expect=40`）。⚠️ **产品侧**：该件在 `bridge-src-fp.sh:42-46` 的 `BRIDGE_SRC_FP` 覆盖面里（桥 `ProjectReference` 它）⇒ `BRIDGE_SRC_FP` 与九位的 `bridge` 都会变 ⇒ **本波必须重发桥**。	#30 主控（接住 `#29` 判据给出的真红）
+wired	tests/WpfGfx.Linux.Tests/Commands.Tests/WpfGfx.Linux.Commands.Tests.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+wired	tests/WpfGfx.Linux.Tests/HelloMil.Tests/HelloMil.Tests.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+wired	tests/WpfGfx.Linux.Tests/ManagedLayer.Tests/ManagedLayer.Tests.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+wired	tests/WpfGfx.Linux.Tests/Presentation.Tests/WpfGfx.Linux.Presentation.Tests.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+wired	tests/WpfGfx.Linux.Tests/Rendering.Tests/WpfGfx.Linux.Rendering.Tests.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+wired	tests/WpfGfx.Linux.Tests/Windowing.Tests/WpfGfx.Linux.Windowing.Tests.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+suspended	tests/parity/brushes/src/U1BrushOracle.csproj	not-in-build-coverage	Windows 侧录真值的 harness：本仓没有任何构建入口构建它（不在 wpf-linux.sln、无 ProjectReference、语料 *.sh/*.py 里无构建命令行）⇒ D-R8 的向量在本仓内不可行使。⏪ 旧见证 no-in-repo-obj 判"工程目录下没有 obj/ 与 bin/"⇒ 删掉构建产物就能让它成立（免罪符，D-G33 已登记）⇒ #30 W30C 换结构性谓词	#30 W30C（D-G33 换见证；前身 = W28F/#27 现场复算，W21B §1.2「形态暴露 22」同族）
+wired	tests/parity/geometry/u14/U14.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B
+suspended	tests/parity/geometry/windows-harness/GeometryOracle.Win.csproj	not-in-build-coverage	Windows 侧录真值的 harness：本仓没有任何构建入口构建它（不在 wpf-linux.sln、无 ProjectReference、语料 *.sh/*.py 里无构建命令行）⇒ D-R8 的向量在本仓内不可行使。⏪ 旧见证 no-in-repo-obj 判"工程目录下没有 obj/ 与 bin/"⇒ 删掉构建产物就能让它成立（免罪符，D-G33 已登记）⇒ #30 W30C 换结构性谓词	#30 W30C（D-G33 换见证；前身 = W28F/#27 现场复算，W21B §1.2「形态暴露 22」同族）
+suspended	tests/parity/systemfonts/src/U1SystemFontsOracle.csproj	not-in-build-coverage	Windows 侧录真值的 harness：本仓没有任何构建入口构建它（不在 wpf-linux.sln、无 ProjectReference、语料 *.sh/*.py 里无构建命令行）⇒ D-R8 的向量在本仓内不可行使。⏪ 旧见证 no-in-repo-obj 判"工程目录下没有 obj/ 与 bin/"⇒ 删掉构建产物就能让它成立（免罪符，D-G33 已登记）⇒ #30 W30C 换结构性谓词	#30 W30C（D-G33 换见证；前身 = W28F/#27 现场复算，W21B §1.2「形态暴露 22」同族）
+suspended	tests/parity/windows/bidi/src/BidiOracle.csproj	not-in-build-coverage	Windows 侧录真值的 harness：本仓没有任何构建入口构建它（不在 wpf-linux.sln、无 ProjectReference、语料 *.sh/*.py 里无构建命令行）⇒ D-R8 的向量在本仓内不可行使。⏪ 旧见证 no-in-repo-obj 判"工程目录下没有 obj/ 与 bin/"⇒ 删掉构建产物就能让它成立（免罪符，D-G33 已登记）⇒ #30 W30C 换结构性谓词	#30 W30C（D-G33 换见证；前身 = W28F/#27 现场复算，W21B §1.2「形态暴露 22」同族）
+suspended	tests/parity/windows/font-fallback/src/FontFallback.csproj	not-in-build-coverage	Windows 侧录真值的 harness：本仓没有任何构建入口构建它（不在 wpf-linux.sln、无 ProjectReference、语料 *.sh/*.py 里无构建命令行）⇒ D-R8 的向量在本仓内不可行使。⏪ 旧见证 no-in-repo-obj 判"工程目录下没有 obj/ 与 bin/"⇒ 删掉构建产物就能让它成立（免罪符，D-G33 已登记）⇒ #30 W30C 换结构性谓词	#30 W30C（D-G33 换见证；前身 = W28F/#27 现场复算，W21B §1.2「形态暴露 22」同族）
+suspended	tests/parity/windows/layout-b34/src/LayoutOracle/LayoutOracle.csproj	not-in-build-coverage	Windows 侧录真值的 harness：本仓没有任何构建入口构建它（不在 wpf-linux.sln、无 ProjectReference、语料 *.sh/*.py 里无构建命令行）⇒ D-R8 的向量在本仓内不可行使。⏪ 旧见证 no-in-repo-obj 判"工程目录下没有 obj/ 与 bin/"⇒ 删掉构建产物就能让它成立（免罪符，D-G33 已登记）⇒ #30 W30C 换结构性谓词	#30 W30C（D-G33 换见证；前身 = W28F/#27 现场复算，W21B §1.2「形态暴露 22」同族）
+suspended	tests/parity/windows/modifier-close/src/ModifierClose.csproj	not-in-build-coverage	Windows 侧录真值的 harness：本仓没有任何构建入口构建它（不在 wpf-linux.sln、无 ProjectReference、语料 *.sh/*.py 里无构建命令行）⇒ D-R8 的向量在本仓内不可行使。⏪ 旧见证 no-in-repo-obj 判"工程目录下没有 obj/ 与 bin/"⇒ 删掉构建产物就能让它成立（免罪符，D-G33 已登记）⇒ #30 W30C 换结构性谓词	#30 W30C（D-G33 换见证；前身 = W28F/#27 现场复算，W21B §1.2「形态暴露 22」同族）
+suspended	tests/parity/windows/modifier-scope/src/ModifierScope.csproj	not-in-build-coverage	Windows 侧录真值的 harness：本仓没有任何构建入口构建它（不在 wpf-linux.sln、无 ProjectReference、语料 *.sh/*.py 里无构建命令行）⇒ D-R8 的向量在本仓内不可行使。⏪ 旧见证 no-in-repo-obj 判"工程目录下没有 obj/ 与 bin/"⇒ 删掉构建产物就能让它成立（免罪符，D-G33 已登记）⇒ #30 W30C 换结构性谓词	#30 W30C（D-G33 换见证；前身 = W28F/#27 现场复算，W21B §1.2「形态暴露 22」同族）
+suspended	tests/parity/windows/shaping/src/CjkOracle/CjkOracle.csproj	not-in-build-coverage	Windows 侧录真值的 harness：本仓没有任何构建入口构建它（不在 wpf-linux.sln、无 ProjectReference、语料 *.sh/*.py 里无构建命令行）⇒ D-R8 的向量在本仓内不可行使。⏪ 旧见证 no-in-repo-obj 判"工程目录下没有 obj/ 与 bin/"⇒ 删掉构建产物就能让它成立（免罪符，D-G33 已登记）⇒ #30 W30C 换结构性谓词	#30 W30C（D-G33 换见证；前身 = W28F/#27 现场复算，W21B §1.2「形态暴露 22」同族）
+suspended	tests/parity/windows/shaping/src/LayoutOracle/LayoutOracle.csproj	not-in-build-coverage	Windows 侧录真值的 harness：本仓没有任何构建入口构建它（不在 wpf-linux.sln、无 ProjectReference、语料 *.sh/*.py 里无构建命令行）⇒ D-R8 的向量在本仓内不可行使。⏪ 旧见证 no-in-repo-obj 判"工程目录下没有 obj/ 与 bin/"⇒ 删掉构建产物就能让它成立（免罪符，D-G33 已登记）⇒ #30 W30C 换结构性谓词	#30 W30C（D-G33 换见证；前身 = W28F/#27 现场复算，W21B §1.2「形态暴露 22」同族）
+suspended	tests/parity/windows/shaping/src/ShapingOracle.csproj	not-in-build-coverage	Windows 侧录真值的 harness：本仓没有任何构建入口构建它（不在 wpf-linux.sln、无 ProjectReference、语料 *.sh/*.py 里无构建命令行）⇒ D-R8 的向量在本仓内不可行使。⏪ 旧见证 no-in-repo-obj 判"工程目录下没有 obj/ 与 bin/"⇒ 删掉构建产物就能让它成立（免罪符，D-G33 已登记）⇒ #30 W30C 换结构性谓词	#30 W30C（D-G33 换见证；前身 = W28F/#27 现场复算，W21B §1.2「形态暴露 22」同族）
+suspended	tests/parity/windows/src/U1Parity/U1Parity.csproj	not-in-build-coverage	Windows 侧录真值的 harness：本仓没有任何构建入口构建它（不在 wpf-linux.sln、无 ProjectReference、语料 *.sh/*.py 里无构建命令行）⇒ D-R8 的向量在本仓内不可行使。⏪ 旧见证 no-in-repo-obj 判"工程目录下没有 obj/ 与 bin/"⇒ 删掉构建产物就能让它成立（免罪符，D-G33 已登记）⇒ #30 W30C 换结构性谓词	#30 W30C（D-G33 换见证；前身 = W28F/#27 现场复算，W21B §1.2「形态暴露 22」同族）
+suspended	tests/parity/windows/src/U1Recorder/U1Recorder.csproj	not-in-build-coverage	Windows 侧录真值的 harness：本仓没有任何构建入口构建它（不在 wpf-linux.sln、无 ProjectReference、语料 *.sh/*.py 里无构建命令行）⇒ D-R8 的向量在本仓内不可行使。⏪ 旧见证 no-in-repo-obj 判"工程目录下没有 obj/ 与 bin/"⇒ 删掉构建产物就能让它成立（免罪符，D-G33 已登记）⇒ #30 W30C 换结构性谓词	#30 W30C（D-G33 换见证；前身 = W28F/#27 现场复算，W21B §1.2「形态暴露 22」同族）
+suspended	tests/parity/windows/tab-anchor/src/TabAnchorOracle.csproj	not-in-build-coverage	Windows 侧录真值的 harness：本仓没有任何构建入口构建它（不在 wpf-linux.sln、无 ProjectReference、语料 *.sh/*.py 里无构建命令行）⇒ D-R8 的向量在本仓内不可行使。⏪ 旧见证 no-in-repo-obj 判"工程目录下没有 obj/ 与 bin/"⇒ 删掉构建产物就能让它成立（免罪符，D-G33 已登记）⇒ #30 W30C 换结构性谓词	#30 W30C（D-G33 换见证；前身 = W28F/#27 现场复算，W21B §1.2「形态暴露 22」同族）
+suspended	tests/parity/windows/tab-rtl/src/TabRtlOracle.csproj	not-in-build-coverage	Windows 侧录真值的 harness：本仓没有任何构建入口构建它（不在 wpf-linux.sln、无 ProjectReference、语料 *.sh/*.py 里无构建命令行）⇒ D-R8 的向量在本仓内不可行使。⏪ 旧见证 no-in-repo-obj 判"工程目录下没有 obj/ 与 bin/"⇒ 删掉构建产物就能让它成立（免罪符，D-G33 已登记）⇒ #30 W30C 换结构性谓词	#30 W30C（D-G33 换见证；前身 = W28F/#27 现场复算，W21B §1.2「形态暴露 22」同族）
+suspended	tests/parity/windows/tab-zero/src/TabZeroOracle.csproj	not-in-build-coverage	Windows 侧录真值的 harness：本仓没有任何构建入口构建它（不在 wpf-linux.sln、无 ProjectReference、语料 *.sh/*.py 里无构建命令行）⇒ D-R8 的向量在本仓内不可行使。⏪ 旧见证 no-in-repo-obj 判"工程目录下没有 obj/ 与 bin/"⇒ 删掉构建产物就能让它成立（免罪符，D-G33 已登记）⇒ #30 W30C 换结构性谓词	#30 W30C（D-G33 换见证；前身 = W28F/#27 现场复算，W21B §1.2「形态暴露 22」同族）
+suspended	tests/parity/windows/tab/src/TabOracle.csproj	not-in-build-coverage	Windows 侧录真值的 harness：本仓没有任何构建入口构建它（不在 wpf-linux.sln、无 ProjectReference、语料 *.sh/*.py 里无构建命令行）⇒ D-R8 的向量在本仓内不可行使。⏪ 旧见证 no-in-repo-obj 判"工程目录下没有 obj/ 与 bin/"⇒ 删掉构建产物就能让它成立（免罪符，D-G33 已登记）⇒ #30 W30C 换结构性谓词	#30 W30C（D-G33 换见证；前身 = W28F/#27 现场复算，W21B §1.2「形态暴露 22」同族）
+wired	tools/GeometryOracle/GeometryOracle.csproj	import-line	W21B/#21 实测暴露集收口：共享 BuildHygiene.props + 本工程一行 Import	wired-by-W21B

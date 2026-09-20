@@ -1,0 +1,1300 @@
+{
+ "path": "wpfgfx_cor3.dll",
+ "machine": "0x8664",
+ "dllName": "wpfgfx_cor3.dll",
+ "numberOfFunctions": 215,
+ "numberOfNames": 215,
+ "baseOrdinal": 1,
+ "exports": [
+  {
+   "name": "GetNextPerfElementId",
+   "ordinal": 1,
+   "rva": 12400,
+   "kind": "code"
+  },
+  {
+   "name": "IWICColorContext_GetExifColorSpace_Proxy",
+   "ordinal": 2,
+   "rva": 12416,
+   "kind": "code"
+  },
+  {
+   "name": "IWICColorContext_GetProfileBytes_Proxy",
+   "ordinal": 3,
+   "rva": 12432,
+   "kind": "code"
+  },
+  {
+   "name": "IWICColorContext_GetType_Proxy",
+   "ordinal": 4,
+   "rva": 12448,
+   "kind": "code"
+  },
+  {
+   "name": "InteropDeviceBitmap_AddDirtyRect",
+   "ordinal": 5,
+   "rva": 12464,
+   "kind": "code"
+  },
+  {
+   "name": "InteropDeviceBitmap_Create",
+   "ordinal": 6,
+   "rva": 12480,
+   "kind": "code"
+  },
+  {
+   "name": "InteropDeviceBitmap_Detach",
+   "ordinal": 7,
+   "rva": 12496,
+   "kind": "code"
+  },
+  {
+   "name": "InteropDeviceBitmap_GetAsSoftwareBitmap",
+   "ordinal": 8,
+   "rva": 12512,
+   "kind": "code"
+  },
+  {
+   "name": "MIL3DCalcProjected2DBounds",
+   "ordinal": 9,
+   "rva": 12528,
+   "kind": "code"
+  },
+  {
+   "name": "MILAddRef",
+   "ordinal": 10,
+   "rva": 12544,
+   "kind": "code"
+  },
+  {
+   "name": "MILCreateEventProxy",
+   "ordinal": 11,
+   "rva": 12560,
+   "kind": "code"
+  },
+  {
+   "name": "MILCreateFactory",
+   "ordinal": 12,
+   "rva": 12576,
+   "kind": "code"
+  },
+  {
+   "name": "MILCreateStreamFromStreamDescriptor",
+   "ordinal": 13,
+   "rva": 12592,
+   "kind": "code"
+  },
+  {
+   "name": "MILFactoryCreateBitmapRenderTarget",
+   "ordinal": 14,
+   "rva": 12608,
+   "kind": "code"
+  },
+  {
+   "name": "MILFactoryCreateMediaPlayer",
+   "ordinal": 15,
+   "rva": 12624,
+   "kind": "code"
+  },
+  {
+   "name": "MILFactoryCreateSWRenderTargetForBitmap",
+   "ordinal": 16,
+   "rva": 12640,
+   "kind": "code"
+  },
+  {
+   "name": "MILIStreamWrite",
+   "ordinal": 17,
+   "rva": 12656,
+   "kind": "code"
+  },
+  {
+   "name": "MILLoadResource",
+   "ordinal": 18,
+   "rva": 12672,
+   "kind": "code"
+  },
+  {
+   "name": "MILMediaCanPause",
+   "ordinal": 19,
+   "rva": 12688,
+   "kind": "code"
+  },
+  {
+   "name": "MILMediaClose",
+   "ordinal": 20,
+   "rva": 12704,
+   "kind": "code"
+  },
+  {
+   "name": "MILMediaGetBufferingProgress",
+   "ordinal": 21,
+   "rva": 12720,
+   "kind": "code"
+  },
+  {
+   "name": "MILMediaGetDownloadProgress",
+   "ordinal": 22,
+   "rva": 12736,
+   "kind": "code"
+  },
+  {
+   "name": "MILMediaGetMediaLength",
+   "ordinal": 23,
+   "rva": 12752,
+   "kind": "code"
+  },
+  {
+   "name": "MILMediaGetNaturalHeight",
+   "ordinal": 24,
+   "rva": 12768,
+   "kind": "code"
+  },
+  {
+   "name": "MILMediaGetNaturalWidth",
+   "ordinal": 25,
+   "rva": 12784,
+   "kind": "code"
+  },
+  {
+   "name": "MILMediaGetPosition",
+   "ordinal": 26,
+   "rva": 12800,
+   "kind": "code"
+  },
+  {
+   "name": "MILMediaHasAudio",
+   "ordinal": 27,
+   "rva": 12816,
+   "kind": "code"
+  },
+  {
+   "name": "MILMediaHasVideo",
+   "ordinal": 28,
+   "rva": 12832,
+   "kind": "code"
+  },
+  {
+   "name": "MILMediaIsBuffering",
+   "ordinal": 29,
+   "rva": 12848,
+   "kind": "code"
+  },
+  {
+   "name": "MILMediaNeedUIFrameUpdate",
+   "ordinal": 30,
+   "rva": 12864,
+   "kind": "code"
+  },
+  {
+   "name": "MILMediaOpen",
+   "ordinal": 31,
+   "rva": 12880,
+   "kind": "code"
+  },
+  {
+   "name": "MILMediaProcessExitHandler",
+   "ordinal": 32,
+   "rva": 12896,
+   "kind": "code"
+  },
+  {
+   "name": "MILMediaSetBalance",
+   "ordinal": 33,
+   "rva": 12912,
+   "kind": "code"
+  },
+  {
+   "name": "MILMediaSetIsScrubbingEnabled",
+   "ordinal": 34,
+   "rva": 12928,
+   "kind": "code"
+  },
+  {
+   "name": "MILMediaSetPosition",
+   "ordinal": 35,
+   "rva": 12944,
+   "kind": "code"
+  },
+  {
+   "name": "MILMediaSetRate",
+   "ordinal": 36,
+   "rva": 12960,
+   "kind": "code"
+  },
+  {
+   "name": "MILMediaSetVolume",
+   "ordinal": 37,
+   "rva": 12976,
+   "kind": "code"
+  },
+  {
+   "name": "MILMediaShutdown",
+   "ordinal": 38,
+   "rva": 12992,
+   "kind": "code"
+  },
+  {
+   "name": "MILMediaStop",
+   "ordinal": 39,
+   "rva": 13008,
+   "kind": "code"
+  },
+  {
+   "name": "MILQueryInterface",
+   "ordinal": 40,
+   "rva": 13024,
+   "kind": "code"
+  },
+  {
+   "name": "MILRelease",
+   "ordinal": 41,
+   "rva": 13040,
+   "kind": "code"
+  },
+  {
+   "name": "MILRenderTargetBitmapClear",
+   "ordinal": 42,
+   "rva": 13056,
+   "kind": "code"
+  },
+  {
+   "name": "MILRenderTargetBitmapGetBitmap",
+   "ordinal": 43,
+   "rva": 13072,
+   "kind": "code"
+  },
+  {
+   "name": "MILSwDoubleBufferedBitmapAddDirtyRect",
+   "ordinal": 44,
+   "rva": 13088,
+   "kind": "code"
+  },
+  {
+   "name": "MILSwDoubleBufferedBitmapCreate",
+   "ordinal": 45,
+   "rva": 13104,
+   "kind": "code"
+  },
+  {
+   "name": "MILSwDoubleBufferedBitmapGetBackBuffer",
+   "ordinal": 46,
+   "rva": 13120,
+   "kind": "code"
+  },
+  {
+   "name": "MILSwDoubleBufferedBitmapProtectBackBuffer",
+   "ordinal": 47,
+   "rva": 13136,
+   "kind": "code"
+  },
+  {
+   "name": "MILUpdateSystemParametersInfo",
+   "ordinal": 48,
+   "rva": 13152,
+   "kind": "code"
+  },
+  {
+   "name": "MilChannel_AppendCommandData",
+   "ordinal": 49,
+   "rva": 4400,
+   "kind": "code"
+  },
+  {
+   "name": "MilChannel_BeginCommand",
+   "ordinal": 50,
+   "rva": 4096,
+   "kind": "code"
+  },
+  {
+   "name": "MilChannel_CloseBatch",
+   "ordinal": 51,
+   "rva": 13168,
+   "kind": "code"
+  },
+  {
+   "name": "MilChannel_CommitChannel",
+   "ordinal": 52,
+   "rva": 4832,
+   "kind": "code"
+  },
+  {
+   "name": "MilChannel_EndCommand",
+   "ordinal": 53,
+   "rva": 4672,
+   "kind": "code"
+  },
+  {
+   "name": "MilChannel_GetMarshalType",
+   "ordinal": 54,
+   "rva": 13184,
+   "kind": "code"
+  },
+  {
+   "name": "MilChannel_SetNotificationWindow",
+   "ordinal": 55,
+   "rva": 13200,
+   "kind": "code"
+  },
+  {
+   "name": "MilChannel_SetReceiveBroadcastMessages",
+   "ordinal": 56,
+   "rva": 13216,
+   "kind": "code"
+  },
+  {
+   "name": "MilCompositionEngine_DeinitializePartitionManager",
+   "ordinal": 57,
+   "rva": 13232,
+   "kind": "code"
+  },
+  {
+   "name": "MilCompositionEngine_EnterCompositionEngineLock",
+   "ordinal": 58,
+   "rva": 13248,
+   "kind": "code"
+  },
+  {
+   "name": "MilCompositionEngine_ExitCompositionEngineLock",
+   "ordinal": 59,
+   "rva": 13264,
+   "kind": "code"
+  },
+  {
+   "name": "MilCompositionEngine_GetComposedEventId",
+   "ordinal": 60,
+   "rva": 13280,
+   "kind": "code"
+  },
+  {
+   "name": "MilCompositionEngine_InitializePartitionManager",
+   "ordinal": 61,
+   "rva": 13296,
+   "kind": "code"
+  },
+  {
+   "name": "MilCompositionEngine_UpdateSchedulerSettings",
+   "ordinal": 62,
+   "rva": 13312,
+   "kind": "code"
+  },
+  {
+   "name": "MilComposition_PeekNextMessage",
+   "ordinal": 63,
+   "rva": 13328,
+   "kind": "code"
+  },
+  {
+   "name": "MilComposition_SyncFlush",
+   "ordinal": 64,
+   "rva": 13344,
+   "kind": "code"
+  },
+  {
+   "name": "MilComposition_WaitForNextMessage",
+   "ordinal": 65,
+   "rva": 13360,
+   "kind": "code"
+  },
+  {
+   "name": "MilConnection_CreateChannel",
+   "ordinal": 66,
+   "rva": 13376,
+   "kind": "code"
+  },
+  {
+   "name": "MilConnection_DestroyChannel",
+   "ordinal": 67,
+   "rva": 13392,
+   "kind": "code"
+  },
+  {
+   "name": "MilContent_AttachToHwnd",
+   "ordinal": 68,
+   "rva": 13408,
+   "kind": "code"
+  },
+  {
+   "name": "MilContent_DetachFromHwnd",
+   "ordinal": 69,
+   "rva": 13424,
+   "kind": "code"
+  },
+  {
+   "name": "MilGlyphRun_GetGlyphOutline",
+   "ordinal": 70,
+   "rva": 13440,
+   "kind": "code"
+  },
+  {
+   "name": "MilGlyphRun_ReleasePathGeometryData",
+   "ordinal": 71,
+   "rva": 13456,
+   "kind": "code"
+  },
+  {
+   "name": "MilPlayer_Create",
+   "ordinal": 72,
+   "rva": 13472,
+   "kind": "code"
+  },
+  {
+   "name": "MilPlayer_Process",
+   "ordinal": 73,
+   "rva": 13488,
+   "kind": "code"
+  },
+  {
+   "name": "MilResource_CreateCWICWrapperBitmap",
+   "ordinal": 74,
+   "rva": 13504,
+   "kind": "code"
+  },
+  {
+   "name": "MilResource_CreateOrAddRefOnChannel",
+   "ordinal": 75,
+   "rva": 5184,
+   "kind": "code"
+  },
+  {
+   "name": "MilResource_DuplicateHandle",
+   "ordinal": 76,
+   "rva": 13520,
+   "kind": "code"
+  },
+  {
+   "name": "MilResource_GetRefCountOnChannel",
+   "ordinal": 77,
+   "rva": 13536,
+   "kind": "code"
+  },
+  {
+   "name": "MilResource_ReleaseOnChannel",
+   "ordinal": 78,
+   "rva": 5280,
+   "kind": "code"
+  },
+  {
+   "name": "MilResource_SendCommand",
+   "ordinal": 79,
+   "rva": 4992,
+   "kind": "code"
+  },
+  {
+   "name": "MilResource_SendCommandBitmapSource",
+   "ordinal": 80,
+   "rva": 13552,
+   "kind": "code"
+  },
+  {
+   "name": "MilResource_SendCommandMedia",
+   "ordinal": 81,
+   "rva": 13568,
+   "kind": "code"
+  },
+  {
+   "name": "MilUtility_ArcToBezier",
+   "ordinal": 82,
+   "rva": 13584,
+   "kind": "code"
+  },
+  {
+   "name": "MilUtility_CopyPixelBuffer",
+   "ordinal": 83,
+   "rva": 13600,
+   "kind": "code"
+  },
+  {
+   "name": "MilUtility_GeometryGetArea",
+   "ordinal": 84,
+   "rva": 13616,
+   "kind": "code"
+  },
+  {
+   "name": "MilUtility_GetPointAtLengthFraction",
+   "ordinal": 85,
+   "rva": 13632,
+   "kind": "code"
+  },
+  {
+   "name": "MilUtility_GetTileBrushMapping",
+   "ordinal": 86,
+   "rva": 13648,
+   "kind": "code"
+  },
+  {
+   "name": "MilUtility_PathGeometryBounds",
+   "ordinal": 87,
+   "rva": 13664,
+   "kind": "code"
+  },
+  {
+   "name": "MilUtility_PathGeometryCombine",
+   "ordinal": 88,
+   "rva": 13680,
+   "kind": "code"
+  },
+  {
+   "name": "MilUtility_PathGeometryFlatten",
+   "ordinal": 89,
+   "rva": 13696,
+   "kind": "code"
+  },
+  {
+   "name": "MilUtility_PathGeometryHitTest",
+   "ordinal": 90,
+   "rva": 13712,
+   "kind": "code"
+  },
+  {
+   "name": "MilUtility_PathGeometryHitTestPathGeometry",
+   "ordinal": 91,
+   "rva": 13728,
+   "kind": "code"
+  },
+  {
+   "name": "MilUtility_PathGeometryOutline",
+   "ordinal": 92,
+   "rva": 13744,
+   "kind": "code"
+  },
+  {
+   "name": "MilUtility_PathGeometryWiden",
+   "ordinal": 93,
+   "rva": 13760,
+   "kind": "code"
+  },
+  {
+   "name": "MilUtility_PolygonBounds",
+   "ordinal": 94,
+   "rva": 13776,
+   "kind": "code"
+  },
+  {
+   "name": "MilUtility_PolygonHitTest",
+   "ordinal": 95,
+   "rva": 13792,
+   "kind": "code"
+  },
+  {
+   "name": "MilVersionCheck",
+   "ordinal": 96,
+   "rva": 13808,
+   "kind": "code"
+  },
+  {
+   "name": "MilVisualTarget_AttachToHwnd",
+   "ordinal": 97,
+   "rva": 13824,
+   "kind": "code"
+  },
+  {
+   "name": "MilVisualTarget_DetachFromHwnd",
+   "ordinal": 98,
+   "rva": 13840,
+   "kind": "code"
+  },
+  {
+   "name": "RenderOptions_EnableHardwareAccelerationInRdp",
+   "ordinal": 99,
+   "rva": 13856,
+   "kind": "code"
+  },
+  {
+   "name": "RenderOptions_ForceSoftwareRenderingModeForProcess",
+   "ordinal": 100,
+   "rva": 13872,
+   "kind": "code"
+  },
+  {
+   "name": "RenderOptions_IsSoftwareRenderingForcedForProcess",
+   "ordinal": 101,
+   "rva": 13888,
+   "kind": "code"
+  },
+  {
+   "name": "SetMilPerfInstrumentationFlags",
+   "ordinal": 102,
+   "rva": 13904,
+   "kind": "code"
+  },
+  {
+   "name": "WgxConnection_Create",
+   "ordinal": 103,
+   "rva": 13920,
+   "kind": "code"
+  },
+  {
+   "name": "WgxConnection_Disconnect",
+   "ordinal": 104,
+   "rva": 13936,
+   "kind": "code"
+  },
+  {
+   "name": "WgxConnection_SameThreadPresent",
+   "ordinal": 105,
+   "rva": 13952,
+   "kind": "code"
+  },
+  {
+   "name": "WgxConnection_ShouldForceSoftwareForGraphicsStreamClient",
+   "ordinal": 106,
+   "rva": 13968,
+   "kind": "code"
+  },
+  {
+   "name": "_CRT_INIT",
+   "ordinal": 107,
+   "rva": 13984,
+   "kind": "code"
+  },
+  {
+   "name": "__mingw_module_is_dll",
+   "ordinal": 108,
+   "rva": 212992,
+   "kind": "data"
+  },
+  {
+   "name": "atexit",
+   "ordinal": 109,
+   "rva": 14848,
+   "kind": "code"
+  },
+  {
+   "name": "ptr_GetNextPerfElementId",
+   "ordinal": 110,
+   "rva": 213424,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_IWICColorContext_GetExifColorSpace_Proxy",
+   "ordinal": 111,
+   "rva": 213432,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_IWICColorContext_GetProfileBytes_Proxy",
+   "ordinal": 112,
+   "rva": 213440,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_IWICColorContext_GetType_Proxy",
+   "ordinal": 113,
+   "rva": 213448,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_InteropDeviceBitmap_AddDirtyRect",
+   "ordinal": 114,
+   "rva": 213456,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_InteropDeviceBitmap_Create",
+   "ordinal": 115,
+   "rva": 213464,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_InteropDeviceBitmap_Detach",
+   "ordinal": 116,
+   "rva": 213472,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_InteropDeviceBitmap_GetAsSoftwareBitmap",
+   "ordinal": 117,
+   "rva": 213480,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MIL3DCalcProjected2DBounds",
+   "ordinal": 118,
+   "rva": 213488,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILAddRef",
+   "ordinal": 119,
+   "rva": 213496,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILCreateEventProxy",
+   "ordinal": 120,
+   "rva": 213504,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILCreateFactory",
+   "ordinal": 121,
+   "rva": 213512,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILCreateStreamFromStreamDescriptor",
+   "ordinal": 122,
+   "rva": 213520,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILFactoryCreateBitmapRenderTarget",
+   "ordinal": 123,
+   "rva": 213528,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILFactoryCreateMediaPlayer",
+   "ordinal": 124,
+   "rva": 213536,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILFactoryCreateSWRenderTargetForBitmap",
+   "ordinal": 125,
+   "rva": 213544,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILIStreamWrite",
+   "ordinal": 126,
+   "rva": 213552,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILLoadResource",
+   "ordinal": 127,
+   "rva": 213560,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILMediaCanPause",
+   "ordinal": 128,
+   "rva": 213568,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILMediaClose",
+   "ordinal": 129,
+   "rva": 213576,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILMediaGetBufferingProgress",
+   "ordinal": 130,
+   "rva": 213584,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILMediaGetDownloadProgress",
+   "ordinal": 131,
+   "rva": 213592,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILMediaGetMediaLength",
+   "ordinal": 132,
+   "rva": 213600,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILMediaGetNaturalHeight",
+   "ordinal": 133,
+   "rva": 213608,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILMediaGetNaturalWidth",
+   "ordinal": 134,
+   "rva": 213616,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILMediaGetPosition",
+   "ordinal": 135,
+   "rva": 213624,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILMediaHasAudio",
+   "ordinal": 136,
+   "rva": 213632,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILMediaHasVideo",
+   "ordinal": 137,
+   "rva": 213640,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILMediaIsBuffering",
+   "ordinal": 138,
+   "rva": 213648,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILMediaNeedUIFrameUpdate",
+   "ordinal": 139,
+   "rva": 213656,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILMediaOpen",
+   "ordinal": 140,
+   "rva": 213664,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILMediaProcessExitHandler",
+   "ordinal": 141,
+   "rva": 213672,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILMediaSetBalance",
+   "ordinal": 142,
+   "rva": 213680,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILMediaSetIsScrubbingEnabled",
+   "ordinal": 143,
+   "rva": 213688,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILMediaSetPosition",
+   "ordinal": 144,
+   "rva": 213696,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILMediaSetRate",
+   "ordinal": 145,
+   "rva": 213704,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILMediaSetVolume",
+   "ordinal": 146,
+   "rva": 213712,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILMediaShutdown",
+   "ordinal": 147,
+   "rva": 213720,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILMediaStop",
+   "ordinal": 148,
+   "rva": 213728,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILQueryInterface",
+   "ordinal": 149,
+   "rva": 213736,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILRelease",
+   "ordinal": 150,
+   "rva": 213744,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILRenderTargetBitmapClear",
+   "ordinal": 151,
+   "rva": 213752,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILRenderTargetBitmapGetBitmap",
+   "ordinal": 152,
+   "rva": 213760,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILSwDoubleBufferedBitmapAddDirtyRect",
+   "ordinal": 153,
+   "rva": 213768,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILSwDoubleBufferedBitmapCreate",
+   "ordinal": 154,
+   "rva": 213776,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILSwDoubleBufferedBitmapGetBackBuffer",
+   "ordinal": 155,
+   "rva": 213784,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILSwDoubleBufferedBitmapProtectBackBuffer",
+   "ordinal": 156,
+   "rva": 213792,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MILUpdateSystemParametersInfo",
+   "ordinal": 157,
+   "rva": 213800,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilChannel_AppendCommandData",
+   "ordinal": 158,
+   "rva": 213064,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilChannel_BeginCommand",
+   "ordinal": 159,
+   "rva": 213056,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilChannel_CloseBatch",
+   "ordinal": 160,
+   "rva": 213808,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilChannel_CommitChannel",
+   "ordinal": 161,
+   "rva": 213080,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilChannel_EndCommand",
+   "ordinal": 162,
+   "rva": 213072,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilChannel_GetMarshalType",
+   "ordinal": 163,
+   "rva": 213816,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilChannel_SetNotificationWindow",
+   "ordinal": 164,
+   "rva": 213824,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilChannel_SetReceiveBroadcastMessages",
+   "ordinal": 165,
+   "rva": 213832,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilCompositionEngine_DeinitializePartitionManager",
+   "ordinal": 166,
+   "rva": 213840,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilCompositionEngine_EnterCompositionEngineLock",
+   "ordinal": 167,
+   "rva": 213848,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilCompositionEngine_ExitCompositionEngineLock",
+   "ordinal": 168,
+   "rva": 213856,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilCompositionEngine_GetComposedEventId",
+   "ordinal": 169,
+   "rva": 213864,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilCompositionEngine_InitializePartitionManager",
+   "ordinal": 170,
+   "rva": 213872,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilCompositionEngine_UpdateSchedulerSettings",
+   "ordinal": 171,
+   "rva": 213880,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilComposition_PeekNextMessage",
+   "ordinal": 172,
+   "rva": 213888,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilComposition_SyncFlush",
+   "ordinal": 173,
+   "rva": 213896,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilComposition_WaitForNextMessage",
+   "ordinal": 174,
+   "rva": 213904,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilConnection_CreateChannel",
+   "ordinal": 175,
+   "rva": 213912,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilConnection_DestroyChannel",
+   "ordinal": 176,
+   "rva": 213920,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilContent_AttachToHwnd",
+   "ordinal": 177,
+   "rva": 213928,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilContent_DetachFromHwnd",
+   "ordinal": 178,
+   "rva": 213936,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilGlyphRun_GetGlyphOutline",
+   "ordinal": 179,
+   "rva": 213944,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilGlyphRun_ReleasePathGeometryData",
+   "ordinal": 180,
+   "rva": 213952,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilPlayer_Create",
+   "ordinal": 181,
+   "rva": 213960,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilPlayer_Process",
+   "ordinal": 182,
+   "rva": 213968,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilResource_CreateCWICWrapperBitmap",
+   "ordinal": 183,
+   "rva": 213976,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilResource_CreateOrAddRefOnChannel",
+   "ordinal": 184,
+   "rva": 213096,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilResource_DuplicateHandle",
+   "ordinal": 185,
+   "rva": 213984,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilResource_GetRefCountOnChannel",
+   "ordinal": 186,
+   "rva": 213992,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilResource_ReleaseOnChannel",
+   "ordinal": 187,
+   "rva": 213104,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilResource_SendCommand",
+   "ordinal": 188,
+   "rva": 213088,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilResource_SendCommandBitmapSource",
+   "ordinal": 189,
+   "rva": 214000,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilResource_SendCommandMedia",
+   "ordinal": 190,
+   "rva": 214008,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilUtility_ArcToBezier",
+   "ordinal": 191,
+   "rva": 214016,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilUtility_CopyPixelBuffer",
+   "ordinal": 192,
+   "rva": 214024,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilUtility_GeometryGetArea",
+   "ordinal": 193,
+   "rva": 214032,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilUtility_GetPointAtLengthFraction",
+   "ordinal": 194,
+   "rva": 214040,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilUtility_GetTileBrushMapping",
+   "ordinal": 195,
+   "rva": 214048,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilUtility_PathGeometryBounds",
+   "ordinal": 196,
+   "rva": 214056,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilUtility_PathGeometryCombine",
+   "ordinal": 197,
+   "rva": 214064,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilUtility_PathGeometryFlatten",
+   "ordinal": 198,
+   "rva": 214072,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilUtility_PathGeometryHitTest",
+   "ordinal": 199,
+   "rva": 214080,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilUtility_PathGeometryHitTestPathGeometry",
+   "ordinal": 200,
+   "rva": 214088,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilUtility_PathGeometryOutline",
+   "ordinal": 201,
+   "rva": 214096,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilUtility_PathGeometryWiden",
+   "ordinal": 202,
+   "rva": 214104,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilUtility_PolygonBounds",
+   "ordinal": 203,
+   "rva": 214112,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilUtility_PolygonHitTest",
+   "ordinal": 204,
+   "rva": 214120,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilVersionCheck",
+   "ordinal": 205,
+   "rva": 214128,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilVisualTarget_AttachToHwnd",
+   "ordinal": 206,
+   "rva": 214136,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_MilVisualTarget_DetachFromHwnd",
+   "ordinal": 207,
+   "rva": 214144,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_RenderOptions_EnableHardwareAccelerationInRdp",
+   "ordinal": 208,
+   "rva": 214152,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_RenderOptions_ForceSoftwareRenderingModeForProcess",
+   "ordinal": 209,
+   "rva": 214160,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_RenderOptions_IsSoftwareRenderingForcedForProcess",
+   "ordinal": 210,
+   "rva": 214168,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_SetMilPerfInstrumentationFlags",
+   "ordinal": 211,
+   "rva": 214176,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_WgxConnection_Create",
+   "ordinal": 212,
+   "rva": 214184,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_WgxConnection_Disconnect",
+   "ordinal": 213,
+   "rva": 214192,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_WgxConnection_SameThreadPresent",
+   "ordinal": 214,
+   "rva": 214200,
+   "kind": "data"
+  },
+  {
+   "name": "ptr_WgxConnection_ShouldForceSoftwareForGraphicsStreamClient",
+   "ordinal": 215,
+   "rva": 214208,
+   "kind": "data"
+  }
+ ]
+}

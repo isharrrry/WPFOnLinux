@@ -1,0 +1,2938 @@
+{
+  "format": "wpf-linux-u1-modifier-close-raw/1",
+  "generatedUtc": "2026-09-14T14:07:59.8941430Z",
+  "os": "Microsoft Windows NT 10.0.22631.0",
+  "clr": ".NET 10.0.7",
+  "presentationCore": "10.0.0.0",
+  "measurement": "TextFormatter.Create().FormatLine(...) looped over TextLine.GetTextLineBreak(); every line\u0027s character range and the break\u0027s null-ness are recorded",
+  "dpi": 96,
+  "units": "DIP (1/96 inch)",
+  "emSizeDip": 24,
+  "fontFamily": "Arial",
+  "fontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+  "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+  "markers": "U\u002BE000 = the index where the TextSource returns a TextModifier run (length 1, zero width); U\u002BE001 = the index where it returns TextEndOfSegment(1). Neither is ever returned as text.",
+  "paragraphProperties": "TextAlignment=Left, TextWrapping=Wrap, LineHeight=0, Tabs=null, Indent=0, ParagraphIndent=0, DefaultIncrementalTab not overridden",
+  "calibration": {
+    "closeMarkerBoxPositionDip": 158.693333,
+    "charBeforeCloseEndsAtDip": 158.693333
+  },
+  "cases": [
+    {
+      "id": "modifier-close/w128.693",
+      "group": "close-marker-boundary",
+      "paragraphWidthDip": 128.693333,
+      "calibratedCloseMarkerPositionDip": 158.693333,
+      "openIndex": 10,
+      "closeIndex": 14,
+      "bufferLength": 27,
+      "bufferWithMarkers": "cccccccccc\u003COPEN\u003Eabc\u003CCLOSE\u003Ecccccccccccc",
+      "fontFamily": "Arial",
+      "fontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+      "dpi": 96,
+      "emSizeDip": 24,
+      "lineCount": 3,
+      "lines": [
+        {
+          "index": 0,
+          "startChar": 0,
+          "endCharExclusive": 10,
+          "lineText": "cccccccccc",
+          "width": 120,
+          "hasOverflowed": false,
+          "containsCloseMarker": false,
+          "endMinusCloseIndex": -4,
+          "perChar": [
+            {
+              "i": 0,
+              "char": "c",
+              "kind": "char",
+              "rawX": 0,
+              "width": 12
+            },
+            {
+              "i": 1,
+              "char": "c",
+              "kind": "char",
+              "rawX": 12,
+              "width": 12
+            },
+            {
+              "i": 2,
+              "char": "c",
+              "kind": "char",
+              "rawX": 24,
+              "width": 12
+            },
+            {
+              "i": 3,
+              "char": "c",
+              "kind": "char",
+              "rawX": 36,
+              "width": 12
+            },
+            {
+              "i": 4,
+              "char": "c",
+              "kind": "char",
+              "rawX": 48,
+              "width": 12
+            },
+            {
+              "i": 5,
+              "char": "c",
+              "kind": "char",
+              "rawX": 60,
+              "width": 12
+            },
+            {
+              "i": 6,
+              "char": "c",
+              "kind": "char",
+              "rawX": 72,
+              "width": 12
+            },
+            {
+              "i": 7,
+              "char": "c",
+              "kind": "char",
+              "rawX": 84,
+              "width": 12
+            },
+            {
+              "i": 8,
+              "char": "c",
+              "kind": "char",
+              "rawX": 96,
+              "width": 12
+            },
+            {
+              "i": 9,
+              "char": "c",
+              "kind": "char",
+              "rawX": 108,
+              "width": 12
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "startChar": 10,
+          "endCharExclusive": 22,
+          "lineText": "\uE000abc\uE001ccccccc",
+          "width": 122.693333,
+          "hasOverflowed": false,
+          "containsCloseMarker": true,
+          "endMinusCloseIndex": 8,
+          "perChar": [
+            {
+              "i": 10,
+              "char": "\uE000",
+              "kind": "OPEN-MARKER",
+              "rawX": 0,
+              "width": 0
+            },
+            {
+              "i": 11,
+              "char": "a",
+              "kind": "char",
+              "rawX": 0,
+              "width": 13.346667
+            },
+            {
+              "i": 12,
+              "char": "b",
+              "kind": "char",
+              "rawX": 13.346667,
+              "width": 13.346667
+            },
+            {
+              "i": 13,
+              "char": "c",
+              "kind": "char",
+              "rawX": 26.693333,
+              "width": 12
+            },
+            {
+              "i": 14,
+              "char": "\uE001",
+              "kind": "CLOSE-MARKER",
+              "rawX": 38.693333,
+              "width": 0
+            },
+            {
+              "i": 15,
+              "char": "c",
+              "kind": "char",
+              "rawX": 38.693333,
+              "width": 12
+            },
+            {
+              "i": 16,
+              "char": "c",
+              "kind": "char",
+              "rawX": 50.693333,
+              "width": 12
+            },
+            {
+              "i": 17,
+              "char": "c",
+              "kind": "char",
+              "rawX": 62.693333,
+              "width": 12
+            },
+            {
+              "i": 18,
+              "char": "c",
+              "kind": "char",
+              "rawX": 74.693333,
+              "width": 12
+            },
+            {
+              "i": 19,
+              "char": "c",
+              "kind": "char",
+              "rawX": 86.693333,
+              "width": 12
+            },
+            {
+              "i": 20,
+              "char": "c",
+              "kind": "char",
+              "rawX": 98.693333,
+              "width": 12
+            },
+            {
+              "i": 21,
+              "char": "c",
+              "kind": "char",
+              "rawX": 110.693333,
+              "width": 12
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "startChar": 22,
+          "endCharExclusive": 27,
+          "lineText": "ccccc",
+          "width": 60,
+          "hasOverflowed": false,
+          "containsCloseMarker": false,
+          "endMinusCloseIndex": 13,
+          "perChar": [
+            {
+              "i": 22,
+              "char": "c",
+              "kind": "char",
+              "rawX": 0,
+              "width": 12
+            },
+            {
+              "i": 23,
+              "char": "c",
+              "kind": "char",
+              "rawX": 12,
+              "width": 12
+            },
+            {
+              "i": 24,
+              "char": "c",
+              "kind": "char",
+              "rawX": 24,
+              "width": 12
+            },
+            {
+              "i": 25,
+              "char": "c",
+              "kind": "char",
+              "rawX": 36,
+              "width": 12
+            },
+            {
+              "i": 26,
+              "char": "c",
+              "kind": "char",
+              "rawX": 48,
+              "width": 12
+            }
+          ]
+        }
+      ],
+      "lineBreaks": [
+        {
+          "lineIndex": 0,
+          "isNull": true,
+          "error": null
+        },
+        {
+          "lineIndex": 1,
+          "isNull": true,
+          "error": null
+        },
+        {
+          "lineIndex": 2,
+          "isNull": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "modifier-close/w156.693",
+      "group": "close-marker-boundary",
+      "paragraphWidthDip": 156.693333,
+      "calibratedCloseMarkerPositionDip": 158.693333,
+      "openIndex": 10,
+      "closeIndex": 14,
+      "bufferLength": 27,
+      "bufferWithMarkers": "cccccccccc\u003COPEN\u003Eabc\u003CCLOSE\u003Ecccccccccccc",
+      "fontFamily": "Arial",
+      "fontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+      "dpi": 96,
+      "emSizeDip": 24,
+      "lineCount": 2,
+      "lines": [
+        {
+          "index": 0,
+          "startChar": 0,
+          "endCharExclusive": 13,
+          "lineText": "cccccccccc\uE000ab",
+          "width": 146.693333,
+          "hasOverflowed": false,
+          "containsCloseMarker": false,
+          "endMinusCloseIndex": -1,
+          "perChar": [
+            {
+              "i": 0,
+              "char": "c",
+              "kind": "char",
+              "rawX": 0,
+              "width": 12
+            },
+            {
+              "i": 1,
+              "char": "c",
+              "kind": "char",
+              "rawX": 12,
+              "width": 12
+            },
+            {
+              "i": 2,
+              "char": "c",
+              "kind": "char",
+              "rawX": 24,
+              "width": 12
+            },
+            {
+              "i": 3,
+              "char": "c",
+              "kind": "char",
+              "rawX": 36,
+              "width": 12
+            },
+            {
+              "i": 4,
+              "char": "c",
+              "kind": "char",
+              "rawX": 48,
+              "width": 12
+            },
+            {
+              "i": 5,
+              "char": "c",
+              "kind": "char",
+              "rawX": 60,
+              "width": 12
+            },
+            {
+              "i": 6,
+              "char": "c",
+              "kind": "char",
+              "rawX": 72,
+              "width": 12
+            },
+            {
+              "i": 7,
+              "char": "c",
+              "kind": "char",
+              "rawX": 84,
+              "width": 12
+            },
+            {
+              "i": 8,
+              "char": "c",
+              "kind": "char",
+              "rawX": 96,
+              "width": 12
+            },
+            {
+              "i": 9,
+              "char": "c",
+              "kind": "char",
+              "rawX": 108,
+              "width": 12
+            },
+            {
+              "i": 10,
+              "char": "\uE000",
+              "kind": "OPEN-MARKER",
+              "rawX": 120,
+              "width": 0
+            },
+            {
+              "i": 11,
+              "char": "a",
+              "kind": "char",
+              "rawX": 120,
+              "width": 13.346667
+            },
+            {
+              "i": 12,
+              "char": "b",
+              "kind": "char",
+              "rawX": 133.346667,
+              "width": 13.346667
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "startChar": 13,
+          "endCharExclusive": 27,
+          "lineText": "c\uE001cccccccccccc",
+          "width": 156,
+          "hasOverflowed": false,
+          "containsCloseMarker": true,
+          "endMinusCloseIndex": 13,
+          "perChar": [
+            {
+              "i": 13,
+              "char": "c",
+              "kind": "char",
+              "rawX": 0,
+              "width": 12
+            },
+            {
+              "i": 14,
+              "char": "\uE001",
+              "kind": "CLOSE-MARKER",
+              "rawX": 12,
+              "width": 0
+            },
+            {
+              "i": 15,
+              "char": "c",
+              "kind": "char",
+              "rawX": 12,
+              "width": 12
+            },
+            {
+              "i": 16,
+              "char": "c",
+              "kind": "char",
+              "rawX": 24,
+              "width": 12
+            },
+            {
+              "i": 17,
+              "char": "c",
+              "kind": "char",
+              "rawX": 36,
+              "width": 12
+            },
+            {
+              "i": 18,
+              "char": "c",
+              "kind": "char",
+              "rawX": 48,
+              "width": 12
+            },
+            {
+              "i": 19,
+              "char": "c",
+              "kind": "char",
+              "rawX": 60,
+              "width": 12
+            },
+            {
+              "i": 20,
+              "char": "c",
+              "kind": "char",
+              "rawX": 72,
+              "width": 12
+            },
+            {
+              "i": 21,
+              "char": "c",
+              "kind": "char",
+              "rawX": 84,
+              "width": 12
+            },
+            {
+              "i": 22,
+              "char": "c",
+              "kind": "char",
+              "rawX": 96,
+              "width": 12
+            },
+            {
+              "i": 23,
+              "char": "c",
+              "kind": "char",
+              "rawX": 108,
+              "width": 12
+            },
+            {
+              "i": 24,
+              "char": "c",
+              "kind": "char",
+              "rawX": 120,
+              "width": 12
+            },
+            {
+              "i": 25,
+              "char": "c",
+              "kind": "char",
+              "rawX": 132,
+              "width": 12
+            },
+            {
+              "i": 26,
+              "char": "c",
+              "kind": "char",
+              "rawX": 144,
+              "width": 12
+            }
+          ]
+        }
+      ],
+      "lineBreaks": [
+        {
+          "lineIndex": 0,
+          "isNull": false,
+          "error": null
+        },
+        {
+          "lineIndex": 1,
+          "isNull": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "modifier-close/w157.693",
+      "group": "close-marker-boundary",
+      "paragraphWidthDip": 157.693333,
+      "calibratedCloseMarkerPositionDip": 158.693333,
+      "openIndex": 10,
+      "closeIndex": 14,
+      "bufferLength": 27,
+      "bufferWithMarkers": "cccccccccc\u003COPEN\u003Eabc\u003CCLOSE\u003Ecccccccccccc",
+      "fontFamily": "Arial",
+      "fontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+      "dpi": 96,
+      "emSizeDip": 24,
+      "lineCount": 2,
+      "lines": [
+        {
+          "index": 0,
+          "startChar": 0,
+          "endCharExclusive": 13,
+          "lineText": "cccccccccc\uE000ab",
+          "width": 146.693333,
+          "hasOverflowed": false,
+          "containsCloseMarker": false,
+          "endMinusCloseIndex": -1,
+          "perChar": [
+            {
+              "i": 0,
+              "char": "c",
+              "kind": "char",
+              "rawX": 0,
+              "width": 12
+            },
+            {
+              "i": 1,
+              "char": "c",
+              "kind": "char",
+              "rawX": 12,
+              "width": 12
+            },
+            {
+              "i": 2,
+              "char": "c",
+              "kind": "char",
+              "rawX": 24,
+              "width": 12
+            },
+            {
+              "i": 3,
+              "char": "c",
+              "kind": "char",
+              "rawX": 36,
+              "width": 12
+            },
+            {
+              "i": 4,
+              "char": "c",
+              "kind": "char",
+              "rawX": 48,
+              "width": 12
+            },
+            {
+              "i": 5,
+              "char": "c",
+              "kind": "char",
+              "rawX": 60,
+              "width": 12
+            },
+            {
+              "i": 6,
+              "char": "c",
+              "kind": "char",
+              "rawX": 72,
+              "width": 12
+            },
+            {
+              "i": 7,
+              "char": "c",
+              "kind": "char",
+              "rawX": 84,
+              "width": 12
+            },
+            {
+              "i": 8,
+              "char": "c",
+              "kind": "char",
+              "rawX": 96,
+              "width": 12
+            },
+            {
+              "i": 9,
+              "char": "c",
+              "kind": "char",
+              "rawX": 108,
+              "width": 12
+            },
+            {
+              "i": 10,
+              "char": "\uE000",
+              "kind": "OPEN-MARKER",
+              "rawX": 120,
+              "width": 0
+            },
+            {
+              "i": 11,
+              "char": "a",
+              "kind": "char",
+              "rawX": 120,
+              "width": 13.346667
+            },
+            {
+              "i": 12,
+              "char": "b",
+              "kind": "char",
+              "rawX": 133.346667,
+              "width": 13.346667
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "startChar": 13,
+          "endCharExclusive": 27,
+          "lineText": "c\uE001cccccccccccc",
+          "width": 156,
+          "hasOverflowed": false,
+          "containsCloseMarker": true,
+          "endMinusCloseIndex": 13,
+          "perChar": [
+            {
+              "i": 13,
+              "char": "c",
+              "kind": "char",
+              "rawX": 0,
+              "width": 12
+            },
+            {
+              "i": 14,
+              "char": "\uE001",
+              "kind": "CLOSE-MARKER",
+              "rawX": 12,
+              "width": 0
+            },
+            {
+              "i": 15,
+              "char": "c",
+              "kind": "char",
+              "rawX": 12,
+              "width": 12
+            },
+            {
+              "i": 16,
+              "char": "c",
+              "kind": "char",
+              "rawX": 24,
+              "width": 12
+            },
+            {
+              "i": 17,
+              "char": "c",
+              "kind": "char",
+              "rawX": 36,
+              "width": 12
+            },
+            {
+              "i": 18,
+              "char": "c",
+              "kind": "char",
+              "rawX": 48,
+              "width": 12
+            },
+            {
+              "i": 19,
+              "char": "c",
+              "kind": "char",
+              "rawX": 60,
+              "width": 12
+            },
+            {
+              "i": 20,
+              "char": "c",
+              "kind": "char",
+              "rawX": 72,
+              "width": 12
+            },
+            {
+              "i": 21,
+              "char": "c",
+              "kind": "char",
+              "rawX": 84,
+              "width": 12
+            },
+            {
+              "i": 22,
+              "char": "c",
+              "kind": "char",
+              "rawX": 96,
+              "width": 12
+            },
+            {
+              "i": 23,
+              "char": "c",
+              "kind": "char",
+              "rawX": 108,
+              "width": 12
+            },
+            {
+              "i": 24,
+              "char": "c",
+              "kind": "char",
+              "rawX": 120,
+              "width": 12
+            },
+            {
+              "i": 25,
+              "char": "c",
+              "kind": "char",
+              "rawX": 132,
+              "width": 12
+            },
+            {
+              "i": 26,
+              "char": "c",
+              "kind": "char",
+              "rawX": 144,
+              "width": 12
+            }
+          ]
+        }
+      ],
+      "lineBreaks": [
+        {
+          "lineIndex": 0,
+          "isNull": false,
+          "error": null
+        },
+        {
+          "lineIndex": 1,
+          "isNull": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "modifier-close/w158.692",
+      "group": "close-marker-boundary",
+      "paragraphWidthDip": 158.692333,
+      "calibratedCloseMarkerPositionDip": 158.693333,
+      "openIndex": 10,
+      "closeIndex": 14,
+      "bufferLength": 27,
+      "bufferWithMarkers": "cccccccccc\u003COPEN\u003Eabc\u003CCLOSE\u003Ecccccccccccc",
+      "fontFamily": "Arial",
+      "fontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+      "dpi": 96,
+      "emSizeDip": 24,
+      "lineCount": 2,
+      "lines": [
+        {
+          "index": 0,
+          "startChar": 0,
+          "endCharExclusive": 13,
+          "lineText": "cccccccccc\uE000ab",
+          "width": 146.693333,
+          "hasOverflowed": false,
+          "containsCloseMarker": false,
+          "endMinusCloseIndex": -1,
+          "perChar": [
+            {
+              "i": 0,
+              "char": "c",
+              "kind": "char",
+              "rawX": 0,
+              "width": 12
+            },
+            {
+              "i": 1,
+              "char": "c",
+              "kind": "char",
+              "rawX": 12,
+              "width": 12
+            },
+            {
+              "i": 2,
+              "char": "c",
+              "kind": "char",
+              "rawX": 24,
+              "width": 12
+            },
+            {
+              "i": 3,
+              "char": "c",
+              "kind": "char",
+              "rawX": 36,
+              "width": 12
+            },
+            {
+              "i": 4,
+              "char": "c",
+              "kind": "char",
+              "rawX": 48,
+              "width": 12
+            },
+            {
+              "i": 5,
+              "char": "c",
+              "kind": "char",
+              "rawX": 60,
+              "width": 12
+            },
+            {
+              "i": 6,
+              "char": "c",
+              "kind": "char",
+              "rawX": 72,
+              "width": 12
+            },
+            {
+              "i": 7,
+              "char": "c",
+              "kind": "char",
+              "rawX": 84,
+              "width": 12
+            },
+            {
+              "i": 8,
+              "char": "c",
+              "kind": "char",
+              "rawX": 96,
+              "width": 12
+            },
+            {
+              "i": 9,
+              "char": "c",
+              "kind": "char",
+              "rawX": 108,
+              "width": 12
+            },
+            {
+              "i": 10,
+              "char": "\uE000",
+              "kind": "OPEN-MARKER",
+              "rawX": 120,
+              "width": 0
+            },
+            {
+              "i": 11,
+              "char": "a",
+              "kind": "char",
+              "rawX": 120,
+              "width": 13.346667
+            },
+            {
+              "i": 12,
+              "char": "b",
+              "kind": "char",
+              "rawX": 133.346667,
+              "width": 13.346667
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "startChar": 13,
+          "endCharExclusive": 27,
+          "lineText": "c\uE001cccccccccccc",
+          "width": 156,
+          "hasOverflowed": false,
+          "containsCloseMarker": true,
+          "endMinusCloseIndex": 13,
+          "perChar": [
+            {
+              "i": 13,
+              "char": "c",
+              "kind": "char",
+              "rawX": 0,
+              "width": 12
+            },
+            {
+              "i": 14,
+              "char": "\uE001",
+              "kind": "CLOSE-MARKER",
+              "rawX": 12,
+              "width": 0
+            },
+            {
+              "i": 15,
+              "char": "c",
+              "kind": "char",
+              "rawX": 12,
+              "width": 12
+            },
+            {
+              "i": 16,
+              "char": "c",
+              "kind": "char",
+              "rawX": 24,
+              "width": 12
+            },
+            {
+              "i": 17,
+              "char": "c",
+              "kind": "char",
+              "rawX": 36,
+              "width": 12
+            },
+            {
+              "i": 18,
+              "char": "c",
+              "kind": "char",
+              "rawX": 48,
+              "width": 12
+            },
+            {
+              "i": 19,
+              "char": "c",
+              "kind": "char",
+              "rawX": 60,
+              "width": 12
+            },
+            {
+              "i": 20,
+              "char": "c",
+              "kind": "char",
+              "rawX": 72,
+              "width": 12
+            },
+            {
+              "i": 21,
+              "char": "c",
+              "kind": "char",
+              "rawX": 84,
+              "width": 12
+            },
+            {
+              "i": 22,
+              "char": "c",
+              "kind": "char",
+              "rawX": 96,
+              "width": 12
+            },
+            {
+              "i": 23,
+              "char": "c",
+              "kind": "char",
+              "rawX": 108,
+              "width": 12
+            },
+            {
+              "i": 24,
+              "char": "c",
+              "kind": "char",
+              "rawX": 120,
+              "width": 12
+            },
+            {
+              "i": 25,
+              "char": "c",
+              "kind": "char",
+              "rawX": 132,
+              "width": 12
+            },
+            {
+              "i": 26,
+              "char": "c",
+              "kind": "char",
+              "rawX": 144,
+              "width": 12
+            }
+          ]
+        }
+      ],
+      "lineBreaks": [
+        {
+          "lineIndex": 0,
+          "isNull": false,
+          "error": null
+        },
+        {
+          "lineIndex": 1,
+          "isNull": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "modifier-close/w158.693",
+      "group": "close-marker-boundary",
+      "paragraphWidthDip": 158.693333,
+      "calibratedCloseMarkerPositionDip": 158.693333,
+      "openIndex": 10,
+      "closeIndex": 14,
+      "bufferLength": 27,
+      "bufferWithMarkers": "cccccccccc\u003COPEN\u003Eabc\u003CCLOSE\u003Ecccccccccccc",
+      "fontFamily": "Arial",
+      "fontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+      "dpi": 96,
+      "emSizeDip": 24,
+      "lineCount": 2,
+      "lines": [
+        {
+          "index": 0,
+          "startChar": 0,
+          "endCharExclusive": 13,
+          "lineText": "cccccccccc\uE000ab",
+          "width": 146.693333,
+          "hasOverflowed": false,
+          "containsCloseMarker": false,
+          "endMinusCloseIndex": -1,
+          "perChar": [
+            {
+              "i": 0,
+              "char": "c",
+              "kind": "char",
+              "rawX": 0,
+              "width": 12
+            },
+            {
+              "i": 1,
+              "char": "c",
+              "kind": "char",
+              "rawX": 12,
+              "width": 12
+            },
+            {
+              "i": 2,
+              "char": "c",
+              "kind": "char",
+              "rawX": 24,
+              "width": 12
+            },
+            {
+              "i": 3,
+              "char": "c",
+              "kind": "char",
+              "rawX": 36,
+              "width": 12
+            },
+            {
+              "i": 4,
+              "char": "c",
+              "kind": "char",
+              "rawX": 48,
+              "width": 12
+            },
+            {
+              "i": 5,
+              "char": "c",
+              "kind": "char",
+              "rawX": 60,
+              "width": 12
+            },
+            {
+              "i": 6,
+              "char": "c",
+              "kind": "char",
+              "rawX": 72,
+              "width": 12
+            },
+            {
+              "i": 7,
+              "char": "c",
+              "kind": "char",
+              "rawX": 84,
+              "width": 12
+            },
+            {
+              "i": 8,
+              "char": "c",
+              "kind": "char",
+              "rawX": 96,
+              "width": 12
+            },
+            {
+              "i": 9,
+              "char": "c",
+              "kind": "char",
+              "rawX": 108,
+              "width": 12
+            },
+            {
+              "i": 10,
+              "char": "\uE000",
+              "kind": "OPEN-MARKER",
+              "rawX": 120,
+              "width": 0
+            },
+            {
+              "i": 11,
+              "char": "a",
+              "kind": "char",
+              "rawX": 120,
+              "width": 13.346667
+            },
+            {
+              "i": 12,
+              "char": "b",
+              "kind": "char",
+              "rawX": 133.346667,
+              "width": 13.346667
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "startChar": 13,
+          "endCharExclusive": 27,
+          "lineText": "c\uE001cccccccccccc",
+          "width": 156,
+          "hasOverflowed": false,
+          "containsCloseMarker": true,
+          "endMinusCloseIndex": 13,
+          "perChar": [
+            {
+              "i": 13,
+              "char": "c",
+              "kind": "char",
+              "rawX": 0,
+              "width": 12
+            },
+            {
+              "i": 14,
+              "char": "\uE001",
+              "kind": "CLOSE-MARKER",
+              "rawX": 12,
+              "width": 0
+            },
+            {
+              "i": 15,
+              "char": "c",
+              "kind": "char",
+              "rawX": 12,
+              "width": 12
+            },
+            {
+              "i": 16,
+              "char": "c",
+              "kind": "char",
+              "rawX": 24,
+              "width": 12
+            },
+            {
+              "i": 17,
+              "char": "c",
+              "kind": "char",
+              "rawX": 36,
+              "width": 12
+            },
+            {
+              "i": 18,
+              "char": "c",
+              "kind": "char",
+              "rawX": 48,
+              "width": 12
+            },
+            {
+              "i": 19,
+              "char": "c",
+              "kind": "char",
+              "rawX": 60,
+              "width": 12
+            },
+            {
+              "i": 20,
+              "char": "c",
+              "kind": "char",
+              "rawX": 72,
+              "width": 12
+            },
+            {
+              "i": 21,
+              "char": "c",
+              "kind": "char",
+              "rawX": 84,
+              "width": 12
+            },
+            {
+              "i": 22,
+              "char": "c",
+              "kind": "char",
+              "rawX": 96,
+              "width": 12
+            },
+            {
+              "i": 23,
+              "char": "c",
+              "kind": "char",
+              "rawX": 108,
+              "width": 12
+            },
+            {
+              "i": 24,
+              "char": "c",
+              "kind": "char",
+              "rawX": 120,
+              "width": 12
+            },
+            {
+              "i": 25,
+              "char": "c",
+              "kind": "char",
+              "rawX": 132,
+              "width": 12
+            },
+            {
+              "i": 26,
+              "char": "c",
+              "kind": "char",
+              "rawX": 144,
+              "width": 12
+            }
+          ]
+        }
+      ],
+      "lineBreaks": [
+        {
+          "lineIndex": 0,
+          "isNull": false,
+          "error": null
+        },
+        {
+          "lineIndex": 1,
+          "isNull": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "modifier-close/w158.694",
+      "group": "close-marker-boundary",
+      "paragraphWidthDip": 158.694333,
+      "calibratedCloseMarkerPositionDip": 158.693333,
+      "openIndex": 10,
+      "closeIndex": 14,
+      "bufferLength": 27,
+      "bufferWithMarkers": "cccccccccc\u003COPEN\u003Eabc\u003CCLOSE\u003Ecccccccccccc",
+      "fontFamily": "Arial",
+      "fontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+      "dpi": 96,
+      "emSizeDip": 24,
+      "lineCount": 2,
+      "lines": [
+        {
+          "index": 0,
+          "startChar": 0,
+          "endCharExclusive": 14,
+          "lineText": "cccccccccc\uE000abc",
+          "width": 158.693333,
+          "hasOverflowed": false,
+          "containsCloseMarker": false,
+          "endMinusCloseIndex": 0,
+          "perChar": [
+            {
+              "i": 0,
+              "char": "c",
+              "kind": "char",
+              "rawX": 0,
+              "width": 12
+            },
+            {
+              "i": 1,
+              "char": "c",
+              "kind": "char",
+              "rawX": 12,
+              "width": 12
+            },
+            {
+              "i": 2,
+              "char": "c",
+              "kind": "char",
+              "rawX": 24,
+              "width": 12
+            },
+            {
+              "i": 3,
+              "char": "c",
+              "kind": "char",
+              "rawX": 36,
+              "width": 12
+            },
+            {
+              "i": 4,
+              "char": "c",
+              "kind": "char",
+              "rawX": 48,
+              "width": 12
+            },
+            {
+              "i": 5,
+              "char": "c",
+              "kind": "char",
+              "rawX": 60,
+              "width": 12
+            },
+            {
+              "i": 6,
+              "char": "c",
+              "kind": "char",
+              "rawX": 72,
+              "width": 12
+            },
+            {
+              "i": 7,
+              "char": "c",
+              "kind": "char",
+              "rawX": 84,
+              "width": 12
+            },
+            {
+              "i": 8,
+              "char": "c",
+              "kind": "char",
+              "rawX": 96,
+              "width": 12
+            },
+            {
+              "i": 9,
+              "char": "c",
+              "kind": "char",
+              "rawX": 108,
+              "width": 12
+            },
+            {
+              "i": 10,
+              "char": "\uE000",
+              "kind": "OPEN-MARKER",
+              "rawX": 120,
+              "width": 0
+            },
+            {
+              "i": 11,
+              "char": "a",
+              "kind": "char",
+              "rawX": 120,
+              "width": 13.346667
+            },
+            {
+              "i": 12,
+              "char": "b",
+              "kind": "char",
+              "rawX": 133.346667,
+              "width": 13.346667
+            },
+            {
+              "i": 13,
+              "char": "c",
+              "kind": "char",
+              "rawX": 146.693333,
+              "width": 12
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "startChar": 14,
+          "endCharExclusive": 27,
+          "lineText": "\uE001cccccccccccc",
+          "width": 144,
+          "hasOverflowed": false,
+          "containsCloseMarker": true,
+          "endMinusCloseIndex": 13,
+          "perChar": [
+            {
+              "i": 14,
+              "char": "\uE001",
+              "kind": "CLOSE-MARKER",
+              "rawX": 0,
+              "width": 0
+            },
+            {
+              "i": 15,
+              "char": "c",
+              "kind": "char",
+              "rawX": 0,
+              "width": 12
+            },
+            {
+              "i": 16,
+              "char": "c",
+              "kind": "char",
+              "rawX": 12,
+              "width": 12
+            },
+            {
+              "i": 17,
+              "char": "c",
+              "kind": "char",
+              "rawX": 24,
+              "width": 12
+            },
+            {
+              "i": 18,
+              "char": "c",
+              "kind": "char",
+              "rawX": 36,
+              "width": 12
+            },
+            {
+              "i": 19,
+              "char": "c",
+              "kind": "char",
+              "rawX": 48,
+              "width": 12
+            },
+            {
+              "i": 20,
+              "char": "c",
+              "kind": "char",
+              "rawX": 60,
+              "width": 12
+            },
+            {
+              "i": 21,
+              "char": "c",
+              "kind": "char",
+              "rawX": 72,
+              "width": 12
+            },
+            {
+              "i": 22,
+              "char": "c",
+              "kind": "char",
+              "rawX": 84,
+              "width": 12
+            },
+            {
+              "i": 23,
+              "char": "c",
+              "kind": "char",
+              "rawX": 96,
+              "width": 12
+            },
+            {
+              "i": 24,
+              "char": "c",
+              "kind": "char",
+              "rawX": 108,
+              "width": 12
+            },
+            {
+              "i": 25,
+              "char": "c",
+              "kind": "char",
+              "rawX": 120,
+              "width": 12
+            },
+            {
+              "i": 26,
+              "char": "c",
+              "kind": "char",
+              "rawX": 132,
+              "width": 12
+            }
+          ]
+        }
+      ],
+      "lineBreaks": [
+        {
+          "lineIndex": 0,
+          "isNull": false,
+          "error": null
+        },
+        {
+          "lineIndex": 1,
+          "isNull": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "modifier-close/w159.693",
+      "group": "close-marker-boundary",
+      "paragraphWidthDip": 159.693333,
+      "calibratedCloseMarkerPositionDip": 158.693333,
+      "openIndex": 10,
+      "closeIndex": 14,
+      "bufferLength": 27,
+      "bufferWithMarkers": "cccccccccc\u003COPEN\u003Eabc\u003CCLOSE\u003Ecccccccccccc",
+      "fontFamily": "Arial",
+      "fontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+      "dpi": 96,
+      "emSizeDip": 24,
+      "lineCount": 2,
+      "lines": [
+        {
+          "index": 0,
+          "startChar": 0,
+          "endCharExclusive": 14,
+          "lineText": "cccccccccc\uE000abc",
+          "width": 158.693333,
+          "hasOverflowed": false,
+          "containsCloseMarker": false,
+          "endMinusCloseIndex": 0,
+          "perChar": [
+            {
+              "i": 0,
+              "char": "c",
+              "kind": "char",
+              "rawX": 0,
+              "width": 12
+            },
+            {
+              "i": 1,
+              "char": "c",
+              "kind": "char",
+              "rawX": 12,
+              "width": 12
+            },
+            {
+              "i": 2,
+              "char": "c",
+              "kind": "char",
+              "rawX": 24,
+              "width": 12
+            },
+            {
+              "i": 3,
+              "char": "c",
+              "kind": "char",
+              "rawX": 36,
+              "width": 12
+            },
+            {
+              "i": 4,
+              "char": "c",
+              "kind": "char",
+              "rawX": 48,
+              "width": 12
+            },
+            {
+              "i": 5,
+              "char": "c",
+              "kind": "char",
+              "rawX": 60,
+              "width": 12
+            },
+            {
+              "i": 6,
+              "char": "c",
+              "kind": "char",
+              "rawX": 72,
+              "width": 12
+            },
+            {
+              "i": 7,
+              "char": "c",
+              "kind": "char",
+              "rawX": 84,
+              "width": 12
+            },
+            {
+              "i": 8,
+              "char": "c",
+              "kind": "char",
+              "rawX": 96,
+              "width": 12
+            },
+            {
+              "i": 9,
+              "char": "c",
+              "kind": "char",
+              "rawX": 108,
+              "width": 12
+            },
+            {
+              "i": 10,
+              "char": "\uE000",
+              "kind": "OPEN-MARKER",
+              "rawX": 120,
+              "width": 0
+            },
+            {
+              "i": 11,
+              "char": "a",
+              "kind": "char",
+              "rawX": 120,
+              "width": 13.346667
+            },
+            {
+              "i": 12,
+              "char": "b",
+              "kind": "char",
+              "rawX": 133.346667,
+              "width": 13.346667
+            },
+            {
+              "i": 13,
+              "char": "c",
+              "kind": "char",
+              "rawX": 146.693333,
+              "width": 12
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "startChar": 14,
+          "endCharExclusive": 27,
+          "lineText": "\uE001cccccccccccc",
+          "width": 144,
+          "hasOverflowed": false,
+          "containsCloseMarker": true,
+          "endMinusCloseIndex": 13,
+          "perChar": [
+            {
+              "i": 14,
+              "char": "\uE001",
+              "kind": "CLOSE-MARKER",
+              "rawX": 0,
+              "width": 0
+            },
+            {
+              "i": 15,
+              "char": "c",
+              "kind": "char",
+              "rawX": 0,
+              "width": 12
+            },
+            {
+              "i": 16,
+              "char": "c",
+              "kind": "char",
+              "rawX": 12,
+              "width": 12
+            },
+            {
+              "i": 17,
+              "char": "c",
+              "kind": "char",
+              "rawX": 24,
+              "width": 12
+            },
+            {
+              "i": 18,
+              "char": "c",
+              "kind": "char",
+              "rawX": 36,
+              "width": 12
+            },
+            {
+              "i": 19,
+              "char": "c",
+              "kind": "char",
+              "rawX": 48,
+              "width": 12
+            },
+            {
+              "i": 20,
+              "char": "c",
+              "kind": "char",
+              "rawX": 60,
+              "width": 12
+            },
+            {
+              "i": 21,
+              "char": "c",
+              "kind": "char",
+              "rawX": 72,
+              "width": 12
+            },
+            {
+              "i": 22,
+              "char": "c",
+              "kind": "char",
+              "rawX": 84,
+              "width": 12
+            },
+            {
+              "i": 23,
+              "char": "c",
+              "kind": "char",
+              "rawX": 96,
+              "width": 12
+            },
+            {
+              "i": 24,
+              "char": "c",
+              "kind": "char",
+              "rawX": 108,
+              "width": 12
+            },
+            {
+              "i": 25,
+              "char": "c",
+              "kind": "char",
+              "rawX": 120,
+              "width": 12
+            },
+            {
+              "i": 26,
+              "char": "c",
+              "kind": "char",
+              "rawX": 132,
+              "width": 12
+            }
+          ]
+        }
+      ],
+      "lineBreaks": [
+        {
+          "lineIndex": 0,
+          "isNull": false,
+          "error": null
+        },
+        {
+          "lineIndex": 1,
+          "isNull": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "modifier-close/w170.692",
+      "group": "close-marker-boundary",
+      "paragraphWidthDip": 170.692333,
+      "calibratedCloseMarkerPositionDip": 158.693333,
+      "openIndex": 10,
+      "closeIndex": 14,
+      "bufferLength": 27,
+      "bufferWithMarkers": "cccccccccc\u003COPEN\u003Eabc\u003CCLOSE\u003Ecccccccccccc",
+      "fontFamily": "Arial",
+      "fontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+      "dpi": 96,
+      "emSizeDip": 24,
+      "lineCount": 2,
+      "lines": [
+        {
+          "index": 0,
+          "startChar": 0,
+          "endCharExclusive": 14,
+          "lineText": "cccccccccc\uE000abc",
+          "width": 158.693333,
+          "hasOverflowed": false,
+          "containsCloseMarker": false,
+          "endMinusCloseIndex": 0,
+          "perChar": [
+            {
+              "i": 0,
+              "char": "c",
+              "kind": "char",
+              "rawX": 0,
+              "width": 12
+            },
+            {
+              "i": 1,
+              "char": "c",
+              "kind": "char",
+              "rawX": 12,
+              "width": 12
+            },
+            {
+              "i": 2,
+              "char": "c",
+              "kind": "char",
+              "rawX": 24,
+              "width": 12
+            },
+            {
+              "i": 3,
+              "char": "c",
+              "kind": "char",
+              "rawX": 36,
+              "width": 12
+            },
+            {
+              "i": 4,
+              "char": "c",
+              "kind": "char",
+              "rawX": 48,
+              "width": 12
+            },
+            {
+              "i": 5,
+              "char": "c",
+              "kind": "char",
+              "rawX": 60,
+              "width": 12
+            },
+            {
+              "i": 6,
+              "char": "c",
+              "kind": "char",
+              "rawX": 72,
+              "width": 12
+            },
+            {
+              "i": 7,
+              "char": "c",
+              "kind": "char",
+              "rawX": 84,
+              "width": 12
+            },
+            {
+              "i": 8,
+              "char": "c",
+              "kind": "char",
+              "rawX": 96,
+              "width": 12
+            },
+            {
+              "i": 9,
+              "char": "c",
+              "kind": "char",
+              "rawX": 108,
+              "width": 12
+            },
+            {
+              "i": 10,
+              "char": "\uE000",
+              "kind": "OPEN-MARKER",
+              "rawX": 120,
+              "width": 0
+            },
+            {
+              "i": 11,
+              "char": "a",
+              "kind": "char",
+              "rawX": 120,
+              "width": 13.346667
+            },
+            {
+              "i": 12,
+              "char": "b",
+              "kind": "char",
+              "rawX": 133.346667,
+              "width": 13.346667
+            },
+            {
+              "i": 13,
+              "char": "c",
+              "kind": "char",
+              "rawX": 146.693333,
+              "width": 12
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "startChar": 14,
+          "endCharExclusive": 27,
+          "lineText": "\uE001cccccccccccc",
+          "width": 144,
+          "hasOverflowed": false,
+          "containsCloseMarker": true,
+          "endMinusCloseIndex": 13,
+          "perChar": [
+            {
+              "i": 14,
+              "char": "\uE001",
+              "kind": "CLOSE-MARKER",
+              "rawX": 0,
+              "width": 0
+            },
+            {
+              "i": 15,
+              "char": "c",
+              "kind": "char",
+              "rawX": 0,
+              "width": 12
+            },
+            {
+              "i": 16,
+              "char": "c",
+              "kind": "char",
+              "rawX": 12,
+              "width": 12
+            },
+            {
+              "i": 17,
+              "char": "c",
+              "kind": "char",
+              "rawX": 24,
+              "width": 12
+            },
+            {
+              "i": 18,
+              "char": "c",
+              "kind": "char",
+              "rawX": 36,
+              "width": 12
+            },
+            {
+              "i": 19,
+              "char": "c",
+              "kind": "char",
+              "rawX": 48,
+              "width": 12
+            },
+            {
+              "i": 20,
+              "char": "c",
+              "kind": "char",
+              "rawX": 60,
+              "width": 12
+            },
+            {
+              "i": 21,
+              "char": "c",
+              "kind": "char",
+              "rawX": 72,
+              "width": 12
+            },
+            {
+              "i": 22,
+              "char": "c",
+              "kind": "char",
+              "rawX": 84,
+              "width": 12
+            },
+            {
+              "i": 23,
+              "char": "c",
+              "kind": "char",
+              "rawX": 96,
+              "width": 12
+            },
+            {
+              "i": 24,
+              "char": "c",
+              "kind": "char",
+              "rawX": 108,
+              "width": 12
+            },
+            {
+              "i": 25,
+              "char": "c",
+              "kind": "char",
+              "rawX": 120,
+              "width": 12
+            },
+            {
+              "i": 26,
+              "char": "c",
+              "kind": "char",
+              "rawX": 132,
+              "width": 12
+            }
+          ]
+        }
+      ],
+      "lineBreaks": [
+        {
+          "lineIndex": 0,
+          "isNull": false,
+          "error": null
+        },
+        {
+          "lineIndex": 1,
+          "isNull": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "modifier-close/w170.693",
+      "group": "close-marker-boundary",
+      "paragraphWidthDip": 170.693333,
+      "calibratedCloseMarkerPositionDip": 158.693333,
+      "openIndex": 10,
+      "closeIndex": 14,
+      "bufferLength": 27,
+      "bufferWithMarkers": "cccccccccc\u003COPEN\u003Eabc\u003CCLOSE\u003Ecccccccccccc",
+      "fontFamily": "Arial",
+      "fontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+      "dpi": 96,
+      "emSizeDip": 24,
+      "lineCount": 2,
+      "lines": [
+        {
+          "index": 0,
+          "startChar": 0,
+          "endCharExclusive": 14,
+          "lineText": "cccccccccc\uE000abc",
+          "width": 158.693333,
+          "hasOverflowed": false,
+          "containsCloseMarker": false,
+          "endMinusCloseIndex": 0,
+          "perChar": [
+            {
+              "i": 0,
+              "char": "c",
+              "kind": "char",
+              "rawX": 0,
+              "width": 12
+            },
+            {
+              "i": 1,
+              "char": "c",
+              "kind": "char",
+              "rawX": 12,
+              "width": 12
+            },
+            {
+              "i": 2,
+              "char": "c",
+              "kind": "char",
+              "rawX": 24,
+              "width": 12
+            },
+            {
+              "i": 3,
+              "char": "c",
+              "kind": "char",
+              "rawX": 36,
+              "width": 12
+            },
+            {
+              "i": 4,
+              "char": "c",
+              "kind": "char",
+              "rawX": 48,
+              "width": 12
+            },
+            {
+              "i": 5,
+              "char": "c",
+              "kind": "char",
+              "rawX": 60,
+              "width": 12
+            },
+            {
+              "i": 6,
+              "char": "c",
+              "kind": "char",
+              "rawX": 72,
+              "width": 12
+            },
+            {
+              "i": 7,
+              "char": "c",
+              "kind": "char",
+              "rawX": 84,
+              "width": 12
+            },
+            {
+              "i": 8,
+              "char": "c",
+              "kind": "char",
+              "rawX": 96,
+              "width": 12
+            },
+            {
+              "i": 9,
+              "char": "c",
+              "kind": "char",
+              "rawX": 108,
+              "width": 12
+            },
+            {
+              "i": 10,
+              "char": "\uE000",
+              "kind": "OPEN-MARKER",
+              "rawX": 120,
+              "width": 0
+            },
+            {
+              "i": 11,
+              "char": "a",
+              "kind": "char",
+              "rawX": 120,
+              "width": 13.346667
+            },
+            {
+              "i": 12,
+              "char": "b",
+              "kind": "char",
+              "rawX": 133.346667,
+              "width": 13.346667
+            },
+            {
+              "i": 13,
+              "char": "c",
+              "kind": "char",
+              "rawX": 146.693333,
+              "width": 12
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "startChar": 14,
+          "endCharExclusive": 27,
+          "lineText": "\uE001cccccccccccc",
+          "width": 144,
+          "hasOverflowed": false,
+          "containsCloseMarker": true,
+          "endMinusCloseIndex": 13,
+          "perChar": [
+            {
+              "i": 14,
+              "char": "\uE001",
+              "kind": "CLOSE-MARKER",
+              "rawX": 0,
+              "width": 0
+            },
+            {
+              "i": 15,
+              "char": "c",
+              "kind": "char",
+              "rawX": 0,
+              "width": 12
+            },
+            {
+              "i": 16,
+              "char": "c",
+              "kind": "char",
+              "rawX": 12,
+              "width": 12
+            },
+            {
+              "i": 17,
+              "char": "c",
+              "kind": "char",
+              "rawX": 24,
+              "width": 12
+            },
+            {
+              "i": 18,
+              "char": "c",
+              "kind": "char",
+              "rawX": 36,
+              "width": 12
+            },
+            {
+              "i": 19,
+              "char": "c",
+              "kind": "char",
+              "rawX": 48,
+              "width": 12
+            },
+            {
+              "i": 20,
+              "char": "c",
+              "kind": "char",
+              "rawX": 60,
+              "width": 12
+            },
+            {
+              "i": 21,
+              "char": "c",
+              "kind": "char",
+              "rawX": 72,
+              "width": 12
+            },
+            {
+              "i": 22,
+              "char": "c",
+              "kind": "char",
+              "rawX": 84,
+              "width": 12
+            },
+            {
+              "i": 23,
+              "char": "c",
+              "kind": "char",
+              "rawX": 96,
+              "width": 12
+            },
+            {
+              "i": 24,
+              "char": "c",
+              "kind": "char",
+              "rawX": 108,
+              "width": 12
+            },
+            {
+              "i": 25,
+              "char": "c",
+              "kind": "char",
+              "rawX": 120,
+              "width": 12
+            },
+            {
+              "i": 26,
+              "char": "c",
+              "kind": "char",
+              "rawX": 132,
+              "width": 12
+            }
+          ]
+        }
+      ],
+      "lineBreaks": [
+        {
+          "lineIndex": 0,
+          "isNull": false,
+          "error": null
+        },
+        {
+          "lineIndex": 1,
+          "isNull": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "modifier-close/w170.694",
+      "group": "close-marker-boundary",
+      "paragraphWidthDip": 170.694333,
+      "calibratedCloseMarkerPositionDip": 158.693333,
+      "openIndex": 10,
+      "closeIndex": 14,
+      "bufferLength": 27,
+      "bufferWithMarkers": "cccccccccc\u003COPEN\u003Eabc\u003CCLOSE\u003Ecccccccccccc",
+      "fontFamily": "Arial",
+      "fontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+      "dpi": 96,
+      "emSizeDip": 24,
+      "lineCount": 2,
+      "lines": [
+        {
+          "index": 0,
+          "startChar": 0,
+          "endCharExclusive": 16,
+          "lineText": "cccccccccc\uE000abc\uE001c",
+          "width": 170.693333,
+          "hasOverflowed": false,
+          "containsCloseMarker": true,
+          "endMinusCloseIndex": 2,
+          "perChar": [
+            {
+              "i": 0,
+              "char": "c",
+              "kind": "char",
+              "rawX": 0,
+              "width": 12
+            },
+            {
+              "i": 1,
+              "char": "c",
+              "kind": "char",
+              "rawX": 12,
+              "width": 12
+            },
+            {
+              "i": 2,
+              "char": "c",
+              "kind": "char",
+              "rawX": 24,
+              "width": 12
+            },
+            {
+              "i": 3,
+              "char": "c",
+              "kind": "char",
+              "rawX": 36,
+              "width": 12
+            },
+            {
+              "i": 4,
+              "char": "c",
+              "kind": "char",
+              "rawX": 48,
+              "width": 12
+            },
+            {
+              "i": 5,
+              "char": "c",
+              "kind": "char",
+              "rawX": 60,
+              "width": 12
+            },
+            {
+              "i": 6,
+              "char": "c",
+              "kind": "char",
+              "rawX": 72,
+              "width": 12
+            },
+            {
+              "i": 7,
+              "char": "c",
+              "kind": "char",
+              "rawX": 84,
+              "width": 12
+            },
+            {
+              "i": 8,
+              "char": "c",
+              "kind": "char",
+              "rawX": 96,
+              "width": 12
+            },
+            {
+              "i": 9,
+              "char": "c",
+              "kind": "char",
+              "rawX": 108,
+              "width": 12
+            },
+            {
+              "i": 10,
+              "char": "\uE000",
+              "kind": "OPEN-MARKER",
+              "rawX": 120,
+              "width": 0
+            },
+            {
+              "i": 11,
+              "char": "a",
+              "kind": "char",
+              "rawX": 120,
+              "width": 13.346667
+            },
+            {
+              "i": 12,
+              "char": "b",
+              "kind": "char",
+              "rawX": 133.346667,
+              "width": 13.346667
+            },
+            {
+              "i": 13,
+              "char": "c",
+              "kind": "char",
+              "rawX": 146.693333,
+              "width": 12
+            },
+            {
+              "i": 14,
+              "char": "\uE001",
+              "kind": "CLOSE-MARKER",
+              "rawX": 158.693333,
+              "width": 0
+            },
+            {
+              "i": 15,
+              "char": "c",
+              "kind": "char",
+              "rawX": 158.693333,
+              "width": 12
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "startChar": 16,
+          "endCharExclusive": 27,
+          "lineText": "ccccccccccc",
+          "width": 132,
+          "hasOverflowed": false,
+          "containsCloseMarker": false,
+          "endMinusCloseIndex": 13,
+          "perChar": [
+            {
+              "i": 16,
+              "char": "c",
+              "kind": "char",
+              "rawX": 0,
+              "width": 12
+            },
+            {
+              "i": 17,
+              "char": "c",
+              "kind": "char",
+              "rawX": 12,
+              "width": 12
+            },
+            {
+              "i": 18,
+              "char": "c",
+              "kind": "char",
+              "rawX": 24,
+              "width": 12
+            },
+            {
+              "i": 19,
+              "char": "c",
+              "kind": "char",
+              "rawX": 36,
+              "width": 12
+            },
+            {
+              "i": 20,
+              "char": "c",
+              "kind": "char",
+              "rawX": 48,
+              "width": 12
+            },
+            {
+              "i": 21,
+              "char": "c",
+              "kind": "char",
+              "rawX": 60,
+              "width": 12
+            },
+            {
+              "i": 22,
+              "char": "c",
+              "kind": "char",
+              "rawX": 72,
+              "width": 12
+            },
+            {
+              "i": 23,
+              "char": "c",
+              "kind": "char",
+              "rawX": 84,
+              "width": 12
+            },
+            {
+              "i": 24,
+              "char": "c",
+              "kind": "char",
+              "rawX": 96,
+              "width": 12
+            },
+            {
+              "i": 25,
+              "char": "c",
+              "kind": "char",
+              "rawX": 108,
+              "width": 12
+            },
+            {
+              "i": 26,
+              "char": "c",
+              "kind": "char",
+              "rawX": 120,
+              "width": 12
+            }
+          ]
+        }
+      ],
+      "lineBreaks": [
+        {
+          "lineIndex": 0,
+          "isNull": true,
+          "error": null
+        },
+        {
+          "lineIndex": 1,
+          "isNull": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "modifier-close/w182.693",
+      "group": "close-marker-boundary",
+      "paragraphWidthDip": 182.693333,
+      "calibratedCloseMarkerPositionDip": 158.693333,
+      "openIndex": 10,
+      "closeIndex": 14,
+      "bufferLength": 27,
+      "bufferWithMarkers": "cccccccccc\u003COPEN\u003Eabc\u003CCLOSE\u003Ecccccccccccc",
+      "fontFamily": "Arial",
+      "fontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+      "dpi": 96,
+      "emSizeDip": 24,
+      "lineCount": 2,
+      "lines": [
+        {
+          "index": 0,
+          "startChar": 0,
+          "endCharExclusive": 16,
+          "lineText": "cccccccccc\uE000abc\uE001c",
+          "width": 170.693333,
+          "hasOverflowed": false,
+          "containsCloseMarker": true,
+          "endMinusCloseIndex": 2,
+          "perChar": [
+            {
+              "i": 0,
+              "char": "c",
+              "kind": "char",
+              "rawX": 0,
+              "width": 12
+            },
+            {
+              "i": 1,
+              "char": "c",
+              "kind": "char",
+              "rawX": 12,
+              "width": 12
+            },
+            {
+              "i": 2,
+              "char": "c",
+              "kind": "char",
+              "rawX": 24,
+              "width": 12
+            },
+            {
+              "i": 3,
+              "char": "c",
+              "kind": "char",
+              "rawX": 36,
+              "width": 12
+            },
+            {
+              "i": 4,
+              "char": "c",
+              "kind": "char",
+              "rawX": 48,
+              "width": 12
+            },
+            {
+              "i": 5,
+              "char": "c",
+              "kind": "char",
+              "rawX": 60,
+              "width": 12
+            },
+            {
+              "i": 6,
+              "char": "c",
+              "kind": "char",
+              "rawX": 72,
+              "width": 12
+            },
+            {
+              "i": 7,
+              "char": "c",
+              "kind": "char",
+              "rawX": 84,
+              "width": 12
+            },
+            {
+              "i": 8,
+              "char": "c",
+              "kind": "char",
+              "rawX": 96,
+              "width": 12
+            },
+            {
+              "i": 9,
+              "char": "c",
+              "kind": "char",
+              "rawX": 108,
+              "width": 12
+            },
+            {
+              "i": 10,
+              "char": "\uE000",
+              "kind": "OPEN-MARKER",
+              "rawX": 120,
+              "width": 0
+            },
+            {
+              "i": 11,
+              "char": "a",
+              "kind": "char",
+              "rawX": 120,
+              "width": 13.346667
+            },
+            {
+              "i": 12,
+              "char": "b",
+              "kind": "char",
+              "rawX": 133.346667,
+              "width": 13.346667
+            },
+            {
+              "i": 13,
+              "char": "c",
+              "kind": "char",
+              "rawX": 146.693333,
+              "width": 12
+            },
+            {
+              "i": 14,
+              "char": "\uE001",
+              "kind": "CLOSE-MARKER",
+              "rawX": 158.693333,
+              "width": 0
+            },
+            {
+              "i": 15,
+              "char": "c",
+              "kind": "char",
+              "rawX": 158.693333,
+              "width": 12
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "startChar": 16,
+          "endCharExclusive": 27,
+          "lineText": "ccccccccccc",
+          "width": 132,
+          "hasOverflowed": false,
+          "containsCloseMarker": false,
+          "endMinusCloseIndex": 13,
+          "perChar": [
+            {
+              "i": 16,
+              "char": "c",
+              "kind": "char",
+              "rawX": 0,
+              "width": 12
+            },
+            {
+              "i": 17,
+              "char": "c",
+              "kind": "char",
+              "rawX": 12,
+              "width": 12
+            },
+            {
+              "i": 18,
+              "char": "c",
+              "kind": "char",
+              "rawX": 24,
+              "width": 12
+            },
+            {
+              "i": 19,
+              "char": "c",
+              "kind": "char",
+              "rawX": 36,
+              "width": 12
+            },
+            {
+              "i": 20,
+              "char": "c",
+              "kind": "char",
+              "rawX": 48,
+              "width": 12
+            },
+            {
+              "i": 21,
+              "char": "c",
+              "kind": "char",
+              "rawX": 60,
+              "width": 12
+            },
+            {
+              "i": 22,
+              "char": "c",
+              "kind": "char",
+              "rawX": 72,
+              "width": 12
+            },
+            {
+              "i": 23,
+              "char": "c",
+              "kind": "char",
+              "rawX": 84,
+              "width": 12
+            },
+            {
+              "i": 24,
+              "char": "c",
+              "kind": "char",
+              "rawX": 96,
+              "width": 12
+            },
+            {
+              "i": 25,
+              "char": "c",
+              "kind": "char",
+              "rawX": 108,
+              "width": 12
+            },
+            {
+              "i": 26,
+              "char": "c",
+              "kind": "char",
+              "rawX": 120,
+              "width": 12
+            }
+          ]
+        }
+      ],
+      "lineBreaks": [
+        {
+          "lineIndex": 0,
+          "isNull": true,
+          "error": null
+        },
+        {
+          "lineIndex": 1,
+          "isNull": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "modifier-close/w4000",
+      "group": "close-marker-boundary",
+      "paragraphWidthDip": 4000,
+      "calibratedCloseMarkerPositionDip": 158.693333,
+      "openIndex": 10,
+      "closeIndex": 14,
+      "bufferLength": 27,
+      "bufferWithMarkers": "cccccccccc\u003COPEN\u003Eabc\u003CCLOSE\u003Ecccccccccccc",
+      "fontFamily": "Arial",
+      "fontUri": "file:///C:/WINDOWS/FONTS/ARIAL.TTF",
+      "fontSha256": "baa251526d6862712a58e613ef451d8a2b60482142ec6aab1d47fb8e23e21a7c",
+      "dpi": 96,
+      "emSizeDip": 24,
+      "lineCount": 1,
+      "lines": [
+        {
+          "index": 0,
+          "startChar": 0,
+          "endCharExclusive": 27,
+          "lineText": "cccccccccc\uE000abc\uE001cccccccccccc",
+          "width": 302.693333,
+          "hasOverflowed": false,
+          "containsCloseMarker": true,
+          "endMinusCloseIndex": 13,
+          "perChar": [
+            {
+              "i": 0,
+              "char": "c",
+              "kind": "char",
+              "rawX": 0,
+              "width": 12
+            },
+            {
+              "i": 1,
+              "char": "c",
+              "kind": "char",
+              "rawX": 12,
+              "width": 12
+            },
+            {
+              "i": 2,
+              "char": "c",
+              "kind": "char",
+              "rawX": 24,
+              "width": 12
+            },
+            {
+              "i": 3,
+              "char": "c",
+              "kind": "char",
+              "rawX": 36,
+              "width": 12
+            },
+            {
+              "i": 4,
+              "char": "c",
+              "kind": "char",
+              "rawX": 48,
+              "width": 12
+            },
+            {
+              "i": 5,
+              "char": "c",
+              "kind": "char",
+              "rawX": 60,
+              "width": 12
+            },
+            {
+              "i": 6,
+              "char": "c",
+              "kind": "char",
+              "rawX": 72,
+              "width": 12
+            },
+            {
+              "i": 7,
+              "char": "c",
+              "kind": "char",
+              "rawX": 84,
+              "width": 12
+            },
+            {
+              "i": 8,
+              "char": "c",
+              "kind": "char",
+              "rawX": 96,
+              "width": 12
+            },
+            {
+              "i": 9,
+              "char": "c",
+              "kind": "char",
+              "rawX": 108,
+              "width": 12
+            },
+            {
+              "i": 10,
+              "char": "\uE000",
+              "kind": "OPEN-MARKER",
+              "rawX": 120,
+              "width": 0
+            },
+            {
+              "i": 11,
+              "char": "a",
+              "kind": "char",
+              "rawX": 120,
+              "width": 13.346667
+            },
+            {
+              "i": 12,
+              "char": "b",
+              "kind": "char",
+              "rawX": 133.346667,
+              "width": 13.346667
+            },
+            {
+              "i": 13,
+              "char": "c",
+              "kind": "char",
+              "rawX": 146.693333,
+              "width": 12
+            },
+            {
+              "i": 14,
+              "char": "\uE001",
+              "kind": "CLOSE-MARKER",
+              "rawX": 158.693333,
+              "width": 0
+            },
+            {
+              "i": 15,
+              "char": "c",
+              "kind": "char",
+              "rawX": 158.693333,
+              "width": 12
+            },
+            {
+              "i": 16,
+              "char": "c",
+              "kind": "char",
+              "rawX": 170.693333,
+              "width": 12
+            },
+            {
+              "i": 17,
+              "char": "c",
+              "kind": "char",
+              "rawX": 182.693333,
+              "width": 12
+            },
+            {
+              "i": 18,
+              "char": "c",
+              "kind": "char",
+              "rawX": 194.693333,
+              "width": 12
+            },
+            {
+              "i": 19,
+              "char": "c",
+              "kind": "char",
+              "rawX": 206.693333,
+              "width": 12
+            },
+            {
+              "i": 20,
+              "char": "c",
+              "kind": "char",
+              "rawX": 218.693333,
+              "width": 12
+            },
+            {
+              "i": 21,
+              "char": "c",
+              "kind": "char",
+              "rawX": 230.693333,
+              "width": 12
+            },
+            {
+              "i": 22,
+              "char": "c",
+              "kind": "char",
+              "rawX": 242.693333,
+              "width": 12
+            },
+            {
+              "i": 23,
+              "char": "c",
+              "kind": "char",
+              "rawX": 254.693333,
+              "width": 12
+            },
+            {
+              "i": 24,
+              "char": "c",
+              "kind": "char",
+              "rawX": 266.693333,
+              "width": 12
+            },
+            {
+              "i": 25,
+              "char": "c",
+              "kind": "char",
+              "rawX": 278.693333,
+              "width": 12
+            },
+            {
+              "i": 26,
+              "char": "c",
+              "kind": "char",
+              "rawX": 290.693333,
+              "width": 12
+            }
+          ]
+        }
+      ],
+      "lineBreaks": [
+        {
+          "lineIndex": 0,
+          "isNull": true,
+          "error": null
+        }
+      ]
+    }
+  ]
+}

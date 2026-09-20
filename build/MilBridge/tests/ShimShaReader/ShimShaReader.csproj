@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- ============================================================================
+       WAVE17 · 车道 W17C · P1 的**读侧**：ShimShaReader
+
+       读**编译后的产物**（PresentationCore.dll）的托管元数据，回答唯一一个问题：
+         「这个产物被编译时，build/shims/PresentationCore.HbTextLine.cs 的内容是什么？」
+
+       与 T17A 的 `tools/shim-in-artifact.sh` 的关系：
+         · 那个脚本是**下界**（靠"只有最新修订才有的标识符"存在性判定；
+           一次不引入新符号的 shim 改动会让它退化成 WEAK-PASS rc=3）；
+         · 本工具是**等号**（比内容 sha256，与"有没有新符号"无关）。
+         两者**互补**：T17A 的脚本不信任 attribute 也能读事实；本工具读 attribute。
+         两者结论不一致本身就是报警。
+
+       不加载程序集：只用 System.Reflection.Metadata 的 PEReader/MetadataReader
+       （`Assembly.Load*` 在本工程全文件 0 命中，见 W17C 报告 §5）。
+
+       单独放成一个小工程（不放进 build/MilBridge/tests/ 的子目录语义里）：
+       它是**工具**，不是探针 —— 不参与任何门禁、不影响九位、不写仓内任何文件。
+       ============================================================================ -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>ShimShaReader</AssemblyName>
+    <RootNamespace>W17C.ShimShaReader</RootNamespace>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <!-- 确定性：与 pc 同款口径（本工具自身不嵌任何时间戳/路径） -->
+    <Deterministic>true</Deterministic>
+    <DebugType>none</DebugType>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+  </ItemGroup>
+</Project>

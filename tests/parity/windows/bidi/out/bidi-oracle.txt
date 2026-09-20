@@ -1,0 +1,95 @@
+WPF mixed-direction text oracle (human readable)
+generated: 2026-09-13T16:27:06.1586880Z
+font: Arial  (file:///C:/WINDOWS/FONTS/ARIAL.TTF)
+emSize: 24 DIP, paragraphWidth: 10000 DIP, units: DIP @96dpi
+
+== [he-pure] LeftToRight  "שלום עולם"
+   line: length=10 newline=1 width=98.82 height=27.596667 baseline=22.12
+   per-char x/width: ש@82.153333 ל@71.043333 ו@65.126667 ם@50.76  @44.093333 ע@31.39 ו@25.473333 ל@14.363333 ם@-0.003333
+   visual(左→右): םלוע םולש
+   runSpans: [0,TextCharacters] [9,TextEndOfParagraph]
+== [he-pure] RightToLeft  "שלום עולם"
+   line: length=10 newline=1 width=98.82 height=27.596667 baseline=22.12
+   per-char x/width: ש@0 ל@16.663333 ו@27.773333 ם@33.69  @48.056667 ע@54.723333 ו@67.426667 ל@73.343333 ם@84.453333
+   visual(左→右): םלוע םולש
+   runSpans: [0,TextCharacters] [9,TextEndOfParagraph]
+== [ltr-pure] LeftToRight  "abc 123"
+   line: length=8 newline=1 width=85.4 height=27.596667 baseline=22.12
+   per-char x/width: a@0 b@13.346667 c@26.693333  @38.693333 1@45.36 2@58.706667 3@72.053333
+   visual(左→右): abc 123
+   runSpans: [0,TextCharacters] [7,TextEndOfParagraph]
+== [ltr-pure] RightToLeft  "abc 123"
+   line: length=8 newline=1 width=85.4 height=27.596667 baseline=22.12
+   per-char x/width: a@72.05 b@58.703333 c@46.703333  @40.036667 1@26.69 2@13.343333 3@-0.003333
+   visual(左→右): abc 123
+   runSpans: [0,TextCharacters] [7,TextEndOfParagraph]
+== [ltr-digits] LeftToRight  "123 abc"
+   line: length=8 newline=1 width=85.4 height=27.596667 baseline=22.12
+   per-char x/width: 1@0 2@13.346667 3@26.693333  @40.04 a@46.706667 b@60.053333 c@73.4
+   visual(左→右): 123 abc
+   runSpans: [0,TextCharacters] [7,TextEndOfParagraph]
+== [ltr-digits] RightToLeft  "123 abc"
+   line: length=8 newline=1 width=85.4 height=27.596667 baseline=22.12
+   per-char x/width: 1@26.69 2@13.343333 3@-0.003333  @40.04 a@72.05 b@58.703333 c@46.703333
+   visual(左→右): abc 123
+   runSpans: [0,TextCharacters] [7,TextEndOfParagraph]
+== [he-period] LeftToRight  "שלום."
+   line: length=6 newline=1 width=54.723333 height=27.596667 baseline=22.12
+   per-char x/width: ש@31.39 ל@20.28 ו@14.363333 ם@-0.003333 .@48.056667
+   visual(左→右): םולש.
+   runSpans: [0,TextCharacters] [5,TextEndOfParagraph]
+== [he-period] RightToLeft  "שלום."
+   line: length=6 newline=1 width=54.723333 height=27.596667 baseline=22.12
+   per-char x/width: ש@0 ל@16.663333 ו@27.773333 ם@33.69 .@48.056667
+   visual(左→右): .םולש
+   runSpans: [0,TextCharacters] [5,TextEndOfParagraph]
+== [he-123] LeftToRight  "שלום 123"
+   line: length=9 newline=1 width=94.763333 height=27.596667 baseline=22.12
+   per-char x/width: ש@78.096667 ל@66.986667 ו@61.07 ם@46.703333  @40.036667 1@0 2@13.346667 3@26.693333
+   visual(左→右): 123 םולש
+   runSpans: [0,TextCharacters] [8,TextEndOfParagraph]
+== [he-123] RightToLeft  "שלום 123"
+   line: length=9 newline=1 width=94.763333 height=27.596667 baseline=22.12
+   per-char x/width: ש@0 ל@16.663333 ו@27.773333 ם@33.69  @48.056667 1@81.413333 2@68.066667 3@54.72
+   visual(左→右): 123 םולש
+   runSpans: [0,TextCharacters] [8,TextEndOfParagraph]
+== [he-123-he] LeftToRight  "שלום 123 עולם"
+   line: length=14 newline=1 width=145.526667 height=27.596667 baseline=22.12
+   per-char x/width: ש@128.86 ל@117.75 ו@111.833333 ם@97.466667  @90.8 1@50.763333 2@64.11 3@77.456667  @44.093333 ע@31.39 ו@25.473333 ל@14.363333 ם@-0.003333
+   visual(左→右): םלוע 123 םולש
+   runSpans: [0,TextCharacters] [13,TextEndOfParagraph]
+== [he-123-he] RightToLeft  "שלום 123 עולם"
+   line: length=14 newline=1 width=145.526667 height=27.596667 baseline=22.12
+   per-char x/width: ש@0 ל@16.663333 ו@27.773333 ם@33.69  @48.056667 1@81.413333 2@68.066667 3@54.72  @94.763333 ע@101.43 ו@114.133333 ל@120.05 ם@131.16
+   visual(左→右): םלוע 123 םולש
+   runSpans: [0,TextCharacters] [13,TextEndOfParagraph]
+== [he-latin] LeftToRight  "שלום abc"
+   line: length=9 newline=1 width=93.416667 height=27.596667 baseline=22.12
+   per-char x/width: ש@31.39 ל@20.28 ו@14.363333 ם@-0.003333  @48.056667 a@54.723333 b@68.07 c@81.416667
+   visual(左→右): םולש abc
+   runSpans: [0,TextCharacters] [8,TextEndOfParagraph]
+== [he-latin] RightToLeft  "שלום abc"
+   line: length=9 newline=1 width=93.416667 height=27.596667 baseline=22.12
+   per-char x/width: ש@0 ל@16.663333 ו@27.773333 ם@33.69  @48.056667 a@80.066667 b@66.72 c@54.72
+   visual(左→右): abc םולש
+   runSpans: [0,TextCharacters] [8,TextEndOfParagraph]
+== [latin-he] LeftToRight  "abc שלום"
+   line: length=9 newline=1 width=93.416667 height=27.596667 baseline=22.12
+   per-char x/width: a@0 b@13.346667 c@26.693333  @38.693333 ש@76.75 ל@65.64 ו@59.723333 ם@45.356667
+   visual(左→右): abc םולש
+   runSpans: [0,TextCharacters] [8,TextEndOfParagraph]
+== [latin-he] RightToLeft  "abc שלום"
+   line: length=9 newline=1 width=93.416667 height=27.596667 baseline=22.12
+   per-char x/width: a@25.343333 b@11.996667 c@-0.003333  @38.693333 ש@45.36 ל@62.023333 ו@73.133333 ם@79.05
+   visual(左→右): םולש abc
+   runSpans: [0,TextCharacters] [8,TextEndOfParagraph]
+== [mixed-long] LeftToRight  "abc שלום 123 def"
+   line: length=17 newline=1 width=180.15 height=27.596667 baseline=22.12
+   per-char x/width: a@0 b@13.346667 c@26.693333  @38.693333 ש@123.456667 ל@112.346667 ו@106.43 ם@92.063333  @85.396667 1@45.36 2@58.706667 3@72.053333  @140.123333 d@146.79 e@160.136667 f@173.483333
+   visual(左→右): abc 123 םולש def
+   runSpans: [0,TextCharacters] [16,TextEndOfParagraph]
+== [mixed-long] RightToLeft  "abc שלום 123 def"
+   line: length=17 newline=1 width=180.15 height=27.596667 baseline=22.12
+   per-char x/width: a@25.343333 b@11.996667 c@-0.003333  @38.693333 ש@45.36 ל@62.023333 ו@73.133333 ם@79.05  @93.416667 1@126.773333 2@113.426667 3@100.08  @140.123333 d@166.8 e@153.453333 f@146.786667
+   visual(左→右): def 123 םולש abc
+   runSpans: [0,TextCharacters] [16,TextEndOfParagraph]

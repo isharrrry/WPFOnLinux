@@ -1,0 +1,162 @@
+WPF oracle - missing-glyph advance and font fallback (DERIVED)
+======================================================================================================================
+derived from  : font-fallback-raw.json  sha256=62e2d45dd04d36e279fcf32fff1de98701bb827c270cad576da09f56fb61abaa
+machine output: 2026-09-14T14:05:09.4188494Z
+machine       : Microsoft Windows NT 10.0.22631.0 | .NET 10.0.7 | PresentationCore 10.0.0.0
+cases         : 60 (unique ids: yes)
+emSize=24 DIP   paragraph width=400   Noto file font=C:\u1-shaping\fonts\NotoSans-Regular.ttf
+
+ANSWER IN ONE SENTENCE
+  When the paragraph font does not have the code point, the machine does NOT use that font's .notdef: it substitutes ANOTHER INSTALLED FONT that covers the code point (font fallback), and reports that font's own glyph and advance. The advance is whatever the substituted glyph's advance is - for the CJK code points that is a full-width glyph, i.e. exactly 1.0 em (24.000000 DIP at emSize 24), which is why the field case saw 1 em. The paragraph font's .notdef is used ONLY when no font the fallback can reach covers the code point (measured here: U+10FFFD, covered by 0 of 91 installed families); then the advance is the paragraph font's glyph-0 advance (Arial 18.000000, Times New Roman 18.666667, the Noto file font 14.400000 DIP). A font named in the FontFamily list or in Typeface(..., fallbackFontFamily) is preferred over the system fallback for characters it covers.
+
+THE TABLE (codePoint | font setting | font has it? | advance | vs 1 em | vs own glyph | vs .notdef |
+           which font/glyph was actually used | fallback?)
+----------------------------------------------------------------------------------------------------------------------
+  U+4E0E    | single-Arial                       | False |         24 | True  | False | False | YUGOTHM.TTC#1            glyph=3883   notdef=False | fb=True  | installed families covering: 15/91
+  U+4E0E    | single-TimesNewRoman               | False |         24 | True  | False | False | YUGOTHM.TTC#1            glyph=3883   notdef=False | fb=True  | installed families covering: 15/91
+  U+4E0E    | file-NotoSans-Regular              | False |         24 | True  | False | False | YUGOTHM.TTC#1            glyph=3883   notdef=False | fb=True  | installed families covering: 15/91
+  U+4E0E    | list-Arial-SegoeUISymbol           | False |         24 | True  | False | False | YUGOTHM.TTC#1            glyph=3883   notdef=False | fb=True  | installed families covering: 15/91
+  U+4E0E    | typeface-declared-fallback-YaHei   | False |         24 | True  | False | False | MSYH.TTC                 glyph=1034   notdef=False | fb=True  | installed families covering: 15/91
+  U+4E0E    | explicit-covering-Microsoft YaHei  | True  |         24 | True  | True  | False | MSYH.TTC                 glyph=1034   notdef=False | fb=False | installed families covering: 15/91
+  U+6C49    | single-Arial                       | False |         24 | True  | False | False | MSJH.TTC#1               glyph=15408  notdef=False | fb=True  | installed families covering: 10/91
+  U+6C49    | single-TimesNewRoman               | False |         24 | True  | False | False | MSJH.TTC#1               glyph=15408  notdef=False | fb=True  | installed families covering: 10/91
+  U+6C49    | file-NotoSans-Regular              | False |         24 | True  | False | False | MSJH.TTC#1               glyph=15408  notdef=False | fb=True  | installed families covering: 10/91
+  U+6C49    | list-Arial-SegoeUISymbol           | False |         24 | True  | False | False | MSJH.TTC#1               glyph=15408  notdef=False | fb=True  | installed families covering: 10/91
+  U+6C49    | typeface-declared-fallback-YaHei   | False |         24 | True  | False | False | MSYH.TTC                 glyph=2126   notdef=False | fb=True  | installed families covering: 10/91
+  U+6C49    | explicit-covering-Microsoft YaHei  | True  |         24 | True  | True  | False | MSYH.TTC                 glyph=2126   notdef=False | fb=False | installed families covering: 10/91
+  U+05D0    | single-Arial                       | True  |  13.513333 | False | False | False | ARIAL.TTF                glyph=672    notdef=False | fb=False | installed families covering: 10/91
+  U+05D0    | single-TimesNewRoman               | True  |  11.553333 | False | False | False | TIMES.TTF                glyph=672    notdef=False | fb=False | installed families covering: 10/91
+  U+05D0    | file-NotoSans-Regular              | False |      15.28 | False | False | False | SEGOEUI.TTF              glyph=2920   notdef=False | fb=True  | installed families covering: 10/91
+  U+05D0    | list-Arial-SegoeUISymbol           | True  |  13.513333 | False | False | False | ARIAL.TTF                glyph=672    notdef=False | fb=False | installed families covering: 10/91
+  U+05D0    | typeface-declared-fallback-YaHei   | True  |  13.513333 | False | False | False | ARIAL.TTF                glyph=672    notdef=False | fb=False | installed families covering: 10/91
+  U+05D0    | explicit-covering-Segoe UI         | True  |      15.28 | False | False | False | SEGOEUI.TTF              glyph=2920   notdef=False | fb=False | installed families covering: 10/91
+  U+0627    | single-Arial                       | True  |       4.97 | False | False | False | ARIAL.TTF                glyph=909    notdef=False | fb=False | installed families covering: 10/91
+  U+0627    | single-TimesNewRoman               | True  |       4.97 | False | False | False | TIMES.TTF                glyph=909    notdef=False | fb=False | installed families covering: 10/91
+  U+0627    | file-NotoSans-Regular              | False |   6.013333 | False | False | False | SEGOEUI.TTF              glyph=2317   notdef=False | fb=True  | installed families covering: 10/91
+  U+0627    | list-Arial-SegoeUISymbol           | True  |       4.97 | False | False | False | ARIAL.TTF                glyph=909    notdef=False | fb=False | installed families covering: 10/91
+  U+0627    | typeface-declared-fallback-YaHei   | True  |       4.97 | False | False | False | ARIAL.TTF                glyph=909    notdef=False | fb=False | installed families covering: 10/91
+  U+0627    | explicit-covering-Segoe UI         | True  |   6.013333 | False | False | False | SEGOEUI.TTF              glyph=2317   notdef=False | fb=False | installed families covering: 10/91
+  U+2192    | single-Arial                       | True  |         24 | True  | True  | False | ARIAL.TTF                glyph=314    notdef=False | fb=False | installed families covering: 41/91
+  U+2192    | single-TimesNewRoman               | True  |         24 | True  | True  | False | TIMES.TTF                glyph=314    notdef=False | fb=False | installed families covering: 41/91
+  U+2192    | file-NotoSans-Regular              | False |  20.706667 | False | False | False | SEGOEUI.TTF              glyph=2862   notdef=False | fb=True  | installed families covering: 41/91
+  U+2192    | list-Arial-SegoeUISymbol           | True  |         24 | True  | True  | False | ARIAL.TTF                glyph=314    notdef=False | fb=False | installed families covering: 41/91
+  U+2192    | typeface-declared-fallback-YaHei   | True  |         24 | True  | True  | False | ARIAL.TTF                glyph=314    notdef=False | fb=False | installed families covering: 41/91
+  U+2192    | explicit-covering-Microsoft YaHei  | True  |         24 | True  | True  | False | MSYH.TTC                 glyph=594    notdef=False | fb=False | installed families covering: 41/91
+  U+E000    | single-Arial                       | False |         18 | False | False | True  | ARIAL.TTF                glyph=0      notdef=True  | fb=False | installed families covering: 2/91
+  U+E000    | single-TimesNewRoman               | False |  18.666667 | False | False | False | TIMES.TTF                glyph=0      notdef=True  | fb=False | installed families covering: 2/91
+  U+E000    | file-NotoSans-Regular              | False |       14.4 | False | False | True  | NOTOSANS-REGULAR.TTF     glyph=0      notdef=True  | fb=False | installed families covering: 2/91
+  U+E000    | list-Arial-SegoeUISymbol           | False |         24 | True  | False | False | SEGUISYM.TTF             glyph=4366   notdef=False | fb=True  | installed families covering: 2/91
+  U+E000    | typeface-declared-fallback-YaHei   | False |         18 | False | False | True  | ARIAL.TTF                glyph=0      notdef=True  | fb=False | installed families covering: 2/91
+  U+E000    | explicit-covering-Segoe UI Symbol  | True  |         24 | True  | True  | False | SEGUISYM.TTF             glyph=4366   notdef=False | fb=False | installed families covering: 2/91
+  U+10FFFD  | single-Arial                       | False |         18 | False | False | True  | ARIAL.TTF                glyph=0      notdef=True  | fb=False | installed families covering: 0/91
+  U+10FFFD  | single-TimesNewRoman               | False |  18.666667 | False | False | False | TIMES.TTF                glyph=0      notdef=True  | fb=False | installed families covering: 0/91
+  U+10FFFD  | file-NotoSans-Regular              | False |       14.4 | False | False | True  | NOTOSANS-REGULAR.TTF     glyph=0      notdef=True  | fb=False | installed families covering: 0/91
+  U+10FFFD  | list-Arial-SegoeUISymbol           | False |         18 | False | False | True  | ARIAL.TTF                glyph=0      notdef=True  | fb=False | installed families covering: 0/91
+  U+10FFFD  | typeface-declared-fallback-YaHei   | False |         18 | False | False | True  | ARIAL.TTF                glyph=0      notdef=True  | fb=False | installed families covering: 0/91
+  U+10FFFD  | explicit-covering-NONE-FOUND       | None  |         18 | False | False | False | ARIAL.TTF                glyph=0      notdef=True  | fb=False | installed families covering: 0/91
+
+(advance is in DIP; 'vs 1 em' = advance == 24.000000 DIP; 'vs own glyph' = advance == the specified font's own glyph advance; 'vs .notdef' = advance == that font's glyph-0 advance)
+
+======================================================================================================================
+## Q1_what_happens_when_the_paragraph_font_lacks_the_code_point
+Q: When the paragraph font lacks a code point, what advance does the real machine report, and what decides it: fallback to another font, the font's own .notdef, or some fixed width?
+A: When the paragraph font does not have the code point, the machine does NOT use that font's .notdef: it substitutes ANOTHER INSTALLED FONT that covers the code point (font fallback), and reports that font's own glyph and advance. The advance is whatever the substituted glyph's advance is - for the CJK code points that is a full-width glyph, i.e. exactly 1.0 em (24.000000 DIP at emSize 24), which is why the field case saw 1 em. The paragraph font's .notdef is used ONLY when no font the fallback can reach covers the code point (measured here: U+10FFFD, covered by 0 of 91 installed families); then the advance is the paragraph font's glyph-0 advance (Arial 18.000000, Times New Roman 18.666667, the Noto file font 14.400000 DIP). A font named in the FontFamily list or in Typeface(..., fallbackFontFamily) is preferred over the system fallback for characters it covers.
+-- casesWhereTheSpecifiedFontLacksTheCodePoint = 23
+-- ofThose_fellBackToADifferentFont = 14
+-- ofThose_usedTheSpecifiedFontsNotdefGlyph = 9
+-- advanceOfTheCJKFallbackCasesIsExactlyOneEm = true
+-- cjkFallbackExamples (10 rows)
+   codePoint=U+4E0E  fontSetting=single-Arial  specifiedFont=ARIAL.TTF  advanceDip=24  observedFont=YUGOTHM.TTC#1  observedGlyph=3883  isNotdef=False
+   codePoint=U+4E0E  fontSetting=single-TimesNewRoman  specifiedFont=TIMES.TTF  advanceDip=24  observedFont=YUGOTHM.TTC#1  observedGlyph=3883  isNotdef=False
+   codePoint=U+4E0E  fontSetting=file-NotoSans-Regular  specifiedFont=NOTOSANS-REGULAR.TTF  advanceDip=24  observedFont=YUGOTHM.TTC#1  observedGlyph=3883  isNotdef=False
+   codePoint=U+4E0E  fontSetting=list-Arial-SegoeUISymbol  specifiedFont=ARIAL.TTF  advanceDip=24  observedFont=YUGOTHM.TTC#1  observedGlyph=3883  isNotdef=False
+   codePoint=U+4E0E  fontSetting=typeface-declared-fallback-YaHei  specifiedFont=ARIAL.TTF  advanceDip=24  observedFont=MSYH.TTC  observedGlyph=1034  isNotdef=False
+   codePoint=U+6C49  fontSetting=single-Arial  specifiedFont=ARIAL.TTF  advanceDip=24  observedFont=MSJH.TTC#1  observedGlyph=15408  isNotdef=False
+   codePoint=U+6C49  fontSetting=single-TimesNewRoman  specifiedFont=TIMES.TTF  advanceDip=24  observedFont=MSJH.TTC#1  observedGlyph=15408  isNotdef=False
+   codePoint=U+6C49  fontSetting=file-NotoSans-Regular  specifiedFont=NOTOSANS-REGULAR.TTF  advanceDip=24  observedFont=MSJH.TTC#1  observedGlyph=15408  isNotdef=False
+   codePoint=U+6C49  fontSetting=list-Arial-SegoeUISymbol  specifiedFont=ARIAL.TTF  advanceDip=24  observedFont=MSJH.TTC#1  observedGlyph=15408  isNotdef=False
+   codePoint=U+6C49  fontSetting=typeface-declared-fallback-YaHei  specifiedFont=ARIAL.TTF  advanceDip=24  observedFont=MSYH.TTC  observedGlyph=2126  isNotdef=False
+-- casesWhereNoInstalledFontCoversTheCodePoint = 6
+-- allOfThoseUsedTheParagraphFontsNotdef = true
+-- notdefEvidence (6 rows)
+   codePoint=U+10FFFD  fontSetting=single-Arial  specifiedFont=ARIAL.TTF  advanceDip=18  observedFont=ARIAL.TTF  observedGlyph=0  isNotdef=True
+   codePoint=U+10FFFD  fontSetting=single-TimesNewRoman  specifiedFont=TIMES.TTF  advanceDip=18.666667  observedFont=TIMES.TTF  observedGlyph=0  isNotdef=True
+   codePoint=U+10FFFD  fontSetting=file-NotoSans-Regular  specifiedFont=NOTOSANS-REGULAR.TTF  advanceDip=14.4  observedFont=NOTOSANS-REGULAR.TTF  observedGlyph=0  isNotdef=True
+   codePoint=U+10FFFD  fontSetting=list-Arial-SegoeUISymbol  specifiedFont=ARIAL.TTF  advanceDip=18  observedFont=ARIAL.TTF  observedGlyph=0  isNotdef=True
+   codePoint=U+10FFFD  fontSetting=typeface-declared-fallback-YaHei  specifiedFont=ARIAL.TTF  advanceDip=18  observedFont=ARIAL.TTF  observedGlyph=0  isNotdef=True
+   codePoint=U+10FFFD  fontSetting=explicit-covering-NONE-FOUND  specifiedFont=None  advanceDip=18  observedFont=ARIAL.TTF  observedGlyph=0  isNotdef=True
+-- casesWhereTheSpecifiedFontDoesHaveTheCodePoint = 18
+-- noneOfThoseFellBack = true
+-- presentExamples (18 rows)
+   codePoint=U+4E0E  fontSetting=explicit-covering-Microsoft YaHei  specifiedFont=MSYH.TTC  advanceDip=24  observedFont=MSYH.TTC  observedGlyph=1034  isNotdef=False
+   codePoint=U+6C49  fontSetting=explicit-covering-Microsoft YaHei  specifiedFont=MSYH.TTC  advanceDip=24  observedFont=MSYH.TTC  observedGlyph=2126  isNotdef=False
+   codePoint=U+05D0  fontSetting=single-Arial  specifiedFont=ARIAL.TTF  advanceDip=13.513333  observedFont=ARIAL.TTF  observedGlyph=672  isNotdef=False
+   codePoint=U+05D0  fontSetting=single-TimesNewRoman  specifiedFont=TIMES.TTF  advanceDip=11.553333  observedFont=TIMES.TTF  observedGlyph=672  isNotdef=False
+   codePoint=U+05D0  fontSetting=list-Arial-SegoeUISymbol  specifiedFont=ARIAL.TTF  advanceDip=13.513333  observedFont=ARIAL.TTF  observedGlyph=672  isNotdef=False
+   codePoint=U+05D0  fontSetting=typeface-declared-fallback-YaHei  specifiedFont=ARIAL.TTF  advanceDip=13.513333  observedFont=ARIAL.TTF  observedGlyph=672  isNotdef=False
+   codePoint=U+05D0  fontSetting=explicit-covering-Segoe UI  specifiedFont=SEGOEUI.TTF  advanceDip=15.28  observedFont=SEGOEUI.TTF  observedGlyph=2920  isNotdef=False
+   codePoint=U+0627  fontSetting=single-Arial  specifiedFont=ARIAL.TTF  advanceDip=4.97  observedFont=ARIAL.TTF  observedGlyph=909  isNotdef=False
+   codePoint=U+0627  fontSetting=single-TimesNewRoman  specifiedFont=TIMES.TTF  advanceDip=4.97  observedFont=TIMES.TTF  observedGlyph=909  isNotdef=False
+   codePoint=U+0627  fontSetting=list-Arial-SegoeUISymbol  specifiedFont=ARIAL.TTF  advanceDip=4.97  observedFont=ARIAL.TTF  observedGlyph=909  isNotdef=False
+   codePoint=U+0627  fontSetting=typeface-declared-fallback-YaHei  specifiedFont=ARIAL.TTF  advanceDip=4.97  observedFont=ARIAL.TTF  observedGlyph=909  isNotdef=False
+   codePoint=U+0627  fontSetting=explicit-covering-Segoe UI  specifiedFont=SEGOEUI.TTF  advanceDip=6.013333  observedFont=SEGOEUI.TTF  observedGlyph=2317  isNotdef=False
+   codePoint=U+2192  fontSetting=single-Arial  specifiedFont=ARIAL.TTF  advanceDip=24  observedFont=ARIAL.TTF  observedGlyph=314  isNotdef=False
+   codePoint=U+2192  fontSetting=single-TimesNewRoman  specifiedFont=TIMES.TTF  advanceDip=24  observedFont=TIMES.TTF  observedGlyph=314  isNotdef=False
+   codePoint=U+2192  fontSetting=list-Arial-SegoeUISymbol  specifiedFont=ARIAL.TTF  advanceDip=24  observedFont=ARIAL.TTF  observedGlyph=314  isNotdef=False
+   codePoint=U+2192  fontSetting=typeface-declared-fallback-YaHei  specifiedFont=ARIAL.TTF  advanceDip=24  observedFont=ARIAL.TTF  observedGlyph=314  isNotdef=False
+   codePoint=U+2192  fontSetting=explicit-covering-Microsoft YaHei  specifiedFont=MSYH.TTC  advanceDip=24  observedFont=MSYH.TTC  observedGlyph=594  isNotdef=False
+   codePoint=U+E000  fontSetting=explicit-covering-Segoe UI Symbol  specifiedFont=SEGUISYM.TTF  advanceDip=24  observedFont=SEGUISYM.TTF  observedGlyph=4366  isNotdef=False
+
+======================================================================================================================
+## Q2_is_one_em_a_rule_or_a_property_of_the_substituted_glyph
+Q: The field case saw exactly 1 em for the missing glyph. Is '1 em' the rule for a missing glyph, or a property of whatever glyph got used?
+A: It is a property of the substituted glyph, not a missing-glyph rule. The same table shows missing code points whose advance is 1 em (CJK: the substituted font's ideograph is full-width) and missing code points whose advance is the paragraph font's .notdef width instead (private-use code points, 18.000000 / 18.666667 / 14.400000 DIP), and present code points at 1 em as well (Arial's own U+2192 is exactly 1 em). Nothing in the data supports a fixed width for a missing glyph.
+-- advancesSeenForMissingCodePoints = [6.013333, 14.4, 15.28, 18, 18.666667, 20.706667, 24]
+-- advancesSeenForPresentCodePoints = [4.97, 6.013333, 11.553333, 13.513333, 15.28, 24]
+
+======================================================================================================================
+## Q3_can_a_client_observe_which_font_was_actually_used
+Q: Can the actually-used font / glyph be observed through the PUBLIC API?
+A: YES, through the public API, no reflection needed: TextLine.GetIndexedGlyphRuns() returns IndexedGlyphRun objects, each carrying the character range and a GlyphRun whose GlyphTypeface (-> FontUri) and GlyphIndices are the font and glyph really used. Every 'observedFont' / 'observedGlyphIndex' column in this oracle comes from that API. Note that the run's GlyphTypeface can be a DIFFERENT font from the one in the paragraph's TextRunProperties - that is exactly how the fallback is detected.
+-- apiUsed = "TextLine.GetIndexedGlyphRuns() -> IndexedGlyphRun { TextSourceCharacterIndex, TextSourceLength, GlyphRun }"
+-- valueSources = {"observedFontUri": "public: GlyphRun.GlyphTypeface.FontUri", "observedGlyphIndex": "public: GlyphRun.GlyphIndices[0] (0 = .notdef)", "specifiedFontNotdefAdvanceDip": "public: GlyphTypeface.AdvanceWidths[0] * emSize (em-relative), read from the paragraph font", "measuredAdvanceDip": "public: TextLine.GetTextBounds(...) rectangle width"}
+-- reflectionUsed = false
+
+======================================================================================================================
+## Q4_installed_font_coverage_per_code_point
+Q: For each probed code point, how many fonts installed on this machine cover it? (This turns 'no font has it' from an assumption into a count.)
+A: Counted by enumerating Fonts.SystemFontFamilies on the machine and testing each face's CharacterToGlyphMap. U+10FFFD is covered by 0 of 91 families, which is why every setting fell back to .notdef for it; U+E000 is covered by only 2 families, and it fell back only when one of them (Segoe UI Symbol) was NAMED in the FontFamily list.
+-- table (7 rows)
+   codePoint=U+4E0E  char=与  familiesCovering=15  familiesTotal=91  facesCovering=80  facesTotal=563  examples=[OrderedDict([('family', 'Microsoft JhengHei'), ('font', 'MSJHL.TTC'), ('glyphIndex', 7775), ('advanceEm', 1)]), OrderedDict([('family', 'Microsoft JhengHei'), ('font', 'MSJH.TTC'), ('glyphIndex', 7669), ('advanceEm', 1)]), OrderedDict([('family', 'Microsoft JhengHei'), ('font', 'MSJHBD.TTC'), ('glyphIndex', 7372), ('advanceEm', 1)])]
+   codePoint=U+6C49  char=汉  familiesCovering=10  familiesTotal=91  facesCovering=50  facesTotal=563  examples=[OrderedDict([('family', 'Microsoft JhengHei'), ('font', 'MSJHL.TTC'), ('glyphIndex', 15514), ('advanceEm', 1)]), OrderedDict([('family', 'Microsoft JhengHei'), ('font', 'MSJH.TTC'), ('glyphIndex', 15408), ('advanceEm', 1)]), OrderedDict([('family', 'Microsoft JhengHei'), ('font', 'MSJHBD.TTC'), ('glyphIndex', 15111), ('advanceEm', 1)])]
+   codePoint=U+05D0  char=א  familiesCovering=10  familiesTotal=91  facesCovering=97  facesTotal=563  examples=[OrderedDict([('family', 'Cascadia Code'), ('font', 'CASCADIACODE.TTF'), ('glyphIndex', 1674), ('advanceEm', 0.585938)]), OrderedDict([('family', 'Cascadia Code'), ('font', 'CASCADIACODE.TTF'), ('glyphIndex', 1674), ('advanceEm', 0.585938)]), OrderedDict([('family', 'Cascadia Code'), ('font', 'CASCADIACODE.TTF'), ('glyphIndex', 1674), ('advanceEm', 0.585938)])]
+   codePoint=U+0627  char=ا  familiesCovering=10  familiesTotal=91  facesCovering=86  facesTotal=563  examples=[OrderedDict([('family', 'Cascadia Code'), ('font', 'CASCADIACODE.TTF'), ('glyphIndex', 681), ('advanceEm', 0.585938)]), OrderedDict([('family', 'Cascadia Code'), ('font', 'CASCADIACODE.TTF'), ('glyphIndex', 681), ('advanceEm', 0.585938)]), OrderedDict([('family', 'Cascadia Code'), ('font', 'CASCADIACODE.TTF'), ('glyphIndex', 681), ('advanceEm', 0.585938)])]
+   codePoint=U+2192  char=→  familiesCovering=41  familiesTotal=91  facesCovering=289  facesTotal=563  examples=[OrderedDict([('family', 'Cascadia Code'), ('font', 'CASCADIACODE.TTF'), ('glyphIndex', 2094), ('advanceEm', 0.585938)]), OrderedDict([('family', 'Cascadia Code'), ('font', 'CASCADIACODE.TTF'), ('glyphIndex', 2094), ('advanceEm', 0.585938)]), OrderedDict([('family', 'Cascadia Code'), ('font', 'CASCADIACODEITALIC.TTF'), ('glyphIndex', 970), ('advanceEm', 0.585938)])]
+   codePoint=U+E000  char=  familiesCovering=2  familiesTotal=91  facesCovering=8  facesTotal=563  examples=[OrderedDict([('family', 'Gabriola'), ('font', 'GABRIOLA.TTF'), ('glyphIndex', 4327), ('advanceEm', 0.792725)]), OrderedDict([('family', 'Gabriola'), ('font', 'GABRIOLA.TTF'), ('glyphIndex', 4327), ('advanceEm', 0.792725)]), OrderedDict([('family', 'Gabriola'), ('font', 'GABRIOLA.TTF'), ('glyphIndex', 4327), ('advanceEm', 0.812744)])]
+   codePoint=U+10FFFD  char=􏿽  familiesCovering=0  familiesTotal=91  facesCovering=0  facesTotal=563  examples=[]
+
+======================================================================================================================
+## Q5_TextModifier_with_HasDirectionalEmbedding
+Q: Does a TextModifier with HasDirectionalEmbedding = true (and a FlowDirection) change anything a client can see, compared with the same modifier that only returns the properties unchanged?
+A: NOTHING OBSERVABLE in this batch. Across 3 paragraph/content shapes x 2 paragraph widths = 6 comparisons, the directional modifier (both FlowDirections) produced byte-identical line counts, line widths, first-glyph-run bidi levels and GetTextLineBreak() null patterns to the identity modifier on the same text. Read it as 'no observable effect under this construction', not as 'the flag is meaningless': every doc here is a single text source with one open scope, and in WPF's own PresentationFramework the directional flavour is used for an INLINE whose FlowDirection differs from its parent. This batch does not separate 'the embedding is a no-op for this shape' from 'a marker-only modifier run cannot carry the embedding into the runs'.
+-- comparisons = 6
+-- allDirectionsIdenticalToIdentity = true
+-- widthsUsed = "40 (wraps into 2 lines, so GetTextLineBreak() is informative) and 140 (single line)"
+-- evidence (6 rows)
+   doc=latin-scope-ltr-para  width=40  identity_lines=2  identity_widths=[38.693333, 36.093333]  identity_breaksNull=[False, True]  identity_bidiLevels=[0, 1]  ltr-embed_lines=2  ltr-embed_widths=[38.693333, 36.093333]  ltr-embed_breaksNull=[False, True]  ltr-embed_bidiLevels=[0, 1]  rtl-embed_lines=2  rtl-embed_widths=[38.693333, 36.093333]  rtl-embed_breaksNull=[False, True]  rtl-embed_bidiLevels=[0, 1]  directionalIdenticalToIdentity=True
+   doc=latin-scope-ltr-para  width=140  identity_lines=1  identity_widths=[74.786667]  identity_breaksNull=[True]  identity_bidiLevels=[0]  ltr-embed_lines=1  ltr-embed_widths=[74.786667]  ltr-embed_breaksNull=[True]  ltr-embed_bidiLevels=[0]  rtl-embed_lines=1  rtl-embed_widths=[74.786667]  rtl-embed_breaksNull=[True]  rtl-embed_bidiLevels=[0]  directionalIdenticalToIdentity=True
+   doc=hebrew-scope-ltr-para  width=40  identity_lines=2  identity_widths=[36.093333, 38.693333]  identity_breaksNull=[False, True]  identity_bidiLevels=[1, 0]  ltr-embed_lines=2  ltr-embed_widths=[36.093333, 38.693333]  ltr-embed_breaksNull=[False, True]  ltr-embed_bidiLevels=[1, 0]  rtl-embed_lines=2  rtl-embed_widths=[36.093333, 38.693333]  rtl-embed_breaksNull=[False, True]  rtl-embed_bidiLevels=[1, 0]  directionalIdenticalToIdentity=True
+   doc=hebrew-scope-ltr-para  width=140  identity_lines=1  identity_widths=[74.786667]  identity_breaksNull=[True]  identity_bidiLevels=[1]  ltr-embed_lines=1  ltr-embed_widths=[74.786667]  ltr-embed_breaksNull=[True]  ltr-embed_bidiLevels=[1]  rtl-embed_lines=1  rtl-embed_widths=[74.786667]  rtl-embed_breaksNull=[True]  rtl-embed_bidiLevels=[1]  directionalIdenticalToIdentity=True
+   doc=hebrew-scope-rtl-para  width=40  identity_lines=2  identity_widths=[36.093333, 38.693333]  identity_breaksNull=[False, True]  identity_bidiLevels=[1, 0]  ltr-embed_lines=2  ltr-embed_widths=[36.093333, 38.693333]  ltr-embed_breaksNull=[False, True]  ltr-embed_bidiLevels=[1, 0]  rtl-embed_lines=2  rtl-embed_widths=[36.093333, 38.693333]  rtl-embed_breaksNull=[False, True]  rtl-embed_bidiLevels=[1, 0]  directionalIdenticalToIdentity=True
+   doc=hebrew-scope-rtl-para  width=140  identity_lines=1  identity_widths=[74.786667]  identity_breaksNull=[True]  identity_bidiLevels=[1]  ltr-embed_lines=1  ltr-embed_widths=[74.786667]  ltr-embed_breaksNull=[True]  ltr-embed_bidiLevels=[1]  rtl-embed_lines=1  rtl-embed_widths=[74.786667]  rtl-embed_breaksNull=[True]  rtl-embed_bidiLevels=[1]  directionalIdenticalToIdentity=True
+
+======================================================================================================================
+UNAVAILABLE / NOT COVERED (reported as unavailable, never as a reading)
+  - Why the directional embedding showed no effect is NOT determined: distinguishing 'no-op for this shape' from 'a marker-only modifier run cannot carry the embedding' needs a construction where the embedded run's level must change (e.g. the nested-inline shape PresentationFramework uses).
+  - The fallback's SEARCH ORDER is not observable: the oracle reports which font was used, not how it was chosen. Which fonts are in the fallback list is a DirectWrite/system matter and is not exposed.
+  - Only ONE font size (emSize 24) and one paragraph width (400) were used for the code-point table; the advance ratios would not change with size, but that is an expectation, not a measurement.
+  - The observed advance for the .notdef cases is not always exactly AdvanceWidths[0]*emSize: Times New Roman gives 18.666667 DIP against a computed 18.667969 (a ~0.0013 DIP difference). The raw values are reported side by side rather than reconciled; the difference is left as an observation.
+  - No per-font 'missing glyph box' beyond glyph index 0 was tested: if a font carries a real glyph for a private-use code point it is reported as covered (U+E000 with Segoe UI Symbol is exactly that case).
+  - TextTrimming / Tabs(non-null) / NoWrap remain untested, as in the other arms.
+  - breakCause-style derivations are not used here; every column is either a measured advance, a measured glyph-run property, or a count of installed fonts.
+

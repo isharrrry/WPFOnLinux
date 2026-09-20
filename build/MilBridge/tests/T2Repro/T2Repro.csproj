@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- ⭐ `D-R8`（工程卫生）：不依赖 `$(BaseIntermediateOutputPath)` 指向哪里的产物目录排除。
+       实现在仓根 `BuildHygiene.props`（全仓唯一一份；理由与两种被否决的落点见 `build/MilBridge/W21B-report.md` §2）。
+       **故意不加 `Exists()` 条件**：文件找不到要大声失败。 -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('BuildHygiene.props'))" />
+
+  <!--
+    T1/M7c3 —— **T2 调用姿势的最小复现**。
+    完全照抄 build/shims/PresentationCore.FontBridge.cs 的调用方式：
+      NativeLibrary.TryLoad(<候选路径>) → TryGetExport → Marshal.GetDelegateForFunctionPointer
+      → Marshal.StringToCoTaskMemUTF8 → 调 → 拿令牌
+    **不走** MilCoreDllImportResolver（T2 也不走）。
+
+    两种模式做 A/B：
+      参数 t2-first       ：先按 T2 的姿势探测/调用（复现失败）
+      参数 resolver-first ：先触发 MilCore 的 [DllImport]（经 resolver 注入 native 目录），再按 T2 姿势调用
+
+    也用于验证纯 C 宿主（dlopen 直接加载 .so）的等价场景。
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AssemblyName>MilBridge.T2Repro</AssemblyName>
+    <RootNamespace>MilBridge.T2Repro</RootNamespace>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- 用被测解析器本体源码，保证测的就是接线的那份实现 -->
+    <Compile Include="../../src/MilBridge.Resolver/MilCoreDllImportResolver.cs" Link="MilCoreDllImportResolver.cs" />
+    <Compile Include="../../src/MilBridge.Resolver/MilCoreStandaloneInstaller.cs" Link="MilCoreStandaloneInstaller.cs" />
+  </ItemGroup>
+
+</Project>

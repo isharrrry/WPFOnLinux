@@ -1,0 +1,124 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- ⭐ `D-R8`（工程卫生）：不依赖 `$(BaseIntermediateOutputPath)` 指向哪里的产物目录排除。
+       实现在仓根 `BuildHygiene.props`（全仓唯一一份；理由与两种被否决的落点见 `build/MilBridge/W21B-report.md` §2）。
+       **故意不加 `Exists()` 条件**：文件找不到要大声失败。 -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('BuildHygiene.props'))" />
+
+  <!--
+    M7b · 托管层（WindowsBase / PresentationCore）在 Linux 上的端到端烟测。
+
+    【为什么是测试工程而不是 samples/HelloManaged】
+      M7b 的验收硬指标是「Dispatcher 计时器/退出 + 真实 X11 窗口 + xdotool 注入事件
+      被托管侧收到」。这四件事都需要**断言**，而不是「跑起来看一眼」：
+        · samples/ 没有断言框架，要自己写 runner 与退出码，等于重造 xunit；
+        · 本工程已有的 X11 用例模式（发现期 Skip、Category=X11）沉淀在
+          tests/.../Windowing.Tests 里，测试工程能直接沿用同一套约定；
+        · `dotnet test` 的通过/跳过计数本身就是报告里可引用的证据。
+      所以选 tests/ 路线；samples/HelloManaged 留给 M7c（端到端 HelloWpf），
+      那一站的目标是「看到东西」，性质不同。
+
+    【装配名为什么是 WpfGfx.Linux.ManagedLayer.Tests】
+      本工程不读任何自产程序集的 internal（HwndWrapper 等一律走反射），
+      所以不需要 InternalsVisibleTo；名字只求与既有三个测试工程同风格。
+
+    【为什么直接 <Reference> 自产 dll 而不是 ProjectReference】
+      它们是本工程**移植出来的上游代码**，构建链是 port-lib + dotnet build，
+      与测试代码的编译节奏不同（M7b 明确要求复用已构建产物）。
+      HintPath + Private=true → 产物被复制到测试输出目录，app-local 解析。
+      AssemblyVersion 4.0.0.1 > SDK 门面的 4.0.0.0，按「版本高者胜」胜出。
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>WpfGfx.Linux.Tests.ManagedLayer</RootNamespace>
+    <AssemblyName>WpfGfx.Linux.ManagedLayer.Tests</AssemblyName>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>$(NoWarn);CS8002;CA1416</NoWarn>
+    <!-- 并行会放大本机（3 核 / 7GB）的负载，也让"哪个 Dispatcher 在哪个线程"
+         变得不可推理。全部串行。 -->
+    <xunit_parallelizeTestCollections>false</xunit_parallelizeTestCollections>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+
+  <!--
+    WindowsBase / PresentationCore 的 **PackageReference 依赖**必须在这里再声明一次。
+    实测（第一轮跑测试就崩）：`System.Windows.BaseCompatibilityPreferences` 的静态构造
+    要 `System.Configuration.ConfigurationManager`，而测试进程的输出目录里没有它
+    → FileNotFoundException → TypeInitializationException → **测试宿主进程直接崩**。
+    它们不会通过 <Reference HintPath> 传递过来（HintPath 引用只带那一个文件，
+    不像 ProjectReference 会传递依赖图），所以只能显式列出。
+    版本与 build/WindowsBase.Linux.csproj / build/PresentationCore.Linux.csproj 一致。
+  -->
+  <ItemGroup>
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.0" />
+    <PackageReference Include="System.Diagnostics.EventLog" Version="9.0.0" />
+    <PackageReference Include="System.IO.Packaging" Version="9.0.0" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="9.0.0" />
+    <PackageReference Include="System.Security.Permissions" Version="9.0.0" />
+    <PackageReference Include="System.Windows.Extensions" Version="9.0.0" />
+    <PackageReference Include="System.Formats.Nrbf" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="WindowsBase">
+      <HintPath>$(MSBuildThisFileDirectory)../../../build/WindowsBase.Linux/bin/$(Configuration)/WindowsBase.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="PresentationCore">
+      <HintPath>$(MSBuildThisFileDirectory)../../../build/PresentationCore.Linux/bin/$(Configuration)/PresentationCore.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="System.Xaml">
+      <HintPath>$(MSBuildThisFileDirectory)../../../build/System.Xaml.Linux/bin/$(Configuration)/System.Xaml.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="UIAutomationTypes">
+      <HintPath>$(MSBuildThisFileDirectory)../../../build/UIAutomationTypes.Linux/bin/$(Configuration)/UIAutomationTypes.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="System.Windows.Input.Manipulations">
+      <HintPath>$(MSBuildThisFileDirectory)../../../build/System.Windows.Input.Manipulations.Linux/bin/$(Configuration)/System.Windows.Input.Manipulations.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <!-- D-P1 最小复现需要 `TextBox`（PresentationFramework）——与上面 5 件同一条口径（HintPath + Private） -->
+    <Reference Include="PresentationFramework">
+      <HintPath>$(MSBuildThisFileDirectory)../../../build/PresentationFramework.Linux/bin/$(Configuration)/PresentationFramework.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+
+  <!-- 真正生效的 xunit 串行开关：runner 读的是**输出目录里的** xunit.runner.json；
+       `<xunit_parallelizeTestCollections>` 不是 xunit 的开关（实测不生成 json、也不改变行为）。
+       本套件有进程级状态（X11 连接 / Win32 shim / 通道句柄），并行会间歇性崩溃。 -->
+  <ItemGroup>
+    <None Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!--
+    M7c 轨道 C（真接窗）：测试要**直接**驱动呈现层（`MilPresentation` / `X11PresentationTarget`
+    / `MilCommandEncoder`），所以这里引用我们自己的 `WpfGfx.Linux.dll` + SkiaSharp。
+    为什么不用 ProjectReference：与既有那 5 个自产件同一条口径（HintPath + Private），
+    避免把整个依赖图拖进本测试工程。
+    ⚠️ 注意这份是**测试进程自己的 JIT 副本**，与 AOT 进 `wpfgfx_cor3.so` 的那份**不是同一实例**；
+    本文件里的断言只针对"这一份自己的行为"（建窗 → 绑定 → 出像素 → 解绑），
+    不与托管层共享静态状态，所以不受这条限制影响。
+  -->
+  <ItemGroup>
+    <Reference Include="WpfGfx.Linux">
+      <HintPath>$(MSBuildThisFileDirectory)../../../src/WpfGfx.Linux/bin/$(Configuration)/net10.0/WpfGfx.Linux.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.88.9" />
+  </ItemGroup>
+
+</Project>

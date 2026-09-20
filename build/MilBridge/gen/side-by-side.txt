@@ -1,0 +1,108 @@
+GetNextPerfElementId|GetNextPerfElementId|long||True|long 
+IWICColorContext_GetExifColorSpace_Proxy|GetExifColorSpace|int|SafeMILHandle THIS_PTR, out uint pValue|True|int IntPtr THIS_PTR, out uint pValue
+IWICColorContext_GetProfileBytes_Proxy|GetProfileBytes|int|SafeMILHandle THIS_PTR, uint cbBuffer, byte[] pbBuffer, out uint pcbActual|True|int IntPtr THIS_PTR, uint cbBuffer, byte[] pbBuffer, out uint pcbActual
+IWICColorContext_GetType_Proxy|GetType|int|SafeMILHandle THIS_PTR, out WICColorContextType pType|True|int IntPtr THIS_PTR, out MilWicColorContextType pType
+InteropDeviceBitmap_AddDirtyRect|AddDirtyRect|int|int x, int y, int w, int h, SafeMILHandle pInteropDeviceBitmap|True|int int x, int y, int w, int h, IntPtr pInteropDeviceBitmap
+InteropDeviceBitmap_Create|Create|int|IntPtr d3dResource, double dpiX, double dpiY, uint version, FrontBufferAvailableCallback pfnCallback, bool isSoftwareFallbackEnabled, out SafeMILHandle ppInteropDeviceBitmap, out uint pixelWidth, out uint pixelHeight|True|int IntPtr d3dResource, double dpiX, double dpiY, uint version, IntPtr pfnCallback, bool isSoftwareFallbackEnabled, out IntPtr ppInteropDeviceBitmap, out uint pixelWidth, out uint pixelHeight
+InteropDeviceBitmap_Detach|Detach|void|SafeMILHandle pInteropDeviceBitmap|True|void IntPtr pInteropDeviceBitmap
+InteropDeviceBitmap_GetAsSoftwareBitmap|GetAsSoftwareBitmap|int|SafeMILHandle pInteropDeviceBitmap, out BitmapSourceSafeMILHandle pIWICBitmapSource|True|int IntPtr pInteropDeviceBitmap, out IntPtr pIWICBitmapSource
+MIL3DCalcProjected2DBounds|MIL3DCalcProjected2DBounds|int|ref D3DMATRIX pFullTransform3D, ref MILRect3D pboxBounds, out MilRectF prcDestRect|True|int D3DMATRIX* pFullTransform3D, MILRect3D* pboxBounds, out MilRectF prcDestRect
+MILAddRef|AddRef|UInt32|SafeMILHandle pIUnkown|True|uint IntPtr pIUnkown
+MILCreateEventProxy|MILCreateEventProxy|int|ref EventProxyDescriptor pEPD, out SafeMILHandle ppEventProxy|True|int IntPtr pEventProxyDescriptor, out IntPtr ppEventProxy
+MILCreateFactory|CreateFactory|int|out IntPtr ppIFactory, UInt32 SDKVersion|True|int out IntPtr ppIFactory, uint SDKVersion
+MILCreateStreamFromStreamDescriptor|MILCreateStreamFromStreamDescriptor|int|ref System.Windows.Media.StreamDescriptor pSD, out IntPtr ppStream|True|int IntPtr pStreamDescriptor, out IntPtr ppStream
+MILFactoryCreateBitmapRenderTarget|CreateBitmapRenderTarget|int|IntPtr THIS_PTR, UInt32 width, UInt32 height, PixelFormatEnum pixelFormatEnum, float dpiX, float dpiY, MILRTInitializationFlags dwFlags, out SafeMILHandle ppIRenderTargetBitmap|True|int IntPtr THIS_PTR, uint width, uint height, MilPixelFormatEnum pixelFormatEnum, float dpiX, float dpiY, MILRTInitializationFlags dwFlags, out IntPtr ppIRenderTargetBitmap
+MILFactoryCreateMediaPlayer|CreateMediaPlayer|int|IntPtr THIS_PTR, SafeMILHandle pEventProxy, bool canOpenAllMedia, out SafeMediaHandle ppMedia|True|int IntPtr THIS_PTR, IntPtr pEventProxy, bool canOpenAllMedia, out IntPtr ppMedia
+MILFactoryCreateSWRenderTargetForBitmap|CreateBitmapRenderTargetForBitmap|int|IntPtr THIS_PTR, BitmapSourceSafeMILHandle pIBitmap, out SafeMILHandle ppIRenderTargetBitmap|True|int IntPtr THIS_PTR, IntPtr pIBitmap, out IntPtr ppIRenderTargetBitmap
+MILIStreamWrite|MILIStreamWrite|int|IntPtr pStream, [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)]byte[] buffer, uint cb, out uint cbWritten|True|int IntPtr pStream, byte[] buffer, uint cb, out uint cbWritten
+MILMediaCanPause|CanPause|int|SafeMediaHandle THIS_PTR, ref bool pCanPause|True|int IntPtr THIS_PTR, ref bool pCanPause
+MILMediaClose|Close|int|SafeMediaHandle THIS_PTR|True|int IntPtr THIS_PTR
+MILMediaGetBufferingProgress|GetBufferingProgress|int|SafeMediaHandle THIS_PTR, ref double pProgress|True|int IntPtr THIS_PTR, ref double pProgress
+MILMediaGetDownloadProgress|GetDownloadProgress|int|SafeMediaHandle THIS_PTR, ref double pProgress|True|int IntPtr THIS_PTR, ref double pProgress
+MILMediaGetMediaLength|GetMediaLength|int|SafeMediaHandle THIS_PTR, ref long pllLength|True|int IntPtr THIS_PTR, ref long pllLength
+MILMediaGetNaturalHeight|GetNaturalHeight|int|SafeMediaHandle THIS_PTR, ref UInt32 puiHeight|True|int IntPtr THIS_PTR, ref uint puiHeight
+MILMediaGetNaturalWidth|GetNaturalWidth|int|SafeMediaHandle THIS_PTR, ref UInt32 puiWidth|True|int IntPtr THIS_PTR, ref uint puiWidth
+MILMediaGetPosition|GetPosition|int|SafeMediaHandle THIS_PTR, ref long pllTime|True|int IntPtr THIS_PTR, ref long pllTime
+MILMediaHasAudio|HasAudio|int|SafeMediaHandle THIS_PTR, ref bool pfHasAudio|True|int IntPtr THIS_PTR, ref bool pfHasAudio
+MILMediaHasVideo|HasVideo|int|SafeMediaHandle THIS_PTR, ref bool pfHasVideo|True|int IntPtr THIS_PTR, ref bool pfHasVideo
+MILMediaIsBuffering|IsBuffering|int|SafeMediaHandle THIS_PTR, ref bool pIsBuffering|True|int IntPtr THIS_PTR, ref bool pIsBuffering
+MILMediaNeedUIFrameUpdate|NeedUIFrameUpdate|int|SafeMediaHandle THIS_PTR|True|int IntPtr THIS_PTR
+MILMediaOpen|Open|int|SafeMediaHandle THIS_PTR, [In, MarshalAs(UnmanagedType.BStr)] string src|True|int IntPtr THIS_PTR, string src
+MILMediaProcessExitHandler|ProcessExitHandler|int|SafeMediaHandle THIS_PTR|True|int IntPtr THIS_PTR
+MILMediaSetBalance|SetBalance|int|SafeMediaHandle THIS_PTR, double dblBalance|True|int IntPtr THIS_PTR, double dblBalance
+MILMediaSetIsScrubbingEnabled|SetIsScrubbingEnabled|int|SafeMediaHandle THIS_PTR, bool isScrubbingEnabled|True|int IntPtr THIS_PTR, bool isScrubbingEnabled
+MILMediaSetPosition|SetPosition|int|SafeMediaHandle THIS_PTR, long llTime|True|int IntPtr THIS_PTR, long llTime
+MILMediaSetRate|SetRate|int|SafeMediaHandle THIS_PTR, double dblRate|True|int IntPtr THIS_PTR, double dblRate
+MILMediaSetVolume|SetVolume|int|SafeMediaHandle THIS_PTR, double dblVolume|True|int IntPtr THIS_PTR, double dblVolume
+MILMediaShutdown|Shutdown|int|IntPtr THIS_PTR|True|int IntPtr THIS_PTR
+MILMediaStop|Stop|int|SafeMediaHandle THIS_PTR|True|int IntPtr THIS_PTR
+MILQueryInterface|QueryInterface|int|IntPtr pIUnknown, ref Guid guid, out IntPtr ppvObject|True|int IntPtr pIUnknown, ref Guid guid, out IntPtr ppvObject
+MILRelease|Release|int|IntPtr pIUnkown|True|bool IntPtr pointer
+MILRenderTargetBitmapClear|Clear|int|SafeMILHandle THIS_PTR|True|int IntPtr THIS_PTR
+MILRenderTargetBitmapGetBitmap|GetBitmap|int|SafeMILHandle THIS_PTR, out BitmapSourceSafeMILHandle ppIBitmap|True|int IntPtr THIS_PTR, out IntPtr ppIBitmap
+MILSwDoubleBufferedBitmapAddDirtyRect|AddDirtyRect|void|SafeMILHandle THIS_PTR, ref Int32Rect dirtyRect|False|void IntPtr THIS_PTR, ref MilInt32Rect dirtyRect
+MILSwDoubleBufferedBitmapCreate|Create|int|uint width, uint height, double dpiX, double dpiY, ref Guid pixelFormatGuid, SafeMILHandle pPalette, out SafeMILHandle ppSwDoubleBufferedBitmap|True|int uint width, uint height, double dpiX, double dpiY, ref Guid pixelFormatGuid, IntPtr pPalette, out IntPtr ppSwDoubleBufferedBitmap
+MILSwDoubleBufferedBitmapGetBackBuffer|GetBackBuffer|void|SafeMILHandle THIS_PTR, out BitmapSourceSafeMILHandle pBackBuffer, out uint pBackBufferSize|False|void IntPtr THIS_PTR, out IntPtr pBackBuffer, out uint pBackBufferSize
+MILSwDoubleBufferedBitmapProtectBackBuffer|ProtectBackBuffer|int|SafeMILHandle THIS_PTR|True|int IntPtr THIS_PTR
+MILUpdateSystemParametersInfo|Update|int||True|int 
+MilChannel_AppendCommandData|MilChannel_AppendCommandData|int|IntPtr pChannel, byte *pbData, uint cbSize|True|int IntPtr pChannel, byte* pbData, uint cbSize
+MilChannel_BeginCommand|MilChannel_BeginCommand|int|IntPtr pChannel, byte *pbData, uint cbSize, uint cbExtra|True|int IntPtr pChannel, byte* pbData, uint cbSize, uint cbExtra
+MilChannel_CloseBatch|MilConnection_CloseBatch|int|IntPtr channelHandle|True|int IntPtr channelHandle
+MilChannel_CommitChannel|MilConnection_CommitChannel|int|IntPtr channelHandle|True|int IntPtr channelHandle
+MilChannel_EndCommand|MilChannel_EndCommand|int|IntPtr pChannel|True|int IntPtr pChannel
+MilChannel_GetMarshalType|MilChannel_GetMarshalType|int|IntPtr channelHandle, out ChannelMarshalType marshalType|True|int IntPtr channelHandle, out ChannelMarshalType marshalType
+MilChannel_SetNotificationWindow|MilChannel_SetNotificationWindow|int|IntPtr pChannel, IntPtr hwnd, WindowMessage message|True|int IntPtr pChannel, IntPtr hwnd, uint message
+MilCompositionEngine_DeinitializePartitionManager|MilCompositionEngine_DeinitializePartitionManager|int||True|int 
+MilCompositionEngine_EnterCompositionEngineLock|EnterCompositionEngineLock|void||True|void 
+MilCompositionEngine_EnterMediaSystemLock|EnterMediaSystemLock|void||True|void 
+MilCompositionEngine_ExitCompositionEngineLock|ExitCompositionEngineLock|void||True|void 
+MilCompositionEngine_ExitMediaSystemLock|ExitMediaSystemLock|void||True|void 
+MilCompositionEngine_InitializePartitionManager|MilCompositionEngine_InitializePartitionManager|int|int nPriority|True|int int nPriority
+MilComposition_PeekNextMessage|MilComposition_PeekNextMessage|int|IntPtr pChannel, out MilMessage.Message message, IntPtr messageSize, out int messageRetrieved|True|int IntPtr pChannel, out MilMessage message, IntPtr messageSize, out int messageRetrieved
+MilComposition_SyncFlush|MilComposition_SyncFlush|int|IntPtr pChannel|True|int IntPtr pChannel
+MilComposition_WaitForNextMessage|MilComposition_WaitForNextMessage|int|IntPtr pChannel, int nCount, IntPtr[] handles, int bWaitAll, UInt32 waitTimeout, out int waitReturn|True|int IntPtr pChannel, int nCount, IntPtr[] handles, int bWaitAll, uint waitTimeout, out int waitReturn
+MilConnection_CreateChannel|MilConnection_CreateChannel|int|IntPtr pTransport, IntPtr hChannel, out IntPtr channelHandle|True|int IntPtr pTransport, IntPtr hChannel, out IntPtr channelHandle
+MilConnection_DestroyChannel|MilConnection_DestroyChannel|int|IntPtr channelHandle|True|int IntPtr channelHandle
+MilContent_AttachToHwnd|MilContent_AttachToHwnd|int|IntPtr hwnd|True|int IntPtr hwnd
+MilContent_DetachFromHwnd|MilContent_DetachFromHwnd|int|IntPtr hwnd|True|int IntPtr hwnd
+MilCreateReversePInvokeWrapper|MilCreateReversePInvokeWrapper|int|IntPtr pFcn, out IntPtr reversePInvokeWrapper|True|int IntPtr pFcn, out IntPtr reversePInvokeWrapper
+MilGlyphCache_AppendCommandDataAtRenderTime|MilGlyphCache_AppendCommandDataAtRenderTime|int|IntPtr pMilSlaveGlyphCacheTarget, byte* pbData, uint cbSize|True|int IntPtr pMilSlaveGlyphCacheTarget, byte* pbData, uint cbSize
+MilGlyphCache_BeginCommandAtRenderTime|MilGlyphCache_BeginCommandAtRenderTime|int|IntPtr pMilSlaveGlyphCacheTarget, byte* pbData, uint cbSize, uint cbExtra|True|int IntPtr pMilSlaveGlyphCacheTarget, byte* pbData, uint cbSize, uint cbExtra
+MilGlyphCache_EndCommandAtRenderTime|MilGlyphCache_EndCommandAtRenderTime|int|IntPtr pMilSlaveGlyphCacheTarget|True|int IntPtr pMilSlaveGlyphCacheTarget
+MilGlyphRun_GetGlyphOutline|MilGlyphRun_GetGlyphOutline|int|IntPtr pFontFace, ushort glyphIndex, bool sideways, double renderingEmSize, out byte* pPathGeometryData, out UInt32 pSize, out FillRule pFillRule|True|int IntPtr pFontFace, ushort glyphIndex, bool sideways, double renderingEmSize, out byte* pPathGeometryData, out uint pSize, out MilFillRule pFillRule
+MilGlyphRun_ReleasePathGeometryData|MilGlyphRun_ReleasePathGeometryData|int|byte* pPathGeometryData|True|int byte* pPathGeometryData
+MilGlyphRun_SetGeometryAtRenderTime|MilGlyphRun_SetGeometryAtRenderTime|int|IntPtr pMilGlyphRunTarget, byte* pCmd, uint cbCmd|True|int IntPtr pMilGlyphRunTarget, byte* pCmd, uint cbCmd
+MilReleasePInvokePtrBlocking|MilReleasePInvokePtrBlocking|void|IntPtr reversePInvokeWrapper|True|void IntPtr reversePInvokeWrapper
+MilResource_CreateCWICWrapperBitmap|CreateCWICWrapperBitmap|int|BitmapSourceSafeMILHandle pIWICBitmapSource, out BitmapSourceSafeMILHandle pCWICWrapperBitmap|True|int IntPtr pIWICBitmapSource, out IntPtr pCWICWrapperBitmap
+MilResource_CreateOrAddRefOnChannel|MilResource_CreateOrAddRefOnChannel|int|IntPtr pChannel, DUCE.ResourceType resourceType, ref DUCE.ResourceHandle hResource|True|int IntPtr pChannel, DUCE.ResourceType type, ref DUCE.ResourceHandle hResource
+MilResource_DuplicateHandle|MilResource_DuplicateHandle|int|IntPtr pSourceChannel, DUCE.ResourceHandle original, IntPtr pTargetChannel, ref DUCE.ResourceHandle duplicate|True|int IntPtr pSourceChannel, DUCE.ResourceHandle original, IntPtr pTargetChannel, ref DUCE.ResourceHandle duplicate
+MilResource_GetRefCountOnChannel|MilResource_GetRefCountOnChannel|int|IntPtr pChannel, DUCE.ResourceHandle hResource, out uint refCount|True|int IntPtr pChannel, DUCE.ResourceHandle hResource, out uint refCount
+MilResource_ReleaseOnChannel|MilResource_ReleaseOnChannel|int|IntPtr pChannel, DUCE.ResourceHandle hResource, out int deleted|True|int IntPtr pChannel, DUCE.ResourceHandle hResource, out int deleted
+MilResource_SendCommand|MilResource_SendCommand|int|byte *pbData, uint cbSize, bool sendInSeparateBatch, IntPtr pChannel|True|int byte* pbData, uint cbSize, bool sendInSeparateBatch, IntPtr pChannel
+MilResource_SendCommandBitmapSource|MilResource_SendCommandBitmapSource|int|ResourceHandle handle, BitmapSourceSafeMILHandle pBitmapSource, IntPtr pChannel|True|int DUCE.ResourceHandle handle, IntPtr pBitmapSource, IntPtr pChannel
+MilResource_SendCommandMedia|MilResource_SendCommandMedia|int|ResourceHandle handle, SafeMediaHandle pMedia, IntPtr pChannel, bool notifyUceDirect|True|int DUCE.ResourceHandle handle, IntPtr pMedia, IntPtr pChannel, bool notifyUceDirect
+MilUtility_ArcToBezier|MilUtility_ArcToBezier|void|Point ptStart, Size rRadii, double rRotation, bool fLargeArc, SweepDirection fSweepUp, Point ptEnd, MilMatrix3x2D* pMatrix, Point* pPt, out int cPieces|True|void MilPointD ptStart, MilSizeD rRadii, double rRotation, bool fLargeArc, MilSweepDirection fSweepUp, MilPointD ptEnd, double* pMatrix, MilPointD* pPt, out int cPieces
+MilUtility_CopyPixelBuffer|MILCopyPixelBuffer|void|byte * pOutputBuffer, uint outputBufferSize, uint outputBufferStride, uint outputBufferOffsetInBits, byte * pInputBuffer, uint inputBufferSize, uint inputBufferStride, uint inputBufferOffsetInBits, uint height, uint copyWidthInBits|False|int byte* pOutputBuffer, uint outputBufferSize, uint outputBufferStride, uint outputBufferOffsetInBits, byte* pInputBuffer, uint inputBufferSize, uint inputBufferStride, uint inputBufferOffsetInBits, uint height, uint copyWidthInBits
+MilUtility_GeometryGetArea|MilUtility_GeometryGetArea|int|FillRule fillRule, byte *pPathData, UInt32 nSize, MilMatrix3x2D *pMatrix, double rTolerance, bool fRelative, double* pArea|True|int MilFillRule fillRule, byte* pPathData, uint nSize, double* pMatrix, double rTolerance, bool fRelative, double* pArea
+MilUtility_GetPointAtLengthFraction|MilUtility_GetPointAtLengthFraction|int|MilMatrix3x2D *pMatrix, FillRule fillRule, byte *pPathData, UInt32 nSize, double rFraction, out Point pt, out Point vecTangent|True|int double* pMatrix, MilFillRule fillRule, byte* pPathData, uint nSize, double rFraction, out MilPointD pt, out MilPointD vecTangent
+MilUtility_GetTileBrushMapping|MilUtility_GetTileBrushMapping|void|D3DMATRIX* transform, D3DMATRIX* relativeTransform, Stretch stretch, AlignmentX alignmentX, AlignmentY alignmentY, BrushMappingMode viewPortUnits, BrushMappingMode viewBoxUnits, Rect* shapeFillBounds, Rect* contentBounds, ref Rect viewport, ref Rect viewbox, out D3DMATRIX contentToShape, out int brushIsEmpty|True|void D3DMATRIX* transform, D3DMATRIX* relativeTransform, MilStretch stretch, MilAlignmentX alignmentX, MilAlignmentY alignmentY, MilBrushMappingMode viewPortUnits, MilBrushMappingMode viewBoxUnits, MilPointAndSizeD* shapeFillBounds, MilPointAndSizeD* contentBounds, ref MilPointAndSizeD viewport, ref MilPointAndSizeD viewbox, out D3DMATRIX contentToShape, out int brushIsEmpty
+MilUtility_PathGeometryBounds|MilUtility_PathGeometryBounds|int|MIL_PEN_DATA *pPenData, double *pDashArray, MilMatrix3x2D* pWorldMatrix, FillRule fillRule, byte* pPathData, UInt32 nSize, MilMatrix3x2D* pGeometryMatrix, double rTolerance, bool fRelative, bool fSkipHollows, MilRectD* pBounds|True|int MIL_PEN_DATA* pPenData, double* pDashArray, double* pWorldMatrix, MilFillRule fillRule, byte* pPathData, uint nSize, double* pGeometryMatrix, double rTolerance, bool fRelative, bool fSkipHollows, MilRectD* pBounds
+MilUtility_PathGeometryCombine|MilUtility_PathGeometryCombine|int|MilMatrix3x2D* pMatrix, MilMatrix3x2D* pMatrix1, FillRule fillRule1, byte* pPathData1, UInt32 nSize1, MilMatrix3x2D* pMatrix2, FillRule fillRule2, byte* pPathData2, UInt32 nSize2, double rTolerance, bool fRelative, PathGeometry.AddFigureToListDelegate addFigureCallback, GeometryCombineMode combineMode, out FillRule resultFillRule|True|int double* pMatrix, double* pMatrix1, MilFillRule fillRule1, byte* pPathData1, uint nSize1, double* pMatrix2, MilFillRule fillRule2, byte* pPathData2, uint nSize2, double rTolerance, bool fRelative, MilAddFigureCallback addFigureCallback, MilGeometryCombineMode combineMode, out MilFillRule resultFillRule
+MilUtility_PathGeometryFlatten|MilUtility_PathGeometryFlatten|int|MilMatrix3x2D* pMatrix, FillRule fillRule, byte* pPathData, UInt32 nSize, double rTolerance, bool fRelative, PathGeometry.AddFigureToListDelegate addFigureCallback, out FillRule resultFillRule|True|int double* pMatrix, MilFillRule fillRule, byte* pPathData, uint nSize, double rTolerance, bool fRelative, MilAddFigureCallback addFigureCallback, out MilFillRule resultFillRule
+MilUtility_PathGeometryHitTest|MilUtility_PathGeometryHitTest|int|MilMatrix3x2D *pMatrix, MIL_PEN_DATA* pPenData, double* pDashArray, FillRule fillRule, byte *pPathData, UInt32 nSize, double rTolerance, bool fRelative, Point* pHitPoint, out bool pDoesContain|True|int double* pMatrix, MIL_PEN_DATA* pPenData, double* pDashArray, MilFillRule fillRule, byte* pPathData, uint nSize, double rTolerance, bool fRelative, MilPointD* pHitPoint, out int pDoesContain
+MilUtility_PathGeometryHitTestPathGeometry|MilUtility_PathGeometryHitTestPathGeometry|int|MilMatrix3x2D *pMatrix1, FillRule fillRule1, byte *pPathData1, UInt32 nSize1, MilMatrix3x2D *pMatrix2, FillRule fillRule2, byte *pPathData2, UInt32 nSize2, double rTolerance, bool fRelative, IntersectionDetail* pDetail|True|int double* pMatrix1, MilFillRule fillRule1, byte* pPathData1, uint nSize1, double* pMatrix2, MilFillRule fillRule2, byte* pPathData2, uint nSize2, double rTolerance, bool fRelative, MilIntersectionDetail* pDetail
+MilUtility_PathGeometryOutline|MilUtility_PathGeometryOutline|int|MilMatrix3x2D* pMatrix, FillRule fillRule, byte* pPathData, UInt32 nSize, double rTolerance, bool fRelative, PathGeometry.AddFigureToListDelegate addFigureCallback, out FillRule outlinedFillRule|True|int double* pMatrix, MilFillRule fillRule, byte* pPathData, uint nSize, double rTolerance, bool fRelative, MilAddFigureCallback addFigureCallback, out MilFillRule outlinedFillRule
+MilUtility_PathGeometryWiden|MilUtility_PathGeometryWiden|int|MIL_PEN_DATA *pPenData, double *pDashArray, MilMatrix3x2D* pMatrix, FillRule fillRule, byte* pPathData, UInt32 nSize, double rTolerance, bool fRelative, PathGeometry.AddFigureToListDelegate addFigureCallback, out FillRule widenedFillRule|True|int MIL_PEN_DATA* pPenData, double* pDashArray, double* pMatrix, MilFillRule fillRule, byte* pPathData, uint nSize, double rTolerance, bool fRelative, MilAddFigureCallback addFigureCallback, out MilFillRule widenedFillRule
+MilUtility_PolygonBounds|MilUtility_PolygonBounds|int|MilMatrix3x2D *pWorldMatrix, MIL_PEN_DATA *pPenData, double *pDashArray, Point *pPoints, byte *pTypes, UInt32 pointCount, UInt32 segmentCount, MilMatrix3x2D *pGeometryMatrix, double rTolerance, bool fRelative, bool fSkipHollows, Rect *pBounds|True|int double* pWorldMatrix, MIL_PEN_DATA* pPenData, double* pDashArray, MilPointD* pPoints, byte* pTypes, uint pointCount, uint segmentCount, double* pGeometryMatrix, double rTolerance, bool fRelative, bool fSkipHollows, MilRectD* pBounds
+MilUtility_PolygonHitTest|MilUtility_PolygonHitTest|int|MilMatrix3x2D *pGeometryMatrix, MIL_PEN_DATA *pPenData, double *pDashArray, Point* pPoints, byte *pTypes, UInt32 cPoints, UInt32 cSegments, double rTolerance, bool fRelative, Point* pHitPoint, out bool pDoesContain|True|int double* pGeometryMatrix, MIL_PEN_DATA* pPenData, double* pDashArray, MilPointD* pPoints, byte* pTypes, uint cPoints, uint cSegments, double rTolerance, bool fRelative, MilPointD* pHitPoint, out int pDoesContain
+MilVersionCheck|MilVersionCheck|int|uint uiCallerMilSdkVersion|True|int uint uiCallerMilSdkVersion
+MilVisualTarget_AttachToHwnd|VisualTarget_AttachToHwnd|int|IntPtr hwnd|True|int IntPtr hwnd
+MilVisualTarget_DetachFromHwnd|VisualTarget_DetachFromHwnd|int|IntPtr hwnd|True|int IntPtr hwnd
+RenderOptions_EnableHardwareAccelerationInRdp|RenderOptions_EnableHardwareAccelerationInRdp|void|bool value|True|void bool value
+RenderOptions_ForceSoftwareRenderingModeForProcess|RenderOptions_ForceSoftwareRenderingModeForProcess|void|bool fForce|True|void bool fForce
+RenderOptions_IsSoftwareRenderingForcedForProcess|RenderOptions_IsSoftwareRenderingForcedForProcess|bool||True|bool 
+WgxConnection_Create|WgxConnection_Create|int|bool requestSynchronousTransport, out IntPtr ppConnection|True|int bool requestSynchronousTransport, out IntPtr ppConnection
+WgxConnection_Disconnect|WgxConnection_Disconnect|int|IntPtr pTranspManager|True|int IntPtr pTranspManager
+WgxConnection_SameThreadPresent|WgxConnection_SameThreadPresent|int|IntPtr pConnection|True|int IntPtr pConnection
+WgxConnection_ShouldForceSoftwareForGraphicsStreamClient|WgxConnection_ShouldForceSoftwareForGraphicsStreamClient|bool||True|bool 
+WpfGfx_SetDisableBoundsCheckProtection|WpfGfx_SetDisableBoundsCheckProtection|void|bool value|True|void bool value

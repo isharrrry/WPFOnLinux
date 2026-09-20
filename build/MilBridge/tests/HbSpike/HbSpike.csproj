@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- ⭐ `D-R8`（工程卫生）：不依赖 `$(BaseIntermediateOutputPath)` 指向哪里的产物目录排除。
+       实现在仓根 `BuildHygiene.props`（全仓唯一一份；理由与两种被否决的落点见 `build/MilBridge/W21B-report.md` §2）。
+       **故意不加 `Exists()` 条件**：文件找不到要大声失败。 -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('BuildHygiene.props'))" />
+
+  <!--
+    T1/M7c4 · 路线 B（HarfBuzz）可行性 spike —— **只要能下判断的最小实验**，不是半成品实现。
+
+    做三件事：
+      1. 用系统 libharfbuzz.so.0 对 "Hello WPF on Linux" @ NotoSans-Bold 24px 做真 shaping；
+      2. 用 SkiaSharp SKFont 对同一串做**非 shaping** 的 cmap+hmtx 取字形/步进；
+      3. 逐项对照（字形 id 序列、步进序列、总宽），并对**剥离了 GSUB/GPOS 的派生件**
+         `build/fonts-ui/UI-NoLayout.ttf` 做同一实验作为**自洽对照**
+         （没有 GPOS ⇒ HarfBuzz 必须与 Skia 逐项相同；若不同，说明我的对照方法有问题）。
+
+    刻意**不新增 NuGet 依赖**：HarfBuzz 直接 DllImport 系统 .so。
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AssemblyName>MilBridge.HbSpike</AssemblyName>
+    <RootNamespace>MilBridge.HbSpike</RootNamespace>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.88.9" />
+    <!-- 复用 T1 的解析器本体源码：验证"HarfBuzz 字形 id → MIL 轮廓"这条跨 AOT 边界的链路 -->
+    <Compile Include="../../src/MilBridge.Resolver/MilCoreDllImportResolver.cs" Link="MilCoreDllImportResolver.cs" />
+    <Compile Include="../../src/MilBridge.Resolver/MilCoreStandaloneInstaller.cs" Link="MilCoreStandaloneInstaller.cs" />
+  </ItemGroup>
+
+</Project>

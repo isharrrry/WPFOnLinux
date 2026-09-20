@@ -1,0 +1,88 @@
+U1BrushOracle: outDir=C:\wpf-oracle-brush\out2 sabotage=False batch=2
+  [ok  ] b2_gap_none_left_none_v2tiling                 colors=   8 painted=   19 model=61/61 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_gap_none_left_tile_v2tiling                 colors=  10 painted=  154 model=358/358 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_gap_none_left_flipx_v2tiling                colors=   9 painted=  161 model=355/355 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_gap_none_left_flipy_v2tiling                colors=  10 painted=  147 model=363/363 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_gap_none_left_flipxy_v2tiling               colors=   9 painted=  155 model=357/357 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_gap_none_center_none_v2tiling               colors=   8 painted=   16 model=64/64 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_gap_none_center_tile_v2tiling               colors=  10 painted=  111 model=393/393 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_gap_none_center_flipx_v2tiling              colors=   9 painted=  111 model=389/389 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_gap_none_center_flipy_v2tiling              colors=  10 painted=  111 model=392/392 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_gap_none_center_flipxy_v2tiling             colors=   9 painted=  111 model=387/387 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_gap_none_right_none_v2tiling                colors=   7 painted=   18 model=62/62 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_gap_none_right_tile_v2tiling                colors=   9 painted=   88 model=405/405 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_gap_none_right_flipx_v2tiling               colors=   8 painted=   82 model=410/410 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_gap_none_right_flipy_v2tiling               colors=   9 painted=   94 model=403/403 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_gap_none_right_flipxy_v2tiling              colors=   8 painted=   89 model=406/406 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_gap_none_left_none_v1same                   colors=   8 painted=   18 model=389/389 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_gap_none_left_tile_v1same                   colors=   8 painted=   18 model=389/389 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_gap_none_center_none_v1same                 colors=   9 painted=   16 model=386/386 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_gap_none_center_tile_v1same                 colors=   9 painted=   16 model=386/386 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_up_image_nearestneighbor              colors=   9 painted=  444 model=243/243 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_down_image_nearestneighbor            colors=   9 painted=  584 model=204/204 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_up_drawing_nearestneighbor            colors=  11 painted=  444 model=243/243 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_down_drawing_nearestneighbor          colors=  20 painted=  584 model=166/204 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_up_image_linear                       colors=  36 painted=  444 model=243/243 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_down_image_linear                     colors=  33 painted=  584 model=204/204 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_up_drawing_linear                     colors=  11 painted=  444 model=243/243 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_down_drawing_linear                   colors=  75 painted=  584 model=128/204 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_up_image_highquality                  colors=  36 painted=  444 model=243/243 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_down_image_highquality                colors=  80 painted=  584 model=128/204 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_up_drawing_highquality                colors=  11 painted=  444 model=243/243 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_down_drawing_highquality              colors=  75 painted=  584 model=128/204 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_up_image_unspecified                  colors=  36 painted=  444 model=243/243 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_down_image_unspecified                colors=  33 painted=  584 model=204/204 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_up_drawing_unspecified                colors=  11 painted=  444 model=243/243 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_scale_down_drawing_unspecified              colors=  75 painted=  584 model=128/204 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi96_image_tile_v2                         colors=  36 painted=  444 model=243/243 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi96_image_flipx_v2                        colors=  30 painted=  444 model=238/238 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi96_drawing_tile_v2                       colors=  11 painted=  444 model=243/243 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi96_visual_tile_v2                        colors=   9 painted=  444 model=183/183 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi96_image_none_v1same                     colors=  21 painted=  397 model=203/203 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi120_image_tile_v2                        colors=  38 painted=  442 model=224/224 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi120_image_flipx_v2                       colors=  33 painted=  442 model=226/226 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi120_drawing_tile_v2                      colors=  13 painted=  442 model=224/224 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi120_visual_tile_v2                       colors=  10 painted=  442 model=171/171 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi120_image_none_v1same                    colors=  24 painted=  395 model=215/215 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi144_image_tile_v2                        colors=  36 painted=  439 model=258/258 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi144_image_flipx_v2                       colors=  29 painted=  439 model=240/240 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi144_drawing_tile_v2                      colors=  11 painted=  439 model=258/258 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi144_visual_tile_v2                       colors=   9 painted=  439 model=205/205 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi144_image_none_v1same                    colors=  21 painted=  393 model=202/202 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi96_image_none_stretch_left_tile          colors=  10 painted=  154 model=358/358 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi120_image_none_stretch_left_tile         colors=  35 painted=  166 model=355/355 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_dpi144_image_none_stretch_left_tile         colors=  26 painted=  105 model=384/386 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_text_ideal_tile                             colors=   9 painted=  444 model=183/183 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_text_ideal_flipx                            colors=  11 painted=  444 model=184/184 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_text_display_tile                           colors=  17 painted=  444 model=183/183 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_text_display_flipx                          colors=  19 painted=  444 model=184/184 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_cachebrush_nocache_tile                     colors=  63 painted=  444 model=33/183 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_cachebrush_cache_tile                       colors=  63 painted=  444 model=33/183 vpOrigin=relative-to-bounding-box
+  [ok  ] b2_cachebrush_cache_scale2_tile                colors=  39 painted=  444 model=33/183 vpOrigin=relative-to-bounding-box
+  cmp b2_scale_up_image_nearestneighbor vs b2_scale_up_image_linear: 68 sample(s) differ
+  cmp b2_scale_up_image_nearestneighbor vs b2_scale_up_image_highquality: 68 sample(s) differ
+  cmp b2_scale_up_image_nearestneighbor vs b2_scale_up_image_unspecified: 68 sample(s) differ
+  cmp b2_scale_down_image_nearestneighbor vs b2_scale_down_image_linear: 187 sample(s) differ
+  cmp b2_scale_down_image_nearestneighbor vs b2_scale_down_image_highquality: 414 sample(s) differ
+  cmp b2_scale_down_image_nearestneighbor vs b2_scale_down_image_unspecified: 187 sample(s) differ
+  cmp b2_scale_down_image_linear vs b2_scale_down_image_highquality: 409 sample(s) differ
+  cmp b2_scale_down_image_highquality vs b2_scale_down_image_unspecified: 409 sample(s) differ
+  cmp b2_scale_down_drawing_nearestneighbor vs b2_scale_down_drawing_linear: 308 sample(s) differ
+  cmp b2_scale_down_drawing_nearestneighbor vs b2_scale_down_drawing_highquality: 308 sample(s) differ
+  cmp b2_scale_down_drawing_nearestneighbor vs b2_scale_down_drawing_unspecified: 308 sample(s) differ
+  cmp b2_dpi96_image_tile_v2 vs b2_dpi120_image_tile_v2: 2 sample(s) differ
+  cmp b2_dpi120_image_tile_v2 vs b2_dpi144_image_tile_v2: 9 sample(s) differ
+  cmp b2_dpi96_image_flipx_v2 vs b2_dpi120_image_flipx_v2: 2 sample(s) differ
+  cmp b2_dpi120_image_flipx_v2 vs b2_dpi144_image_flipx_v2: 8 sample(s) differ
+  cmp b2_dpi96_drawing_tile_v2 vs b2_dpi120_drawing_tile_v2: 2 sample(s) differ
+  cmp b2_dpi120_drawing_tile_v2 vs b2_dpi144_drawing_tile_v2: 8 sample(s) differ
+  cmp b2_dpi96_visual_tile_v2 vs b2_dpi120_visual_tile_v2: 2 sample(s) differ
+  cmp b2_dpi120_visual_tile_v2 vs b2_dpi144_visual_tile_v2: 8 sample(s) differ
+  cmp b2_dpi96_image_none_stretch_left_tile vs b2_dpi120_image_none_stretch_left_tile: 2 sample(s) differ
+  cmp b2_dpi120_image_none_stretch_left_tile vs b2_dpi144_image_none_stretch_left_tile: 7 sample(s) differ
+  cmp b2_text_ideal_tile vs b2_text_display_tile: 20 sample(s) differ
+  cmp b2_text_ideal_flipx vs b2_text_display_flipx: 20 sample(s) differ
+  cmp b2_cachebrush_nocache_tile vs b2_cachebrush_cache_scale2_tile: 67 sample(s) differ
+  cmp b2_cachebrush_cache_tile vs b2_cachebrush_cache_scale2_tile: 67 sample(s) differ
+
+cases=60 failures=0 sabotage=False selfTest=ok

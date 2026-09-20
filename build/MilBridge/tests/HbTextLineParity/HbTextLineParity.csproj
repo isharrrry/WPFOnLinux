@@ -1,0 +1,77 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- ⭐ `D-R8`（工程卫生）：不依赖 `$(BaseIntermediateOutputPath)` 指向哪里的产物目录排除。
+       实现在仓根 `BuildHygiene.props`（全仓唯一一份；理由与两种被否决的落点见 `build/MilBridge/W21B-report.md` §2）。
+       **故意不加 `Exists()` 条件**：文件找不到要大声失败。 -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('BuildHygiene.props'))" />
+
+  <!--
+    T1b · **B2 对拍 harness** —— 驱动**真 shim 源文件**（不是副本）里的 `HbTextLine`：
+      · 73 例 CJK（DWrite oracle）逐行全等
+      · 真机 oracle（tests/parity/windows/layout-b34）三类记账 / A 组断行 / Collapse / GetTextLineBreak
+      · 计数器读数（含 LS 边界绊线的 zeroBreakRecords）
+
+    ⭐ 硬性要求：`<Compile Include>` 指向 `build/shims/PresentationCore.HbTextLine.cs` **本身**。
+      驱动不了就**大声失败退出**（构建期就是硬失败；运行期还有身份自检，见 Program.cs T0）。
+      默认路径是真源；门禁期可用 -p:HbShimSrc=... 临时指向 staging 副本做开发。
+
+    未定义 TEXTLINE_SHIM_DIRECT ⇒ 走反射分支（PC 之外唯一可行的方式）；
+    直构分支由主控重建 PC 后验。
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>MilBridge.HbTextLineParity</AssemblyName>
+    <RootNamespace>MilBridge.HbTextLineParity</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <BaseOutputPath>$(MSBuildThisFileDirectory)bin\</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)obj\</BaseIntermediateOutputPath>
+    <!-- ⭐ 纪律 33 的陷阱（`D-R8`）：SDK 把"排除产物目录"表达成**当前生效的**
+         `$(OutputPath)`/`$(IntermediateOutputPath)`/`$(BaseOutputPath)`/`$(BaseIntermediateOutputPath)`
+         四条绝对路径（`Microsoft.NET.DefaultOutputPaths.targets:126-127`、
+         `Microsoft.NET.Sdk.DefaultItems.targets:35,37`）⇒ `-p:BaseIntermediateOutputPath=<仓外>`
+         一改，**本工程目录下**的 `obj/` 就**不再**被排除 ⇒ 默认 glob 把里面**陈旧**的
+         `*.AssemblyInfo.cs` 收进编译 ⇒ 与 SDK 新生成的那份撞成 `CS0579`。
+         ⚠️ **`#20` 原来在本 PropertyGroup 里的那一行 `DefaultItemExcludes` 已被 `#21`（lane W21B）
+         收口到仓根 `BuildHygiene.props`**（文件开头第 5 行的 `<Import>`；全仓唯一一份）。
+         本工程**不再**自带那一行 —— 这是**有意收敛**，不是删漏；
+         清单未变的机器证明见 `build/MilBridge/W21B-report.md` §3。 -->
+    <!-- CS0436：本工程**故意**把 shim 源文件编进自己（这样测的才是真源），
+         于是与 PC.dll 里那份同名类型冲突 —— 这个冲突正是 T0.1 身份自检要固定的事实。 -->
+    <NoWarn>$(NoWarn);CS0436</NoWarn>
+    <HbShimSrc Condition="'$(HbShimSrc)' == ''">$(MSBuildThisFileDirectory)../../../shims/PresentationCore.HbTextLine.cs</HbShimSrc>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- ⭐ 编**真 shim 源文件**（与编进 PresentationCore 的是同一份），而不是副本 -->
+    <Compile Include="$(HbShimSrc)" Link="PresentationCore.HbTextLine.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="PresentationCore">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/PresentationCore.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationCore.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="WindowsBase">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/WindowsBase.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/WindowsBase.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="DirectWriteForwarder">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/DirectWriteForwarder.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWriteForwarder.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.IO.Packaging" Version="9.0.0" />
+    <PackageReference Include="System.Formats.Nrbf" Version="9.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.0" />
+    <PackageReference Include="System.Windows.Extensions" Version="9.0.0" />
+    <!-- DWriteForwarder 的 Linux font collection 需要 SkiaSharp（与 TextLineProto 同一套） -->
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.88.9" />
+  </ItemGroup>
+
+</Project>

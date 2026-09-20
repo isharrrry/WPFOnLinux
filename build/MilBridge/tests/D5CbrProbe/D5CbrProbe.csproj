@@ -1,0 +1,81 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    W23A · `#23` §1 P1 —— **`D-T5` 的独立探针**（判据 + 红读数；**只测不修**）
+
+    为什么**新开一个工程**：
+      · `PcLineOracle/**` 是 `verify-all` 第 [5] 步的仪器（`#23` 预登记 §1.3 明写"不许改"）；
+      · `CoverageProbe/**` 在 P2 的臂重取里（同一句"不许改"）。
+      ⇒ 本件**独立成工程**，对上面两者**零字节改动**（建完自证 sha16）。
+
+    它驱动的是什么（与 `PcLineOracle` 的**唯一**区别）：
+      · `PcLineOracle` 的 `TextSource` 只产 `TextCharacters` + `TextEndOfParagraph`
+        （`MockTextSource`，`Program.cs:107-110`）⇒ **结构上碰不到 `D-T5`**；
+      · 本探针产 **空 CBR 的 run**（`TextEndOfSegment` / `TextHidden` / `TextModifier`）
+        ⇒ 这正是 `D-T5` 的触发面。
+
+    身份：程序集名 = `PresentationCore.Tests` + 与 PC 同一把公钥公开签名 ⇒ 借用 PC 的 IVT 名额。
+      用途（**只有一个**）：读两个档位的 internal 计数器当**层级来源自证**
+      （严格档 `WpfLinux.Shims.PresentationCore.HbTextFallback.*`；
+        宽松档 `MS.Internal.TextFormatting.WpfLinuxLenientTextFallback.Diagnostics`）。
+      ⚠️ 两处的**命名空间不同**（一个 `WpfLinux.Shims.PresentationCore`，一个 `MS.Internal.…`），
+         必须现场各读一次，不能照抄（`PcLineOracle` 的同款注释，`Program.cs:1525-1539`）。
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <!-- ⭐ 必须是这个名字（PC 的 IVT 名单里就是它，见 OtherAssemblyAttrs.cs:19） -->
+    <AssemblyName>PresentationCore.Tests</AssemblyName>
+    <RootNamespace>MilBridge.D5CbrProbe</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <BaseOutputPath>$(MSBuildThisFileDirectory)bin\</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)obj\</BaseIntermediateOutputPath>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign>true</PublicSign>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)../../../../build/keys/WcpPublicKey.snk</AssemblyOriginatorKeyFile>
+    <NoWarn>$(NoWarn);CS8002;CS0436;CS0012</NoWarn>
+  </PropertyGroup>
+
+  <!-- ⚠️ `D-R8`：不加这一行，私有 obj 重定向下会编进仓内陈旧的 obj/**/*.AssemblyInfo.cs ⇒ CS0579 -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('BuildHygiene.props'))" />
+
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 被测件 = **权威 pc**（Debug）。与 `build/MilBridge/tools/tline-gate.sh:138` 同一份。 -->
+    <Reference Include="PresentationCore">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/PresentationCore.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationCore.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="WindowsBase">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/WindowsBase.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/WindowsBase.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="DirectWriteForwarder">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/DirectWriteForwarder.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWriteForwarder.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <!-- provider 也要在输出目录里（PC 运行期要加载它） -->
+    <Reference Include="DirectWrite.Linux.Provider">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/DirectWrite.Linux/Provider/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWrite.Linux.Provider.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- ⚠️ 版本锁：与 T3/M7c/CoverageProbe/PcLineOracle 一致，不许动 -->
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.88.9" />
+    <PackageReference Include="System.IO.Packaging" Version="9.0.0" />
+    <PackageReference Include="System.Formats.Nrbf" Version="9.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.0" />
+    <PackageReference Include="System.Windows.Extensions" Version="9.0.0" />
+  </ItemGroup>
+
+</Project>

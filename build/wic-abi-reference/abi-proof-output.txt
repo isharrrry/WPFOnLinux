@@ -1,0 +1,14 @@
+file=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/samples/HelloMil/screenshot.png bytes=58776
+[managed SKBitmap.Decode] 800x600 colorType=Bgra8888 alphaType=Opaque
+[managed] px(0,0)=#ffffffff  px(mid)=#ffffffff
+sk_data_new_with_copy = 0x636373F5C650
+sk_codec_new_from_data  = 0x636373EABCF0
+--- A: measured layout {colorspace,width,height,colorType,alphaType} ---
+  get_info hr=1944996944 w=800 h=600 colorType=6 alphaType=1 cs=0x636373EE4C50
+  get_pixels hr=0   (0=Success,5=InvalidParameters)
+  FULL-BUFFER compare: bytes=1920000 mismatchBytes=0 firstBadOffset=-1
+  STRICT_EQUAL=True   (raw C API vs managed SKBitmap.Decode)
+  first NON-WHITE pixel at (22,16) BGRA=102,51,34,255
+--- B: classic header order {colorType,alphaType,colorspace,width,height} ---
+  get_info hr=1945001264 colorType=1945001264 alphaType=25443 cs=0x25800000320 w=6 h=1
+  get_pixels hr=0

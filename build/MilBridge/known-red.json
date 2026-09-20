@@ -1,0 +1,410 @@
+{
+  "schema": "tline-known-red/4",
+  "_FIELDTABLE": [
+    "==================== 字段表（schema tline-known-red/4）= 本文件头注释 ====================",
+    "⚠️ JSON 没有注释语法 ⇒ 本数组就是『文件头注释』；门禁只读 generation/entries，本数组纯人读。",
+    "本版相对 schema 3 的新增：顶层 `pending`（待重跑覆盖的臂）+ generation 增 `instr_pc`（信息性）；",
+    "  其余字段与 schema 3 同义。**升版理由**：新增了一个顶层块，老读者若严格校验 schema 会拒收。",
+    "",
+    "顶层：",
+    "  schema            本表版本。",
+    "  generation{}      本表绑的**世代**（不是『当前树』！）。子字段：",
+    "      id / label                 世代标签与说明。",
+    "      instr_run_sh               该世代 build/MilBridge/run.sh sha256。",
+    "      instr_program_cs           该世代 HbTextLineParity/Program.cs sha256。",
+    "      instr_shim                 该世代 build/shims/PresentationCore.HbTextLine.cs sha256（= 被测件）。",
+    "      instr_pc                   【信息性，不参与口径判定】该世代读数当时用的 PresentationCore.dll sha256。",
+    "      evidence_log               这批数字从哪份日志读出（可回溯）。",
+    "      evidence_log_sha256        该日志的 sha256。",
+    "      leg_resolution{}           conclusion/how/cross_check。**没做 A/B 就不许写腿后缀**。",
+    "      arm_logs{}                 臂日志（**派生件**）的**结构化**登记：键 = 臂日志文件名主干，值 = 该日志的 sha256 **全 64 位**。",
+    "                                 判据 = 声明值 == 现场 `<logdir>/<键>.log` 的 sha256 全值；缺声明 ⇒ NOINFO，值不符/件缺失 ⇒ FAIL（读 = `build/MilBridge/tools/arm-log-sha-check.sh`）。",
+    "      column_gate{}              `D-G14` 列级闸的**下限声明**（子字段：`arms[<臂名>] = {column, judged_min, released_min, note}`；**`#28` 起另有 `additional.arms[<臂名>] = {column, judged_min, note}`** —— 第 2 列起放这里，因为 `arms` 键是「每臂恰一列」的形状、**不许改形状**；`additional` 的读者 = 门禁的 `COL2_ARM` 段 ＋ 机读行 `GATE_COLUMN_EXTRA=`，原因码带 `-extra-` 前缀（`column-gate-extra-regressed`/`-undeclared`/`-readings-gone`）。**`judge=` 版本语义**：`t1b3-tline-gate/4` = **`#28` 两段判据之和**（`D-G19` 的 `additional` 附加列 ＋ `D-G20` 的门禁读探针「逐例对账行」⇒ 读数行多一个键 `列……·对账`），`/3` 及以前**没有**这两段；⚠️ **本字段今天没有校验器**（门禁不校验 `JUDGE_VER`）⇒ 忘推不会红（已登记 `D-G25`）。读 = `build/MilBridge/tools/tline-gate.sh` 的 `COL_ARM` 段：该臂 `判定行 < judged_min` 或 `字形释放行 < released_min` ⇒ **FAIL**（`GATE_REASON=column-gate-regressed`）；缺本节 / 缺该臂声明 / 汇总行命中 ≠1 行 ⇒ **NOINFO**（`column-gate-undeclared`，**缺声明 ≠ 通过**）。值 = 重取臂之后的**实测**读数，唯一声明处在本块；门禁只按 `GEN_KEYS` 取 `generation` 的键、不做 schema 校验 ⇒ 本键对既有判定零影响。 ⏪ **W31B（`/7`）补充**：`additional.arms[<臂名>].judged_min` 现在是**三态** —— 整数 = 下限；**`null`（显式）= 按 `D-G19` 裁定『本臂该列整列无判定面 ⇒ 不钉下限』**（机读行打 `judged_min=none`，**且该臂仍走三层互校与等式牙**；自证：声明 `null` 而 `判定行≠0` ⇒ `NOINFO column-gate-extra-floor-null-but-judged`）；**键缺 = 故障**（`NOINFO column-gate-extra-undeclared` 或 `-floor-missing`）。`/7` 另加两条牙：`列级闸等式牙`（`判定行 == 红 + 绿`，`column-gate-identity` / `column-gate-extra-identity`）与 `COL2_ARM` 扩到三支臂（`tab-oracle-zero`/`tab-oracle-rtl`）。`/6` = `#30` W30B 的探针身份闸（`D-G26`，机读行 `GATE_PROBE=` ＋ `generation.probes`）。",
+    "  _FIELDTABLE[]     本节。",
+    "  note[]            语义说明（三态、口径保护、覆盖规则、红绿权威、红条件）。",
+    "  pending{}         **本表当前不覆盖的臂**：列出臂 + 为什么没覆盖 + 补覆盖要先跑什么。",
+    "  changelog[]       date/rev/by/what/why。每次重钉必须新增一条，并写清**旧表错在哪**。",
+    "  entries[]         在册红条目：",
+    "      arm                tline | tab-oracle-zero | tab-oracle-anchor | tab-oracle-rtl | textlineproto",
+    "      case_id            tline 臂：第一个 '-' 前 = 判据(Check) id（覆盖规则按它）；tab 臂：探针 case id",
+    "      artifact / field   读数来源与读数字段名（未登记过的 field ⇒ NOINFO，不许猜）",
+    "                         特例 field=判据状态 ⇒ 读数 = 该判据的 ❌/✅",
+    "      expected_shape     谓词：count==N ｜ <N ｜ A/B（逐字相等）｜ 其它 = 子串包含",
+    "      carrier            该条红**当前由谁承载**（印在点名行里）",
+    "      generation / caliber / expected_reading / red_authority / reason / note / date / owner",
+    "      unlocated          true ⇒ 门禁打 KNOWN_RED_UNLOCATED（登记 ≠ 已理解、更 ≠ 已容忍）",
+    "  ========================================================================================"
+  ],
+  "generation": {
+    "id": "#23",
+    "label": "wave23 · 默认 env（出货行为）；`D-T6-b`（帧原点＝段落起点，**Option 1**：新增 `_paragraphOrigin`，`_lineStart` 语义不变）+ `D-F2`（三个只写不读的计数器接出口）落地后的世代",
+    "instr_run_sh": "711f39f468f61cc867b94ec14d9f0b267b677095809986195573698ab42c75eb",
+    "instr_program_cs": "149dd986a642fdfc6d208db65a1794c9bb5bb04bbcd03c598a89178d27abf8ab",
+    "instr_shim": "e89fed55fd8e32bc40f171036e15cfa4b1dcbc69729028a783e0d32a99030e96",
+    "instr_pc": "7b47a7b3d69ad62f",
+    "evidence_log": "build/MilBridge/arm-logs/tline.log",
+    "evidence_log_sha256": "960e28f59ee974e5",
+    "arm_logs": {
+      "tline": "960e28f59ee974e58348e7b22690cdccb89f57ce825f866f4019f2060a73ca22",
+      "tab-zero": "9150c3a26a3cb789582f3df655006955cf1db10dda00d91097d24d97b40e1912",
+      "tab-rtl": "92570318851ca7e85f64017c89bd784d971cfe4028f7b8e47cb79035146755c4",
+      "tab-anchor": "1c43a12dcaa5718a27f5e4c66d6ff59bd3b6da0b199e384a315b54e7041cc916",
+      "textlineproto": "4bceceeed570ba70eb0e2014352b2505d3648c1edabb4b8ebe859f6cb227ce09"
+    },
+    "probes": {
+      "why": "`D-G26` **探针身份声明**（落地 = 车道 `W30B`；方案 = `W29E`）。读者 = `build/MilBridge/tools/tline-gate.sh` 的 `probe` 段：它按本节核「产出本臂日志的那个**探针源文件**，与日志里**自报**的身份是否同一版」。背景缺口：`CoverageProbe/Program.cs` **既不在 `GEN_KEYS`**（那里的 `instr_program_cs` 指的是**另一个** `Program.cs` = `HbTextLineParity/Program.cs`）、**也不在 `close-wave.sh` 的 `fp_inputs()`**、臂日志头原先**也不记它的 sha** ⇒ 改测量代码**零机器红**（`#26` W26A 真改过它：`dea2a02cf8bab55a → 2477901979795979`，当年只靠人工记账跟住）。`generation.arm_logs` 只覆盖「改探针 ∧ **重取臂**」、弱配对只看 **shim** mtime ⇒ **未覆盖窗口恰是「改探针 ∧ 未重取臂」**，本键 + 自报行正是补这个窗口。键 = **臂名**（与 `column_gate.arms`/`gate-readings.json` 的臂名同一套，不是文件名主干）；值 = 该臂日志的产出探针**源文件仓库相对路径**。三态：本节缺失 / 键缺失 ⇒ 对该臂**不判**（射程纪律，刻意不声明的臂放行）；声明了但日志里无 `TAB_LINES_PROBE sha256=` 自报行 ⇒ **NOINFO**（老日志 ⇒ 探针身份未知，**必须重取臂**）；自报行 >1 条且值矛盾 ⇒ **FAIL**；声明的源不在盘上 ⇒ **NOINFO**；自报值 ≠ 现场 sha256（**全 64 位逐字**）⇒ **FAIL `probe-sha-mismatch`**。为什么比 64 位、不比 16 位前缀 = 本仓法条「前缀相等不是内容相等」（`build/MilBridge/tools/ShimShaReader/Program.cs:12`、`arm-log-sha-check.sh:9`）。为什么身份必须**落在日志里**（而不是只记在本表）：本表只能证「**表**与现场同版」，证不了「**这份日志**出自哪一版」；事后核对的承重主张要求拿一份旧日志就能定它的产出者。⚠️ 落本键当趟**必须连带重取三支 `tab-*` 臂**（老日志没有自报行），见 `generation.arms_retaken`。",
+      "unit": "臂名 → 探针源文件（仓库相对路径）",
+      "arms": {
+        "tab-oracle-zero": "build/MilBridge/tests/CoverageProbe/Program.cs",
+        "tab-oracle-anchor": "build/MilBridge/tests/CoverageProbe/Program.cs",
+        "tab-oracle-rtl": "build/MilBridge/tests/CoverageProbe/Program.cs"
+      },
+      "note": "三支 `tab-*` 臂**同宿一个探针**（`retake-arms-w23.sh:21-40`：同一个 `PresentationCore.Tests.dll` 带不同 `--tab-lines-oracle` 语料）⇒ 三键同值。`tline`/`textlineproto` **不编它**（前者的宿主是 `run.sh` 的 harness、后者是契约限时原型）⇒ **刻意不声明**，本闸对它们不判。⚠️ 探针**自报行由探针自己打**（`CoverageProbe/Program.cs` 的 `RunTabLinesOracle` 入口第一行，身份值由 `ProbeIdentity.targets` 在**构建时**把 `Program.cs` 的内容 sha256 经 `AssemblyMetadata` 嵌进程序集）⇒ 判据与 mtime/现场状态**无关** ⚠️ 【#31 W31E 复核 · 2026-09-18】本行锚点已位移（**原文保持不动**）：`retake-arms-w23.sh` 在本趟加了 `ARMS_OUT` 覆写与硬链接别名守卫（插入点在第 12 行之后、`+38/−1`、65 → 102 行）⇒ 三支 `tab-*` 臂“共宿同一个探针”的那一段由 `:21-40` 移到 **`:57-76`**（该段落内容逐字节未变）。"
+    },
+    "column_gate": {
+      "why": "`D-G14` 列级闸（`CoverageProbe` 的 `--tab-lines-oracle` 路径把『整例缺字形跳过』改成『逐列判定』）的**下限声明**。读者 = `build/MilBridge/tools/tline-gate.sh` 的 `COL_ARM` 段：它按本节核「本世代这一列**已经判过多少行**」。低于下限 ⇒ `FAIL column-gate-regressed`（`GATE_REASON=column-gate-regressed`）；本节缺失 / 该臂没声明 / 汇总行命中 ≠1 行 ⇒ `NOINFO column-gate-undeclared`（**缺声明 ≠ 通过**）。为什么值写在这里、不写死在门禁里：下限是一个**读数**（重取之后才知道），纪律 53 要求「那个值只许有一处声明」；本键与 `arm_logs` 同形态（都是『本世代钉住的一个读数』），且**不动顶层块的集合** ⇒ `schema` 无需升版。",
+      "unit": "行（该列的逐行判定行数）",
+      "arms": {
+        "tab-oracle-anchor": {
+          "column": "START",
+          "judged_min": 615,
+          "released_min": 194,
+          "note": "下限 = **实测值本身**（不是留余量的近似值），取证 = `build/MilBridge/arm-logs/tab-anchor.log` 的汇总行 `TAB_LINES START 红=0 绿=615 判定行=615 NOINFO=0 … 字形释放行=194 非零真值行判定=171`（该日志 sha256 的**唯一声明处** = 上面的 `generation.arm_logs[\"tab-anchor\"]`，本处不重抄）。语义 = 「这一列被判过的行数**一个都不许少**」：`判定行 615 = 既有 latin 可判定集 421 + 列级闸新释放的缺字形行 194`，两半都由**真值语料**独立复算过（`tests/parity/windows/tab-anchor/out/tab-anchor-oracle.json`：`latin 421 行` / `hebrew+arabic 194 行`；非零真值 `138 + 33 = 171`）⇒ 615 与 194 同时是**本语料的上界**，因此任何 `<` 都意味着「有一批行从被判定退回不被判定」（= 红检测被收窄的假绿），绝非正常的读数漂移。⚠️ 下限**不给余量**是刻意的：给余量就等于允许静默丢掉若干行。若将来语料/口径**合法地**改变了这个数 ⇒ 走 `changelog` 重钉，**不许**为了让它绿而把下限调低。⚠️ 该闸只覆盖 `tab-oracle-anchor` 一支（`tab-zero`/`tab-rtl` 语料 `lineStartOffsetsDip` 出现 **0/86、0/84** 次 ⇒ 无此列）；`COL_ARM` 里写死的臂名与本键必须**同趟**改。"
+        }
+      },
+      "additional": {
+        "why": "`D-G19` **附加列**（第 2 列起）的**下限声明**。读者 = `build/MilBridge/tools/tline-gate.sh` 的 `COL2_ARM` 段（与 `column_gate.arms` 的 `COL_ARM` 段是两段、**形状逐字相同**；`arms` 键是「每臂恰一列」的形状，**不许改形状** ⇒ 第 2 列起放这里）。低于下限 ⇒ `FAIL`＋`GATE_REASON=column-gate-extra-regressed`、机读行 `GATE_COLUMN_EXTRA=FAIL state=READINGS-REGRESSED`；本键缺失 / 该臂没声明 / 声明缺整数 `judged_min` ⇒ `NOINFO`＋`GATE_REASON=column-gate-extra-undeclared`；汇总行命中 ≠1 行 ⇒ `NOINFO`＋`GATE_REASON=column-gate-extra-readings-gone`（**缺项不许计入通过**）。为什么值写在这里：与 `arms`/`arm_logs` 同形态 = 『本世代钉住的一个读数』（纪律 53「那个值只许有一处声明」），且**不动顶层块的集合** ⇒ `schema` 无需升版。 ⏪ **W31B（`D-G30` 格 (a)）新增三档语义 —— `judged_min` 的值现在有三种，读者必须同趟区分**：① **键缺** ⇒ `NOINFO`＋`column-gate-extra-undeclared`（既有极性，未改）；② **键在且为 `null`（显式）** ⇒ = 本条臂**按 `D-G19` 裁定无下限**（该列整列 `判定行=0`，钉 0 是恒不可违反的假牙，纪律 47）⇒ 门禁**跳过下限**、机读行打 **`judged_min=none`**（与 `judged_min=<缺>` **不是同一回事**：后者是故障）；③ **键在且为整数** ⇒ 既有语义。⚠️ 配一条**自证**：显式 `null` 的臂其 `判定行` **必须 = 0**，否则 `NOINFO`＋`GATE_REASON=column-gate-extra-floor-null-but-judged`（防『给一支**有判定面**的臂写 `null` ⇒ 那条下限**静默消失**而没有任何机器看得见』）。打 `null` 的臂**仍在射程内**：它的 `OVERFLOWED` 逐例对账行照走三层互校（汇总行 ⇔ 对账行 ⇔ 逐例求和），并受新增的**等式牙**约束（`判定行 == 红 + 绿`，`GATE_REASON=column-gate-extra-identity`）。",
+        "unit": "行（该列的逐行判定行数）",
+        "arms": {
+          "tab-oracle-anchor": {
+            "column": "OVERFLOWED",
+            "judged_min": 421,
+            "note": "下限 = **实测值本身**（不留余量），取证 = `build/MilBridge/arm-logs/tab-anchor.log` 第 1342 行的汇总行 `TAB_LINES OVERFLOWED 红=0 绿=421 判定行=421 NOINFO=194 红例=0 NOINFO例=148 对齐=Left NOINFO字形=194 NOINFO字形外=0 真值True=22 诊断发丝边界行=58 …`（该日志 sha256 的**唯一声明处** = 上面的 `generation.arm_logs[\"tab-anchor\"]`，本处不重抄）。语义 = 「这一列被判过的行数**一个都不许少**」：`判定行 421` = 该语料与字形无关、可真判的那一半（`latin` 可判定集 421 行），余下 `NOINFO=194`（字段 `NOINFO字形=194`、`NOINFO字形外=0`）= 缺字形的 148 例 / 194 行（`hebrew` + `arabic`，同 `START` 列的 `字形释放行=194` 是**同一批行**）—— `D-G14` 列级闸只为**与字形无关**的 `Start` 放行，而 `hasOverflowed` 的判定量是**行宽**（依赖字形）⇒ 那 194 行在本列**仍然** NOINFO（`CoverageProbe/Program.cs:1565`）。⚠️ **本键只声明 `judged_min`、刻意不声明 `released_min`**：`OVERFLOWED` 汇总行**没有** `字形释放行` 字段（该列今天的释放面 = 0）⇒ 凭空补一个字段就是**造读数**。⚠️ 下限**不给余量**是刻意的（与 `arms` 同口径）：给余量 = 允许静默丢行。若将来语料/口径**合法地**改变了这个数（例如列级闸开始放行 `OVERFLOWED`）⇒ 走 `changelog` 重钉，**不许**为了让它绿而把下限调低。⚠️ **只覆盖 `tab-oracle-anchor` 一支是刻意的**：`tab-zero`（汇总行 `判定行=0 NOINFO=138`，第 205 行）与 `tab-rtl`（`判定行=0 NOINFO=163`，第 189 行）的 `OVERFLOWED` **整列 NOINFO** ⇒ 钉 `judged_min=0` 是**恒不可违反**的假牙（纪律 47）⇒ 不声明； ⚠️ 【#31 W31E 复核 · 2026-09-18】本行的锚点「第 1342 行」已陈旧（**原文保持不动**）：现盘该汇总行在 `build/MilBridge/arm-logs/tab-anchor.log:1343` —— `#30` W30B 重取时该日志头部新增了 `TAB_LINES_PROBE` 自报行（表头 +1 行；1345 → 1346 行）⇒ 整段下移一行。汇总行**内容逐字未变**（现场复核：`TAB_LINES OVERFLOWED 红=0 绿=421 判定行=421 NOINFO=194 … 真值True=22 诊断发丝边界行=58`）⇒ 本键 `judged_min=421` 不受影响。"
+          },
+          "tab-oracle-zero": {
+            "column": "OVERFLOWED",
+            "judged_min": null,
+            "note": "【W31B 落地 · `D-G30` 格 (a)】**显式『无下限』**（`judged_min: null`；**理由**如下，这是本条声明的全部依据）：本臂该列**整列 NOINFO** —— `build/MilBridge/arm-logs/tab-zero.log:206` 的汇总行 `TAB_LINES OVERFLOWED 红=0 绿=0 判定行=0 NOINFO=138 红例=0 NOINFO例=86 对齐=NOINFO NOINFO字形=0 NOINFO字形外=138 真值True=0 诊断发丝边界行=0 …`（`判定行=0`；86 例 / 138 行的 NOINFO 成因是 `对齐=NOINFO`，即该语料无可用对齐信息）⇒ 钉任何**整数**下限都是**恒不可违反的假牙**（`judged_min=0` 尤其），纪律 47 禁止。⚠️ 但 `D-G19` 的『刻意不声明』**只针对下限**（那条裁定是对的），**不等于**这一列不该有读者：`OVERFLOWED` 的**逐例对账行**（`tab-zero.log:207` = `TAB_LINES OVERFLOWED 对账 逐例求和 红=0 绿=0 NOINFO=138 ⇒ 与汇总一致`）此前**一个读者都没有** ⇒ W31B 把它接进三层互校（汇总行 ⇔ 对账行 ⇔ 逐例求和）＋等式牙。⇒ 本臂**在射程内、但不带下限**：机读行 `GATE_COLUMN_EXTRA=` 打 `arm=tab-oracle-zero col=OVERFLOWED 判定行=0 红=0 绿=0 NOINFO=138 judged_min=none`。⚠️ `null` **不是**『取消声明』：键**缺**仍是 `NOINFO`；且自证要求『打 `null` 的臂 `判定行` 必须 `=0`』，否则 `NOINFO column-gate-extra-floor-null-but-judged`。"
+          },
+          "tab-oracle-rtl": {
+            "column": "OVERFLOWED",
+            "judged_min": null,
+            "note": "【W31B 落地 · `D-G30` 格 (a)】与 `tab-oracle-zero` **同款、同理由**：`build/MilBridge/arm-logs/tab-rtl.log:190` = `TAB_LINES OVERFLOWED 红=0 绿=0 判定行=0 NOINFO=163 红例=0 NOINFO例=84 对齐=NOINFO NOINFO字形=152 NOINFO字形外=11 真值True=0 诊断发丝边界行=0 …`（`判定行=0`；84 例 / 163 行的 NOINFO = 面缺字形 **152** 行 ＋ 字形外 **11** 行）⇒ 钉整数下限是假牙（纪律 47）⇒ 显式 `judged_min: null`。对账行 = `tab-rtl.log:191`（`TAB_LINES OVERFLOWED 对账 逐例求和 红=0 绿=0 NOINFO=163 ⇒ 与汇总一致`）。⇒ 本臂**在射程内、只互校**；机读行打 `judged_min=none`。"
+          }
+        }
+      }
+    },
+    "leg_resolution": {
+      "conclusion": "#16（单腿：默认 env，未做 A/B）；`#21`/`#23` 同样**未做 A/B**（只重取，不换腿）",
+      "how": "五臂日志全部在 `build/MilBridge/arm-logs/`（**硬链接**，mtime 保留），其产出**晚于**被测件 shim `e89fed55fd8e32bc`（mtime 00:13:0x）⇒ 世代可证（弱配对判据：「日志 mtime ≥ 世代被测件 mtime」）。`tab-anchor` 读数 =  ⚠️ 【#31 W31E 复核 · 2026-09-18】本行「**硬链接**」这个措辞已过期（**原文保持不动**）：`#31` W31C 清掉了 11 条硬链接别名（`$HOME/wfp-runs/arms23/{tline,textlineproto}.log` 改真副本、其余 9 条删除）⇒ 现盘 5 件真日志 **nlink 全为 1**（现场复核 ino/nlink：tline 5143817/1、tab-zero 5245948/1、tab-anchor 5246782/1、tab-rtl 5247766/1、textlineproto 5143822/1）。`sha256`/`size`/`mtime` **逐位未变**、无多链接路径（`find /home/links-dev -xdev -inum <ino>` 各 1 条）⇒ 本行下半句那条弱配对判据（「日志 mtime ≥ 世代被测件 mtime」）**仍然成立**。"
+    },
+    "completion_criterion": {
+      "跑完": "结论段 present ∧ `=== 结束 ===` ∧ `rc ∉ {124,143}`（`L29`；`rc` 逐字记录、不作通过条件）",
+      "为什么": "`rc = coreOk && collapseOk && machineOk ? 0 : 1`，而 `collapseOk` 含 `T3`/`T3b` 保留红 ⇒ `rc=0` 在本仪器版不可达。"
+    },
+    "_pc_note": "本世代 tline 读数里的 PC 权威 = **`7b47a7b3d69ad62f`**（`#23` 波重建，4,197,376 B）。⚠️ **P1 的口径（`#19` 起生效）**：`AssemblyMetadata(\"HbTextLineShimSha\")` 里编的是 **shim 整文件的内容 sha** ⇒ **改一句注释也会改 `pc` 的字节** ⇒ **\"`pc` sha 变了\"不再蕴含\"行为变了\"**；等号读者报\"与源一致（`no`）\"才是那条判据。`instr_pc` 不参与世代绑定（`GEN_KEYS` 只含 run.sh / Parity / shim）。",
+    "instr_pc_path": "build/PresentationCore.Linux/bin/Debug/PresentationCore.dll",
+    "evidence_log_origin": "/home/links-dev/wfp-runs/arms23/tline.log（硬链接）⚠️ 【#31 W31E 复核 · 2026-09-18】「硬链接」已过期：现盘该路径是**真副本**（inode=5138770、nlink=1、size=21501、mtime=2026-09-17 00:36:36），与 `build/MilBridge/arm-logs/tline.log` 的 inode=5143817 **不同**，`cmp` 两者 **IDENTICAL**、sha16 同为 `57d752a3981a9b91` ⇒ 被引内容零位移、mtime 与源件逐位相同（弱配对判据不受影响）。原文括号描述的是 `#23` 当时的状态。",
+    "arms_retaken": {
+      "when": "2026-09-20 00:24:34 +0800",
+      "why": "波48：修 D-G56（applier 插桩锚上移到属性块之外 ⇒ windowsbase/pf 生成件变）＋整波重建 ⇒ pc 可能变字节；重取五臂后同趟钉齐",
+      "how": "**只跑三支**（不复用 `retake-arms-w23.sh`：其 `:11` 的 `OUT` 是普通赋值且指向 `$HOME/wfp-runs/arms23`，该目录与 `arm-logs/tline.log`/`textlineproto.log` **同 inode** ⇒ 直接重跑会**就地覆盖归档源件**、中断还会留半截日志）。本趟时序（纪律 59）：① `OUT` 换成本趟专属 `$HOME/w30b-run/arms30b`；② 旧件先 `cp -p` 归档到 `$HOME/w30b-run/backup/armlogs/`；③ 记 `nlink`/mtime/inode；④ `dotnet build CoverageProbe -c Release -m:1`（仅此一次，**未重建 `pc`**）；⑤ 逐支跑 `--tab-lines-oracle`；⑥ **先验 `TAB_LINES_PROBE` 自报行存在**（无则停、不 `ln -f`）；⑦ `ln -f` 进 `arm-logs/`；⑧ 复跑门禁；⑨ `arm-log-sha-check.sh`；⑩ 重钉本节；⑪ 归档。 ⚠️ 【#31 W31E 加注 · 2026-09-18】本行有两处随时间变化（**原文保持不动**）：① 它引的 `:11` 已不再是「普通赋值」—— `#31` W31E 把第 11 行改成 `OUT=${ARMS_OUT:-$HOME/wfp-runs/arms23}`（env 可覆写；**不设该变量时取值逐字不变**）并在第 12 行之后加了**硬链接别名守卫**（`OUT` 目标与真件同 inode ⇒ `exit 4`、逐支点名 inode 与两条路径、**一个字节都不写**）⇒ 纪律 59 的第①步不再需要手改脚本；② 「该目录与 `arm-logs/tline.log`/`textlineproto.log` 同 inode」描述的是 `#30` 当时的状态，`#31` W31C 之后 `arms23` 已是真副本（nlink=1）⇒ 现状下守卫**不会**拦默认 `OUT`（实测 rc=0）。",
+      "result": "`tab-zero 78204619fa5b4eee → 9150c3a26a3cb789`｜`tab-anchor 574d012a41a3db06 → 1c43a12dcaa5718a`｜`tab-rtl cbaa579c547b4ac3 → 92570318851ca7e8`；`tline`/`textlineproto` **逐字节未动**。**最硬的一条**：三支新日志**剥掉 `^TAB_LINES_PROBE` 行后与旧件 `cmp` 逐字节 IDENTICAL** （行数 210/1346/193 ↔ 209/1345/192）⇒ 重取**只新增了身份行**，**读数零位移**；`判定行=615`/`字形释放行=194` 与 `column_gate.arms[\"tab-oracle-anchor\"]` 的下限**逐位相符**。 ⚠️ 【#31 W31E 复核 · 2026-09-18】「`ln -f` 后 `nlink=2`」描述的是 `#30` W30B 当时的状态（**原文保持不动**）：`#31` W31C 清理别名后现盘该件 **nlink=1**，`sha256` 前16位 `1c43a12dcaa5718a` **逐位未变**。",
+      "arms": [
+        "tab-zero",
+        "tab-anchor",
+        "tab-rtl"
+      ],
+      "not_retaken": [
+        "tline",
+        "textlineproto"
+      ],
+      "not_retaken_why": "此二臂的宿主**不是** `CoverageProbe`（`run.sh` 的 harness / 契约限时原型）⇒ 探针字节对它们零影响。",
+      "previous": {
+        "when": "2026-09-17 00:34:27–00:38:20 +0800",
+        "why": "`#23` 改了 **`build/shims/PresentationCore.HbTextLine.cs`**（世代绑定三项之一：`tline-gate.sh` 的 `SH_SHIM`）**并且改了应用器 `patch-presentationcore-textline-fallback.py`**（宽松档的 `paragraphOrigin: cpFirst` 注入）⇒ 按纪律 34 **必须重取五臂**。`shim 76089e1de586ac91 → e89fed55fd8e32bc`（283,557 → **290,825 B**）。",
+        "how": "先 `-c Release` 重建 CoverageProbe（`rc=0`），再由 `run.sh tline` / `run.sh textline` 各自重建其 harness，最后逐条重跑五臂并用 **`ln -f` 硬链接**进 `arm-logs/`（**绝不 `cp`**：顶 mtime 会架空弱配对判据；**绝不 `ln -s`**：`find -type f` 会漏掉 ⇒ 全臂 NOINFO）。重取脚本 = `build/MilBridge/tools/retake-arms-w23.sh`。 ⚠️ 【#31 W31E 加注 · 2026-09-18】本行所指的重取脚本在本波被加固（**原文保持不动**）：第 11 行改为 env 可覆写（`ARMS_OUT`），并在第 12 行后新增**硬链接别名守卫**（`OUT` 里已有的日志若与 `build/MilBridge/arm-logs/` 下真件同 inode ⇒ 打 `exit 4`、逐支点名 inode 与两条路径、拒跑且**零写入**）。`ln -f` 与「绝不 `cp`／绝不 `ln -s`」的语义**逐字保留**（守卫不发任何 `ln`，只是拒跑）；实测三档：`OUT`=真 `arm-logs` ⇒ `rc=4` 点名 5 支 inode；真副本目录 / 空目录 / 默认 `arms23` ⇒ `rc=0` 放行。",
+        "result": "**四支逐字节不变**：`tab-zero b9d81590f3fcd800`、`tab-rtl 419e8aaa9c72a9a0`、`textlineproto 4bceceeed570ba70`（与 `#16`/`#19`/`#21`/`#22` **同 sha**）、`tab-anchor 1a5bc7181d0155c3`（与 `#22` 重取后**同 sha** ⇒ 本波 shim 改动**不影响该臂输出**）。**`tline` 换日志** `de605bf708dcdb5a → 57d752a3981a9b91`。"
+      },
+      "history": [
+        {
+          "when": "2026-09-19 11:42:17 +0800",
+          "why": "#40 切 Release：pc 重编 + HbTextLineParity/Program.cs 的 T0.7 权威路径改读唯一声明（GEN_KEYS 变动）⇒ 按纪律重取五臂"
+        },
+        {
+          "when": "2026-09-19 13:18:22 +0800",
+          "why": "#40 收尾：记录里的 ARM-LOG-SHA 行改为从现场臂日志现算（手抄过一位 + tline 日志在重取后被换过一次）"
+        },
+        {
+          "when": "2026-09-19 15:21:09 +0800",
+          "why": "波 #44：改 shim 的 C 源（win32_x11.c/win32_core.c）⇒ win32shim 位变 ⇒ 重取五臂后按纪律重钉；tline 臂日志 9746cbcb→928b79e6"
+        },
+        {
+          "when": "2026-09-19 21:04:38 +0800",
+          "why": "波46：桥按目标呈现 + shim 焦点回送 + pc 的 HwndTarget 插桩 ⇒ pc/bridge/win32shim 变；重取五臂后 known-red.json 同趟钉齐"
+        },
+        {
+          "when": "2026-09-19 21:28:49 +0800",
+          "why": "波46：桥按目标呈现 + shim 焦点回送 + pc 的 HwndTarget 插桩 ⇒ pc/bridge/win32shim 变；重取五臂后 known-red.json 同趟钉齐"
+        },
+        {
+          "when": "2026-09-19 23:11:54 +0800",
+          "why": "波47：修 D-G55（SetCapture/ReleaseCapture 派发 WM_CAPTURECHANGED）⇒ win32shim 变；整波重建 ⇒ pc/pf 变字节；重取五臂后同趟钉齐"
+        },
+        {
+          "when": "2026-09-20 00:24:34 +0800",
+          "why": "波48：修 D-G56（applier 插桩锚上移到属性块之外 ⇒ windowsbase/pf 生成件变）＋整波重建 ⇒ pc 可能变字节；重取五臂后同趟钉齐"
+        }
+      ]
+    }
+  },
+  "note": [
+    "T1b3 · 文本 harness「在册红登记制」登记表（schema 4，由 build/MilBridge/tools/tline-gate.sh 读取判定）。",
+    "字段表见 _FIELDTABLE（= 文件头注释）。",
+    "",
+    "⚠️⚠️ **这份表本身会陈旧 —— 它绑的是一个『世代』(generation)，不是『当前树』。**",
+    "  本表绑：**#15**（run.sh 3e513e88 + Parity 2e458928 + shim b5118424）。",
+    "  读者第一眼要问：**『这份表绑的是哪个世代？我手上的日志又是哪个世代？』** 不一致 ⇒ 门禁判 NOINFO。",
+    "",
+    "语义（三态 + 两条不许判 PASS 的保护）：",
+    "  未登记的失败 ⇒ FAIL + 非零；登记过且仍失败 ⇒ 只点名、不改退出码；",
+    "  登记过却变绿 ⇒ 显式报告 KNOWN_RED_GONE；缺数据/算不出 ⇒ NOINFO + 非零。",
+    "  **登记 ≠ 已理解、更 ≠ 已容忍**：unlocated:true 的条目门禁打 KNOWN_RED_UNLOCATED。",
+    "口径过期保护：generation 的仪器 sha 与**本次读数实际用的**仪器 sha 不一致 ⇒ 不许判 PASS ⇒ NOINFO。",
+    "  · 日志**自报**了仪器 sha（tline 臂会报被测 shim sha）⇒ 与 generation 逐条比；不符 ⇒ NOINFO。",
+    "  · 日志**不自报**仪器 sha（tab 臂：CoverageProbe 不打印 shim sha）⇒ 必须**树 == generation**",
+    "    **且日志 mtime ≥ 该世代被测件 mtime**（日志不可能早于它应当练过的那个仪器）⇒ 否则 NOINFO。",
+    "红/绿权威：**判据自己的状态**（harness ❌/✅；tab 臂 结构=PASS|FAIL / 结构败=N），**不是退出码**。",
+    "  ⚠️ 被信号杀死 / 撞上限的趟**不算读数**：退出码 >128（143=128+15）记 NOINFO，不当红也不当绿。",
+    "红条件（主控 2026-09-15 裁定 B）：**红 = 该 field 的读数红 或 它的归属判据报 FAIL**。",
+    "  登记的对象是**判据(family)**而不是某一行读数 ⇒『子项修好了但 family 仍红』必须留在册，",
+    "  不许报『在册红消失』。这种情况门禁打 READING_GREEN_BUT_JUDGE_RED。",
+    "  反向：**判据整体转绿 ⇒ 该判据下的条目一律 GONE**（哪怕读数与登记逐字相同）。",
+    "不准为了变绿而改本表：读数变了必须人工裁定 + 更新 generation 与各条值，并留 changelog。"
+  ],
+  "pending": {
+    "why": "五臂在 `#16` 世代**都有读数**（`tline` 强配对；三支 tab 臂 + `textlineproto` 弱配对 ⇒ 依赖「树==世代」+「日志 mtime ≥ 世代被测件 mtime」）。本块保留仍未结清的事。",
+    "open": [
+      {
+        "what": "`tab-anchor` 的 `不可比(缺字形)=148`（oracle `script=hebrew` 116 + `arabic` 32）",
+        "state": "⚠️ **本句在 `#26` 之后已收窄（原措辞『RTL 那一半在本机零信号』现在只对一半列成立）**：本机 Arial 替身缺这些码点 ⇒ **依赖字形的列**（`width`/`trailingWhitespaceLength`/`newlineLength`/`perChar[].xFromLeftDip`/`hasOverflowed` 等）在这 148 例上**仍然零信号**；不是缺陷。但 `D-G14` 列级闸把**与字形无关**的列放行了 ⇒ `TextLine.Start` 这一列**在 RTL 例上从「行使 0 行」变为行使 33 行**（`D-paraindent` 的 hebrew RTL：`PI=24` 15 行 + `PI=48` 18 行=**33**，真值侧独立复算：hebrew 154 行 + arabic 40 行 = **194** 行，其中非零 **33**）。全臂读数：`判定行` 421 → **615**、`字形释放行` = **194**、`非零真值行判定` = **171**（= latin 138 + RTL 33）。⇒ 该 148 这个数不变，但**它的射程变了**；下限已钉在 `generation.column_gate`。",
+        "owner": "登记（真值侧）"
+      },
+      {
+        "what": "`textlineproto` 臂的 `ContractProbe` 段 `P1`/`P6`（`通过 4 / 失败 2`）",
+        "state": "门禁**明确不据此判绿也不据此判红**（范围外·诚实披露）。`P1` = `D-F2`；`P6` = `GlyphRun.CheckInitialized()` 抛 `InvalidOperationException`",
+        "owner": "登记（见 KNOWN-DEFECTS）"
+      },
+      {
+        "what": "`tab-anchor` 曾报 `判定过=110` 与自身 288 条 CASE 行矛盾",
+        "state": "**已消解**：`#16` 世代该臂 `判定过=288`（= 全部 CASE 行），与探针层一致",
+        "owner": "关闭"
+      },
+      {
+        "what": "`verify-all` 第 10 步",
+        "state": "本表能给出 `PASS` 之后由**主控**接（步数 9 → 10 已接）",
+        "owner": "主控"
+      }
+    ],
+    "extent_regression": null
+  },
+  "changelog": [
+    {
+      "date": "2026-09-18",
+      "rev": "13",
+      "by": "W31B",
+      "what": "**`D-G30` 同族三格落地**（判据口径 `/6 → /7`，`tline-gate.sh` `JUDGE_VER` 同趟推进）：(a) `COL2_ARM` 由 1 支臂扩到 **3 支**（`tab-oracle-zero`/`tab-oracle-rtl` 的 `OVERFLOWED` 逐例对账行进三层互校射程），并在本块 `generation.column_gate.additional.arms` 给这两支臂写 **`judged_min: null`（显式无下限）**＋理由（那两列整列 `判定行=0` ⇒ 钉整数下限是假牙，纪律 47；`D-G19` 的『刻意不声明』只针对下限，**不是**『整列不进判据』）；门禁同趟区分**『键在但 null』（⇒ 跳过下限、机读行打 `judged_min=none`）**与**『键缺』（⇒ 仍 `NOINFO`，既有极性不变）**，并加一条自证（`null` 的臂 `判定行` 必须 `=0`，否则 `NOINFO column-gate-extra-floor-null-but-judged`）；(b) 新增**等式牙** `判定行 == 红 + 绿`（`START` 与 `OVERFLOWED` 各一条：`COL_IDENT`/`COL2_IDENT`，定义依据 = `CoverageProbe/Program.cs:1573`/`:1761`/`:1809` 的累加恒等式）⇒ 治『单独把 `判定行` 往上改』那一档；(c) 三层**协同**谎报**刻意不抓**（**明示边界**，写进门禁注释与 W31B 报告 §G）。`entries` **4 条一个字节未动**，只把 4 条 `caliber.judgment_version` `/6 → /7`；`generation` 的 `GEN_KEYS` 三项与 `arm_logs`/`probes` **逐字未变**。",
+      "why": "`#30` W30C 只出方案（`$HOME/w30c-report.md c53d79c7b48d54c2`，§4.1 逐格坐实）：(a) 那两支臂的 `OVERFLOWED` 对账行**读者 0 个**（`COL2_ARM` 只有 anchor）⇒『汇总结账行谎报/整条删除/逐例行改小』三档在 `rc=0` 下**恒绿**（`#28` 段作者在 `:669-672` 逐字记过这个缺口并把成因错记在『另一族』）；(b) `判定行` **上向**谎报（`421→615`）今天**任何段落都抓不到** —— `judged_min` 只判 `<`、三层互校**不含这个字段**（作者在 `:754-757` 自报该边界）；(c) 三层协同 ⇒ 门禁内部任何自洽校验**按定义**看不见，责任在**下限声明**＋`column-floor-check.sh` 的**语料复算**那条外挂读者。⚠️ 本件**不动** `GEN_KEYS`/`arm_logs`/`tree_gen` ⇒ **不需要重取臂**（只加读取点）；`inputs_fp` 是否移动见 W31B 报告 §F（真调用 `fp_inputs()` 取值）。"
+    },
+    {
+      "date": "2026-09-17",
+      "rev": "12",
+      "by": "W27A",
+      "what": "**接线列级闸 `D-G14`**：新增 `generation.column_gate`（`arms[\"tab-oracle-anchor\"] = {column:\"START\", judged_min:615, released_min:194}`，值 = 现臂日志**实测**、并由真值语料独立复算）+ `_FIELDTABLE` 一行说明；`entries` **4 条全部保留、`reason`/`red_authority`/`carrier`/`expected_shape`/`artifact`/`generation`/`caliber` 的三项仪器 sha 一个字节未动**，只把 4 条 `caliber.judgment_version` 由 `t1b3-tline-gate/2` 推到 **`/3`**（门禁 `JUDGE_VER` 同趟推进；该字段门禁**不比较**，但它的语义就是『这条读数属于哪一版判据』）；`pending.open[0]` 改写（旧措辞『RTL 那一半在本机零信号』只对依赖字形的列成立）。**世代绑定三项 `GEN_KEYS` 一个字节未动** ⇒ `tree_gen=same` 仍成立，**不重取臂**（`arm_logs` 五个值未变、核对器仍 PASS）。",
+      "why": "`#26` 车道 W26H 的 12 行判定矩阵实测出一行**假绿**：『列级闸放行了但一行没判（`字形释放行=0`）』+ 今天的门禁 ⇒ **仍 `PASS`/`rc=0`**，与『放行且全绿』的 stdout **逐字相同**（门禁对列级读数 **零读取点**：接线前 `grep -c 'TAB_LINES START' build/MilBridge/tools/tline-gate.sh` = **0**，实测于备份件 `b37a5c9f55ae71a4`）。本键给门禁一个**下限**：这一列曾经判过多少行，就**一个都不许少**。读数面（`判定行`/`字形释放行`）与产物侧分开：**新列的红**仍走既有 `entries[]`+`UNREGISTERED` 通道（今天这一半牙齿已有），本键**只治退化**。⚠️ 值**不给余量**是刻意的（给余量 = 允许静默丢行）；合法地改变这个数 ⇒ 走本 `changelog` 重钉，**不许**为变绿而调低下限。"
+    },
+    {
+      "date": "2026-09-17",
+      "rev": "11",
+      "by": "W26D",
+      "what": "新增 `generation.arm_logs`（**结构化**；键 = 臂日志文件名主干，值 = `sha256` **全 64 位**；五支取**现场实测**值）+ 只读核对器 `build/MilBridge/tools/arm-log-sha-check.sh`（三态：全 PASS ⇒ `rc=0`；缺声明 ⇒ `NOINFO`；值不符/件缺失 ⇒ `FAIL`）+ `_FIELDTABLE` 两行说明。**世代绑定三项 `instr_run_sh`/`instr_program_cs`/`instr_shim` 与 `entries[*]` 一个字节未动、`entries` 4 条不动** ⇒ 门禁判定不变（机器证：只差 `arm_logs` 的两棵沙箱树跑门禁两趟、归一化后 `cmp` 逐字节相同；`TLINE_GATE=PASS caliber=OK tree_gen=same drift=0 gone=0 unregistered=0`）。",
+      "why": "`D-G9`：臂日志是**派生件** —— 它们的内容 sha **不是**世代绑定三项的函数，且门禁**不读** `leg_resolution.cross_check`（`grep -c cross_check build/MilBridge/tools/tline-gate.sh` = **0**），五支臂的现场 sha 在 `build/MilBridge/tools/**`/本表/`verify-all.sh` 里**被引用 0 次** ⇒ **换过日志没有任何机器会红**（`#24` 现场：三支 `tab-*` 臂日志被 `ln -f` 换成 `424d4c6d…`/`5e4d9ef3…`/`56abc845…`，而 `cross_check` 散文仍写 `b9d81590…`/`419e8aaa…`/`1a5bc718…` ⇒ **3/3 逐字不符**）。本块就是给那条散文一个**机器读者**。⚠️ `leg_resolution.cross_check` 保持逐字不动（它是 `#23` 的历史记录），其 sha 值**由本块取代**。⚠️ **硬时序**：本波车道 W26A 正在改 `CoverageProbe/Program.cs` 并会**重取三支 `tab-*` 臂日志** ⇒ 本块的三个 `tab-*` 值届时必然陈旧、核对器**会正确地报 `FAIL`**（那是**预期行为**、不是缺陷）⇒ **波尾由主控重算并重注入**（`python3` 现场算，纪律 49）。"
+    },
+    {
+      "date": "2026-09-17",
+      "rev": "10",
+      "by": "主控",
+      "what": "**重钉到 `#23`**：`instr_shim` `76089e1de586ac91…` → **`e89fed55fd8e32bc…`**（283,557 → 290,825 B）、`instr_pc` `e7cabff9417ed380` → **`7b47a7b3d69ad62f`**、`evidence_log_sha256` `de605bf708dcdb5a` → **`57d752a3981a9b91`**；`instr_run_sh`（`3e513e88…`）与 `instr_program_cs`（`2e458928…`）**两项实测未变**。`entries` **4 条全部保留**，各自的 `generation` 与 **`caliber.instr_shim`** 一并推进（`#21` 踩过：只改 `generation.*` 会得到 `TLINE_GATE=NOINFO` + `registry-generation-inconsistent`）。",
+      "why": "`#23` 的实质 = **`D-T6-b` 修法（Option 1）** + **`D-F2` 三计数器接出口**。`D-T6-b`：帧原点必须是**段落起点**，而 `_lineStart` 在 shim 里是**双用字段**（`shim:3661`/`:3694`/`:3701` 拿它当 `_text`/`_plan` 的**相对**下标）⇒ **字面的 `_lineStart = paragraphOrigin + range.Start` 会打断折叠路径**（`#22` 的预登记就是这么错的，被车道拦下）。Option 1 = **新增 `_paragraphOrigin`**、`_lineStart` 语义不变、只改 3 个绝对消费者 + 折叠行透传。另：宽松档的接线在**生成物**里 ⇒ **改应用器**（`patch-presentationcore-textline-fallback.py`，`daa1fe2a32d454cf → 00c2179b87fc0509`），**不许手改生成物**（纪律 38）。世代绑定三项之一就是 shim ⇒ 必须重取五臂。**四支臂逐字节不变**。"
+    },
+    {
+      "date": "2026-09-16",
+      "rev": "9",
+      "by": "主控",
+      "what": "**重钉到 `#21`**：`generation.instr_shim` `fe1b7ed8fa3ed231…` → **`76089e1de586ac91…`**（278,692 → 283,557 B）、`instr_pc` `f4a454c8fe69cdfe` → **`e7cabff9417ed380`**、`evidence_log_sha256` `aa7259da9e2c77e8` → **`de605bf708dcdb5a`**；`instr_run_sh`（`3e513e88…`）与 `instr_program_cs`（`2e458928…`）**两项实测未变**。`entries` **4 条全部保留、读数未漂**，只把各自的 `generation` 标签推进到 `#21`。  【**重钉后实测**】`TLINE_GATE=PASS arms=5 red=2 green=3 noinfo_arm=0 registered=4 unlocated=1 drift=0 gone=0 unregistered=0 caliber=OK generation=#21 tree_gen=same saved_shim=76089e1de586ac91 gate=b37a5c9f55ae71a4 judge=t1b3-tline-gate/2`、`GATE_REASON=all-as-registered`、`rc=0`。",
+      "why": "`#21` 的实质 = **`D-T6-c` 定性并落地**：`HbTextLine.Start` 由 `=> 0` 改为 `=> _paragraphIndentDip`。真机法律 = **`Start ≡ ParagraphIndent`**（`TextAlignment=Left`；`upstream …/TextMetrics.cs:255-263`：`_paragraphToText = ParagraphIndent + _textStart`，而 `Start` 又减掉 `_textStart` ⇒ 相消）。三条独立证据：① 真机源码公式与注释；② 真机语料 `lineStartOffsetsDip` 在 **615/615 行**上精确相等；③ 另一条车道的**盲复核**独立重算得同一结果。世代绑定三项之一就是 shim ⇒ **必须重取五臂**。**四支臂逐字节不变** ⇒ 旧在册红的读数不会漂。旧表那句话「真机实测恒为 0（3222/3222）」是**语料性质被当成实现性质**（`layout-b34` 语料里 `ParagraphIndent` 出现 **0** 次）—— 与纪律 34 同族。  ⚠️ **重钉踩到的坑（记下来）**：只改 `generation.*` 与 `entries[*].generation` 会得到 `TLINE_GATE=NOINFO` + `GATE_REASON=registry-generation-inconsistent` —— 因为**每条 `entries[*].caliber` 里各有一份 `{judgment_version, instr_run_sh, instr_program_cs, instr_shim}`**，`caliber.instr_shim` 也必须一起推进（本次 4 条全改）。该门禁是**只读读者**，所以这种不自洽只会表现为 `NOINFO`（**不是通过**），这正是设计。"
+    },
+    {
+      "date": "2026-09-16",
+      "rev": "8",
+      "by": "主控",
+      "what": "**重钉到 `#19`**：`generation.instr_shim` `bc04c05ab6d8d82a…` → **`fe1b7ed8fa3ed231…`**（`run.sh`/`Parity` 两项**未变**）；`instr_pc` → `f4a454c8fe69cdfe`；`evidence_log` → 新 `arm-logs/tline.log`（`aa7259da9e2c77e8`）；**entries 仍 4 条、`expected_shape`/`expected_reading` 一字未改**；每条 `caliber.instr_shim` 随世代更新；新增 `arms_retaken` 块。",
+      "why": "`#19` 改了 shim（`P4` 注释 + **严格档 `HbTextFallback.TryFormatLine` 的 indent 接线**）⇒ 世代必换、五臂必重取（纪律 34）。",
+      "result": "五臂重取：**四支逐字节不变**（`tab-zero`/`tab-anchor`/`tab-rtl`/`textlineproto`）⇒ 本波两件**未进其射程**；`tline` 换日志但 **30 行差全是身份/管道**、**判据行逐条 md5 相同** ⇒ **`drift=0 gone=0`**，四条在册红形状未动。**门禁两极化**：删 `tline/T3b` ⇒ `unregistered=1` + `rc=1`；真表 ⇒ `rc=0`。",
+      "no_widening": "未新增/未删除任何判据、未放宽任何口径；entries 数值一字未改。"
+    },
+    {
+      "date": "2026-09-15",
+      "rev": "7",
+      "by": "主控",
+      "what": "**波后在波后树上重取五臂 + 重钉世代元数据**（`instr_run_sh`/`instr_program_cs`/`instr_shim` **三项未变** ⇒ 世代仍 `#16`，`tree_gen=same`）。改：`generation.instr_pc` `4e73167ba0aa7f5c → c0763fc10173e7ff`、`evidence_log` 指向 `build/MilBridge/arm-logs/tline.log`（`89ad10ac614b4d3b`）、新增 `arms_retaken` 块；修 `tab-oracle-zero` 条目的 `artifact` 陈旧路径（`$HOME/wfp-runs/tab-zero-w15.log` → `build/MilBridge/arm-logs/tab-zero.log`，纪律 4 的实例）。",
+      "why": "`#16` 波重建了 `pc`（`#15` 的 `532c7f54f7573070` → 中间态 `303604882d71f954` → 波后 `c0763fc10173e7ff`）。三支 tab 臂 + `textlineproto` 是**弱配对**（日志不自报被测件，见纪律 29）⇒ 唯一的配对方式是「树 == 世代」∧「日志 mtime ≥ 世代被测件 mtime」；旧日志（18:26–18:31）虽然满足时间序，但**没有证据**说明\"`pc` 变了、它们的读数为什么可以不变\" ⇒ 与其靠推理，不如重取。",
+      "result": "四条非 tline 臂**逐字节不变**（这就是那个证据）；`tline` 换了日志但 14 行差全是身份/管道、零条判据行移动，登记的四条读数逐条复现；门禁重跑 `PASS`、`drift=0 gone=0 unregistered=0`、`rc=0`。",
+      "no_widening": "未新增/未删除任何判据、未放宽任何口径；`entries` 的 `expected_shape`/`expected_reading` 一字未改。"
+    },
+    {
+      "date": "2026-09-15",
+      "rev": "6",
+      "by": "主控",
+      "what": "重钉到 **`#16`**（shim `b5118424dc977aef` → **`bc04c05ab6d8d82a`**；`run.sh`/`Parity` 两项仪器**未变**）。**注销 `tab-oracle-anchor` 全部 178 条在册红**（该臂在 `#16` 已 `结构败 0 / 判定过 288 / rc=0`）；保留 `tab-oracle-zero` 1 条（老红未动，`b9d81590f3fcd800` 与 `#15` 逐字节相同）与 `tline` 3 条（读数更新见下）。`pending` 重写（`判定过=110` 的矛盾**已消解**）。",
+      "why": "`#16` 落地了 **`D-T2` 的 9 件**（`2`/`2b`/`2c`/`2d`/`2e`/`1a`/`1b′`/`1c`/`1d`）与 **`D-O1`**，其中 **`tab-anchor` 臂由 132 结构败 → 0**、`判定过 110 → 288`、`rc=0`。⇒ 那 178 条登记项的**被登记对象已修好**，按三态语义必须**逐条注销**（否则门禁会报 `KNOWN_RED_GONE` 并判 FAIL，原因写\"登记表过期\"——那是设计、不是缺陷）。注销时逐条对照五臂日志，未凭印象。",
+      "adjudication": "① `T3` 仍 ❌：判定一致数由 `1298/1298` 变 **`1297/1298`**（新增 `A1_nbsp_zwsp_w40|行#0 Collapse hasCollapsed 期望 False 实得 True`），**根因 = `D-O1` 打开折叠闸门**（计数器实测 `collapseIneligible 2090→2088`、`collapseApplied 236→237`、`collapsedRangesReturned 236→237`、`collapsedRangesNull 1062→1061` ⇒ 方向与机制一致）⇒ **可归因**，已在条目的 `carrier`/`reason` 里逐字写明。② `T2d-Extent余差` = `95`（不变）；`T3b` 仍 ❌。③ `tab-zero` 1 条老红仍在。④ **代落盘披露**：本次注销由主控执行（依据 = 五臂日志 + 门禁输出；**未新增/未删除任何判据、未放宽任何口径**）。"
+    },
+    {
+      "date": "2026-09-15",
+      "rev": "5",
+      "by": "主控（代 T1b3 落盘）",
+      "what": "**补登四支非 tline 臂在 `#15` 世代的真实读数**：新增 **179 条**（`tab-oracle-zero` 1 条 + `tab-oracle-anchor` 178 条），`field=判据状态` / `expected_shape=❌`，`caliber` 记 `#15` 三项仪器 sha + `shim_declared_by_log:false`；`pending` 改成「仍未结清」清单。",
+      "why": "**代落盘理由（如实记）**：本项原派给 T1b3 车道，该车道**两次中途失败**；而它是 `verify-all` 第 10 步的**阻塞项**（门禁 `unregistered=179` ⇒ `FAIL`）。主控按**门禁自己的输出**（`[UNREGISTERED] arm=… id=…`）逐条生成条目，**未新增/未删除任何判据**、**未放宽任何口径**、**未改任何读数**。",
+      "adjudication": "179 条的定性：`tab-oracle-zero` 1 条 = **`#13` 老红补登**（新表漏带）；`tab-oracle-anchor` 178 条 = **真缺陷**，根因按族归到 **A/B/C 三个缺口**（D-T2 方案 `8607f62911b03b70`）：`A-anchor` 4 / `B-indent` 64 / `B-indent-extra` 70 / `D-paraindent` 40。**没有一条标 `unlocated`** —— 因为根因已定位到具体代码行，不是「含义/根因未定位」。（`unlocated` 仍留给 `tline/T3b`。）"
+    },
+    {
+      "date": "2026-09-15",
+      "rev": "4",
+      "by": "T1b3",
+      "what": "重钉到 **#15**（shim `fde9e511…` → `b5118424…`；run.sh 与 Parity 两项仪器**未变**）。**注销 2 条**（`T2-记账结构`、`T2-宽度超差` —— 它们在本世代**已不红**）；**更新 2 条**读数（`T3-Collapse明细` 225/236 → 232/236；`T2d-Extent余差` 59 → 95）；`T3b` 仍红且**原样保留 `unlocated: true`**；新增顶层 `pending` 说明本表只覆盖 `tline` 臂。",
+      "why": "旧表绑 `#13-legA`。**旧表错在哪**：① `T2-记账结构` 登记为红，但它的红**由宽度承载**；#15 里宽度 `>0.34DIP` 由 34 修到 **0** ⇒ `T2` 判据由 ❌ 变 ✅ ⇒ 该条**红已消失**，不该继续留在册（留着会让门禁每趟报 GONE，自相矛盾）。② `T2-宽度超差` 同理（`count==34` → **0**），已修，注销。③ `T3`/`T3b` **仍 ❌** ⇒ 保留，但读数要改成 #15 实测。④ 全表按「世代」而非「当前树」重绑。",
+      "adjudication": "按门禁语义（红 = 读数红 **或** 归属判据 FAIL）：旧表 6 条在 #15 上应判 **2 GONE + 2 DRIFT + 1 KNOWN_RED_UNLOCATED + 1 未覆盖**。此结论**由门禁自己算出**（探针表 = 新 generation + 旧 shape），不是手算：`TLINE_GATE=NOINFO … registered=5 unlocated=1 drift=2 gone=2 unregistered=0 caliber=OK generation=#15 tree_gen=same`。",
+      "evidence": "读数逐条回日志核过（不照抄）：`tline-bounded-20260915-124846.log` sha16=`15fcee62971a3b4f`。",
+      "gate_fixes_shipped_together": {
+        "fix1_weak_pairing_mtime": "**弱配对追加「日志 mtime ≥ 该世代被测件 mtime」**（堵「旧日志被洗成新世代」的假绿）。\n不回归验证方式（已跑过）：① 新 tline 日志（强配对，自报 b5118424）对照旧 shape ⇒ `gone=2 drift=2` 不变；\n② `tline-wave13.log`（强配对，自报 fde9e511）+ 现行 #13-legA 表 ⇒ `registered=5 unlocated=1` 且 `drift=gone=0` 不变；\n③ 洞本身：`or13-…-knownred.log`（mtime 10:36:37）对绑 #15 的表 ⇒ 修复前 `caliber=OK-tree`（被判读 = 假绿），修复后 `caliber=STALE-WEAK` + NOINFO。",
+        "fix2_root_resolution": "**`ROOT` 回退链 `脚本位置 → --root → $PWD → $T1B3_REPO_ROOT`，定不出即 `NOINFO`+rc2**，头部多印 `ROOT_SRC`。\n理由：只按脚本位置推 ROOT 时，把门禁拷到 `$HOME` 跑会**静默**算出 `ROOT=$HOME`（仪器 sha 全空、`tree_gen` 假性 advanced、`generation=none`）—— 那是假绿的一种。"
+      },
+      "completion_criterion_used": "本表的「这趟跑完了」**只引用**主控/T3 的单一实现：`结论段 present（通过 N / 失败 M）∧ === 结束 === ∧ rc ∉ {124,143}`；`rc` 逐字记录、不作通过条件。\n实现 sha：`tline-judge-lib.sh`=`9c43e6e8c492b09a`、`bounded-tline.sh`=`2c2dd972c4053aa3`、本日志重判文件 `tline-bounded-20260915-124846.log.rejudge-20260915-125620.txt`=`904e43bdbaac8150`（verdict = **跑完（正极性成立）**）。\n**不引用源日志 L239–L241**（已作废留档）。"
+    },
+    {
+      "date": "2026-09-15",
+      "rev": "3",
+      "by": "T1b3",
+      "what": "按主控裁点 A/B：加第 6 条 `T3b`（unlocated:true ⇒ KNOWN_RED_UNLOCATED）；每条加 `carrier`；`_FIELDTABLE` 字段表写入文件头。",
+      "why": "裁点 A：T3b 在 #13-legA 是 ❌ 但含义/根因未定位 ⇒ 登记让门禁可判，但**不许洗白成已理解/已容忍**。裁点 B：登记对象是判据(family)不是单行读数 ⇒ 需 carrier。"
+    },
+    {
+      "date": "2026-09-15",
+      "rev": "2",
+      "by": "T1b3",
+      "what": "重钉到 #13-legA；值改实测（1298/1298、34、225/236、59、结构败=1）。",
+      "why": "rev1 的 4 个数字是 #12 世代的（主控记录陈旧）；rev1 的 `instr_shim=17b2cdfe` 配 #12 的数字本身自相矛盾。"
+    },
+    {
+      "date": "2026-09-15",
+      "rev": "1",
+      "by": "T1b3",
+      "what": "首版：5 条在册红，口径 run.sh 3e513e88 + Parity 2e458928 + shim 17b2cdfe。",
+      "why": "首版内容由派工给定（数字实取自 #12 世代的 tline-20260914.log）。保留以便追溯。"
+    },
+    {
+      "when": "2026-09-17 23:14 +0800",
+      "wave": "#30 · W30B",
+      "what": "落地 `D-G26` **探针身份闸**：探针自报 `TAB_LINES_PROBE sha256=<64>`（构建时由 `ProbeIdentity.targets` 把 `Program.cs` 的内容 sha256 经 `AssemblyMetadata` 嵌入）；门禁新增 `probe` 段 ＋ 新机读行 `GATE_PROBE=`；登记表新增 `generation.probes`；判据口径 `/5 → /6`；按纪律 34/59 重取三支 `tab-*` 臂并重钉 `generation.arm_logs`。",
+      "why": "改**测量**代码原先**零机器红**（探针既不在 `GEN_KEYS`、也不在 `fp_inputs()`、臂日志也不记它的 sha）；`#26` W26A 真改过它而只靠**人工记账**跟住。",
+      "cost": "`inputs_fp` **必然变**（`tline-gate.sh`/`known-red.json` 都在 `fp_inputs()` 覆盖面内）⇒ 须走**独立准备趟**；探针侧**不进** `inputs_fp`（`CoverageProbe` 命中 0）⇒ 只改探针**不动** `inputs_fp`。"
+    }
+  ],
+  "entries": [
+    {
+      "arm": "tline",
+      "case_id": "T3-Collapse明细",
+      "artifact": "run.sh tline stdout",
+      "field": "Collapse明细全等",
+      "expected_shape": "232/236",
+      "carrier": "**本条的读数本身**（折后明细 `232/236`；T3 判据里 `collapseOk = … && colApplied == colAppliedOk` 那一项）。⚠️ `#16` 里 **`T3` 的\"折叠判定一致\"由 `1298/1298` 变 `1297/1298`** —— 新增一处不一致：`A1_nbsp_zwsp_w40|行#0 Collapse hasCollapsed 期望 False 实得 True`；**归因 = `D-O1` 打开折叠闸门**（计数器实测 `collapseIneligible 2090→2088`、`collapseApplied 236→237`、`collapsedRangesReturned 236→237`、`collapsedRangesNull 1062→1061`）⇒ **可归因、非新缺陷**（按预登记 §4.6.6 的替换口径接受）。",
+      "generation": "#23",
+      "caliber": {
+        "judgment_version": "t1b3-tline-gate/7",
+        "instr_run_sh": "711f39f468f61cc867b94ec14d9f0b267b677095809986195573698ab42c75eb",
+        "instr_program_cs": "149dd986a642fdfc6d208db65a1794c9bb5bb04bbcd03c598a89178d27abf8ab",
+        "instr_shim": "e89fed55fd8e32bc40f171036e15cfa4b1dcbc69729028a783e0d32a99030e96"
+      },
+      "expected_reading": "折叠判定一致 1298/1298；真折叠 236 行，明细全等 232/236（折后宽度最大差 9.680667 DIP，最差在 F_nbsp_zwsp_w80 行#0）",
+      "red_authority": "读数 pair_lt（明细全等 < 真折叠行数）**或** 判据 T3 == FAIL",
+      "reason": "折叠**判定**与真机全等 1298/1298，但**折后明细**只对 232/236 ⇒ T3 ❌。**世代演进：`#12` 218/236 → `#13-legA` 225/236 → `#15` 232/236。** 仍在错的 4 条（`── 不一致用例 4 个`）：`F_lat_words_w560 行#0`、`F_nbsp_zwsp_w80 行#0`、`F_nbsp_zwsp_w200 行#0`、`M_modifier_w120 行#0`（均为「折叠明细不符」）。  ⚠️ `#16` 补充：判定一致数 `1298/1298 → 1297/1298`（`A1_nbsp_zwsp_w40` 行#0 的 hasCollapsed 判定由一致变不一致），**根因 = `D-O1`（`HasOverflowed` 由恒假变真实现）打开折叠闸门**，与计数值方向一致 ⇒ 已归因。",
+      "date": "2026-09-15",
+      "owner": "T1b3"
+    },
+    {
+      "arm": "tline",
+      "case_id": "T2d-Extent余差",
+      "artifact": "run.sh tline stdout",
+      "field": "Extent余差条数",
+      "expected_shape": "count==95",
+      "carrier": "**本条的读数本身**（紧口径 0.01 DIP 下的残差 95 条 = 主对拍集 75 + LH 组 20）。注意 **T2d 判据用宽口径 0.34 判、在 #15 是 ✅** ⇒ 本条不是 T2d 报红，是**登记的已知残差**。",
+      "generation": "#23",
+      "caliber": {
+        "judgment_version": "t1b3-tline-gate/7",
+        "instr_run_sh": "711f39f468f61cc867b94ec14d9f0b267b677095809986195573698ab42c75eb",
+        "instr_program_cs": "149dd986a642fdfc6d208db65a1794c9bb5bb04bbcd03c598a89178d27abf8ab",
+        "instr_shim": "e89fed55fd8e32bc40f171036e15cfa4b1dcbc69729028a783e0d32a99030e96"
+      },
+      "expected_reading": "[② Extent 余差清单] 共 95 条（主对拍集 75 + LH 组 20）（`#16` 实测不变）",
+      "red_authority": "读数 count>0",
+      "reason": "紧口径 0.01 DIP 下的 Extent 余差读数（**登记的是「读数是多少」，不是「我们接受它」**）。\n世代演进：`#12` 58 → `#13-legA` 59 → **`#15` 95（+36 变差）**。\n其中 LH 组 20 条为**字体代用**（本机无 MS YaHei / Yu Gothic）；但 **+36 那部分不是字体代用**，见 `note` 与 `pending.extent_regression`。",
+      "date": "2026-09-15",
+      "owner": "T1b3",
+      "note": "**这一条不是「已接受的残差」—— 它在 #15 相对 #13 是 +36 变差，归因未定。**\n逐字事实：① **相对 #13 的 59 条是 +36（变差，不是变好）**；② 新增的 36 条**全在 `*_tabs_*` 族**；\n③ 36 条**同一个值 `+0.0628`**；④ **布局（断点 / 宽度 / 真值宽 / 我们宽）逐位不变** —— T3 已给 36/36 逐条对拍；\n⑤ **归因未定**（T1d / T2 在查；线索：`+0.0628 ≈ 1/16`，`14.32 vs 14.3828`）。\n**本条刻意不加 `unlocated:true`** —— 那个标志的语义是「含义/根因未定位」，主控指定留给 `T3b`；\n本条登记的是「读数是多少」，而「它为何变差」点名在 `pending.extent_regression` 里。\n行级 `Extent` 同向变差：`1223/1298`（#13 为 `1260/1298`）。"
+    },
+    {
+      "arm": "tline",
+      "case_id": "T3b",
+      "artifact": "run.sh tline stdout",
+      "field": "判据状态",
+      "expected_shape": "❌",
+      "carrier": "**T3b 判据本身**（`Check(\"T3b\", \"折叠明细**契约级**断言（① 判别式 `ours<0 ⇒ truth<0` ② 起止==真机 ③ |cr.Width−真机| < 0.34）\", …)`）。**根因仍未定位。**",
+      "generation": "#23",
+      "unlocated": true,
+      "caliber": {
+        "judgment_version": "t1b3-tline-gate/7",
+        "instr_run_sh": "711f39f468f61cc867b94ec14d9f0b267b677095809986195573698ab42c75eb",
+        "instr_program_cs": "149dd986a642fdfc6d208db65a1794c9bb5bb04bbcd03c598a89178d27abf8ab",
+        "instr_shim": "e89fed55fd8e32bc40f171036e15cfa4b1dcbc69729028a783e0d32a99030e96"
+      },
+      "expected_reading": "❌ T3b 折叠明细**契约级**断言（① 判别式 ② 起止==真机 ③ |cr.Width−真机| < 0.34）",
+      "red_authority": "判据 T3b == FAIL（读数 = 该判据的 ❌/✅）",
+      "reason": "该世代已存在的 harness 判据失败，**含义/根因未定位**（不装作已容忍）。登记它**只为让门禁在绑定的世代可判**，**不代表**任何人已理解、已接受。**#13 → #15 的位移（记录，但仍不算定位）**：① 判别式红 `≥1/236` → **0/236**（#13 有 `F_nbsp_zwsp_w40 行#3 cr.Width=-3.0560` 的真违反；#15 该条已消失）；② 起止红 → **4/236**；③ |cr.Width−真值| < 0.34 红 → **2/236**（=`F_nbsp_zwsp_w80 行#0` 差 −9.6773、`F_nbsp_zwsp_w200 行#0` 差 −8.5387）。⇒ **红仍在，现在由 ②③ 承载；① 已清零。根因仍未定位。**",
+      "date": "2026-09-15",
+      "owner": "T1b2/T3 待派"
+    },
+    {
+      "arm": "tab-oracle-zero",
+      "case_id": "notab-control@w40@em24@RTL@tab0",
+      "artifact": "build/MilBridge/arm-logs/tab-zero.log",
+      "field": "判据状态",
+      "expected_shape": "❌",
+      "carrier": "**该 case 自己的结构状态**（`TAB_LINES CASE notab-control@w40@em24@RTL@tab0 … 结构=FAIL`）。根因：老红（`#13` 世代已登记，`#15` 重钉时漏带）",
+      "generation": "#23",
+      "caliber": {
+        "judgment_version": "t1b3-tline-gate/7",
+        "instr_run_sh": "711f39f468f61cc867b94ec14d9f0b267b677095809986195573698ab42c75eb",
+        "instr_program_cs": "149dd986a642fdfc6d208db65a1794c9bb5bb04bbcd03c598a89178d27abf8ab",
+        "instr_shim": "e89fed55fd8e32bc40f171036e15cfa4b1dcbc69729028a783e0d32a99030e96",
+        "shim_declared_by_log": false
+      },
+      "expected_reading": "TAB_LINES CASE notab-control@w40@em24@RTL@tab0 … 结构=FAIL（本世代实测）",
+      "red_authority": "该 case 的 `结构=FAIL`（判据状态=❌）",
+      "reason": "`#13` 世代的中心登记表里有这条（`case_id=notab-control@w40@em24@RTL@tab0`，读数为 `行#0 尾部空白 期望=0 实得=1`）；`#15` 重钉时本表**只覆盖了 `tline` 臂** ⇒ **这条老红没被带过来**。归属：真值侧**方向相关**的 `tws`，不在 `D-T1` 射程（见 `#13` 表该条的 `note`）。  **配对强度诚实披露**：强配对=否（探针不自报被测件）⇒ 依赖「树==世代」+「日志 mtime ≥ 世代被测件 mtime」。**登记 ≠ 已容忍**：本族是真缺陷、根因已定位到具体代码行（不是「含义未定位」），修法见 `D-T2` 方案（`8607f62911b03b70`）；落地后本族应转绿 ⇒ 门禁会报 `KNOWN_RED_GONE` ⇒ 届时**必须按新世代重钉本表**（否则门禁判 FAIL 且原因写「登记表过期」，那是设计、不是缺陷）。",
+      "date": "2026-09-15",
+      "owner": "T1d（shim）/ T1b3（登记）",
+      "artifact_origin": "/home/links-dev/wfp-runs/tab-zero-w15.log（`#13` 世代首次登记时的证据路径；内容与现 `arm-logs/tab-zero.log` 逐字节相同 = `b9d81590f3fcd800`）"
+    }
+  ]
+}

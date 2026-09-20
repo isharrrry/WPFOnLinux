@@ -1,0 +1,63 @@
+<Project>
+  <!-- ============================================================================
+       ⚠️ 本件为 W29E 车道**草稿**（`D-G26`）；尚未由任何应用器生成 ⇒ 一旦落地，应与
+          `build/PresentationCore.Linux/HbTextLineShimSha.targets` 一样改由 `patch-*.py`
+          单一写者生成（本仓纪律：生成的 .targets 不手改）。
+       ============================================================================
+
+       `D-G26`：产生三支 `tab-*` 臂读数的探针 `CoverageProbe/Program.cs` **没有任何指纹**
+       （不在 `GEN_KEYS`、不在 `fp_inputs()`、臂日志不记它的 sha）⇒ 改测量代码零机器红。
+
+       本件把「**本探针二进制编译进去的那一份 `Program.cs`**」的内容 sha256 写进程序集级
+       元数据，使探针能在自己的输出里**自报身份**。做法是**照抄** `WAVE17 · W17C`
+       的既成惯例（`build/PresentationCore.Linux/HbTextLineShimSha.targets`）：
+
+       为什么必须是**内容**而不是 mtime（`HbTextLineShimSha.targets:11-13` 的实测教训）：
+         `cp -p` 还原源码会让 mtime 判据**假绿**（mtime 未变），而同内容重写会让它
+         **假报警** ⇒ mtime 双向都骗过人（纪律 24）。内容哈希与 mtime 无关。
+
+       确定性三条（与 `HbTextLineShimSha.targets:20-27` 同族）：
+         ① 生成文件的内容**只是** sha256 的十六进制串 ⇒ 不含时间戳/路径/主机名；
+         ② `WriteOnlyWhenDifferent="true"` ⇒ 内容未变时不重写；
+         ③ hash 由 MSBuild 内建 `GetFileHash` 现算（返回**大写** ⇒ 显式 `ToLowerInvariant()`）。
+
+       落点：生成物进 `$(IntermediateOutputPath)`（仓内 `obj/`）⇒ 不新增仓内被跟踪源文件；
+       且与 `HbTextLineShimSha.targets:16-17` 同理，`obj/` 被 `build/artifact-src-fp.py`
+       与 `close-wave.sh` 的 `fp_inputs()` 显式排除 ⇒ **不动 `ARTIFACT-SRC-FP` / `inputs_fp`**。
+       ============================================================================ -->
+  <PropertyGroup>
+    <ProbeIdentitySrcFile Condition="'$(ProbeIdentitySrcFile)' == ''">$(MSBuildThisFileDirectory)Program.cs</ProbeIdentitySrcFile>
+    <ProbeIdentityGeneratedFileName>ProbeIdentity.g.cs</ProbeIdentityGeneratedFileName>
+  </PropertyGroup>
+
+  <Target Name="WpfLinux_GenerateProbeIdentity"
+          BeforeTargets="CoreCompile"
+          Condition="Exists('$(ProbeIdentitySrcFile)')">
+    <PropertyGroup>
+      <ProbeIdentityGeneratedFile>$(IntermediateOutputPath)$(ProbeIdentityGeneratedFileName)</ProbeIdentityGeneratedFile>
+    </PropertyGroup>
+
+    <GetFileHash Files="$(ProbeIdentitySrcFile)" Algorithm="SHA256">
+      <Output TaskParameter="Items" ItemName="_ProbeIdentityHashed" />
+    </GetFileHash>
+    <PropertyGroup>
+      <ProbeIdentitySha256>$([System.String]::Copy('%(_ProbeIdentityHashed.FileHash)').ToLowerInvariant())</ProbeIdentitySha256>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <_ProbeIdentityLine Include="#nullable enable" />
+      <_ProbeIdentityLine Include="// 由 build/MilBridge/tests/CoverageProbe/ProbeIdentity.targets 生成；请勿手改。" />
+      <_ProbeIdentityLine Include="[assembly: System.Reflection.AssemblyMetadata(&quot;CoverageProbeSourceSha&quot;, &quot;$(ProbeIdentitySha256)&quot;)]" />
+    </ItemGroup>
+    <WriteLinesToFile File="$(ProbeIdentityGeneratedFile)"
+                      Lines="@(_ProbeIdentityLine)"
+                      Overwrite="true"
+                      WriteOnlyWhenDifferent="true" />
+    <ItemGroup>
+      <Compile Include="$(ProbeIdentityGeneratedFile)" />
+      <FileWrites Include="$(ProbeIdentityGeneratedFile)" />
+    </ItemGroup>
+    <Message Importance="high"
+             Text="WPF-on-Linux: CoverageProbeSourceSha=$(ProbeIdentitySha256) → $(ProbeIdentityGeneratedFile)" />
+  </Target>
+</Project>

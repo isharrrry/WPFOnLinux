@@ -1,0 +1,96 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- ⭐ `D-R8`（工程卫生）：不依赖 `$(BaseIntermediateOutputPath)` 指向哪里的产物目录排除。
+       实现在仓根 `BuildHygiene.props`（全仓唯一一份；理由与两种被否决的落点见 `build/MilBridge/W21B-report.md` §2）。
+       **故意不加 `Exists()` 条件**：文件找不到要大声失败。 -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('BuildHygiene.props'))" />
+
+  <!--
+    M7c · 接窗 + 端到端呈现（M2 的最后一块）。
+
+    【为什么新建一个测试工程，而不是扩 ManagedLayer.Tests】
+      · **依赖图不同**：ManagedLayer.Tests 的依赖是「移植过来的 WindowsBase /
+        PresentationCore + libwpfwin32.so」；本工程的依赖是「M1 的 WpfGfx.Linux
+        （SkiaSharp + X11 + DUCE）+ libwpfwin32.so」。硬凑在一起会让 M7b 那 28 条
+        回归网多背一份 SkiaSharp 原生资产，也让本工程多背一份托管层程序集。
+      · **需要自己的 InternalsVisibleTo 名字**：本工程要驱动 DUCE 的**线上命令格式**
+        （MilCommandEncoder，internal）、要断言内部绑定表（MilPresentation，internal）、
+        还要用 Windowing 的 X11 类型（internal）。IVT 是**按程序集名**生效的，
+        借别人的名字既脆弱又会让对方的测试多拿一份本工程才需要的可见性。
+        已在 `src/WpfGfx.Linux/Interop/AssemblyInfo.cs` 追加一行
+        `InternalsVisibleTo("WpfGfx.Linux.Presentation.Tests")`（IVT 覆盖整个程序集，
+        所以 Interop/ 与 Windowing/ 下的 internal 一并可见）。
+      · **回归网的正交性**：M7b 的 28 条是"消息泵 + 建窗 + WndProc 链 + 输入"的网，
+        M7c 改的是"呈现"。两张网分开，红了就知道是哪一半。
+
+    【为什么引用 samples/HelloMil】
+      只为一件事：**xwd 截屏**（HelloMilScreenshot）。它是本工程既有的、
+      经过验证的证据链实现（独立进程 xwd → convert → PNG，含重试）。
+      自己再写一份 = 两套截图实现、两种失败模式；对齐复用才是对的。
+    -->
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>WpfGfx.Linux.Tests.Presentation</RootNamespace>
+    <AssemblyName>WpfGfx.Linux.Presentation.Tests</AssemblyName>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>$(NoWarn);CS8002;CA1416</NoWarn>
+
+    <!--
+      ★ 必须串行：本套件共享**进程级** MIL 状态。
+      `MilPresentation` 的 HWND→呈现目标绑定表、`MilNative` 的句柄表/通道表、
+      `MilHwndRegistry` 的绑定表都是进程级单例；`M7cChainTests` 开头调
+      `MilNative.ResetProcessStateForTests()`（含 `MilPresentation.Reset()`，
+      它会 Dispose 掉所有呈现目标）。
+      xunit 默认**按集合并行**，于是两个测试类会同时碰这些全局表和同一个 X server：
+      一个类正在 Present，另一个类把它的目标 Dispose 掉 → 在**已释放**的目标上
+      `XPutImage` → **进程级崩溃，日志里一个字都没有**。
+      实测：不设这一条时整套跑 8 轮崩 4 轮；**单独**跑任一类 5 轮全绿 ——
+      这个"合起来才崩"的形态就是并行竞争的指纹。
+      （M7b 的 ManagedLayer.Tests 早就设了这一条，新建本工程时漏了，代价是一次
+        很难查的间歇性崩溃。教训：**测试套件只要碰进程级原生/全局状态，就必须串行**。）
+    -->
+    <xunit_parallelizeTestCollections>false</xunit_parallelizeTestCollections>
+  </PropertyGroup>
+
+  <!--
+    ⚠️ 上面那个 MSBuild 属性**不是** xunit 的官方开关（实测：它不会生成
+    xunit.runner.json，也不会改变执行器的并行行为）。真正生效的是这个被复制到输出
+    目录的 xunit.runner.json —— 所以两者都留着：属性给读代码的人看意图，
+    JSON 是**实际生效**的那一个。
+  -->
+  <ItemGroup>
+    <None Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!--
+    ★ M7c Phase 2：把探针目录**排除**在本测试工程的编译之外。
+    为什么：`M7cProbe/HelloWpfProbe.cs` 是给 **HelloWpf 应用**编的（由
+    samples/HelloWpf/HelloWpf.csproj 用条件 <Compile Include> 链进去），
+    它用的是 WindowsBase/PresentationCore 的类型（Window/Dispatcher/CompositionTarget…），
+    而本测试工程**没有**引用那些程序集 —— 默认 glob 会把它当本工程的源文件，
+    于是一次 `dotnet test` 就报 6 条 CS0234/CS0246。
+    排除而不是 "加引用"：这个文件根本不属于测试工程，它只是**寄放**在这个目录下
+    （放在这里是为了不往 samples/HelloWpf 里塞新文件，见报告 §4.9.5 第 4 条）。
+  -->
+  <ItemGroup>
+    <Compile Remove="M7cProbe/**/*.cs" />
+    <None Remove="M7cProbe/**/*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.88.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../../src/WpfGfx.Linux/WpfGfx.Linux.csproj" />
+    <ProjectReference Include="../../../samples/HelloMil/HelloMil.csproj" />
+  </ItemGroup>
+
+</Project>
