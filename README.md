@@ -178,7 +178,7 @@ GDI+ 的**图像编解码族**只做到"应用能起来"；`ntdll` 面只有 `Rt
 
 | 路径 | 是什么 |
 |---|---|
-| `upstream/wpf/` | 上游 `dotnet/wpf` 快照（**只读**） |
+| `upstream/wpf/` | 上游 `dotnet/wpf` 快照（**只读**；基点 commit `1cfc37f708f9`）。<br>⚠️ **账一（已知重复，暂按"保持现状"处理）**：fork 根目录里还有 dotnet/wpf **自带**的那棵树，两者内容重叠约 110 MB；**本仓构建只读 `upstream/wpf/**`，根目录那份不使用**（`.csproj` 与应用器锚点都按 `upstream/wpf/...` 写死）。何时合并见 [`docs/ROUTES.md`](docs/ROUTES.md) 路线 R8。 |
 | `build/port-lib.py` | 移植生成器（重写 `*.Linux.csproj`） |
 | `build/integration-wave.sh` | 移植 + 构建的唯一入口 |
 | `build/*.Linux/` | 各 Linux 工程的骨架与生成物 |
@@ -205,8 +205,11 @@ GDI+ 的**图像编解码族**只做到"应用能起来"；`ntdll` 面只有 `Rt
    ⇒ 两份都已写进 `.gitignore`（**排除 ≠ 删除**：工作树里照旧），仓库从 **382M → 202M**、且**没有任何现有判据失去可复算性**。
 3. **第三方资源许可**：`build/fonts/`（Noto Sans，OFL 1.1）已随附 `LICENSE-OFL.txt`；
    上游 `upstream/wpf/LICENSE.TXT` 在库；`build/keys/WcpPublicKey.snk` 是**公钥**（公开签名，无险）。
-4. **上游快照的出处**：`upstream/wpf/` 是 `dotnet/wpf` 的**快照**，抓取时**没有记录 commit**
-   ⇒ 发布时建议补一份 provenance（来源 URL ＋ 抓取时间 ＋ 可比对的目录清单）。
+4. **上游快照的出处** ✅ 已钉死：`upstream/wpf/` = `dotnet/wpf` 的裁剪快照，**基点 commit = `1cfc37f708f91ff4556bd25af414546c446f3a16`**
+   （`#11837`，2026-08-21）。判据 = 6414 件里 **6384 件逐字节相同** ＋ 29 件仅换行不同 ＋ 1 件刻意改的 `.gitattributes`
+   ＋ 954 件已登记的裁剪；复算命令见 [`docs/UPSTREAM-PROVENANCE.md`](docs/UPSTREAM-PROVENANCE.md) §1.1。
+   ⚠️ 发布说明要写清：`tests/parity/windows/layout-b34/windows-results.json`（53 MB，已不入库）**只能在 Windows 侧重录**，
+   不是「凭空可重算」的（见 [`docs/RELEASE-READINESS.md`](docs/RELEASE-READINESS.md)）。
 
 ---
 

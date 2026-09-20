@@ -78,7 +78,7 @@
 ## §8 R8 · 上游化与发布工程
 
 - **目标**：仓库可被外部贡献者读懂、可 CI、可与上游 `dotnet/wpf` 对齐。
-- **现状**：本仓把上游快照 vendored 在 `upstream/wpf/**`（127 MB，与 fork 的根内容重复）；无 CI；`.gitignore` 刚建立（见 [`FORK-AND-PUSH.md`](FORK-AND-PUSH.md)）。
+- **现状**：本仓把上游快照 vendored 在 `upstream/wpf/**`（入库 110.7 MB，与 fork 根自带的 WPF 树内容重叠）—— **基点 commit 已钉死 = `1cfc37f708f91ff4556bd25af414546c446f3a16`**（`#11837`，判据见 `UPSTREAM-PROVENANCE.md` §1.1）；**"去重/上游化"这一半按主控裁定暂缓**（保持现状，只在 README/INDEX 写清"构建只读 `upstream/wpf/**`"）；尚无 CI。
 - **判据**：① 干净 clone + 按 README 跑通"从零构建"；② 若做上游化（去掉 vendored 副本、路径重写），必须给出"脚本/锚点全绿 + 波重建 rc=0 + 门禁 ×2"的成对读数。
 
 ## §9 R9 · 性能与内存
