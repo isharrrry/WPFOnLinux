@@ -1,67 +1,21 @@
-# Set default behavior to automatically normalize line endings.
-*   text=auto
-
-*.doc   binary
-*.DOC   binary
-*.docx  binary
-*.DOCX  binary
-*.dot   binary
-*.DOT   binary
-*.pdf   binary
-*.PDF   binary
-*.rtf   binary
-*.RTF   binary
-
-*.jpg   binary
-*.png   binary
-*.gif   binary
-
-# Force bash scripts to always use lf line endings so that if a repo is accessed
-# in Unix via a file share from Windows, the scripts will work.
-*.in    text eol=lf
-*.sh    text eol=lf
-
-# Likewise, force cmd and batch scripts to always use crlf
-*.cmd   text eol=crlf
-*.bat   text eol=crlf
-
-*.cs    text=auto diff=csharp
-*.vb    text=auto
-*.resx  text=auto
-*.c     text=auto
-*.cpp   text=auto
-*.cxx   text=auto
-*.h     text=auto
-*.hxx   text=auto
-*.py    text=auto
-*.rb    text=auto
-*.java  text=auto
-*.html  text=auto
-*.htm   text=auto
-*.css   text=auto
-*.scss  text=auto
-*.sass  text=auto
-*.less  text=auto
-*.js    text=auto
-*.lisp  text=auto
-*.clj   text=auto
-*.sql   text=auto
-*.php   text=auto
-*.lua   text=auto
-*.m     text=auto
-*.asm   text=auto
-*.erl   text=auto
-*.fs    text=auto
-*.fsx   text=auto
-*.hs    text=auto
-
-*.csproj    text=auto
-*.vbproj    text=auto
-*.fsproj    text=auto
-*.dbproj    text=auto
-*.sln       text=auto eol=crlf
-
-# Set linguist language for .h files explicitly based on
-# https://github.com/github/linguist/issues/1626#issuecomment-401442069
-# this only affects the repo's language statistics
-*.h linguist-language=C
+# ══════════════════════════════════════════════════════════════════════════════
+# 本仓的换行策略：**关闭一切转换**（磁盘字节 == 库内字节）
+#
+# 【为什么必须这样】本工程的核心资产是**可复算的哈希**：
+#   · 冻结基线 `samples/WpfTextDemo/ACCEPTANCE-BASELINE.md` 里逐件声明 sha16；
+#   · 五臂日志 / 语料指纹 / `docs/UPSTREAM-PROVENANCE.md` 的 M1–M4 全是对**字节**取摘要；
+#   · 每个结论都要求"同一命令重算出同一个数"。
+#   ⇒ 一旦 git 对文本做 CRLF↔LF 归一化，**"我们算的"与"别人 clone 到的"就不是同一份字节**
+#     ⇒ 所有哈希判据在贡献者机器上会**系统性对不上**（不是谁写错了，是字节被换了）。
+#
+# 【上游为什么相反】`dotnet/wpf` 的规则是 `* text=auto`（Windows 仓库的便利设定，见
+#   `upstream/wpf/.gitattributes`）。本仓是**vendored 快照 + 哈希判据**，便利让位于可复算
+#   ⇒ 根与 vendored 两份都改成 `* -text`（**这是对上游快照的一处刻意偏差**，已登记在
+#   `docs/UPSTREAM-PROVENANCE.md` 的"本地偏差"一节，附原文件 sha256 与改动理由）。
+#
+# 【复算】任何文件都应满足：`sha256sum <file>` == `git cat-file blob HEAD:<file> | sha256sum`
+#   抽样命令：
+#     for f in $(git ls-files | shuf -n 20); do a=$(sha256sum "$f"|cut -d' ' -f1); \
+#       b=$(git cat-file blob "HEAD:$f" | sha256sum | cut -d' ' -f1); [ "$a" = "$b" ] || echo "差异: $f"; done
+# ══════════════════════════════════════════════════════════════════════════════
+* -text
