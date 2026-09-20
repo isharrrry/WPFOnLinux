@@ -148,5 +148,8 @@ gh repo view <你的账号>/wpf --json defaultBranchRef -q .defaultBranchRef.nam
      [ "$a" = "$b" ] || echo "字节差异: $f"
    done                            # 期望 0 行
    ```
-5. 顺带：`find . -type f -size +100M` 必须为空（GitHub 拒收 >100 MB 单文件；本仓的
-   `tests/parity/geometry/u14/linux-results-u14.json` 是 118 MB 的**生成物**，已进 `.gitignore`）。
+5. 顺带：`find . -type f -size +100M` 必须为空（GitHub 拒收 >100 MB 单文件）。本仓两个大件**都已**被
+   `.gitignore` 排掉、各有理由：`…/u14/linux-results-u14.json`（118 MB，探针输出、可重算 ）、
+   `…/layout-b34/windows-results.json`（53 MB，Windows 侧 dump；现所有读者都走仓内派生件
+   `build/MilBridge/gen/layout-b34-compact.json`）。
+   （**更正**：本条早期版本误写「它必须入库」，与 `.gitignore:51` 的既有规则冲突，已改。）

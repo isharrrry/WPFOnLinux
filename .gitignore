@@ -56,14 +56,13 @@ tests/parity/windows/layout-b34/windows-results.json
 *.tmp
 
 # ══════════════════════════════════════════════════════════════════════════════
-# 【2026-09-20 新增 · **推送前必须知道的一条**】GitHub **拒收 >100 MB 的单文件**
-#   ⇒ 下面这一件是 **118 MB 的"我们自己的运行结果"**（`"side":"linux-managed"`，
-#     由 `tests/parity/geometry/u14/Program.cs` **现场生成**）、**不是真值** ⇒ 不入库。
-#   复算（期望 0 行）：
+# 【2026-09-20 · 推送前硬约束：GitHub **拒收 >100 MB 的单文件**】
+#   本仓已有两条规则排掉两个大件（见上面 ①② 两条，各有理由与复算方式）：
+#     · tests/parity/geometry/u14/linux-results-u14.json      118.2 MB —— 探针输出、无读者、可重算
+#     · tests/parity/windows/layout-b34/windows-results.json   53.0 MB —— Windows 侧 dump；
+#       现所有读者都走仓内派生件 build/MilBridge/gen/layout-b34-compact.json（3.1 MB）
+#   推送前自查（期望 0 行）：
 #     find . -type f -not -path '*/bin/*' -not -path '*/obj/*' -not -path '*/.artifacts/*' -size +100M
-#   ⚠️ 对照：`tests/parity/windows/layout-b34/windows-results.json` 是 **55 MB 的 Windows 真值**
-#     （被 `build/MilBridge/tools/{analyze,extract}-layout-b34.py` 读）⇒ **必须入库**（<100 MB）。
-tests/parity/geometry/u14/linux-results-u14.json
 # ══════════════════════════════════════════════════════════════════════════════
 # 刻意**不忽略**的东西（它们是**被声明的证据**，必须入库；写在这里防止后来者"顺手"加规则）
 #
