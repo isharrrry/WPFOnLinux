@@ -110,3 +110,43 @@ gh repo view <你的账号>/wpf --json defaultBranchRef -q .defaultBranchRef.nam
 1. **布局重复**：fork 根有 WPF 自己的树，而本仓又把上游快照 vendored 在 `upstream/wpf/**`（127 MB 重复）⇒ 路线 R8 要决定"上游化"（去掉 vendored 副本、把 `upstream/wpf/...` 路径重写成根相对）。
 2. **上游 commit 未钉死**：`UPSTREAM-PROVENANCE.md` 给了配方；钉死之后要重算 M1–M4 并写进文档。
 3. **大语料**：`tests/parity`（216 MB）与 `build/wic-abi-reference`（72 MB）是否改走 Git LFS / 外部下载 ⇒ 路线 R8 裁定。
+
+---
+
+## §7 【实战补记 · 2026-09-20 首次推送时踩到】**换行归一化会把"字节可复算"打穿**
+
+首次 `git add` 时 git 打了一屏 `warning: … 中的 CRLF 将被 LF 替换` —— 根因是**上游 WPF 自带的
+`.gitattributes`（`* text=auto` 一族）**：它会**在入库时**把 CRLF 归一化成 LF（`text=auto` 与
+`core.autocrlf` 无关，`autocrlf=false` 也照样归一化）⇒ **库内的 blob ≠ 我们磁盘上的字节**
+⇒ 本仓所有以**字节**为口径的判据（冻结基线逐件 sha16、五臂日志、语料指纹、`UPSTREAM-PROVENANCE.md` 的 M1–M4）
+在贡献者机器上会**系统性对不上**。实测：`…/Themes/…/Aero.NormalColor.xaml` 磁盘 `ba5aac98cde01dfd` vs 库内 `1cc961578f705428`。
+
+**处置（本仓已落地，别人照做即可）**：
+
+1. **配置层关掉**（你的建议）：
+   ```bash
+   git config core.autocrlf false          # 局部
+   git config --global core.autocrlf false # 全局
+   git config --global core.safecrlf false
+   ```
+   ⚠️ 但**光靠配置不够** —— `text=auto` 写在 `.gitattributes` 里，属性优先于配置。
+2. **属性层关掉**（本仓已提交这两份）：仓库根 `.gitattributes` 与 `upstream/wpf/.gitattributes` 都设为
+   `* -text`。⚠️ git 的属性**深层文件胜出** ⇒ 只改根不够，vendored 那一层必须一起改
+   （这是本仓对上游快照的**唯一一处刻意偏差**，已登记在 `UPSTREAM-PROVENANCE.md` §3 顶部 + §9 附录存了上游原文）。
+3. **首次入库必须强制重建索引**（**最容易踩的一脚**）：`git rm -r --cached .` 会因为
+   "暂存内容与工作区及 HEAD 都不同"而**拒绝**（要 `-f`）；若只是 `git add -A`，git 看到 stat(mtime/size) 没变
+   **会跳过重新哈希** ⇒ **旧（被归一化的）blob 留在索引里**，你以为改好了其实没改。
+   ```bash
+   git rm -r --cached -f -q .     # -f 必需；只清索引，不动工作树
+   git add -A                     # 按新属性重新入库
+   ```
+4. **验证（必须过，否则别推）**：
+   ```bash
+   git diff --numstat | wc -l     # 期望 0：索引与工作树字节一致
+   for f in $(git ls-files | shuf -n 30); do
+     a=$(sha256sum "$f" | cut -d' ' -f1); b=$(git cat-file blob ":0:$f" | sha256sum | cut -d' ' -f1)
+     [ "$a" = "$b" ] || echo "字节差异: $f"
+   done                            # 期望 0 行
+   ```
+5. 顺带：`find . -type f -size +100M` 必须为空（GitHub 拒收 >100 MB 单文件；本仓的
+   `tests/parity/geometry/u14/linux-results-u14.json` 是 118 MB 的**生成物**，已进 `.gitignore`）。
