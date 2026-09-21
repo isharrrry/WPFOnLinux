@@ -159,7 +159,7 @@ FREEZE_RC=0
 
 ### 2.8 第 ⑨ 步 · 冻后 `verify-all` ×2
 
-〔见 ⑦ 小节 —— 两趟在冻结完成后回填〕
+**两趟都全绿**：各 `步骤通过 25 ❌ 失败 0`／`用例通过 875 跳过 2`／`结论：✅ 全部通过`／`rc=0`（日志 `~/w76a/logs/07-post-verify.log` 的 POST1／POST2 两段，17:44→18:11:51）。**两趟都真跑了**（不是只跑一趟）。
 
 ---
 
@@ -307,17 +307,38 @@ WPTD_TIER=default rep=1 RESULT=FAIL / rep=2 RESULT=FAIL / rep=3 RESULT=FAIL
 
 ---
 
-## ⑦ `verify-all`：冻前 1 趟 ＋ 冻后 2 趟
+## ⑦ `verify-all`：冻前 1 趟（红）＋ 修后重跑 1 趟（1 红）＋ 冻后 2 趟（全绿）
 
-〔回填〕
+| 趟 | 日志 | `rc` | 步 | 用例 | 结论 |
+|---|---|---|---|---|---|
+| 冻前 #1 | `~/w76a/logs/06-verify-all-pre.log` | 1 | `步骤通过 21 ❌ 失败 4` | 799 通过 / 2 跳过 | `❌ 失败项：ManagedLayer.Tests COLUMN-FLOOR QUOTE-TRAP PRODUCT-ENTRY` |
+| 冻前 #2（**冻结器读这份**） | `~/w76a/logs/06b-verify-all-pre2.log` | 1 | **`步骤通过 24 ❌ 失败 1`** | **875 通过 / 2 跳过** | **`❌ 失败项：COLUMN-FLOOR`**（**恰好一处声明类红**，见 2.6 的逐条处置） |
+| 冻后 #1 | `~/w76a/logs/07-post-verify.log`（POST1） | **0** | **`步骤通过 25 ❌ 失败 0`** | 875 通过 / 2 跳过 | **`✅ 全部通过`**（17:44→17:58:16） |
+| 冻后 #2 | 同上（POST2） | **0** | **`步骤通过 25 ❌ 失败 0`** | 875 通过 / 2 跳过 | **`✅ 全部通过`**（17:58:16→18:11:51） |
+
+**两极化齐**：冻前那一处声明类红（`COLUMN_FLOOR_ARMLOG=FAIL … bad= tline` ＋ `SELFREPORT=PASS`）⇒ 冻后 **`COLUMN-FLOOR ✅`**（`COLUMN_FLOOR=PASS reason=decl==frozen-and-decl>=corpus`）＋ `ARM-LOG-SHA ✅`＋`BASELINE-SHA ✅`。
+**冻后两趟的结论**：**都是 `25 ✅ / 0 ❌`、`rc=0`、875 通过 / 2 跳过、四颗牙全绿**（**两趟都真跑了**，不是"只跑一趟算完成"——`#47` 吃过那个亏）。
+
+⚠️ **一处如实记的读数现象**：`❌` 这个字符在日志里出现 **2 次**，但那是**格式串**（`步骤通过 25  ❌ 失败 0`），**不是**失败项 —— 逐行读判据是 `失败 0` 与 `结论：✅ 全部通过`。
+
 
 ---
 
 ## ⑧ 推送（`TASK-0802` 余项 ＋ `TASK-0802` 里点名的 12 件）
 
-**结果：成功**。远端 head **`a0e783db4208b8b0e572784065b66e46362bbf06` → `e849056817e60f134d59da63cd271c74fae1b163`**（**纯快进**，`Push_RC=0`；`git push origin feat-Linux` 原文 `a0e783d..e849056  feat-Linux -> feat-Linux`）。
+**结果：成功（两笔提交）**。远端 head **`a0e783db…` → `e849056817e60f134d59da63cd271c74fae1b163` → `4367ba7b95781bac350d73fbf4cea34247761b8b`**（两笔都是**纯快进**、`rc=0）：
+```
+git push origin feat-Linux   # 1)  a0e783d..e849056  feat-Linux -> feat-Linux   （31 files changed, 4,887 insertions(+), 147 deletions(-)）
+git push origin feat-Linux   # 2)  e849056..4367ba7  feat-Linux -> feat-Linux   （补 12 件）
+```
 **默认分支未改**：`git ls-remote --symref origin HEAD` = `ref: refs/heads/feat-Linux	HEAD`。
 本次提交 `e849056`：**31 files changed, 4,887 insertions(+), 147 deletions(-)**。
+
+
+⚠️⚠️ **一处必须入册的自伤（第一笔提交漏了 12 件）**：我第一版的差异集用的是自己写的 `find` 白名单（`-name '*.sh' -o '*.py' -o '*.cs' -o '*.c' -o '*.h' -o '*.md' -o '*.json' -o '*.tsv' -o '*.props' -o '*.targets' -o '*.csproj' -o '*.sln'`）——**它漏掉了 `*.txt` 与 `*.log`** ⇒ 第一笔提交**没带** `verify-all.sh`（！）、`build/MilBridge/arm-logs/tline.log`、`build/MilBridge/gen/*.txt`（5 件）、三份 `build/*.Linux/ARTIFACT-SRC-FP.txt`、`build/wave-audit.log`。
+**怎么抓到的**：提交后改用**克隆侧 `git ls-files` ∩ 现盘**（不再用我的白名单）重算，才发现这 12 件。
+**最终逐件字节核对（远端 `origin/feat-Linux` 的 blob == 磁盘）**：**43 件全部逐字节相同（`不一致=0`）**；两块大 JSON **按设计不在远端**（`.gitignore:47`／`:51`）。
+**教训（可复用）**：**「我列的白名单」与「仓库跟踪的集合」是两回事** —— 判「哪些件该同步」必须**以仓库自己的 `git ls-files` 为准**；白名单一定会漏（本仓最爱的「同一真相两处 ⇒ 必然分叉」）。
 
 **清单怎么定的（可复算）**：拿克隆的 `git ls-files -s`（**排除 `upstream/`**，那是上游快照）与 `$R` 现盘**逐件 `git hash-object` 比对** ⇒
 `改过 33 件 ＋ 新增 10 件（其中 **2 件按 `.gitignore` 排除 ⇒ 不进**）`。那 2 件就是**账三**的两块大 JSON：
@@ -346,7 +367,10 @@ WPTD_TIER=default rep=1 RESULT=FAIL / rep=2 RESULT=FAIL / rep=3 RESULT=FAIL
 2. **`tline.log` ②/③ 两趟 sha 不同**（`deb49fbf21fb3b3f` vs `2103f88183b17a6a`）而 `textlineproto` 逐行相同 —— `tline.log` **程序上不可复算**（`#48` 已证：耗时字段、自指的上一趟产物 sha、日期戳文件名、`mktemp` 路径）⇒ **不构成位移信号**；本波按 ③ 重钉。
 3. **同族三处载体未修**（`t1c-census.sh:248`／`run-wpftextdemo.sh:850`／`run-wpfprobe.sh:412`）—— 只登记，未动（不在授权范围）。
 4. **反极性第一版是空测**（已作废、已重跑），如实留档。
-5. 〔回填：verify-all 里若有 `INCONCLUSIVE`／跳过项，逐条列出〕
+5. **`D-G79` 修法只覆盖门禁那一格**：同族三处载体（`t1c-census.sh:248`／`run-wpftextdemo.sh:850` 的 `first-sight`／`run-wpfprobe.sh:412`）**未动** —— 主控裁定"本波不动、随 `D-G79` 边界登记为同族残余，冻结后另派"。**本波 census 读数因此仍是认错窗口的**（`SHOT frames=0 best_colors=0 best= win=0x200006`），**不许**当绿读。
+6. **`ManagedLayer.Tests` 的红我只做了"同步副本"**（`D-G80` 的收尾），**没有**改测试、也没有改判定口径。
+7. **门禁两趟的 `INCONCLUSIVE` 判据③**（抓帧窗口全落在首绘之前）在第 1 趟日志里出现过、**不计入 FAIL**（仪器 `WPTD_BURST` 的事，本波未调）；两趟最终都是 `RESULT=PASS`。
+8. **`verify-all` 的 2 例跳过**（`跳过 2`）是**已声明的**静态跳过（`DrawingBrushTests.cs:201` 空壳用例 ＋ `TileFlipTruthTests.cs:240` 的 T2b 登记缺口；`声明来源=静态 2 ＋ [ParityFact]×25`），不是本波引入。
 
 ---
 
@@ -355,7 +379,8 @@ WPTD_TIER=default rep=1 RESULT=FAIL / rep=2 RESULT=FAIL / rep=3 RESULT=FAIL
 * **短步照 300/280**：整波（held **233 s**，`waited=43s`）｜桥重发（held **23 s**，`waited=0s`）｜门禁每趟（held ≤600）。
 * **两条原子长步放宽（主控已批准）**：重取五臂 `--min-avail 1500 --max-hold 1200 -- timeout 1150`（实际 held **340／329／333 s**）｜`verify-all` `--min-avail 1500 --max-hold 1500 -- timeout 1450`（实际 held 见 ⑦）。**理由**：这两步是**原子长步**，300 s 装不下（按 runbook 实测"重取五臂 ≈10 min／`verify-all` ≈15–23 min"）；**`--min-avail 1500`（内存闸门）未动**，放宽**只限这两步**（**未**当默认）。
 * **排队（别人等了多久）**：`HEAVYSLOT=ACQUIRED waited=…` 实测 —— 整波 `43 s`（前面是 W77A 的 150 s 档）｜桥重发 `0 s`｜重取①`0 s`②`0 s`（**本车道 1200 s 的持有把 W77A 挡在外面**，这是长步放宽的代价，如实记）｜门禁第 1 趟 `30 s`｜冻前 `verify-all` 见 ⑦。
-* **内存**：`MemAvailable` 现场三值（开工／中段／收工）〔回填〕。
+* **内存（`MemAvailable` 现场三值）**：**开工 2074 MB**（15:31:40，整波进槽前）｜**中段 2415 MB**（整波 `MEMOK` 那一刻）／**2376 MB**（17:43 冻结前后）｜**收工**见本报告末尾读数。⛔ **全程零 `NOINFO low-memory`、零 `MAXHOLD_KILL`**（两处放宽的持有上限**都没有被触发**：实际 held 233／23／340／329／333 s 与 `verify-all` 的两趟实测时长，**都**在各自上限之内）。
+* ⚠️ 本波**另一条资源纪律**：`integration-wave` 与重取五臂**都是"只有一条重活"**（`heavy.lock` 串行化）；并行车道 `W77A` 的 150 s 档在**本车道的长持有期间全被挡在外面**（这正是长步放宽的代价，已如实记）。
 
 ---
 
