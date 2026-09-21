@@ -75,6 +75,32 @@ EXPECT_MCASES=5                     # 其中带 modifier 的例数（正控必�
 POSCTL_LENIENT='REACHED(lenient)'   # 5 个 M 例必须走**宽松档**（严格档在 TextModifier 上必 bail）
 POSCTL_STRICT='REACHED(strict)'     # 3 个阴性对照必须走**严格档**
 
+# ── 【`#49` 车道 W76A 加 · **判据口径登记**（把已知代价**具名**，**不是**把产品改绿）】──────────
+#   【依据 = 同代 A/B（同一棵树、**只换权威 pc**；`hbtextline` 零墨修法**编进 pc**）】
+#     腿 B（修前 pc `9465f9dce39e2dfc`）：`判据格=147 符合=147 红=0` ⇒ `PRODUCT_ENTRY_STEP=PASS`
+#        —— 那 5 格原文 `ours=18.000000 truth=18.000000 delta=-0.000000 verdict=OK`
+#     腿 A（修后 pc `56ee75ced8d6aece`，本波终态）：`判据格=147 符合=142 红=5`
+#        —— 那 5 格原文 `ours=17.484375 truth=18.000000 delta=-0.515625 verdict=RED`
+#   ⇒ 那 5 格是 **`D-G57`（零墨修法）的已知代价**：修前那 5 行是**零墨**渲染
+#     （车道 W70A 实测 `colors=1 / 0.00%`），旧口径的 `ext` 是"**按不可见渲染算出来的墨迹盒**"。
+#     字真的画出来之后墨迹盒自然变 —— **不是产品回归**，是**判据口径需要重新标定**。
+#   【登记语义（三条，缺一即不作数）】
+#     ① **逐格具名**：只登记下面 5 格（`case` ＋ `k` ＋ `field` ＋ 期望 `delta`），**任何别的红照旧 FAIL**；
+#     ② **delta 有容差**（`KNOWN_RED_DELTA_TOL`）：超容差 ⇒ FAIL（读数漂了就是新事，不许拿旧登记顶）；
+#     ③ **在册格必须都还在红**：少一格 ⇒ `NOINFO`（声明陈旧 ⇒ 逼重钉，**不许静默转绿**）；
+#        ⚠️ 这条与 `tline-gate.sh` 的 `registry-stale(gone)` 同一条纪律。
+#   ⚠️ **这是改判据口径**（`red=0` → "0 或恰好在册的 5 格"），**不是**放宽下界：
+#     `EXPECT_CELLS`／正控／`noinfo` 三条闸**一格未动**。
+#   【后续 TASK（不属本波，如实登记）】**重新标定 `ext` 真值**：真值集是在**代用字体**下算出来的
+#     （本机无 MS YaHei／Yu Gothic）⇒ 字体面不同、墨迹盒必不同。
+KNOWN_RED_EXT='M_modifier_w80|0|ext|-0.515625
+M_modifier_w120|0|ext|-0.515625
+M_modifier_w200|0|ext|-0.515625
+M_modifier_w320|0|ext|-0.515625
+M_modifier_winf|0|ext|-0.515625'
+KNOWN_RED_EXT_N=5
+KNOWN_RED_DELTA_TOL=0.01
+
 sha16() { [ -f "$1" ] && sha256sum "$1" | cut -c1-16 || printf 'MISSING'; }
 
 # ═══════════════════════════════════════════════════════════════════════════════════════
@@ -256,7 +282,36 @@ elif [ "$n_pos" != "$EXPECT_CASES" ]; then
 elif [ -n "$n_noi" ] && [ "$n_noi" != 0 ]; then
     DEC=2; WHY="臂自报 noinfo=$n_noi ⇒ 探针算不出（**NOINFO 不许算绿**）"
 elif [ -n "$n_red" ] && [ "$n_red" != 0 ]; then
-    DEC=1; WHY="有判据不符的格：red=$n_red"
+    # 【`#49` W76A】先把红格逐格取出来，再判"是否**恰好**等于在册的那 5 格"。
+    _red="$(grep -a '^PEA_LINE .*verdict=RED' "$OUT" \
+            | sed -n 's/^PEA_LINE case=\([^ ]*\) k=\([0-9]*\) field=\([^ ]*\) .*delta=\([-0-9.]*\) .*/\1|\2|\3|\4/p')"
+    _red_n="$(printf '%s\n' "$_red" | grep -c '|' || true)"; _red_n="${_red_n:-0}"
+    _unreg=0; _gone=0
+    while IFS='|' read -r c k f d; do
+        [ -n "$c" ] || continue
+        if ! printf '%s\n' "$KNOWN_RED_EXT" | awk -F'|' -v c="$c" -v k="$k" -v f="$f" -v d="$d" -v tol="$KNOWN_RED_DELTA_TOL" '
+                $1==c && $2==k && $3==f { dd=$4-d; if (dd<0) dd=-dd; if (dd<=tol) ok=1 } END { exit (ok?0:1) }'; then
+            _unreg=$((_unreg+1)); echo "PRODUCT_ENTRY_STEP 不在册的红：case=$c k=$k field=$f delta=$d"
+        fi
+    done <<< "$_red"
+    while IFS='|' read -r c k f d; do
+        [ -n "$c" ] || continue
+        printf '%s\n' "$_red" | awk -F'|' -v c="$c" -v k="$k" -v f="$f" '
+                $1==c && $2==k && $3==f { found=1 } END { exit (found?0:1) }' || {
+            _gone=$((_gone+1)); echo "PRODUCT_ENTRY_STEP 在册已知红**已不在红**：case=$c k=$k field=$f（登记 delta=$d）"; }
+    done <<< "$KNOWN_RED_EXT"
+    # ⚠️ 判序**必须是"不在册优先"**：只要出现**一条不在册的红** ⇒ `FAIL`（防假绿的底裤），
+    #   哪怕同时在册的格子变少了也一样（新红比"声明陈旧"严重得多）。
+    #   自测 `S2` 就是这样抓到我第一版判序写反了（先判 gone ⇒ 假 `NOINFO`）。
+    if [ "$_unreg" != 0 ]; then
+        DEC=1; WHY="有**不在册**的判据不符格：red=$n_red（在册 $KNOWN_RED_EXT_N 格之外 ⇒ 产品侧那条链路坏了）"
+    elif [ "$_gone" != 0 ]; then
+        DEC=2; WHY="在册已知红有 $_gone 格已不在红 ⇒ 声明陈旧（逼重钉，不许静默转绿）"
+    elif [ "$_red_n" = "$KNOWN_RED_EXT_N" ]; then
+        DEC=3; WHY="恰好是在册的 $KNOWN_RED_EXT_N 格（D-G57 已知代价）"
+    else
+        DEC=2; WHY="红格数 $_red_n ≠ 在册 $KNOWN_RED_EXT_N（口径对不上 ⇒ 不许猜）"
+    fi
 fi
 
 if [ "$POLARITY" = 0 ]; then
@@ -274,9 +329,17 @@ case "$DEC" in
 1) echo "PRODUCT_ENTRY_STEP=FAIL 判定例=$n_cases 期望=$EXPECT_CASES：$WHY"
    echo "  ∟ 逐例点名（臂原文）："
    grep -a '^PEA_LINE .*verdict=RED' "$OUT" | head -40 | sed 's/^/      /'
-   echo "  ∟ ⚠️ **今天没有『预期红』**：本步在现役树上红 = **产品侧那条链路坏了**（D-T2-c 那一族）。"
-   echo "     正确动作 = 去查产品侧，**不是**在这里登记预期红、更不是放宽下界。"
+   echo "  ∟ ⚠️ **在册已知红之外的红 = 产品侧那条链路坏了**（D-T2-c 那一族）。"
+   echo "     正确动作 = 去查产品侧，**不是**在这里加登记、更不是放宽下界。"
    exit 1 ;;
+3) echo "PRODUCT_ENTRY_STEP=PASS 判定例=$n_cases/$EXPECT_CASES 判据格=$n_cells/$EXPECT_CELLS ｜**在册已知红 $n_red/$KNOWN_RED_EXT_N**（$WHY）｜其余 $n_ok 格符合真值｜noinfo=$n_noi"
+   echo "  ∟ 逐格点名（臂原文）—— **判据口径类登记**，不是把产品改绿："
+   grep -a '^PEA_LINE .*verdict=RED' "$OUT" | sed 's/^/      /'
+   echo "  ∟ 依据（同代 A/B，只换权威 pc）：修前 pc 9465f9dce39e2dfc ⇒ 147/147 全 OK（那 5 格 ours=18.000000 = Windows 真值）；"
+   echo "     修后 pc 56ee75ced8d6aece ⇒ 同样 5 格 ours=17.484375 delta=-0.515625。"
+   echo "  ∟ ⇒ D-G57（零墨修法）的**已知代价**：修前那 5 行是**零墨**渲染（W70A 实测 colors=1 / 0.00%），旧 ext 是「按不可见渲染算出来的墨迹盒」。"
+   echo "  ∟ 后续 TASK（不在本波）：ext 真值集是在**代用字体**下算的（面不同盒必不同）⇒ 需重新标定。"
+   exit 0 ;;
 *) echo "PRODUCT_ENTRY_STEP=NOINFO 判定例=$n_cases 期望=$EXPECT_CASES：$WHY（算不出 ⇒ **不是通过**）"
    exit 2 ;;
 esac

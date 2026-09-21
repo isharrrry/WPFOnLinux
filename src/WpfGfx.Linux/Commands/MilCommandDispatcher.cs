@@ -174,7 +174,21 @@ namespace WpfGfx.Linux.Commands
                 {
                     int hr = Require<MilVisualResource>(ch, c, out MilVisualResource v);
                     if (HResult.Failed(hr)) return hr;
-                    v.Visual.Effect = MilCommandDecoder.ReadFixed<S.MILCMD_VISUAL_SETEFFECT>(c).HEffect;
+                    var se = MilCommandDecoder.ReadFixed<S.MILCMD_VISUAL_SETEFFECT>(c);
+                    v.Visual.Effect = se.HEffect;
+                    // 【波70 · `D-G71` / `TASK-0403`】不许静默 no-op：本字段**下游没有任何消费者**
+                    //   —— 投影层（`Resources/VisualProjection.cs`）不看它，契约类型 `MilVisual`
+                    //   （`Contracts/Interfaces.cs:53-79`）连 `Effect` 字段都没有 ⇒ 挂在视觉上的效果
+                    //   在投影那一跳就丢了。这里记一条**具名、有界、只读**的台账，把"收得下但不画"
+                    //   变成看得见（形态与 D-G58 的 `ch.NoteShaderStubAccepted` 同族）。
+                    //   · 放在赋值**之后**：本台账不参与任何赋值 ⇒ 关掉即逐字回到原行为；
+                    //   · 只在**非空句柄**时记：上游用 `SetEffect(handle, Null)` 来**清除**效果
+                    //     （`upstream/…/Media/Visual.cs:1445`），那不是"被丢弃的效果"，不入账；
+                    //   · **刻意不记** `RenderDiagnostics.RecordNotDrawn`：那个计数器是 `WpfTextDemo`
+                    //     验收判据②（`未画种类 0`）的输入，而 `Border.Effect = DropShadowEffect` 正是
+                    //     走这条命令 ⇒ 记进去会当场把冻死的判据打红（理由逐条见
+                    //     `build/MilBridge/W70D-report.md` §2 与 `MilChannel.NoteVisualEffectIgnored` 头注）。
+                    if (!se.HEffect.IsNull) ch.NoteVisualEffectIgnored(se.Handle, se.HEffect);
                     return HResult.S_OK;
                 }
 
@@ -778,6 +792,48 @@ namespace WpfGfx.Linux.Commands
                     return HResult.S_OK;
                 }
 
+                // ---------------- 效果：HLSL / ShaderEffect 通道（0x6c / 0x70）----------------
+                // 【波62 · D-G58】这两条原先在 `MilCommandLayout.s_notImpl` 里 ⇒ `Dispatch` 入口的
+                //   `IsNotImplemented` 短路直接返回 E_NOTIMPL ⇒ 上游 `HRESULT.Check(Channel.Commit())`
+                //   （`exports.cs:376` ← `MediaContext.cs:2151`）抛出 ⇒ 「工具」页 #2 `Effects`
+                //   **一打开就未处理异常**（真应用 hc demo：栈顶 `MediaContext.CommitChannel`）。
+                //
+                // 【本实现只做"接受"，**不做"渲染"**】——这句话必须被读准：
+                //   · 0x6c PixelShader：读出声明的字节码长度，把**整块**当作"已接受的资源"
+                //     （句柄本来就在资源表里，是 MilOpaqueResource），**不编译、不执行**；
+                //   · 0x70 ShaderEffect：按**恒等效果**——渲染侧无论走 `MilPushEffect`(0x55) 还是
+                //     `VisualSetEffect`(0x10) 都查不出可用的 SKImageFilter ⇒ 内容**照原样画**、
+                //     效果**不施加**（`SkiaEffect.TryResolve` 的 `supported=false` 分支 ＋
+                //     `SkiaRenderBackend` 的裸 `Save` 顶位），且该绘制指令被记 `NotDrawn`。
+                //   ⇒ 观感 = "**没有效果**"，**不是** "效果生效"。将来真要接效果，路径是
+                //     Shader → Skia `SKRuntimeEffect`（docs/unimplemented.md §0 的同一句话）。
+                //
+                // 【不许静默 no-op（纪律 47 族）】两条都走 `ch.NoteShaderStubAccepted(...)`：
+                //   具名（命令 id ＋ 句柄 ＋ 字节数）、有界（每 id 每进程限 N 行）的只读台账。
+                case MilCmd.MilCmdPixelShader:
+                {
+                    // 固定头 20；尾部长度 = 通道自己的长度账（= 上游 AppendCommandData 的字节数）。
+                    int payload = c.Length - MilCommandLayout.FixedSize(cmd);
+                    ch.NoteShaderStubAccepted(cmd, MilCommandDecoder.ReadHandle(c), payload,
+                                              ReadDeclaredUInt32(c, 12));   // PixelShaderBytecodeSize
+                    return HResult.S_OK;
+                }
+
+                case MilCmd.MilCmdShaderEffect:
+                {
+                    // 固定头 80；尾部 = 头里 8 个 *Size 之和（偏移 48/52/56/60/64/68/72/76）。
+                    int payload = c.Length - MilCommandLayout.FixedSize(cmd);
+                    int declared = 0;
+                    for (int o = 48; o <= 76; o += 4)
+                    {
+                        int v = ReadDeclaredUInt32(c, o);
+                        if (v < 0) { declared = -1; break; }   // 头被截断 ⇒ 记 -1（不可读），**不抛**
+                        declared += v;
+                    }
+                    ch.NoteShaderStubAccepted(cmd, MilCommandDecoder.ReadHandle(c), payload, declared);
+                    return HResult.S_OK;
+                }
+
                 // ---------------- Pen / DashStyle ----------------
                 case MilCmd.MilCmdDashStyle:
                 {
@@ -1374,6 +1430,16 @@ namespace WpfGfx.Linux.Commands
         // ==================================================================
         //  辅助
         // ==================================================================
+
+        /// <summary>
+        /// 读命令头里偏移 <paramref name="offset"/> 处的 UInt32（0x6c/0x70 的 *Size 字段全在固定头内）。
+        /// 越界返回 -1 ⇒ 调用方按"声明长度不可读"记，**绝不抛**：
+        /// 一条只读诊断不允许把应用打崩（宁可少一个数字，不可多一次 abort）。
+        /// </summary>
+        private static int ReadDeclaredUInt32(ReadOnlySpan<byte> c, int offset) =>
+            offset + 4 <= c.Length
+                ? (int)System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian(c.Slice(offset, 4))
+                : -1;
 
         /// <summary>
         /// 取命令的目标资源：句柄为空 → E_INVALIDARG；不在表内 → E_HANDLE；

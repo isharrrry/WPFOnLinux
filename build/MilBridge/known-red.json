@@ -40,12 +40,12 @@
     "label": "wave23 · 默认 env（出货行为）；`D-T6-b`（帧原点＝段落起点，**Option 1**：新增 `_paragraphOrigin`，`_lineStart` 语义不变）+ `D-F2`（三个只写不读的计数器接出口）落地后的世代",
     "instr_run_sh": "711f39f468f61cc867b94ec14d9f0b267b677095809986195573698ab42c75eb",
     "instr_program_cs": "149dd986a642fdfc6d208db65a1794c9bb5bb04bbcd03c598a89178d27abf8ab",
-    "instr_shim": "e89fed55fd8e32bc40f171036e15cfa4b1dcbc69729028a783e0d32a99030e96",
+    "instr_shim": "921ba9c65e9fb3be9e31d402fd98568ee78639063d75bb4e656b20201b30dc2b",
     "instr_pc": "7b47a7b3d69ad62f",
     "evidence_log": "build/MilBridge/arm-logs/tline.log",
-    "evidence_log_sha256": "960e28f59ee974e5",
+    "evidence_log_sha256": "2103f88183b17a6a",
     "arm_logs": {
-      "tline": "960e28f59ee974e58348e7b22690cdccb89f57ce825f866f4019f2060a73ca22",
+      "tline": "2103f88183b17a6a327e3cbb370a7e57978235c2bce04ff99a5e882357a79906",
       "tab-zero": "9150c3a26a3cb789582f3df655006955cf1db10dda00d91097d24d97b40e1912",
       "tab-rtl": "92570318851ca7e85f64017c89bd784d971cfe4028f7b8e47cb79035146755c4",
       "tab-anchor": "1c43a12dcaa5718a27f5e4c66d6ff59bd3b6da0b199e384a315b54e7041cc916",
@@ -106,8 +106,8 @@
     "instr_pc_path": "build/PresentationCore.Linux/bin/Debug/PresentationCore.dll",
     "evidence_log_origin": "/home/links-dev/wfp-runs/arms23/tline.log（硬链接）⚠️ 【#31 W31E 复核 · 2026-09-18】「硬链接」已过期：现盘该路径是**真副本**（inode=5138770、nlink=1、size=21501、mtime=2026-09-17 00:36:36），与 `build/MilBridge/arm-logs/tline.log` 的 inode=5143817 **不同**，`cmp` 两者 **IDENTICAL**、sha16 同为 `57d752a3981a9b91` ⇒ 被引内容零位移、mtime 与源件逐位相同（弱配对判据不受影响）。原文括号描述的是 `#23` 当时的状态。",
     "arms_retaken": {
-      "when": "2026-09-20 00:24:34 +0800",
-      "why": "波48：修 D-G56（applier 插桩锚上移到属性块之外 ⇒ windowsbase/pf 生成件变）＋整波重建 ⇒ pc 可能变字节；重取五臂后同趟钉齐",
+      "when": "2026-09-21 17:23:49 +0800",
+      "why": "波#49：另加一件判据口径件 —— build/MilBridge/tools/product-entry-step.sh d0b503cd5f74dfcf → 4fdf5de43f1a211a（把 D-G57 零墨修法的已知代价**具名登记**：5 格 field=ext，case/k/delta 逐格写明，同代 A/B 依据 = 只换权威 pc：修前 9465f9dce39e2dfc ⇒ 147/147 全 OK；修后 56ee75ced8d6aece ⇒ 同样 5 格 delta=-0.515625）。**该件在 fp_inputs() 覆盖面里**（点名成员）⇒ inputs_fp 再变一次，属设计性变更。",
       "how": "**只跑三支**（不复用 `retake-arms-w23.sh`：其 `:11` 的 `OUT` 是普通赋值且指向 `$HOME/wfp-runs/arms23`，该目录与 `arm-logs/tline.log`/`textlineproto.log` **同 inode** ⇒ 直接重跑会**就地覆盖归档源件**、中断还会留半截日志）。本趟时序（纪律 59）：① `OUT` 换成本趟专属 `$HOME/w30b-run/arms30b`；② 旧件先 `cp -p` 归档到 `$HOME/w30b-run/backup/armlogs/`；③ 记 `nlink`/mtime/inode；④ `dotnet build CoverageProbe -c Release -m:1`（仅此一次，**未重建 `pc`**）；⑤ 逐支跑 `--tab-lines-oracle`；⑥ **先验 `TAB_LINES_PROBE` 自报行存在**（无则停、不 `ln -f`）；⑦ `ln -f` 进 `arm-logs/`；⑧ 复跑门禁；⑨ `arm-log-sha-check.sh`；⑩ 重钉本节；⑪ 归档。 ⚠️ 【#31 W31E 加注 · 2026-09-18】本行有两处随时间变化（**原文保持不动**）：① 它引的 `:11` 已不再是「普通赋值」—— `#31` W31E 把第 11 行改成 `OUT=${ARMS_OUT:-$HOME/wfp-runs/arms23}`（env 可覆写；**不设该变量时取值逐字不变**）并在第 12 行之后加了**硬链接别名守卫**（`OUT` 目标与真件同 inode ⇒ `exit 4`、逐支点名 inode 与两条路径、**一个字节都不写**）⇒ 纪律 59 的第①步不再需要手改脚本；② 「该目录与 `arm-logs/tline.log`/`textlineproto.log` 同 inode」描述的是 `#30` 当时的状态，`#31` W31C 之后 `arms23` 已是真副本（nlink=1）⇒ 现状下守卫**不会**拦默认 `OUT`（实测 rc=0）。",
       "result": "`tab-zero 78204619fa5b4eee → 9150c3a26a3cb789`｜`tab-anchor 574d012a41a3db06 → 1c43a12dcaa5718a`｜`tab-rtl cbaa579c547b4ac3 → 92570318851ca7e8`；`tline`/`textlineproto` **逐字节未动**。**最硬的一条**：三支新日志**剥掉 `^TAB_LINES_PROBE` 行后与旧件 `cmp` 逐字节 IDENTICAL** （行数 210/1346/193 ↔ 209/1345/192）⇒ 重取**只新增了身份行**，**读数零位移**；`判定行=615`/`字形释放行=194` 与 `column_gate.arms[\"tab-oracle-anchor\"]` 的下限**逐位相符**。 ⚠️ 【#31 W31E 复核 · 2026-09-18】「`ln -f` 后 `nlink=2`」描述的是 `#30` W30B 当时的状态（**原文保持不动**）：`#31` W31C 清理别名后现盘该件 **nlink=1**，`sha256` 前16位 `1c43a12dcaa5718a` **逐位未变**。",
       "arms": [
@@ -154,6 +154,18 @@
         {
           "when": "2026-09-20 00:24:34 +0800",
           "why": "波48：修 D-G56（applier 插桩锚上移到属性块之外 ⇒ windowsbase/pf 生成件变）＋整波重建 ⇒ pc 可能变字节；重取五臂后同趟钉齐"
+        },
+        {
+          "when": "2026-09-21 15:44:06 +0800",
+          "why": "波#49：① build/shims/PresentationCore.HbTextLine.cs 零墨修法（单段分支改按计划面取字形 id）⇒ hbtextline e89fed55fd8e32bc→921ba9c65e9fb3be（GEN_KEYS.instr_shim 变）；② build/PresentationCore.Linux/** 整波重建 ⇒ pc 9465f9dce39e2dfc→56ee75ced8d6aece（定向重建值为 21e3e88a5090cd3b，差异=构建范围不同，冻结取整波值）；③ src/WpfGfx.Linux.Native/src/win32_core.c 等 D-G72/TASK-0008 修法 ⇒ win32shim abf6879c027c5e73→c493639d15678803；④ src/WpfGfx.Linux/{Resources/MilChannel.cs,Commands/MilCommandDispatcher.cs} TASK-0403 台账 ⇒ 桥按需重发 ⇒ bridge e3ea092010734f44→feef049e9d0e313a（BRIDGE_SRC_FP 0a8f69b3c5fabd43）；⑤ build/DirectWrite.Linux/wic-shim/applocal-expect.py TASK-1002 补声明图 ⇒ inputs_fp 变（覆盖面成员；UNEXPECTED 16→6）；⑥ known-red.json entries[1] 由 count==95 重钉为 count==1242（零墨修法改墨迹盒，实测）"
+        },
+        {
+          "when": "2026-09-21 16:34:01 +0800",
+          "why": "W76A（D-G77 收尾）：第一趟重取（15:37:58–15:43:38）**X-混淆作废** —— retake-arms-w23.sh:83 硬写 DISPLAY=:97 而当时 :97 不存在（无 WM/无 X），textlineproto 臂日志出现 2 条 XOpenDisplay(\":97\") 失败、P4 PASS→FAIL、探针 4/2→3/3，臂 sha 被静默改写为 c1a5cf0a72bbd12d。修法落地后重取两趟：①无 :97（自起 Xvfb，source=self-started）②有 :97（复用，source=reused）—— 两趟 textlineproto 日志去时间戳后**逐行相同**、判词均回 4/2、X 失败 0，sha 均回到 4bceceeed570ba70（= #48 冻结值）。终态 tline 2103f88183b17a6a（另四臂与 #48 冻结值逐位相同）。"
+        },
+        {
+          "when": "2026-09-21 17:23:49 +0800",
+          "why": "波#49：另加一件判据口径件 —— build/MilBridge/tools/product-entry-step.sh d0b503cd5f74dfcf → 4fdf5de43f1a211a（把 D-G57 零墨修法的已知代价**具名登记**：5 格 field=ext，case/k/delta 逐格写明，同代 A/B 依据 = 只换权威 pc：修前 9465f9dce39e2dfc ⇒ 147/147 全 OK；修后 56ee75ced8d6aece ⇒ 同样 5 格 delta=-0.515625）。**该件在 fp_inputs() 覆盖面里**（点名成员）⇒ inputs_fp 再变一次，属设计性变更。"
         }
       ]
     }
@@ -334,7 +346,7 @@
         "judgment_version": "t1b3-tline-gate/7",
         "instr_run_sh": "711f39f468f61cc867b94ec14d9f0b267b677095809986195573698ab42c75eb",
         "instr_program_cs": "149dd986a642fdfc6d208db65a1794c9bb5bb04bbcd03c598a89178d27abf8ab",
-        "instr_shim": "e89fed55fd8e32bc40f171036e15cfa4b1dcbc69729028a783e0d32a99030e96"
+        "instr_shim": "921ba9c65e9fb3be9e31d402fd98568ee78639063d75bb4e656b20201b30dc2b"
       },
       "expected_reading": "折叠判定一致 1298/1298；真折叠 236 行，明细全等 232/236（折后宽度最大差 9.680667 DIP，最差在 F_nbsp_zwsp_w80 行#0）",
       "red_authority": "读数 pair_lt（明细全等 < 真折叠行数）**或** 判据 T3 == FAIL",
@@ -347,18 +359,18 @@
       "case_id": "T2d-Extent余差",
       "artifact": "run.sh tline stdout",
       "field": "Extent余差条数",
-      "expected_shape": "count==95",
-      "carrier": "**本条的读数本身**（紧口径 0.01 DIP 下的残差 95 条 = 主对拍集 75 + LH 组 20）。注意 **T2d 判据用宽口径 0.34 判、在 #15 是 ✅** ⇒ 本条不是 T2d 报红，是**登记的已知残差**。",
+      "expected_shape": "count==1242",
+      "carrier": "**本条的读数本身**（紧口径 0.01 DIP 下的残差 **1242** 条 = 主对拍集 1202 + LH 组 40）。⚠️ `#49` 起条数由 `95` 变 `1242`：本波落地的零墨修法（`build/shims/PresentationCore.HbTextLine.cs` 单段分支改按**计划面**取字形 id）改变了墨迹盒（Extent）的取值 ⇒ 超过 0.01 DIP 紧容差的条数随之上升。注意 **T2d 判据用宽口径 0.34 判、在 `#15` 是 ✅** ⇒ 本条不是 T2d 报红，是**登记的已知残差**（登记的是「读数是多少」，不是「我们接受它」）。",
       "generation": "#23",
       "caliber": {
         "judgment_version": "t1b3-tline-gate/7",
         "instr_run_sh": "711f39f468f61cc867b94ec14d9f0b267b677095809986195573698ab42c75eb",
         "instr_program_cs": "149dd986a642fdfc6d208db65a1794c9bb5bb04bbcd03c598a89178d27abf8ab",
-        "instr_shim": "e89fed55fd8e32bc40f171036e15cfa4b1dcbc69729028a783e0d32a99030e96"
+        "instr_shim": "921ba9c65e9fb3be9e31d402fd98568ee78639063d75bb4e656b20201b30dc2b"
       },
-      "expected_reading": "[② Extent 余差清单] 共 95 条（主对拍集 75 + LH 组 20）（`#16` 实测不变）",
+      "expected_reading": "[② Extent 余差清单] 共 1242 条（主对拍集 1202 + LH 组 40；容差 0.01 DIP）（`#16` 为 95 条；`#49` 零墨修法把墨迹盒改宽 ⇒ 条数随之变，见 reason 与 note）",
       "red_authority": "读数 count>0",
-      "reason": "紧口径 0.01 DIP 下的 Extent 余差读数（**登记的是「读数是多少」，不是「我们接受它」**）。\n世代演进：`#12` 58 → `#13-legA` 59 → **`#15` 95（+36 变差）**。\n其中 LH 组 20 条为**字体代用**（本机无 MS YaHei / Yu Gothic）；但 **+36 那部分不是字体代用**，见 `note` 与 `pending.extent_regression`。",
+      "reason": "紧口径 0.01 DIP 下的 Extent 余差读数（**登记的是「读数是多少」，不是「我们接受它」**）。\n世代演进：`#12` 58 → `#13-legA` 59 → **`#15` 95（+36 变差）** → **`#49` 1242**（零墨修法改墨迹盒；同代 A/B 已证两腿只差 `-p:HbShimSrc`，`通过 22/失败 2` 与两条既有 ❌ 逐字不变 ⇒ 变的是**墨迹盒本身**，不是判据漂移）。\n其中 LH 组 40 条为**字体代用**（本机无 MS YaHei / Yu Gothic）；`#15` 那 +36 部分不是字体代用，见 `note` 与 `pending.extent_regression`。",
       "date": "2026-09-15",
       "owner": "T1b3",
       "note": "**这一条不是「已接受的残差」—— 它在 #15 相对 #13 是 +36 变差，归因未定。**\n逐字事实：① **相对 #13 的 59 条是 +36（变差，不是变好）**；② 新增的 36 条**全在 `*_tabs_*` 族**；\n③ 36 条**同一个值 `+0.0628`**；④ **布局（断点 / 宽度 / 真值宽 / 我们宽）逐位不变** —— T3 已给 36/36 逐条对拍；\n⑤ **归因未定**（T1d / T2 在查；线索：`+0.0628 ≈ 1/16`，`14.32 vs 14.3828`）。\n**本条刻意不加 `unlocated:true`** —— 那个标志的语义是「含义/根因未定位」，主控指定留给 `T3b`；\n本条登记的是「读数是多少」，而「它为何变差」点名在 `pending.extent_regression` 里。\n行级 `Extent` 同向变差：`1223/1298`（#13 为 `1260/1298`）。"
@@ -376,7 +388,7 @@
         "judgment_version": "t1b3-tline-gate/7",
         "instr_run_sh": "711f39f468f61cc867b94ec14d9f0b267b677095809986195573698ab42c75eb",
         "instr_program_cs": "149dd986a642fdfc6d208db65a1794c9bb5bb04bbcd03c598a89178d27abf8ab",
-        "instr_shim": "e89fed55fd8e32bc40f171036e15cfa4b1dcbc69729028a783e0d32a99030e96"
+        "instr_shim": "921ba9c65e9fb3be9e31d402fd98568ee78639063d75bb4e656b20201b30dc2b"
       },
       "expected_reading": "❌ T3b 折叠明细**契约级**断言（① 判别式 ② 起止==真机 ③ |cr.Width−真机| < 0.34）",
       "red_authority": "判据 T3b == FAIL（读数 = 该判据的 ❌/✅）",
@@ -396,7 +408,7 @@
         "judgment_version": "t1b3-tline-gate/7",
         "instr_run_sh": "711f39f468f61cc867b94ec14d9f0b267b677095809986195573698ab42c75eb",
         "instr_program_cs": "149dd986a642fdfc6d208db65a1794c9bb5bb04bbcd03c598a89178d27abf8ab",
-        "instr_shim": "e89fed55fd8e32bc40f171036e15cfa4b1dcbc69729028a783e0d32a99030e96",
+        "instr_shim": "921ba9c65e9fb3be9e31d402fd98568ee78639063d75bb4e656b20201b30dc2b",
         "shim_declared_by_log": false
       },
       "expected_reading": "TAB_LINES CASE notab-control@w40@em24@RTL@tab0 … 结构=FAIL（本世代实测）",

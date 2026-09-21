@@ -673,15 +673,23 @@ namespace WpfGfx.Linux.Tests.Commands
         {
             var ch = new TestChannel();
             byte[] cmd = new byte[8];
-            // 0x6c MilCmdPixelShader 是 C 类（HLSL 字节码，handoff 决策 4 永久划掉），
-            // 不会像 3D 命令那样被某一轮实现掉——这条用例要的是一条稳定的 E_NOTIMPL。
-            BitConverter.GetBytes((int)MilCmd.MilCmdPixelShader).CopyTo(cmd, 0);
+            // ⚠️【`#49` 修：W62A 落地 `D-G58` 后本用例当场会红】
+            //   原文拿 `0x6c MilCmdPixelShader` 当"稳定的 `E_NOTIMPL`"，理由是"C 类、永久划掉"——
+            //   而 `#49` 把 `0x6c`/`0x70` 两条**实现掉了**（`Effects` 页不再 abort）⇒ **那条理由失效**，
+            //   用例断言的"稳定"就没了。改成 `0x0a MilCmdD3DImage`：它属"载荷是 D3D/硬件加速、
+            //   Linux 无对应概念"那一类（`MilCommandLayout.s_notImpl` 现为 5 条：D3DImage /
+            //   D3DImagePresent / DoubleBufferedBitmap / DoubleBufferedBitmapCopyForward / MediaPlayer），
+            //   且 `MilCommandDispatcher` 里**没有** `case` ⇒ 走 `default: E_NOTIMPL`。
+            //   ⚠️ 这条依赖仍然脆弱：**任何**被实现掉的编号都会让本用例红 —— 真正稳的写法是
+            //   "取 `s_notImpl` 里的任一条"（消费 `MilCommandLayout.NotImplCount`/`IsNotImplemented`），
+            //   那属于测试侧改造，`#50` 办（本轮只做最小修复，避免顺手扩大改动面）。
+            BitConverter.GetBytes((int)MilCmd.MilCmdD3DImage).CopyTo(cmd, 0);
 
             Assert.Equal(HResult.E_NOTIMPL, ch.Dispatch(cmd));
 
             // 通过通道批处理走一遍，确认登记表被写入
             ch.Channel.SendCommand(cmd, sendInSeparateBatch: true);
-            Assert.True(ch.Channel.NotImplRegistry.ContainsKey(MilCmd.MilCmdPixelShader));
+            Assert.True(ch.Channel.NotImplRegistry.ContainsKey(MilCmd.MilCmdD3DImage));
         }
 
         [Fact]

@@ -865,19 +865,48 @@ run_tier() {
     while [ "$(date +%s)" -lt "$deadline" ]; do
         kill -0 "$app_pid" 2>/dev/null || break
         # 标题匹配（最强证据：这是**我的**窗口，不是别人的）
+        # ⚠️⚠️【`#49` 车道 W76A 修 **`D-G79`**（2026-09-21）：**原来这一格"按标题认领"其实在按类名认领。**】
+        #   缺陷现场（`#49` 收尾链，两趟门禁 **12/12 假 FAIL**，`fail_reasons=("no-window")`）：
+        #     `grep -F 'WpfTextDemo'` 匹配的是 **`WM_CLASS`** —— 本进程**每一个**顶层窗的 class 都是
+        #     `HwndWrapper[WpfTextDemo;;<guid>]` ⇒ 5 个顶层窗**全是**候选；而 `head -1` 取到的是
+        #     **topmost** 那个（X 里新建窗口默认压在最上层），实测被
+        #     **`0x200006`（无名、`style=0x0`、`800x600`、永远不 map；由托管侧在"主窗建立之后、map 之前"新建）**
+        #     顶掉 ⇒ 每趟都等到 60 s 超时判 `no-window`，而**真窗 `0x200005`（标题
+        #     `WpfTextDemo — text / binding / image / effect`、938x938）一直 `Map State: IsViewable`**。
+        #     逐字树（`xwininfo -root -tree` 给的次序 = `head -1` 的取值域）：
+        #       0x200006 (has no name): ("HwndWrapper[WpfTextDemo;;94a965e1…]") 800x600  ← head -1 取它（IsUnMapped）
+        #       0x200005 "WpfTextDemo — text / binding / image / effect" 938x938        ← 真窗（IsViewable）
+        #       0x200004 "SystemResourceNotifyWindow" / 0x200003 "MediaContextNotificationWindow" / 0x200002 (has no name)
+        #   ⇒ 族属同 `D-G59`/`D-G77`：**"认错了对象，读数照给"**。`#48`/`#47` 那两趟 `windows-*.txt` 里
+        #     唯一候选**恰好就是真窗** ⇒ **这条洞一直在，只是这一代被触发**（不是本波产品回归：
+        #     真窗建/缩放/映射/呈现全部正常，`[mil 8] X11 Resize → 938x938`、`committed=886`、`skia 指令 261 条`）。
+        #   【修法】**枚举全部候选**，取**第一个**满足「`WM_NAME` 以 `WpfTextDemo` 开头 ∧ 宽高 ≥64 ∧ `Map State: IsViewable`」者。
+        #   ⚠️ **判据没有放宽**（反极性已实测）：真窗不可见 / 尺寸不达标 ⇒ **仍然 FAIL**，
+        #      **不是**"任意候选可见即过"（旧的 size/state 两条守卫原样保留，只是从"只对 head -1"改成"对每个候选"）。
+        #   ⚠️ **残余边界（如实记）**：一个**别的进程**的**可见**窗口若标题也以 `WpfTextDemo` 开头，仍会被认领
+        #      —— 这与修前注释里"按标题认领"的**原意一致**，但**不是**"只认我自己的进程树"；未纳入本修法。
         local titled
-        titled="$(xwininfo -root -tree 2>/dev/null | grep -F 'WpfTextDemo' | grep -oE '0x[0-9a-f]+' | head -1)"
-        if [ -n "$titled" ]; then
-            local tinfo tstate tw th
+        while IFS= read -r titled; do
+            [ -n "$titled" ] || continue
+            local tinfo tstate tw th tname
             tinfo="$(xwininfo -id "$titled" 2>/dev/null)"
             tw="$(printf '%s\n' "$tinfo" | awk -F: '/^  Width:/{gsub(/ /,"",$2);print $2}')"
             th="$(printf '%s\n' "$tinfo" | awk -F: '/^  Height:/{gsub(/ /,"",$2);print $2}')"
             tstate="$(printf '%s\n' "$tinfo" | awk -F: '/Map State:/{gsub(/^ +/,"",$2);print $2}')"
+            # `WM_NAME`：`xwininfo -id` 的首行**可能是空行**（实测本机：`\n` 先出，`xwininfo: Window id: …` 在**第二行**）
+            #   ⇒ 锚 `1s/…` 会**逐趟取到空串**（本波自己踩过：`name=?` ⇒ 所有候选被拒 ⇒ 仍然 `no-window`）。
+            #   ⇒ 用"逐行匹配、取第一条命中"（无名窗是 `(has no name)` ⇒ 不匹配）。
+            tname="$(printf '%s\n' "$tinfo" | sed -n 's/^xwininfo: Window id: [^ ]* //p' | head -1)"
+            printf '     标题匹配候选 %s name=%s %sx%s map=%s\n' \
+                "$titled" "${tname:-?}" "${tw:-?}" "${th:-?}" "${tstate:-?}" >> "$windows_txt"
+            case "$tname" in
+                '"WpfTextDemo'*) ;;                    # 标题必须以 WpfTextDemo 开头（类名不算）
+                *) continue ;;
+            esac
             if [ -n "$tw" ] && [ "$tw" -ge 64 ] 2>/dev/null && [ -n "$th" ] && [ "$th" -ge 64 ] 2>/dev/null; then
-                case "$tstate" in *IsViewable*) window="$titled" ;; esac
+                case "$tstate" in *IsViewable*) window="$titled"; break ;; esac
             fi
-            printf '     标题匹配候选 %s %sx%s map=%s\n' "$titled" "${tw:-?}" "${th:-?}" "${tstate:-?}" >> "$windows_txt"
-        fi
+        done < <(xwininfo -root -tree 2>/dev/null | grep -F 'WpfTextDemo' | grep -oE '0x[0-9a-f]+' | awk '!seen[$0]++')
         [ -n "$window" ] && break
         sleep 0.25
     done

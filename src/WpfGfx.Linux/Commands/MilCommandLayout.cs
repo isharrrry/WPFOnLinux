@@ -116,6 +116,24 @@ namespace WpfGfx.Linux.Commands
             MilCmd.MilCmdBitmapCacheBrush => 36,
 
             // ---- 效果 ----
+            // 0x6c / 0x70（波62 · D-G58）：这两条是**变长**的，下面给的是「**固定头**」长度，
+            // 尾部长度由命令头里的 *Size 字段声明；**长度账本身由 MilChannel 的
+            // BeginCommand/EndCommand/SendCommand 记**（线上每条命令的字节数由上游
+            // `…….BeginCommand(ptr, sizeof(struct), cbExtra)` 直接给出）⇒ dispatcher 不需要
+            // 自己解析尾部，`FixedSize` 只用来做「命令至少有多长」的下界校验。
+            //   0x6c MILCMD_PIXELSHADER  = Type(4)+Handle(4)+ShaderRenderMode(4)
+            //                              +PixelShaderBytecodeSize(4)+CompileSoftwareShader(4) = **20**
+            //        尾部 = PixelShaderBytecodeSize 字节（HLSL 字节码）
+            //        上游：Effects/PixelShader.cs:180-191（Generated/PixelShader.cs:140）
+            //   0x70 MILCMD_SHADEREFFECT = Type(4)+Handle(4)+4×double Padding(32)+hPixelShader(4)
+            //                              +DdxUvDdyUvRegisterIndex(4)+8×UInt32 *Size(32) = **80**
+            //        尾部 = 那 8 个 *Size 之和（ShaderConstant*/DependencyProperty* 寄存器值）
+            //        上游：Effects/ShaderEffect.cs:559-589（Generated/ShaderEffect.cs:162）
+            //   ⚠️ 这两个数**已经被两台互不相干的仪器独立核对过**（W52A 的命令层台账，
+            //      不是本波自证）：`0x6c len=240 extra=220` ⇒ 头 20 ✓；
+            //      `0x70 len=92 extra=12` 与 `len=110 extra=30` ⇒ 头 80 ✓。
+            MilCmd.MilCmdPixelShader => 20,
+            MilCmd.MilCmdShaderEffect => 80,
             MilCmd.MilCmdBlurEffect => 28,
             MilCmd.MilCmdDropShadowEffect => 80,
 
@@ -186,6 +204,10 @@ namespace WpfGfx.Linux.Commands
             MilCmd.MilCmdDashStyle => true,
             MilCmd.MilCmdDrawingGroup => true,
             MilCmd.MilCmdGuidelineSet => true,
+            // 波62 · D-G58：0x6c 尾部 = PixelShaderBytecodeSize（HLSL 字节码）；
+            // 0x70 尾部 = 8 个 *Size 之和。两条**都不是**定长。
+            MilCmd.MilCmdPixelShader => true,
+            MilCmd.MilCmdShaderEffect => true,
             // 3D：ChildrenSize = N × sizeof(ResourceHandle)(4)；
             // MeshGeometry3D 的四段数组元素宽度见 MilResource3D.cs 的注释。
             MilCmd.MilCmdModel3DGroup => true,
@@ -196,14 +218,17 @@ namespace WpfGfx.Linux.Commands
         };
 
         // ==================================================================
-        //  仍未实现的 7 条
+        //  仍未实现的 5 条
         //
-        //  38 → 17 → 9 → 7。移走的 31 条：
+        //  38 → 17 → 9 → 7 → 5。移走的 33 条：
         //    21 条 = 0x57–0x6b 整段 3D 资源命令
         //     8 条 = 0x29–0x30 整段 3D 视觉树命令
-        //     2 条 = 0x0c / 0x0d 位图源（本轮，见 Commands/MilBitmapSource.cs）
-        //  剩下 7 条的逐条分类见 docs/unimplemented.md §0：
-        //    C 类 6 条（0x0a/0x0b/0x6c/0x70：D3D 与 Shader；
+        //     2 条 = 0x0c / 0x0d 位图源（见 Commands/MilBitmapSource.cs）
+        //     2 条 = 0x6c / 0x70 Shader（波62 · D-G58 —— **不是"实现了 shader"**：
+        //            这两条从 E_NOTIMPL 移出，改成「**收得下、按恒等处理、效果不渲染**」，
+        //            理由与留痕见 DispatchCore 的两条 case ＋ MilChannel.NoteShaderStubAccepted）
+        //  剩下 5 条的逐条分类见 docs/unimplemented.md §0：
+        //    C 类 4 条（0x0a/0x0b：D3D 互操作；
         //              0x3b/0x3c：Windows 事件句柄 / 原生对象指针）
         //    B 类 1 条（0x17：媒体播放器）
         // ==================================================================
@@ -213,8 +238,6 @@ namespace WpfGfx.Linux.Commands
             // C 类：D3D / 硬件加速（handoff 决策 4）
             MilCmd.MilCmdD3DImage,
             MilCmd.MilCmdD3DImagePresent,
-            MilCmd.MilCmdPixelShader,
-            MilCmd.MilCmdShaderEffect,
             // C 类：载荷是 Windows 事件句柄 / 原生 C++ 对象指针（Linux 无对应概念）
             MilCmd.MilCmdDoubleBufferedBitmap,
             MilCmd.MilCmdDoubleBufferedBitmapCopyForward,

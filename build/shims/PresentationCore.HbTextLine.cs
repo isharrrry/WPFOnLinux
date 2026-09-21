@@ -2822,8 +2822,37 @@ namespace WpfLinux.Shims.PresentationCore
             {
                 if (shaped.Chunks == null || shaped.Chunks.Count <= 1)
                 {
-                    // ---- 单面：与今天**逐位相同**（一个 GlyphRun、baseline origin = (0, baseline)）----
-                    _glyphRun = BuildGlyphRun(shaped, glyphTypeface, pixelsPerDip, baseline, startPenX, shaped.Text);
+                    // ---- 单段：一个 GlyphRun、baseline origin = (0, baseline) ----
+                    // ★W61A（`D-G57` 修法，2026-09-21）：**画的时候用的面必须与"字形 id 是从哪份面 shape 出来的"同一份**。
+                    //   `ShapeParagraph`（本文件 `:653` 一带）是**逐段按 `seg.Face` 整形**的 ⇒ `shaped` 里的
+                    //   字形 id 属于**计划里的那一份段面**，**不是**段落主面。旧版这里恒传 `glyphTypeface`
+                    //   （= 段落**主面**）⇒ 只要整段恰好落成**一段回退面**（典型：全 CJK 文本 + 默认拉丁主面）
+                    //   就会把回退面的字形 id 当成主面的 id 去画 ⇒ 越界 / `.notdef` ⇒ **零墨、零异常**
+                    //   （`D-G57` 的判定点；现场读数：`[TEXTLINE_DIAG] R1 面计划 … slot=1` 而
+                    //    `HBLINE D#… [r0 face=DejaVuSans.ttf glyphs=4 chars="样式模板"]`）。
+                    //   下面 else（多段）分支本来就按 `segmentFaces[ch.SegmentIndex]` 取面 ⇒ 两分支**语义同源**；
+                    //   多段时 `Count <= 1` 不成立 ⇒ 本改动**只影响单段行**（多段行逐字节不变）。
+                    GlyphTypeface singleFace = glyphTypeface;
+                    if (shaped.Chunks != null && shaped.Chunks.Count == 1)
+                    {
+                        int segSlot = shaped.Chunks[0].SegmentIndex;
+                        if (segmentFaces != null && segSlot >= 0 && segSlot < segmentFaces.Length
+                            && segmentFaces[segSlot] != null)
+                        {
+                            singleFace = segmentFaces[segSlot];
+                        }
+                        else if (segmentFaces != null && segmentFaces.Length == 1 && segmentFaces[0] != null
+                                 && plan != null && plan.Segments.Count == 1)
+                        {
+                            // 就地面计划的单段路径（`BuildSegmentFacesFromPlan`）槽位语义等价 ⇒ 取唯一槽。
+                            singleFace = segmentFaces[0];
+                        }
+                        else if (plan != null)
+                        {
+                            HbFallbackDiag.NoteRunFaceSlotMissing();   // D-F1b/P1c：有计划却拿不到面槽 ⇒ 记数（不静默）
+                        }
+                    }
+                    _glyphRun = BuildGlyphRun(shaped, singleFace, pixelsPerDip, baseline, startPenX, shaped.Text);
                 }
                 else
                 {

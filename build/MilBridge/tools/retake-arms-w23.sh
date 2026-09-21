@@ -57,6 +57,54 @@ echo "Parity.cs = $(sha256sum build/MilBridge/tests/HbTextLineParity/Program.cs 
 
 say() { echo "--- $* ---"; }
 
+# ---- 0.5) 【`#49` 车道 W76A 加 · **`D-G77` 修法**】显示号**必须真的在**，否则**大声失败** ----------
+#   【缺陷现场（本脚本自己的）】第 4 步（`:83`）**硬写 `DISPLAY=:97`**，而**全仓没有任何一步保证
+#     `:97` 常驻**（闸门只在它自己那一趟里临时起一个、退出就收）⇒ 任何人在闸门之外重取臂，
+#     都会**静默**拿到 **X-混淆**读数。实测（W76A，2026-09-21 15:37:58–15:43:38，`:97` DOWN 全程）：
+#       · `textlineproto` 臂日志出现 **2 条** `XOpenDisplay(":97") 失败` ＋ `[WIN_DIAG] CreateWindowEx 失败`
+#         ＋ `[SHIM_DIAG] HwndWrapper 建窗失败`；`P4（new DrawingVisual().RenderOpen() 在纯 PC 下可用）`
+#         由 **PASS 翻 FAIL**；`探针：通过 4 / 失败 2` → **`通过 3 / 失败 3`**；
+#         该臂 sha 由 `4bceceeed570ba70` 变 `c1a5cf0a72bbd12d` —— **那不是产品位移**。
+#       · 另四臂 `grep -c XOpenDisplay` = **0**（未混淆），但**这条洞对它们同样成立**：只是恰好没踩到。
+#     同族既有缺陷：`D-G59`（显示号选定后整趟不复核）、`D-G48`（无显示时兜底链必抛）。
+#   【修法（在"自起"与"大声失败"里选**两条都做**）】`:97` 不在 ⇒ **自己起一个 Xvfb** 并记 PID，
+#     跑完**按 PID 收回自己起的那个**；**起不来 ⇒ `exit 5` 大声失败**，绝不带着"没有 X"往下跑。
+#     选"自起"而不是"直接失败"的理由：本脚本是收尾链的一步，**没有人的机器上也要能跑**；
+#     而"起不来"这一支留成硬失败，保证**永远不会有第二种"静默无 X"的形态**。
+#   ⚠️ 保证的显示号**就是**第 4 步用的那个（`:97`，写死在那行里 ⇒ 本块**只保证 `:97`**，不引入第二个
+#      可配的显示号 —— 两个显示号就又多一处"同一真相两处"）。
+#   ⚠️ `ARMS_XVFB_BIN`（默认 `Xvfb`）是本脚本的**参数**（与 `ARMS_OUT` 同形），供反极性自测把
+#      "起不来"那一支真的走到；**不设它时行为与修前逐字相同**（复用已存在的 `:97`）。
+ARMS_X_DISPLAY=":97"
+ARMS_XVFB_BIN="${ARMS_XVFB_BIN:-Xvfb}"
+ARMS_XVFB_PID=""
+cleanup_xvfb() { if [ -n "$ARMS_XVFB_PID" ]; then kill "$ARMS_XVFB_PID" 2>/dev/null; fi; return 0; }
+if xdpyinfo -display "$ARMS_X_DISPLAY" >/dev/null 2>&1; then
+    echo "ARMS_DISPLAY=$ARMS_X_DISPLAY source=reused（已存在 ⇒ 直接复用，与修前同径）"
+else
+    echo "ARMS_DISPLAY=$ARMS_X_DISPLAY source=none ⇒ 自起 Xvfb（**修前的行为是：静默带着无 X 往下跑**）"
+    if ! command -v "$ARMS_XVFB_BIN" >/dev/null 2>&1; then
+        echo "ARMS_DISPLAY=FAIL reason=no-xvfb-bin display=$ARMS_X_DISPLAY bin=$ARMS_XVFB_BIN"
+        echo "!! 拒跑（exit 5）：没有 X 就**拿不到有效臂读数**（D-G77 现场：X-混淆会静默改写臂 sha）⇒ 不许继续"
+        exit 5
+    fi
+    "$ARMS_XVFB_BIN" "$ARMS_X_DISPLAY" -screen 0 1280x1024x24 >"$OUT/xvfb.log" 2>&1 &
+    ARMS_XVFB_PID=$!
+    _ok=0
+    for _ in $(seq 1 40); do
+        xdpyinfo -display "$ARMS_X_DISPLAY" >/dev/null 2>&1 && { _ok=1; break; }
+        sleep 0.25
+    done
+    if [ "$_ok" != 1 ]; then
+        echo "ARMS_DISPLAY=FAIL reason=xvfb-not-ready display=$ARMS_X_DISPLAY pid=$ARMS_XVFB_PID（日志 $OUT/xvfb.log）"
+        echo "!! 拒跑（exit 5）：同上 —— 无 X 的臂日志不是读数"
+        kill "$ARMS_XVFB_PID" 2>/dev/null
+        exit 5
+    fi
+    echo "ARMS_DISPLAY=$ARMS_X_DISPLAY source=self-started xvfb_pid=$ARMS_XVFB_PID（**跑完按 PID 收回**；只收自己起的这一个）"
+    trap cleanup_xvfb EXIT
+fi
+
 # ---- 1) CoverageProbe（三支 tab 臂的宿主；它的 csproj 把真 shim 源编进去）----
 say "rebuild CoverageProbe -c Release"
 dotnet build build/MilBridge/tests/CoverageProbe/CoverageProbe.csproj -c Release -m:1 --nologo -v q \

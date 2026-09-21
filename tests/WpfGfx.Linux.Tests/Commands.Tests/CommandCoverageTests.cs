@@ -102,8 +102,9 @@ namespace WpfGfx.Linux.Tests.Commands
             //
             // 108 → 110：本轮补上 0x0c MilCmdBitmapSource 与 0x0d MilCmdBitmapInvalidate
             // （实现见 Commands/MilBitmapSource.cs）。
-            Assert.Equal(110, implemented);
-            Assert.Equal(7, notImpl);
+            Assert.Equal(112, implemented);          // `#49`：110→112（0x6c/0x70 已实现）
+            // `#49`：0x6c/0x70 已实现（D-G58）⇒ 未实现 ≈7→5
+            Assert.Equal(5, notImpl);
             Assert.False(dispatcher.IsImplemented(MilCmd.MilCmdInvalid));
             Assert.Equal(MilCommandLayout.TotalDuceCommandCount, implemented + notImpl + 1);
         }
@@ -160,8 +161,8 @@ namespace WpfGfx.Linux.Tests.Commands
                 && !noop.Contains(cmd));
             int sentinel = AllCommands.Count(cmd => cmd == MilCmd.MilCmdInvalid);
 
-            Assert.Equal(7, notImpl);                // D3D/Shader + Windows 句柄 + 媒体
-            Assert.Equal(97, withPayload);          // 有字段要解（+2：0x0c 位图源 / 0x0d 位图失效）
+            Assert.Equal(5, notImpl);                // `#49` 后：D3D + Windows 句柄 + 媒体（0x6c/0x70 已实现）
+            Assert.Equal(99, withPayload);          // `#49`：97→99（+2：0x6c/0x70 现在按变长载荷解）
             Assert.Equal(9, headerOnlyWorking);     // 只有句柄，但要动作（删资源/建 Visual/清子节点/分区标志/清 3D 子节点）
             Assert.Equal(4, noop.Count);
             Assert.Equal(1, sentinel);
@@ -183,24 +184,25 @@ namespace WpfGfx.Linux.Tests.Commands
         }
 
         [Fact]
-        public void 未实现的7条是D3D与媒体()
+        public void 未实现的5条是D3D与媒体()
         {
             var notImpl = MilCommandLayout.NotImplementedCommands.ToHashSet();
 
-            // ---- 必须未实现的 7 条（docs/unimplemented.md §0）----
+            // ---- 必须未实现的 5 条（docs/unimplemented.md §0；`#49` 后 7→5）----
 
             // C 类 · D3D / 硬件加速（handoff 决策 4）
             Assert.Contains(MilCmd.MilCmdD3DImage, notImpl);
             Assert.Contains(MilCmd.MilCmdD3DImagePresent, notImpl);
-            Assert.Contains(MilCmd.MilCmdPixelShader, notImpl);
-            Assert.Contains(MilCmd.MilCmdShaderEffect, notImpl);
+            // `#49`（D-G58）：这两条**已实现**（Effects 页不再 abort）⇒ 反向护栏
+            Assert.DoesNotContain(MilCmd.MilCmdPixelShader, notImpl);
+            Assert.DoesNotContain(MilCmd.MilCmdShaderEffect, notImpl);
             // C 类 · 载荷是 Windows 事件句柄 / 原生 C++ 对象指针
             Assert.Contains(MilCmd.MilCmdDoubleBufferedBitmap, notImpl);
             Assert.Contains(MilCmd.MilCmdDoubleBufferedBitmapCopyForward, notImpl);
             // B 类 · 媒体播放器（位图源 0x0c/0x0d 已实现，不在此列）
             Assert.Contains(MilCmd.MilCmdMediaPlayer, notImpl);
 
-            Assert.Equal(7, notImpl.Count);
+            Assert.Equal(5, notImpl.Count);
 
             // ---- 反向护栏：0x0c / 0x0d 已实现，不许退回 E_NOTIMPL ----
             Assert.DoesNotContain(MilCmd.MilCmdBitmapSource, notImpl);

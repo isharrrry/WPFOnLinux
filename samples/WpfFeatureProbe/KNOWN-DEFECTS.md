@@ -2170,7 +2170,7 @@ AE 上界本就在 1 万量级；`P3>20000` 是按"弹窗=一整块白"的几何
 
 ---
 
-## `#49` 波前新登记（`D-G62` … `D-G70`）＋ 波中新登记（`D-G71`…`D-G74`，2026-09-21）
+## `#49` 波前新登记（`D-G62` … `D-G70`）＋ 波中新登记（`D-G71`…`D-G80`，2026-09-21）
 
 > 口径：这九条都是 `#48` 冻结之后**用户实测 / 车道取证**新立的，**登记 ≠ 已容忍**。
 > 每条都带"现象（读数）→ 判定点（`文件:行`）→ 修法/处置 → 判据（含反极性）→ 边界"。
@@ -2266,3 +2266,55 @@ AE 上界本就在 1 万量级；`P3>20000` 是按"弹窗=一整块白"的几何
 - 判定点：`src/WpfGfx.Linux.Native/src/win32_x11.c` 的 `ConfigureNotify` 处理（改用 `XTranslateCoordinates` 换算成 **root 坐标**）。
 - 处置：**已修**（同 `11aa9d8fa154f20f`）；判据 = 外部 `xdotool windowsize` 之后 `[NC_DIAG]` **仍**答 `ht=2`（自绘标题栏）/`ht=17`（ResizeGrip），拖动与按钮仍生效。
 - 边界：这条**只在有 reparent WM 时**才显形 ⇒ 无 WM 的 Xvfb 上测不出来（读数必须带"有/无 WM"两条件）。
+
+### `D-G75`（**能力缺口 · 静态已定**）：**UIA 有路无门 ＋ 门后断头** ⇒ 辅助功能在 Linux 上**静默不可用**
+- 现象：UIA 的托管/上游实现**真的编进来了**（`UIAutomationTypes` 66 条 `Compile`／63 条上游真源码；`UIAutomationProvider` 33/31；产物里 `UiaReturnRawElementProvider`/`UiaClientsAreListening`/`UiaRaiseAutomationEvent` 各 1），但**没有任何生产者把门打开**。
+- 判定点（车道 W72A，报告 `build/MilBridge/W72A-report.md` `a1b01055b7080502`，**只读侦察、零应用**）：①**无门** —— 自有代码里 `WM_GETOBJECT` 只有 **1 处且是消费者**（`build/PresentationCore.Linux/HwndTarget.Linux.cs:1138 case`），`src/WpfGfx.Linux.Native/src/win32_x11.c` 净 Win32 消息 **31 条不含它**；另四道门（`ListenerExists` 45 处、`KeyboardDevice.cs:491`、`HwndSource.cs:628-634`、`Popup` 的 `IsWinEventHookInstalled`）全被 `EventMap` 空表／shim 恒 0 关死，而 `EventMap.AddEvent` 唯一填充口是 `ElementProxy.cs:227`（`IRawElementProviderAdviseEvents` ← UIA 核心）。②**断头** —— 9 条 provider P/Invoke（`UiaCoreProviderApi.cs:112…143`）指向 `"UIAutomationCore.dll"`，该名在 `build/shims/` **0 命中**（正对照 `"user32.dll"` 非 0）；`nm -D libwpfwin32.so | grep -c ' T Uia'` = **0**（正对照 `IsWindows10*`=8）。
+- 处置：**本波只登记**（真做要独立里程碑）。已给出的最小第一步（**未落地**）：**A** 把"无门"做成**会变红的仪器**（断言 `WM_GETOBJECT` 出现次数 == 1 且是 `case`，配反极性牙）；**C** AT 可见性的真路 = **AT-SPI2/D-Bus 桥**（仓内自有代码 **0 命中**，只有 2 条注释）；**D** XIM 闭环。
+- 边界：以上**全是静态读数**；"AT 到底能不能看见窗口"在 **hc-linux 侧无断言点**（provider 消费者 **0**，只有 24 处 `AutomationProperties.AutomationId` 设置）⇒ **本仓无法从应用侧证实/证伪**，运行时行为 = `NOINFO`（配方见报告 §7）。
+
+### `D-G76`（**能力缺口 · 静态已定**）：**IME 侧一处落点都没有**，而其中一重门是**巧合关闭**、**没人在册决定过**
+- 现象：输入法（IME）这条路在原生侧**零落点**：`ImmGetContext`/`ImmAssociateContext`/`WM_IME_*`（作**实现**）全 0；唯一 `WM_IME_SETCONTEXT` 命中是 `win32_msg.c:477` 的**消息名美化器**（**名字不是实现**）；`"imm32.dll"` 在 `build/shims/` **0 命中**（正对照 user32 非 0）；`nm … ' T Imm'` = 0；`XOpenIM`/`XCreateIC`/`XFilterEvent` 全 0 —— 按键只经 `win32_x11.c:928 XLookupString(..., NULL)`（**XIC 传 NULL ⇒ 不经任何输入法引擎**）。
+- 判定点：托管侧**三重门** —— ① TSF 显式关闭（`TextServicesLoader.Linux.cs:127-130/247-251`）；② legacy IMM32 取值链 `InputMethod.cs:1781`／`TextEditor.cs:2008` → `SafeSystemMetrics.cs:99-106` → `NativeValues.cs:521 IMMENABLED=82` → shim `win32_core.c:1655-1683` `default: return 0` ⇒ `_immEnabled=false`（**这一重是巧合，没有任何人在册决定过它**）；③ TSF 兜底 `TextServicesCompartmentContext.cs:71-73` 返 null。`imm32.dll` 共 **18 条** DllImport／**14** 个唯一方法名（`UnsafeNativeMethodsCLR.cs:386-441`）今日全静态不可达。
+- 处置：**本波只登记**。要求：②那一重**必须在册登记为"有意降级"**（`default: return 0` 是刻意的、不是漏的）——否则将来有人"把它补成 1"，就会打开一条指向**未映射 `imm32.dll`** 的路（本仓"静默 no-op/半通"那一家族）。
+- 边界：**静态结论**；真按组合键会怎样 = `NOINFO`（禁跑应用，配方在 W72A 报告 §7）。
+
+### `D-G77`（**工具缺陷 · 静默假读**）：`retake-arms-w23.sh` **硬写 `DISPLAY=:97`**，而**没有任何一步保证 `:97` 常驻** ⇒ 在闸门之外重取臂会**静默**拿到 X-混淆读数
+- 现象（车道 W76A 实测，2026-09-21）：`#49` 收尾链第 ② 步重取五臂时，`build/MilBridge/retake-arms-w23.sh:83` **硬写 `DISPLAY=:97`**，而当时 `ls /tmp/.X11-unix` 只有 `X0 X1 X36`（`Xvfb :97` **不存在**）⇒ 五臂里 `textlineproto` 这一臂的读数被"**没有 X**"污染。
+- **成对证据**：该臂日志出现 **2 条 `XOpenDisplay(":97") 失败`** ＋ `[WIN_DIAG] CreateWindowEx 失败`；`P4 new DrawingVisual().RenderOpen() 在纯 PC 下可用` 由 **PASS 翻 FAIL**；`探针：通过 4 / 失败 2` → **`通过 3 / 失败 3`**；该臂 sha `4bceceeed570ba70 → c1a5cf0a72bbd12d`。另四臂 `grep -c XOpenDisplay` = **0**（未混淆）：`tline 60f0f63d2b5ac8df`（可归因于新 `hbtextline 921ba9c6…`／新 `pc 56ee75ce…`）／`tab-zero 9150c3a2…`／`tab-anchor 1c43a12d…`／`tab-rtl 92570318…` **逐位等同 `#48` 冻结值**。
+- **时序证据**：臂重取窗口 `15:37:58–15:43:38` 全程 `:97` **DOWN**；闸门自己那一趟在 `15:44:33` 才起 `Xvfb :97`（现盘 `X97` 在，PID 101837）⇒ **"闸门内跑"与"闸门外跑"给出不同读数**。
+- 判定点：`build/MilBridge/retake-arms-w23.sh:83`（写死显示号）；根因族 = `D-G59`（选 X 显示）＋ `D-G48`（落到原生 LS）同一家的"**环境没保证、读数却照样给**"。
+- 处置（`#49` 波内）：①**留住/自起 `:97` 后把五臂整趟重取**（脚本是原子的）；②用现场实测 sha 重钉 `known-red.json` 的 `generation.arm_logs` 与 `evidence_log_sha256`；③`generation.arms_retaken` **追加**一条如实记"第一趟 X-混淆、作废重取"。**九位不受影响**（重取臂不动九位）⇒ 已跑的门禁行仍有效。
+- 建议的根治方向（**未落地**）：让该脚本**自己保证 `:97`**（自起或**大声失败**）——本仓禁止"环境缺件却静默给读数"。
+- 边界：本条只判"**硬写显示号且无保证 ⇒ 静默假读**"；"应用门禁常驻显示号该由谁维持"是**流程**问题（无人在册决定过），不在本条内。
+
+### `D-G78`（**产品缺陷**）：**PTS context 创建失败后把"毒池项"留在池里** ⇒ 下一趟被当空闲项复用 ⇒ `Context==Zero` ⇒ 触发 **7 处 `Invariant.Assert` 的 `FailFast`**
+- 现象（车道 W78A 定，报告 `build/MilBridge/W78A-report.md` `0dbc62b1d1cf86ee`）：`D-G70` 那条"切「富文本」/「流文档」必死 `rc=134`"的**终止形态**，其直接机制不是"某个 getter 断言"，而是 **`PtsCache` 里那条半初始化的池项没被清掉**：`PtsCache.AcquireContextCore:198` 抛异常时**池项仍在 `_contextPool`**，下一趟布局在 `:182-189` 把它当**空闲项**复用 ⇒ `Context == Zero` ⇒ 断言失败。
+- 判定点：`build/PresentationFramework.Linux/**` 注入的 `PtsCache.AcquireContextCore:198`（清理面）＋ `:182-189`（复用面）；**`FailFast` 不止一处**：`PtsHost.cs:54/63`、`PtsCache.cs:316/329/331/401/403` **共 7 处**（车道逐条列出）⇒ 修法**不是**改某个 getter。
+- 处置：**本波只登记**；`TASK-0303` 的推荐最小第一步 `A′` 里 **A2** 就是修它（≈40–90 行托管：失败时把池项移除 ＋ 具名能力闩 ＋ **`Invariant.Assert` 一个都不删**）。
+- 边界：本条只判"**失败留下的毒池项导致可复现的 `FailFast`**"；"PTS/LineServices 真实现"仍是 `TASK-0302` 的长线（本移植**无参考实现、无真机对照物、无 wine** ⇒ 车道独立复现，故 A′ 只做"**具名、可判、可见的能力边界**"）。
+- ⚠️ **配套判据（比功能本身更重要，车道提出）**：`A1` 的 stub 一旦被后人"顺手"改成返回成功 ⇒ `CreateDocContext` 交出**假句柄** ⇒ 断言全过 ⇒ 页面空白但进程活着 ⇒ **没有任何红**。⇒ 判据必须含 **`N2` 反极性（假绿探测器）**："把 stub 改成返回成功，判据**必须变红**"。
+
+### `D-G79`（**判据缺陷 · 静默假读**）：应用门禁 `run-wpftextdemo.sh` 的**"按标题认领窗口"那一格认错了对象** ⇒ `head -1` 取到**永不 map 的无名顶层窗** ⇒ 12/12 假 `no-window`
+- 现象（车道 W76A 实测，2026-09-21，`#49` 冻前）：门禁 **两趟 ×2 = 12/12 全 FAIL**，`fail_reasons=("no-window")`、`capture=all-blank colors=0`；**换常驻 `Xvfb :97` 重跑仍 6/6 FAIL** ⇒ 不是 X 不稳、不是偶发。
+- **根因（最小复现，同一 app-local 目录）**：门禁用
+  `xwininfo -root -tree | grep -F 'WpfTextDemo' | grep -oE '0x[0-9a-f]+' | head -1`
+  —— 而 `grep -F 'WpfTextDemo'` **匹配的不是标题，是 `WM_CLASS`**（本进程每个窗口的 class 都是 `HwndWrapper[WpfTextDemo;;<guid>]`）⇒ **5 个顶层窗全成候选**，`head -1` 取到的是 **topmost**：`0x200006 (has no name) 800x600 Map State: IsUnMapped`（托管层在**主窗之后、map 之前**新建的无名顶层窗，`style=0x0`）⇒ **它永远不 map** ⇒ 门禁等 60 s 判 `no-window`。
+  真窗口 `0x200005 "WpfTextDemo — text / binding / image / effect" 938x938 IsViewable` **一直在**；应用侧自报 `[CREATE_DIAG] CREATE xid=0x200005 … → CREATE xid=0x200006 style=0x0`、`[SHOW_DIAG] ShowWindow hwnd=0x200005`、`[mil 8] X11 Resize → 938x938`、`committed=886`、`skia 指令 261` ⇒ **本波产品侧"建窗/映射/呈现"没有回归**。
+- **为什么 `#48` 时没暴露**：`#48`（W48A）那趟 `windows-*.txt` 里**唯一候选就是 `0x200005`**（`938x938 IsUnMapped→IsViewable`）⇒ 那时 `head -1` 恰好命中真窗口 ⇒ **这条洞一直存在，只是这一代被触发**（与 `D-G59` / `D-G77` 同族：**"认错了对象，读数照给"**）。
+- 判定点：`tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpftextdemo.sh`（找窗那一格；现有 viewability 检查**只对 `head -1` 生效**）。
+- 处置（`#49` 波内，车道 W76A）：把"按类名 + `head -1`"改成"**枚举全部候选、取第一个 `Map State: IsViewable` 且 `WM_NAME` 以 `WpfTextDemo` 开头者**"。**判据（两极化）**：同一棵树 ⇒ 修前 `head -1`=`0x200006`(unmapped) → `no-window`；修后 `0x200005`(viewable) → 通过。**另需反极性（防假绿）**：真窗口不可见时必须**仍然 FAIL**（不许改成"任意候选可见即过"）。
+- 边界：本条只判"**认错窗口对象 ⇒ 假 `no-window`**"；"**为什么托管侧在主窗之后、map 之前又建了一个无名顶层窗（`style=0x0`）**"是**独立待查项**（`XCreateSimpleWindow` 在 shim 里只有一处 `win32_x11.c:404` ⇒ 由**托管**侧建；是否为本波窗口状态机引入、能否不建 ⇒ **未定性 `NOINFO`**，冻结后另派）。
+
+### `D-G80`（**工具链缺口 · 反复现场**）：**"只重建、不刷副本"** —— 波内 `3.6` 刷新步**按设计拒刷**"分组落单、不由权威锚定"的副本，而**判据会枚举它们** ⇒ 副本陈旧 ⇒ 假红
+- 现场三例（都在 `#49` 一轮里出现，车道 W76A＋W59A＋主控合记）：
+  1. **四份原生 `.so` 副本**（`libwpfwin32.so`）：波前 = `abf6879c027c5e73`，与权威 `c493639d15678803` 不一致 ⇒ 由整波 `3.6` 刷新步**自动同步**（`REFRESH` ×4 在册）。
+  2. **两份桥副本**：`samples/ThirdPartyMini/bin/Debug/net10.0/wpfgfx_cor3.so` 与 `samples/WpfFeatureProbe/bin/Release/net10.0/wpfgfx_cor3.so` 停在 `e3ea092010734f44`（= `#48` 桥值），而桥本波变了两次（`79e45aed26487045 → feef049e9d0e313a`）⇒ `ManagedLayer.Tests` 的 `DP1ReproTests.闸门_win32shim被测件与权威件同sha` **枚举 `samples/**` 与 `.artifacts/**` 下所有桥副本**并要求逐个 == 权威发布件 ⇒ **红**（该测试自己的话就是"先同步副本再跑本套件"；同步后转绿）。
+  3. （同族）`D-G63`/`W50A` 记的 `3.5/3.6` 段序问题的另一半：**刷新步"不盲拷"是刻意的**（防越权），但它**不告诉任何人"这里有落单件"** ⇒ 读到红的人得自己反推。
+- 判定点：`build/integration-wave.sh` 的 `3.6` 刷新步（拒刷条件）＋ `build/MilBridge/tools/sync-applocal.sh`（只覆盖五件、且按权威锚定）＋ 判据侧（`ManagedLayer.Tests` 的副本枚举、`close-wave.sh` 的九位读数）。
+- 处置（本波）：**按判据自己的话手工同步副本**（已做，逐件复读）；**本波不改刷新步语义**（改它=改判据覆盖面，属独立一波）。
+- 建议的根治方向（**未落地**）：让刷新步**把"落单件清单"大声打出来**（"我看到了但按规矩不刷"）＋ 让判据**只枚举"声明在册"的副本位置**，二者取一；现在这个组合会**周期性**产出假红（本波一轮里就三次）。
+
+### ★ 收尾提醒（`#49` 波内，主控加）
+`build/MilBridge/tools/product-entry-step.sh` 的 `PRODUCT-ENTRY` 步在 `#49` 冻前**红了 5 格**，红**全在 `field=ext`（Extent）**（例：`PEA_LINE case=M_modifier_w80 k=0 field=ext ours=17.484375 truth=18.000000 delta=-0.515625`，同例其余列全 OK）⇒ 根因与 `known-red.json` `entries[1]` 的 `95 → 1242` **同一件事**（`D-G57` 零墨修法改了墨迹盒）。
+⚠️ **主控裁定（2026-09-21）**：**有条件批准**判为"判据口径类"（已知代价具名在册）—— **必须先给同代 A/B**（放回修前 `hbtextline`/`pc` 跑同一套，逐例列 `ext` 的 `ours/truth/delta`）：若修前 `ext` 也 OK **而那时是零墨** ⇒ 旧口径是"按不可见渲染算的墨迹盒" ⇒ 批准登记（逐例点名 ＋ 写明"`D-G57` 的已知代价、不是产品回归" ＋ 后续 TASK 重新标定 `ext` 真值）；**拿不到 A/B 就不许登记成"已知代价"**，只能如实记 `NOINFO`＋"冻结被挡"，由主控另派车道定。**不许把红说绿。**

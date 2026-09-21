@@ -21,9 +21,29 @@
 -->
 <Project>
 
+  <!--
+    ── ⚠️【`#49` 主控修 · `C1c` 根因】"配置"这件事**只许有一个源头** ─────────────────────
+    现场（2026-09-21 主控实测，读数逐条留档在 `docs/WAVE49-PREREGISTRATION.md` §13.4 ②）：
+      本文件原先**自带**一句默认值 `Debug`，而全仓的**唯一声明**是
+      `build/SelfBuiltConfig.props` 的 `WpfLinuxSelfBuiltConfiguration = **Release**`
+      ⇒ **同一个语义两处声明 ⇒ 必然分叉**（`#39` 那份文件头警告的正是这一族）。
+    后果是**真的、可量的**：`samples/ThirdPartyMini` 的 runner 用 `-c $SELFBUILT_CONFIG`（= Release）
+    构建**应用**，却没传本文件的 `WpfLinuxBuildConfiguration` ⇒ 它引用的是 **Debug** 的自产件，
+    副本落进 `bin/Release/net10.0/` 之后与**权威（Release）**不符 ⇒ 应用门禁当场报
+    **4 条 `UNEXPECTED-DIFF`（硬红：内容不同的未声明副本）**，即 `C1c` 那四条。
+    ⇒ **根因不是"该不该带 PF/WB"、也不是"要不要刷新"，而是"配方自己发了一份配置声明"。**
+
+    修法：**import 唯一声明处**，本文件的默认值**从它派生**（不再抄一个字面量）。
+    · `WpfLinuxBuildConfiguration` 这个名字**保留**：外部仍可**显式覆盖**（= "我故意跨配置"），
+      但覆盖之后应用门禁的 app-local 检查器会把跨配置副本**照样判红**（`CROSS-CONFIG` 格，`D-G62`）
+      ⇒ 跨配置是**可见的**，不是被允许的。
+    · `Condition="Exists(…)"`：`WpfLinuxRoot` 没给时这里**不静默吞** —— 下面
+      `WpfLinuxPropsCheck` 会**大声失败**（本文件的原则：不给就喊，不猜）。
+  -->
+  <Import Project="$(WpfLinuxRoot)/build/SelfBuiltConfig.props" Condition="Exists('$(WpfLinuxRoot)/build/SelfBuiltConfig.props')" />
   <PropertyGroup>
     <WpfLinuxRoot Condition="'$(WpfLinuxRoot)' == ''"></WpfLinuxRoot>
-    <WpfLinuxBuildConfiguration Condition="'$(WpfLinuxBuildConfiguration)' == ''">Debug</WpfLinuxBuildConfiguration>
+    <WpfLinuxBuildConfiguration Condition="'$(WpfLinuxBuildConfiguration)' == ''">$(WpfLinuxSelfBuiltConfiguration)</WpfLinuxBuildConfiguration>
 
     <TargetFramework Condition="'$(TargetFramework)' == ''">net10.0</TargetFramework>
     <!-- ⚠️ 必须是 false：本工程不用 Windows Desktop SDK 的 WPF 实现，改用自产件 -->
@@ -45,6 +65,9 @@
   <Target Name="WpfLinuxPropsCheck" BeforeTargets="ResolveAssemblyReferences">
     <Error Condition="'$(WpfLinuxRoot)' == ''"
            Text="WpfLinux.props：请在 csproj 里设置 &lt;WpfLinuxRoot&gt;（wpf-linux 仓根绝对路径），或用 -p:WpfLinuxRoot=… 传入。" />
+    <!-- `#49` 主控加：唯一声明处取不到 ⇒ **必须喊**（否则 HintPath 会塌成 `bin//X.dll`，错误长得像"文件不存在"） -->
+    <Error Condition="'$(WpfLinuxBuildConfiguration)' == ''"
+           Text="WpfLinux.props：自产件配置取不到 —— 期望从 $(WpfLinuxRoot)/build/SelfBuiltConfig.props 的 WpfLinuxSelfBuiltConfiguration 派生，但该文件缺失或值为空。请检查仓根是否给对（WpfLinuxRoot=$(WpfLinuxRoot)）。" />
     <Error Condition="!Exists('$(WpfLinuxBinDir)/PresentationCore.Linux/bin/$(WpfLinuxBuildConfiguration)/PresentationCore.dll')"
            Text="WpfLinux.props：在 $(WpfLinuxBinDir) 下找不到自产件（配置 $(WpfLinuxBuildConfiguration)）。先在仓内跑：WAVE_OWNER=you bash build/integration-wave.sh" />
   </Target>

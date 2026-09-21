@@ -1,10 +1,91 @@
-# BASELINE-HEADER date=2026-09-20T00:16+08:00 display=:99（verify-all 头标的目标显示号；本机现场实测是"复用已运行的显示"）／ :97（应用门禁常驻显示号，现场复用） host=linksdev-VirtualBox kernel=6.8.0-138-generic
-#   cpu=3核（`nproc` 现场读 = 3）  run_dir=/home/links-dev/w50a/gate-e（应用门禁，3 rep × 2 档 = 6 行；机读行 = /home/links-dev/w50a/gate-rows.txt（9,298 B，sha16 439a9c038c476adc，header `display=:97`、6 行全 `result=PASS`、每行含 `pc:9465f9dce39e2dfc`／`pf:1011da6390c3bf1e`）；两趟 `WPTD_GATE=PASS acceptance=2/2`、`WPTD_BRIDGE_SRC_STALE=no`）  repeat=3  timeout=60s  tier=both
-#     ⚠️ **这两格本车道查不到，如实留白**：写记录时（00:16）`$HOME/w50a/` 下只有 `00-before-readings.log`、`00-wait-quiet.log`、`01-publish.log`、`02-integration-wave.log`、`02-after-wave-readings.log`、`fp_inputs_body.sh`、`nine.sh`、`wait-quiet.sh` —— **没有任何门禁目录、没有 rows 文件** ⇒ 由主控按现场补，本车道**不瞎填**。
-#   git_head=(no git —— 本机**没装 git**)  samples_src=samples/WpfTextDemo  runner=run-wpftextdemo.sh
-#   ⚠️ **权威件的构建配置 = Release**（`#40` 起；唯一声明 = `build/SelfBuiltConfig.props`；本车道现场复核：`bash build/selfbuilt-config.sh` = `Release`，且九位路径逐条落在 `bin/Release/`）
+# BASELINE-HEADER date=2026-09-21T16:5x+08:00 display=:99（`verify-all` 的 `DISPLAY_NUM=99`，本趟**常驻**复用；日志头逐字见冻前那趟）／ :97（应用门禁与 `frame-presence` 的常驻显示号，本趟由主控 `setsid` 常驻）
+#   cpu=3核（`nproc` 现场读 = 3）  run_dir=/home/links-dev/w76a（应用门禁两趟：`gate-fix/e`（写 rows）、`gate-fix/f`；机读行 = `/home/links-dev/w76a/gate-fix/rows.txt`）
+#   git_head=(本机 `R` **不是** git 仓库；用户的 fork 克隆在 `~/netTest/GitProj/WPFOnLinux`，本波推送后 head 见 `===RECORD===`)  samples_src=samples/WpfTextDemo  runner=run-wpftextdemo.sh
+#   ⚠️ **权威件的构建配置 = Release**（`#40` 起；唯一声明 = `build/SelfBuiltConfig.props`；本趟现场复核 `bash build/selfbuilt-config.sh` = `Release`）
+#   ⚠️ **本波新登记两件缺陷（都是"判据/仪器认错对象、读数照给"这一族）**：
+#     · `D-G77`（`build/MilBridge/tools/retake-arms-w23.sh:131`）：重取五臂**硬写 `DISPLAY=:97`** 而全仓**没有任何一步保证 `:97` 常驻** ⇒ 闸门之外重取会**静默**拿到 X-混淆读数（本波第一趟现场：`textlineproto` 臂 4/2→3/3、sha 被改写）。**本波已修**（`:97` 不在 ⇒ 自起 Xvfb；起不来 ⇒ `exit 5` 大声失败），两极性读数见 `===RECORD===`②。
+#     · `D-G79`（`tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpftextdemo.sh:869` 原行）：门禁"按标题认领窗口"**其实在按 WM_CLASS 认领**（`grep -F 'WpfTextDemo'` 命中每窗的 `HwndWrapper[WpfTextDemo;;<guid>]`）＋`head -1` ⇒ 被 topmost 的**无名顶层窗**顶掉 ⇒ 本波实测**两趟 12/12 假 `no-window`**。**本波已修**（枚举全部候选、取第一个「标题以 `WpfTextDemo` 开头 ∧ 尺寸 ≥64 ∧ `IsViewable`」者），两极性与逐字树见 `===RECORD===`③。
 
-# RE-FROZEN #48 —— ✅ **当前冻结基线** —— 内容 = 修 **`D-G56`**（我方两个 applier 把**插桩横幅插在「类属性块 ↔ 类声明」之间** ⇒ 两条/三条类属性**挂到插桩类身上** ⇒ `NameScope` 挂不到页面根 ⇒ 带 `Storyboard.TargetName` 的 BAML 页**一加载就未处理异常、进程 abort**）；本波**产品改源 = 两个 applier 的插入锚（零语义改动的换锚）**，位移与归因见下方。
+# RE-FROZEN #49 —— ✅ **当前冻结基线** —— 内容 = 收掉 `#48` 冻后剩下的一波：**①`D-G57` 文字零墨**（`build/shims/PresentationCore.HbTextLine.cs` 单段分支改按**计划面**取字形 id ⇒ 页签/按钮/搜索框出墨）＋ **②`D-G72`/`TASK-0008`**（shim `GetMonitorInfoW` 按 `cbSize` 写入 ⇒ 点顶部菜单条不再 NRE）＋ **③`TASK-0403`**（通道级具名台账进 `src/WpfGfx.Linux/{Resources/MilChannel.cs,Commands/MilCommandDispatcher.cs}` ⇒ 桥重发）＋ **④`TASK-1002`**（`wic-shim/applocal-expect.py` 补声明图 ⇒ `UNEXPECTED 16→6`）＋ **⑤仪器侧**：`B4`/`R-CSRC` 把 `src/WpfGfx.Linux.Native/**/*.{c,h}` 纳入 `fp_inputs()`、`C2`/`C4` 纳入 `sync-applocal.sh`／`check-applocal-sync.sh`／`applocal-expect.py` ⇒ `inputs_fp` **必变**（设计性）；`B1` 修"显示号选定后不复核"；并修掉 `D-G77`／`D-G79` 两条**会让读数静默失真**的仪器缺陷。
+#   ── 九位（Release 权威件）**现算**（占位符由冻结器替换，值 = 冻结那一刻的现场）──────────
+#     · `bridge` `feef049e9d0e313a`（5028208 B）｜`pc` `56ee75ced8d6aece`（3601408 B）｜`pf` `6375fabf89ac7fef`（6119424 B）｜`windowsbase` `2e4e46e539a72cd7`｜
+#       `provider` `1f9511a7ef395bfe`｜`win32shim` `c493639d15678803`｜`wic_shim` `56278c14b4ecd672`｜`hbtextline` `921ba9c65e9fb3be`（293165 B）｜`dwf` `de2d555105b7d04b`。
+#     · ⚠️ **位移对账（相对 `#48` 冻结值那一栏）**：`bridge` `e3ea092010734f44` → `feef049e9d0e313a`（`TASK-0403` 台账进桥 ⇒ **按需重发**）｜`pc` `9465f9dce39e2dfc` → `56ee75ced8d6aece`｜`pf` `1011da6390c3bf1e` → `6375fabf89ac7fef`｜`windowsbase` `79740e9ba7fbf9ca` → `2e4e46e539a72cd7`｜`win32shim` `abf6879c027c5e73` → `c493639d15678803`（`D-G72` 修法）｜`hbtextline` `e89fed55fd8e32bc` → `921ba9c65e9fb3be`（零墨修法）；`provider`／`wic_shim`／`dwf` **逐位未变**。
+#     · ⚠️⚠️ **必记一行（主控要求）**：`pc`/`pf` 的**整波重建值**与**定向重建值**不同 —— 零墨修法后只重建 `build/PresentationCore.Linux` 得到 `pc 21e3e88a5090cd3b`，而整波重建得到 `56ee75ced8d6aece`（`pf` 同理：定向 `1011da6390c3bf1e` → 整波 `6375fabf89ac7fef`）。**同一个源、不同的构建范围/顺序会给出不同字节**（`D-G46` 族；`W70A` 已证"同命令连跑两次同值"⇒ 不是随机）⇒ **本波冻结取的是整波值**，不是定向值；不许把两处读成漂移。
+#     · ⚠️ **`PRE` 快照的口径（必写，否则后人会读成事故）**：`/home/links-dev/w49-pre.sha`（9 行、键=路径）**不是**开工前活取的 —— 本波三处世代位在**本车道开工之前**就被波内车道改过（`hbtextline` 12:32／`win32shim` 12:31／`pc` 12:33）⇒ 现场已不存在"改前值"⇒ `PRE` 按 **`#48` 冻结块**九位**逐位重建**（可复算：值就是 `#48` 冻结块里那九个数）。因此冻结器算出的 `changed` = **本波相对 `#48` 冻结点**的位移本身（与 `#46`/`#47`/`#48` 的"产品位移"一栏同形）。
+#     · ⚠️ 本代 `prev_pc`=9465f9dce39e2dfc／`prev_pf`=1011da6390c3bf1e／`prev_wsh`=abf6879c027c5e73／`prev_wb`=79740e9ba7fbf9ca／`prev_dwf`=de2d555105b7d04b **全部与 `#48` 冻结值一致**（= `PRE`）。
+#   ⚠️ **`BRIDGE_SRC_FP` = `0a8f69b3c5fabd43`**（上一代 `f10b4b297b2358e6`，**两侧同值**：现树 == 发布记录 `build/MilBridge/.artifacts/publish/MilBridge.Linux/release_linux-x64/bridge-src-fp.txt`）⇒ `close-wave.sh:301-304` 的桥身份自检**会过**。
+#   **臂日志**：位 sha 变 ⇒ 按纪律**重取五臂**。⚠️ 本波重取**跑了两轮**：第一轮（15:37:58–15:43:38）**X-混淆、已作废**（`D-G77`：`:97` 当时不存在）；修法落地后正式两趟（①无 `:97` 自起＝`source=self-started`；②有 `:97` 复用＝`source=reused`），两趟 `textlineproto` 日志**去时间戳后逐行相同**、判词均回到 **通过 4 / 失败 2**、`XOpenDisplay` 计数 **0**。
+#   **臂日志聚合（两种口径都算，`#31` 起同趟写）**：`cat` 口径 = `7e15b9c3d3d8ada2`；`find|sort|xargs` 口径 = `5caae84d6e94e18a`。
+#   **`inputs_fp`** = `9f2199b212bed2b212035f87ff6006672605ff7bea6221c0be540301b1a8380b`（上一代 `cad0801cf1dff2fdf1600b803315d1c57b0d2afcc9ebf45e170f2b3885677da4`）。⚠️ 本波 `inputs_fp` **必变**是**设计性**的，可归因**六件**：① `build/close-wave.sh` 的 `fp_inputs()` 新增 `src/WpfGfx.Linux.Native/**/*.{c,h}`（`B4`/`R-CSRC`）＋三件判据件（`C2`/`C4`：`sync-applocal.sh`／`check-applocal-sync.sh`／`applocal-expect.py`）；② `build/shims/PresentationCore.HbTextLine.cs`（零墨修法）；③ `src/WpfGfx.Linux/{Resources/MilChannel.cs,Commands/MilCommandDispatcher.cs}`（`TASK-0403`）；④ `src/WpfGfx.Linux.Native/src/{win32_core.c,…}`（`D-G72`）；⑤ `build/MilBridge/known-red.json`（`entries[1]` 重钉 ＋ `repin-generation` 重钉世代/五臂）；⑥ **`build/MilBridge/tools/product-entry-step.sh`**（`d0b503cd5f74dfcf → 4fdf5de43f1a211a`：把 `D-G57` 零墨修法的**已知代价具名登记** —— 5 格 `field=ext`（`M_modifier_w80/_w120/_w200/_w320/_winf` 各 `k=0`，`delta=-0.515625`），依据 = 同代 A/B「只换权威 pc」：修前 `9465f9dce39e2dfc` ⇒ **147/147 全 OK**；修后 `56ee75ced8d6aece` ⇒ 同样 5 格 `ours=17.484375`／`truth=18.000000`。**语义 = 改了判据口径（把已知代价具名），不是把产品改绿**；下界/正控/`noinfo` 三条闸一格未动，不在册的红照旧 `FAIL`，在册格"消失"判 `NOINFO`）。⚠️ 本波改的两件仪器（`retake-arms-w23.sh`、`run-wpftextdemo.sh`）**都不在** `fp_inputs()` 覆盖面里（现场点算：覆盖面 **143 件**，`sed -n '/^fp_inputs()/,/^}/p' build/close-wave.sh | grep -c 'retake-arms\|run-wpftextdemo'` = **0**）⇒ 改它们**不动** `inputs_fp`。
+#   **`entries[1]` 重钉（本波必做，`D-G57` 的直接后果）**：`known-red.json` 的 `tline` 臂 `T2d-Extent余差` 由 `count==95` 重钉为 **`count==1242`**（**现场实测**：`build/MilBridge/arm-logs/tline.log:149` 原文 `[② Extent 余差清单] 共 1242 条（主对拍集 1202 + LH 组 40；容差 0.01 DIP）`）。**不去动它就会 `registry-stale(drift)` ⇒ FAIL**（门禁比的是这里：`tline-gate.sh` 的 `eval_shape`）。原因 = 零墨修法**改变了墨迹盒（Extent）的取值**；同代 A/B 已证两腿只差 `-p:HbShimSrc`（`通过 22/失败 2` 与两条既有 ❌ 逐字不变）⇒ 变的是**读数本身**，不是判据漂移。`known-red.json` **在 `fp_inputs()` 覆盖面里**（点名成员）⇒ 重钉后 `inputs_fp` 如上。
+#   【外挂声明：`D-G27` 的读者要读的 4 类行】⚠️ 谁改它们谁要让读者一起绿。
+# COLUMN-FLOOR arm=tab-oracle-anchor col=START      judged_min=615 released_min=194
+# COLUMN-FLOOR arm=tab-oracle-anchor col=OVERFLOWED judged_min=421
+# COLUMN-CORPUS file=tests/parity/windows/tab-anchor/out/tab-anchor-oracle.json sha16=0cebc0afd5142fbf
+# ARM-LOG-SHA arm=tab-anchor    sha16=1c43a12dcaa5718a
+# ARM-LOG-SHA arm=tab-zero      sha16=9150c3a26a3cb789
+# ARM-LOG-SHA arm=tab-rtl       sha16=92570318851ca7e8
+# ARM-LOG-SHA arm=tline         sha16=2103f88183b17a6a
+# ARM-LOG-SHA arm=textlineproto sha16=4bceceeed570ba70
+#   【冻前那 1 处声明类红（**这是设计，不是失败**）】`verify-all` 第 `[14]` 步 `COLUMN-FLOOR` 在**冻前必红**：
+#     `COLUMN_FLOOR_ARMLOG=FAIL n_decl=5 n_ok=3 bad= tline`（冻结块还是 `#48` 的 `960e28f59ee974e5`，而登记表已重钉为 `2103f88183b17a6a`）＋ `COLUMN_FLOOR_SELFREPORT=PASS`
+#     形态**逐字命中** `w27-freeze.py` 的 `_is_declaration_class()`（`COLUMN_FLOOR_ARMLOG=FAIL` ∧ `selfreport=PASS`）⇒ 冻后同一批检查器必须转绿。
+#     ⚠️ 第一趟重取（X-混淆）时该行是 `bad= tline textlineproto`；X-混淆作废后重取 ⇒ `textlineproto` 回到 `4bceceeed570ba70`（= `#48` 冻结值）⇒ **收敛为只剩 `tline` 一条**，这正是"那条红应当收敛"的成对读数。
+# ── ① 本波改了什么（逐件 sha16，改前 → 改后）────────────────────────────────────
+#   **产品/构建件**（值进九位）：
+#     · `build/shims/PresentationCore.HbTextLine.cs`  `e89fed55fd8e32bc` → **`921ba9c65e9fb3be`**（零墨修法：单段分支按**计划面**取字形 id）
+#     · `build/PresentationCore.Linux/**`（整波重建）  `pc 9465f9dce39e2dfc` → **`56ee75ced8d6aece`**
+#     · `src/WpfGfx.Linux.Native/src/{win32_core.c,win32_internal.h,…}`（`D-G72`：`GetMonitorInfoW` 按 `cbSize` 写入）  `win32shim abf6879c027c5e73` → **`c493639d15678803`**
+#     · `src/WpfGfx.Linux/{Resources/MilChannel.cs,Commands/MilCommandDispatcher.cs}`（`TASK-0403` 通道级具名台账）⇒ 桥重发  `bridge e3ea092010734f44` → `79e45aed26487045`（波前就已由波内车道重发）→ **`feef049e9d0e313a`**
+#     · `build/DirectWrite.Linux/wic-shim/applocal-expect.py`（`TASK-1002` 补声明图）  `51b09c345c1dfb5d`（见 `docs/WAVE49-PREREGISTRATION.md` §13）
+#   **仪器/判据件（本波新修，两件都不在 `fp_inputs()` 覆盖面）**：
+#     · `build/MilBridge/tools/retake-arms-w23.sh`  `2546fee35078a993` → **`a160671709db61c2`**（`D-G77`：`:97` 不在就自起、起不来就 `exit 5`；第 4 步那行内容一字未动，行号 `:83` → `:131`）
+#     · `tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpftextdemo.sh`  `e657abba148a9bce` → **`3feab1cdac3318a7`**（`D-G79`：枚举全部候选、按**标题**认领**可见**的那个）
+#   **登记/预登记件**：`docs/WAVE49-PREREGISTRATION.md`（H1 含 `#49`）｜`build/MilBridge/known-red.json`（`entries[1]` 95→1242 ＋ 世代/五臂重钉）｜`docs/CURRENT-STATE.md` 机器行（本冻结同趟改）。
+#   **`verify-all.sh` 的世代声明**：`gen=#48` → **`#49`**（DECL 首行新增一条 ＋ 口径句新增一条；**步数不动 = 25**）。现场读数：`VERIFYALL_SELF=PASS names=25 decl=25 gen=#49 dup=0 order=OK prose=OK prereg=PASS`（`verify-all.sh` 整份 sha16 = `bb416e92ab34ff64`）。
+# ── ② 收尾链每步读数（命令 + rc + 关键原文）──────────────────────────────────
+#   【勘察结论（为什么从第 ② 步接续）】`build/wave-audit.log` 最后一条是 `w50a @2026-09-20T00:11`（那是 `#48` 的波）；
+#     `build/MilBridge/arm-logs/*` 五个文件的 mtime 全停在 `9-20 00:17–00:21`；`BASELINEGEN=PASS decl_gen=#48`；
+#     `known-red.json entries[1]` 仍是 `count==95`；`~/w71a/` 下**只有 `BRIEF.md`、零日志零报告**
+#     ⇒ **整波从未跑过**，从 §6 收尾链**第 ② 步**接续（不是"从中间接"）。
+#   【第 ② 步】`WAVE_OWNER=W76A bash build/integration-wave.sh`（槽内）⇒ `rc=0`、`失败步骤 0`、`APPLIER_AUDIT appliers=26 ok=89 miss=0 red=0`、耗时 **233 s**、`HEAVYSLOT=ACQUIRED waited=43s`。
+#     ⚠️ 该趟的 3.6 刷新步**自动**把四份落后副本同步到权威：`REFRESH …libwpfwin32.so abf6879c027c5e73 → c493639d15678803` ×4（`CompositeFontProbe`／`ContractProbe`／`SystemFontsProbe`／`WpfFeatureProbe`）⇒ **任务书红字②（"四份副本落后"）不需要手做**，日志逐条在册。
+#   【第 ③ 步·桥】`bash build/publish-milbridge.sh`（槽内）⇒ `rc=0`、耗时 **23 s**；`BRIDGE_SRC_FP=0a8f69b3c5fabd43`（现场 == 发布记录两侧一致）；`bridge` 位 `79e45aed26487045` → **`feef049e9d0e313a`**（5,028,208 B）。
+#   【第 ④ 步·重取五臂】跑三轮（第一轮作废，见上）：正式两趟 rc 均 `0`（①held **329 s**／②held **333 s**，槽内 `--max-hold 1200`）。
+#   【第 ⑤ 步·重钉】`repin-generation.py --why '…'` ⇒ `REPIN_GENERATION=APPLIED`（`instr_shim=e89fed55…→921ba9c6…`、`evidence_log_sha256=2103f88183b17a6a`）＋ `--check` = **`REPIN_GENERATION=PASS`**；`known-red.json` `25c21ca0f33208ae`（改前，406 行）→ `a22648c79ca71801`（`entries[1]` 重钉）→ `e38300c235593d3b`（第一次 repin）→ **`00ad5e0c38379a13`**（X-混淆作废、重取后第二次 repin）。
+#   【第 ⑥ 步·门禁 ×2】见 ③。
+#   【第 ⑦ 步·冻前 `verify-all`】`bash verify-all.sh`（槽内 `--max-hold 1500 -- timeout 1450`）⇒ 读数见 ④。
+# ── ③ `D-G79`（门禁认错窗口）—— 机制、修法、两极性（本波最要紧的一条）───────
+#   【现场】门禁**两趟 ×2 = 12/12 假 FAIL**：`fail_reasons=("no-window")`、`capture=all-blank colors=0`、`exit=143`（应用活着）。
+#     第一次是门禁自起 `Xvfb :97`（PID 101837）；我按 `WAVE18-PREREGISTRATION.md:86` 的纪律起**常驻** `Xvfb :97`（`setsid`，PID 183453）再跑第二遍 ⇒ **仍然 6/6 FAIL** ⇒ 排除"X 不稳/偶发"。
+#   【机制（最小复现，同一份件、同一 app-local 目录）】`xwininfo -root -tree` 逐字：
+#       `0x200006 (has no name): ("HwndWrapper[WpfTextDemo;;94a965e1…]") 800x600 +0+0`   ← 门禁 `head -1` 取它（`Map State: IsUnMapped`，**永远不 map**）
+#       `0x200005 "WpfTextDemo — text / binding / image / effect": (…) 938x938 +0+0`      ← **真窗**（`Map State: IsViewable`）
+#       `0x200004 "SystemResourceNotifyWindow"`／`0x200003 "MediaContextNotificationWindow"`／`0x200002 (has no name)`（800x600）
+#     应用侧自报（`WPF_LINUX_CREATE_DIAG=1`）：`CREATE xid=0x200005 style=0x2cf0000` → `CREATE xid=0x200006 style=0x0`（**主窗之后、ShowWindow 之前**由**托管侧**新建；`XCreateSimpleWindow` 在 shim 里只有一处 `win32_x11.c:404`）→ `[SHOW_DIAG] ShowWindow hwnd=0x200005 a=5` → `CREATE_DIAG MAP xid=0x200005 … 938x938`。
+#     ⇒ **X 里新建窗口默认压在最上层** ⇒ 那个无名顶层窗排在 `xwininfo -root -tree` 第一位；而门禁那句 `grep -F 'WpfTextDemo'` 命中的是 **`WM_CLASS`**（本进程**每个**顶层窗都是 `HwndWrapper[WpfTextDemo;;<guid>]`）⇒ 5 个窗全成候选，`head -1` 取到的是那个**永远不 map** 的无名窗 ⇒ 等到 60 s 超时判 `no-window`。
+#     ⇒ **产品侧没有回归**：真窗建/缩放/映射/呈现全正常（`X11 Resize → 938x938`、`committed=886`、`skia 指令 261 条`、`未画种类 0`）。
+#     ⇒ 对照 `#48`（W48A）那趟的 `windows-*.txt`：**唯一候选就是 `0x200005`**（`938x938 IsUnMapped→IsViewable`）⇒ **这条洞一直在，只是这一代被触发**。
+#   【修法（`run-wpftextdemo.sh:869` 那一格）】`head -1` → **枚举全部候选**，取**第一个**「`WM_NAME` 以 `WpfTextDemo` 开头 ∧ 宽高 ≥64 ∧ `Map State: IsViewable`」者；日志行同时印出 `name=`（可读性）。
+#   【正极性（修前/修后成对）】修前：`head -1 = 0x200006`（`IsUnMapped`）⇒ `no-window`（12/12）；修后：认领到 `0x200005`（`IsViewable`）⇒ 门禁读数见 ③ 的读数块。
+#   【反极性（"真窗认不出来 ⇒ 必须仍 FAIL"）】把真窗的 `WM_NAME` 改名 ＋ 持续 `unmap`（在它还是 unmapped 时就改，**确定性**、无竞态）⇒ 门禁**必须回到 FAIL**；若仍然 PASS ⇒ 说明修法退化成"任意候选可见即过" ⇒ 修法作废。读数见 ③ 的读数块。
+#   【残余边界（如实划）】一个**别的进程**的**可见**窗口若标题也以 `WpfTextDemo` 开头，仍会被认领 —— 这与修前注释"按标题认领"的**原意一致**，但**不是**"只认我自己的进程树"；**未**纳入本修法。**同族未修**（同一句 `… | grep -F 'WpfTextDemo' | grep -oE '0x…' | head -1` 的**另外三处载体**，已登记未动）：`build/MilBridge/tools/t1c-census.sh:248`（**census 现场同样被认错**：本波 census 读数 `SHOT frames=0 best_colors=0 best= win=0x200006`）／`run-wpftextdemo.sh:850`（`first-sight` 抢拍）／`run-wpfprobe.sh:412`。
+# ── ④ `NOINFO` 清单 ───────────────────────────────────────────────────────────
+#   ① **`D-G79` 的那条"无名顶层窗是谁建的"** —— 按主控裁定**不在本波**（已记入 `D-G79` 的边界，冻结后另派车道）。
+#   ② **`①与②` 两趟 `tline.log` 的 sha 不同**（`deb49fbf21fb3b3f` vs `2103f88183b17a6a`）而 `textlineproto` 逐行相同 —— `tline.log` 程序上**不可复算**（`#48` 已证：耗时字段、**自指**的上一趟产物 sha、日期戳文件名、`mktemp` 路径）⇒ **不构成位移信号**；本波按 ② 那一趟（复用 `:97`，与门禁同径）重钉。
+#   ③ **冻后 `verify-all` ×2** 的结论由 ⑤ 给出。
+# ── ⑤ 内存三值与纪律偏离（主控要求逐条写）────────────────────────────────────
+#   · **短步照 300/280**：`integration-wave`（held **233 s**）／桥重发（held **23 s**）／应用门禁每趟（held ≤600）。
+#   · **两条原子长步放宽（已获主控批准）**：重取五臂 `--min-avail 1500 --max-hold 1200 -- timeout 1150`（实际 held **329 s／333 s**）｜冻前/冻后 `verify-all` `--min-avail 1500 --max-hold 1500 -- timeout 1450`（实际 held 见 ④⑤）。**理由**：这两步是**原子长步**，300 s 装不下；`--min-avail 1500`（内存闸门）**未动**。
+#   · **排队情况**：`HEAVYSLOT=ACQUIRED waited=43s`（整波，前面是 `W77A` 的 150 s 档）／桥重发 `waited=0s`／重取①`waited=0s`②`waited=0s`（**它自己的 1200 s 持有把 `W77A` 挡在外面**）／门禁第一趟 `waited=30s`。
+BASELINE tier=default rep=1 config=pc:56ee75ced8d6aece,bridge:feef049e9d0e313a,pf:6375fabf89ac7fef,provider:1f9511a7ef395bfe,win32shim:c493639d15678803,wic_shim:56278c14b4ecd672,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=261 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=4112 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w76a/gate-fix/e
+BASELINE tier=default rep=2 config=pc:56ee75ced8d6aece,bridge:feef049e9d0e313a,pf:6375fabf89ac7fef,provider:1f9511a7ef395bfe,win32shim:c493639d15678803,wic_shim:56278c14b4ecd672,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=261 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=4112 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w76a/gate-fix/e
+BASELINE tier=default rep=3 config=pc:56ee75ced8d6aece,bridge:feef049e9d0e313a,pf:6375fabf89ac7fef,provider:1f9511a7ef395bfe,win32shim:c493639d15678803,wic_shim:56278c14b4ecd672,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=261 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=4112 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w76a/gate-fix/e
+BASELINE tier=env rep=1 config=pc:56ee75ced8d6aece,bridge:feef049e9d0e313a,pf:6375fabf89ac7fef,provider:1f9511a7ef395bfe,win32shim:c493639d15678803,wic_shim:56278c14b4ecd672,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=144 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=2945 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w76a/gate-fix/e
+BASELINE tier=env rep=2 config=pc:56ee75ced8d6aece,bridge:feef049e9d0e313a,pf:6375fabf89ac7fef,provider:1f9511a7ef395bfe,win32shim:c493639d15678803,wic_shim:56278c14b4ecd672,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=144 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=2945 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w76a/gate-fix/e
+BASELINE tier=env rep=3 config=pc:56ee75ced8d6aece,bridge:feef049e9d0e313a,pf:6375fabf89ac7fef,provider:1f9511a7ef395bfe,win32shim:c493639d15678803,wic_shim:56278c14b4ecd672,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=144 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=2945 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w76a/gate-fix/e
+# ⏪ **（历史，已被 `#49` 取代）**# RE-FROZEN #48 —— ✅ **当前冻结基线** —— 内容 = 修 **`D-G56`**（我方两个 applier 把**插桩横幅插在「类属性块 ↔ 类声明」之间** ⇒ 两条/三条类属性**挂到插桩类身上** ⇒ `NameScope` 挂不到页面根 ⇒ 带 `Storyboard.TargetName` 的 BAML 页**一加载就未处理异常、进程 abort**）；本波**产品改源 = 两个 applier 的插入锚（零语义改动的换锚）**，位移与归因见下方。
 #   ① **本波修的是什么（判定点，代码级）**：`EDITS` 的语义是「把 `TRACE_CLASS` 文本拼在**锚行前面**」，而锚原本就是**类声明行** ⇒ 只要类声明前有属性行，横幅就必然夹在中间。
 #     · **发现者与原始读数**（车道 `W47A`，`build/MilBridge/W47A-report.md` `68bfb1301c67d485`）：`samples/WpfFeatureProbe/KNOWN-DEFECTS.md:2068-2083`。诊断行 = `[NS] ATTRCOUNT DependencyObject=0`（源里 2 条属性**全跑到插桩类身上**）、`[NS] WINDOW … scope=null FindName(ControlMain)=null`、4 个页面 `scope=null FindName(PathDemo)=null`；而 `dpField=True dpOwner=NameScope attachableMember=NameScope`（链的**其余环节都好**）＋ 名字**确实进了 BAML** ⇒ 断链**只在"属性归属"那一格**。
 #     · **修法（换锚，两处）**：`src/WpfGfx.Linux.Native/tools/patch-windowsbase-dpvalue-trace.py` 新增 `WB_TYPE_HEAD_ANCHOR`（现场 `:643-644`，= 该类型 **doc 注释的首两行**；上游实测**只出现 1 次** —— 同文件里 `    /// <summary>$` 有 55 处，只锚 `<summary>` 会命中 55 次被 `_build()` 的"要求 1"判死），W0 那条 edit 的锚由类声明行改为它（现场 `:848-849`）；同族第二例 `patch-presentationframework-mirror-trace.py` 的 `FE_TYPE_HEAD_ANCHOR`（现场 `:263-264`）＋ M0 那条 edit（现场 `:295-296`）。

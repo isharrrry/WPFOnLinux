@@ -245,6 +245,21 @@ INVIS_CAPPED=0; INVIS_CAPPED_LIST=()
 INVIS_EXT_WRITE=(); INVIS_EXT_READ=()
 INVIS_EXT_NW=0; INVIS_EXT_NR=0
 INVIS_IND_WRITE=(); INVIS_IND_NW=0
+# 【⑧ `W70B` / `TASK-1002`（2026-09-21）】**期望模型的第二条入口：显式 `<Import>` 闭包**。
+#   期望集合原先只由"**工程自己那一份 csproj 文本**"算出来（`applocal-expect.py` 的
+#   `refs_of()`/`outdirs()`/`E()`）⇒ **`<Import>` 声明的接线对模型完全不可见**；`samples/ThirdPartyMini`
+#   正是极端形态（它**一条 `<Reference>` 都没有**，引用全部来自被导入的 `build/third-party/WpfLinux.props`）
+#   ⇒ 它的 10 份"内容==权威"的副本被报成 `UNEXPECTED-EQ`（= `DECL-GAP-EQ`，仍红）。
+#   `applocal-expect.py` 现在跟**显式 import 图**（**不是**白名单：不删 `ITEMS`、不调小计数、不手写副本清单）。
+#   ⇒ 本校验器必须把这个新通道的**输入本身**显示出来（否则新通道自己就是"看不见的输入"，本仓老毛病）：
+#     `#IMPORT`            跟过的边数（全清单用 `grep '^#IMPORT'` 取；逐条印太吵但**可核**）
+#     `#UNRESOLVED-IMPORT` **没解析出来的 import**，分两桶：`sdk`（SDK 侧，按构造不在本仓 import 图里）
+#                          / `repo`（**本仓接线缺口** —— 有它就说明还有一处接线模型没跟进去）。
+#   ⚠️ 覆盖面自认（与本文件其余"主动承认"同一条纪律）：本通道**只跟显式 `<Import>`**；
+#      MSBuild 的**隐式**导入（`Directory.Build.props` / `.targets`）**不跟**。
+#   ⚠️ 这两格**不进判定、不改 rc**，与 `HINTPATH_UNRESOLVED`（`:230` 那一格）同口径：
+#      "登记、不静默"——但 `repo` 桶**不是绿**：见下面那段打印里的逐条点名。
+IMPORT_EDGES_N=0; IMPORT_UNRESOLVED_REPO=(); IMPORT_UNRESOLVED_SDK_N=0
 if [ "$EXPECT_OK" = 1 ]; then
     while IFS='|' read -r tag a b c d e f g h i j k l; do
         case "$tag" in
@@ -256,6 +271,8 @@ if [ "$EXPECT_OK" = 1 ]; then
             '#INVISIBLE-EXT') [ "$a" = "write" ] && INVIS_EXT_WRITE+=("$b ｜ $c") || INVIS_EXT_READ+=("$b ｜ $c");;
             '#INVISIBLE-INDIRECT') INVIS_IND_WRITE+=("$b ｜ $c");;
             '#UNRESOLVED') HINTPATH_UNRESOLVED=$((HINTPATH_UNRESOLVED+1));;
+            '#IMPORT') IMPORT_EDGES_N=$((IMPORT_EDGES_N+1));;
+            '#UNRESOLVED-IMPORT') if [ "${c:-}" = "repo" ]; then IMPORT_UNRESOLVED_REPO+=("$a ｜ $b"); else IMPORT_UNRESOLVED_SDK_N=$((IMPORT_UNRESOLVED_SDK_N+1)); fi;;
             '#SUMMARY') EXPECT_SUMMARY="解析源目录=${a#refdirs=} 期望副本=${b#expect=} 工程数=${c#projects=} 算不出的件=${d#unknown=} 未解析HintPath=${e#unresolved_hintpath=}"; INVIS_NW="${g#invisible_write=}"; INVIS_NR="${h#invisible_read=}"; INVIS_CAPPED="${i#invisible_capped=}"; INVIS_EXT_NW="${j#invisible_ext_write=}"; INVIS_EXT_NR="${k#invisible_ext_read=}"; INVIS_IND_NW="${l#invisible_indirect_write=}";;
         esac
     done < "$EXPECT_TMP"
@@ -483,6 +500,18 @@ scan() {
         echo "          ⚠️ **三张清单仍不是全仓拷贝点的完全集**：间接补扫只做**单文件内**的轻量数据流（不做跨文件、"
         echo "             不做函数间、不认 \`\$(...)\` 里现算的路径）⇒ 它给的是**下界**，不是"已穷尽"。"
         echo "       （目标形态：拷贝点写 manifest ⇒ 本校验器读 manifest、缺 manifest 报 NOINFO；见 REPORT.md §28.3）"
+        # 【⑧ `W70B`/`TASK-1002`】新通道（显式 `<Import>` 闭包）的**输入**必须可见 —— 见上面 `IMPORT_EDGES_N` 的注释。
+        echo "    期望模型的第二条入口（⑧ 显式 \`<Import>\` 闭包）：**跟随的边 $IMPORT_EDGES_N 条**"
+        echo "       （全清单：\`python3 $EXPECT_TOOL $REPO | grep '^#IMPORT'\`；逐条形如 \`工程 → 被导入件（深度）\`）"
+        echo "       被导入件里的 <Reference>/<HintPath>/<ProjectReference>/<TargetFramework> 与工程**自写的一视同仁**；"
+        echo "         **这不是白名单**：判据是"显式 import 图"这条通用规则，\`ITEMS\`/计数器/判定式一字未动。"
+        echo "       ⚠️ 覆盖面自认：只跟**显式** \`<Import>\`；**隐式**导入（\`Directory.Build.props\`/\`.targets\`）**不跟**。"
+        if [ "${#IMPORT_UNRESOLVED_REPO[@]}" = 0 ]; then
+            echo "       未能解析的 import：**repo（本仓接线缺口）= 0 条**（⇒ 本趟没有"接线被模型漏掉"的 import）／ sdk（SDK 侧，按构造不在本仓 import 图里）$IMPORT_UNRESOLVED_SDK_N 条"
+        else
+            echo "       未能解析的 import：**repo（本仓接线缺口）= ${#IMPORT_UNRESOLVED_REPO[@]} 条** ⚠️ **不许当绿**（有一处接线模型没跟进去 ⇒ 那边的副本仍可能被判成"多余"）／ sdk $IMPORT_UNRESOLVED_SDK_N 条"
+            for u in "${IMPORT_UNRESOLVED_REPO[@]}"; do echo "       [未解析·repo] $u"; done
+        fi
         local exp_n=0
         for k in "${!EXPECTA[@]}"; do
             exp_n=$((exp_n+1))

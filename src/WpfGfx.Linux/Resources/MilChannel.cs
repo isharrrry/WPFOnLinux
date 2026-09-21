@@ -81,6 +81,137 @@ namespace WpfGfx.Linux.Resources
         /// <summary>被 Dispatch 返回失败码的命令数。</summary>
         public long FailedCommands;
 
+        // ── 波62 · D-G58：「接受了但效果不渲染」的只读台账（0x6c / 0x70）──
+        //   为什么必须有：这两条从 E_NOTIMPL 改成 S_OK 之后进程**不再 abort**，
+        //   但"效果并没有被渲染"这件事**绝不许因此消失** —— 静默 no-op 就是"假装实现"
+        //   （本仓纪律 47 族；§7.4 的 🔴 条）。形态与 NotImplRegistry 同族：
+        //   具名（命令 id ＋ 句柄 ＋ 字节数 ＋ 声明长度）、有界（每 id 每进程限 N 行）。
+        /// <summary>0x6c/0x70 被接受并按恒等处理的命令数（**效果未渲染**）。</summary>
+        public long ShaderStubCommands;
+
+        /// <summary>上一条的逐命令字明细：命令字 → 条数。</summary>
+        public readonly Dictionary<MilCmd, long> ShaderStubRegistry = new Dictionary<MilCmd, long>();
+
+        /// <summary>声明长度与通道长度账不一致的次数（非 0 ⇒ `FixedSize` 那两行有问题，必须看）。</summary>
+        public long ShaderStubLenMismatch;
+
+        /// <summary>每个命令 id 每进程最多逐条打印几行（有界；超出后只留一行"到上限"）。</summary>
+        private const int ShaderStubLogBudget = 8;
+
+        /// <summary>
+        /// 记一条「0x6c/0x70 被接受、按恒等处理」。
+        /// <paramref name="declaredBytes"/> = 命令头里声明的尾部长度（读不到记 -1）。
+        /// 输出走 `MilPresentation.Trace` ⇒ 在 `WPF_LINUX_MIL_LOG` 的文件汇里**一定能看到**
+        /// （`WPF_LINUX_MIL_TRACE=1` 时同时进 stderr），且**默认就开着**（不需要额外开关）。
+        /// </summary>
+        internal void NoteShaderStubAccepted(MilCmd id, DUCE.ResourceHandle handle, int payloadBytes, int declaredBytes)
+        {
+            ShaderStubCommands++;
+            ShaderStubRegistry.TryGetValue(id, out long n);
+            n++;
+            ShaderStubRegistry[id] = n;
+
+            bool lenKnown = declaredBytes >= 0;
+            bool lenOk = !lenKnown || declaredBytes == payloadBytes;
+            if (lenKnown && !lenOk) ShaderStubLenMismatch++;
+
+            if (n <= ShaderStubLogBudget)
+            {
+                MilPresentation.Trace(
+                    $"NOTE [NOTIMPL-SHADER] ch={Id} id=0x{(int)id:x} {id} handle=0x{(uint)handle:x8} " +
+                    $"bytes={payloadBytes} declared={(lenKnown ? declaredBytes.ToString() : "?")}" +
+                    $"{(lenKnown && !lenOk ? " ⇒ LEN-MISMATCH" : "")} 第 {n} 条 ⇒ " +
+                    "**接受但按恒等处理（效果不渲染）**");
+            }
+            else if (n == ShaderStubLogBudget + 1)
+            {
+                MilPresentation.Trace(
+                    $"NOTE [NOTIMPL-SHADER] ch={Id} id=0x{(int)id:x} {id} 逐条打印已到上限 " +
+                    $"{ShaderStubLogBudget} 条，后续同类**不再逐条打印**" +
+                    "（累计条数见 MilChannel.ShaderStubRegistry，本行**不是**说没有更多）");
+            }
+        }
+
+        // ── 波70 · `D-G71` / `TASK-0403`：「视觉级效果被接受但**从不被消费**」的只读台账（0x1d）──
+        //   为什么必须有：`MilCmdVisualSetEffect` 从 `#49` 之前就在**收**（返回 `S_OK`、不 abort），
+        //   但 `MilVisualNode.Effect` 全仓**只有一个写入点**（`Commands/MilCommandDispatcher.cs:178`
+        //   的 `case MilCmd.MilCmdVisualSetEffect`；本件改前是 `:177`）
+        //   ＋ 一个**单元测试**读它（`Commands.Tests/CommandRoundTripTests.cs:89`）；
+        //   投影层（`Resources/VisualProjection.cs`）`grep -c Effect` = **0**，且契约类型 `MilVisual`
+        //   （`Contracts/Interfaces.cs:53-79`）**根本没有 `Effect` 字段** ⇒ 效果在**投影那一跳就没了**。
+        //   ⇒ 效果被静默丢掉，而**没有任何一本账**记着这件事（对比：`MilPushEffect`(0x55) 那条路有
+        //   `Diagnostics.RecordNotDrawn` 台账）。本台账就是把"**不许静默 no-op**"落到这一条上。
+        //
+        //   形态与 D-G58 的 `NoteShaderStubAccepted`（本文件 `:107`）**同族**：具名（`id` ＋ `visual`
+        //   ＋ `effect`）、有界（逐条打印有上限 ＋ 触顶会说话）、**只读**（不参与任何赋值、不改渲染）。
+        //   输出走 `MilPresentation.Trace` ⇒ `WPF_LINUX_MIL_LOG` 指向的 `mil.log` 里一定看得到
+        //   （D-G58/W62A 读的就是同一本账；`WPF_LINUX_MIL_TRACE=1` 时同时进 stderr）。
+        //
+        //   【为什么**不**记 `RenderDiagnostics.RecordNotDrawn`】（**先看判据再动手的那一格**）
+        //     `未画种类` 不是纯粹的诊断计数器，它是**一条冻死的验收判据的输入**：
+        //     `samples/WpfTextDemo/MainWindow.xaml:17-20` 的 `Border.Effect = DropShadowEffect`
+        //     经上游 `UIElement.cs:2761-2785` → `Visual.cs:1418-1450` → `exports.cs:1877-1884`
+        //     **必然**发本命令 ⇒ 记进 `NotDrawn` 会把该样例的 `未画种类` 由 `0` 顶到 `≥1`
+        //     ⇒ `run-wpftextdemo.sh:21` 的判据②＋冻死的 `ACCEPTANCE-BASELINE.md` 当场转红。
+        //     ⇒ 本波只做**独立的具名台账**（零判据位移）；"进 `未画种类`"那一支已由主控登记为 `#50`。
+        //     详见 `build/MilBridge/W70D-report.md` §2。
+        /// <summary>`0x1d` 带**非空效果句柄**的命令数（**效果未渲染**）。</summary>
+        public long VisualEffectIgnoredCommands;
+
+        /// <summary>上一行的逐视觉明细：视觉句柄 → 条数（**字段就是台账的"该视觉的标识"**）。</summary>
+        public readonly Dictionary<DUCE.ResourceHandle, long> VisualEffectIgnoredByVisual =
+            new Dictionary<DUCE.ResourceHandle, long>();
+
+        /// <summary>实际打印过的台账行（有界；含触顶那一行）。测试直接断言这一串，不依赖文件汇/预算。</summary>
+        public readonly List<string> VisualEffectIgnoredLines = new List<string>();
+
+        /// <summary>逐条打印上限（超出后只留一行"到上限"；累计条数仍在本对象上，不静默）。</summary>
+        private const int VisualEffectLogBudget = 32;
+
+        /// <summary>
+        /// 记一条「`0x1d` 带非空效果 ⇒ **接受但不消费**」。
+        /// 只被 `MilCommandDispatcher` 的 `case MilCmd.MilCmdVisualSetEffect` 调用，且**在赋值之后**
+        /// （本台账不参与任何赋值 ⇒ 关掉它即逐字回到原行为）。
+        /// </summary>
+        internal void NoteVisualEffectIgnored(DUCE.ResourceHandle visual, DUCE.ResourceHandle hEffect)
+        {
+            VisualEffectIgnoredCommands++;
+            VisualEffectIgnoredByVisual.TryGetValue(visual, out long n);
+            n++;
+            VisualEffectIgnoredByVisual[visual] = n;
+
+            string line;
+            if (VisualEffectIgnoredCommands <= VisualEffectLogBudget)
+            {
+                line = DescribeVisualEffectIgnored(Id, MilCmd.MilCmdVisualSetEffect, visual, hEffect,
+                                                   VisualEffectIgnoredCommands);
+            }
+            else if (VisualEffectIgnoredCommands == VisualEffectLogBudget + 1)
+            {
+                line = $"NOTE [NOTIMPL-VISEFFECT] ch={Id} 逐条打印已到上限 {VisualEffectLogBudget} 条，" +
+                       "后续同类**不再逐条打印**（累计条数见 MilChannel.VisualEffectIgnoredCommands／" +
+                       "VisualEffectIgnoredByVisual，本行**不是**说没有更多）";
+            }
+            else
+            {
+                line = null;
+            }
+
+            if (line == null) return;
+            VisualEffectIgnoredLines.Add(line);      // 台账本体（进程内可枚举）
+            MilPresentation.Trace(line);             // 同一串原样进 mil.log（`WPF_LINUX_MIL_LOG`）
+        }
+
+        /// <summary>
+        /// 台账行的**唯一**拼装处（通道与测试读的是同一串，不许两处各写一遍）。
+        /// 三个必备字段逐字可见：`id=0x1d`（命令号）、`visual=0x…`（该视觉的句柄）、`effect=0x…`。
+        /// </summary>
+        internal static string DescribeVisualEffectIgnored(
+            int channelId, MilCmd id, DUCE.ResourceHandle visual, DUCE.ResourceHandle hEffect, long n) =>
+            $"NOTE [NOTIMPL-VISEFFECT] ch={channelId} id=0x{(int)id:x} {id} " +
+            $"visual=0x{visual.Value:x8} effect=0x{hEffect.Value:x8} 第 {n} 条 ⇒ " +
+            "**接受但不消费（视觉级效果不渲染；投影层与渲染层都没有消费者）**";
+
         /// <summary>EndCommand 时 Append 字节数少于 cbExtra 的次数（诊断用）。</summary>
         public long ShortCommands;
 

@@ -62,6 +62,17 @@
 #define WM_NCHITTEST     0x0084
 #define WM_NCACTIVATE    0x0086
 #define WM_NCMOUSEMOVE   0x00A0
+// ── 【波 59】非客户区按钮 + 系统命令（自绘 chrome 的"拖标题栏/拖边框"必须走这条）──
+#define WM_NCLBUTTONDOWN   0x00A1
+#define WM_NCLBUTTONUP     0x00A2
+#define WM_NCLBUTTONDBLCLK 0x00A3
+#define WM_NCRBUTTONDOWN   0x00A4
+#define WM_NCRBUTTONUP     0x00A5
+#define WM_SYSCOMMAND      0x0112
+// WM_SIZE 的 wParam（SIZE_*）：WPF 的 `Window.WmSize` 只认这三个值
+#define WM_SIZECODE_RESTORED  0
+#define WM_SIZECODE_MINIMIZED 1
+#define WM_SIZECODE_MAXIMIZED 2
 #define WM_KEYDOWN       0x0100
 #define WM_KEYUP         0x0101
 #define WM_CHAR          0x0102
@@ -103,6 +114,44 @@
 #define WS_MAXIMIZEBOX   0x00010000L
 #define WS_THICKFRAME    0x00040000L
 #define WS_CAPTION       0x00C00000L
+// 【波 59】最大化/最小化的"窗口状态位"。WPF 的 `Window._Style` 在多数路径上**直接读
+//   `GetWindowLong(GWL_STYLE)`**（`Window.cs:3242` 的 getter：Manager==null ⇒ StyleFromHwnd）
+//   ⇒ 这两个位必须由 shim 在真正的状态切换时同步，否则"最大化之后再点还原"
+//   会因为 `(_Style & WS_MAXIMIZE) == 0` 而**一条 ShowWindow 都不发**（实测见报告 §1）。
+#define WS_MAXIMIZE      0x01000000L
+#define WS_MINIMIZE      0x20000000L
+
+// ── 【波 59】WM_NCHITTEST 的返回码（Win32 原值）────────────────────────────────
+#define HTCLIENT        1
+#define HTCAPTION       2
+#define HTLEFT          10
+#define HTRIGHT         11
+#define HTTOP           12
+#define HTTOPLEFT       13
+#define HTTOPRIGHT      14
+#define HTBOTTOM        15
+#define HTBOTTOMLEFT    16
+#define HTBOTTOMRIGHT   17
+
+// ── 【波 59】WM_SYSCOMMAND 的 wParam（比较前必须 `& 0xFFF0`：低 4 位被系统占用）──
+#define SC_SIZE     0xF000
+#define SC_MOVE     0xF010
+#define SC_MINIMIZE 0xF020
+#define SC_MAXIMIZE 0xF030
+#define SC_CLOSE    0xF060
+#define SC_RESTORE  0xF120
+
+// ── 【波 59】EWMH `_NET_WM_MOVERESIZE` 的方向码（EWMH 1.4 表）──────────────────
+#define WPF_MR_SIZE_TOPLEFT     0
+#define WPF_MR_SIZE_TOP         1
+#define WPF_MR_SIZE_TOPRIGHT    2
+#define WPF_MR_SIZE_RIGHT       3
+#define WPF_MR_SIZE_BOTTOMRIGHT 4
+#define WPF_MR_SIZE_BOTTOM      5
+#define WPF_MR_SIZE_BOTTOMLEFT  6
+#define WPF_MR_SIZE_LEFT        7
+#define WPF_MR_MOVE             8
+#define WPF_MR_CANCEL           11
 
 #define GWL_WNDPROC     (-4)
 #define GWL_HWNDPARENT  (-8)
@@ -270,6 +319,12 @@ typedef struct wpf_window {
     int32_t   border;
     int       mapped;               // XMapWindow 过且没 Unmap
     int       is_message_only;      // 父窗口是 HWND_MESSAGE
+    // ── 【波 59】窗口状态与"自绘 chrome"判定 ──────────────────────────────────
+    int       maximized;            // 我们请求过 _NET_WM_STATE 最大化且还没还原
+    int       iconified;            // 已被最小化（XIconifyWindow）
+    int       custom_chrome;        // 应用声明"我自己画窗框"⇒ WM 侧不加装饰（详见 win32_x11.c）
+    int       nc_press_active;      // 当前这次按下已被判成非客户区（抬起要配对成 WM_NCLBUTTONUP）
+    int32_t   rc_x, rc_y, rc_w, rc_h;   // 最大化前的客户区矩形（还原用）
     int       in_destroy;           // 正在走 DestroyWindow（防重入）
     int       display_devices_notified; // 是否已代发 DisplayDevicesAvailabilityChanged（win32_msg.c）
     uint64_t  created_ms;
@@ -499,8 +554,68 @@ void     wpf_x11_destroy_window(HWND hwnd);
 void     wpf_x11_map(HWND hwnd, int map);
 void     wpf_x11_move_resize(HWND hwnd, int x, int y, int w, int h);
 void     wpf_x11_set_title(HWND hwnd, const char *title);
+
+// ── 【波 58 · 屏幕适配】顶层窗"装得下"：读数与 X 提示 ────────────────────────────
+// 【为什么需要这一组】Win32 里窗口装饰由 USER32 画在**屏幕坐标系内**（客户区 800×600
+//   的窗口，外框也在屏幕内）；X11 里装饰由 **窗口管理器**加在客户区**外面**
+//   ⇒ "客户区 800×600 + 标题栏/边框" 一旦超过屏幕，xfwm4/metacity 这类 WM 会判定
+//   "这窗装不下" 并**自动最大化**它（用户实测：800×600 屏上 800×600 窗 ⇒
+//   `_NET_WM_STATE_MAXIMIZED_HORZ|VERT`、标题栏按钮跑到 y=-5、拖不动也缩不了）。
+// 【分工】屏幕/工作区**读数**与 X 提示的**写**在 win32_x11.c（唯一碰 Xlib 的地方）；
+//   "钳哪些窗口、钳到多少"的**策略**在 win32_core.c（clamp_toplevel_extent）。
+void     wpf_x11_workarea(int *x, int *y, int *w, int *h);      // _NET_WORKAREA，缺 ⇒ 屏幕
+void     wpf_x11_client_size_limit(int *max_w, int *max_h);     // 工作区 − 装饰余量；0,0 = 不限制
+void     wpf_x11_screen_size(int *sw, int *sh);                 // 屏幕（不是工作区）
+void     wpf_x11_apply_wm_hints(HWND hwnd, const char *cls,
+                                int min_w, int min_h, int max_w, int max_h);
+// ── 【波 59】窗口状态 / 自绘 chrome / 移动缩放（都在 win32_x11.c；唯一碰 Xlib 的地方）──
+//   `decorated=0` ⇒ 写 `_MOTIF_WM_HINTS`（**属性类型必须是 `_MOTIF_WM_HINTS` 这个 atom 本身**，
+//   写成 CARDINAL 时 xfwm4 的 `XGetWindowProperty(req_type=atom)` 会拿到 nitems=0 ⇒ 完全忽略 ——
+//   实测见报告 §1/§4）。`decorated=1` ⇒ 删除该属性（回到 WM 默认装饰）。
+void     wpf_x11_set_decorations(HWND hwnd, int decorated);
+void     wpf_x11_apply_wm_state(HWND hwnd, int maximize);       // `_NET_WM_STATE` 加/去 MAXIMIZED_HORZ|VERT
+void     wpf_x11_iconify(HWND hwnd);                            // XIconifyWindow（最小化）
+int      wpf_x11_has_ewmh_wm(void);                             // 有 EWMH 窗口管理器？（_NET_SUPPORTING_WM_CHECK）
+// 把客户区改到 (x,y,w,h) —— **走 WM**（`_NET_MOVERESIZE_WINDOW`）：WM 会连窗框一起摆。
+//   【为什么不用 `_NET_WM_MOVERESIZE`】那条"把拖动交给 WM"的消息虽然在 xfwm4 的
+//   `_NET_SUPPORTED` 里，但**实测无效**（按住左键期间从外部单独发它，窗口纹丝不动；
+//   而 `_NET_MOVERESIZE_WINDOW` 同条件立刻生效）⇒ 拖动必须由我们自己按 motion 驱动。
+int      wpf_x11_moveresize_window(HWND hwnd, int x, int y, int w, int h);
+//   X 层指针抓取（NC 拖动期间用：指针离开窗口后仍要收到 motion/release）
+void     wpf_x11_pointer_grab(HWND hwnd, int grab);
+
+// Win32 MINMAXINFO（40 字节；托管侧 PresentationFramework 的
+// `System/Windows/Standard/NativeMethods.cs:1841` 逐字段对等：5 个 POINT）。
+// 【为什么定义在内部头而不是 win32_abi.h】本波写域只到这三个文件；该结构体只在
+//   本文件与 win32_core.c 内部使用（不新增导出符号），偏移由下面两条断言钉死。
+typedef struct { int32_t x, y; } WPF_MMI_POINT;
+typedef struct {
+    WPF_MMI_POINT ptReserved;
+    WPF_MMI_POINT ptMaxSize;
+    WPF_MMI_POINT ptMaxPosition;
+    WPF_MMI_POINT ptMinTrackSize;
+    WPF_MMI_POINT ptMaxTrackSize;
+} WPF_MINMAXINFO;
+_Static_assert(sizeof(WPF_MMI_POINT) == 8,  "POINT 8");
+_Static_assert(sizeof(WPF_MINMAXINFO) == 40, "MINMAXINFO 40（5×POINT）");
 void     wpf_x11_query_title(HWND hwnd, char *buf, size_t cap);
 void     wpf_x11_query_geometry(HWND hwnd, int *x, int *y, int *w, int *h, int *mapped);
+
+// ── 【波 59】窗口状态机（win32_core.c）─────────────────────────────────────────
+//   `WPF_WS_NORMAL`/`WPF_WS_MAX`/`WPF_WS_MIN`：还原 / 真最大化 / 最小化。
+//   语义：EWMH 可用时**交给 WM**（几何由 WM 算，`ConfigureNotify` 回填窗口表并按状态派发
+//   `WM_SIZE(SIZE_MAXIMIZED|MINIMIZED|RESTORED)`）；没有 EWMH WM 时退回"自己按工作区改几何"。
+#define WPF_WS_NORMAL  0
+#define WPF_WS_MAX     1
+#define WPF_WS_MIN     2
+void     wpf_core_window_state(HWND hwnd, int mode);
+//   发 `WM_NCHITTEST` 问窗口过程"这一点算什么"（屏幕坐标）；返回 HT* 码。
+//   **只对顶层非 message-only 窗口问**：普通窗口（有 caption、窗框由 WM 画）保持 HTCLIENT，
+//   免得把"客户区点击"错判成非客户区而劫走。
+int      wpf_core_nc_hit_test(HWND hwnd, int x_root, int y_root);
+//   "应用自己画窗框"的 sticky 判定（依据与理由见 win32_core.c 的 SetWindowPos 注释）。
+void     wpf_core_note_framechanged(HWND hwnd);
+int      wpf_core_custom_chrome(HWND hwnd);
 
 // 窗口表（win32_core.c）
 wpf_window *wpf_window_find(HWND hwnd);        // 调用者需持锁

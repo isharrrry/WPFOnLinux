@@ -131,6 +131,25 @@ static Atom a_wm_protocols = 0;
 static Atom a_wm_delete_window = 0;
 static Atom a_net_wm_name = 0;
 static Atom a_utf8_string = 0;
+// ── 【波 58 · 屏幕适配】EWMH 的四个原子 ────────────────────────────────────────
+//   _NET_WORKAREA：WM 报的"可用区"（有面板/任务栏时 < 屏幕）——顶层窗尺寸钳制的上限来源。
+//   其余三个是随本次一起补的标准提示（见 wpf_x11_apply_wm_hints 的注释）。
+static Atom a_net_workarea = 0;
+static Atom a_net_wm_window_type = 0;
+static Atom a_net_wm_window_type_normal = 0;
+static Atom a_net_wm_pid = 0;
+// ── 【波 59 · 窗口状态 / 自绘 chrome】新增的原子 ───────────────────────────────
+//   `_NET_WM_STATE(_MAXIMIZED_*)`：最大化状态的**权威来源**（WM 自己也会读写它）；
+//   `_NET_WM_MOVERESIZE`：把"这一次指针拖动"交给 WM —— 客户端自绘标题栏/边框的唯一正路
+//     （见 `wpf_x11_moveresize` 的注释）；`_NET_SUPPORTING_WM_CHECK`：判断"有没有 EWMH WM"；
+//   `_MOTIF_WM_HINTS`：**加不加窗框装饰**（见 `wpf_x11_set_decorations`）。
+static Atom a_net_wm_state = 0;
+static Atom a_net_wm_state_maximized_horz = 0;
+static Atom a_net_wm_state_maximized_vert = 0;
+static Atom a_net_wm_moveresize = 0;
+static Atom a_net_moveresize_window = 0;
+static Atom a_net_supporting_wm_check = 0;
+static Atom a_motif_wm_hints = 0;
 
 // ── 连接 ───────────────────────────────────────────────────────────────────
 int wpf_x11_ensure(void)
@@ -165,6 +184,19 @@ int wpf_x11_ensure(void)
     a_wm_delete_window = XInternAtom(d, "WM_DELETE_WINDOW", False);
     a_net_wm_name = XInternAtom(d, "_NET_WM_NAME", False);
     a_utf8_string = XInternAtom(d, "UTF8_STRING", False);
+    // 【波 58】工作区与标准提示用的原子（都在同一次 ensure 里 intern，之后每窗口复用）
+    a_net_workarea = XInternAtom(d, "_NET_WORKAREA", False);
+    a_net_wm_window_type = XInternAtom(d, "_NET_WM_WINDOW_TYPE", False);
+    a_net_wm_window_type_normal = XInternAtom(d, "_NET_WM_WINDOW_TYPE_NORMAL", False);
+    a_net_wm_pid = XInternAtom(d, "_NET_WM_PID", False);
+    // 【波 59】窗口状态 / 自绘 chrome 的原子
+    a_net_wm_state = XInternAtom(d, "_NET_WM_STATE", False);
+    a_net_wm_state_maximized_horz = XInternAtom(d, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
+    a_net_wm_state_maximized_vert = XInternAtom(d, "_NET_WM_STATE_MAXIMIZED_VERT", False);
+    a_net_wm_moveresize = XInternAtom(d, "_NET_WM_MOVERESIZE", False);   // 支持列表里有，但实测无效（见 wpf_x11_moveresize_window 注释）
+    a_net_moveresize_window = XInternAtom(d, "_NET_MOVERESIZE_WINDOW", False);
+    a_net_supporting_wm_check = XInternAtom(d, "_NET_SUPPORTING_WM_CHECK", False);
+    a_motif_wm_hints = XInternAtom(d, "_MOTIF_WM_HINTS", False);
     XUNLOCK();
 
     pthread_mutex_unlock(&g_wpf.lock);
@@ -323,6 +355,41 @@ static void wpf_create_diag(const char *where, wpf_window *w, uint64_t xid)
     fflush(stderr);
 }
 
+// 【波 59 · B】非客户区"拖动/缩放"的状态（翻译层单线程，无需加锁）
+//   `g_nc_*`：当前这次 NC 按下（窗口、命中码、按下点、按下时的客户区矩形、是否已真的开始动）
+//   `g_nc_click_*`：上一次**完整的标题栏点击**（自己判双击用；Win32 的双击判定同样是
+//   "同区域、间隔 ≤ 系统双击时间、位移 ≤ 4px"）
+static HWND     g_nc_hwnd = NULL;
+static int      g_nc_ht = HTCLIENT;
+static int      g_nc_started = 0;
+static int      g_nc_px = 0, g_nc_py = 0;
+static int      g_nc_x = 0, g_nc_y = 0, g_nc_w = 0, g_nc_h = 0;
+static uint64_t g_nc_click_ms = 0;
+static int      g_nc_click_x = 0, g_nc_click_y = 0;
+
+// 【波 59 仪器】非客户区命中/拖动那条腿的事件日志。env `WPF_LINUX_KEY_DIAG=1` 或
+//   `WPF_LINUX_CREATE_DIAG=1`（两者都是"输入/窗口"侧的既有开关，复用免得再加旋钮）；
+//   每进程 ≤ 60 行；**只打印**，不改行为。判据"拖自绘标题栏 ⇒ 原点变化"必须能区分
+//   "没命中 caption"与"命中了但 WM 没搬窗"，没有这行读数就只能猜。
+static void wpf_nc_diag(const char *fmt, ...)
+{
+    static int cached = -1, n = 0;
+    if (cached < 0) {
+        const char *a = getenv("WPF_LINUX_KEY_DIAG");
+        const char *b = getenv("WPF_LINUX_CREATE_DIAG");
+        int on = ((a && *a && *a != '0') || (b && *b && *b != '0')) ? 1 : 0;
+        cached = on;
+    }
+    if (!cached || n++ >= 60) return;
+    va_list ap;
+    va_start(ap, fmt);
+    fputs("[NC_DIAG] ", stderr);
+    vfprintf(stderr, fmt, ap);
+    fputc('\n', stderr);
+    va_end(ap);
+    fflush(stderr);
+}
+
 uint64_t wpf_x11_create_window(wpf_window *w, const char *title)
 {
     if (!wpf_x11_ensure()) return 0;
@@ -380,6 +447,12 @@ void wpf_x11_map(HWND hwnd, int map)
 {
     if (!g_wpf.dpy || !hwnd) return;
     wpf_create_diag(map ? "MAP" : "UNMAP", wpf_window_find(hwnd), (uint64_t)(uintptr_t)hwnd);
+    // ── 【波 59 · C】"自绘 chrome"的窗口在**第一次 map 之前**声明"不要装饰" ─────────
+    //   为什么必须在 map 之前：装饰是 WM 在 map 那一刻决定并"接管"的；虽然实测 xfwm4
+    //   也能在 map 之后按 PropertyNotify 改（见 `wpf_x11_set_decorations` 的注释），
+    //   但"map 前就写对"能避免"先出现一层窗框再消失"的闪烁，也不依赖后改这条路。
+    //   判定见 `wpf_core_custom_chrome`（应用自报：`SetWindowPos(SWP_FRAMECHANGED)`）。
+    if (map && wpf_core_custom_chrome(hwnd)) wpf_x11_set_decorations(hwnd, 0);
     XLOCK();
     if (map) XMapWindow(g_wpf.dpy, (Window)(uintptr_t)hwnd);
     else     XUnmapWindow(g_wpf.dpy, (Window)(uintptr_t)hwnd);
@@ -751,35 +824,96 @@ int wpf_x11_pump_into_queue(wpf_thread *t)
 
         case ConfigureNotify: {
             HWND h = (HWND)(uintptr_t)ev.xconfigure.window;
+            // ── 【波 59】`ConfigureNotify` 的 x/y 是**父窗口相对**坐标，不是屏幕坐标 ──────
+            //   为什么必须翻译：WM 会把客户窗 reparent 进一个 frame（xfwm4 连**无装饰**的窗口
+            //   也这么做）⇒ 窗口被移动/改尺寸后，`ev.xconfigure.x/y` 报的是"在 frame 里的位置"
+            //   （恒为 0,0 附近），直接写进窗口表就把 `w->x/y`（结构体注释：客户区左上角在
+            //   **root** 上的坐标）搞成 (0,0)：实测 `windowsize 1000 800` 之后表里矩形变成
+            //   `0,0 1000x800`，而真实位置是 `+200+150`。
+            //   后果不是"读数难看"，而是**托管侧的命中测试整条偏掉**：`WindowChromeWorker`
+            //   用 `GetWindowRect()`（= 我们的表）算 `mousePosWindow = 屏幕点 − 窗口原点` ⇒
+            //   原点错 200,150 ⇒ 标题栏那一点被算成 y=164 ⇒ `_HitTestNca` 判"客户区" ⇒
+            //   **拖动/按钮全失效**（实测：同一点在未 resize 时 ht=2 HTCAPTION、被外部 resize
+            //   之后变 ht=1 HTCLIENT）。⇒ 这里换成 root 坐标后再落表。
+            int cx_root = ev.xconfigure.x, cy_root = ev.xconfigure.y;
+            if (g_wpf.dpy) {
+                Window child = 0; int tx = 0, ty = 0;
+                XLOCK();
+                if (XTranslateCoordinates(g_wpf.dpy, (Window)(uintptr_t)h, g_wpf.root, 0, 0, &tx, &ty, &child)) {
+                    cx_root = tx; cy_root = ty;
+                }
+                XUNLOCK();
+            }
+            // ── 【波 59】WM_SIZE 的 wParam 必须反映**窗口状态**，不能恒为 SIZE_RESTORED ──
+            //   为什么（这条是"能最大化但窗态立刻被自己改回普通"的根因）：
+            //   上游 `Window.WmSize`（`Window.cs:4680-4740`）按 wParam 分派：收到
+            //   `SIZE_RESTORED` 就把 `WindowState` 设回 `Normal` 并 fire `StateChanged`。
+            //   修前这里恒发 0 ⇒ 一按最大化，WM 改完几何、我们回填窗口表时又把 WPF 的
+            //   `WindowState` 掰回 Normal（应用侧的"还原/最大化"按钮图标与后续命令全错位）。
+            //   ⇒ 用窗口表里的状态位把 0/1/2 如实送上去（Win32 的 USER32 也是这么发的）。
+            int sizecode = WM_SIZECODE_RESTORED;
             wpf_lock();
             wpf_window *w = wpf_window_find(h);
             if (w) {
-                w->x = ev.xconfigure.x;
-                w->y = ev.xconfigure.y;
+                w->x = cx_root;
+                w->y = cy_root;
                 w->width = ev.xconfigure.width;
                 w->height = ev.xconfigure.height;
                 w->border = ev.xconfigure.border_width;
+                if (w->iconified)      sizecode = WM_SIZECODE_MINIMIZED;
+                else if (w->maximized) sizecode = WM_SIZECODE_MAXIMIZED;
             }
             pthread_mutex_unlock(&g_wpf.lock);
-            push(t, h, WM_SIZE, 0,
+            push(t, h, WM_SIZE, (WPARAM)sizecode,
                  (LPARAM)((((uint32_t)ev.xconfigure.height & 0xFFFF) << 16) |
                           ((uint32_t)ev.xconfigure.width & 0xFFFF)), 0, 0);
             push(t, h, WM_MOVE, 0,
-                 (LPARAM)((((uint32_t)ev.xconfigure.y & 0xFFFF) << 16) |
-                          ((uint32_t)ev.xconfigure.x & 0xFFFF)), 0, 0);
+                 (LPARAM)((((uint32_t)cy_root & 0xFFFF) << 16) |
+                          ((uint32_t)cx_root & 0xFFFF)), 0, 0);
             produced += 2;
             break;
         }
 
-        case MapNotify:
-            push(t, (HWND)(uintptr_t)ev.xmap.window, WM_SHOWWINDOW, 1, 0, 0, 0);
-            produced++;
+        case UnmapNotify: {
+            // ── 【波 59】"图标化"与"隐藏"在 X 侧都是 Unmap，但 Win32 语义完全不同 ────────
+            //   最小化在 Win32 里**不发** `WM_SHOWWINDOW(FALSE)`（窗口仍算可见，只是
+            //   `SIZE_MINIMIZED`）；xfwm4 的最小化就是 unmap ⇒ 若照旧发 WM_SHOWWINDOW(0)，
+            //   上游 `Window._isVisible` 会变 false，之后"还原"路径里那句
+            //   `if (_isVisible) ShowWindow(...)`（`Window.cs:5177`）整段被跳过 ⇒
+            //   **最小化之后就还原不回来**。⇒ 图标化期间**吃掉** WM_SHOWWINDOW，
+            //   改由 MapNotify 补 `WM_SIZE(SIZE_RESTORED)`（与 Win32 的还原读数同形）。
+            HWND h = (HWND)(uintptr_t)ev.xunmap.window;
+            wpf_lock();
+            wpf_window *w = wpf_window_find(h);
+            int iconified = w ? w->iconified : 0;
+            pthread_mutex_unlock(&g_wpf.lock);
+            if (!iconified) {
+                push(t, h, WM_SHOWWINDOW, 0, 0, 0, 0);
+                produced++;
+            }
             break;
+        }
 
-        case UnmapNotify:
-            push(t, (HWND)(uintptr_t)ev.xunmap.window, WM_SHOWWINDOW, 0, 0, 0, 0);
-            produced++;
+        case MapNotify: {
+            HWND h = (HWND)(uintptr_t)ev.xmap.window;
+            wpf_lock();
+            wpf_window *w = wpf_window_find(h);
+            int was_iconified = w ? w->iconified : 0;
+            int cx = w ? w->x : 0, cy = w ? w->y : 0, cw = w ? w->width : 0, ch = w ? w->height : 0;
+            if (w && was_iconified) w->iconified = 0;      // 反图标化：回到"可见 + 普通状态"
+            pthread_mutex_unlock(&g_wpf.lock);
+            if (was_iconified) {
+                push(t, h, WM_SIZE, (WPARAM)WM_SIZECODE_RESTORED,
+                     (LPARAM)((((uint32_t)ch & 0xFFFF) << 16) | ((uint32_t)cw & 0xFFFF)), 0, 0);
+                push(t, h, WM_MOVE, 0,
+                     (LPARAM)((((uint32_t)(int16_t)cy) << 16) | ((uint32_t)(int16_t)cx & 0xFFFF)), 0, 0);
+                produced += 2;
+            } else {
+                push(t, h, WM_SHOWWINDOW, 1, 0, 0, 0);
+                produced++;
+            }
             break;
+        }
 
         case KeyPress:
         case KeyRelease: {
@@ -879,6 +1013,88 @@ int wpf_x11_pump_into_queue(wpf_thread *t)
                                  (int)ev.xbutton.send_event, (unsigned long long)ev.xbutton.subwindow,
                                  ev.xbutton.x, ev.xbutton.y, (int)ev.xbutton.same_screen);
             }
+
+            // ══ 【波 59 · B】非客户区命中：先问 `WM_NCHITTEST`，再决定这条按下怎么走 ══
+            // 【修前】这里**无条件**把 X 的 ButtonPress 翻成 `WM_LBUTTONDOWN` 打进客户区，
+            //   而 `WM_NCHITTEST` 在整个 shim 里**从没被派发过**（全仓只有
+            //   `win32_core.c` 的 `DefWindowProcW` 那个 `case`、`win32_internal.h` 的宏、
+            //   `win32_msg.c` 的调试名表三处 ⇒ 与波 58 的 `WM_GETMINMAXINFO` 同型：**死码**）
+            //   ⇒ `WindowChrome` 的自绘标题栏/缩放边框**永远收不到命中测试**。
+            // 【Win32 的真实顺序】USER32 在把点击发给窗口前先发 `WM_NCHITTEST`：
+            //   `HTCLIENT` ⇒ 发 `WM_LBUTTONDOWN`（本 shim 修前的行为，保持不变）；
+            //   非客户区码（`HTCAPTION`/`HT*`）⇒ 只发 `WM_NCLBUTTONDOWN`，并在**默认处理**里
+            //   由系统进入模态 move/size 循环。
+            // 【本 shim 的落地】命中"算什么"由托管窗口过程回答（`WindowChromeWorker` /
+            //   `Window.WmNcHitTest`）；"真去搬/缩"由**我们**按 motion 驱动（没有 USER32 的
+            //   模态循环，而 EWMH `_NET_WM_MOVERESIZE` 在本装置上实测无效 —— 见
+            //   `wpf_x11_moveresize_window` 的注释）。按下时**只登记**，不动窗口：
+            //   ① 这样"双击标题栏"才收得到第二击（一旦按下就发 moveresize，xfwm4 会 grab 指针
+            //      把第二击吃掉 —— 修前实测双击只打出 1 条 `[NC_DIAG] NC-PRESS`）；
+            //   ② 也让"按在边框上但没拖"不会意外开始缩放。
+            if (b == Button1 && down) {
+                int ht = wpf_core_nc_hit_test(h, ev.xbutton.x_root, ev.xbutton.y_root);
+                {   // 【波 59 仪器】每一次按键都打"问到的命中码"（含 HTCLIENT）：
+                    //   判据"拖不动"必须能区分"没问/问回客户区/问回非客户区但 WM 不搬"三种现场。
+                    wpf_lock();
+                    wpf_window *wi = wpf_window_find(h);
+                    int wx = wi ? wi->x : -1, wy = wi ? wi->y : -1;
+                    int ww = wi ? wi->width : -1, wh = wi ? wi->height : -1;
+                    int top = (wi && !wi->is_message_only && wi->parent == NULL) ? 1 : 0;
+                    pthread_mutex_unlock(&g_wpf.lock);
+                    wpf_nc_diag("NC-HIT hwnd=0x%llx ht=%d root=%d,%d top=%d 表里矩形=%d,%d %dx%d",
+                                (unsigned long long)(uintptr_t)h, ht, ev.xbutton.x_root, ev.xbutton.y_root,
+                                top, wx, wy, ww, wh);
+                }
+                if (ht != HTCLIENT) {
+                    uint64_t now = wpf_now_ms();
+                    int dbl = 0;
+                    if (ht == HTCAPTION && g_nc_click_ms &&
+                        now - g_nc_click_ms <= 400 &&
+                        abs(ev.xbutton.x_root - g_nc_click_x) <= 4 &&
+                        abs(ev.xbutton.y_root - g_nc_click_y) <= 4) dbl = 1;
+                    LPARAM scr = xy_lparam(ev.xbutton.x_root, ev.xbutton.y_root);
+                    push(t, h, dbl ? WM_NCLBUTTONDBLCLK : WM_NCLBUTTONDOWN, (WPARAM)ht, scr,
+                         ev.xbutton.x, ev.xbutton.y);
+                    produced++;
+                    g_nc_hwnd = h; g_nc_ht = ht; g_nc_started = 0;
+                    g_nc_px = ev.xbutton.x_root; g_nc_py = ev.xbutton.y_root;
+                    if (!dbl) {
+                        // 记下按下时的客户区矩形（拖动/缩放的锚点）
+                        wpf_lock();
+                        wpf_window *w = wpf_window_find(h);
+                        if (w) { g_nc_x = w->x; g_nc_y = w->y; g_nc_w = w->width; g_nc_h = w->height; }
+                        pthread_mutex_unlock(&g_wpf.lock);
+                        wpf_x11_pointer_grab(h, 1);   // 抓指针：拖出窗口也要继续收 motion
+                        g_nc_click_ms = 0;            // 正在拖动 ⇒ 不作双击计数
+                    } else {
+                        g_nc_click_ms = 0;
+                    }
+                    if (ht == HTCAPTION && !dbl) { /* 抬起时才登记"一次点击" */ }
+                    wpf_nc_diag("NC-PRESS hwnd=0x%llx ht=%d%s root=%d,%d start=%d,%d %dx%d",
+                                (unsigned long long)(uintptr_t)h, ht, dbl ? " (DBLCLK)" : "",
+                                ev.xbutton.x_root, ev.xbutton.y_root, g_nc_x, g_nc_y, g_nc_w, g_nc_h);
+                    break;   // ⚠️ 非客户区按下**不进客户区**：不发 WM_LBUTTONDOWN
+                }
+            }
+            if (b == Button1 && !down && g_nc_hwnd == h) {
+                // 配对抬起（Win32：非客户区按下 ⇒ 抬起是 WM_NCLBUTTONUP）
+                push(t, h, WM_NCLBUTTONUP, (WPARAM)g_nc_ht,
+                     xy_lparam(ev.xbutton.x_root, ev.xbutton.y_root), ev.xbutton.x, ev.xbutton.y);
+                produced++;
+                wpf_x11_pointer_grab(h, 0);
+                if (!g_nc_started && g_nc_ht == HTCAPTION) {
+                    // 没拖动 ⇒ 这是一次"点击标题栏"：登记给双击判定用
+                    g_nc_click_ms = wpf_now_ms();
+                    g_nc_click_x = ev.xbutton.x_root;
+                    g_nc_click_y = ev.xbutton.y_root;
+                }
+                wpf_nc_diag("NC-RELEASE hwnd=0x%llx ht=%d root=%d,%d 拖动过=%d",
+                            (unsigned long long)(uintptr_t)h, g_nc_ht,
+                            ev.xbutton.x_root, ev.xbutton.y_root, g_nc_started);
+                g_nc_hwnd = NULL; g_nc_ht = HTCLIENT; g_nc_started = 0;
+                break;
+            }
+
             push(t, h, m, mk, xy_lparam(ev.xbutton.x, ev.xbutton.y),
                  ev.xbutton.x, ev.xbutton.y);
             produced++;
@@ -887,6 +1103,39 @@ int wpf_x11_pump_into_queue(wpf_thread *t)
 
         case MotionNotify: {
             HWND h = (HWND)(uintptr_t)ev.xmotion.window;
+            // ── 【波 59 · B】NC 拖动/缩放的**驱动**：按下之后由 motion 决定搬多少 ───────
+            //   为什么不让 WM 代劳：EWMH `_NET_WM_MOVERESIZE` 在本装置的 xfwm4 上实测无效
+            //   （外部工具在按住左键期间单独发它，窗口纹丝不动）⇒ 只能自己按帧算几何，
+            //   每帧把目标客户区矩形交给 `_NET_MOVERESIZE_WINDOW`（WM 连 frame 一起摆）。
+            //   3px 死区：避免"点一下标题栏"被判成拖动（Win32 的 move loop 也有死区）。
+            if (g_nc_hwnd == h) {
+                int dx = ev.xmotion.x_root - g_nc_px;
+                int dy = ev.xmotion.y_root - g_nc_py;
+                if (!g_nc_started && abs(dx) <= 3 && abs(dy) <= 3) break;   // 死区内：吞掉，不动
+                g_nc_started = 1;
+                int nx = g_nc_x, ny = g_nc_y, nw = g_nc_w, nh = g_nc_h;
+                switch (g_nc_ht) {
+                    case HTCAPTION:     nx = g_nc_x + dx; ny = g_nc_y + dy; break;
+                    case HTLEFT:        nx = g_nc_x + dx; nw = g_nc_w - dx; break;
+                    case HTRIGHT:       nw = g_nc_w + dx; break;
+                    case HTTOP:         ny = g_nc_y + dy; nh = g_nc_h - dy; break;
+                    case HTBOTTOM:      nh = g_nc_h + dy; break;
+                    case HTTOPLEFT:     nx = g_nc_x + dx; nw = g_nc_w - dx;
+                                        ny = g_nc_y + dy; nh = g_nc_h - dy; break;
+                    case HTTOPRIGHT:    nw = g_nc_w + dx;
+                                        ny = g_nc_y + dy; nh = g_nc_h - dy; break;
+                    case HTBOTTOMLEFT:  nx = g_nc_x + dx; nw = g_nc_w - dx;
+                                        nh = g_nc_h + dy; break;
+                    case HTBOTTOMRIGHT: nw = g_nc_w + dx; nh = g_nc_h + dy; break;
+                    default: break;
+                }
+                if (nw < 1) nw = 1;
+                if (nh < 1) nh = 1;
+                wpf_x11_moveresize_window(h, nx, ny, nw, nh);
+                wpf_nc_diag("NC-DRAG hwnd=0x%llx ht=%d d=%+d,%+d → %dx%d@+%d+%d",
+                            (unsigned long long)(uintptr_t)h, g_nc_ht, dx, dy, nw, nh, nx, ny);
+                break;   // 拖动期间**不发** WM_MOUSEMOVE（Win32 的模态 move loop 同样不发）
+            }
             WPARAM mk = xstate_to_mk(ev.xmotion.state, 0);
             push(t, h, WM_MOUSEMOVE, mk, xy_lparam(ev.xmotion.x, ev.xmotion.y),
                  ev.xmotion.x, ev.xmotion.y);
@@ -1060,4 +1309,352 @@ void wpf_x11_screen_metrics(wpf_screen_metrics *out)
     cache = *out;
     cached = 1;
     pthread_mutex_unlock(&cache_lock);
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+//  【波 58】顶层窗"装得下"：工作区读数 + 尺寸上限 + 标准 X 提示
+// ══════════════════════════════════════════════════════════════════════════
+//
+// ── 缺陷现场（用户实测 + 本车道复现，`_NET_WM_STATE` 逐字）─────────────────────
+//   屏幕 800×600（`Xvfb 800x600x24` + `xfwm4`），应用窗口本身请求客户区 800×600：
+//       `_NET_WM_STATE = _NET_WM_STATE_MAXIMIZED_HORZ, _NET_WM_STATE_MAXIMIZED_VERT, FOCUSED`
+//       客户区被 WM 改成 800×576 @ 0,24；`_NET_FRAME_EXTENTS = 0,0,24,0`；
+//       帧的标题栏子窗在 `+0+-5`（**上边 5 px 被切掉**）⇒ 关闭/最大化按钮点不到；
+//       `xdotool windowsize 740 510` / `windowmove 12 20` 全无效（最大化态不许改）。
+//   1280×1024 屏上同一份件：`_NET_WM_STATE` 只有 FOCUSED、800×600 @ 245,241、改尺寸生效。
+//
+// ── 机制（两极化已定：这不是 WPF 的错，是"客户区 + WM 装饰 > 屏幕"的后果）────────
+//   X11 的装饰由 WM 加在客户区**外面**：客户区 800 宽 ⇒ 帧 800+2×frameX；
+//   xfwm4 判定"帧装不进屏幕"就把它**最大化**（而不是裁掉或缩小）。本机实测阈值
+//   （`xctl` 对照件，见报告 §5）：
+//       MAXIMIZED_HORZ ⟺ 客户区宽 ≥ 屏宽 − 10   （frameX=5/侧）
+//       MAXIMIZED_VERT ⟺ 客户区高 ≥ 屏高 − 34   （标题栏 29 + 底框 5）
+//   ⇒ 请求尺寸必须比"屏幕 − 装饰"**再小一点**，否则等于主动要求 WM 最大化。
+//
+// ── 取舍得说清（这不是"替用户改小窗"）──────────────────────────────────────────
+//   Windows 上没有这个问题：装饰由 USER32 画，窗口比屏幕大只会**超出屏幕**（可拖动找回）。
+//   Linux 上"超出屏幕"这个状态**不存在** —— WM 必须给装饰腾地方，它的两种做法是
+//   "最大化"（我们遇到的）或"裁掉装饰"（更糟）。所以在这里钳尺寸的**目的不是**把用户
+//   要的 800×600 改成 784×560，而是**别让 WM 认为这窗装不下**：钳制只在
+//   "工作区装不下 + 装饰余量" 时发生，且**只缩不放**；装得下时一个像素都不动
+//   （1280×1024 屏上 800×600 窗的读数与修前逐字节相同，见报告 §2 C 格）。
+//   代价（如实登记）：小屏上应用的**客户区**会比它请求的小（该拿 `WM_SIZE` 自适应），
+//   而 `Window.Width/Height` 属性仍是应用设的值 —— 这与 Windows 上"WM 改了窗口大小"
+//   同一形态（WPF 的布局跟的是客户区，不跟 `Width` 属性）。
+//
+// ── 装饰余量为什么是常数、为什么可覆盖 ─────────────────────────────────────────
+//   帧尺寸由 **WM** 决定（xfwm4 5/29、metacity 各有各的），而"建窗时"还没有帧可问
+//   （WM 是 map 时才 reparent 的）⇒ 只能用一个**保守常数**：本机 xfwm4 实测需要
+//   >10/>34，这里取 16/40（给更宽的边框与更高的标题栏留余量）。
+//   换了 WM/主题可用 `WPF_LINUX_DECOR_W` / `WPF_LINUX_DECOR_H` 覆盖（不改代码）。
+#define WPF_DECOR_RESERVE_W_DEFAULT 16
+#define WPF_DECOR_RESERVE_H_DEFAULT 40
+
+static int wpf_decor_reserve(const char *env, int dflt)
+{
+    const char *e = getenv(env);
+    if (!e || !*e) return dflt;
+    int v = atoi(e);
+    return v > 0 ? v : dflt;      // 0/负/垃圾值 ⇒ 用默认（不静默变成"不限制"）
+}
+
+// ── 工作区（EWMH `_NET_WORKAREA` 第一格）───────────────────────────────────────
+// 【为什么不用屏幕尺寸】有面板/任务栏的桌面上，屏幕底部那条不属于可用区
+//   （`_NET_WORKAREA` = WM 报的真值）。没有 WM 或 WM 不报该属性时**退化为屏幕尺寸**
+//   —— 那是"没有 WM 会加装饰"的现场，本来就装得下。
+void wpf_x11_workarea(int *x, int *y, int *w, int *h)
+{
+    if (x) *x = 0;
+    if (y) *y = 0;
+    if (w) *w = 0;
+    if (h) *h = 0;
+    if (!wpf_x11_ensure()) return;          // 无 X：全 0 = "不知道"
+
+    int sx = 0, sy = 0, sw = 0, sh = 0;
+    XLOCK();
+    sw = DisplayWidth(g_wpf.dpy, g_wpf.screen);
+    sh = DisplayHeight(g_wpf.dpy, g_wpf.screen);
+    Atom type = 0;
+    int fmt = 0;
+    unsigned long n = 0, left = 0;
+    unsigned char *data = NULL;
+    if (a_net_workarea &&
+        XGetWindowProperty(g_wpf.dpy, g_wpf.root, a_net_workarea, 0, 4, False, XA_CARDINAL,
+                           &type, &fmt, &n, &left, &data) == Success &&
+        data && n >= 4 && fmt == 32) {
+        long *v = (long *)data;
+        if (v[2] > 0 && v[3] > 0) { sx = (int)v[0]; sy = (int)v[1]; sw = (int)v[2]; sh = (int)v[3]; }
+    }
+    if (data) XFree(data);
+    XUNLOCK();
+
+    if (sw <= 0 || sh <= 0) { sw = 1280; sh = 1024; }   // 与 GetSystemMetrics 的兜底口径一致
+    if (x) *x = sx;
+    if (y) *y = sy;
+    if (w) *w = sw;
+    if (h) *h = sh;
+}
+
+// ── 客户区尺寸上限 = 工作区 − 装饰余量 ─────────────────────────────────────────
+// 返回 0,0 表示"不限制"（无 X）⇒ 调用方**不许**据此把窗口钳成 0（见 clamp_toplevel_extent）。
+void wpf_x11_client_size_limit(int *max_w, int *max_h)
+{
+    if (max_w) *max_w = 0;
+    if (max_h) *max_h = 0;
+    int wx = 0, wy = 0, ww = 0, wh = 0;
+    wpf_x11_workarea(&wx, &wy, &ww, &wh);
+    if (ww <= 0 || wh <= 0) return;                     // 无 X
+    int mw = ww - wpf_decor_reserve("WPF_LINUX_DECOR_W", WPF_DECOR_RESERVE_W_DEFAULT);
+    int mh = wh - wpf_decor_reserve("WPF_LINUX_DECOR_H", WPF_DECOR_RESERVE_H_DEFAULT);
+    if (mw < 1) mw = 1;
+    if (mh < 1) mh = 1;
+    if (max_w) *max_w = mw;
+    if (max_h) *max_h = mh;
+    (void)wx; (void)wy;
+}
+
+// ── 屏幕尺寸（**不是**工作区）──────────────────────────────────────────────────
+// 【为什么与 workarea 分开】`WM_GETMINMAXINFO` 的 `ptMaxTrackSize` 在 Windows 上取
+//   `SM_CXMAXTRACK/SM_CYMAXTRACK`（≈"最大化的窗口尺寸 + 边框"），**不是**工作区；用它当
+//   "没有应用侧约束时的默认上限"比"工作区 − 装饰余量"更接近 Win32 语义（波 59 · A 修法）。
+void wpf_x11_screen_size(int *sw, int *sh)
+{
+    if (sw) *sw = 0;
+    if (sh) *sh = 0;
+    if (!wpf_x11_ensure()) return;
+    XLOCK();
+    int w = DisplayWidth(g_wpf.dpy, g_wpf.screen);
+    int h = DisplayHeight(g_wpf.dpy, g_wpf.screen);
+    XUNLOCK();
+    if (sw) *sw = w;
+    if (sh) *sh = h;
+}
+
+// ── "有没有 EWMH 窗口管理器"（决定最大化/移动缩放走 WM 还是自己来）───────────────
+int wpf_x11_has_ewmh_wm(void)
+{
+    if (!wpf_x11_ensure()) return 0;
+    int found = 0;
+    XLOCK();
+    Atom type = 0; int fmt = 0;
+    unsigned long n = 0, left = 0;
+    unsigned char *data = NULL;
+    if (a_net_supporting_wm_check &&
+        XGetWindowProperty(g_wpf.dpy, g_wpf.root, a_net_supporting_wm_check, 0, 1, False,
+                           XA_WINDOW, &type, &fmt, &n, &left, &data) == Success &&
+        data && n >= 1 && fmt == 32) {
+        found = 1;
+    }
+    if (data) XFree(data);
+    XUNLOCK();
+    return found;
+}
+
+// ── 窗口装饰：`_MOTIF_WM_HINTS` ───────────────────────────────────────────────
+// 【为什么用 Motif hints 而不是 EWMH】EWMH 没有"不要装饰"这条；MWM hints 是事实标准
+//   （GTK/Qt 的客户端自绘标题栏都靠它），xfwm4 支持。
+// 【两个实测坑（都在报告 §1/§4 有读数）】
+//   ① **属性类型必须是 `_MOTIF_WM_HINTS` 这个 atom 本身**。xfwm4 的 `getMotifHints()` 用
+//      `XGetWindowProperty(dpy, w, xatom, 0, 5, FALSE, xatom /*req_type*/, …)`：类型不匹配时
+//      X 协议规定"什么都不返回"（nitems=0）⇒ WM **静默忽略**。实测：用
+//      `xprop -f _MOTIF_WM_HINTS 32c -set …`（类型 = CARDINAL）写了以后窗框**纹丝不动**；
+//      换成类型 = atom 之后**同一时刻**窗框立刻消失（frame 810x634 → 800x600）。
+//   ② 它**可以**在 map 之后改：xfwm4 监听 PropertyNotify 并当场重算装饰 ⇒ 不必 unmap/map。
+// 【取舍】`decorated=1` 时**删掉**该属性（回到 WM 默认），而不是写 flags=0 ——
+//   "没声明"与"声明要装饰"在别的 WM 上语义不完全一样，删掉最保守。
+void wpf_x11_set_decorations(HWND hwnd, int decorated)
+{
+    if (!hwnd) return;
+    if (!wpf_x11_ensure()) return;
+    Window win = (Window)(uintptr_t)hwnd;
+    XLOCK();
+    if (!decorated) {
+        if (a_motif_wm_hints) {
+            // MWM_HINTS_DECORATIONS = 2；decorations = 0 ⇒ 不要标题栏/边框
+            unsigned long v[5] = { 2UL, 0UL, 0UL, 0UL, 0UL };
+            XChangeProperty(g_wpf.dpy, win, a_motif_wm_hints, a_motif_wm_hints, 32,
+                            PropModeReplace, (const unsigned char *)v, 5);
+        }
+    } else {
+        XDeleteProperty(g_wpf.dpy, win, a_motif_wm_hints);
+    }
+    XFlush(g_wpf.dpy);
+    XUNLOCK();
+}
+
+// ── EWMH 最大化 / 还原：`_NET_WM_STATE` 的 ADD/REMOVE + MAXIMIZED_HORZ|VERT ──────
+// 【为什么必须走 WM 而不是自己 `XMoveResizeWindow` 到屏幕大小】
+//   · 有装饰时"客户区多大才算最大化"由 WM 按装饰/面板/工作区算（`_NET_WORKAREA`）；
+//   · 最大化是个**状态**：xfwm4 会把它写进 `_NET_WM_STATE`、参与"双击标题栏还原"、
+//     贴边/层叠/快捷键切换…自己改几何只是画了个形状，状态还是"普通"。
+//   · `_NET_WM_STATE` 也正好是判据里可直接 `xprop` 读到的字段。
+void wpf_x11_apply_wm_state(HWND hwnd, int maximize)
+{
+    if (!hwnd) return;
+    if (!wpf_x11_ensure()) return;
+    if (!a_net_wm_state) return;
+    XLOCK();
+    XEvent e;
+    memset(&e, 0, sizeof(e));
+    e.xclient.type = ClientMessage;
+    e.xclient.window = (Window)(uintptr_t)hwnd;
+    e.xclient.message_type = a_net_wm_state;
+    e.xclient.format = 32;
+    e.xclient.data.l[0] = maximize ? 1 : 0;   // 1 = _NET_WM_STATE_ADD, 0 = _NET_WM_STATE_REMOVE
+    e.xclient.data.l[1] = (long)a_net_wm_state_maximized_horz;
+    e.xclient.data.l[2] = (long)a_net_wm_state_maximized_vert;
+    e.xclient.data.l[3] = 1;                  // source indication: 1 = 普通应用
+    e.xclient.data.l[4] = 0;
+    XSendEvent(g_wpf.dpy, g_wpf.root, False,
+               SubstructureRedirectMask | SubstructureNotifyMask, &e);
+    XFlush(g_wpf.dpy);
+    XUNLOCK();
+}
+
+// ── 最小化（图标化）──────────────────────────────────────────────────────────
+void wpf_x11_iconify(HWND hwnd)
+{
+    if (!hwnd) return;
+    if (!wpf_x11_ensure()) return;
+    XLOCK();
+    XIconifyWindow(g_wpf.dpy, (Window)(uintptr_t)hwnd, g_wpf.screen);
+    XFlush(g_wpf.dpy);
+    XUNLOCK();
+}
+
+// ── 把"这一次指针拖动"落成真几何：`_NET_MOVERESIZE_WINDOW` ─────────────────────
+// 【为什么是这条消息，而不是 `_NET_WM_MOVERESIZE`（**实测否定**）】
+//   Windows 上"按住标题栏拖动"由 USER32 在 `WM_NCLBUTTONDOWN` 的默认处理里进入**模态
+//   move/size 循环**完成。X11 的表面对应物是 EWMH `_NET_WM_MOVERESIZE`（"把这个拖动交给
+//   WM"）—— 它在 xfwm4 的 `_NET_SUPPORTED` 里**确实有**，但本装置上**实测无效**：
+//     · 按住左键 + 指针移动期间，从外部工具把 `_NET_WM_MOVERESIZE(MOVE, dir=8)` 发给 root，
+//       窗口原点**一动不动**（`[NC_DIAG]` 也证明我们确实发过这条）；
+//     · 同一装置同一时刻把 `_NET_MOVERESIZE_WINDOW` 发出去，窗口**立刻**变成 900x700@+400+300。
+//   ⇒ 拖动只能由**我们自己**按 motion 事件驱动，每一帧把目标几何交给 WM。
+// 【为什么走 WM 而不是裸 `XMoveResizeWindow`】xfwm4 连"无装饰"的窗口也 reparent 到一个
+//   同尺寸的 frame 里（实测 `xwininfo -children` 的 parent 恒非 root）⇒ 裸移客户窗只会让
+//   内容在 frame 内部滑动，视觉上"窗户没动"。
+// 【没有 EWMH WM 时】退回裸 `XMoveResizeWindow`（Xvfb 裸跑也能拖，只是没有 WM 的贴边行为）。
+int wpf_x11_moveresize_window(HWND hwnd, int x, int y, int w, int h)
+{
+    if (!hwnd) return 0;
+    if (!wpf_x11_ensure()) return 0;
+    if (w <= 0 || h <= 0) return 0;
+    Window win = (Window)(uintptr_t)hwnd;
+    int use_wm = wpf_x11_has_ewmh_wm();     // 自己取锁（下面 XLOCK 是另一把锁，顺序：xlock 在外）
+    XLOCK();
+    if (use_wm && a_net_moveresize_window) {
+        XEvent e;
+        memset(&e, 0, sizeof(e));
+        e.xclient.type = ClientMessage;
+        e.xclient.window = win;
+        e.xclient.message_type = a_net_moveresize_window;
+        e.xclient.format = 32;
+        // flags：bit8=x bit9=y bit10=w bit11=h 有效；低 8 位 = gravity（10 = StaticGravity）
+        e.xclient.data.l[0] = (1L << 8) | (1L << 9) | (1L << 10) | (1L << 11) | 10L;
+        e.xclient.data.l[1] = x;
+        e.xclient.data.l[2] = y;
+        e.xclient.data.l[3] = w;
+        e.xclient.data.l[4] = h;
+        XSendEvent(g_wpf.dpy, g_wpf.root, False,
+                   SubstructureRedirectMask | SubstructureNotifyMask, &e);
+    } else {
+        XMoveResizeWindow(g_wpf.dpy, win, x, y, (unsigned)w, (unsigned)h);
+    }
+    XFlush(g_wpf.dpy);
+    XUNLOCK();
+    return 1;
+}
+
+// ── NC 拖动期间的指针抓取 ─────────────────────────────────────────────────────
+// 【为什么必须抓】不抓的话指针一旦移出窗口，X 就把 motion 送给别的窗口 ⇒ 拖动循环收不到
+//   后续位移（表现：拖两下就断）。抓取期间事件仍送给**同一个客户窗**（就是我们）⇒ 托管侧
+//   照常收到 WM_MOUSEMOVE/按键消息，语义不变。
+void wpf_x11_pointer_grab(HWND hwnd, int grab)
+{
+    if (!wpf_x11_ensure()) return;
+    XLOCK();
+    if (grab)
+        XGrabPointer(g_wpf.dpy, (Window)(uintptr_t)hwnd, False,
+                     PointerMotionMask | ButtonReleaseMask,
+                     GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+    else
+        XUngrabPointer(g_wpf.dpy, CurrentTime);
+    XFlush(g_wpf.dpy);
+    XUNLOCK();
+}
+
+// ── 标准 X 提示（本 shim 以前一条都不设）──────────────────────────────────────
+// 【修前现场】`xprop -id <客户窗>` 只有 WM_NAME/_NET_WM_NAME/WM_PROTOCOLS，
+//   **缺** `WM_NORMAL_HINTS`／`WM_HINTS`／`WM_CLASS`／`_NET_WM_WINDOW_TYPE`。
+// 【为什么每条都要设】
+//   · `WM_NORMAL_HINTS(PMinSize|PMaxSize)`：WM 侧唯一的尺寸约束来源；语义来自
+//     `WM_GETMINMAXINFO`（调用方把窗口过程回填后的值传进来），**不是**我们凭空编的值。
+//   · `WM_CLASS`：WM 的 per-window 规则/图标匹配靠它（没有它 xfwm4 只能按标题匹配）。
+//     这里用 `RegisterClassEx` 注册的类名（WPF 的 `HwndWrapper[...]`），
+//     res_name 与 res_class 同值 —— 本工程没有独立的"应用名"这一路信息，不编造。
+//   · `WM_HINTS(InputHint=True)`：ICCCM 的"本窗口要键盘输入焦点"，与
+//     `wpf_x11_set_input_focus` 的语义一致（F2 补丁）。
+//   · `_NET_WM_WINDOW_TYPE=NORMAL` + `_NET_WM_PID`：EWMH 的标准身份提示；
+//     NORMAL 是"普通顶层窗"（也是 WM 的缺省假设，写出来让规则能匹配）。
+// 【调用时机】必须在**第一次 map 之前**（WM 是 map 时才读提示去决定装饰与尺寸）⇒
+//   调用点在建窗路径里、`XMapWindow` 之前（见 win32_core.c 的 create_window_utf8）。
+//
+// ── 【波 59 · A 修法】`PMaxSize` 不再是"钳制后的尺寸" ──────────────────────────
+// 【波 58 的错在哪】波 58 把 `PMaxSize` 写成了 `工作区 − 装饰余量`（= 同一个钳制上限）⇒
+//   在 1280x1024 屏上 `xdotool windowsize 1280 1024` 被 WM 钳成 **1264x984**（实测
+//   `_NET_WM_STATE` 只有 FOCUSED 但客户区停在 1264x984），在 800x600 屏上更把窗口
+//   永久钉在 784x566 —— **"装得下"这件事只该管初始尺寸，不该变成"最大尺寸"**。
+// 【现在的口径】`max_w/max_h` = **应用自己在 `WM_GETMINMAXINFO` 里给的 `ptMaxTrackSize`**：
+//   · 应用**没改**（等于我们按屏幕尺寸填的默认值）⇒ `max_w/max_h` 传 0 ⇒ **不发 `PMaxSize`**
+//     （"拿不到就不发"，绝不用钳制值顶替）；
+//   · 应用**真的声明了**（`MaxWidth/MaxHeight` 等）⇒ 发它给的值（不再是我们的钳制上限）。
+//   钳制逻辑本身**不变**：`clamp_toplevel_extent` 仍然只作用于建窗/改尺寸那一刻的尺寸。
+void wpf_x11_apply_wm_hints(HWND hwnd, const char *cls,
+                            int min_w, int min_h, int max_w, int max_h)
+{
+    if (!hwnd) return;
+    if (!wpf_x11_ensure()) return;
+    Window win = (Window)(uintptr_t)hwnd;
+
+    XLOCK();
+    // ① WM_NORMAL_HINTS：min ≤ max 是 X 的硬要求（server 不检查，WM 会失配）⇒ 这里兜住。
+    XSizeHints sh;
+    memset(&sh, 0, sizeof(sh));
+    sh.min_width  = min_w >= 1 ? min_w : 1;
+    sh.min_height = min_h >= 1 ? min_h : 1;
+    sh.flags = PMinSize;
+    if (max_w > 0 && max_h > 0) {            // 应用真的声明了上限才发 PMaxSize
+        sh.flags |= PMaxSize;
+        sh.max_width  = (max_w >= sh.min_width)  ? max_w  : sh.min_width;
+        sh.max_height = (max_h >= sh.min_height) ? max_h  : sh.min_height;
+    }
+    XSetWMNormalHints(g_wpf.dpy, win, &sh);
+
+    // ② WM_CLASS（两个字段同值：我们没有独立的 instance 名）
+    if (cls && *cls) {
+        XClassHint ch;
+        ch.res_name = (char *)cls;
+        ch.res_class = (char *)cls;
+        XSetClassHint(g_wpf.dpy, win, &ch);
+    }
+
+    // ③ WM_HINTS：InputHint
+    XWMHints wmh;
+    memset(&wmh, 0, sizeof(wmh));
+    wmh.flags = InputHint;
+    wmh.input = True;
+    XSetWMHints(g_wpf.dpy, win, &wmh);
+
+    // ④ EWMH：_NET_WM_WINDOW_TYPE=NORMAL / _NET_WM_PID
+    if (a_net_wm_window_type && a_net_wm_window_type_normal)
+        XChangeProperty(g_wpf.dpy, win, a_net_wm_window_type, XA_ATOM, 32, PropModeReplace,
+                        (const unsigned char *)&a_net_wm_window_type_normal, 1);
+    if (a_net_wm_pid) {
+        long pid = (long)getpid();
+        XChangeProperty(g_wpf.dpy, win, a_net_wm_pid, XA_CARDINAL, 32, PropModeReplace,
+                        (const unsigned char *)&pid, 1);
+    }
+    XFlush(g_wpf.dpy);
+    XUNLOCK();
 }

@@ -9,6 +9,8 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <pthread.h>
+#include <stdarg.h>   // 【波 58】wpf_wmsize_diag 的可变参数
+#include <stddef.h>   // ★W70A（D-G72）：GetMonitorInfoW 要用 offsetof 读 cbSize 边界
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -441,6 +443,264 @@ static int32_t normalize_extent(int32_t v, int32_t fallback)
 #define WPF_DEFAULT_WINDOW_W 800
 #define WPF_DEFAULT_WINDOW_H 600
 
+// ══════════════════════════════════════════════════════════════════════════
+//  【波 58】顶层窗"装得下"：钳制**策略**（屏幕/工作区读数与 X 写入在 win32_x11.c）
+// ══════════════════════════════════════════════════════════════════════════
+//
+// ── 为什么钳在"建窗/改尺寸"这一层（而不是在托管侧或 X 层里各钳一半）────────────
+//   · **必须在客户区尺寸被送到 X 之前**：xfwm4 的自动最大化发生在 **map** 那一刻，
+//     依据是"帧装不进屏幕"；窗口一旦以 800×600 被 map，WM 就已经最大化了
+//     （实测：`windowsize`/`windowmove` 到那时全无效）。所以钳制要早于 `XMapWindow`。
+//   · **必须同时改 shim 自己的窗口表**：`GetClientRect`/`GetWindowRect` 是托管侧布局的
+//     读数来源；只改 X 侧会让"我们以为 800×600、实际 784×560" ⇒ 二次不一致。
+//     这里三条改尺寸的入口（建窗 / MoveWindow / SetWindowPos）走**同一个**函数。
+//   · **只在顶层窗上做**：message-only 窗口不 map（无关）；子窗口的坐标/尺寸是父窗口
+//     客户区坐标系，与屏幕无关（钳它会破坏 WPF 的子窗口布局）。
+//
+// ── 为什么不钳"位置"到工作区内**全部**范围 ─────────────────────────────────────
+//   只把**负**原点抬到 0（"标题栏别从屏幕外开始"）。正方向上一律不动：
+//   Windows 允许窗口故意伸出屏幕右边（无边框/贴边窗靠这个），把它拉回来是另一处行为改变，
+//   与本缺陷无关 ⇒ 不做。
+//
+// ── 与 WM_GETMINMAXINFO 的关系 ────────────────────────────────────────────────
+//   上限只有**一个来源**：`wpf_x11_client_size_limit()`（工作区 − 装饰余量）。
+//   `WM_GETMINMAXINFO` 的默认值（fill_minmaxinfo_defaults）与 X 的 `WM_NORMAL_HINTS`
+//   （wpf_x11_apply_wm_hints）用的都是它 ⇒ 三条路（钳制/提示/消息）不会互相打架。
+static int wpf_wmsize_diag_on(void)
+{
+    static int cached = -1;
+    if (cached < 0) { const char *e = getenv("WPF_LINUX_CREATE_DIAG"); cached = (e && *e && *e != '0') ? 1 : 0; }
+    return cached;
+}
+static void wpf_wmsize_diag(const char *fmt, ...)
+{
+    if (!wpf_wmsize_diag_on()) return;
+    static int n = 0;
+    if (n++ >= 40) return;
+    va_list ap;
+    va_start(ap, fmt);
+    fputs("[WMSIZE_DIAG] ", stderr);
+    vfprintf(stderr, fmt, ap);
+    fputc('\n', stderr);
+    va_end(ap);
+    fflush(stderr);
+}
+
+// 顶层判定用**显式参数**（建窗时 hwnd 还没分配 ⇒ 不能查表）
+static int clamp_toplevel_extent_flags(int is_msgonly, HWND parent, int64_t style,
+                                       const char *where, int *x, int *y, int *w, int *h)
+{
+    if (is_msgonly || parent != NULL) return 0;
+    if ((style & (int64_t)(int32_t)WS_CHILD) != 0) return 0;
+    if (!w && !h && !x && !y) return 0;          // 没有要钳的东西（调用方给 NULL = 不碰那一半）
+
+    int lim_w = 0, lim_h = 0;
+    wpf_x11_client_size_limit(&lim_w, &lim_h);
+    if (lim_w <= 0 || lim_h <= 0) return 0;      // 无 X / 不知道 ⇒ **不钳**（绝不是"钳成 0"）
+
+    int req_w = w ? *w : -1, req_h = h ? *h : -1;
+    int req_x = x ? *x : 0, req_y = y ? *y : 0;
+    int changed = 0;
+    if (w && *w > lim_w) { *w = lim_w; changed = 1; }
+    if (h && *h > lim_h) { *h = lim_h; changed = 1; }
+    if (x && *x < 0) { *x = 0; changed = 1; }
+    if (y && *y < 0) { *y = 0; changed = 1; }
+    if (changed)
+        wpf_wmsize_diag("%s: req=%dx%d@%d,%d → sent=%dx%d@%d,%d (limit=%dx%d)",
+                        where, req_w, req_h, req_x, req_y,
+                        w ? *w : -1, h ? *h : -1, x ? *x : 0, y ? *y : 0, lim_w, lim_h);
+    return changed;
+}
+
+// 改尺寸路径用（从窗口表快照顶层判定；**不持 g_wpf.lock** 调 X 读数，避免锁序反转）
+static int clamp_toplevel_extent(HWND hwnd, const char *where, int *x, int *y, int *w, int *h)
+{
+    wpf_global_init();
+    wpf_lock();
+    wpf_window *win = wpf_window_find(hwnd);
+    int      is_msgonly = win ? win->is_message_only : 1;
+    HWND     parent     = win ? win->parent : NULL;
+    int64_t  style      = win ? win->style : 0;
+    pthread_mutex_unlock(&g_wpf.lock);
+    return clamp_toplevel_extent_flags(is_msgonly, parent, style, where, x, y, w, h);
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+//  【波 59】窗口状态机 / 命中测试 / "自绘 chrome"判定（A/B/C 三条修的公共部分）
+// ══════════════════════════════════════════════════════════════════════════
+
+// ── "应用自己画窗框"的 sticky 判定 ────────────────────────────────────────────
+// 【为什么需要它（这是波 59 里唯一"必须自己找信号"的一处）】用户报的第二件事是
+//   **双层窗框**：应用自绘了标题栏（`WindowChrome`），外面又被 WM 套了一层。
+//   派单书给的判据是"`WS_CAPTION` 不在 style 里 ⇒ 去装饰"，但**实测该判据对 hc 示例
+//   不成立**：`hc:Window` 用的是 `WindowStyle=SingleBorderWindow`（默认值，它只设置
+//   `WindowChrome` 附加属性），建窗读数 `[CREATE_DIAG] style=0x2cf0000` 里
+//   `WS_CAPTION(0x00C00000)` **在**（`0x2cf0000 & 0xC00000 == 0xC00000`）⇒ 判据永不触发。
+// 【那真正的信号是什么】X11 上没有 DWM，`WindowChrome` 在 Windows 上"把客户区铺满整个
+//   窗口（不再画系统标题栏）"这件事，靠的是 `DwmExtendFrameIntoClientArea`；而本 shim 的
+//   `DwmIsCompositionEnabled` 返回 **FALSE** ⇒ `_isGlassEnabled=false` ⇒ 那条路**根本不走**
+//   （grep 过：`WindowChromeWorker.cs` 的两处调用都在 `_isGlassEnabled` 分支里）。
+//   但 `WindowChromeWorker` 还有一条**与合成无关**的动作：`_ApplyNewCustomChrome()` 里
+//   `SetWindowPos(…, _SwpFlags)`，其中 `_SwpFlags = FRAMECHANGED|NOSIZE|NOMOVE|NOZORDER|
+//   NOOWNERZORDER|NOACTIVATE`（`WindowChromeWorker.cs:28/246`）—— 语义正是"我重算了自己的
+//   非客户区（窗框），请系统按新框重算"。**Win32 侧它就是自定义 chrome 的声明**，
+//   X11 侧没有对应机制 ⇒ 这里把 `SWP_FRAMECHANGED` 当成"应用自绘窗框"的声明。
+// 【为什么要加"首次 map 之前"这个限定】`HwndStyleManager.Flush()`（`Window.cs:6845-6867`）
+//   在**样式真的变了**时也会发一条带 `FRAMECHANGED` 的 `SetWindowPos`（实测标志位 0x37）。
+//   两条的区分点是**时序**：chrome 那条在 `ShowWindow(SW_SHOW)` 之前（建窗/初始化期），
+//   样式管理那条在窗口已经 map 之后（运行期改 `WindowStyle/ResizeMode`）。
+//   ⇒ 只认"首次 map 之前"的 `FRAMECHANGED`（sticky）；map 之后的只做"刷新装饰"，
+//   不会把普通窗口的窗框剥掉。普通窗口（无 `WindowChrome`）建窗期**不发**这条 ⇒ 照旧被装饰。
+void wpf_core_note_framechanged(HWND hwnd)
+{
+    wpf_lock();
+    wpf_window *w = wpf_window_find(hwnd);
+    int became = 0;
+    if (w && !w->custom_chrome) {
+        w->custom_chrome = 1;
+        became = 1;
+    }
+    int was_mapped = w ? w->mapped : 0;
+    pthread_mutex_unlock(&g_wpf.lock);
+    if (became && was_mapped) wpf_x11_set_decorations(hwnd, 0);   // 运行期才声明 ⇒ 当场去掉
+}
+
+int wpf_core_custom_chrome(HWND hwnd)
+{
+    wpf_lock();
+    wpf_window *w = wpf_window_find(hwnd);
+    int v = w ? w->custom_chrome : 0;
+    pthread_mutex_unlock(&g_wpf.lock);
+    return v;
+}
+
+// ── 发 `WM_NCHITTEST` 问窗口过程"这一点算什么" ─────────────────────────────────
+// 【返回码从哪来】`WindowChromeWorker._HandleNCHitTest`（自绘 chrome：标题栏 → `HT.CAPTION`、
+//   缩放边 → `HTTOPLEFT/HTBOTTOMRIGHT/…`、声明了 `IsHitTestVisibleInChrome` 的元素 →
+//   `HTCLIENT`）与 `Window.WmNcHitTest`（`ResizeMode=CanResizeWithGrip` 的 `ResizeGrip` →
+//   `HTBOTTOMRIGHT`）。两者都是 HwndSource 钩子，**只有我们把这条消息发进去**才会跑。
+// 【为什么只问顶层非 message-only 窗口】子窗口/消息窗的坐标是父窗口客户区坐标系，
+//   与屏幕坐标不同源；普通顶层窗口由 WM 画框，它的 `WM_NCHITTEST` 只会答"客户区"或
+//   "ResizeGrip"（都是 Win32 的真实语义），所以问它无害；`message-only` 窗口根本没 map。
+static int wpf_core_is_toplevel(HWND hwnd)
+{
+    int top = 0;
+    wpf_lock();
+    wpf_window *w = wpf_window_find(hwnd);
+    if (w) top = (!w->is_message_only && w->parent == NULL &&
+                  ((w->style & (int64_t)(int32_t)WS_CHILD) == 0)) ? 1 : 0;
+    pthread_mutex_unlock(&g_wpf.lock);
+    return top;
+}
+
+int wpf_core_nc_hit_test(HWND hwnd, int x_root, int y_root)
+{
+    if (!hwnd) return HTCLIENT;
+    if (!wpf_core_is_toplevel(hwnd)) return HTCLIENT;
+    // lParam = 屏幕坐标（Win32：`MAKELPARAM(x, y)`，低 16 位 x、高 16 位 y，带符号语义）
+    LPARAM lp = (LPARAM)(uint32_t)(((uint32_t)(x_root & 0xFFFF)) |
+                                   (((uint32_t)(y_root & 0xFFFF)) << 16));
+    LRESULT r = wpf_dispatch_to_window(hwnd, WM_NCHITTEST, 0, lp);
+    int ht = (int)r;
+    if (ht <= 0) ht = HTCLIENT;    // 没答（0/NULL）⇒ 按 Win32 的 DefWindowProc 口径 = 客户区
+    return ht;
+}
+
+// ── 窗口状态：真最大化 / 最小化 / 还原 ────────────────────────────────────────
+// 【为什么这件事必须由 shim 做（这是用户报的第一件事的真正根因，见报告 §1）】
+//   应用侧"最大化"按钮走的是 `hc:Window` 的 `CommandBinding`：`WindowState = Maximized`
+//   （`HandyControl_Shared/Controls/Window/Window.cs:297`）——不是 `WM_SYSCOMMAND`。
+//   上游 `Window.OnWindowStateChanged` 对 `Maximized` 的唯一动作是
+//   `UnsafeNativeMethods.ShowWindow(hr, SW_MAXIMIZE)`（`Window.cs:5231`，条件是
+//   `(_Style & WS_MAXIMIZE) != WS_MAXIMIZE`）⇒ **本 shim 修前 `ShowWindow` 把 SW_MAXIMIZE
+//   当成"map 一下"**（`win32_core.c` 的老代码 `case SW_SHOWMAXIMIZED: map = 1;`）
+//   ⇒ 按下去什么都不会发生。实测读数见报告 §2 反极性格。
+// 【为什么还要写 `w->style` 的状态位】`Window._Style` 的 getter 在 `Manager == null` 时
+//   **直接读 `GetWindowLong(GWL_STYLE)`**（`Window.cs:3242-3255`）⇒ 还原路径那句
+//   `if ((style & WS_MAXIMIZE) == WS_MAXIMIZE) ShowWindow(SW_RESTORE)` 才会成立；
+//   不写这两位就会出现"能最大化、按还原没反应"。这同时也是 Win32 的真实行为
+//   （系统会在窗口样式里置 WS_MAXIMIZE/WS_MINIMIZE）。
+// 【几何由谁算】有 EWMH WM ⇒ 交给 WM（`_NET_WM_STATE`）；没有 ⇒ 自己按工作区改几何
+//   并补发 `WM_SIZE`/`WM_MOVE`（Xvfb 裸跑时也要能用）。两条路都会让之后的
+//   `ConfigureNotify` 按状态位发出 `WM_SIZE(SIZE_MAXIMIZED|RESTORED)`。
+void wpf_core_window_state(HWND hwnd, int mode)
+{
+    if (!hwnd) return;
+    wpf_global_init();
+
+    wpf_lock();
+    wpf_window *w = wpf_window_find(hwnd);
+    if (!w) { pthread_mutex_unlock(&g_wpf.lock); return; }
+    int is_top = (!w->is_message_only && w->parent == NULL &&
+                  ((w->style & (int64_t)(int32_t)WS_CHILD) == 0)) ? 1 : 0;
+    if (mode == WPF_WS_MAX && !w->maximized) {          // 记下还原矩形（只在进入最大化时记）
+        w->rc_x = w->x; w->rc_y = w->y; w->rc_w = w->width; w->rc_h = w->height;
+    }
+    if (mode == WPF_WS_MAX)      { w->maximized = 1; w->iconified = 0;
+                                   w->style |= (int64_t)(int32_t)WS_MAXIMIZE;
+                                   w->style &= ~(int64_t)(int32_t)WS_MINIMIZE; }
+    else if (mode == WPF_WS_MIN) { w->iconified = 1;
+                                   w->style |= (int64_t)(int32_t)WS_MINIMIZE; }
+    else                         { w->maximized = 0; w->iconified = 0;
+                                   w->style &= ~((int64_t)(int32_t)(WS_MAXIMIZE | WS_MINIMIZE)); }
+    int rx = w->rc_x, ry = w->rc_y, rw = w->rc_w, rh = w->rc_h;
+    pthread_mutex_unlock(&g_wpf.lock);
+
+    if (!is_top) return;                                 // 子窗口/消息窗没有"最大化"语义
+
+    if (mode == WPF_WS_MIN) { wpf_x11_iconify(hwnd); return; }
+
+    if (wpf_x11_has_ewmh_wm()) {
+        wpf_x11_apply_wm_state(hwnd, mode == WPF_WS_MAX);
+        return;                                          // 几何由 WM 改 ⇒ 等 ConfigureNotify
+    }
+
+    // ── 没有 EWMH WM：自己按工作区算（Xvfb 裸跑 / 非 EWMH WM 的退化路径）────────
+    if (mode == WPF_WS_MAX) {
+        int wx = 0, wy = 0, ww = 0, wh = 0;
+        wpf_x11_workarea(&wx, &wy, &ww, &wh);
+        if (ww <= 0 || wh <= 0) return;
+        MoveWindow(hwnd, wx, wy, ww, wh, 1);
+    } else if (rw > 0 && rh > 0) {
+        MoveWindow(hwnd, rx, ry, rw, rh, 1);
+    }
+}
+
+// ── WM_GETMINMAXINFO 的默认值（= USER32 发这条消息前的填法）──────────────────────
+// Win32 语义：USER32 先把结构体按"最大化后的尺寸/位置"填好再发给窗口过程，应用只改它
+//   关心的字段。这里照做，且**必须**填 —— 托管侧 `Window.WmGetMinMaxInfo`
+//   （upstream `Window.cs:4876-4888`）会把收到的 mmi **无条件**存进
+//   `_trackMaxWidthDeviceUnits`/`_windowMaxWidthDeviceUnits` 等缓存，再据它算布局的
+//   最小/最大尺寸 ⇒ 给它一份**全 0** 的结构体会把"窗口最大尺寸"缓存成 0。
+//   （这也是"空返回"的真正后果：不是"没有约束"，而是"约束 = 0"。）
+static void fill_minmaxinfo_defaults(WPF_MINMAXINFO *mmi)
+{
+    if (!mmi) return;
+    memset(mmi, 0, sizeof(*mmi));
+    int wx = 0, wy = 0, ww = 0, wh = 0;
+    wpf_x11_workarea(&wx, &wy, &ww, &wh);
+    // ── 【波 59 · A】`ptMaxTrackSize` 的默认值改成**屏幕尺寸**，不再是钳制上限 ────────
+    //   修前（波 58）：`ptMaxTrackSize = 工作区 − 装饰余量`（= `clamp_toplevel_extent` 的同一上限），
+    //   并且**无条件**拿它去顶破窗口过程给的值 ⇒ 这个"最大尺寸"被托管侧
+    //   `Window.WmGetMinMaxInfo` 缓存成 `_trackMaxWidthDeviceUnits`，
+    //   同时经 `WM_NORMAL_HINTS(PMaxSize)` 落到 WM 侧 ⇒ **窗口永远不可能比"装得下"更大**：
+    //   实测 1280x1024 屏上 `xdotool windowsize 1280 1024` 只到 1264x984（报告 §2 有读数）。
+    //   现在：默认值取 `SM_CXMAXTRACK` 的语义（屏幕尺寸），钳制**只**作用于初始尺寸；
+    //   窗口过程若真声明了上限（`Window.MaxWidth` 等），那个值照样原样传给 X。
+    int sw = 0, sh = 0;
+    wpf_x11_screen_size(&sw, &sh);
+    if (ww <= 0 || wh <= 0) { ww = 1280; wh = 1024; }   // 无 X 的兜底（与 GetSystemMetrics 同口径）
+    if (sw <= 0 || sh <= 0) { sw = ww; sh = wh; }
+    mmi->ptMaxSize.x     = ww;      // 最大化后的客户区尺寸 = 工作区
+    mmi->ptMaxSize.y     = wh;
+    mmi->ptMaxPosition.x = wx;      // 最大化后放在工作区原点
+    mmi->ptMaxPosition.y = wy;
+    mmi->ptMinTrackSize.x = 1;      // X 的最小可建窗；Win32 的 SM_CXMINTRACK 在 X 上没有对应物
+    mmi->ptMinTrackSize.y = 1;
+    mmi->ptMaxTrackSize.x = sw;     // "最大可拖到的尺寸" = 屏幕（Windows 同口径：SM_*MAXTRACK）
+    mmi->ptMaxTrackSize.y = sh;
+}
+
 static HWND create_window_utf8(uint32_t dwExStyle, const char *cls,
                                const char *title, uint32_t dwStyle,
                                int32_t X, int32_t Y, int32_t nWidth, int32_t nHeight,
@@ -474,12 +734,27 @@ static HWND create_window_utf8(uint32_t dwExStyle, const char *cls,
     w->wndproc = klass->wndproc;
     w->style = (int64_t)(int32_t)dwStyle;
     w->exstyle = (int64_t)(int32_t)dwExStyle;
+    // ── 【波 59 · C】"没有 caption"的窗口 ⇒ 自绘 chrome（派单书给的判据，保留）──────
+    //   `WindowStyle=None`（WPF 的 `CorrectStyleForBorderlessWindowCase` 会把 WS_CAPTION 去掉）
+    //   明确表示"没有系统标题栏" ⇒ WM 不该再套一层装饰。注意这条**单独对 hc 示例不成立**
+    //   （它的 WindowStyle 是 SingleBorderWindow，WS_CAPTION 在），另一条判定见
+    //   `wpf_core_note_framechanged`（`SWP_FRAMECHANGED`）。
+    w->custom_chrome = ((dwStyle & WS_CAPTION) == 0) ? 1 : 0;
     w->parent = hWndParent;
     w->is_message_only = wpf_is_message_only_parent(hWndParent);
-    w->x = normalize_position(X);
-    w->y = normalize_position(Y);
-    w->width = normalize_extent(nWidth, WPF_DEFAULT_WINDOW_W);
-    w->height = normalize_extent(nHeight, WPF_DEFAULT_WINDOW_H);
+    // ── 【波 58】先钳到"装得下"，再建 X 窗口 ─────────────────────────────────
+    //   必须在 `wpf_x11_create_window` **之前**：X 窗口一建出来就是最终客户区尺寸，
+    //   而 WM 的自动最大化判决在 map 那一刻按"尺寸 + 装饰"做。钳完**同一组值**落回
+    //   窗口表（GetClientRect/GetWindowRect 与 X 一致）。
+    int32_t wx = normalize_position(X), wy = normalize_position(Y);
+    int32_t ww = normalize_extent(nWidth, WPF_DEFAULT_WINDOW_W);
+    int32_t wh = normalize_extent(nHeight, WPF_DEFAULT_WINDOW_H);
+    clamp_toplevel_extent_flags(w->is_message_only, hWndParent, w->style,
+                                "CreateWindowEx", &wx, &wy, &ww, &wh);
+    w->x = wx;
+    w->y = wy;
+    w->width = ww;
+    w->height = wh;
     w->owner_thread = (void *)wpf_thread_self();
     pthread_mutex_unlock(&g_wpf.lock);
 
@@ -518,6 +793,52 @@ static HWND create_window_utf8(uint32_t dwExStyle, const char *cls,
     //   照发即可；"不 map" 才是 message-only 与普通窗口的区别。
     wpf_dispatch_to_window(w->hwnd, WM_NCCREATE, 0, 0);
     wpf_dispatch_to_window(w->hwnd, WM_CREATE, 0, 0);
+
+    // ── 【波 58】WM_GETMINMAXINFO + X 提示（**必须在 map 之前**）──────────────────
+    // 【修前的事实】本 shim 从建窗到销毁**从不发** `WM_GETMINMAXINFO`
+    //   （全仓 `grep -rn WM_GETMINMAXINFO src/` 只有三处：`win32_internal.h:56` 的定义、
+    //     `win32_msg.c:469` 的调试名表、`win32_core.c` 的 `DefWindowProcW` 分支）
+    //   ⇒ `DefWindowProcW` 里那个 `case WM_GETMINMAXINFO: return 0;` 是**不可达的死码**：
+    //   把它填对**单独不会改变任何行为**（这一点与派单书里"尺寸约束从未生效"的表述
+    //   不完全一致，如实写在报告 §4）。真正缺的是"**问一声**"这一步。
+    // 【Win32 顺序】USER32 在建窗过程中发 WM_GETMINMAXINFO（上游 `Window.cs:4244-4252`
+    //   的注释明确写了"我们可能在 CreateWindowEx 期间同步收到它"，且它的处理函数
+    //   允许此刻 `_swh == null`）⇒ 这里按同一顺序补上：先填默认值，再让窗口过程回填
+    //   （WPF 的 `Window` 会按 Min/MaxWidth 改写），最后把**结果**落成 X 的
+    //   `WM_NORMAL_HINTS`。X 侧没有"尺寸约束"的其他来源，这是唯一的。
+    if (!w->is_message_only && hWndParent == NULL && (dwStyle & WS_CHILD) == 0) {
+        WPF_MINMAXINFO mmi;
+        fill_minmaxinfo_defaults(&mmi);
+        int d_min_w = mmi.ptMinTrackSize.x, d_min_h = mmi.ptMinTrackSize.y;
+        int d_max_w = mmi.ptMaxTrackSize.x, d_max_h = mmi.ptMaxTrackSize.y;
+        wpf_dispatch_to_window(w->hwnd, WM_GETMINMAXINFO, 0, (LPARAM)&mmi);
+        int min_w = mmi.ptMinTrackSize.x, min_h = mmi.ptMinTrackSize.y;
+        int max_w = mmi.ptMaxTrackSize.x, max_h = mmi.ptMaxTrackSize.y;
+        // ── 【波 59 · A】只把"应用**真的改过**的上限"传给 X ───────────────────────
+        //   怎么判"真的改过"：拿窗口过程回填后的值与**我们填进去的默认值**比。
+        //   相等 ⇒ 应用没声明约束（WPF 的 `Window.WmGetMinMaxInfo` 在没有
+        //   `MaxWidth/MaxHeight` 时原样留着默认值）⇒ 这时**不发 `PMaxSize`**，
+        //   而不是像波 58 那样拿"装得下"的钳制值顶上去（那正是"最大也放不大"的根因）。
+        int app_declared = (max_w != d_max_w) || (max_h != d_max_h);
+        if (min_w < 1) min_w = 1;
+        if (min_h < 1) min_h = 1;
+        if (app_declared) {
+            if (max_w < min_w) max_w = min_w;
+            if (max_h < min_h) max_h = min_h;
+        } else {
+            max_w = 0; max_h = 0;      // 0 = "不发 PMaxSize"
+        }
+        wpf_x11_apply_wm_hints(w->hwnd, cls, min_w, min_h, max_w, max_h);
+        wpf_wmsize_diag("WM_GETMINMAXINFO: 默认 min=%dx%d max(=屏幕)=%dx%d → 窗口过程回填 min=%dx%d max=%dx%d "
+                        "⇒ 应用%s声明上限 ⇒ X 提示 min=%dx%d PMaxSize=%s",
+                        d_min_w, d_min_h, d_max_w, d_max_h,
+                        mmi.ptMinTrackSize.x, mmi.ptMinTrackSize.y,
+                        mmi.ptMaxTrackSize.x, mmi.ptMaxTrackSize.y,
+                        app_declared ? "**有**" : "**没有**",
+                        min_w, min_h,
+                        app_declared ? "已发" : "**未发**（不再用钳制值顶替）");
+    }
+
     if (!w->is_message_only && (dwStyle & WS_VISIBLE) != 0)
         wpf_x11_map(w->hwnd, 1);
 
@@ -641,10 +962,18 @@ BOOL ShowWindow(HWND hwnd, int nCmdShow)
     wpf_global_init();
     wpf_show_diag("ShowWindow", hwnd, (long)nCmdShow, 0);
     int map;
+    // ── 【波 59】SW_MAXIMIZE / SW_MINIMIZE / SW_RESTORE 必须**真的**改状态 ─────────
+    //   修前三个都退化成"map 一下"（注释写着"无 WM/图标化，退化为 map"）——那句话在
+    //   "窗口管理器会帮我们做"的假设下才成立，而 X11 上**没有任何东西**会把
+    //   `ShowWindow(SW_MAXIMIZE)` 变成最大化：它不是 ICCCM/EWMH 消息，只是个 Win32 API。
+    //   上游 `Window.OnWindowStateChanged` 却**只**走这条路（见 `wpf_core_window_state` 注释）。
+    int want_state = -1;
     switch (nCmdShow) {
         case SW_HIDE: map = 0; break;
-        case SW_SHOWMINIMIZED: map = 1; break;   // 无 WM/图标化，退化为 map
-        case SW_SHOWMAXIMIZED: map = 1; break;   // 同上，退化为 map
+        case SW_SHOWMINIMIZED: want_state = WPF_WS_MIN; map = 1; break;
+        case SW_SHOWMAXIMIZED: want_state = WPF_WS_MAX; map = 1; break;
+        case SW_MINIMIZE:      want_state = WPF_WS_MIN; map = 1; break;
+        case SW_RESTORE:       want_state = WPF_WS_NORMAL; map = 1; break;
         default: map = 1; break;
     }
     wpf_x11_map(hwnd, map);
@@ -656,6 +985,7 @@ BOOL ShowWindow(HWND hwnd, int nCmdShow)
     w->mapped = map;
     pthread_mutex_unlock(&g_wpf.lock);
     if (map) wpf_dispatch_to_window(hwnd, WM_SHOWWINDOW, 1, 0);
+    if (want_state >= 0) wpf_core_window_state(hwnd, want_state);
     return was;   // Win32: 返回「此前是否可见」
 }
 BOOL ShowWindowAsync(HWND hwnd, int nCmdShow) { return ShowWindow(hwnd, nCmdShow); }
@@ -671,6 +1001,15 @@ BOOL MoveWindow(HWND hwnd, int x, int y, int w, int h, BOOL repaint)
     x = normalize_position(x); y = normalize_position(y);
     w = normalize_extent(w, win->width > 0 ? win->width : WPF_DEFAULT_WINDOW_W);
     h = normalize_extent(h, win->height > 0 ? win->height : WPF_DEFAULT_WINDOW_H);
+    pthread_mutex_unlock(&g_wpf.lock);
+
+    // 【波 58】显式改尺寸 ⇒ 钳制（clamp_toplevel_extent 自己取锁，故必须在解锁之后调）
+    clamp_toplevel_extent(hwnd, "MoveWindow", &x, &y, &w, &h);
+
+    wpf_lock();
+    win = wpf_window_find(hwnd);
+    if (!win) { pthread_mutex_unlock(&g_wpf.lock);
+                wpf_set_last_error(ERROR_INVALID_WINDOW_HANDLE); return 0; }
     win->x = x; win->y = y; win->width = w; win->height = h;
     pthread_mutex_unlock(&g_wpf.lock);
     wpf_x11_move_resize(hwnd, x, y, w, h);
@@ -683,8 +1022,25 @@ BOOL SetWindowPos(HWND hwnd, HWND after, int x, int y, int cx, int cy, UINT flag
     wpf_global_init();
     const UINT SWP_NOSIZE = 0x0001, SWP_NOMOVE = 0x0002, SWP_NOZORDER = 0x0004;
     const UINT SWP_NOACTIVATE = 0x0010, SWP_SHOWWINDOW = 0x0040, SWP_HIDEWINDOW = 0x0080;
+    const UINT SWP_FRAMECHANGED = 0x0020;
     wpf_show_diag("SetWindowPos", hwnd, (long)flags, ((long)cx << 16) | ((long)cy & 0xffffL));
     (void)SWP_NOZORDER; (void)SWP_NOACTIVATE;
+
+    // ── 【波 59 · C】`SWP_FRAMECHANGED` = "应用重算了自己的窗框" ───────────────────
+    //   语义与为什么把它当"自绘 chrome"的声明：见 `wpf_core_note_framechanged` 的注释。
+    //   时序上限定"首次 map 之前"由调用方（该函数）内部判断。
+    if ((flags & SWP_FRAMECHANGED) && !wpf_core_custom_chrome(hwnd)) {
+        wpf_lock();
+        wpf_window *wf = wpf_window_find(hwnd);
+        int mapped = wf ? wf->mapped : 1;      // 查不到就当"已 map"（保守：不据此改装饰）
+        pthread_mutex_unlock(&g_wpf.lock);
+        if (!mapped) wpf_core_note_framechanged(hwnd);
+        else {
+            // 运行期才来的 FRAMECHANGED：可能是 chrome 重建模板，也可能是普通窗口改样式。
+            // 只要**已经**判定为自绘 chrome，就顺手刷新一次装饰（幂等）；否则不动。
+            if (wpf_core_custom_chrome(hwnd)) wpf_x11_set_decorations(hwnd, 0);
+        }
+    }
 
     wpf_lock();
     wpf_window *win = wpf_window_find(hwnd);
@@ -696,6 +1052,22 @@ BOOL SetWindowPos(HWND hwnd, HWND after, int x, int y, int cx, int cy, UINT flag
                                   : normalize_extent(cx, win->width > 0 ? win->width : WPF_DEFAULT_WINDOW_W);
     int nh = (flags & SWP_NOSIZE) ? win->height
                                   : normalize_extent(cy, win->height > 0 ? win->height : WPF_DEFAULT_WINDOW_H);
+    pthread_mutex_unlock(&g_wpf.lock);
+
+    // 【波 58】钳制**只作用于"调用方真的在改尺寸/位置"的那一半**：
+    //   `SWP_NOSIZE` 表示"尺寸不变" ⇒ 不钳 —— 那条路上尺寸可能正是 **WM 自己**给的值
+    //   （最大化态下 ConfigureNotify 已经把客户区改小过），去"纠正"它会与 WM 打架
+    //   （我们缩、WM 再最大化 ⇒ 震荡）。同理 `SWP_NOMOVE` 时不动原点。
+    clamp_toplevel_extent(hwnd, "SetWindowPos",
+                          (flags & SWP_NOMOVE) ? NULL : &nx,
+                          (flags & SWP_NOMOVE) ? NULL : &ny,
+                          (flags & SWP_NOSIZE) ? NULL : &nw,
+                          (flags & SWP_NOSIZE) ? NULL : &nh);
+
+    wpf_lock();
+    win = wpf_window_find(hwnd);
+    if (!win) { pthread_mutex_unlock(&g_wpf.lock);
+                wpf_set_last_error(ERROR_INVALID_WINDOW_HANDLE); return 0; }
     win->x = nx; win->y = ny; win->width = nw; win->height = nh;
     pthread_mutex_unlock(&g_wpf.lock);
 
@@ -1222,7 +1594,45 @@ LRESULT DefWindowProcW(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         case WM_MOUSEACTIVATE: return 3; // MA_NOACTIVATE
         case WM_NCHITTEST: return 1;    // HTCLIENT
         case WM_SETCURSOR: return 1;
-        case WM_GETMINMAXINFO: return 0;
+        // ── 【波 59】`WM_SYSCOMMAND`：Win32 的"系统命令"入口 ───────────────────────
+        //   【修前】本 shim **完全没有**这条 case ⇒ `SystemCommands.MaximizeWindow(...)`
+        //   （`Microsoft.Windows.Shell/SystemCommands.cs:37` ⇒ `PostMessage(hwnd, WM_SYSCOMMAND,
+        //   SC_MAXIMIZE)`）落到 `default: return 0` ⇒ **什么都不会发生**。
+        //   本示例走的是托管 `WindowState` 那条路（见 `wpf_core_window_state`），但
+        //   `WM_SYSCOMMAND` 是"任何 Win32 应用的最大化/最小化/关闭/还原"的公共入口，
+        //   而且**双击标题栏最大化**在 Windows 上也正是 DefWindowProc 处理
+        //   `WM_NCLBUTTONDBLCLK(HTCAPTION)` ⇒ 发 `SC_MAXIMIZE`（下面那条）。
+        //   比较前必须 `& 0xFFF0`（Win32：低 4 位被系统用于内部标志）。
+        case WM_SYSCOMMAND: {
+            UINT cmd = (UINT)(wParam & 0xFFF0);
+            switch (cmd) {
+                case SC_MAXIMIZE: wpf_core_window_state(hwnd, WPF_WS_MAX);    return 0;
+                case SC_MINIMIZE: wpf_core_window_state(hwnd, WPF_WS_MIN);    return 0;
+                case SC_RESTORE:  wpf_core_window_state(hwnd, WPF_WS_NORMAL); return 0;
+                case SC_CLOSE:    wpf_dispatch_to_window(hwnd, WM_CLOSE, 0, 0); return 0;
+                default:          return 0;   // SC_MOVE/SC_SIZE 等：X11 上没有对应的模态循环
+            }
+        }
+        // ── 【波 59】双击非客户区：Win32 的"双击标题栏 ⇒ 最大化/还原" ────────────────
+        case WM_NCLBUTTONDBLCLK:
+            if ((int)wParam == HTCAPTION) {
+                wpf_lock();
+                wpf_window *wd = wpf_window_find(hwnd);
+                int was_max = wd ? wd->maximized : 0;
+                pthread_mutex_unlock(&g_wpf.lock);
+                wpf_core_window_state(hwnd, was_max ? WPF_WS_NORMAL : WPF_WS_MAX);
+            }
+            return 0;
+        case WM_GETMINMAXINFO:
+            // 【波 58】修前这里是 `return 0;`（**什么都不填**）。两个问题：
+            //   ① 若有人真问这条消息，拿到的是一份**全 0** 的 MINMAXINFO —— 而托管侧
+            //      `Window.WmGetMinMaxInfo` 会把 `ptMaxSize`/`ptMaxTrackSize` 存成布局用的
+            //      "窗口最大尺寸" ⇒ "没有约束"会变成"约束 = 0"（比空返回更坏）；
+            //   ② 本 shim **从不发**这条消息 ⇒ 这个 case 在修前是**死码**（见 create_window_utf8
+            //      里的注释与报告 §4 的复核）。
+            //   现在按 Win32 语义填默认值（= USER32 发消息前的填法）；窗口过程可以照常改写。
+            if (lParam) fill_minmaxinfo_defaults((WPF_MINMAXINFO *)(uintptr_t)lParam);
+            return 0;
         case WM_PAINT:     return 0;
         default:           return 0;
     }
@@ -1277,7 +1687,23 @@ BOOL GetMonitorInfoW(HMONITOR mon, WPF_MONITORINFOEX *info)
 {
     (void)mon;
     wpf_global_init();
-    if (!info) return 0;
+    if (!info) { wpf_set_last_error(87); return 0; }
+    // ★W70A（`D-G72`）：**必须先读调用方填的 `cbSize`**。
+    //   托管侧有**两套形状**：`MONITORINFO`（40 B：cbSize/rcMonitor/rcWork/dwFlags，**没有 szDevice**）
+    //   与 `MONITORINFOEX`（72 B，含 `szDevice[32]`）。旧版**从不读 cbSize**，无条件写 `szDevice`
+    //   ⇒ 对 40 B 的调用方**越界写 32 字节**。实测（W70A 的 dlopen 探针 `$HOME/w70a/bin/wgmon.c`，
+    //   调用方是 hc 的 `InteropValues.MONITORINFO`，cbSize=40）：
+    //       `CASE cbsize40 ret=1 … OVERWRITE_BYTES_PAST_STRUCT=32`
+    //   `docs/U2-M7b-report.md:226` 早在 U2 就写下过这条预测（"症状会是 GetMonitorInfo 把 32 字节
+    //   写越界踩掉后面的栈"），一直没兑现成读数；本趟兑现了。
+    //   Win32 语义：`cbSize` 既不是 `sizeof(MONITORINFO)` 也不是 `sizeof(MONITORINFOEX)`
+    //   ⇒ `SetLastError(ERROR_INVALID_PARAMETER=87)` ＋ **FALSE 且一个字节都不写**。
+    //   这里取"≥ 基线 40 即合法、只写调用方声明装得下的那部分"的**保守**读法：
+    //   永不越界；`cbSize` 不足 ⇒ 如实失败（不许静默、不许越界）。
+    const uint32_t cb = (uint32_t)info->cbSize;
+    const size_t need_base = offsetof(WPF_MONITORINFOEX, szDevice);   // = 40
+    const size_t need_ex   = sizeof(WPF_MONITORINFOEX);               // = 72
+    if (cb < need_base) { wpf_set_last_error(87); return 0; }
     int sw = 1280, sh = 1024;
     if (wpf_x11_ensure()) {
         sw = DisplayWidth(g_wpf.dpy, g_wpf.screen);
@@ -1287,13 +1713,16 @@ BOOL GetMonitorInfoW(HMONITOR mon, WPF_MONITORINFOEX *info)
     info->rcMonitor.right = sw; info->rcMonitor.bottom = sh;
     info->rcWork = info->rcMonitor;
     info->dwFlags = 1;   // MONITORINFOF_PRIMARY
-    // szDevice 在 Unix 上是 **char[32]（ANSI/UTF-8）**，不是 uint16_t[32]：
-    // 托管侧 [MarshalAs(ByValArray, SizeConst=32)] char[] 配 CharSet.Auto，
-    // 而 Unix 上 Auto 折叠为 Ansi。写错会踩掉结构体后面的内存。
-    memset(info->szDevice, 0, sizeof(info->szDevice));
-    const char *dev = "X11";
-    for (int i = 0; i < (int)sizeof(info->szDevice) - 1 && dev[i]; i++)
-        info->szDevice[i] = dev[i];
+    // szDevice **只在调用方声明了 MONITORINFOEX 时才写**（否则就是上面那条越界）。
+    if (cb >= need_ex) {
+        // szDevice 在 Unix 上是 **char[32]（ANSI/UTF-8）**，不是 uint16_t[32]：
+        // 托管侧 [MarshalAs(ByValArray, SizeConst=32)] char[] 配 CharSet.Auto，
+        // 而 Unix 上 Auto 折叠为 Ansi。写错会踩掉结构体后面的内存。
+        memset(info->szDevice, 0, sizeof(info->szDevice));
+        const char *dev = "X11";
+        for (int i = 0; i < (int)sizeof(info->szDevice) - 1 && dev[i]; i++)
+            info->szDevice[i] = dev[i];
+    }
     return 1;
 }
 BOOL GetMonitorInfoA(HMONITOR m, WPF_MONITORINFOEX *i) { return GetMonitorInfoW(m, i); }

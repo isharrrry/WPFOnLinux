@@ -46,15 +46,17 @@ namespace WpfGfx.Linux.Tests.Commands
 
         private static readonly byte[] Magic = { 0x57, 0x50, 0x46, 0x53, 0x54, 0x01 };
 
-        // 允许的 E_NOTIMPL 集合 = docs/unimplemented.md §1 的 7 条（6 C 类 + 1 B 类媒体）。
+        // 允许的 E_NOTIMPL 集合 = docs/unimplemented.md §1 的 **5 条**（4 C 类 + 1 B 类媒体）。
+        // ⚠️【`#49` 收紧】原先还列着 `0x6c MilCmdPixelShader` / `0x70 MilCmdShaderEffect` ——
+        //   它们**已被实现**（`D-G58`：`Effects` 页不再 abort）。留在"允许未实现"白名单里等于
+        //   **给"静默回退到 E_NOTIMPL"开绿灯**（本仓最忌讳的那一族）⇒ 本趟**摘掉两条**，
+        //   让"这两条又变回 E_NOTIMPL"当场变红。
         private static readonly HashSet<MilCmd> AllowedNotImpl = new HashSet<MilCmd>
         {
             MilCmd.MilCmdD3DImage,                        // 0x0a
             MilCmd.MilCmdD3DImagePresent,                 // 0x0b
             MilCmd.MilCmdDoubleBufferedBitmap,            // 0x3b
             MilCmd.MilCmdDoubleBufferedBitmapCopyForward, // 0x3c
-            MilCmd.MilCmdPixelShader,                     // 0x6c
-            MilCmd.MilCmdShaderEffect,                    // 0x70
             MilCmd.MilCmdMediaPlayer,                     // 0x17
         };
 

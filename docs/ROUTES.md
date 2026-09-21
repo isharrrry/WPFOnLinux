@@ -145,50 +145,122 @@
 ### 12.4 每条 TASK 的书写模板（照抄，字段不可省）
 
 ```
-- TASK-0301 [MVP][Next] 🟡 一句话现象（用户视角）
-    判定点：<文件:行> 或 <命令>
-    读数：<修前 sha16/数值> → <修后 sha16/数值>（脚本现场算，**不许手抄**）
-    两极化：<反极性腿读数> ｜ <还原证读数>
-    NOINFO：<没做到的格子 + 确切条件>
-```
-
-### 12.5 与仓内既有规矩的关系（**不许两套**）
-
+- - TASK-0301 [MVP][Next] 🟡 **正极已成立（W70A 实测），反极性腿未跑** ｜ 零墨根因 = `build/shims/PresentationCore.HbTextLine.cs:2826`（单段行用**段落主面**取"按计划面整形"的字形 id）。
+    两处世代位**已落地**：`hbtextline e89fed55fd8e32bc → 921ba9c65e9fb3be`、`pc 9465f9dce39e2dfc → 21e3e88a5090cd3b`（后者与 W61A 早前"同一修法落地态"实测值**逐位相同** ⇒ 两条独立路径交叉印证）。
+    **机制级（C1）**：`HBLINE D#` **43 行**（负极那趟 0 —— 因 `census` 档未开 `WPF_LINUX_HBLINE_TRACE`，车道已如实标注并两侧同环境补开），命中 `[r0 face=NotoSansCJK-Regular.ttc …]`（不再是 `DejaVuSans`），多段行**照旧 3 run** ⇒ 修法未波及多段路径。
+    **像素级（C2–C4，同脚本/同阈值/同几何）**：页签 `1 / 0.00% / 非众数 0` → **`colors=90 / 9.03% / 259`**；按钮 `8 / 0.15% / 10` → **`120 / 10.30% / 335`**；搜索框 `19 / 2.71% / 311` → **`67 / 5.56% / 768`** ⇒ 三格全 ✅；**C5/C6 两条零回归判据逐位成立**。
+    ⚠️ **未完成**：①**还原腿**（逐字节还原 ⇒ 必须回到零墨）②`D-G72`（点菜单条 NRE）。⇒ 本行**不标 ✅**。
+    ⚠️ 世代位变更后果见 `docs/WAVE49-PREREGISTRATION.md` §13.4-④（收尾链按"两处都在位"的形态冻结）。
 - 判据先写、读数后取；`NOINFO` 既不算绿也不算红；**不许静默 no-op**；改动前 `cp -p` 备份；按 PID 止损（**不许 `pkill -f`**）—— 见 `docs/PORT-SPEC.md`。
 - 「完成」的最终裁判**不是**本文件的记号，而是仓的门禁读数（`DEFREG` / `VERIFYALL_SELF` / 冻结基线 / `verify-all`）；本文件是**地图**，不是判据本体。
 - 每条 TASK 若与缺陷册对应，**必须写出在册编号**（如 `D-G70`／`D-G72`），免得"地图"与"缺陷册"两处措辞分叉。
 
-## §13 当前任务树（**快照**：2026-09-21；TASK 化的 §1–§10）
+## §13 当前任务树（**一项一行**；快照 2026-09-21；`[MVP]`=MVP 关键，`[Next]`=待办）
 
-- TASK-0001..0006 [MVP] ✅ A 能编译 ／ B 能开窗渲染 ／ C 必抛替身接线 ／ D 不被 `Debug.Assert` 打死 ／ E 交互（E1–E6）／ 真机口径 **29/31 页可用**
-- TASK-0007 [MVP] 🔴 切「富文本」23／「流文档」24 必死 `rc=134`（真因 = TASK-0302）
-- TASK-0008 [MVP] 🔴 点顶部菜单条 ⇒ `ScreenHelper.FindMonitorRectsFromPoint` NRE ⇒ 死 `rc=134`（`D-G72`；修 = TASK-0202）
-- TASK-0101..0103 [MVP] ✅ 窗口：`PMaxSize` 钉死已解 ／ 缩·放·拖·最大化 ／ 去双层装饰
-- TASK-0104..0106 [Next] 🟡 已最大化态还原矛盾读数 ／ 冷启动吞 resize 边界 ／ `PMaxSize` 声明态端到端腿
-- TASK-0201 [MVP] 🟡 静默 `rc=139`＋0 字节：15 趟零命中（上界≈20%）；信号只在运行时 `/memfd:doublemapper`（自愈）
-- TASK-0202 [Next] 🟡 修 `D-G72`（点菜单条 ⇒ NRE ⇒ 死）—— **已派车道 W70A**（作次任务，随零墨一起办）
-- TASK-0203 [Next] 🔴 给静默 `139` 一个两极化判决（按 W63A 配方，`~/w63a/REPORT.md` §5.2）
-- TASK-0204 [Next] ✅ **已办（2026-09-21，主控）**：登记 `D-G73`（`WM_SYSCOMMAND` 未实现 ＋ `ShowWindow(SW_MAXIMIZE)` 空操作 ⇒ 最大化/最小化与 `WindowState` 全无效）与 `D-G74`（`ConfigureNotify` x/y **父窗相对** ⇒ `GetWindowRect` 原点错 ⇒ 命中测试整条偏掉），两条都写明"**已修**（W59A 定稿 `11aa9d8fa154f20f`）＋判据＋边界"。
-    `KNOWN-DEFECTS.md` `c5670b7e177d092e`；重生成声明表后 **`DEFREG=PASS declared=110 route_ids=110`**
-- TASK-0301 [MVP][Next] 🟡 **已派车道 W70A 在办（落地 diff ＋ 两极化）** ｜ 零墨根因 = `build/shims/PresentationCore.HbTextLine.cs:2826`（面错）⇒ diff `cac51d6f54ad9845` **待发波**
-- TASK-0302/0303 [MVP]/[Next] 🔴 PTS·LineServices（111 条 `Fs*`/`Lo*` 缺口，`D-G70`）⇒ 23/24 两页（TASK-0303 修）
-- TASK-0401 [MVP] ✅ `Effects` 页（`0x6c`/`0x70` 已实现＋台账）｜ TASK-0402 [MVP] 🟡 `D-G71` 视觉级效果静默丢弃 ｜ TASK-0403 [Next] 🔴 消费或进 `NotDrawn`
-- TASK-0501 [MVP] 🟡 GIF 只有第 0 帧（`wic_proxy.c:1030-1035`）｜ TASK-0502 [Next] 🔴 多帧＋时序
-- TASK-0601 [Next] ⚪ UIA / IME —— **未开**（0 读数）：先只读侦察
-- TASK-0701 [MVP] ✅ `~/mvp-accept.sh` ＋ `~/heavy-slot.sh`（`--max-hold`／`--min-avail`）｜ TASK-0702 [Next] 🔴 `R-GATE` 把点击判据收编进仓并接进门禁
-- TASK-0801 [MVP] ✅ fork ＋ `feat-Linux` ＋ 五份文档 ｜ TASK-0802 [Next] 🔴 推后续文档提交；pin `1cfc37f` 与"构建只读 `upstream/wpf/**`"写进 README
-- TASK-0901 [MVP] ✅ `rc=137`(OOM) 不许算缺陷（已机器化：`HEAVYSLOT=NOINFO low-memory`）｜ TASK-0902 [Next] 🔴 首帧/内存峰值基线
-- TASK-1001 [MVP] ✅ ThirdPartyMini 配置分叉（C1c 根因）｜ TASK-1002 [Next] 🔴 补声明图（15 条"红而无登记"）
-- TASK-9901/9902 [MVP] ✅ 牙口全绿（`DEFREG=PASS declared=108`、`VERIFYALL_SELF=PASS`、`DECLDRIFT=0`）／ 冻结基线 `#48` 在用
-- TASK-9903 [Next] ✅ **已办（2026-09-21）**：`0x6c`/`0x70` 实现后“连带红”的测试与文档已同步 ——
-    `CommandRoundTripTests.cs`（`0x6c`→`0x0a`：反极性 `失败:1` → 正极性 `失败:0/通过:1`）、
-    `CommandCoverageTests.cs` `50559c6143d61c22`（`notImpl 7→5`、`implemented 110→112`、`withPayload 97→99`、两条 `Contains`→`DoesNotContain`；
-    实测 `失败:0，通过:562，总计:562`、`rc=0`）、`docs/unimplemented.md` `66abdab7fc342cab`（C 类 `6→4`、顶层 `7/118→5/118`、`已实现 112/118`、总数核对行）。
-    另**收紧一处白名单**：`GoldenBinaryReplayTests.cs` `39c3a7b45dbadd3d` 的 `AllowedNotImpl` 原还列着
-    `0x6c`/`0x70` —— 它们已实现，留在“允许未实现”名单里等于**给静默回退开绿灯** ⇒ 已摘掉两条，
-    重跑仍 `失败:0，通过:562，总计:562`、`rc=0`（即“这两条再变回 E_NOTIMPL”从今往后会当场变红）。
-    ⚠️ 仍待办：**全套**测试（`verify-all` 第 2 步，约 14 min）尚未跑 ⇒ 本 TASK 记“Commands 一套已绿”。
-- TASK-9904 [Next] 🔴 波 `#49` 收尾链（整波→重取五臂→repin→门禁×2→冻前 verify-all→冻结→冻后×2→收尾记录）
+```
+wpf-linux 路线图
+│  状态：✅完成 🟡在办/未定 🔴未做 ⚪未开      （ID 规则见 §12；每行一个 TASK，细节走缩进子树）
+│
+├─ 00xx MVP 门槛
+│   ├─ TASK-0001 [MVP] ✅ A 能编译
+│   ├─ TASK-0002 [MVP] ✅ B 能开窗渲染
+│   ├─ TASK-0003 [MVP] ✅ C 必抛替身接线
+│   ├─ TASK-0004 [MVP] ✅ D 不被 Debug.Assert 打死
+│   ├─ TASK-0005 [MVP] ✅ E 交互（E1 切页 / E2 复选框·焦点 / E3 下拉 / E4 滑块 / E5 文本框打字 / E6 列表项）
+│   ├─ TASK-0006 [MVP] ✅ 真机口径：hc 示例逐页实测 **29/31 页可用**
+│   ├─ TASK-0007 [MVP] 🔴 切「富文本」23／「流文档」24 **必死 rc=134**
+│   │   └─ 真因 = TASK-0302（PTS/LineServices 未实现，`D-G70`）；守护救不了（`Environment.FailFast`）
+│   └─ TASK-0008 [MVP] ✅ 点顶部菜单条 ⇒ NRE ⇒ 死（本轮修好）
+│       ├─ 根因：shim `GetMonitorInfoW` **不读 cbSize** ⇒ 对 hc 的 40 B `MONITORINFO` **越界写 32 B**
+│       └─ 读数：A/B/C 唯一变量是被测 `.so` ⇒ 修后 存活 / `unhandled=0`；`win32shim → c493639d15678803`
+│
+├─ 01xx R1 窗口管理
+│   ├─ TASK-0101 [MVP] ✅ `PMaxSize` 把窗口钉死（产品级成对：修前 `max 784x560` → 修后**缺席**）
+│   ├─ TASK-0102 [MVP] ✅ 缩 / 放 / 拖 / 最大化（含应用自带 Max 按钮）
+│   ├─ TASK-0103 [MVP] ✅ 去双层窗口装饰（`_MOTIF_WM_HINTS=0x2`；普通窗口仍被装饰，成对）
+│   ├─ TASK-0104 [Next] 🟡 已最大化态下再双击还原 / 最小化出现**矛盾读数** ⇒ 定性
+│   ├─ TASK-0105 [Next] 🟡 冷启动期 `windowsize` 被 WM 吞掉的**边界时长**
+│   └─ TASK-0106 [Next] 🟡 `PMaxSize` **声明态端到端**应用腿（仓内无声明 `MaxWidth` 的样本）
+│
+├─ 02xx R2 稳定性（崩溃族）
+│   ├─ TASK-0201 [MVP] 🟡 静默 `rc=139`＋0 字节日志：**15 趟跑满零命中**（上界≈20%）
+│   │   └─ 唯一信号在运行时 `/memfd:doublemapper`（被运行时自愈、不致命）
+│   ├─ TASK-0202 ✅ 修 `D-G72`（点菜单条 NRE）—— 判据/根因见 TASK-0008
+│   ├─ TASK-0203 [Next] 🔴 给静默 `139` 一个**两极化判决**（按 W63A 配方，需重活槽）
+│   └─ TASK-0204 ✅ 登记 `D-G73`（`WM_SYSCOMMAND` 未实现＋`ShowWindow(SW_MAXIMIZE)` 空操作）／`D-G74`（`ConfigureNotify` 父窗相对坐标 ⇒ 命中测试偏掉）
+│
+├─ 03xx R3 文本与排版
+│   ├─ TASK-0301 [MVP] 🟡 零墨：**修法已落地，待进冻结**
+│   │   ├─ 根因：`build/shims/PresentationCore.HbTextLine.cs:2826` 单段行用**段落主面**取"按计划面整形"的字形 id
+│   │   ├─ 世代位：`hbtextline e89fed55… → 921ba9c65e9fb3be`；`pc 9465f9dc… → 21e3e88a5090cd3b`
+│   │   ├─ 像素成对：页签 `1/0.00%`→`90/9.03%`；按钮 `8`→`120`；搜索框 `19`→`67`
+│   │   ├─ 零回归：导航项 `69/10.47%/303`、下划线带 `2/22.00%/156` **逐位不变**
+│   │   └─ 反极性：shim＋pc 逐字节还原 ⇒ 四区回到 `1/8/19/69`、截图 sha 回 `9380291b84d81dd6`
+│   ├─ TASK-0302 [MVP] 🔴 PTS / 原生 LineServices（**111 条 `Fs*`/`Lo*` 缺口**，`D-G70`）
+│   ├─ TASK-0303 [Next] 🟡 **只读侦察＋最小第一步设计已完成**（车道 W78A，报告 `build/MilBridge/W78A-report.md` `0dbc62b1d1cf86ee`，568 行；零 `dotnet`/零应用/零构建）
+│   │   ├─ **出口面实测**（必须现算 `nm`；仓内 `bin/exports.txt` 是 9-14 陈旧件 472 行 vs 现件 **535**）：指向该 DLL 的 `[DllImport]` **145** 条 ⇒ **可用 36 / 缺 109** = `Fs*` 66＋`Lo*` 22＋`Nl*` 6＋`*Wrapper` 5＋其它 10；扣 9 条 `#if NEVER` 死声明＋1 条探测序误报 ⇒ **真会炸 99 条**（`unimplemented.md` §2.7 记 97，差 2 ⇒ **NOINFO**，未改别人的数）
+│   │   ├─ **最小闭包 = 27 条入口**（16 `Fs*`＋6 PTS 上下文/对象＋5 LS）**但不是 27 个 stub，而是一套分页引擎契约＋151 处回调（135 个不同名）的 ABI**
+│   │   ├─ **两条反直觉结论**：① `Lo*` 行引擎 20 条**不在闭包**（行由**托管**排：`PfnFormatLine` 是托管回调 `PtsCache.cs:568`，`TextFormatterImp.Linux.cs:679/690/723` 已接两层兜底）② 但**构造期那 3 条 LS 跑不掉**（`StructuralCache.cs:480` **恒传 `true`**）⇒ PTS 与 LS 构造期**耦合**
+│   │   ├─ **hc 两页差距巨大** ⇒ 建议把"救 23/24"**拆成两条**：第 24 项 `RichTextBoxDemo`（23 行）≈ 最小页面；第 23 项 `FlowDocumentDemo`（114 行，Table 8 单元/Floater/Figure/多列 `ColumnWidth=400`/断字）**几乎要整族**
+│   │   ├─ **推荐最小第一步 `A′`**（把"缺 PTS"从**整进程必死**变成**具名·可判·可见的能力边界**）：`A0` 用**现成** `build/MilBridge/tools/t1b-ls-tripwire.sh`（真值 = `ld.so` 的 `LD_DEBUG=symbols` 日志）把闭包从静态推断**变实测**｜`A1` native 新 `win32_pts.c` 导出 6 个入口、**返回非零 LsErr 如实失败**＋具名台账 `PTS_GAP entry=… seq=…`｜`A2` **PF 修 `D-G78` 的毒池项**（≈40–90 行，**这一件才"救进程"**）｜`A3` 页级"不支持"必须**看得见**（空白不许读成绿）
+│   │   ├─ **代价**：`A0` 一次应用运行｜`A1` ≈150–250 行 C＋一次 `build-shim.sh`｜`A2` ≈40–90 行托管｜`A3` 一条页级降级＋判据脚本 ⇒ **总量 ≈ 半天机时**（对比"真实现 PTS" **月级**）；**世代位只动 `win32shim`＋`pf`**（`pc`/`hbtextline` 不动）
+│   │   ├─ **最大风险**：把 `FailFast` 变成**静默半通** ⇒ 判据必须带 **`N2` 反极性（假绿探测器）**："stub 改成返回成功 ⇒ 判据必须变红"
+│   │   └─ `NOINFO`：`A0` 需求序列（禁跑应用）／`A′` 的 `alive=yes`（预判未实测）／第 23 页真闭包（仅静态统计）／`97 vs 99` 差额来源
+│
+├─ 04xx R4 MIL 命令面
+│   ├─ TASK-0401 [MVP] ✅ `Effects` 页（`0x6c`/`0x70` 已实现＋具名台账）
+│   ├─ TASK-0402 [MVP] ✅ 已登记 `D-G71`（视觉级效果被静默丢弃）
+│   └─ TASK-0403 [Next] ✅ 视觉级效果**可见化**（通道级具名台账）
+│       ├─ 落点：`MilChannel.cs:175` 定义 / `MilCommandDispatcher.cs:191` 调用（`src/WpfGfx.Linux/**` ⇒ 进桥不进 `pc`）
+│       └─ 成对：撤件 ⇒ `失败 1`；还原 ⇒ `失败 0/通过 166`；`Commands.Tests 562/562` **逐字不变**
+│
+├─ 05xx R5 图像与解码
+│   ├─ TASK-0501 [MVP] 🟡 GIF 只有第 0 帧（`wic_proxy.c:1030-1035`）
+│   └─ TASK-0502 [Next] 🔴 多帧解码＋帧时序（GDI+ 图像族仍"只做到能起来"）
+│
+├─ 06xx R6 辅助功能与输入法
+│   └─ TASK-0601 [Next] ✅ 只读侦察完成（报告 `a1b01055b7080502`，**12 条空缺表**）
+│       ├─ UIA：**有路无门**（`WM_GETOBJECT` 自有代码仅 1 处且是消费者）＋**门后断头**（`UIAutomationCore.dll` 在 `build/shims/` 0 命中）⇒ `D-G75`
+│       ├─ IME：**一处落点都没有**（按键走 `XLookupString(...,NULL)`；`GetSystemMetrics(82)` 那重门是**巧合关闭、无人决定过**）⇒ `D-G76`
+│       └─ 边界：全部**静态**读数；hc 侧无断言点 ⇒ 运行时行为 `NOINFO`
+│
+├─ 07xx R7 验收装置与判据完整性
+│   ├─ TASK-0701 [MVP] ✅ `~/mvp-accept.sh` ＋ `~/heavy-slot.sh`（`--max-hold` / **内存闸门 `--min-avail`**）
+│   └─ TASK-0702 [Next] 🔴 `R-GATE`：把"连续点击"判据收编进仓并接进 `verify-all`
+│       └─ ⚠️ 要改 `verify-all.sh` ⇒ **必须等冻结之后**
+│
+├─ 08xx R8 上游化与发布
+│   ├─ TASK-0801 [MVP] ✅ fork ＋ `feat-Linux` 默认分支 ＋ README/README-Window/PORT-SPEC/ROUTES/FORK-AND-PUSH
+│   └─ TASK-0802 [Next] ✅ 11 件文档已推远端（远端 `a0e783d…` 已核；默认分支仍 `feat-Linux`）
+│       └─ ⚠️ 余项：**12 件源码/门禁数据待随收尾链同批推**（否则"文档说已修、分支里没修"）
+│
+├─ 09xx R9 性能与内存
+│   ├─ TASK-0901 [MVP] ✅ OOM 的 `rc=137` 不算缺陷（已机器化：`HEAVYSLOT=NOINFO low-memory`）
+│   └─ TASK-0902 [Next] 🔴 首帧时间 / 内存峰值基线
+│
+├─ 10xx R10 第三方应用矩阵
+│   ├─ TASK-1001 [MVP] ✅ ThirdPartyMini 配置分叉（`C1c` 根因）
+│   └─ TASK-1002 [Next] ✅ 补声明图（`UNEXPECTED 16→6`；反极性在 `cp -al` 副本上成立）
+│
+└─ 99xx 仓库牙齿 · 冻结收尾
+    ├─ TASK-9901 [MVP] ✅ `DEFREG=PASS declared=112` / `VERIFYALL_SELF=PASS` / `DECLDRIFT=0`
+    ├─ TASK-9902 [MVP] ✅ 冻结基线 `#48`（`AB 540725342059b820`）在用
+    ├─ TASK-9903 [Next] ✅ 连带红已清：`Commands 562/562` ＋ `Rendering 166/168`
+    └─ TASK-9904 [Next] 🟡 波 `#49` 收尾链（**正在跑，车道 W71A**）
+        ├─ 整波 → 重取五臂 → `repin-generation --why`（逐条写覆盖面变动）→ 门禁 ×2
+        ├─ 冻前 `verify-all`（预期**恰好 1 处**声明类红 = `COLUMN-FLOOR`）→ 冻结 `#49` → 冻后 ×2 → 收尾记录三段
+        ├─ ⚠️ 重钉前**必须同趟**改 `known-red.json` `entries[1]`（`Extent 余差 95 → 1242`）否则 `registry-stale(drift)` ⇒ FAIL
+        └─ ⚠️ 世代位现为**三处**：`hbtextline 921ba9c6…` / `pc 21e3e88a…` / `win32shim c493639d…`；重建桥 ⇒ `wpfgfx_cor3.so` 必出新值
+```
 
-**下一轮口径**：凡 `[Next]` 即下一轮；**优先序按"挡住用户能不能用"排**：`TASK-0301 → 0303 → 0202 → 9903 → 9904`。
-**MVP 未绿的只有 4 格**：`TASK-0007`、`TASK-0008`、`TASK-0302`（长线 R3）、`TASK-0201`（未复现）。
+**`[Next]` 合计 14 条**（逐条点名，不合并）：
+- ✅ **已完成 5 条**：`TASK-0403`｜`TASK-0601`｜`TASK-0802`｜`TASK-1002`｜`TASK-9903`
+- 🟡 **在办 1 条**：`TASK-9904`（收尾链，车道 W71A 在跑）
+- 🔴 **未派 8 条**：`TASK-0104`｜`TASK-0105`｜`TASK-0106`｜`TASK-0203`｜`TASK-0303`｜`TASK-0502`｜`TASK-0702`（**须等冻结后**）｜`TASK-0902`
+
+（另：`TASK-0204` 已完成，但它在本树里属"登记动作"、未挂 `[Next]` 标；`TASK-0301` 挂 `[MVP]`，其修法已落地、由 `TASK-9904` 折进冻结。）
+
+**`[MVP]` 未绿 3 条**（逐条）：
+- `TASK-0007` 🔴 切「富文本」23 /「流文档」24 必死 `rc=134`（真因 `TASK-0302`，属 R3 长线）
+- `TASK-0201` 🟡 静默 `rc=139`＋0 字节：15 趟零命中（上界≈20%）
+- `TASK-0302` 🔴 PTS / LineServices（111 条 `Fs*`/`Lo*` 缺口）
