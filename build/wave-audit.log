@@ -459,3 +459,6 @@ echo "WAVE_START=$(date +%FT%T)"; (date +%FT%T; time env WAVE_OWNER=w48a bash bu
 2026-09-20T00:11:55+08:00  owner=w50a  pid=1943012  ppid=1943007  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
     ppid_cmd=bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && export PATH="$HOME/.dotnet:$PATH" && export DOTNET_gcServer=0 && echo "PRE: $(date '+%F %T') loadavg=$(cut -d' ' -f1-3 /proc/loadavg) memavail=$(awk '/MemAvailable/{printf "%dMB",$2/1024}' /proc/meminfo)" && s=$(date +%s) && WAVE_OWNER=w50a bash build/integration-wave.sh > $HOME/w50a/02-integration-wave.log 2>&1; rc=$?; e=$(date +%s); echo "WAVE_RC=$rc elapsed=$((e-s))s"; echo "POST: $(date '+%F %T') loadavg=$(cut -d' ' -f1-3 /proc/loadavg) memavail=$(awk '/MemAvailable/{printf "%dMB",$2/1024}' /proc/meminfo)" 
     ppid2_cmd=node /home/links-dev/node/bin/dsh web --no-open --trusted-host 192.168.193.59:3080 
+2026-09-21T15:32:23+08:00  owner=W76A  pid=8039  ppid=8038  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=timeout 280 env WAVE_OWNER=W76A bash build/integration-wave.sh 
+    ppid2_cmd=timeout --foreground --kill-after=5 300 timeout 280 env WAVE_OWNER=W76A bash build/integration-wave.sh 

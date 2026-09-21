@@ -115,17 +115,51 @@ REPIN_GENERATION=PASS
 * 机读行：`/home/links-dev/w76a/gate-fix/rows.txt`（sha16 **`b26e038e893b386a`**）—— **6 行，`result=PASS` ×6**，每行含 `pc:56ee75ced8d6aece`／`pf:6375fabf89ac7fef`（= 冻结器要断言的终态）。
 * 窗口认领读数：`窗口：0x200005（等到首绘信号约 0s）` —— **修前**同样是这句命令，读到的是 `0x200006` 且永不 `IsViewable`。
 
-### 2.6 第 ⑦ 步 · 冻前 `verify-all`
+### 2.6 第 ⑦ 步 · 冻前 `verify-all`（**跑了两趟**：第一趟 4 红 ⇒ 修掉两处 ⇒ 第二趟 1 红）
 
-〔见 ⑦ 小节：读数在冻结完成后回填〕
+| 趟 | 命令（槽内 `--min-avail 1500 --max-hold 1500 -- timeout 1450`） | `rc` | 读数 |
+|---|---|---|---|
+| 第 1 趟 | `bash verify-all.sh` → `~/w76a/logs/06-verify-all-pre.log` | 1 | `步骤通过 21 ❌ 失败 4`／`用例通过 799 跳过 2`／`结论：❌ 失败项：ManagedLayer.Tests COLUMN-FLOOR QUOTE-TRAP PRODUCT-ENTRY`（16:55:30→17:11:50，≈**16.3 min**） |
+| 第 2 趟（**用于冻结**） | `bash verify-all.sh` → `~/w76a/logs/06b-verify-all-pre2.log`（**冻结器读的就是这一份**） | 1 | **`步骤通过 24 ❌ 失败 1`**／**`用例通过 875 跳过 2`**／**`结论：❌ 失败项：COLUMN-FLOOR`** —— **恰好一处声明类红，其余全绿**（19:24→17:38:29） |
 
-### 2.7 第 ⑧ 步 · 冻结 `w27-freeze.py`
+**第 1 趟那 4 红的逐条处置**（详见 ④⑤ 与 ⑨）：
 
-〔见 ⑥ 小节〕
+| 红 | 判定 | 处置 |
+|---|---|---|
+| `COLUMN-FLOOR` | **设计内**（声明类：`COLUMN_FLOOR_ARMLOG=FAIL n_decl=5 n_ok=4 bad= tline` ＋ `SELFREPORT=PASS`） | 不动（冻后必须转绿，见 ⑥）。⚠️ **它确实"收敛"了**：第一趟是 `bad= tline textlineproto`，X-混淆作废重取后 `textlineproto` 回到 `4bceceeed570ba70` ⇒ **只剩 `tline`** |
+| `QUOTE-TRAP` | **本车道自伤**（`SHELL_QUOTE_HIT kind=DQ-BACKTICK file=build/MilBridge/tools/retake-arms-w23.sh line=88`：我把 `` `D-G77` `` 写进了**双引号字符串**） | **已修**（`a160671709db61c2 → 7f33e93f305f7e26`；复跑 `SHELL_QUOTE_TRAP=PASS traps=0`） |
+| `ManagedLayer.Tests` | **"只重建不刷副本"第三例**（`DP1ReproTests.闸门_win32shim被测件与权威件同sha` 里的 `CheckBridgeCopies()`：枚举 `samples/**` 与 `.artifacts/**` 下**所有** `wpfgfx_cor3.so`，逐个要求 == 权威发布件） | **已按测试自己写的动作修**：`samples/ThirdPartyMini/bin/Debug/net10.0/wpfgfx_cor3.so` 与 `samples/WpfFeatureProbe/bin/Release/net10.0/wpfgfx_cor3.so` 两份停在 `e3ea092010734f44`（= `#48` 的桥值；整波 3.6 刷新步**按设计拒刷**它们："分组落单但不由权威锚定 ⇒ 不盲拷"）⇒ 桥本波变了两次 ⇒ 同步为 **`feef049e9d0e313a`**（逐件复读）。主控已把它登记为 **`D-G80`** |
+| `PRODUCT-ENTRY` | **要裁定**（见 ⑤bis 的 A/B） | 主控裁定 **(A) 判据口径类** ⇒ 在 `product-entry-step.sh` 里**具名登记** 5 格（见 ⑤bis） |
+
+### 2.7 第 ⑧ 步 · 冻结（`w27-freeze.py … '#49'`）
+
+```
+世代交叉断言通过：树上 #48 == GENS[#49][prev]
+  · 冻前声明类红项 = ['COLUMN-FLOOR']（冻后必须转绿）
+verify-all = 25 步（通过 24 / 失败 1；…）/ 875 通过 2 跳过
+牙齿②：verify-all.sh 的 ^run_step " = 25 == 步数 25，且头注释逐字声明了同一数字
+九位 = {bridge feef049e9d0e313a, pc 56ee75ced8d6aece, pf 6375fabf89ac7fef, windowsbase 2e4e46e539a72cd7,
+        provider 1f9511a7ef395bfe, win32shim c493639d15678803, wic_shim 56278c14b4ecd672,
+        hbtextline 921ba9c65e9fb3be, dwf de2d555105b7d04b}
+相对开工前变化的位 = ['bridge','pc','pf','windowsbase','win32shim','hbtextline']
+inputs_fp = 9f2199b212bed2b212035f87ff6006672605ff7bea6221c0be540301b1a8380b ｜BRIDGE_SRC_FP = 0a8f69b3c5fabd43
+门禁 6 条机读行 OK（pc:56ee75ced8d6aece pf:6375fabf89ac7fef）
+基线已重冻为 #49；整份 sha16 = f1d340d66c7c6ba3
+BASELINESHA=PASS live=f1d340d66c7c6ba3 decl=f1d340d66c7c6ba3
+BASELINEGEN=PASS decl_gen=#49 file_newest_gen=#49
+BASELINE_BYTES=615139
+BASELINEDUP=PASS n=0
+✅ 机器行 gen=#49 sha16=f1d340d66c7c6ba3 已对上，核对器 rc=0
+ARMLOG_SHA=PASS shape=flat logdir=…/arm-logs required=5 declared=5 pass=5 fail=0 noinfo=0
+COLUMN_FLOOR=PASS reason=decl==frozen-and-decl>=corpus pass=3 fail=0 noinfo=0 selfreport=PASS reg=a747b713532e7631 base=f1d340d66c7c6ba3 corpus=0cebc0afd5142fbf
+✅ 两极化齐：冻前 BASELINE-SHA/ARM-LOG-SHA/COLUMN-FLOOR(ARMLOG) 红 ⇒ 冻后同一批检查器都绿
+FREEZE_RC=0
+```
+⚠️ **一处如实留档的偏差**：冻结器打印的"本代声明允许位移、且真的动了的位 = `['bridge','pc','windowsbase','win32shim']`" —— 那是它的 `byname` 循环**只遍历七位**（不含 `hbtextline`/`pf`）的历史写法；**真正的位移集合**是上面那 **6 位**，与 `GENS['#49']['allow_changed']` **逐字一致**（表外位移 = 空）。
 
 ### 2.8 第 ⑨ 步 · 冻后 `verify-all` ×2
 
-〔见 ⑦ 小节〕
+〔见 ⑦ 小节 —— 两趟在冻结完成后回填〕
 
 ---
 
@@ -233,9 +267,43 @@ WPTD_TIER=default rep=1 RESULT=FAIL / rep=2 RESULT=FAIL / rep=3 RESULT=FAIL
 
 ---
 
+## ⑤bis `PRODUCT-ENTRY` 的 5 红格：同代 A/B ＋ **具名登记**（主控裁定 (A)）
+
+**为什么要 A/B**：主控的裁定是"**(A) 判为判据口径类**"——**有条件**批准：必须先给出**同代 A/B**（同一棵树、**只换被测的那一件**），证明这 5 格是**修法引入的已知代价**、不是既存口径差、也不是别的东西。
+
+**变量判定**：`hbtextline` 零墨修法**编进 `pc`**（`patch-presentationcore-hbtextline-shimsha`；`ProductEntryArm.csproj` **不**直接编 shim 源）⇒ **A/B 的变量就是权威 `pc`**：
+* 腿 B（修前）`pc = 9465f9dce39e2dfc`（`#48` 冻结值；件取自 `~/w59a/plain/PresentationCore.dll`）
+* 腿 A（修后）`pc = 56ee75ced8d6aece`（本波终态）
+
+**窗口纪律（`52b`：动冻件要声明窗口、动完复原并自证）**：动的是 `build/PresentationCore.Linux/bin/Release/PresentationCore.dll`（**权威件**）⇒ 跑完**立刻复原**，并复核 `pc` 与 `inputs_fp` **逐位回**（读数见下）。
+
+**读数（`~/w76a/logs/10-ab-ext.log`）**：
+
+| | 腿 B（修前 `9465f9dce39e2dfc`） | 腿 A（修后 `56ee75ced8d6aece`） |
+|---|---|---|
+| 步判词 | **`PRODUCT_ENTRY_STEP=PASS`** | `PRODUCT_ENTRY_STEP=FAIL` |
+| 判据格 | **`判据格=147 期望=147 ｜符合=147 红=0`** | `判据格=147 期望=147 ｜符合=142 红=5` |
+| 那 5 格原文 | `M_modifier_w80/_w120/_w200/_w320/_winf` 各 `k=0 field=ext ours=18.000000 truth=18.000000 delta=-0.000000 verdict=OK` | 同 5 格 `ours=17.484375 truth=18.000000 **delta=-0.515625** verdict=RED` |
+
+⇒ **修前 `ext` 与 Windows 真值逐位相等**，而那时该 5 行是**零墨**渲染（W70A 实测 `colors=1 / 0.00%`）⇒ **旧口径的 `ext` 是"按不可见渲染算出来的墨迹盒"**；字真的画出来之后墨迹盒自然变 ⇒ 属**主控裁定的第①种情形（批准登记）**，**不是产品回归**。
+**复原自证**：窗口后 `pc` = `56ee75ced8d6aece`（与原值**逐位相同** ✅）；`inputs_fp` 窗口前 `195d3b28a232ea5d047a1a7a42e275cfba8c1fd3f53db2273bdb0b0cb45f7112` == 窗口后（**逐位相同** ✅）。
+
+**登记落地**（`build/MilBridge/tools/product-entry-step.sh`，`d0b503cd5f74dfcf → 4fdf5de43f1a211a`，`cp -p` 备份在 `~/w76a/product-entry-step.before.sh`）：
+
+* 新增**唯一声明处** `KNOWN_RED_EXT`：**逐格具名** —— 5 行 `M_modifier_w80|0|ext|-0.515625` …`M_modifier_winf|0|ext|-0.515625` ＋ `KNOWN_RED_EXT_N=5` ＋ `KNOWN_RED_DELTA_TOL=0.01`；
+* 判红逻辑：**只要出现一条"不在册"的红 ⇒ `FAIL`**（防假绿的底裤，`S2` 自测就是抓这个）；**在册格"消失" ⇒ `NOINFO`**（声明陈旧 ⇒ 逼重钉，同 `tline-gate.sh` 的 `registry-stale(gone)` 纪律）；**恰好等于在册 5 格（delta 在容差内）⇒ `PASS`** 并逐格印出原文 + A/B 依据；
+* **语义界定（必写）**：**这是改了判据口径（把已知代价具名），不是把产品改绿** —— `EXPECT_CELLS`／正控／`noinfo` 三条闸**一格未动**；
+* 自测：`PRODUCT_ENTRY_SELFTEST=PASS cases=12 pass=12 fail=0`（⚠️ 我第一版把判序写反（先判 `gone`）⇒ `S2` 当场从 `rc=1` 变成 `rc=2` 被抓出 ⇒ 改成"不在册优先"）；
+* **生产路径当场复核**：`PRODUCT_ENTRY_STEP=PASS … 在册已知红 5/5`（`~/w76a/logs/11-step-confirm.log`）；
+* ⚠️ **该件在 `fp_inputs()` 覆盖面里**（点名成员）⇒ 改它**再动一次 `inputs_fp`**，已同趟 `repin-generation.py --why` 记账（`generation.arms_retaken` **追加**一条、不覆盖历史）。
+
+---
+
 ## ⑥ 冻结（基线 sha16 ＋ 世代号）
 
-〔回填〕
+**冻结成功**：世代 = **`#49`**；基线整份 **sha16 = `f1d340d66c7c6ba3`**（**615,139 B**）；机器行 = `docs/CURRENT-STATE.md:9` 的 `> BASELINE-FROZEN gen=#49 sha16=f1d340d66c7c6ba3 file=samples/WpfTextDemo/ACCEPTANCE-BASELINE.md`（全仓**唯一**声明处，`BASELINEDUP=PASS n=0`）。
+两极化齐：冻前 `BASELINE-SHA`／`ARM-LOG-SHA`／`COLUMN-FLOOR(ARMLOG)` **红** ⇒ 冻后同一批检查器**全绿**（`ARMLOG_SHA=PASS 5/5`、`COLUMN_FLOOR=PASS`、`BASELINESHA=PASS live==decl`）。
+新冻结块落在 `samples/WpfTextDemo/ACCEPTANCE-BASELINE.md:9`（`# RE-FROZEN #49`），`#48` 块被就地降级为历史（`⏪ （历史，已被 #49 取代）`）。
 
 ---
 
@@ -245,9 +313,30 @@ WPTD_TIER=default rep=1 RESULT=FAIL / rep=2 RESULT=FAIL / rep=3 RESULT=FAIL
 
 ---
 
-## ⑧ 推送（`TASK-0802` 余项）
+## ⑧ 推送（`TASK-0802` 余项 ＋ `TASK-0802` 里点名的 12 件）
 
-〔回填〕
+**结果：成功**。远端 head **`a0e783db4208b8b0e572784065b66e46362bbf06` → `e849056817e60f134d59da63cd271c74fae1b163`**（**纯快进**，`Push_RC=0`；`git push origin feat-Linux` 原文 `a0e783d..e849056  feat-Linux -> feat-Linux`）。
+**默认分支未改**：`git ls-remote --symref origin HEAD` = `ref: refs/heads/feat-Linux	HEAD`。
+本次提交 `e849056`：**31 files changed, 4,887 insertions(+), 147 deletions(-)**。
+
+**清单怎么定的（可复算）**：拿克隆的 `git ls-files -s`（**排除 `upstream/`**，那是上游快照）与 `$R` 现盘**逐件 `git hash-object` 比对** ⇒
+`改过 33 件 ＋ 新增 10 件（其中 **2 件按 `.gitignore` 排除 ⇒ 不进**）`。那 2 件就是**账三**的两块大 JSON：
+`tests/parity/geometry/u14/linux-results-u14.json`（118 MB）／`tests/parity/windows/layout-b34/windows-results.json`（55 MB）—— **按既定口径不进**（`git check-ignore -v` 逐件确认 `.gitignore:47`／`:51`）。
+⛔ 全程**没有** `git add -A`（逐径 `git add --`）、**没有** `--force`、**没有**碰默认分支。
+
+**推送的 31 件**（含任务书点名的 12 件＋本波新改件）：
+`verify-all.sh`｜`build/MilBridge/tools/{defect-registry-declared.tsv,product-entry-step.sh,retake-arms-w23.sh}`｜`build/third-party/WpfLinux.props`｜
+`src/WpfGfx.Linux.Native/src/{win32_core.c,win32_internal.h,win32_x11.c}`｜`src/WpfGfx.Linux/{Commands/MilCommandDispatcher.cs,Commands/MilCommandLayout.cs,Resources/MilChannel.cs}`｜
+`tests/WpfGfx.Linux.Tests/Commands.Tests/{CommandCoverageTests.cs,CommandRoundTripTests.cs,GoldenBinaryReplayTests.cs}`｜`tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpftextdemo.sh`｜
+`tests/WpfGfx.Linux.Tests/Rendering.Tests/VisualEffectIgnoredLedgerTests.cs`（新）｜`build/shims/PresentationCore.HbTextLine.cs`｜`build/MilBridge/known-red.json`｜`build/DirectWrite.Linux/wic-shim/{applocal-expect.py,check-applocal-sync.sh}`｜
+`build/PresentationCore.Linux/ARTIFACT-SRC-FP.txt`／`build/PresentationFramework.Linux/ARTIFACT-SRC-FP.txt`／`build/WindowsBase.Linux/ARTIFACT-SRC-FP.txt`｜`build/MilBridge/arm-logs/tline.log`｜`build/MilBridge/gen/{t2d-*,tline-detail-full.txt}`｜`build/wave-audit.log`｜
+`docs/{CURRENT-STATE.md,ROUTES.md,WAVE49-PREREGISTRATION.md}`｜`samples/WpfFeatureProbe/KNOWN-DEFECTS.md`｜`samples/WpfTextDemo/ACCEPTANCE-BASELINE.md`｜**7 份车道报告**（`W70A/W70B/W70C/W70D/W72A/W76A/W78A`）。
+
+**逐件字节核对（远端 blob == 磁盘）**：`git fetch origin feat-Linux:refs/remotes/origin/feat-Linux` 之后逐件
+`git cat-file blob origin/feat-Linux:<path> | sha256sum` vs `sha256sum $R/<path>` ⇒ **33 件候选里只有那 2 件被 `.gitignore` 排除的"不一致"**（= **按设计不进**），**31 件推送件全部逐字节相同**。
+⚠️ **一处仪器自伤（如实记）**：我的核对脚本第一次跑出来的 `❌` 全是**假红** —— 原因是**本地 `origin/feat-Linux` 跟踪 ref 没更新**（这个克隆的 fetch refspec 只跟 `main`，`#48` 那轮 `W70C` 已踩过同一条）⇒ 核对比的是**推送前**的旧 ref。**显式 `git fetch origin feat-Linux:refs/remotes/origin/feat-Linux` 之后重核 ⇒ 31/31 全对**。
+⚠️ 另记：`while … done < list | tee` 会把计数器关进子 shell ⇒ 我脚本打的 `BYTECHECK_FAIL=0` **不可信**（**"0" 是那个 bug 打出来的**）；**真正的判据是逐行 `❌` 文本**，上面按逐行文本重判过。
+
 
 ---
 

@@ -41,6 +41,7 @@
 #   ⚠️ 本块**故意放在同一个文件里**：跨文件的手工声明在本仓**已经失败过一次**（`docs/CURRENT-STATE.md`
 #      那句"当前期望是 N 步"在 `#26`/`#27` 连加 3 步时毫无反应、全程零红）⇒ 声明必须与本体同趟改、同趟审。
 #   ⚠️ **不许**用 `echo "====="` 当接线锚（它在本文件里有 **4** 处）；锚用 `run_step "DEFECT-REGISTRY" …`。
+# VERIFYALL-STEPS-DECL: 25 gen=#49   ← `#49` **不动步数**（本波产品改源三处：① `D-G57` 文字零墨 —— `build/shims/PresentationCore.HbTextLine.cs` 单段分支改按**计划面**取字形 id ⇒ 页签/按钮/搜索框出墨（`hbtextline` 位变）＋ `build/PresentationCore.Linux/**` 重建（`pc` 位变）；② `D-G72`/`TASK-0008` —— shim `GetMonitorInfoW` 按 `cbSize` 写入 ⇒ 点顶部菜单条不再 NRE（`win32shim` 位变）；③ `TASK-0403` 通道级具名台账进 `MilChannel`/`MilCommandDispatcher` ⇒ **桥必重发**（`bridge` 位变）。仪器侧：`B4`/`R-CSRC` 把 `src/WpfGfx.Linux.Native/**/*.{c,h}` 纳入 `fp_inputs()` ＋ `C2`/`C4` 纳入 `sync-applocal.sh`／`check-applocal-sync.sh`／`applocal-expect.py` ⇒ **`inputs_fp` 必变**（设计性变更，见 `docs/WAVE49-PREREGISTRATION.md` §4）；`B1` 修"选显示号后不复核"；步数**不动**）
 # VERIFYALL-STEPS-DECL: 25 gen=#48   ← `#48` **不动步数**（修 `D-G56`：两个 applier 把插桩横幅插在**类属性块与类声明之间** ⇒ 属性挂错类 ⇒ `NameScope` 挂不上 ⇒ BAML 页加载即 abort；**整波后实测动三位** `windowsbase`/`pc`/`pf`；`D-G57` 本波只取证未修）
 # VERIFYALL-STEPS-DECL: 25 gen=#47   ← `#47` **不动步数**（修 `D-G55`：`SetCapture/ReleaseCapture` 不派发 `WM_CAPTURECHANGED` ⇒ `Mouse.Captured` 恒不复位；只动 `win32shim` 一位）
 # VERIFYALL-STEPS-DECL: 25 gen=#46   ← `#46` **不动步数**（修 `D-G50`／`D-G54`：shim 的**焦点回送**不再被重复翻译 ＋ 弹窗呈现链；动 `win32shim`／`bridge`／`pc` 三位）
@@ -69,6 +70,9 @@
 #   **`#33` 收官起 = 23 步**（`#33` 加第 `[17]` 步 `PIPEFAIL-SIGPIPE`：把「`pipefail` ＋ 管道左侧被
 #   **`#34` 收官起 = 23 步**（本波**不动步数**：★ 的产物修法＋仪器加固；新读者 `frame-presence-check.sh`
 #   **`#35` 收官起 = 23 步**（**不动步数**：本波落第三方原生的正道通道 —— ALC 级钩子 ＋ 5 个映射名 ＋ shim 的 OEM/GDI+ 最小面；
+#   **`#49` 收官起 = 25 步**（**不动步数**：本波产品改源三处 —— ① 零墨修法落 `hbtextline`（`hbtextline` 位变）＋ `pc` 重建（位变）；
+#     ② `D-G72`/`TASK-0008` 的 `GetMonitorInfoW` 修法落 shim C 源（`win32shim` 位变）；③ `TASK-0403` 台账进 `MilChannel`/`MilCommandDispatcher` ⇒ 桥重发（`bridge` 位变）。
+#     仪器侧：`B4` 纳入原生 C 源、`C2`/`C4` 纳入三件判据件 ⇒ **`inputs_fp` 必变**；`B1` 修显示号复查。)
 #   **`#48` 收官起 = 25 步**（**不动步数**：修 **`D-G56`** —— `patch-windowsbase-dpvalue-trace.py` / `patch-presentationframework-mirror-trace.py`
 #     的插入锚上移到**属性块之外**（判据＝`[NS] ATTRCOUNT DependencyObject ≥ 2`、`[NS] scope=NameScope`、Tools 页加载后**进程活着**）；
 #     整波后实测动三位 `windowsbase`/`pc`/`pf`（被引件字节进 Roslyn 输入哈希 ⇒ 级联）；**`D-G57`（文字零墨）本波只取证、未修**。)
@@ -368,7 +372,9 @@ else
     chosen=":$DISPLAY_NUM"
     echo "  ✅ :$DISPLAY_NUM 上已有可用 X server（复用）"
   else
-    for d in $(pgrep -a Xvfb 2>/dev/null | grep -oE ' :[0-9]+' | tr -d ' :' | sort -u); do
+    # 【`D-G59` 修法①：**数值序**】原先是 `sort -u`（字符串序）⇒ `:10` 会排在 `:66`/`:97` 前面，
+    #   跨趟**不可复算**（`#47` 冻后 run2 就是这样选到 `:66` 的死显示）。改成 `sort -n`。
+    for d in $(pgrep -a Xvfb 2>/dev/null | grep -oE ' :[0-9]+' | tr -d ' :' | LC_ALL=C sort -n -u); do
       if DISPLAY=:$d xdpyinfo > /dev/null 2>&1; then chosen=":$d"; break; fi
     done
     [ -n "$chosen" ] && echo "  ✅ 复用已运行的 Xvfb（实测 display $chosen，注意不是 :$DISPLAY_NUM）"
@@ -406,6 +412,33 @@ if [ -n "${DISPLAY:-}" ] && DISPLAY="$DISPLAY" xdpyinfo > /dev/null 2>&1; then
 fi
 echo "  X_STATE=$X_STATE（判据：xdpyinfo 对 DISPLAY=${DISPLAY:-<未设置>} 成功 ⇒ available）"
 
+# ── 【`D-G59` 修法②：**选定不是终局** —— 整趟要复核】 ───────────────────────────────
+#   现场（`#47` 冻后 run2，车道 W49A）：`[0]` 选中了别人遗留的 `:66`，该显示在 `[2]` 之前就死了
+#   ⇒ `X_STATE` 仍是 `available`，而 47 例 X 用例**静默变跳过**（只有 `SKIP_GUARD=FAIL` 抓住了它），
+#     另有一条端到端用例硬红。⇒ 判据：**每次要用 X 之前都复核一次**；死了就按**数值序**换一个活显示，
+#     一个活的都没有 ⇒ `X_STATE=unavailable` ＋ **具名** `X_DIED=1`（**不许把跳过读成通过**）。
+X_DIED=0
+x_recheck_alive() {   # $1 = 调用点说明（进日志，便于归因）
+  [ "${USE_X:-1}" = 0 ] && return 0
+  [ -n "${DISPLAY:-}" ] || { X_STATE=unavailable; return 0; }
+  if DISPLAY="$DISPLAY" xdpyinfo > /dev/null 2>&1; then return 0; fi
+  echo "  ⚠️ X 复核（$1）：DISPLAY=$DISPLAY **连不上了** ⇒ 按数值序重取一个活显示"
+  local d2
+  for d2 in $(pgrep -a Xvfb 2>/dev/null | grep -oE ' :[0-9]+' | tr -d ' :' | LC_ALL=C sort -n -u); do
+    [ ":$d2" = "$DISPLAY" ] && continue
+    if DISPLAY=":$d2" xdpyinfo > /dev/null 2>&1; then
+      export DISPLAY=":$d2"; X_STATE=available
+      echo "  ✅ X 复核（$1）：改用 $DISPLAY（仍 available）"
+      return 0
+    fi
+  done
+  X_STATE=unavailable; X_DIED=1
+  echo "  ❌ X 复核（$1）：**没有任何可用 X 显示** ⇒ X_STATE=unavailable ＋ **X_DIED=1**"
+  echo "     ⇒ 本趟 X 相关用例会被跳过（**射程缩减**，见 SKIP_GUARD 与结论区）；**这不是绿**。"
+  return 0
+}
+x_recheck_alive "选定之后立即复核"
+
 # ---------------------------------------------------------
 # [1] 构建
 # ---------------------------------------------------------
@@ -431,6 +464,7 @@ run_step "wpf-linux.sln"       build_sln_and_samples
 # [2] 测试套件（一律不带 --artifacts-path）
 # ---------------------------------------------------------
 echo
+x_recheck_alive "进入 [2] 测试套件之前"
 echo "[2] 测试套件"
 run_step "Commands.Tests"  dotnet test -c "$SELFBUILT_CONFIG" tests/WpfGfx.Linux.Tests/Commands.Tests/WpfGfx.Linux.Commands.Tests.csproj   --nologo -v q
 run_step "Rendering.Tests" dotnet test -c "$SELFBUILT_CONFIG" tests/WpfGfx.Linux.Tests/Rendering.Tests/WpfGfx.Linux.Rendering.Tests.csproj --nologo -v q
@@ -880,7 +914,8 @@ elif [ "$X_STATE" != available ] && [ "$skip_x_skipped" -gt 0 ]; then
   SKIP_GUARD=REDUCED
 fi
 echo " D-G17 跳过汇总（实测/上限；上限 = 静态＋语料＋X_STATE=$X_STATE 的 X 项）：${skip_summary:-无跳过}"
-echo " SKIP_GUARD=$SKIP_GUARD x_state=$X_STATE x_suite_skipped=$skip_x_skipped x_suite_units=$skip_x_suites x_suite_corpus_max=$skip_x_corpus_max total_skipped=$total_skipped violations=${skip_violations:-none} reason=${skip_why:-none}"
+echo " SKIP_GUARD=$SKIP_GUARD x_state=$X_STATE x_died=$X_DIED x_suite_skipped=$skip_x_skipped x_suite_units=$skip_x_suites x_suite_corpus_max=$skip_x_corpus_max total_skipped=$total_skipped violations=${skip_violations:-none} reason=${skip_why:-none}"
+# 【`D-G59` 修法③】**"中途死过显示"必须具名**（`x_died=1`）：否则读者会把"重取成功、继续跑完"读成"这一趟 X 一直好好的"，而实际上有一段用例是在**另一个**显示上跑的（换显示 = 换了环境）。
 if [ $fail -eq 0 ]; then
   echo " 结论：✅ 全部通过"
 else

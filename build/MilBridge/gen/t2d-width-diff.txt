@@ -1,10 +1,10 @@
 # T2d · 宽度逐行明细（**每行一条**；与 t2d-extent-mismatches.txt 同格式，便于并排看）
 # 列：用例 | 行# | cp 区间 | 真值宽 | 我们宽 | 差 | 桶
 # 口径：桶 = 0（逐位等）/ ≤0.34 DIP（= 1 个 ideal unit）/ >0.34 DIP；三桶之和 == 行数（机检）
-# 被测 shim 源 sha256（本 harness 直接编入） = E89FED55FD8E32BC40F171036E15CFA4B1DCBC69729028A783E0D32A99030E96
+# 被测 shim 源 sha256（本 harness 直接编入） = 921BA9C65E9FB3BE9E31D402FD98568EE78639063D75BB4E656B20201B30DC2B
 # PC 内 shim sha256                         = unknown(FP 里有该文件的行但行内无 sha256)
-# hbtextline_shim_stale                     = false   （口径=源 mtime 1789575126 vs PC 产物 mtime 1789834435（basis=auth，与 run-wpfprobe.sh 的 hbt_stale() 同谓词）；**mtime 谓词、非内容比对** ⇒ 同内容重写会假阳（已登记为已知仪器局限；内容比对需要 PC 侧逐文件 sha，当前不可得））
-# 仪器 = run.sh 711F39F468F61CC8 / Program.cs 149DD986A642FDFC   pc=9465F9DCE39E2DFC   applocal=4/4 一致
+# hbtextline_shim_stale                     = false   （口径=源 mtime 1789965167 vs PC 产物 mtime 1789976075（basis=auth，与 run-wpfprobe.sh 的 hbt_stale() 同谓词）；**mtime 谓词、非内容比对** ⇒ 同内容重写会假阳（已登记为已知仪器局限；内容比对需要 PC 侧逐文件 sha，当前不可得））
+# 仪器 = run.sh 711F39F468F61CC8 / Program.cs 149DD986A642FDFC   pc=56EE75CED8D6AECE   applocal=4/4 一致
 # 族 × >0.34 红数 = （无）；各和=0 == 总数 0 : OK
 # 隔离矩阵 = OK；逐族 diff = 一位未动（全部族计数与基线逐位相同）
 # 合计 1298 行；0=173 ≤0.34=1125 >0.34=0；本清单只列差>0 的行，共 1125 条

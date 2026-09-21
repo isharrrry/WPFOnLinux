@@ -5,9 +5,9 @@
 #   只覆盖 src 时 `state=ok` 是**必要不充分**（源没变、peer 变了 ⇒ 产物照样变）。
 # 排除：build/PresentationCore.Linux/{bin,obj}/**、.artifacts/**、本文件自己
 # 重算比对：python3 build/artifact-src-fp.py --check（缺本文件 / 缺被引产物 / 旧格式 ⇒ noinfo，**不报绿**）
-fp=4298d1b991bdfea7
+fp=fe90cbf1a52a030c
 n=1373
-peer_fp=4e434fab7468feeb
+peer_fp=e442fdc0c64f3379
 peer_n=8
 tool_sha256=e856e2e65e6c59cadd8e68b6a39c00b483992f9fdd459fb94c8b0221f8e597fd
 # 被引产物（sha256 前 16 + 仓库相对路径；**产物字节**，不是源）
@@ -18,7 +18,7 @@ peer=c264f0ec86fad755  build/System.Windows.Input.Manipulations.Linux/bin/Debug/
 peer=856b84d2af114acb  build/System.Xaml.Linux/bin/Debug/System.Xaml.dll
 peer=76c3e977594876c9  build/UIAutomationProvider.Linux/bin/Debug/UIAutomationProvider.dll
 peer=2654da315acd2046  build/UIAutomationTypes.Linux/bin/Debug/UIAutomationTypes.dll
-peer=19de048ecb968daa  build/WindowsBase.Linux/bin/Debug/WindowsBase.dll
+peer=2e4e46e539a72cd7  build/WindowsBase.Linux/bin/Debug/WindowsBase.dll
 # 逐文件（**源侧**）：sha256 前 16 + 仓库相对路径；只列**本仓自有输入**（`upstream/**` 不列，用 --list 看全量）
 file=d2e034e81ce265bc  build/MilBridge/src/MilBridge.Resolver/MilCoreDllImportResolver.cs
 file=19a42240f59af073  build/PresentationCore.Linux/FamilyCollection.Linux.cs
@@ -43,7 +43,7 @@ file=693b56ac590ef85d  build/shims/LinuxAssemblyIdentity.cs
 file=fa0137aea3c4acde  build/shims/PresentationCore.AssemblyAttrs.cs
 file=125cfaa3c9851cfd  build/shims/PresentationCore.Factory.Linux.cs
 file=d06088eb854df1ab  build/shims/PresentationCore.FontBridge.cs
-file=e89fed55fd8e32bc  build/shims/PresentationCore.HbTextLine.cs
+file=921ba9c65e9fb3be  build/shims/PresentationCore.HbTextLine.cs
 file=9e685cd9c69df69b  build/shims/PresentationCore.OleApi.Stubs.cs
 file=670d4e37592c3a64  build/shims/Win32ShimResolver.cs
 file=0a52507b8acd350d  src/WpfGfx.Linux.Native/tools/patch-presentationcore-apartment.py
