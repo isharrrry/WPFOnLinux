@@ -21,9 +21,11 @@ bash ~/run-hc.sh          # 见 §4；--no-sync 只启动，--diag 开输入仪�
 | ① | **有窗口管理器的会话里点击全被吞**（无 WM 的验收装置永远复现不出来） | ✅ 已修（`WindowFromPoint` 框架→客户窗下降；四腿两极化验证）；**待发波冻结** |
 | ② | **点页签就崩**（`SetFocus ⇄ WM_SETFOCUS` 回声环 ⇒ `Stack overflow.`，最小复现 **2 击**） | ✅ 已修（补 `old != hwnd` 守卫；同趟两极化：修前 `rc=134`/`setfocus=4034`，修后 `alive=yes`/`setfocus=0`） |
 | ③ | **启动即死**（UI 线程锁竞争 ⇒ `WaitForMultipleObjectsEx` 失败桩 ⇒ 未处理异常；修前单实例 **7/38 ≈ 18%**） | ✅ 已修（`DispatcherSynchronizationContext.Wait` 走托管等待；修后 **0/30**） |
-| ④ | **窗口形态**：用户实测"直接全屏、不能拖动、不能缩放" | 🔄 车道 W57A 取证中（`xprop`/`xwininfo` 四项提示 + 代码判定点）——见 `ROUTES.md` R1 |
-| ⑤ | **仍会出现崩溃**（用户实测，签名未定） | 🔄 车道 W57A 做仪器全关的 ≥10 趟压力表并在归类——见 `ROUTES.md` R2 |
-| ⑥ | 「工具」页第 2 项 `Effects` 一打开就异常（缺 `0x6c`/`0x70` 两个 MIL 命令 `case`）；页签/按钮**文字零墨**；GIF **只出第 0 帧** | 🔄 根因均已到行，排在 `docs/WAVE49-PREREGISTRATION.md` 的 A 类 |
+| ④ | **窗口比屏幕大 ⇒ WM 自动最大化 ⇒ 拖不动缩不了**（用户桌面 `:0`/`:1` = **800x600**，而窗口是 800x600＋装饰） | ✅ 已修（移植层让默认尺寸**屏幕感知**：800x600 屏上窗口 784x560、标题栏在屏内；1280x1024 屏不被改小） |
+| ⑤ | **不能放大/最大化 + 拖边框无效；外面又套一层 WM 窗框**（应用用 `WindowChrome` 自绘标题栏） | 🔄 **回归＋老缺口**：`PMaxSize` 误用了钳制值（`win32_x11.c:1163-1213`）＋ `WM_NCHITTEST` 被 shim 吞掉（`win32_core.c:1411` 恒 `HTCLIENT`）＋ `_MOTIF_WM_HINTS` 故意不设 ⇒ 车道 W59A 修法中（`D-G69`） |
+| ⑥ | **切「富文本」/「流文档」页必崩**（`EntryPointNotFoundException: CreateInstalledObjectsInfo` @ `PresentationNative_cor3.dll` ⇒ abort 134） | ⛔ **本波不修**：这是 **PTS/LineServices 未实现**（我们自己的注释：那 **111 条 `Fs*`/`Lo*` 缺口**就是它）⇒ 属路线 R3（文本栈）⇒ 逐页实测（车道 W60A 报告 `0dfd49ab332c317d` §4，31 页全表）：**只有第 23 项「富文本框」与第 24 项「流文档」会崩**（各复现 3/3、2/2，均 `rc=134`），其余 **29 页 `alive=yes`、`unh=0`、帧差 >0**；`137`(OOM) 0 次、`139`(静默 SIGSEGV) **未复现**。⚠️ 另：demo 侧的 `InstallUnhandledGuard()` **救不了这两页**（守护接住第一个异常后 WPF 仍 `Environment.FailFast` ⇒ 照样 134） |
+| ⑦ | **偶发静默 SIGSEGV**（`rc=139`、日志 0 字节；用户 2/6 次运行遇到） | 🔄 第三类签名，取证中（仪器全关 ≥10 趟压力表 + 逐类归类） |
+| ⑧ | 「工具」页第 2 项 `Effects` 一打开就异常（缺 `0x6c`/`0x70` 两个 MIL 命令 `case`）；页签/按钮**文字零墨**；GIF **只出第 0 帧** | 🔄 根因均已到行，排在 `docs/WAVE49-PREREGISTRATION.md` 的 A 类 |
 
 **上面三个 ✅ 都还没重冻**：它们动了 `win32shim` 与 `windowsbase` 两位 ⇒ 必须按 `PORT-SPEC` §5 走整波链（重建 → 重取五臂 → 重钉 → 门禁 ×2 → `verify-all` ×2 → 重冻基线）后才算"基线"。
 

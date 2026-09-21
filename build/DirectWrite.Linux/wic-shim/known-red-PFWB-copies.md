@@ -77,18 +77,42 @@
 | samples/HelloWpf/bin/Debug/net10.0/WindowsBase.dll | 1b4ef36832ddca03 | 79740e9ba7fbf9ca | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
 | samples/WpfTextDemo/bin/Debug/net10.0/WindowsBase.dll | 19de048ecb968daa | 79740e9ba7fbf9ca | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
 
-## 3 · 表 C：**不在声明图里**的 PF/WB 副本（`UNEXPECTED-DIFF` = `DECL-GAP-DIFF`，硬红）
+## 3 · 表 C：**不在声明图里**的 PF/WB 副本（`#49` 修后 = `UNEXPECTED-EQ` ⇒ 内容已对，**声明缺口仍在，仍红**）
 
 落点全是 `samples/ThirdPartyMini`：该样例**真的带了这两件的 app-local 副本**（Debug + Release 各一份），但引用点**没有进声明式模型**
 （`applocal-expect.py` 的 `<Reference>/<HintPath>/<ProjectReference>` 闭包算不出它）⇒ 既不是「陈旧件」、也**不许当绿**。
 （`W52C3` `C1e` 前后**每格不变**：4 条、类别、sha 全同。）
 
-| 路径 | 登记时副本 sha16 | 登记时权威 sha16 | 类别 | 首次登记日期 | 处置 |
-|---|---|---|---|---|---|
-| samples/ThirdPartyMini/bin/Release/net10.0/PresentationFramework.dll | e9ea2f57c8a36e7d | 1011da6390c3bf1e | UNEXPECTED-DIFF | 2026-09-20 | 补声明图（`samples/ThirdPartyMini` 的引用点未进声明式模型）或刷新 |
-| samples/ThirdPartyMini/bin/Debug/net10.0/PresentationFramework.dll | e9ea2f57c8a36e7d | 1011da6390c3bf1e | UNEXPECTED-DIFF | 2026-09-20 | 补声明图（`samples/ThirdPartyMini` 的引用点未进声明式模型）或刷新 |
-| samples/ThirdPartyMini/bin/Release/net10.0/WindowsBase.dll | 19de048ecb968daa | 79740e9ba7fbf9ca | UNEXPECTED-DIFF | 2026-09-20 | 补声明图（`samples/ThirdPartyMini` 的引用点未进声明式模型）或刷新 |
-| samples/ThirdPartyMini/bin/Debug/net10.0/WindowsBase.dll | 1b385c64c56fb10c | 79740e9ba7fbf9ca | UNEXPECTED-DIFF | 2026-09-20 | 补声明图（`samples/ThirdPartyMini` 的引用点未进声明式模型）或刷新 |
+### 3-Z · 【`#49` 主控处置（2026-09-21 01:xx）】**根因已定并已修** —— 读数逐条见 `docs/WAVE49-PREREGISTRATION.md` §13.4 ②
+
+**根因不是"该不该带 PF/WB"，也不是"要不要刷新"，而是 `build/third-party/WpfLinux.props` 自己发了一份配置声明**
+（`WpfLinuxBuildConfiguration` 默认 `Debug`），与全仓**唯一声明** `build/SelfBuiltConfig.props`
+（`WpfLinuxSelfBuiltConfiguration` = **Release**）**分叉** —— 正是 `#39` 那份文件头警告的"同一语义两处声明"族。
+现场机制：`run-thirdparty-mini.sh` 用 `-c $SELFBUILT_CONFIG`（Release）构建**应用**，却没传本配方的框架配置
+⇒ 引用的是 **Debug** 自产件 ⇒ 副本内容**必然** ≠ 权威（`e9ea2f57c8a36e7d` vs `1011da6390c3bf1e`）。
+修法 = 配方 **import 唯一声明处并从它派生**（保留显式覆盖这个"故意跨配置"的口子；覆盖后工具链照样把跨配置副本判红 `CROSS-CONFIG`）。
+修后**两个配置各重编一次**（`-c Release` ＋ `-c Debug`，各 5 s / 2 s，零警告零错误）⇒ 四份副本 sha **逐条 == 权威**，
+检查器当场 `DECL-GAP-DIFF 4 → 0`、本节 4 条 `仍红 42 → 仍红 38 ｜ 已转绿 4`。
+
+**⚠️ 但这四条并没有"转绿"**（如实记）：它们从「**内容不同**的未声明副本」（`DECL-GAP-DIFF`，硬红）变成
+「**内容与权威相同**、但仍不在声明图里」（`DECL-GAP-EQ`）—— 按现行口径 `UNEXPECTED>0` **照样判红**（"不许当绿"）。
+⇒ 所以本表**不删**（删了就等于把这 4 条**在册红**洗成"不存在"），改写为**现状 + 剩余待办**。
+**剩余待办（留给 `#50`，不许在本波为了归零而扩/删声明）**：**补声明图** —— `applocal-expect.py` 的引用点闭包
+算不出"只经 `build/third-party/WpfLinux.props` 接线"的样例（样例自己**不 import** `BuildHygiene.props`，
+而两条 import 图才是该模型的入口）。
+
+**【本表已于 `#49` 移除（4 行 ⇒ 0 行）】** 依据 = 读取器 `show_registry()` 自己的口径（`check-applocal-sync.sh:1099-1102`）：
+**"当且仅当该副本 `sha == 现权威` ⇒ 计 `已转绿`、应从登记表移除"**。修后四份副本逐条 == 权威 ⇒ 按该口径移除。
+⚠️ **这不是洗白**，两点如实记：① 移除**不参与判定**（该段自己就写着"登记 ≠ 已容忍"，`rc` 只由五个计数器决定）；
+② 这 4 条**没有变绿**，它们是转成了另一个**仍然判红**的类别 —— 详见下面的"剩余"。
+
+**剩余（`#50` 待办，不许在本波为了让计数归零而扩/删声明）**：这 4 条现在是
+`UNEXPECTED-EQ`（**内容 == 权威、但不在声明图里** ⇒ `DECL-GAP-EQ`，按现行口径 `UNEXPECTED>0` **照样判红**）。
+更完整地说，`samples/ThirdPartyMini` 现在一共 **10 条 `UNEXPECTED-EQ`**（PF/WB ×2 配置 ＋ PC/ReachFramework/Provider/libwpfwic 等），
+而全仓 `DECL-GAP-EQ` 已从 **12 涨到 16** —— 其中**只有 1 条**（`build/DirectWrite.Linux/FallbackCriteria/bin/Debug/WpfGfx.Linux.dll`）
+在 `samples/WpfFeatureProbe/KNOWN-DEFECTS.md` 的 `D-A1` 条里登了记 ⇒ **剩下 15 条是"红而无登记"**。
+⇒ **要办的是"补声明图"**（让 `applocal-expect.py` 的引用点闭包覆盖"只经 `build/third-party/WpfLinux.props` 接线"的样例），
+**不是**把 `UNEXPECTED` 计数调小、也不是删 `ITEMS`。这条已写进波预登记 `docs/WAVE49-PREREGISTRATION.md` §13.4 ②。
 
 ### 3-A · `C1e` 新增的**非 PF/WB** 3 条（`STALE`，红）—— **跨册登记**
 
@@ -124,7 +148,7 @@
 | 类别 | 份数/组数 | 说明 |
 |---|---|---|
 | `STALE`（**红**） | **38**（PF 7 + WB 28 + 其它件 3） | `W52C` 首次登记时是 34（PF 7 + WB 27）；**`W52C3`（`C1e`）净 +4**：新增 6、改判掉 2（见 §6.2） |
-| `UNEXPECTED-DIFF`（**硬红**） | **4** | `samples/ThirdPartyMini` × {PF,WB} × {Debug,Release}（**`C1e` 前后每格不变**） |
+| `UNEXPECTED-DIFF`（**硬红**） | **0**（登记时 **4**） | `#49` 主控修（配方配置分叉）后 `DECL-GAP-DIFF 4 → 0`；那 4 条**转成** `UNEXPECTED-EQ`（仍红：内容对、声明缺）⇒ 见 §3-Z 的"剩余" |
 | `DIVERGENT`（**红**） | **7 组** | 表 D（`C1e` 前 4 组 ⇒ **新增 3 组**） |
 | `NEWER-DIFF`（**红**） | **0** | 两趟都没有「副本不早于权威」的条目 |
 | `MISSING`（**红**） | **0** | 完好树上无缺件（缺件判据另有反极性读数：删 PF/WB 各一份 ⇒ 具名 `MISSING=2` + `rc=1`，见 `build/MilBridge/W52C-report.md` §4） |

@@ -13,7 +13,7 @@
 > - `tests/.../Commands.Tests/tools/verify-cmd-layout.py` —— 已移植的 103 个线格结构体
 >   与上游 `Generated/wgx_commands.cs` 逐 `FieldOffset` 比对（上游共 108 个，共有 102 个；
 >   移植侧多出的 1 个是 `MILCMD_BITMAP_SOURCE`——上游 C# 生成版没有它，只有 C++ 头里有；
->   移植侧缺失的 6 个是本文件 §1 的 C 类）。
+>   移植侧缺失的 4 个是本文件 §1 的 C 类（`#49` 后 6→4：`0x6c`/`0x70` 已实现））。
 > - `MilNative.ExportManifest` / `MilNative.NotImplExportNames` / `MilNative.MissingExports()`
 >   —— **导出函数章（§2）**的机械校验入口，覆盖 108 个 `DllImport(DllImport.MilCore)`
 >   导出名及其实现深度；条文与代码的逐条对应见 §2.0。
@@ -44,7 +44,7 @@
 29 (A) + 2 (A′) + 1 (B) + 6 (C) = 38  ✓
 118 = 100（前两轮：79 原有 + 21 条 3D 资源）
         + 8（3D 视觉树）+ 2（0x0c/0x0d 位图源）+ 7（B+C）+ 1（MilCmdInvalid 哨兵）
-已实现 = 110 / 118
+已实现 = 112 / 118
 ```
 
 ### A 类 · 29 条（0x57–0x6b 与 0x29–0x30）
@@ -175,7 +175,7 @@ Linux 上没有 WIC，且本实现的命令流是纯字节流，进程地址在�
 要改成 Linux 侧等价物属契约变更，须主控协商。也就是说：命令**收得下、解得出、
 画得出来**，但还没有一条托管的"发送"入口去造它。
 
-### C 类 · 6 条（永久划掉）
+### C 类 · 4 条（永久划掉）
 
 | 命令字 | 命令名 | 依据 |
 |---|---|---|
@@ -196,7 +196,7 @@ Linux 上没有 WIC，且本实现的命令流是纯字节流，进程地址在�
 
 ---
 
-## 1. 顶层命令：7 / 118 返回 E_NOTIMPL
+## 1. 顶层命令：5 / 118 返回 E_NOTIMPL
 
 > **2026-09-04 更新**：38 条中的 31 条已实现 —— 0x57–0x6b 整段 3D 资源命令（21 条）
 > + 0x29–0x30 整段 3D 视觉树命令（8 条）+ 本轮 0x0c/0x0d 位图源（2 条）。
@@ -206,8 +206,8 @@ Linux 上没有 WIC，且本实现的命令流是纯字节流，进程地址在�
 >
 > **2026-09-02**：上一轮先做了 0x57–0x6b 的 21 条。
 
-总数核对：**7（未实现）+ 110（已实现）+ 1（`MilCmdInvalid` 哨兵）= 118**。
-剩余 7 条 = 6（C 类）+ 1（B 类 `MilCmdMediaPlayer`）。
+总数核对：**5（未实现）+ 112（已实现）+ 1（`MilCmdInvalid` 哨兵）= 118**。
+剩余 5 条 = 4（C 类）+ 1（B 类 `MilCmdMediaPlayer`）。
 `MilCommandLayout.NotImplementedCommands` 与这个集合由
 `CommandCoverageTests` 双向锁死。
 

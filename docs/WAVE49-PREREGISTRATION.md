@@ -507,3 +507,329 @@
 - 判据（取证回来写死）：① **仪器全关**、≥10 趟压力序列（逐页导航 ≥8 页 + 页签 + 下拉 + 列表 + 打字，≥20 击/趟）⇒ **崩溃趟数 = 0**；② 每一类签名给"修前必现/修后不现"的成对读数；③ 已登记的 `D-G67`（第二实例 `ShutdownMode` 异常）必须变成**可解释退出**而非未处理异常；④ 若 10 趟 0 崩 ⇒ **如实写 0 崩**并加长腿再取一次（不许把"不崩"写崩、也不许把"崩"写不崩）。
 
 **同时落地的取数工程改动**：`~/run-hc.sh` 现在会把应用的 `stdout+stderr` **落到 `/tmp/hc-run-<时刻>.log`** 并在退出时打印末 20 行 ⇒ **下一次崩溃的现场不用再靠人转述**（本机无 core 文件，日志是唯一现场）。
+
+### §12.1 `N1`（窗口形态）—— **根因已定：不是移植缺陷，是"窗口比屏幕大"**（2026-09-20 主控实测）
+
+**用户桌面实测**：`DISPLAY=:0` = **800x600**、`:1` = 800x600、`:10` = 1920x1080（xrdp）。
+示例应用的窗口**本身就是 800x600**（`MainWindow`），加上 WM 装饰（标题栏 ~29 px ＋ 边框 ~5 px）⇒ **比屏幕还大**。
+
+**两极化（同一份应用 `c2674871`/`2e4e46e5`，Xvfb ± xfwm4，仪器全关）**：
+
+| 屏幕 | `_NET_WM_STATE` | 客户窗几何 | `xdotool windowsize 700x500` 之后 |
+|---|---|---|---|
+| **1280x1024** | 只有 `FOCUSED` | `800x600 @ 245,241`（有框架父窗 `0x200264`，`Override Redirect=no`） | **`900x700 @ 125,119`** ⇒ **能缩能移** ✅ |
+| **800x600（= 用户桌面）** | **`MAXIMIZED_HORZ, MAXIMIZED_VERT, FOCUSED`**（WM **自动最大化**） | `800x576 @ 0,24`；标题栏按钮在 **`y=-5`（屏幕外）** | **纹丝不动**（仍 `800x576 @ 0,24`）⇒ **拖不动、缩不了** ✅ 复现用户原话 |
+
+⇒ 用户那三句"直接全屏 / 不能调大小 / 不能拖动"**逐条对上**：窗口 + 装饰放不下 ⇒ xfwm4 自动最大化 ⇒
+最大化态没有可抓的标题栏（按钮已在屏外）、边框也不可拖。
+
+**同时量到的真实缺口（要修）**：`WM_NORMAL_HINTS`／`WM_HINTS`／`_MOTIF_WM_HINTS`／`_NET_WM_WINDOW_TYPE`／`WM_CLASS`／`WM_TRANSPARENT_FOR` **全部未设置**（只有 `_NET_WM_NAME`）；
+`WM_GETMINMAXINFO` 在 shim 里是 `case …: return 0;`（`win32_core.c:1225`）⇒ **尺寸约束从未生效**。
+
+**用户侧即时可用（一条命令，已端到端验证）**：`bash ~/hc-window-fit.sh`
+- 原理：① **双击标题栏**取消最大化（本机 `xdotool 3.2016` 无 `windowstate` 子命令、也没装 `wmctrl` ⇒ 走双击；实测有效）；② **紧接着**（不留间隔）`windowsize/windowmove` 到"装得下"的尺寸 —— 否则 WM 会立刻再最大化（实测过）。
+- 实测：`MAXIMIZED_HORZ,VERT,FOCUSED ｜ 800x576@0,24` ⇒ 跑脚本 ⇒ **`FOCUSED ｜ 720x480@25,69`**；随后 `windowsize 740 510` **生效** ✅。
+- 根治：把桌面分辨率调到 ≥1024x768（或直接用 `:10` 的 1920x1080）。
+
+**产品侧修法（本波落地，判据写死）**：移植层在建窗/映射时**把窗口矩形钳到屏幕工作区**（装得下装饰即可不再触发自动最大化），
+并**补上 `WM_NORMAL_HINTS`／`WM_CLASS`／`WM_PROTOCOLS(WM_DELETE_WINDOW)`**；`WM_GETMINMAXINFO` 不再空返回。
+- 判据（**四格成对**）：① **800x600 屏 + xfwm4**：`_NET_WM_STATE` **无** `MAXIMIZED_*`、客户窗 `宽 ≤ 屏宽 ∧ 高 ≤ 屏高-标题栏`、`xwininfo` 的 `y ≥ 0`；② 同屏 `xdotool windowsize 740x510` **必须生效**（可缩放）；③ **1280x1024 屏**：仍是 800x600 装饰窗、`windowsize 900x700` 生效（**不许**为小屏把大屏也改小）；④ **反极性**：不落地该修法 ⇒ 800x600 屏上必须复现 `MAXIMIZED_*` 且改尺寸无效（今天的读数即现场）。
+- ⚠️ 边界：**不许**改 hc 应用源码（那是仓外被测件）；只动移植层（`src/WpfGfx.Linux.Native/src/**` 或 `src/WpfGfx.Linux/Windowing/**`）。
+
+### §12.2 `N2`（仍会崩溃）—— 车道 W57A 中途失联（未交付报告）
+
+`$HOME/w57a/` 有 `app/`＋`bin/`＋`logs/`（13:12–14:06），但**日志全空、没有报告** ⇒ 该车道没跑到读数（只有几张窗口截图）。
+⇒ 处置：**另派一条车道**按 §12 的判据做"仪器全关 ≥10 趟压力表 + 逐类签名归类"（`D-G65`/`D-G66` 都已修，要确认用户跑的是不是修前件、以及有没有**第三类**签名）。
+
+### §12.3 `N1` 修法**已落地并四格验证**（车道 W58A `build/MilBridge/W58A-report.md`，口径 sha16 `1a949ca152d11548`）
+
+**件**：`libwpfwin32.so` `c2674871b09e8e0e` → **`054037aadfd7d192`**（299,120 → **304,016 B**）；`win32_x11.c` `e3e1b3e10c88f6fe→4e6feb41158fcbcf`、`win32_core.c` `e1edbd04113c9125→5a920e03b05f937d`、`win32_internal.h` `472e6560024f758c→b22602c5e396c828`（其余四/五件未动）。**主控已用 `sync-applocal.sh` 把新件同步进 hc 应用目录**（`⟳ c2674871… → 054037aa…`，回读断言通过）。
+
+| 格 | `_NET_WM_STATE` | 客户区几何 | `windowsize` | `windowmove` |
+|---|---|---|---|---|
+| **A 修后 800×600** | **仅 `FOCUSED`**（`MAXIMIZED_*` **全部消失**） | **784×560 @ +13+49**（帧 794×594，标题栏整个在屏内） | `740 510` **生效 8/8** | 生效 |
+| **B 反极性（只换回修前 `.so`，同屏同 WM）** | `MAXIMIZED_HORZ, MAXIMIZED_VERT, FOCUSED` | 800×576 @ +0+24（标题栏 `+0+-5`，上边 5 px 屏外） | **8/8 恒 800×576（无效）**，`AE=0` | 无效 |
+| **C 修后 1280×1024** | 仅 `FOCUSED` | **800×600 @ 245,241（没被改小）** | `900 700` 生效 | 生效 |
+| **D 控制（WPF 无关 `xctl`）** | — | — | 阈值实测：**宽 ≥ 屏宽−10 或 高 ≥ 屏高−34 才最大化**；**带 `PMaxSize` 提示照样最大化** | — |
+
+**新增 X 提示**（A 格 `xprop` 逐字）：`WM_NORMAL_HINTS(min 1×1 / max 784×560)`、`WM_CLASS`、`WM_HINTS(Input=True)`、`_NET_WM_WINDOW_TYPE=NORMAL`、`_NET_WM_PID`；B 格这五条 `grep -c` = 0。
+**零回归**：W55A 最小腿（无 WM）`alive=yes`＋两步 `AE>0`；**完整 9 击腿修前/修后逐行相同**（唯一差异 = 插入符相位噪声 `AE 7647 vs 7677`）；`build-shim.sh --abi` 一致；**二次构建 `.so` sha16 逐位相同**（可复现）；`tests/queue_invariant.c` 对新件 `QUEUE_INVARIANT=PASS`。
+
+**车道推翻主控四句（全部采信，如实入册）**：
+1. `WM_PROTOCOLS`＋`WM_DELETE_WINDOW` **早就设了**（`win32_x11.c:356-360`，修前 `xprop` 可见）⇒ 主控那句"六条全未设置"**错**；真缺的是 `WM_NORMAL_HINTS/WM_CLASS/WM_HINTS/_NET_WM_WINDOW_TYPE`。
+2. `case WM_GETMINMAXINFO: return 0;` 修前是**死码**（全仓无人发这条消息）⇒ 单独填对它**不改变任何行为**；缺的是"**问一声**"（已补在 `WM_CREATE` 之后）。且"空返回"的后果是"约束 = 0"而非"没有约束"（`Window.cs:4876-4888` 无条件缓存 max）。
+3. **🔴 应用根本没请求 800×600**：`MainWindow.xaml` 无 `Width/Height/SizeToContent` ⇒ WPF 传 `CW_USEDEFAULT`（`Window.cs:2613`）⇒ **800×600 是本 shim 自己的兜底**（`win32_core.c:441-442`）。⇒ 本修法 = 让 `CW_USEDEFAULT` 兜底**屏幕感知**。（**主控此前对用户的表述要更正**：不是"应用窗口本身就是 800×600"。）
+4. 判据"高 ≤ 屏高−29"**不够**（D 格实测阈值 −34／−10）⇒ 落地用 16/40，并留 `WPF_LINUX_DECOR_W/H` 覆盖口。
+
+**主控裁定**：
+- **裁定 ⑪**：`verify-all.sh` **由主控跑**（车道的判据正确：那是波尾序列的活）⇒ 已在无并发车道时启动（`$HOME/w58a-verify/verify-all-1.log`）。
+- **裁定 ⑫**：app-local 同步 **已办**（用户应用目录 + 后续波尾 `3.5` 自动覆盖）；仓内 4 份探针副本仍是更旧的 `abf6879c…`，**随波的 `3.5` 一起收敛**，不在本趟手工逐份刷（避免绕过波序）。
+- **裁定 ⑬（登记为后续，不塞进本波）**：① `WindowState.Maximized` 不发 `_NET_WM_STATE_MAXIMIZED_*`（`win32_core.c:646-647` 把 `SW_SHOWMAXIMIZED` 退化为 map；钳制后小屏上"请求最大化"会得到合身窗而非最大化窗）；② WPF 弹层被 xfwm4 加 29 px 标题栏（**修前就有**，A/B 几何逐字相同）；③ 多显示器/非零工作区原点未测（`NOINFO`）。
+- **车道自记两处自伤（留档）**：① 仪器第一版"窗口刚出现就改尺寸"⇒ WPF 启动末段又设一次尺寸，读数看着像产品缺陷；真因是改得太早，改成"有内容＋静置 12 s"后重跑（**首格 A 读数作废**）；② `( … ) &` 起应用留下 `dotnet` 孤儿、`xdotool search|head -1` 量到旧实例窗口 ⇒ 改为直接 `timeout` 起、只认新 id、按 display/app 目录点杀（未用 `pkill -f`）。
+
+### §12.4 用户第二批实测（`run-hc.sh` 在 `:10`）—— 三条签名 + 两处窗口问题（2026-09-20 23:2x）
+
+**证据**：用户的 `~/try2.txt` ＋ 本机 `/tmp/hc-run-*.log`（**我直接读了他的日志**，不用他转述）。
+
+| 现象 | 签名（逐字） | 判定 |
+|---|---|---|
+| **切「富文本」/「流文档」/列表页 ⇒ 崩**（3 次运行同一签名） | `Unhandled exception. System.EntryPointNotFoundException: Unable to find an entry point named 'CreateInstalledObjectsInfo' in shared library 'PresentationNative_cor3.dll'` ← `MS.Internal.PtsHost.UnsafeNativeMethods.PTS.CreateInstalledObjectsInfo` ← `PtsCache.InitInstalledObjectsInfo`(`PtsCache.cs:640`) ← `PtsCache.CreatePTSContext`(`:433`) ← `PtsCache.AcquireContext`(`:70`) | **`D-G70`（新登记）＝ PTS/LineServices 未实现**：`win32_classification.c:52` 自己写着"本工程当前没有 LineServices（那 **111 条 `Fs*`/`Lo*` 缺口**就是它）"。⇒ 凡走 **FlowDocument/RichTextBox（PTS）** 的页面**必 abort(134)**。**不是新回归**（从来如此），属路线 R3（文本栈）。 |
+| **两次运行 rc=139、日志 0 字节** | 静默 SIGSEGV，**没有任何托管输出** | **第三类签名**（与 W55A/W57A 见过的"1/3 概率静默 SIGSEGV"同族）⇒ 待"仪器全关 ≥10 趟压力表"车道归类 |
+| **窗口"不能最大化、拖边框也不缩放"** | 用户原话；根因**两跳**：(a) `WM_NCHITTEST` 被 shim **吞掉**（`win32_core.c:1411` `case WM_NCHITTEST: return 1; // HTCLIENT`）⇒ WPF/`WindowChrome` 的**自绘标题栏与缩放边框全都收不到命中测试** ⇒ 应用侧拖动/最大化/缩放**天然失效**；(b) 上一趟 W58A 新加的 `WM_NORMAL_HINTS` 把 **`PMaxSize` 设成了"钳制后的尺寸"**（`win32_x11.c:1163-1213`）⇒ WM 侧**也不许放大/最大化** | **`D-G69`（新登记，含一处回归）**：`PMaxSize` **不许**用钳制值（应用自己的 max 未知时就**别发 `PMaxSize`**）；`WM_NCHITTEST` **必须真的回答**（按当前指针位置给 `HTCAPTION`/`HTBOTTOMRIGHT`…），否则去掉 WM 装饰后窗口**完全不可拖** |
+| **"HC 自己有最大化/最小化/关闭按钮，外面又套了一层"**（双层窗框） | `win32_x11.c:1182` 注释：`_MOTIF_WM_HINTS` **故意不设** ⇒ WM 一律加装饰；而 hc 示例用的是 `WindowChrome`（自绘标题栏） | **`D-G69` 第二半**：**无标题（caption-less / `WindowStyle=None`）的窗口**应向 WM 声明"不要装饰"（`_MOTIF_WM_HINTS` 的 `MWM_DECOR=0`）；**有标题的窗口照旧装饰**（成对判据） |
+
+**判据（写死，交给车道 W59A）**：
+1. **大屏（`:192` 1280x1024 + xfwm4）**：`xdotool windowsize 1200 900` **必须生效**（`PMaxSize` 不再挡）；`xdotool` 双击应用自绘标题栏 ⇒ 窗口**真的最大化**（几何 = 屏）或 `_NET_WM_STATE` 出现 `MAXIMIZED_*`。
+2. **应用自绘 chrome 生效**：按住应用标题栏拖动 ⇒ 窗口原点变化；拖右下边框 ⇒ 宽高变化（**不许**只靠 WM 装饰）。
+3. **双层窗框消失**：无 caption 的窗口 `_MOTIF_WM_HINTS` 出现 `MWM_DECOR=0`（或 `xwininfo -root -tree` 里**没有** WM 框架父窗）；**有 caption 的窗口仍被装饰**（成对）。
+4. **不回归 W58A 的成果**：800x600 屏上初始尺寸仍**装得下**（`_NET_WM_STATE` 无 `MAXIMIZED_*`、标题栏在屏内）。
+5. **零回归**：点击/呈现腿（`W55A_STEPS="nav1 tab3"`）`alive=yes` 且两步 `AE>0`。
+
+### §12.5 【MVP 稳健性 · **仓外 demo 侧**止损】把"切页就崩"降级成"这一页渲染不出来，别的页还能用"
+
+**背景**：`D-G70`（PTS/LineServices 未实现，111 条 `Fs*`/`Lo*` 缺口）⇒ 切「富文本」/「流文档」页 ⇒ `EntryPointNotFoundException`
+⇒ 未处理异常 ⇒ **进程 abort(134)**。真正的修法是 R3（文本栈），本波**不做**；但"一点就崩"对 MVP 观感是致命的。
+
+**已落地（demo 侧，仓外 `/home/links-dev/hc-linux/src/Shared/HandyControlDemo_Shared/App.xaml.cs`）**：
+`OnStartup` 末尾调 `InstallUnhandledGuard()` ⇒ 订阅 `DispatcherUnhandledException`：
+- 打**大声**日志：`[HC-UNHANDLED] #N <Type>: <Message> ｜ 首帧 <stack[0]>`（走 `LogDiag` ⇒ stdout ⇒ `run-hc.sh` 的日志文件里可 grep）；
+- `e.Handled = true` ⇒ **进程活着**（这一页渲染失败，其余页面继续可用）。
+- ⚠️ **这是止损，不是修复**：日志前缀刻意醒目（本仓纪律：不许把"没处理"伪装成"没问题"）；**产品侧修法仍在 R3**。
+- 备份 `/tmp/App.xaml.cs.before-hcguard`；改后 `App.xaml.cs` sha16 `2e07c8fe01e7272c`。
+
+**判据（交给车道 W60A 跑）**：
+1. 重建 demo ⇒ **点「富文本」页**：进程 `alive=yes`、日志出现 `[HC-UNHANDLED]` 且带 `EntryPointNotFoundException`；
+2. **点「流文档」页**：同上；
+3. **崩过之后**再点一个正常页（如导航项 0）⇒ 仍能换页、`alive=yes`（**这条才是"别的页还能用"的证明**）；
+4. **反极性**：把 guard 注掉重建 ⇒ 同一序列必须**复现 abort(134)**（用户现场即此）；
+5. 顺带产出**"会崩的页清单"**：逐个点完 31 个导航项，逐页记 `alive`／是否出现 `[HC-UNHANDLED]` ⇒ 写进 `README.md` 的"已知不支持"一节（**这就是用户要的"哪些页能用"的地图**）。
+
+### §12.6 `D-G59`（`verify-all.sh` 选 X 显示）—— **已修 + 三分支隔离验证**（主控，2026-09-20）
+
+**现场（原表述）**：`verify-all.sh:366-373` 的候选取值是 `pgrep -a Xvfb | … | sort -u`（**字符串序**），且选定后**整趟不复核**
+⇒ `#47` 冻后 run2 选中了别人遗留的 `:66`，该显示在 `[2]` 之前死掉 ⇒ `X_STATE` 仍是 `available`，**47 例 X 用例静默变跳过**
+（只有 `SKIP_GUARD=FAIL` 抓住了它）＋ 一条端到端用例硬红。
+
+**修法（三处，`verify-all.sh` `5ee3ad984ee7412d → 12bce6872327e8e9`）**：
+1. 候选取值 `sort -u` → **`LC_ALL=C sort -n -u`（数值序）**；
+2. 新增 `x_recheck_alive "<调用点>"`：**复核当前 `DISPLAY` 能不能连**；死了就按**数值序**换一个活显示（**具名**打印）；
+   一个活的都没有 ⇒ `X_STATE=unavailable` ＋ **`X_DIED=1`**（并明写"这不是绿"）。**在两个点调用**：选定之后立即、以及**进入 `[2] 测试套件` 之前**（X 依赖用例主要在那里）；
+3. 摘要行加 **`x_died=$X_DIED`**（"中途死过显示"必须具名 —— 换显示 = 换了环境，读者不能把它读成"这一趟 X 一直好好的"）。
+
+**三分支隔离验证**（把函数体原样抽出到 `/tmp/dg59-test*.sh` 跑，**不动真树**）：
+| 分支 | 读数 |
+|---|---|
+| ① **数值序** | 旧写法 `:9 :10 :66` ⇒ **`10 66 9`**（字符串序把 `:9` 排到最后）；新写法 ⇒ **`9 10 66`** ✅ |
+| ② **选中的显示中途死** | 起 `:203`/`:205` 两活显示并杀掉 `:203` ⇒ 调用后打印 `⚠️ DISPLAY=:203 连不上了 ⇒ 按数值序重取` ＋ `✅ 改用 <活显示>（仍 available）`，`X_DIED=0` ✅ |
+| ③ **一个活显示都没有** | `DISPLAY=:250`（不存在）＋ `pgrep` 打桩返回空 ⇒ `❌ … X_STATE=unavailable ＋ X_DIED=1` ＋ 明写"**这不是绿**" ✅ |
+
+**牙复核**（改完立即跑）：`VERIFYALL_SELF=PASS names=25 decl=25 gen=#48 … vfile_sha16=12bce6872327e8e9`（**步数/步名/口径句一字未动**）｜
+`SHELL_QUOTE_TRAP=PASS traps=0`｜`PIPEFAIL_SIGPIPE=PASS`｜`FP_INPUTS_HYGIENE=PASS coverage_n=143 artifact_n=0`。
+**⚠️ 边界（如实）**：本趟只做了**隔离验证**（函数体级别）；**整趟 `verify-all` 上"显示中途死"的端到端读数**留到波内（那需要一趟 14 min 的真跑 + 人为杀显示）。
+
+---
+
+### §12.7 【更正 · 2026-09-21 00:2x】**§12.5 那条"止损有效"已被证伪**（车道 W60A 三条腿）
+
+§12.5 写的是"把'切页就崩'降级成'这一页渲染不出来、别的页还能用'"。**实测不成立**：
+守护接住第一个异常后，WPF 随后 **`Environment.FailFast`**（`PtsHost.cs:52-55` `Invariant.Assert(_ptsContext != null)`
+⇒ `Invariant.cs:192-204`），**不可捕获** ⇒ `rc` 仍是 **134**、日志续打 `Unrecoverable system error.`。
+读数（同一装置，只换 dll）：反极性 `275bcaff4dede9a5` ⇒ 134（与用户现场签名逐字相同）；
+**正极性 `1ac5e587cda3fb20` ⇒ 也 134**（日志里**先**有 `[HC-UNHANDLED] #1` ⇒ 守护确实跑了、但救不了）。
+⇒ 话术必须改：**切「富文本」「流文档」照样整进程死，不是"只这一页失败"**；`~/run-hc.sh` 已同步改口径
+（`0b5093124f60f524`）。**另**：静态判据（`strings`/`grep`）**分不出**守护在不在 ⇒ 只能看行为。
+
+## §13 波 `#49` 落地清单与队列状态（2026-09-21 00:xx 实测快照）
+
+### §13.1 已落地的准备项（**必须在 `IN_FP_0` 采样之前完成的那一类，都已办**）
+
+| 项 | 件/读数 | 状态 |
+|---|---|---|
+| **B4**（`R-CSRC`）+ **C4**（判据件进覆盖面） | `close-wave.sh` 的 `fp_inputs()` 增原生 C 源（13 件）＋三件判据件 | ✅ 八条极性腿全过；`FP_INPUTS_HYGIENE=PASS coverage_n=143` |
+| **B2**（`D-G60` 段序） | `integration-wave.sh` 段 3.5/3.6 对调 | ✅ 受控两序对照（旧序 ⇒ `stale rc=2`；新序 ⇒ `ok rc=0`） |
+| **C6**（切配置必须重跑自检） | `integration-wave.sh` 新增 `3.7/5` 判据件自检（红则 `fail+1`） | ✅ 红侧步骤体验证过；绿侧（静树）`SELFTEST=PASS` |
+| **C1d/C1b**（`D-G62` 死格显式化 + 消灭静默回退） | `check-applocal-sync.sh` / `applocal-expect.py` | ✅ `CROSS-CONFIG` 成对；`NOINFO rc=2` 成对；自检 18/18 |
+| **C1e**（`applocal-expect.py:121` 跟随声明） | 同上 | ✅ 四格成对（改后件@Release 30 条、@Debug 与改前件逐字相同） |
+| **D-G59**（选 X 显示） | `verify-all.sh`（`5ee3ad984ee7412d → 12bce6872327e8e9`） | ✅ 三分支隔离验证（数值序／中途死重取／无活显示 `X_DIED=1`） |
+| **D-G64**（WM 下点击被吞） | `win32shim 054037aadfd7d192` 之前的 `c2674871…` 那一步 | ✅ 四腿（修后+WM / 修后+无WM / 修前+WM / 杀WM 单变量） |
+| **D-G66**（`SetFocus` 回声环） | 同上 | ✅ 2 击最小复现两极化（修前 `rc=134`/`setfocus=4034`；修后 `alive=yes`/`setfocus=0`） |
+| **D-G65**（等待桩 ⇒ 启动即死） | `windowsbase 79740e9ba7fbf9ca → 2e4e46e539a72cd7` | ✅ 单实例修前 7/38 ≈ 18% → 修后 0/30 |
+| **N1 窗口尺寸**（比屏幕大 ⇒ WM 自动最大化） | `win32shim 054037aadfd7d192` | ✅ 四格（800×600 修后无 `MAXIMIZED_*`／修前复现／1280×1024 不被改小／阈值实测） |
+| **整网回归** | `verify-all` 一趟（本轮） | ✅ `步骤通过 25 / ❌ 0`、`用例通过 871 / 跳过 2`、`结论：✅ 全部通过` |
+
+### §13.2 队列（**串行**，一次只跑一个重活）
+
+| 车道 | 任务 | 状态 |
+|---|---|---|
+| **W59A** | 窗口：`PMaxSize` 误用钳制值（回归）＋ `WM_NCHITTEST` 被吞＋ caption-less 去装饰（`D-G69`） | 🔄 在跑 |
+| **W60A** | 验 demo 侧未处理异常守护（反极性/正极性/崩后仍可用）＋**31 个导航页会崩清单** | ⏳ 等 W59A |
+| **W61A** | `D-G57` 零墨：先只读探针劈开 (a)/(b)，再修 + 两极化 | ⏳ 等前两条 |
+| **W62A** | `D-G58`：`0x6c/0x70` 两个 MIL 命令缺 `case` ⇒ `Effects` 页 abort（**不许静默 no-op**） | ⏳ 等前三条 |
+| **W63A** | **静默 SIGSEGV**（`rc=139`＋**0 字节日志**）分诊：**只出 `proposed-fix.diff`、不落地**（避开 W59A 的 `src/WpfGfx.Linux.Native/src/**` 写域） | 🔄 在跑（自带资源闸门，已与 W59A 串行） |
+
+#### §13.2c 【**波中新增纪律**】机级"重活槽"`~/heavy-slot.sh`（主控裁定，2026-09-21 00:5x）
+
+**为什么这也要记进预登记**：它改的是**读数能不能用**的口径（环境类），不是随便的流程建议；不记 ⇒ 波尾没人知道"某些读数是在多应用并发下取的"。
+
+| 项 | 读数 |
+|---|---|
+| 触发事实（实测） | 同时 **5 条车道在跑**（W59A/W60A/W61A/W62A/W63A）；`free -m` = 总 **7923MB**、`used 5299`、`available 2289`，swap **已用 1246/2047**；其中**主控自己的 DSH harness（`node`，pid 5920）常占 `RSS 4277920KB ≈ 4.3GB`** ⇒ 留给车道的实际只有 **~2.2GB**；**一个示例应用常驻 ~0.8GB** |
+| 危险 | **两个应用并发 ⇒ OOM**；OOM 杀的 `rc=137`、以及内存压力下的 `SIGSEGV`，**都会被读成"移植的缺陷"** ⇒ **假签名污染取证**（比 `NOINFO` 更糟：它会让两极化变成"假的两极化"） |
+| 处置 | 新增机器级互斥槽 `~/heavy-slot.sh`（`flock` 排他锁 `~/heavy.lock`）：**凡起示例应用/`dotnet` 重活的整条命令包进去**；等不到（默认上限 1800s）⇒ `HEAVYSLOT=TIMEOUT` rc=9 ⇒ **记 NOINFO／资源不足，不许硬上、不许当缺陷证据** |
+| 反极性自检（**先跑后信**） | `HEAVYSLOT_SELFTEST=PASS concurrency=1 rc_blocked=9`（三路并发：两路 `sleep 3` 被**完全串行**、第三路 `--wait 1` 拿不到锁 ⇒ rc=9 且**一步都没跑**） |
+| ⚠️ 自己先错了一次（留痕） | 自检第一版 `awk` 少了 `END{print m+0}` ⇒ 并发度读成**空字符串**、打出**假 FAIL**；修后才 PASS。**"自检失败"也要先怀疑自检本身**（`#27` 那条教训的同族第 N 次现场） |
+
+##### §13.2c-1 【**同一件工具的第二、第三个缺陷**：锁泄漏 ＋ 自检不自洽】（W62A/W63A 报，2026-09-21 00:0x）
+
+**这不是"资源不足"，是我的工具把全机 5 条车道卡死约 10 分钟。** 逐条留痕：
+
+| # | 缺陷 | 机制（可复算） | 修法 | 反极性读数 |
+|---|---|---|---|---|
+| ② | **锁泄漏** | `"$@"` 让载荷**继承了 fd 9**（= 那把锁的 open file description）⇒ 载荷的**长命孙进程**把锁**带到永远**。现场继承者 = `dotnet build` 起的 Roslyn 编译器服务器 **`VBCSCompiler`**（比 wrapper 活得久）：wrapper 已打印 `HEAVYSLOT=RELEASED` 并退出，**锁却没释放**。实测 `flock -n ~/heavy.lock` ⇒ `HELD`，持有者 `/proc/140998/fd/9 -> ~/heavy.lock`（140998 = **我自己** 23:54 那个 `ThirdPartyMini` 构建起的）。⚠️ W62A 先报的持有者 `120608` 与我的 `140998` 是**同一种继承者**，中间"看起来自己好了"是它空闲退出，**我一构建就复发** | `"$@" 9>&-`（载荷不许继承 fd 9） | **一对腿**：旧形状 ⇒ wrapper 退出后 `PROBE=HELD`，持有者 = 孙进程 `sleep 20`（pid 151397）；修后形状 ⇒ `PROBE=FREE`，而同一个孙进程（pid 151489）**仍在跑但不持锁** |
+| ③ | **自检不自洽** | 自检跑在**共享锁** `~/heavy.lock` 上 ⇒ 别的车道正好占槽时，自检三个子进程**全部排队超时** ⇒ `concurrency=` 读成空 ⇒ **假 FAIL**（W63A 23:58 实测 `HEAVYSLOT_SELFTEST=FAIL concurrency= rc_blocked=9`）。**判据的结论取决于"环境此刻忙不忙" ⇒ 它根本不是判据**（本仓老族） | 自检 `export HEAVY_LOCK="$T/l"`（私有锁）＋ 新增例 4「载荷的长命孙进程不许把锁带走」 | 修后实测（**刻意在共享锁 BUSY 时跑**）：`HEAVYSLOT_SELFTEST=PASS concurrency=1 rc_blocked=9 grandchild_reacquire_rc=0`；同一时刻 `flock -n ~/heavy.lock` = `BUSY` ⇒ 证明它不再受环境忙不忙影响 |
+
+**处置**：按 PID（`kill 140998`，**不是** `pkill`）放锁，队列立刻恢复流动；五条车道已逐个被告知；W62A 报"排队/不绕过槽"的做法**予以肯定**（它没有越权杀别人的进程，而是把证据交上来让主控裁定 —— 这正是本仓要的行为）。
+**件**：`~/heavy-slot.sh` `be36f69e0afc0f20`（三次修：`28e798c6… → 1efb8937… → 9cd011e5… → be36f69e…`）。
+| 波及的读数口径 | 五条车道已被逐个告知；**凡在多应用并发条件下取的读数，车道必须在报告里显式标注"可能受资源压力污染"**；W63A 的 TSV **另加 `oom` 列**，`oom=1` 的样本**剔除并单独计数** |
+
+##### §13.2c-2 【同一件工具的第四项改动】**持有上限 `--max-hold`（把口头约定长成机制）**
+
+现场：队列一度到 **11 个等待者**（5 条车道 × 多腿），而我上一轮对车道说的"每次获取压在 3 分钟内"**是口头约定、没有牙**。
+本仓的立场一贯是"**约定要长成机制**"⇒ `~/heavy-slot.sh` 新增 `--max-hold <秒>`（默认 **300**，`HEAVY_MAXHOLD` 可覆盖）：
+到点用 `timeout --foreground --kill-after=5` **强杀载荷**，并打一行
+**`HEAVYSLOT=MAXHOLD_KILL held=…s max_hold=…s rc=124`** ⇒ **看到这行就说明那一趟不是样本读数**（与 `rc=137` OOM 同族：**作废重取，不许记进统计**）。
+自检已加**例 5**并过：`HEAVYSLOT_SELFTEST=PASS concurrency=1 rc_blocked=9 grandchild_reacquire_rc=0 **maxhold_rc=124 maxhold_reacquire_rc=0**`（件 `e931f8dc62c9de1c`）。
+
+##### §13.2c-3 【主控自纠】我对 `WM_NCHITTEST` 的定位**说错了**，车道更正正确（留痕）
+
+我在给 W59A 的消息里写"`win32_core.c:1594 case WM_NCHITTEST: return 1;` **还在** ⇒ 你任务书第三项还没做"。
+W59A 的更正**成立**：那一行是 `DefWindowProcW` 的**默认答案**（Win32 语义：窗口过程不处理 ⇒ 回 `HTCLIENT`），**改它没有意义**；
+真正的病与波 58 的 `WM_GETMINMAXINFO` **同型** —— **这条消息以前从没被发出去过**（全仓只有 case＋宏＋调试名表三处 ⇒ 死码）。
+真修法在翻译层：`win32_x11.c` 的 ButtonPress → `wpf_core_nc_hit_test()`（只问顶层非 message-only 窗口，lParam = 屏幕坐标）
+→ 返回码 ≠ `HTCLIENT` 就**只发 `WM_NCLBUTTONDOWN`**、不发 `WM_LBUTTONDOWN`。车道读数：
+`[NC_DIAG] NC-PRESS … ht=2`（`HTCAPTION`，`WindowChromeWorker._HandleNCHitTest` 答的）、`ht=17`（`HTBOTTOMRIGHT`，`ResizeGrip` 答的）。
+⇒ **教训**：我用"某个 `case` 还在不在"当"做没做"的判据，**判据选错了对象**（死码的 case 在不在，与消息发没发出无关）。
+
+##### §13.2c-4 【主控自伤第 4 条 ＋ 一条**判据本身错了**（都由车道抓出，独立复核已过）】
+
+| # | 我错在哪 | 谁抓的 / 怎么复核 | 修法 |
+|---|---|---|---|
+| 4 | `~/mvp-accept.sh` 起载荷时**没把 `$HOME/.dotnet` 放进 PATH** ⇒ 载荷报 `env: "dotnet": 没有那个文件或目录`、**rc=127（= 根本没跑）**，而我的分类器把它写成 `MVP_ACCEPT=FAIL reason=no-window` ⇒ **把"工具没装好"误报成"产品没开窗"** | W59A 之前就提醒过"rc=127 = 从未运行"这条本仓铁律；这次是我自己踩的。修后重跑，"修前腿"第一趟读数作废 | `export PATH="$HOME/.dotnet:$PATH"` ＋ 新增分类 `127) cls="tool-missing(127)"`，并在汇总行把它归 **`MVP_ACCEPT=NOINFO`**（**既不算绿也不算红**） |
+| 5 | **判据选错对象**：我用 `grep -c 'HC-UNHANDLED' <dll>` 判"异常守护有没有编进去" | **W60A 抓出并给出机制**：.NET 的**用户字符串字面量在 `#US` 堆里是 UTF-16LE** ⇒ 按字节的 `grep` **永远找不到**，对"有守护/没守护"两份**都返回 0**（假阴性）。**主控独立复核**（同一份带守护的新 dll `1ac5e587cda3fb20`）：`grep -c`=**0** ／ `strings -el`=**1** ／ `strings -a \| grep InstallUnhandledGuard`=**2** ⇒ **车道更正成立** | `~/run-hc.sh` 改用 `strings -el`（退路 `strings -a` 找方法名），并**把判据名字一起打出来**（"判据 strings -el"）以便复核；`strings` 缺失时**明说"判不了（NOINFO）"**，不当"无守护"硬判 |
+
+**⚠️ 这条的教训比 bug 本身重要**：`grep -c` 返回 0 时，我把它读成"守护不在"，**没有先问"这个判据对二进制还成立吗"**。
+本仓的老族就是这样长出来的（"同一个真相两处/判据与被测对象不同源"）⇒ 记进收尾记录的"主控自伤"段。
+
+##### §13.2c-5 【仪器负结果】**EWMH ClientMessage 从外部客户端发，xfwm4 实测无效**（与 W59A 的 `_NET_WM_MOVERESIZE` 同族）
+
+我为了考"**能不能最大化**"（用户第一条抱怨）自己写了 `~/ewmh-request.c`（`gcc -lX11`，发标准 `_NET_WM_STATE` ClientMessage 到 root）并**先做校准**：
+私有 Xvfb `:209`（800x600）＋ `xfwm4` ＋ **`xclock`**（小窗口，与我们的应用无关）⇒
+`EWMH-REQ sent win=0x80000a action=add(1) maximized_horz,maximized_vert **wm_supports_net_wm_state=yes**`
+—— 而 `xclock` 的几何 `200x200+50+98` **一动不动**、`_NET_WM_STATE` **仍为空**。
+⇒ **协议声称支持 ≠ 实际生效**（与 W59A 用外部工具单发 `_NET_WM_MOVERESIZE` 的读数**同型**）。
+**影响**：**"最大化"这件事我无法用外部仪器考**，只能靠应用**自己的按钮**（HC 自带最大化按钮）或车道自己的腿。
+⇒ 产品级验收里**不写**"最大化"这一格，改记 `NOINFO`（并写明为什么：仪器测不到），不许拿 `xdotool windowsize` 冒充它
+（那个是**直接改几何、绕过 WM**，证明不了 WM 愿不愿意最大化）。
+
+##### §13.2d 车道交付台账（`#49` 波内，2026-09-21）
+
+| 车道 | 交付 | 一句话结论 |
+|---|---|---|
+| **W60A** | `build/MilBridge/W60A-report.md` `0dfd49ab332c317d` | 31 项导航页**只有第 23「富文本框」(3/3)、第 24「流文档」(2/2) 会崩**（均 `rc=134`），其余 **29 页 `alive=yes`/`unh=0`/帧差>0**；`137`/`139` 各 0 ⇒ `NOINFO`。**推翻 §12.5 判据 1/2/3**（守护救不了 ⇒ `Environment.FailFast`，见 §12.7），并更正"`grep -c`／`strings` 能判守护"（**只有行为读数算数**） |
+| **W61A** | `build/MilBridge/W61A-report.md` `81b920d6755516bb` ＋ diff `cac51d6f54ad9845`（**未落地**） | `D-G57` 零墨根因：`build/shims/PresentationCore.HbTextLine.cs:2826` 单段分支**用段落主面**取"按计划面整形出的字形 id" ⇒ 零墨零异常；多段分支取面对 ⇒ 解释"导航有字、页签/按钮/Placeholder 没字"。**推翻 W52A 两条＋派单书 (a)/(b) 二分**。⚠️ 动 `hbtextline` ⇒ **必须发波** |
+| **W62A** | `build/MilBridge/W62A-report.md` `731b6846c08fe5ac`；桥 `79e45aed26487045` | `D-G58` 修好：`Effects` 页 `alive=yes`/`notimpl=0`/`committed=3054 failed=0`/页面真画出（`colors=4843`）；12 条 shader 命令全被接受且有具名台账。**新登记 `D-G71`**（视觉级效果写了没人读） |
+| **W63A** | `~/w63a/REPORT.md` `c6b552166361cb59` ＋ `proposed-fix.diff` `aa9d461b880c5297`（**未落地**） | 用户签名（`rc=139`＋0 字节）**15 趟跑满零命中**（上界 ≈20%）⇒ 判决点只到"**原生层（shim／桥／系统库三选一）**"；抓到的唯一信号在 **`/memfd:doublemapper`（运行时，被运行时自愈、不致命）**；签名标定：托管致命 ⇒ `134`＋非空日志(4/4)、原生致命 ⇒ `139`＋零输出(3/3)。爆栈假设**未证实也未否证** |
+
+**共同纪律读数**：四条车道都**自己推翻了**既有结论或自己的话（W60A 4 句／W61A 4 句／W62A 1 句＋1 处命令字／W63A 自纠 13 趟无效＋仪器自伤 10 条）—— 这是本波"判据先写、读数后取"真正在起作用的证据。
+
+#### §13.2b `W63A` 派发依据（**新一类现象，此前只记了"第三次签名未分类"**）
+
+| 事实 | 读数 |
+|---|---|
+| 现象样本 | `/tmp/hc-run-232731.log`、`-233418.log`、`-233427.log` —— **三份均 0 字节**，`rc=139`（SIGSEGV），**无任何托管异常输出** |
+| 取证工具现状（本轮实测） | `gdb 12.1` **可用**（已自测：能对 SIGSEGV 出 backtrace）；`dotnet-dump`/`coredumpctl`/`lldb` **缺失**；`ulimit -c = 0` ＋ `core_pattern` = apport 管道 ⇒ **拿不到 core 文件，只能在环 gdb** |
+| 符号现状（决定"能还原到多细"） | `linux-x64/libwpfwin32.so` **有 `.symtab`（565 个函数符号）**、无 `.debug_line` ⇒ 撞在本 shim 内的帧**能给函数名、没有行号**；`wpfgfx_cor3.so` **已 strip**（0 个 symtab，仅 127 个 dynsym，无 C++ mangled）⇒ 只能给 `+0x偏移` |
+| 判据（**先写后测**） | ① 臂 A（gdb 在环，N≥20，一半只启动／一半复用已确证点击序列）与臂 B（无 gdb 对照，N≥10）**都要做**；② 复现不出就 `NOINFO`＋确切读数，**既不记绿也不记红**；③ 分类只按"bt 最内层帧落在哪个模块" |
+| ⚠️ 已知陷阱（写进任务书，防误判） | `SIGUSR1`/`SIG33` 是 .NET 运行时**线程挂起**用的 ⇒ gdb 里出现它们**不是崩溃**，必须 `handle … nostop noprint pass` |
+
+##### §13.2b-1 主控静态线索（**假设，未证**）：同步派发**没有深度守卫** ⇒ "爆栈"是静默 SIGSEGV 的首要候选
+
+送 W63A 作臂 A 的**首要分类目标**。三条静态事实（都可复算）：
+
+1. 全局锁是**递归锁**（`win32_core.c:48-49` `PTHREAD_MUTEX_RECURSIVE`，`:131` 自述"合法的递归路径真实存在"）⇒ **重入在锁上完全不显形**，递归深度**无人看管**。
+2. 派发函数无守卫：`win32_msg.c:512 wpf_dispatch_to_window()` 取锁→快照 `wndproc`→**放锁→同步调用托管 WndProc**，**全函数没有一个深度/重入计数器**。
+3. 同步派发点**共 16 处**（`win32_core.c` 14 处 ＋ `win32_msg.c:744/840`），其中形状上会成回声环的三对：
+   `WM_CAPTURECHANGED`（`:1367` `SetCapture`/`:1380` `ReleaseCapture`，**波 47 修 `D-G55` 时新增**）、
+   `WM_SETFOCUS`/`WM_KILLFOCUS`（`:1337`/`:1323`，`D-G66` 就是这一对，实测**同一窗口被打 3265 次**才死）、
+   `WM_NCHITTEST`（`:602`，触发点 `win32_x11.c:1002` 的 X Button1 路径，**在泵内部**）。
+
+**为什么这条值得押**：栈溢出**不产生托管异常**、日志**一个字都没有**、进程**以 SIGSEGV 收场**（不是 `rc=134`）—— 与三份 0 字节日志**逐条吻合**。
+**判据（送进车道）**：`bt 400`（默认 25 帧**看不见周期**）＋ `grep -c wpf_dispatch_to_window` ≥20 成周期 ＋ `info registers rsp` 距栈底 <1 页
+⇒ 定案为 `stack_exhaust`，并**指名是哪一对 `WM_*`**。**若证伪也要留读数**（这条假设被推翻本身是结论）。
+
+### §13.3 当前件与指纹（**波前快照，供波尾对照**）
+
+```
+九位（只列变化位）:  windowsbase 79740e9ba7fbf9ca → 2e4e46e539a72cd7   （D-G65）
+                    win32shim  （…→ c2674871…→）→ 054037aadfd7d192   （D-G66 / D-G64 / N1）
+未变: wpfgfx_cor3.so e3ea092010734f44 ｜ pc 9465f9dce39e2dfc ｜ pf 1011da6390c3bf1e
+inputs_fp = 8c733395db0dd12ffe6d7371c23f6ca3d2d9beb0c30a8a08fe8908a46b78cc5d   （#48 冻结值 = cad0801c…，**已按预登记 §4 位移**）
+牙: BASELINESHA=PASS ｜ DEFREG=PASS declared=97 ｜ COLUMN_FLOOR=PASS ｜ ARMLOG_SHA=PASS ｜ REPIN_GENERATION=PASS
+   ⚠️ 上行的 `declared=97` 是**波前快照**；§13.4 ① 把 `D-G62`…`D-G70` 九条登记完之后现场是 **106**
+      ⇒ 波尾对照时**不许把 97→106 读成"波中漂移"**，它正是本波一次性登记动作的结果。
+```
+
+### §13.4 波尾之前还要办的（**主控动作，不派车道**）
+1. ✅ **已办（本趟）**：`D-G62`…`D-G70` **九条一次性登记进 `KNOWN-DEFECTS.md`**（新增一节 `#49` 波前新登记，每条带 现象/判定点/修法/判据/边界）＋ 重生成声明表。读数：`DEFREG=PASS declared=106 route_ids=106`、**`DEFREG_DECLDRIFT=0`**（重锚后归零；此前是 2）、`BASELINESHA=PASS`（**没碰冻结基线** `AB=540725342059b820`）、`VERIFYALL_SELF=PASS names=25 gen=#48`。件：`KD=ab9bb9e5ddfdb0df`（原 `698bfc6452ea8520`）。
+   ⚠️ 剩下的 `D-G68`（同族第二个等待站点，`ReaderWriterLockWrapper.cs:287`）是**代码**活，不是登记活 ⇒ 仍在 §3 的落地清单里。
+2. ✅ **已办（`#49` 主控，2026-09-21 01:xx）`C1c` 处置 = "刷新"，但先把根因修掉** —— 二选一里那个"查部署意图"的问法本身把因果搞反了。
+   **根因**：`build/third-party/WpfLinux.props`（发给第三方的接入配方）**自己发了一份配置声明**
+   （`WpfLinuxBuildConfiguration` 默认 `Debug`），与全仓**唯一声明** `build/SelfBuiltConfig.props`（= **Release**）**分叉**
+   —— 正是 `#39` 那份文件头警告的"同一语义两处声明 ⇒ 必然分叉"族。机制：`run-thirdparty-mini.sh:104` 用
+   `-c $SELFBUILT_CONFIG`（Release）构建**应用**，却**没传**框架配置 ⇒ 引用 **Debug** 自产件 ⇒ 副本内容**必然** ≠ 权威。
+   **修法**：配方 `Import $(WpfLinuxRoot)/build/SelfBuiltConfig.props`，默认值**从唯一声明派生**（保留显式覆盖这个"故意跨配置"口子；
+   覆盖后仍被 `CROSS-CONFIG` 格记录并**照样判**）。另加一条"取不到声明就**大声失败**"的 `Error`（原样会塌成 `bin//X.dll`，长得像"文件不存在"）。
+   **读数（逐条复算）**：
+   | 项 | 修前 | 修后 |
+   |---|---|---|
+   | MSBuild 求值 `-getProperty:WpfLinuxBuildConfiguration` | `Debug`（配方自带字面量） | **`Release`**（= 脚本读到的唯一声明）；显式 `-p:` 覆盖仍得 `Debug` |
+   | 4 份副本 sha（PF/WB × Debug/Release） | `e9ea2f57…`/`e9ea2f57…`/`19de048e…`/`1b385c64…` | **`1011da6390c3bf1e`/同/`2e4e46e539a72cd7`/同** = 逐条 == 权威 |
+   | 检查器 | `UNEXPECTED=16[DECL-GAP-EQ=12 DECL-GAP-DIFF=**4**]` | `UNEXPECTED=16[DECL-GAP-EQ=16 DECL-GAP-DIFF=**0**]` |
+   | 该册读取器 | `在册 42 条：仍红 42 ｜ 已转绿 0` | `在册 38 条：仍红 38 ｜ 已转绿 0`（4 行按读取器口径移除，见下） |
+   **⚠️ 这 4 条并没有变绿**（如实划界）：它们从「内容不同的未声明副本」（`DECL-GAP-DIFF`，硬红）转成「内容 == 权威、仍不在声明图里」
+   （`DECL-GAP-EQ`）—— 现行口径 `UNEXPECTED>0` **照样判红**。登记册 `known-red-PFWB-copies.md` §3 已按读取器自身的口径
+   （`:1099-1102` "`sha == 现权威` ⇒ 计已转绿、应从表里删"）**移除那 4 行**，并在原处写明"这不是洗白"的两条理由。
+   ⇒ **新增待办（`#50`）**：全仓 `DECL-GAP-EQ` 已 **12 → 16**，其中**只有 1 条**在 `D-A1` 里登了记 ⇒ **15 条"红而无登记"**；
+   要办的是**补声明图**（让 `applocal-expect.py` 的引用点闭包覆盖"只经 `WpfLinux.props` 接线"的样例），
+   **不是**调小计数、更不是删 `ITEMS`。
+   **旁证（如实记，未处置）**：另一册读取器长期打印 `在册 13 条：仍红 1 ｜ 已转绿 12` —— 那 12 行是**别的册子**的同类噪声
+   （前置既有，非本波产生）；主控本趟**未动它**（不属本项写域，且与 MVP 无关）。
+   **件**：`build/third-party/WpfLinux.props` `bdc3954b4a129112`、`known-red-PFWB-copies.md` `8ee55c8f01e41eb9`。
+3. `R-GATE`：把"连续点击"从仓外临时仪器收编进门禁（判据已在 §3 B3 写死；**要一并搬 `$HOME/w47b-click.sh` 进仓 + 给机器裁决**）。
+4. 之后才是 §6 的收尾链：`integration-wave` → 重取五臂 → `repin-generation` → 门禁 ×2 → 冻前 `verify-all`（预期**恰好 1 处**声明类红）→ `w27-freeze.py … '#49'` → 冻后 `verify-all` ×2 → 收尾记录三段。
+6. **【`#49` 波中新发现 · 产品级】用户那条 `run-hc.sh` 跑到的 demo **没有异常守护**（源码有、产物没有）**
+   —— 读数（2026-09-21 00:1x 主控实测）：`.../bin/Debug/net10.0/HandyControlDemo.dll` **构建时间 09-20 09:18**、
+   `grep -c 'HC-UNHANDLED' <dll>` = **0**（= 守护**没编进去**），而源码 `Shared/HandyControlDemo_Shared/App.xaml.cs:62-63`
+   此刻两行都是注释掉的（W60A 的**反极性**态）。⇒ **用户现在切「富文本/流文档」是"整进程死"（rc=134），不是"只这一页出不来"**
+   —— 也就是说 §12.5 那条"止损"**只在源码里，没到用户手上**。
+   **处置**：① 已请 W60A 跑完反极性即还原并重建（并回报 dll sha16 ＋ `grep -c` 读数）；② `~/run-hc.sh` 已加**体检行**
+   （逐件打印 demo 自身 sha16／构建时间／异常守护有无，守护=无 时**明确写"会整进程死"**），并把原来**写死两个 sha 当"参照"**的过期谎言
+   换成机器对照（`sync-applocal.sh --check` ＋ demo 自身读数）。
+   ⚠️ 根因是"**demo DLL 不在五件同步范围里**"⇒ 谁最后构建谁赢（本仓老族"两处真相"）；修法（要不要把 demo 也纳入同步/或让 run-hc 自动重建）**留给 `#50`**，本波只做"看得见"。
+7. **【主控仪器】** 新增产品级验收 `~/mvp-accept.sh`（私有 Xvfb ＋ 可选 WM ＋ **整条进槽** ＋ 五件 sha 跑前跑后对照 ＋
+   窗口"缩/放/移"读数 ＋ 复用 W60A `navsweep.py` 按应用自报 `[GEO]` 坐标点击 ＋ 退出分类 `134/137/139`）。
+   **本轮尚未取得有效读数**（三趟作废：两次因我自己的工具缺陷、一次因"先等窗口再等槽"的顺序错——已修）。
+   ⚠️ 它同时是 `R-GATE`（§13.4 ③）的候选载体：**要么**把它的窗口+点击判据收编进门禁，**要么**収编 `~/w47b-click.sh`，二者取一，不许两套。
+5. **W63A 交付后再定**：若静默 SIGSEGV（`rc=139`/0 字节日志）的判决点证实为**本移植的独立缺陷**，要在冻结前**补登记一条新编号**（进 `KNOWN-DEFECTS.md` ＋ 重生成声明表）；若 `NOINFO` 或证实为运行时/系统库侧，则**不登记编号**，只在收尾记录里如实写"N 次未复现／落在 X 层"。⚠️ 两种情况都**必须在冻前定**，否则冻后登记会造成 `declared` 漂移。
+
+### §13.4-③ 【已办】`0x6c`/`0x70` 实现后的“连带红”同步（TASK-9903，2026-09-21 主控）
+
+| 件 | 改什么 | 成对读数 |
+|---|---|---|
+| `tests/.../CommandRoundTripTests.cs` `be06c15e66600833` | “未实现命令返回 `E_NOTIMPL`” 用例原拿 `0x6c` 当**稳定** `E_NOTIMPL` ⇒ 改成 `0x0a MilCmdD3DImage` | **反极性**（放回 `0x6c`）`[FAIL] 失败:1` → **正极性** `失败:0，通过:1` |
+| `tests/.../CommandCoverageTests.cs` `50559c6143d61c22` | `notImpl 7→5`、`implemented 110→112`、`withPayload 97→99`、`PixelShader/ShaderEffect` 两条 `Contains`→**`DoesNotContain`**（反向护栏） | `dotnet test`（槽内）**`失败:0，通过:562，总计:562`、`rc=0`**；两次红→绿的期望/实际值（110→112、97→99）都是**跑出来读的**，不是猜的 |
+| `tests/.../GoldenBinaryReplayTests.cs` `39c3a7b45dbadd3d` | `AllowedNotImpl` 白名单**摘掉** `0x6c`/`0x70`（已实现的两条不许留在“允许未实现”里 —— 那等于给**静默回退**开绿灯） | 摘掉后重跑**仍 `失败:0，通过:562，总计:562`、`rc=0`** ⇒ 摘得掉、且从此“这两条又变回 `E_NOTIMPL`”会**当场变红** |
+| `docs/unimplemented.md` `66abdab7fc342cab` | C 类 `6→4`、顶层 `7/118→5/118`、`已实现 112/118`、总数核对 `5+112+1=118` | 与上面两条测试同源（同一套数字） |
+
+⚠️ **仍未办**：① `verify-all` 第 2 步（全套测试）未跑；② `GoldenBinaryReplayTests.cs` 注释是否过期未核（W62A 报“可能过期”）。
+⇒ `TASK-9903` 记为 **部分完成**（Commands 一套已绿），`TASK-9904`（收尾链）未动。

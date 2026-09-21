@@ -2167,3 +2167,102 @@ AE 上界本就在 1 万量级；`P3>20000` 是按"弹窗=一整块白"的几何
   ——后三者**正是第 `[10]` 步 `DEFECT-REGISTRY` 的两个 route 件 ＋ 声明件** ⇒ 该步读数 `declared 96→97`（两趟都 PASS，两版各自自洽；W51A 逐项复算 `DECL-ANCHORS` 与现场件全同、含 `AB=540725342059b820`）。
 - **教训（已进 runbook）**：**"只改文档"不等于安全** —— **route 件（`KNOWN-DEFECTS.md`）与声明表（`defect-registry-declared.tsv`）也是判定输入**（第 `[10]` 步读它们）⇒ **验证运行期间一律不许改**。
 - 与 `#47` 那次对照：那次我改的是 `verify-all.sh` 本体 ⇒ **整趟作废**；这次改的是"被判的输入" ⇒ 两趟仍各自自洽但**读数出现 `96→97` 的漂移**。两次都留档，不粉饰。
+
+---
+
+## `#49` 波前新登记（`D-G62` … `D-G70`）＋ 波中新登记（`D-G71`…`D-G74`，2026-09-21）
+
+> 口径：这九条都是 `#48` 冻结之后**用户实测 / 车道取证**新立的，**登记 ≠ 已容忍**。
+> 每条都带"现象（读数）→ 判定点（`文件:行`）→ 修法/处置 → 判据（含反极性）→ 边界"。
+> 完整读数在 `docs/WAVE49-PREREGISTRATION.md` §10–§12。
+
+### `D-G62`（**判据件缺陷**）：`NO-AUTHORITY` 在"权威=声明配置"下**结构性不可达**（恒 0 的死格）
+- 现场：`build/DirectWrite.Linux/wic-shim/check-applocal-sync.sh:369` 的 `if is_release_path "$f" && is_debug_auth "$exp"` 在 `SELFBUILT_CONFIG=Release` 下**恒 false**（`is_debug_auth` 匹配**权威**路径 `*/bin/debug/*`）⇒ `NO-AUTHORITY=0` 永远为 0。
+- 后果两条：① 一个**恒 0** 的格子**读起来像"跨配置已被处理"**（假保证族，与 `D-R4`/`D-G22` 同族）；② 旧口径句"Release 副本按 `NO-AUTHORITY` 只提示"**方向已反**（今天 Release 才是权威）。
+- **已修**（车道 W52C2）：改成具名诊断格 **`CROSS-CONFIG=<n>`**（条件 = 副本路径配置 ≠ 声明配置），**仍不判红**，但**跨配置副本照样计入 `STALE`**（只增可见性、不放松任何一条）；散文句同趟逐字对账；旧格/`is_debug_auth`/`CNT_NOAUTH` 已删（`grep -c` = 0）。
+- 判据（成对）：跨配置目录里放 sha≠权威 的副本 ⇒ `CROSS-CONFIG=1` **且同一路径同时印 `STALE`**；挪进声明配置目录 ⇒ `CROSS-CONFIG=0`、**仍 `STALE=1`**。
+- 边界：真实树 `CROSS-CONFIG` 明细 **101** 行；PF/WB 的 34 条 `STALE` 里 **29 条**同时带该行。
+
+### `D-G63`（**判据棘轮缺陷**）：`SELFCONFIG_DEBT_CHECK` 看不见"写死的**配置值**"
+- 现场：棘轮图案是 `grep -rn "bin/Debug"`（**按行**），而 `build/DirectWrite.Linux/wic-shim/applocal-expect.py:121` 写的是 `PROPS[...] = "Debug"`（**不含 `bin/Debug`**）⇒ 本波把该行改成**跟随声明**之后，棘轮读数 `140 → 139` 的那 **1 行**其实来自"把本文件里唯一一处含该字面串的**散文**改写"，**不是修法成效**（车道 W52C3 如实声明）。
+- 后果：下一个同类硬编码照样能活过 `#39` 的翻值。
+- 处置（波内）：把图案**扩到配置值字面量**（`"Debug"`/`"Release"` 赋给配置类名字/键的行），并保持"只许减少"。
+- 判据（成对 + 防作弊）：造一处写死的配置值 ⇒ 棘轮**必须加账**且 `--debt-check` 报 `FAIL`；改回 ⇒ 减账回绿；且**不许**为本次改动上调 `DEBT_MAX`。
+
+### `D-G64`（**产品缺陷**）：有窗口管理器时**点击全被吞**（用户原话"界面里点击没反应"）
+- 现象（用户会话）：任何点击都无反应；应用 `alive=yes`、画面正常。
+- 判定点：`src/WpfGfx.Linux.Native/src/win32_core.c` 的 `WindowFromPoint` 原先只返回 **root 的直接子窗口**；有重定父 WM（xfwm4/gnome）时那是 **WM 框架窗**（实测 `0x200264`）≠ 客户窗（`0x200004`）⇒ 上游 `HwndMouseInputProvider.ReportInput`（`:1285-1320`）把它与自己的 hwnd 比对、不等 ⇒ 判 `Spurious mouse event` 并 `return false`（而 `_active=true` 在 `:1329` ⇒ **永不恢复**）。
+- **已修**：改为**逐层下沉**到"含该点、且**属于本进程**的最深窗口"；整链无本进程窗口时**原样返回顶层**（Win32 行为）；新增只读诊断 `WPF_LINUX_WFP_DIAG=1`。
+- 判据（四腿）：修后+有WM ⇒ 9 击 `preMouseDown` 全 >0、`AE` 最高 232434、`ret=`客户窗；修后+无WM ⇒ 逐位相同（无回归）；修前+有WM ⇒ 12 击全 0；**同进程杀掉 WM** ⇒ 下一击立刻恢复（单变量强证）。
+- 边界（**验收装置教训**）：本工程此前所有验收都在**无 WM** 的 Xvfb 上跑 ⇒ 这一整类缺陷**永远测不出来**；验收必须补"有 WM"的腿。
+
+### `D-G65`（**产品缺陷**）：**启动即死**（UI 线程锁竞争撞上"等待桩"）
+- 现象：`Unhandled exception. System.ComponentModel.Win32Exception (50): No CSI structure available` ← `UnsafeNativeMethods.WaitForMultipleObjectsEx` ← `DispatcherSynchronizationContext.Wait` ← `Monitor.Enter_Slowpath` ← `ResourceDictionary.GetValue`；修前**单实例 7/38 ≈ 18%**（死亡全在启动 1.5–2.0 s）。
+- 判定点：`src/WpfGfx.Linux.Native/src/win32_misc.c:385-386` 的 `WaitForMultipleObjectsEx` 是**失败桩**（`wpf_set_last_error(50); return WAIT_FAILED;`）；WPF 在 `_dispatcher._disableProcessingCount > 0` 时**必须**走原生那一支（`DispatcherSynchronizationContext.cs:91-99`）。
+- **已修**：用应用器 `patch-windowsbase-focus-wait.py` 把 `DispatcherSynchronizationContext.Wait` 的**两个分支合一**，都走托管 `WaitHelper`（`windowsbase 79740e9ba7fbf9ca → 2e4e46e539a72cd7`）。
+- **同时否证了两条 shim 侧"修法"**：`WAIT_TIMEOUT` 是**契约违规**（`taken=True` 而持有者仍持锁 ⇒ 临界区裸奔 + `Monitor.Exit` 抛 `SynchronizationLockException`）；`WAIT_OBJECT_0` 是**忙等**（2.5 s 争用烧满核 2.5 s vs 托管路 0.03 s）⇒ 两条都不落地，shim 逐字节复原。
+- 判据：修后单实例 ≥20 趟 **0 死**（实测 0/30）；站点级确定性探针 修前 `THREW Win32Exception(50)` → 修后 `ACQUIRED elapsed_ms=2498`。
+
+### `D-G66`（**产品缺陷**）：点页签就崩（`SetFocus ⇄ WM_SETFOCUS` 闭合递归环）
+- 现象：托管 `Stack overflow.`（`rc=134`）或裸 SIGSEGV（`rc=139`）；**最小复现只要 2 击**（先点一个导航项、再点一个页签）。
+- 判定点：`src/WpfGfx.Linux.Native/src/win32_core.c` 的 `SetFocus` 派发 `WM_SETFOCUS` **缺 `old != hwnd` 守卫**（紧邻的 `WM_KILLFOCUS` 有），破坏上游 `HwndKeyboardInputProvider.cs:114-124` 逐字依赖的不变式"已拥有 Win32 焦点的 HWND 不会再收到 `WM_SETFOCUS`"⇒ 我们同步回调 WndProc ⇒ 环不终止（车道实测 `Repeated 3265 times:`）。
+- **已修**：加守卫（X 侧 `wpf_x11_set_input_focus` 保留）。
+- 判据（两极化，同 2 击）：修前 `alive=no rc=134`、`setfocus=4034`；修后 **`alive=yes`**、两击 `AE` 225596/182274（都真换页）、`setfocus=0`。
+- 边界：车道 W54A 的**"完整 9 击腿修前/修后逐行相同"**（唯一差异是插入符相位噪声 `AE 7647 vs 7677`）。
+
+### `D-G67`（**产品缺陷·仓外件触发**）：起第二个实例 ⇒ **未处理异常**
+- 现象：第二实例启动即死：`InvalidOperationException: Cannot set ShutdownMode when application is shutting down…` @ hc `App.xaml.cs:84`（`EnsureSingleton()` 发现互斥已存在 ⇒ `Shutdown()`）。
+- 处置：起第二个实例必须是**可解释的退出**（而不是未处理异常）—— 由 demo 侧或端口侧裁定；本波只登记。
+- 判据：同命令起两个实例 ⇒ 第二个进程的退出**不是**未处理异常（退出码/日志可解释）。
+
+### `D-G68`（**产品缺陷**）：**同族第二个等待站点**（`ReaderWriterLockWrapper`）
+- 现场：`upstream/…/Shared/MS/Internal/ReaderWriterLockWrapper.cs:287-290` 的 `NonPumpingSynchronizationContext.Wait` 是**同族第二个、无条件**的原生等待调用点（由 `CallWithNonPumpingWait` 在 `WeakEventTable` 每次读写锁进出装上）⇒ 与 `D-G65` 同根，只是入口不同。
+- 产品级可达性：**`NOINFO`**（修前 36 趟死亡无一落在它）。
+- 处置：**与 `D-G65` 同趟修**（同一应用器家族），判据 = **站点级"不抛 `Win32Exception`"**；产品级可达性保持 `NOINFO`（不许把站点级读数写成产品级证据）。
+
+### `D-G69`（**产品缺陷·含一处回归**）：窗口**不能放大/最大化** ＋ **双层窗框**
+- 现象（用户在 `:10` 实测）：① 窗口不能最大化、拖边框也不缩放；② 应用（HandyControl）自绘标题栏之外又被 WM 套了一层窗框。
+- 判定点三跳：① **回归** —— 上一趟新加的 `WM_NORMAL_HINTS` 把 **`PMaxSize` 设成了"钳制后的尺寸"**（`src/WpfGfx.Linux.Native/src/win32_x11.c:1163-1213`）⇒ WM 侧不许放大/最大化；② `WM_NCHITTEST` 被 shim **吞掉**（`win32_core.c:1411` 恒返回 `HTCLIENT`）⇒ WPF/`WindowChrome` 的**自绘标题栏与缩放边框命中测试永远收不到**；③ `_MOTIF_WM_HINTS` **故意不设**（`win32_x11.c:1182`）⇒ caption-less 窗口仍被 WM 装饰。
+- 处置：车道 W59A（`PMaxSize` 不再用钳制值／`WM_NCHITTEST` 按位置真回答／caption-less 设 `MWM_DECOR=0`）。
+- 判据（四格）：大屏能放到 1200×900、双击自绘标题栏能最大化；自绘标题栏能拖、右下边框能缩；无 caption 的窗口**没有** WM 框架父窗而**有 caption 的仍被装饰**；800×600 屏不回归（初始尺寸仍装得下）。
+
+### `D-G70`（**产品缺陷**）：**PTS / 原生 LineServices 未实现** ⇒ 切「富文本」「流文档」页 **abort**
+- 现象：`Unhandled exception. System.EntryPointNotFoundException: Unable to find an entry point named 'CreateInstalledObjectsInfo' in shared library 'PresentationNative_cor3.dll'` ← `MS.Internal.PtsHost.PtsCache.AcquireContext`（`PtsCache.cs:70`）← `CreatePTSContext`（`:433`）← `InitInstalledObjectsInfo`（`:640`）⇒ `rc=134`。
+- 判定点：本移植**没有 LineServices**（`src/WpfGfx.Linux.Native/src/win32_classification.c:52` 自述：那 **111 条 `Fs*`/`Lo*` 缺口**就是它）⇒ 凡走 **FlowDocument/RichTextBox（PTS）** 的页面**必 abort**。复核：`grep -rln "RichTextBox\|FlowDocument" --include=*.xaml <hc demo>` ⇒ 就 `UserControl/Styles/{FlowDocumentDemo,RichTextBoxDemo}.xaml` 两页。
+- 处置：**本波不修**（真修法属路线 R3 文本栈）；**止损**（仓外 demo 侧，`App.xaml.cs` 的 `InstallUnhandledGuard()`）把"进程死"降级成"这一页渲染不出来、别的页还能用"，并打**大声**日志 `[HC-UNHANDLED] …`。判据：点这两页 ⇒ `alive=yes` ＋ 日志出现该前缀；**崩过之后**再点正常页仍能换页；反极性 = 注掉守护 ⇒ 必须复现 `rc=134`。
+- ⚠️ **【2026-09-21 更正 · 车道 W60A 三条腿实测：上面那条"止损"是无效的】** 守护**接住**了第一个异常
+  （正极性腿日志：`[HC-UNHANDLED] #1 EntryPointNotFoundException … ｜ 首帧 …CreateInstalledObjectsInfo`），
+  但 **PTS context 根本没建起来** ⇒ 下一遍布局再问一次 ⇒ `PtsHost.cs:52-55` 的 `Invariant.Assert(_ptsContext != null)`
+  失败 ⇒ `Invariant.cs:192-204` 调 **`Environment.FailFast`**（**不可捕获**，绕过 `DispatcherUnhandledException`）
+  ⇒ 日志续打 `Unrecoverable system error.` / `Process terminated.` ⇒ **rc 仍是 134**（反极性腿与用户现场
+  `/tmp/hc-run-232817.log` 签名逐字相同）。**⇒ "进程死"没有被降级成"这一页渲染不出来"：切这两页照样整进程死。**
+  只有 **R3（PTS / 原生 LineServices）**能真解决。另：任何**静态**判据（`strings`/`grep`）都分不出守护在不在
+  （注掉的只是"调用"、方法体还在）⇒ 只能看**行为**读数。
+- 边界：**"不崩"不等于"能用"** —— 这两页仍然**不渲染**；README 要出"会崩/不支持页清单"。
+
+
+### `D-G71`（**产品缺陷 · "静默 no-op"族**）：**视觉级效果 `MilVisualNode.Effect` 写了没人读** ⇒ 效果被静默丢弃
+- 现象：`Effects` 页在修好 `D-G58`（`0x6c`/`0x70` 收得下、不 abort、有具名台账）之后**仍然不渲染效果**——渲染层的"未画种类"读数 = **0**（即**没有任何东西**被记为"我看见了但画不出来"）。
+- 判定点：`MilVisualNode.Effect` 全仓**只有一个写入点**（`src/WpfGfx.Linux/Commands/MilCommandDispatcher.cs:177`）＋ 一个单元测试读它，**渲染层从不消费** ⇒ 挂在"视觉"上的效果在绘制前被丢掉。
+  同批读数（车道 W62A，`build/MilBridge/W62A-report.md` `731b6846c08fe5ac`）：`VisualSetEffect` 是 **`0x1d`**（**不是 `0x10`**——`0x10` 是 `MilCmdPointResource`；车道先用错命令字数成 0、更正后重数）**11 条**，与 12 条 shader 命令**逐条相邻**（`mil.log:6301-6325`）⇒ hc 正是把效果挂在视觉上。
+  **同族对照**（这条是判据的关键）：`MilPushEffect` 那条路**有** `NotDrawn` 台账；**这一条没有** ⇒ 属"**静默** no-op"（本仓反复登记的那一族）。
+- 处置：**本波不修**（修法要动 `Rendering/**`，不属本波写域）；本波**只登记**＋把判据写死：**要么消费它，要么像 `MilPushEffect` 一样进 `NotDrawn` 台账**——**不许静默**。
+- 边界：本条只判"**视觉级效果被丢弃**"这一事实；"WPF 效果（Blur/DropShadow/ShaderEffect）在 Linux 上应当怎么渲染"是**策略**问题，属路线 R3/R4，不在本条内。
+
+### `D-G72`（**产品缺陷 · 用户可点到的崩溃**）：点 hc 顶部菜单条 ⇒ `ScreenHelper.FindMonitorRectsFromPoint` 抛 **`NullReferenceException`** ⇒ 进程 `rc=134`
+- 现象（车道 W59A 实测，报告 `c7c1c6d21c7d06d1` §4）：在客户区坐标 **+150,+14**（hc 示例顶部菜单条）按一下 ⇒ **未处理 `NullReferenceException`** ⇒ 进程死（`rc=134`）。**修前件 `054037aadfd7d192` 同样可复现** ⇒ 与 W59A 本趟三处修法**无关**，是既存缺陷。
+- 判定点（待下一波细化）：`ScreenHelper.FindMonitorRectsFromPoint` 这条**多显示器/监视器矩形**的路径在本移植上返回了不完整数据（本移植**未实现多显示器**，登记在案）⇒ 调用方对 `null` 没有防御。**本波只登记，不修**（属监视器信息面，需先定"Linux 上监视器矩形怎么给"）。
+- 处置：登记 ＋ **用户话术**：hc 示例**顶部菜单条暂时别点**（会整进程死）。真修法要么补齐监视器矩形，要么让该 API 在信息不全时**如实失败而不是返回 null**（"不许静默"）。
+- 边界：本条只判"点菜单条 ⇒ NRE ⇒ 进程死"；多显示器本身是**未测/未实现**（`docs/CURRENT-STATE.md` 在册），不在本条内。
+
+### `D-G73`（**产品缺陷 · 已修**）：**`WM_SYSCOMMAND` 未实现 ＋ `ShowWindow(SW_MAXIMIZE)` 是空操作** ⇒ 最大化/最小化按钮与 `WindowState` 全无效
+- 现象（车道 W59A 定，报告 `c7c1c6d21c7d06d1`）：点应用自带最大化按钮 / 程序设 `WindowState=Maximized` ⇒ **窗口不动**；`ShowWindow(SW_MAXIMIZE)` 在本 shim 里是**空操作**，`WM_SYSCOMMAND`（`SC_MAXIMIZE`/`SC_MINIMIZE`/`SC_RESTORE`）**整条未实现** ⇒ 用户报的"无法最大化"有一半根因在这里（另一半是 `D-G69` 的 `PMaxSize` 钉死）。
+- 判定点：`src/WpfGfx.Linux.Native/src/win32_core.c` 的窗口状态路径（`ShowWindow`/`WM_SYSCOMMAND` 分支）；判定读法 = 点 Max 按钮后 `xprop _NET_WM_STATE` 是否出现 `_NET_WM_STATE_MAXIMIZED_HORZ|VERT` ＋ 几何是否等于屏幕。
+- 处置：**已修**（`#49` 波，W59A 定稿 `libwpfwin32.so = 11aa9d8fa154f20f`）。四格读数：① 双击自绘标题栏 ⇒ `MAXIMIZED_HORZ|VERT` ＋ `1280x1024@+0+0`，再双击 ⇒ 还原 `800x600@+200+150` ✅；② 拖标题栏 ⇒ 原点 +90/+110 ✅；③ 拖右下 ResizeGrip ⇒ `800x600→890x670` ✅；④ **点应用自带 Max 按钮 ⇒ 真最大化** ✅；反极性（只换修前 `.so`）逐条失效。
+- 边界：`_NET_WM_MOVERESIZE` 在 xfwm4 上**声称支持但实测无效**（外部单发不动）⇒ 拖动改为"自己按 motion 驱动 ＋ 每帧 `_NET_MOVERESIZE_WINDOW` ＋ X 指针抓取"；"已最大化态下再双击还原/最小化"仍为**矛盾读数**（`NOINFO`，见 TASK-0104）。
+
+### `D-G74`（**产品缺陷 · 已修**）：**`ConfigureNotify` 的 x/y 是父窗相对坐标** ⇒ `GetWindowRect` 原点错 ⇒ 命中测试整条偏掉
+- 现象（车道 W59A，同上报告 §1.6）：xfwm4 **连无装饰窗也 reparent** ⇒ shim 直接拿 `ConfigureNotify` 的 x/y 落表 ⇒ 原点被记成 (0,0) ⇒ `WindowChromeWorker` 的命中测试整条偏移 ⇒ **外部 resize 之后拖动/按钮全部失效**（`[NC_DIAG]` 从 `ht=2 HTCAPTION` 掉成 `ht=1 HTCLIENT`）。
+- 判定点：`src/WpfGfx.Linux.Native/src/win32_x11.c` 的 `ConfigureNotify` 处理（改用 `XTranslateCoordinates` 换算成 **root 坐标**）。
+- 处置：**已修**（同 `11aa9d8fa154f20f`）；判据 = 外部 `xdotool windowsize` 之后 `[NC_DIAG]` **仍**答 `ht=2`（自绘标题栏）/`ht=17`（ResizeGrip），拖动与按钮仍生效。
+- 边界：这条**只在有 reparent WM 时**才显形 ⇒ 无 WM 的 Xvfb 上测不出来（读数必须带"有/无 WM"两条件）。
