@@ -446,7 +446,35 @@ RC=0
 
 ## §12 推送（第六笔）
 
-见 §12 后续小节（推送后在下方**追加**实际执行读数）。本报告自身的 `sha16` 亦在推送前现场重算后追加。
+**第六笔文档推送**（`C8`；**逐径 `git add`，未用 `-A`／`--force`**）
+
+### 12.1 推送前后 head（**push 之后重新 fetch** 再核 —— W107A 踩过假 `MISMATCH`）
+
+| 读数 | 值 |
+|---|---|
+| 推送**前** `HEAD` | `7df4426c568c588c733143b6b55889a5ee9457e3` |
+| 推送**前** `origin/feat-Linux`（fetch 后核） | `7df4426c568c588c733143b6b55889a5ee9457e3` ⇒ **`IN_SYNC`**（未落后，无上游客） |
+| 提交 | `c5405b52d10b67abe684a63575cdb0537012cce9`（`4 files changed, 509 insertions(+), 4 deletions(-)`） |
+| 推送**后** `HEAD` | **`c5405b52d10b67abe684a63575cdb0537012cce9`** |
+| 推送**后** `git ls-remote origin HEAD` | **`c5405b52d10b67abe684a63575cdb0537012cce9`** ⇒ **`HEAD` ＝ `ls-remote HEAD`** ✅ |
+| 推送**后**重新 fetch 的 `origin/feat-Linux` | `c5405b52d10b67abe684a63575cdb0537012cce9`（**`7df4426..c5405b5`**）⇒ **三处同值** |
+| `ls-remote --symref origin HEAD` | `ref: refs/heads/feat-Linux	HEAD` ⇒ **仍 `feat-Linux`** ✅ |
+| push 输出 | `7df4426..c5405b5  feat-Linux -> feat-Linux` |
+
+### 12.2 `BYTECHECK`（逐件字节核对：`git cat-file blob <rev>:<path>` **vs 克隆磁盘** **vs `R` 磁盘**）
+
+```
+BYTECHECK ok=4 mismatch=0 nobody=0
+```
+| 件 | blob sha16 | 三处一致？ |
+|---|---|---|
+| `build/MilBridge/W108A-report.md` | `da18ca4d65d4bce8` | ✅ 一致 |
+| `samples/WpfFeatureProbe/KNOWN-DEFECTS.md` | `499c46ce7954d52f` | ✅ 一致 |
+| `docs/ROUTES.md` | `67e2f06487eb8280` | ✅ 一致 |
+| `build/MilBridge/tools/defect-registry-declared.tsv` | `05169ff42874a834` | ✅ 一致 |
+
+- `nobody=0` ⇒ **本笔无"仓内没有的件"**（W104A 那次 `nobody=1` 是"报告当时还没落盘"）。
+- **未推** `tests/parity/**` 两件（§8）；**未** add／推邻道在写的件（`nul-bytes-check.sh`／`src/**`／`build/*.Linux/**`）；**未**改 `.gitignore`。
 
 ---
 
