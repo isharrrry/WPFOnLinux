@@ -79,7 +79,15 @@ TXT
 # 口径：`<仓相对路径>:<行号>`，行号会漂 ⇒ 若声明项在现场不再命中 HIT ⇒ `decl-stale` ⇒ FAIL。
 read -r -d '' DECL <<'DECLEOF'
 # 文件:行 —— 理由（只许写"不在本车道写域"的现场真 HIT，且必须写明它防的是哪一次错判）
-tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpfprobe.sh:568|写域外(tests/**)；`grep -a '^\[KEY_DIAG\]' "$log" | head -4 | sed` 的 rc 被 `if` 消费：当日志里 KEY_DIAG 行 > 4 行时 head 先退出 ⇒ grep 吃 SIGPIPE ⇒ rc=141 ⇒ **那 4 行诊断被静默丢掉**（不改任何 verdict，只丢诊断）。数据面取决于日志长度 ⇒ 现场不可定 ⇒ 保留声明，建议 tests 车道同法改（`head -4 <<< "$(grep …)"`）
+# 【2026-09-22 · 车道 W113A】**本表当前为空**（原唯一那条已修掉，故同趟撤掉声明 —— 见下）。
+#   原条目逐字（**留档，不再生效**）：
+#     tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpfprobe.sh:568|写域外(tests/**)…
+#   为什么必须撤而**不是**放宽判据：本表只**豁免** HIT；`UNDECLARED_HIT` 的判据**一字未改**
+#   （任何未声明 HIT 仍 ⇒ FAIL）。而该站点**已被修掉**（`grep|head|sed` ⇒ 先收进变量再分两路印，
+#   判据文本一字未动）⇒ 它不再是 HIT ⇒ 留着就会 `decl_stale=1` ⇒ 按本件自己的口径**必须**同趟撤。
+#   现场读数：修前 `undeclared_hit=0 declared=1 hit=1` → 修后 `undeclared_hit=0 declared=0 hit=0`。
+#   ⚠️ 顺带**更正**原条目的判词：现场实测（`~/w113a/logs/`，>64 KiB 匹配载荷 3/3）**旧写法的 4 行诊断
+#     仍然照印**，"被静默丢掉"**不成立**；真后果是 `if` 语句 rc=141（数据面相关、当时无人消费 ⇒ 潜在）。
 DECLEOF
 
 # ── 主流程（扫描 + 动态实测都在这一段 python3 里；bash 只做三态/金丝雀/汇总） ─────────

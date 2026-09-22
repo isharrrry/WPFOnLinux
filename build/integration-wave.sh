@@ -318,7 +318,11 @@ for name in "${APPLIERS_EXPLICIT[@]}"; do
 done
 for f in $(ls src/WpfGfx.Linux.Native/tools/patch-presentation*.py 2>/dev/null | sort); do
     name="$(basename "$f" .py)"
-    printf '%s\n' "${APPLIERS_ALL[@]}" | grep -qx "$name" || {
+    # 【`D-G42` 族修法 · 车道 W113A · 2026-09-22】原为 `printf '%s\n' "${APPLIERS_ALL[@]}" | grep -qx "$name"`：
+    #   本件 `set -uo pipefail`（`:13`）⇒ `grep -q` 命中即早退 ⇒ `printf` 吃 SIGPIPE(141) ⇒ **rc 被翻转**。
+    #   换成**进程替换**：grep 看到的字节与原来**逐字节相同**（仍是"每元素一行"），
+    #   但生产端的 SIGPIPE **不再进管线 rc** ⇒ 判据（`grep -qx`，**一字未动**）不再被翻转。
+    grep -qx "$name" < <(printf '%s\n' "${APPLIERS_ALL[@]}") || {
         printf '  %-42s ⚠ 不在显式顺序表里，追加执行\n' "$name"
         APPLIERS_ALL+=("$name")
     }
@@ -347,7 +351,10 @@ done
 
 for name in "${APPLIERS_ALL[@]}"; do
     # 预应用器已在上面单独跑过（且跑在定向 port-lib **之前**）—— 这里跳过，避免顺序倒置后重跑。
-    printf '%s\n' "${PRE_APPLIERS[@]}" | grep -qx "$name" && continue
+    # 【`D-G42` 族修法 · 车道 W113A · 2026-09-22】同 `:321` 那处：`printf … | grep -qx` 在 `pipefail` 下
+    #   会把"命中"读成 rc≠0 ⇒ 本该 `continue` 的那一支**不 continue**、反而去重跑一遍应用器。
+    #   换成进程替换（grep 看到的字节逐字节相同）；`grep -qx` 判据**一字未动**。
+    grep -qx "$name" < <(printf '%s\n' "${PRE_APPLIERS[@]}") && continue
     printf '  %-42s ' "$name"
     out=$(python3 "src/WpfGfx.Linux.Native/tools/$name.py" 2>&1); rc=$?
     # ── 2026-09-11 主控补 · 空操作护栏（**实测事故**）────────────────────────────

@@ -102,14 +102,18 @@ if [ "$MODE" = "selftest" ]; then
   #    ⚠️ 这一例**在旧件上必须失败** —— 旧件在那两处都印 `$mag`，现场实测打的是 `magenta_frames=0`
   #    （同一份帧目录 `$HOME/w34-framepresence-043414`：不给 ⇒ 0、给 ⇒ 31）。
   raw="$(MIN_COLORS=200 WANT_MAGENTA=0 judge_dir "$T/content" 2>/dev/null)"
-  if printf '%s' "$raw" | grep -qE 'magenta_frames=[0-9]+'; then
+  # 【`D-G42` 族修法 · 车道 W113A · 2026-09-22】原为 `printf '%s' "$raw" | grep -qE PAT`。
+  #   ⚠️ 口径自认：本件**没有** `set -o pipefail` ⇒ 按 `pipefail-sigpipe-check.sh` 的口径它**不是候选**
+  #      （SIGPIPE 不会把 rc 翻转）。本处按 **同族形态预防性对齐**：把喂法换成 here-string，
+  #      **判据正则一字未动**；将来若有人给本件加上 `pipefail`，这里已经安全。
+  if grep -qE 'magenta_frames=[0-9]+' <<<"$raw"; then
     fail=$((fail+1)); printf '  ❌ 没给 --magenta 却仍打出数字形态：%s\n' "$raw"
   else
     pass=$((pass+1)); printf '  ✅ 没给 --magenta ⇒ 打 n/a（"没测"不冒充 0）\n'
   fi
   # 反极性：给了 `--magenta` 必须回到数字形态（否则上面那一例可能是恒真的空判据）
   raw2="$(MIN_COLORS=200 WANT_MAGENTA=1 judge_dir "$T/magenta" 2>/dev/null)"
-  if printf '%s' "$raw2" | grep -qE 'magenta_frames=[0-9]+'; then
+  if grep -qE 'magenta_frames=[0-9]+' <<<"$raw2"; then
     pass=$((pass+1)); printf '  ✅ 给了 --magenta ⇒ 数字形态（%s）\n' "${raw2##*magenta_frames=}"
   else
     fail=$((fail+1)); printf '  ❌ 给了 --magenta 却没数字形态：%s\n' "$raw2"

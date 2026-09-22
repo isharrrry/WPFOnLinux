@@ -166,7 +166,22 @@ REPO="${AUTH_ROOT:-$(cd "$(dirname "$0")/../../.." && pwd)}"
 #   该目录有 `GeometryOracle.runtimeconfig.json` ⇒ **是启动宿主**）**连枚举都没有过** ⇒ 连 sha 都没被打印。
 #   实锤（W22D §1.9 补的第 2 条、W23C 复核）：真正的漏扫是 `tools/`，**不是** `.artifacts/`
 #   （`$REPO/build` 一直在扫描根里 ⇒ `.artifacts/**` 一直在范围内，别再抄错这一句）。
-SCAN_ROOTS="${SCAN_ROOTS:-$REPO/build:$REPO/tests:$REPO/samples:$REPO/src:$REPO/tools}"
+# 【`D-G91` 修复 · 车道 W113A · 2026-09-22】**扫描根集合的唯一定义处**。
+#   原状：默认根集合被**两份实现**各写一遍 —— 本行（含 `$REPO/tools`）与
+#   `sync-applocal-authority.sh:59`（**漏 `$REPO/tools`**）⇒ 那个刷新器
+#   ① 用默认参数**永远刷不到**只藏在 `$REPO/tools/**` 下的 `STALE`；
+#   ② 更危险：它拿**收窄根**打出 **`STALE=0` 的假绿**（成对读数：默认＋`--apply` ⇒ `refreshed=0/STALE=0`，
+#      同刻全文口径 ⇒ `STALE=1`）。
+#   修法（**不含白名单、不动十类口径、不动任何计数器**）：默认根集合提成**具名常量** `SCAN_ROOTS_DEFAULT`，
+#   并新增**只读**模式 `--print-scan-roots` 供刷新器**派生** ⇒ "同一条语义存在两处必然分叉"在结构上消失。
+#   自检（刷新器那侧）：它算出的根集合**必须**与这里逐集合相同，否则**大声 `APPSYNC_ROOTS=MISMATCH`＋rc≠0**，
+#   且**在打印任何 `STALE=` 汇总之前退出**（收窄根再也打不出 `STALE=0`）。
+SCAN_ROOTS_DEFAULT="$REPO/build:$REPO/tests:$REPO/samples:$REPO/src:$REPO/tools"
+SCAN_ROOTS="${SCAN_ROOTS:-$SCAN_ROOTS_DEFAULT}"
+# `--print-scan-roots`：打印**生效的默认**根集合，**不扫描、不写盘、立即 exit 0**（`D-G91` 的派生入口）。
+for _a in "$@"; do
+    case "$_a" in --print-scan-roots) printf '%s\n' "$SCAN_ROOTS_DEFAULT"; exit 0;; esac
+done
 RETIRED="libole32.dll.so"          # 已退役别名：出现即错
 
 # 名字|权威路径|说明（权威为空 = 无法用单一 sha 定义，显式"不覆盖"+原因）
