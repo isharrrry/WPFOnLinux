@@ -48,6 +48,7 @@
 - 根因：`xprop` 的失败文案 `no such atom on any **window**.` 里的 `window` 被 `grep -q window` 匹配 ⇒ **谓词恒真**。
 - 现场：逐 0.25 s 计时 ⇒ `atom appeared at iteration 1`（≈0.25 s 就 `break`），**同刻** `xprop` 仍是 `no such atom`；真上位要 ~1–5 s。
 - 既有实例：`build/MilBridge/W53A/cell3.sh:26`；`W54A` 的 WM 腿同源。
+  - ⚠️ **路径笔误更正（W104A，2026-09-22）**：上一行的 **`build/MilBridge/W53A/` 仓内不存在**（`ls -d` 报"没有那个文件或目录"、`rc=2`；fork 克隆 `git ls-files | grep -i W53A` **只有 `build/MilBridge/W53A-report.md`**）⇒ **真身 = 仓外 `~/w53a/cell3.sh:26`**（`#50` 冻后由 W102A 修为 `a358f6fd38b3b387`）。上一行原文一字未动。
 - 后果：**方向安全但会骗人** —— 之后**立刻**取的自证行可能是**假阴性**（WM 其实在场）。
 - 处置：**本波只登记**；落地 = `TASK-0703`。修法一行：`grep -q 'window id #'`。
 - 留了**可反驳性**：若某 WM 给不含 `window id #` 的合法值，此判据需重写。
@@ -178,6 +179,8 @@ rc=0
 `- \`TASK-0703\` [Next] 🔴 **修掉"等 WM 起来"的恒真判定**（\`D-G89\` 的落地，波 \`#51\`）：把 \`xprop -root _NET_SUPPORTING_WM_CHECK | grep -q window\` 换成**真判据** —— \`xprop -root _NET_SUPPORTING_WM_CHECK\` 必须解析出**窗口 id**（如 \`grep -q 'window id #'\`）且 \`xprop -id <id> _NET_WM_NAME\` 可读，或直接判 \`_NET_SUPPORTED\` **非空** ＋ **重定父**；并**盘点**全仓同类写法（\`grep -rn '_NET_SUPPORTING_WM_CHECK'\` 逐处列出，已知既有实例 \`build/MilBridge/W53A/cell3.sh:26\`）。⚠️ 现状**方向安全但会骗人**：等待第一次就 \`break\` ⇒ 自证行可能打"WM 不在"而 WM 其实在场（**假阴性**）。`
 
 > ⚠️ **§5.4 里那个"全仓盘点"是留给 `TASK-0703` 落地时做的**，本条**未执行**（本件是登记车道，跑全仓 `grep` 会把 `arm-logs`/产物一起卷进来；且已知点仅 `W53A/cell3.sh:26` 一处 —— 见 §7 未做到项）。
+
+> ⚠️ **路径笔误更正（W104A，2026-09-22）**：§5.4 那段引文（以及 §1.2 行）里写的 `build/MilBridge/W53A/cell3.sh:26` —— **`build/MilBridge/W53A/` 仓内不存在**（`ls -d` `rc=2`；fork 克隆 `git ls-files | grep -i W53A` **只有 `build/MilBridge/W53A-report.md`**）；**真身 = 仓外 `~/w53a/cell3.sh:26`**（`#50` 冻后由 W102A 修为 `a358f6fd38b3b387`）。§5.4 引文**一字未动**（加注不覆盖；它在册的正式口径以 `docs/ROUTES.md` 的 `TASK-0703` 行为准，那里已追加同一更正）。
 
 ---
 

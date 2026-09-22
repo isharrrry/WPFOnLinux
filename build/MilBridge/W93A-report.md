@@ -347,6 +347,8 @@ if (!(flags & SWP_NOSIZE) && (nw != 旧宽 || nh != 旧高))
 | 3 | **产品缺陷（`H2`）** | 运行期改提示到不了 X（终态死锁 ＋ 预算计"问"不计"改"），且**有 WM 时 WM 严格执行过期约束** | §2 的 4 个 `FAIL` ＋ §3.2 的 `W2` 压 `521x417`、`W3` 放任 `1000x800` |
 | 4 | **我自己的仪器自伤（4 处，如实入册）** | UI 线程亲和（`VerifyAccess` 整趟死在 `W1-PRE`）／`xwininfo` 行序（几何恒空）／`Parent window id` 要 `-tree`／仓外工程必须显式钉 `WPF_LINUX_WIN32_SHIM`＋`MILBRIDGE_MILCORE_SO`（否则 `Show()` 当场 `DllNotFoundException: wpfgfx_cor3.dll`） | 全部落在 `~/w93a/out/*/app.log` 与本报告 §8 |
 
+> ⚠️ **路径笔误更正（W104A，2026-09-22）**：上表第 1 行写的 `` `W53A/cell3.sh:26` `` —— **`build/MilBridge/W53A/` 仓内不存在**（`ls -d` 报"没有那个文件或目录"、`rc=2`；fork 克隆 `git ls-files | grep -i W53A` **只有 `build/MilBridge/W53A-report.md`**，从来没有那个目录）；**真身 = 仓外 `~/w53a/cell3.sh:26`**（`find $HOME -maxdepth 3 -name cell3.sh` 命中 **1 件**；`#50` 冻后由车道 W102A 修为 **`a358f6fd38b3b387`**，修前 `06c6d17fa9906761`）。上表**其余判词一字未动**（加注不覆盖）。
+
 ---
 
 ## §9 复现命令 ／ 件 sha16
