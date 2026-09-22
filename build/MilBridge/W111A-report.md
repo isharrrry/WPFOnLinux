@@ -223,3 +223,71 @@ R=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux; C=~/netTest/GitProj/WPFO
 ```
 
 **本报告 sha16（提交版口径 = `head -n -2 本文件 | sha256sum | cut -c1-16`）与第九笔 head：见 `~/w111a/STATUS.md` 与回件消息（本文件内不写自身所在 commit 的哈希，避免自指）。**
+
+---
+
+## §12 追加登记（**主控转来的第二批发**）：三束装置/判据卫生**已修** ＋ `TASK-0706` ＋ `inputs_fp` 位移归因
+
+**缘起**：本件收尾期间主控转来车道 **W113A** 的交件（报告 `build/MilBridge/W113A-report.md` **`153a997ae6bc68b9`**，`30,299 B`，22:06–22:20）⇒ 要求在**同一个写域（册／地图／声明表）**补进下列登记。⚠️ **时序如实记**：主控发话时**第八笔（`c4f142c`）已经推完**，本件**没有**把追加内容塞进第八笔，而是**新开第十一笔**（`§12` 所述内容）；主控消息里那句"若你还没推第八笔就一并落"**不适用**，本件已在收到消息后立刻回话说明（避免主控再派车道撞同一批文件）。
+
+### 12.1 落点（**只有 3 件**，全部只增不改）
+
+| 件 | before sha16（第十笔时） | after sha16 | 行数 | 增量 |
+|---|---|---|---|---|
+| `samples/WpfFeatureProbe/KNOWN-DEFECTS.md` | `cf710ed6ff09a6e2` | **`4a69e48dfe948306`** | 2611 → **2648** | **+37**（`D-G42` 15 ＋ `D-G91` 11 ＋ `D-G96` 11 行） |
+| `docs/ROUTES.md` | `13aa13eab158ba49` | **`0ea763147cd0103a`** | 494 → **513** | **+19**（`TASK-0706` 7 ＋ `TASK-0704` 补记 1 ＋ §15h 11 行） |
+| `build/MilBridge/tools/defect-registry-declared.tsv` | `da59e40a44233e22` | **`53602b0fc8dd9079`** | 144 → **144** | **0 行**（**只有 `# DECL-ANCHORS` 的 `KD` 与 `# DECL-GEN` 时间戳变**；**编号集合 `diff` = 空**、`declared` 仍 **135** ⇒ **无新号、无幻影**） |
+
+- **`diff` 机器证（防"吞掉下一行"）**：两件文本件的 `diff`（对第十笔时的备份 `~/w111a/{KD,ROUTES}.before-w113a.md`）**`^<` 行数 = 0**、`^>` 行数 = 37／19 ⇒ **纯追加、零改动、零删除**；插入位置现场 `grep -n` 复核：`D-G42` `:1453`（新 bullet 在 `:1468-1482`）→ `D-G43` `:1484`；`D-G91` `:2456` → bullet → `D-G92` `:2490`；`D-G96` `:2560` → bullet → `D-G97` `:2588`；地图 `TASK-0704` `:397` → 补记 `:417` → `TASK-0705` `:418` → `TASK-0706` `:424` → `TASK-9907` `:431`；`## §15g` `:491` → `## §15h` `:504`。
+- **判词原文一律未动**（`D-G42`／`D-G91`／`D-G96` 三条正文**一字未改**，只在**条末追加 dated bullet**）；`KNOWN-DEFECTS.md` 段头**本次未再改**（`D-G98`／`D-G99` 那一段仍是第十笔的写法）。
+- **编号红线**：本批新增文本里出现的 `D-` 编号**去重后只有 5 个**（`D-G42`／`D-G91`／`D-G95`／`D-G96`／`D-G97`），**逐个现场核已在册**（各 1 命中）⇒ **没有写出任何不存在的编号字面量**（W107A 幻影教训）。
+
+### 12.2 三束的**现场复核**（所有 sha16 = 本件现场现算，**与 W113A 报告逐字相同**）
+
+| 束 | 件 | before → after（**本件现场现算**） |
+|---|---|---|
+| `D-G91` | `build/DirectWrite.Linux/wic-shim/check-applocal-sync.sh` | `97d547551846fd13 → 346dc4e0bf6724e8` |
+| `D-G91` | `build/DirectWrite.Linux/wic-shim/sync-applocal-authority.sh` | `b56a85afd70c2321 → ea854808dfe3450a` |
+| `D-G96`（**仓外**） | `~/w63a/bin/wm-leg.sh` | `aec91a0827bd9cfa → 2b788b5a6cde9914` |
+| `D-G96`（**仓外**） | `~/w63a/bin/wm-leg198.sh` | `80f694dc0000ab55 → 59a326c5d477807c` |
+| `D-G42` | `tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpftextdemo.sh` | `ddb79c4843c0aa3e → ca0482bda5043909` |
+| `D-G42` | `build/integration-wave.sh` | `4d19d69c93ba5927 → 39e52f0049373059` |
+| `D-G42` | `build/MilBridge/tools/frame-presence-check.sh` | `03f9800aabfee460 → d2a1ab5bd2fb06eb` |
+| `D-G42` | `tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpfprobe.sh` | `45e46a6d9d90e69b → 6e2e994be056ea10` |
+| `D-G42`（牙） | `build/MilBridge/tools/pipefail-sigpipe-check.sh` | `a7d67a7b95b08eae → 078e477a59765091` |
+| **未改**（现算 = 改前值） | `defect-registry-check.sh`／`build-hygiene-import-check.sh`／`t1b-ls-tripwire.sh` | `dc0aeba08f9a7928`／`545f3bd1d21b6ee8`／`82f6a05afb1f9db9` |
+
+⚠️ **`build/integration-wave.sh` 的 before 值另有独立出处**（主控提示"也许与我手上的 sha 不同"）：本件现场核 **fork 克隆 `HEAD` 件 = `4d19d69c93ba5927`**（与 `$R` 修后件 `cmp` 不同 ⇒ 该件确为 W113A 所改），并与 W110A §7.3 的 `BYTECHECK` 行**逐位相同** ⇒ **以本件开工现场值为准、两侧都有出处**。
+
+### 12.3 ⚠️ `inputs_fp` 位移归因（**不是本件造成的**；更正 §8 与 §15g 的时点口径）
+
+```
+覆盖面 149 件里，与 fork 克隆 HEAD 不同的 **恰好 4 件**（逐件现算，R=修后值 / HEAD=修前值）：
+  build/DirectWrite.Linux/wic-shim/check-applocal-sync.sh   R=346dc4e0bf6724e8  HEAD=97d547551846fd13
+  build/MilBridge/tools/frame-presence-check.sh             R=d2a1ab5bd2fb06eb  HEAD=03f9800aabfee460
+  build/MilBridge/tools/pipefail-sigpipe-check.sh           R=078e477a59765091  HEAD=a7d67a7b95b08eae
+  build/integration-wave.sh                                 R=39e52f0049373059  HEAD=4d19d69c93ba5927
+  ⇒ **全部是 W113A 改的那 4 件**（4 件都在 `fp_inputs()` 覆盖面内；W113A §5 已逐件判断过）
+inputs_fp：58a6c0945b7d535830ce3e3e4f25752b68f3714d3f35f540253eca6e69b3dd36
+        → d67880cbb8487cfd386bde0648e647624ffdf8d800a892297f93d03d6f9fefb0   （本件现场**真调用**现算，
+          **与 W113A §5 报告的改后值逐字符相同**）
+```
+
+- ⚠️ **更正本报告 §8 与 `docs/ROUTES.md` §15g 里"指纹开工 = 收工"那句**：那句写于 **21:53**、**当时确实成立**（本件编辑的 4 件在覆盖面里**命中全 0**，机械证见 §8）；而 W113A 的 4 件改动发生在 **22:10–22:12** ⇒ 现在"收工值 ≠ 开工值"了，**位移归因到 W113A**，**与本件无关**（本件本次编辑的 3 件仍**全部不在**覆盖面内）。
+- **本件不代跑** `close-wave.sh`／`verify-all.sh` 的"波前==波后"断言（纪律禁止）⇒ 波尾由收尾链记账。
+
+### 12.4 `DEFREG`（第十一笔后，**连跑两遍逐字节相同**）
+
+```
+DEFREG_DECL=n=135 route_ids=135 grammar=D-[A-Z][0-9]*[a-z]?(-[A-Za-z0-9]+)*
+DEFREG_ROUTES=KD=4a69e48dfe948306 CS=b7b2d513cfdab2eb HO=e4dc264200b421d0 AB=38e67e834430d75c
+DEFREG_EXTRA=KRJ=089b7324ba12e022 KRF=ab09235afd949bc2 KRP=3c9e3a309b990d31
+DEFREG_DECLDRIFT=0 changed-route-files-since-DECL-GEN
+DEFREG=PASS declared=135 route_ids=135（每个声明编号在其 req 的每个 route 文件里都在；无未声明编号）    rc=0 ×2，diff 空
+```
+
+⚠️ 重生成**之前**那一趟如实留档：`DEFREG_DECLDRIFT=1 changed-route-files-since-DECL-GEN`（`KD` 改了而声明表未重生成）＋ `DEFREG=PASS`（判定仍成立）⇒ 这不是假绿（`DECLDRIFT` 是**非门禁诊断行**），但**必须重生成**才归零。
+
+### 12.5 本次追加的 `NOINFO`／未做
+
+① `D-G91`：影子仓无 csproj 图 ⇒ `EXPECT` 段不可用，真树**当下 `STALE=0`** ⇒ "真树上刷到过什么"**不可证**；② `D-G96`：**整脚本端到端未跑**（`run()` 会抢重活槽）；③ `D-G42`：`integration-wave.sh` 两处**未在真波里跑**、需应用/显示的件只做 `bash -n` ＋ 形态核对；④ `TASK-0706`：**只立号、未建牙**，其"全 `$HOME` 装置清点"**射程未枚举**。

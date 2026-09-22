@@ -1466,6 +1466,21 @@ max 探针传 `modifierOpenIndex`+`modifierCloseIndex` 而**不传** `modifierSc
   **两极化（私有副本，把 `c11` 的载荷换成 ≈250 KB）**：旧写法 ⇒ `S1 正极性（全绿） => NO want rc=0/R_GATE=PASS got rc=1`、失败格点名 `c11(连续腿缺格：seq-lst0,seq-tb,seq-combo,…)`、`R_GATE_SELFTEST=FAIL cases=21 pass=18 fail=3`；新写法 ⇒ 同载荷 `S1 => yes R_GATE=PASS crit=13/13`、`R_GATE_SELFTEST=PASS cases=21 pass=21`；**阴性对照不放松**（`S11` 真的缺 `seq-combo` 时两版都 `FAIL fails=c11(…seq-combo…)`）。
   ⚠️ **该族禁止用"写进 `DECL` 声明表"转绿**：`pipefail-sigpipe-check.sh` 的 `DECL` 口径明写"只许写**不在本车道写域**的现场真 HIT" ⇒ 对**本波自建件**用它转绿 = **把未登记红压成绿**（本仓明令禁止；`#50` 主控已就此裁定"修，不许声明掉"）。
 
+- ✅ **`D-G42` 族第二批（车道 W113A，2026-09-22；**不新增编号**）—— 真修 8 处／4 件 ＋ 牙撤声明 ＋ 两条判词更正 ＋ 一条射程缺口**：
+
+  | 件 | before sha16 | after sha16 | 站点 |
+  |---|---|---|---|
+  | `tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpftextdemo.sh` | `ddb79c4843c0aa3e` | **`ca0482bda5043909`** | `:988`／`:989`／`:1290`（3） |
+  | `build/integration-wave.sh` | `4d19d69c93ba5927` | **`39e52f0049373059`** | `:321`／`:354`（2） |
+  | `build/MilBridge/tools/frame-presence-check.sh` | `03f9800aabfee460` | **`d2a1ab5bd2fb06eb`** | `:105`／`:112`（2）—— ⚠️ **该件无 `pipefail`** ⇒ 属**预防性对齐**（按牙的口径本不是候选） |
+  | `tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpfprobe.sh` | `45e46a6d9d90e69b` | **`6e2e994be056ea10`** | `:568`（1）—— **原是牙声明表里的唯一项** |
+  | 牙 `build/MilBridge/tools/pipefail-sigpipe-check.sh` | `a7d67a7b95b08eae` | **`078e477a59765091`** | **无站点** —— 只**撤掉已修站点的声明项**（原文留档） |
+
+  （上述 sha16 = **本件现场现算**，与车道 W113A 报告 §2.2 逐字相同；`build/integration-wave.sh` 的 **before 值 `4d19d69c93ba5927` = 本件现场核的 fork 克隆 `HEAD` 件**（`cmp` 逐字节相同）⇒ before/after 两侧都有独立出处。）
+  - **两极化（成对）**：牙读数 `undeclared_hit=0`、`declared 1→0`、`hit 1→0`（`sites 83→77`、`low 12→7`）；`>64 KiB`（**208008 B**）载荷 **旧写法判错 5/5**（`RING_VERDICT=inside-black` ＝**假 FAIL**）／**新写法判对 5/5**，两个阴性对照（小载荷命中、`>64 KiB` 不命中）**两侧一致** ⇒ **没把红洗绿**；`run-wpfprobe.sh:568` 旧 **`IF_RC=141` ×3/3 → 新 `IF_RC=0` ×3/3**；`shell-quote-trap-check.sh` 同 5 件夹具**逐字相同**（`traps=0`）＋ `--selftest` **30/30**；**9 件 `bash -n` 全过**。
+  - ⚠️ **"撤声明" ≠ 放宽判据**：`DECL` 表只**豁免** `HIT`；撤掉一项后 `UNDECLARED_HIT` 判据**一字未改**（任何未声明 `HIT` 仍 ⇒ `FAIL`），而且**留着会 `decl_stale=1 ⇒ FAIL`** ⇒ 这是牙在要求"**声明跟现实走**"。⚠️ 该族**仍然禁止**用"写进 `DECL`"来转绿。
+  - ⚠️ **更正两条既有判词（本件现场实测；只加不改）**：① 原声明那句"**那 4 行诊断被静默丢掉**"**不成立** —— `>64 KiB` 下**诊断照印 4 行**（逐字节相同），真后果是 **`if` 语句的 `rc=141` 泄漏**（**潜在**：该位置当时无人消费，将来被消费者或 `set -e` 引爆）；② 若有引用者按 `build/MilBridge/tools/{run-wpfprobe,run-wpfprobe-1400rate,run-hellowpf}.sh` 去找件 —— **这三个路径仓内不存在**，真实件都在 `tests/WpfGfx.Linux.Tests/Presentation.Tests/`（**照抄路径会"打不开文件"**）。
+  - 🆕 **射程缺口（并入本条、**不新开号**）**：该牙的口径**只认 `UNDECLARED_HIT`** ⇒ **同族但机械看不见**的形态至少三类：① 件内**本来没有 `pipefail`**（`frame-presence-check.sh`／`run-wpfprobe-1400rate.sh`，`:25` 是 `set -u`）② **早已修过**的 3 件（件内自记修法：`defect-registry-check.sh`／`build-hygiene-import-check.sh`／`t1b-ls-tripwire.sh`，现场重盘 **0 处待修**）③ `printf \| grep -q` **之外的变体** ⇒ W113A 真修的 8 处正落在"**同族而口径看不见**"这一格。教训与 `D-G97` 一致：**普查射程必须按"语义"复核（形状 ∧ 承载 ∧ 中毒三要件），不能只看关键词、也不能只看牙的现有口径。**
 ### 🆕 `D-G43`：**`--selftest` 的"清单"本身没有权威**，且**有一支自测会写"真树"**（`#33` W33B 实测；**本波只加固、未治本**）
 - **清点口径三版不一**：`grep -rln '--selftest'` 命中 **60** 个文件（其中 48 个是 `.md`/`.cs`/仅提及者）｜`#32` W32B 数 **12**｜`#33` W33B 实测 **15** ⇒ **"本仓有几件实现了 `--selftest`"这个问题今天没有单一权威**，也**没有牙**看着这份清单。
 - **⚠️ 更重的一条**：`build/artifact-src-fp.py --selftest` **会写"真树"** —— 它往 `upstream/wpf/**.cs` **追加一行**再 `copy2` 还原，并在 `build/*.Linux/obj|bin` 下**建/删**探针件 ⇒ 若 `SIGKILL`（或超时）落在那个窗口内，会**留下被改的真源 ＋ 一个 `.fp-selftest-bak`**。⇒ **零-`dotnet`／并发车道禁跑它**；**它自己应当改成沙箱自测**（`#34` 候选）。
@@ -2446,6 +2461,17 @@ AE 上界本就在 1 万量级；`P3>20000` 是按"弹窗=一整块白"的几何
 - 两处后果（第二处更危险）：
   ① **刷不到**：全仓**那一份唯一的 `STALE`** 恰好落在 `tools/` 下（`tools/GeometryOracle/bin/Debug/net10.0/WpfGfx.Linux.dll`，`16baacfccfcf1df0`；它就是 `build/MilBridge/W22D-report.md` 早已点名的"**连枚举都没枚举到**"那一份）⇒ 默认参数下**永远不会被刷**；
   ② **假绿**：该刷新器`--apply` 之后，**用收窄后的根**重跑校验器 ⇒ 它自己打出的 `STALE=0` 与**全文口径**校验器读数**互相矛盾** ⇒ "没看见"被读成"没有"。
+- ✅ **`D-G91` 已修（车道 W113A，2026-09-22；本件 W111A **只登记、未改仪器**；上面判词**一字未动**）** —— 修法 = **根集合从判据唯一实现派生**（消灭"同一份逻辑两处各写一份"）：
+
+  | 件 | before sha16 | after sha16 | 改了什么 |
+  |---|---|---|---|
+  | `build/DirectWrite.Linux/wic-shim/check-applocal-sync.sh` | `97d547551846fd13` | **`346dc4e0bf6724e8`** | `:169` 那一行**提成具名常量** `SCAN_ROOTS_DEFAULT`（**同一串、一个字节未改**）＋ 新增**只读**模式 `--print-scan-roots`（打印后 `exit 0`，不扫描不写盘） |
+  | `build/DirectWrite.Linux/wic-shim/sync-applocal-authority.sh` | `b56a85afd70c2321` | **`ea854808dfe3450a`** | `:59` 的**自写根集合删除** ⇒ **派生自校验器**；新增 `norm_roots()` 集合归一（`realpath -m` ＋ 排序去重）＋ **根集合自检**（不等 ⇒ `APPSYNC_ROOTS=MISMATCH`×2 ＋ `APPSYNC_ROOTS=NOINFO reason=narrowed-scan-roots` ＋ **`rc=2`**），且**在任何 `STALE=` 汇总之前退出** |
+
+  （上述 sha16 = **本件现场现算**，与车道 W113A 报告 §2.1 逐字相同。）
+  - **成对读数（私有影子仓 `~/w113a/fixture/repo`，真树零写）**：**修前** 默认参数（收窄根）⇒ `APPSYNC-REFRESH=refreshed=0` ＋ **一条 `STALE` 行都没有** ＝ **假绿**；**同刻、同一棵树**换校验器默认根（含 `tools`）⇒ `STALE=1`（`EXPECT 374b5a538ea955aa` vs `ACTUAL 3a43e71a2ffe8613`）＝ **真值**；**修后** 默认参数 ⇒ `APPSYNC-REFRESH=refreshed=1 newer=0 applied=1`、刷后副本 sha16 = **`374b5a538ea955aa` == 权威**；**显式收窄** ⇒ `rc=2` ＋ 该趟 `计数：`0 行／`APPSYNC-REFRESH=`0 行／`REFRESH`0 行 ⇒ **假绿出口被物理掐掉**（不是"靠调用方记得传对参数"）。
+  - **真树（修后，只读）**：`sync` 默认参数现印"扫描根 = `…/build:…/tests:…/samples:…/src:…/tools`（**派生自判据唯一实现**）"；计数器 **与修前逐字相同**（`STALE=0 NEWER-DIFF=0 DIVERGENT=0 UNEXPECTED=6[DECL-GAP-EQ=6]`）⇒ **没洗绿、在册声明类缺口一个数未动**；校验器 `--selftest` **18 例全 PASS**、`rc=0`。
+  - `NOINFO`：影子仓没有 csproj 引用图 ⇒ `EXPECT` 段算不出来（fixture 里 `APPSYNC=NOINFO`）⇒ "**刷到了**"这条**只能在 fixture 上证**；**真树当下 `STALE=0` ⇒ 真树上没有可供刷的对象**（真树只证"根集合已一致 ＋ 计数器不变"）。
 - **成对读数**（同刻、同一台机、W95A 现场）：
   | 趟 | 命令口径 | 读数 |
   |---|---|---|
@@ -2548,6 +2574,17 @@ AE 上界本就在 1 万量级；`P3>20000` 是按"弹窗=一整块白"的几何
 - 建议修法（**未落**，供 `TASK-0704` 的收尾或另立任务裁定）：`PROG` 改为**带时间戳归档**（`wm.progress.$(date +%Y%m%dT%H%M%S)`）或改为**只追加**；并在任何"为了复核而重跑装置"的纪律里**先写死**"**重跑前 `cp -p` 冻结日志**"这一步（本条的机读判据 = 重跑前后两件日志的 sha16 **都有留档**）。
 - 边界 / `NOINFO`：① 该装置在**仓外** ⇒ 仓内补不出牙（同 `D-G93`／`D-G95` 的边界）；② **"全仓/全 `$HOME` 还有几处装置会截断自己引用的证据"未逐处枚举**（本车道只机械核了 `: > "$PROG"` 这一形态在 `~/w63a/bin/` 下的两处）⇒ `NOINFO`；③ 本条**不改**任何既有编号的值与判词，**未**把任何红写成绿。
 
+- ✅ **`D-G96` 已修（车道 W113A，2026-09-22；本件 W111A **只登记、未改装置**；上面判词**一字未动**）** —— 修法 = **截断改只追加 ＋ 每趟运行独立文件名 ＋ `.latest`**，并**先冻结再动手**（`cp -p` 冻结两件日志；`logs/**` 全程零写）：
+
+  | 件（**仓外**） | before sha16 | after sha16 |
+  |---|---|---|
+  | `~/w63a/bin/wm-leg.sh` | `aec91a0827bd9cfa` | **`2b788b5a6cde9914`** |
+  | `~/w63a/bin/wm-leg198.sh` | `80f694dc0000ab55` | **`59a326c5d477807c`** |
+
+  （上述 sha16 = **本件现场现算**，与车道 W113A 报告 §2.3 逐字相同；两件 `bash -n` 均 `rc=0`。）
+  - **成对读数（私有 `Xvfb :191`）**：**修前** 形态跑两趟 ⇒ **第一趟读数被抹掉**（`wm.progress` 3 行 → 3 行，`line1` 变成新一轮；**前缀测试 = 否**）；**修后** 跑两趟 ⇒ **两趟并存**（`wm.progress` 7 → **10** 行、`wm198.progress` 19 → **21** 行），且**冻结证据仍是前缀**（345 → 985 B；1195 → 1643 B）⇒ **前缀测试 = 是**；"每趟独立"机证 = `wm.progress.20260922T141535Z-3776439`／`…-3776646`（各 3 行）＋ `.latest` 指向最新那趟。
+  - **原件全程未动**（收工复算）：`~/w63a/logs/wm.progress` = **`a2ee1d7ea5451489`**（mtime `2026-09-21 11:37:08.087448586`）、`wm198.progress` = **`e0eb3cb200a5b7f2`**（`11:45:07.429170410`）＝ 冻结值**逐位相同**；`find ~/w63a -newermt '-45 minutes'` **只命中那两个脚本**（`logs/**` 一个都没被写）⇒ `D-G95` 引用的**唯一现场证据行**（`wm.progress:1`，逐字 `2026-09-21 11:35:25 DISPLAY=:197 wm=_NET_SUPPORTING_WM_CHECK:  no such atom on any window. geom=1024x768`）**保住了**。
+  - `NOINFO`：**整脚本端到端仍未跑**（它的 `run()` 会调 `~/heavy-slot.sh` 起应用 ⇒ 抢重活槽）⇒ 本件只做"**逐字抽取前导块**"的两极化 ⇒ "**整脚本在真 WM 上跑到 `run()`**"这一格**仍是 `NOINFO`**。
 ### `D-G97`（**装置缺陷 · 前提守卫恒真（glob 形态）＋ 普查射程缺口**）：`case "$wm" in *window*)` **被那条命令自己的失败文案命中** ⇒ "前提成立"守卫**恒真**；而且它正是"**用关键词做的普查**"机械上看不见的那一格
 - 现象（车道 W108A，2026-09-22；来源 = 车道 W107A 全域重盘的新发现〔见 `D-G89` 条末 🆕 bullet〕＋本车道现场两极化复现）：`~/w63a/bin/wm-leg198.sh:17`（**改造前**）逐字为
   `case "$wm" in *window*) : ;; *) say "NOINFO wm-absent（WM 腿的前提不成立）"; exit 9 ;; esac`
