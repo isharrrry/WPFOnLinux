@@ -247,3 +247,17 @@ BYTECHECK ok=10 mismatch=0 nobody=0
 4. **门禁两条都绿**：`DEFREG=PASS declared=128 route_ids=128`、`DECLDRIFT=0`，跑两遍一样。
 5. **地图收口了**：`TASK-9905`／`TASK-9906` 都改成 ✅（并把 `#50` 的冻结值、冻前那一处声明类红、`pf` 不是构建身份这件事写进去），另加了一节 §15。
 6. **推上去了**：`608d0a1 → a3464a6`，3 件，逐字节核对 `ok=10 mismatch=0 nobody=0`；并发车道 W97A 正在写的新工具（`nul-bytes-check.sh`）**我没碰也没推**。
+
+---
+
+## §7.4 本报告自身的推送（**自指说明，如实**）
+
+| 笔 | 内容 | head |
+|---|---|---|
+| 第 1 笔 | **登记 ＋ 地图 ＋ 声明表**（3 件） | `608d0a1 → `**`a3464a6fdba3bc9ff3b971c20bc1185ad85b3f23`** |
+| 第 2 笔 | **本报告首版**（`build/MilBridge/W99A-report.md` `31efc2c11d1e29a7`，**只动这一个文件**） | `a3464a6 → `**`8455042b959b94e2f7046126cb7744e50d60efb3`** |
+| 第 3 笔 | **本报告 ＋ 本节**（同样只动本报告） | ⚠️ **自指**：不能写进本行（写了就立刻作废）⇒ head 记在 `~/w99a/STATUS.md` **末条** |
+
+* **第 2 笔的字节核对**（推送后 `git fetch origin feat-Linux:refs/remotes/origin/feat-Linux` 再比）：`report blob=31efc2c11d1e29a7b7d413f38232932ee860f26a66031da73c7000c50fcc0c9d` == 现盘 **`REPORT_BLOB_IDENTICAL=YES`**。
+* 三笔共同纪律：**逐径 `git add --`**、**无 `-A`**、**无 `--force`**、**未碰默认分支**（每笔推后都用 `git ls-remote --symref origin HEAD` 复核 = `ref: refs/heads/feat-Linux`）。
+* **反极性/阴性对照（本件的"我在推之前先写死"）**：开工时先写死三条判据（§头部），其中第 ③ 条"`inputs_fp` 必须逐位不变"在收工读到 **`ee543f44…` == 开工值 == `#50` 冻结值** ⇒ **成立**；第 ① 条"新号连续"在收工读到末号 `D-G90` ⇒ **`D-G91`/`D-G92` 连续**，**成立**。
