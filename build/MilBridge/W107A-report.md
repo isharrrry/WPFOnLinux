@@ -280,23 +280,28 @@ push : git push origin feat-Linux   ⇒  080af71..5d14a9c  feat-Linux -> feat-Li
 
 ### 8.2 `BYTECHECK`（逐件 `git cat-file blob <rev>:<path>` 与磁盘 `cmp`，**计数器在主 shell 累加，未用 `tee`**）
 
+⚠️ **口径先写死（本件踩过一回，见 §8.5）**：`<rev>` **必须**是 **push 之后**重新 `git fetch` 得到的 `refs/remotes/origin/feat-Linux`，且**与 `git ls-remote origin HEAD` 逐字相同**；**不许**用 push 之前 fetch 的那个 rev（那是**上一笔**的头 ⇒ 会报**假 `MISMATCH`**）。
+
 ```
-远端 rev = 85f88adb82fc379163be782122e40a3870aec7d6
-=== 本笔 6 件逐件字节核对 ===
+收尾核对（rev = push 之后 fetch）：
+  remote-tracking rev = 7067d16bf5538cbaf1535779ff7c1d90ea0b7a7d
+  ls-remote HEAD      = 7067d16bf5538cbaf1535779ff7c1d90ea0b7a7d   ⇒ 两者一致 ✔
+  === 本笔 6 件 ＋ 前一笔遗留件 5 件，逐件字节核对 ===
   ok  samples/WpfFeatureProbe/KNOWN-DEFECTS.md              (disk=b79b8cd455746313)
   ok  docs/ROUTES.md                                        (disk=abac9ba3103da336)
   ok  build/MilBridge/tools/defect-registry-declared.tsv    (disk=5cddd9ad488e959a)
   ok  build/MilBridge/W103A-report.md                       (disk=d92f0ede166268a7)
   ok  docs/WAVE51-PREREGISTRATION.md                        (disk=af21bdf95b848eb9)
-  ok  build/MilBridge/W107A-report.md                       (disk=a9b095b83f79d98a，本报告**回填前**版本)
-=== 前一笔遗留件抽查（应已在远端）===
+  ok  build/MilBridge/W107A-report.md
   ok  build/MilBridge/W102A-report.md
   ok  build/MilBridge/W104A-report.md
   ok  build/MilBridge/tools/wm-awaited.sh
-BYTECHECK ok=9 mismatch=0 nobody=0
+  ok  build/MilBridge/W93A-report.md
+  ok  build/MilBridge/W96A-report.md
+BYTECHECK ok=11 mismatch=0 nobody=0
 ```
-⇒ ✅ **`nobody=0`** —— 这一格正是 **W104A 记的 `nobody=1` 的收口**：`build/MilBridge/W103A-report.md` 当时**盘上还不存在**（W103A 还在跑），本笔它**已存在且已在远端、逐字节相同**。
-⇒ **`mismatch=0`** ⇒ 本笔全部 6 件**盘上内容 == 远端 blob**。
+⇒ ✅ **`nobody=0`** —— 这一格正是 **W104A 记的 `nobody=1` 的收口**：`build/MilBridge/W103A-report.md` 当时**盘上还不存在**（W103A 还在跑），本笔它**已存在、已在远端、逐字节相同**。
+⇒ **`mismatch=0`** ⇒ 本笔全部件**盘上内容 == 远端 blob**。
 
 ### 8.3 ⚠️ 两个 `tests/parity/**` 结果件（**点名 ＋ 判定：不推**）
 
@@ -315,20 +320,28 @@ BYTECHECK ok=9 mismatch=0 nobody=0
 
 ⇒ **本件对这两件的处置 = "逐件点名 ＋ 不推 ＋ 理由上表"**；**若主控要推**，必须**同时**给出"为什么可以破坏 `.gitignore` 口径"的理由（且 u14 在 100 MB 硬限下**只能走** LFS 或分片，否则必被拒）。
 
-### 8.4 收尾补记（推送后补写 · **本件共 3 笔**）
+### 8.4 收尾补记（推送后补写 · **本件共 4 笔**）
 
 | 笔 | commit | 内容 |
 |---|---|---|
 | 1 | `5d14a9c43f5f76fc9733ba7b602c91cdba8d681b` | 册 ＋ 地图 ＋ 声明表 ＋ `W103A-report.md`（补推）＋ `docs/WAVE51-PREREGISTRATION.md` |
 | 2 | `85f88adb82fc379163be782122e40a3870aec7d6` | 本报告首版（逐字引文核对 **17/17 OK**） |
-| 3 | 本笔（§8.2／§8.4 记账 ＋ §7 自身 sha16 回填） | 本报告的记账更新 |
+| 3 | `7067d16bf5538cbaf1535779ff7c1d90ea0b7a7d` | §8 记账（`BYTECHECK ok=9` 首版）＋ §7 自身值回填 |
+| 4 | 本笔（§8.2 修正为 push **后** fetch 的 rev ⇒ `ok=11` ＋ §8.5 假 `MISMATCH` 自伤 ＋ §10 追加） | 本报告的记账修正 |
 
 - **推前 head** = `080af718a1c22597947ac7d9fcad2d449a3baebe`
-- **推后 head** = `85f88adb82fc379163be782122e40a3870aec7d6`（`local == remote` ✔，`--symref` 仍 `feat-Linux` ✔）
+- **推后 head**（第 3 笔后）= `7067d16bf5538cbaf1535779ff7c1d90ea0b7a7d`（`local == remote` ✔，`--symref` 仍 `feat-Linux` ✔）；**最终 head** = 第 4 笔（本报告记账修正笔）的头，由主控 `git rev-parse HEAD` 现算
 - **回填前本报告 sha16** = `a9b095b83f79d98a`（第 2 笔那个版本；`BYTECHECK` 核的就是它）
 - ⚠️ **自指说明（同 W104A 的口径）**：本报告**每改一次自己的记账**，它的 sha16 就变一次（第 3 笔提交的版本 **≠** `a9b095b83f79d98a`）⇒ **最终 sha16 由主控按 `sha256sum build/MilBridge/W107A-report.md | cut -c1-16` 现算**，本件不手抄自己的哈希。
 
 ---
+
+### 8.5 🩸 假 `MISMATCH` 自伤（**如实留档：判据取错对象**）
+
+- **现象**：我在 push 的**同一条命令里**先 `git fetch` 再 `git push`，随后取 `REV=$(git rev-parse refs/remotes/origin/feat-Linux)` ⇒ 取到的是 **push 之前**的 rev（`85f88adb…` = **上一笔**的头）⇒ 报告那件报 **`MISMATCH`**（该趟 `BYTECHECK ok=10 mismatch=1`）。
+- **查明（不是推送问题）**：`git ls-remote origin HEAD` = `7067d16…` = **本地 HEAD**；`git cat-file blob 85f88ad…:build/MilBridge/W107A-report.md | sha256sum | cut -c1-16` = **`a9b095b83f79d98a`**（= 上一笔那一版，正是 §7 记的"回填前"值）⇒ **我核的是旧对象，不是推错**。
+- **改正**：**push 之后**重新 fetch，使 `REV` **与 `git ls-remote origin HEAD` 逐字相同**（见 8.2 的两行）⇒ 重跑得 **`ok=11 mismatch=0 nobody=0`**。
+- **教训（同本仓 `D-G84`／`D-G93` 一族：**判据得认对对象**）**：`BYTECHECK` 的 rev **不能**顺手取"手边那个 remote-tracking ref" —— 它**可能是上一笔**；必须**在 push 之后**取，并**用 `ls-remote` 交叉核**。本件已把这条写进 8.2 的口径行。
 
 ## §9 `fp_inputs` 影响判断（**第 9 条**）
 
@@ -369,7 +382,7 @@ FP_COVERAGE_DIFF_VS_HEAD=2
 7. **未跑任何构建/门禁/应用**（本件纪律；槽让给 W105A／W106A）⇒ 本件的读数**未经端到端复跑**。
 8. **未改 `handoff.md`／`CURRENT-STATE.md`**（`D-G62+` 的 `req=KD` 一贯口径；且改它们会动锚 ⇒ 本件**选择不做**）。
 9. **未推** `src/WpfGfx.Linux.Native/**` 与 `build/PresentationFramework.Linux/**`（**在飞的产品改动**，按纪律"实验装置类改动必须事后还原"⇒ **故意隔离**，这正是本笔只 `add` 5 件的原因）。
-10. 🩸 **三处自伤**已逐条留档并改正：① 重盘 v1 的**仪器**两处缺陷（§5.5）；② 我第一次改 `ROUTES.md` 状态位时 `edit` **吞掉了下一行**（`TASK-0703` 的 W102A 交件 bullet）⇒ 已用 **HEAD blob（`c9bb57e49345739b`，与改前磁盘值逐字相同）逐字节复原**核对后，改用**行锚定**改法（`python3` 断言行号 ＋ 替换状态字符），最终 `diff` 只有 2 处状态位替换；③ 册初稿的**幻影编号字面量**（§6.4）。
+10. 🩸 **四处自伤**已逐条留档并改正：④ **假 `MISMATCH`**（`BYTECHECK` 的 rev 取了 push **之前** 的 remote-tracking ref ⇒ 核的是上一笔的对象，见 §8.5；已按「push 后 fetch ＋ `ls-remote` 交叉核」改正 ⇒ `ok=11 mismatch=0 nobody=0`）；另三处：① 重盘 v1 的**仪器**两处缺陷（§5.5）；② 我第一次改 `ROUTES.md` 状态位时 `edit` **吞掉了下一行**（`TASK-0703` 的 W102A 交件 bullet）⇒ 已用 **HEAD blob（`c9bb57e49345739b`，与改前磁盘值逐字相同）逐字节复原**核对后，改用**行锚定**改法（`python3` 断言行号 ＋ 替换状态字符），最终 `diff` 只有 2 处状态位替换；③ 册初稿的**幻影编号字面量**（§6.4）。
 
 ---
 
