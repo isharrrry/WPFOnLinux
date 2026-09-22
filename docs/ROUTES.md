@@ -361,12 +361,22 @@ wpf-linux 路线图
   - `TASK-0107` ⚠️ **反极性 = `VACUOUS`**（按**先写死**的口径，如实报）：`W1` 的 X 侧提示在 14 个 stage 里**一次都没移动过** ⇒ "回到旧值"与"从来没跟过"**不可分** ⇒ **不构成反极性证据，不许当绿**。
   - `TASK-0107` ⚠️ **上限 `3`（`WPF_HINTS_REASK_MAX`）的两种吞法都取到读数**：①"已声明终态"型（`W1` 首次问出声明 ⇒ `hints_map_declared=1` **死锁**）；②"预算耗尽"型（`W3` 被 4 次无意义 `HIDE/SHOW` 花光 ⇒ **第一次真声明也永久发不出**）。钩子 `W1[shim=0] W2[shim=1] W3[shim=2]` 与 `diag_aftermap=6` 加法一致。
   - `TASK-0107` 🆕 **同趟新登记 `D-G88`／`D-G89`／`D-G90`**；**落地拆新号** = `TASK-0108`／`TASK-0703`（波 `#51`）。本件**零产品改动**（探针在仓外）。
-- `TASK-0108` [Next] 🔴 **`H2` 落地：让"运行期改尺寸提示"到得了 X**（`D-G88`，对策 = W93A 报告 §5 的 `P1`–`P4`，波 `#51`）：
+- `TASK-0108` [Next] ✅ **`H2` 落地：让"运行期改尺寸提示"到得了 X**（`D-G88`，对策 = W93A 报告 §5 的 `P1`–`P4`，波 `#51`）：
   - `P1`（必做，`src/WpfGfx.Linux.Native/src/win32_core.c`）把"**终态 ＋ 次数上限**"换成"**缓存上次已发布值，值变了才 `XSetWMNormalHints`**" —— 幂等、无消息风暴，**删掉两个停止条件**（`hints_map_declared` 终态与 `hints_map_asks<3`）。
   - `P2`（必做，**这就是"运行期改"的触发器**）在 `SetWindowPos`/`MoveWindow` 的尺寸**真变**路径上补一拍 ⇒ 改**紧**必到。
   - `P3`（**需主控裁定**）改**大**那半**无触发器可打** ⇒ 需**托管侧通知**；`P3-a`（shim `OverrideMetadata` 合法性）**未验** ⇒ 落地前先建**最小探针**。⚠️ **不推荐**只把上限 `3` 改大 —— 它计"**问**"不计"**改**"，改大只是延后死锁。
   - `P4`（必须与 `P1` 同趟）**重入闸** ＋ 新判据"**X 调用次数 == 值变化次数**"（不风暴的证据）。
   - ⚠️ 反极性**必须重造**（本轮的 `VACUOUS` 不算）：`改紧 → 提示跟到新值 → 撤回 → 提示跟回旧值`；装置已就绪（W93A 的 `W1/W2/W3` 三窗一台 ＋ `xprop` 判据 ＋ `judge.py`）。
+  - ✅ **`TASK-0108` 收口（车道 W101A ＋ W106A；**主控独立复核**；本行状态位 `🔴` → `✅` 由车道 W109A 于 2026-09-22 **行锚定**改，改后 `wc -l` 仍 `452` ⇒ 未吞下一行）** —— `P1`／`P2`／`P4` 由 W101A 落地，**`P3`（托管侧通知）由 W106A 落地**（报告 `build/MilBridge/W106A-report.md`，提交版口径 `head -n -2 本文件 | sha256sum | cut -c1-16` = `6558bba440cce6a3`）。
+    - **四格全绿 ＋ 两腿逐字相同**：`SUMMARY A1_informative=29 PASS=8 FAIL=0 VACUOUS=21`（W101A 修到 `PASS=8 FAIL=2`；`W3-DECLARE` 与 `A3 W1-REVERT` 两格由 `P3` 转绿：`469x365`／`667 by 500` 逐字相符）—— **两条腿（裸 `Xvfb`／`Xvfb`＋`xfwm4`）判据输出逐字相同**。
+    - **零回归**：`D-G83` 四格在新件上全 `PASS`（`declared ⇒ 667 by 500`／`minonly ⇒ 521 by 417`／`undeclared ⇒ 缺席`／`reg58 ⇒ 0`，`W89A_0106 VERDICT=PASS`）；`DefWindowProcW` 的 `WM_GETMINMAXINFO` no-op **一字未动**；本件**只插入**（零删守卫/断言）。
+    - **反极性双向逐位**：逐字节复原 ⇒ `win32shim` 逐位回 `2a297d6fee8be389`、`pf` 逐位回 `f34bc297d19778fd`、两格回 `FAIL`（`PASS=8 FAIL=2 VACUOUS=19`，与 W101A 同）；放回修后源 ⇒ 逐位回 **`8392fc09564779a1`**（327,248 B）／**`215c856cbca9922b`**（6,123,520 B）。
+    - **`P3` 的挂点与通道（都有机械证据）**：挂点 = 上游**本来就有**的 4 个 DP 回调末端（`OnMin/Max{Width,Height}Changed`），**不是**给每个 `Window` 入册 —— 探针 `H-1`…`H-4` **先过了才动产品**（`HOOK_META both=1`、**调高与调低两向**都进回调且 `hwnd=0x200003`、`msgsSeen=2`）。通道**没有新造 `P/Invoke`**：`PresentationFramework.dll` **没有** `DllImportResolver`（机械证据 `grep -c SetDllImportResolver`：**PF=0** vs WindowsBase/PC/UIAutomationTypes 各 1）⇒ 走 PF 已在用的、**声明在 WindowsBase** 的 `SendMessage` 发私有消息 `WM_APP+0x7F00`，shim 在 `wpf_dispatch_to_window` 拦下并转调**同一个** `wpf_hints_publish`（复用 `P1` 缓存 ＋ `P4` 重入闸 ⇒ **无第二套发布路径**）。
+    - ⚠️ **残留边界（逐字，引用者不许改口径）**：**"窗口还没有 HWND（`IsSourceWindowNull`）时改 `Min/MaxWidth/Height` ⇒ 本件不发告示。"** ⇒ W101A 原边界**收窄**为"**尚无 HWND 时**"；**有 HWND 之后，调高与调低两向都即时到 X**（两腿实测）。
+    - ⚠️ **两处 `PASS→VACUOUS` 如实记（不是回归）**：`W1-TOGGLE`／`W3-TOGGLE2` —— 信息**前移**到声明那一拍（`judge.py` 口径"期望与上一 stage 相同**且** X 侧实际也没变 ⇒ 本格无信息"）；`W2-TOGGLE` 沿用 W101A 口径仍 `VACUOUS`。**不许**读成回归、也**不许**改判成 `PASS`。
+    - ⚠️ **仍红的诚实项**：幂等 `I1` 在 `W3` 由 `2/2/0` 变 **`3/2/1`（红，如实报）**，相邻同值那一次的**精确机制记 `NOINFO`**（直接原因之一是 `D-G90` 的 40 行截断把该趟发布决定行截掉）；同装置 `w3one`（只改一个 DP ＋ 2 次 `HIDE/SHOW`）`blocks=2 reps=0` ⇒ **幂等路径本身是好的**。
+    - **登记侧**：新 applier 的登记已由**主控**落两处（`build/integration-wave.sh` 的 `APPLIERS_EXPLICIT+=( patch-presentationframework-window-minmax-notify )` ＋ `build/MilBridge/tools/applier-audit-expected.txt`）⇒ 主控现场审计 **`APPLIER_AUDIT_SUMMARY appliers=28 ok=95 miss=0 red=0 rc=0`**（登记前 `27/92`）。
+    - ⚠️ **未跑项（`NOINFO`）**：`0104` 四入口 **26 腿**（装置在别人车道的 `~/w89a/bin/**`，≈30 min）**没跑**；W106A 自报"**它是收尾链的第一优先**"（`P2`/`P4` 正落在最大化/还原与重入那条路上）。
 - `TASK-0109` [Next] 🔴 **产品侧 `wpf_x11_has_ewmh_wm()` 的残留边界：`WM` 已死而 EWMH 属性残留时，可能**静默丢一次移动**（来源 = W102A 报告 §8.5 记的 `NOINFO`；与 `D-G88`／`H2` 相邻但**不同因**）：
   - 判定点：`src/WpfGfx.Linux.Native/src/win32_x11.c` 的 `:1659 wpf_x11_has_ewmh_wm()`（`_NET_SUPPORTING_WM_CHECK` 的 intern 在 `:198`）＋ `:1780 wpf_x11_moveresize()`；声明在 `src/WpfGfx.Linux.Native/src/win32_internal.h:590`。
   - 现象与推因（**未实测产品面**）：`has_ewmh_wm()` 用的是**真** `XGetWindowProperty`（**不是**恒真谓词 ⇒ **不属 `D-G89` 族**），但它**只查"属性在不在"，不查"那个窗还在不在"**；而既有留档已证 **WM 死后 EWMH 属性会残留**（`build/MilBridge/W54A-report.md` §0.4(1) 逐字 `WMPROOF_AFTER: … window id # 0x2000ae  xfwm4_alive=no`；同一现象另见 `~/w53a/logs/WFP3-wm-killwm/report.txt:9`）⇒ `wpf_x11_moveresize()` 在"**WM 已死但属性残留**"时会**走 EWMH 分支**（`XSendEvent` 给 root，无人处理）而**不走兜底 `XMoveResizeWindow`** ⇒ **可能静默丢一次移动**。
@@ -450,3 +460,10 @@ wpf-linux 路线图
 - ⚠️ **satisfying 教训（本波第三次踩"按关键词认对象"）**：**普查射程必须按"语义"（谁产生这个串、它失败时打什么）复核** —— 关键词扫**看不见**它（该行没有 `grep`）；形状扫**噪声吞信号**（`case "$V" in *W*)` 全域 `EXEC=333`，"变量来自命令替换" `EXEC=210`，"前提臂为 `:`" `EXEC=14` 且**只 2 个站点、人读后 0 个真缺口**）⇒ **真判别式 = 三条件合取**：**(a) 形状**（文本测试）**∧ (b) 承载**（被测串是某命令的 stdout）**∧ (c) 中毒**（那条命令**失败时也打含该关键词的文案**）。同族：`D-G84`／`D-G93`／`D-G89`。
 - 📌 **`tests/parity/**` 两件：维持"不推"（口径固定，免得后人反复复议）** —— `tests/parity/**/u14/linux-results-u14.json`（**118.2 MB**）与 `tests/parity/**/layout-b34/windows-results.json`（**53.0 MB**）**继续不推**；依据 = **`.gitignore:47`／`.gitignore:51` 明确排除**（W107A §8.3 点名、主控裁定），且 u14 **超 GitHub 单文件 `100 MB` 硬限**、b34 的读者**都走仓内派生件** ⇒ **本件不推、不改 `.gitignore`**。
 - **`fp_inputs` 影响判断**：见 `build/MilBridge/W108A-report.md` §9（机械证：`close-wave.sh` 的 `fp_inputs()` 覆盖面逐件命中计数）。
+
+## §15f `#51` 冻后第六笔：`TASK-0108` 收口（`P3` 落地）＋ `D-G80` 并入新实例（**一行一条**；2026-09-22 车道 W109A 补）
+
+- ✅ **`TASK-0108` → ✅ 已收口**（状态位 `🔴` → `✅`，本件**行锚定**改，改后 `wc -l` 仍 `452` ⇒ 未吞下一行；插入读数 bullet 后 = `462`）：依据 = `P3`（托管侧通知）**已落地**（车道 W106A，报告 `build/MilBridge/W106A-report.md`，提交版口径 = `6558bba440cce6a3`）＋ **四格 `PASS=8 FAIL=0`**（两腿逐字相同）＋ **零回归**（`D-G83` 四格全过）＋ **反极性双向逐位**（`8392fc09564779a1`／`215c856cbca9922b`）；读数、残留边界、两处 `PASS→VACUOUS` 与 `I1` 的 `W3` 红（`NOINFO`）**逐字**见 §14 该行下新增的收口 bullet。
+- 📌 **口径句（后续引用者按这句判"要不要重冻"）**：**`#51` 的"产品位移" = `win32shim` ＋ `pf` 两位** —— `win32shim 33352e5797031999 → 8392fc09564779a1`（`327,248 B`；**导出 `546 → 547`**，新增 `wpf_hints_publish`）｜`pf f34bc297d19778fd → 215c856cbca9922b`（`6,123,520 B`）；**其余七位与 `#50` 逐位相同**（`bridge`／`pc`／`windowsbase`／`provider`／`wic_shim`／`hbtextline`／`dwf`）⇒ **收尾链必须重钉世代（`repin-generation.py --why`）＋ 重冻 `#51`**；`docs/CURRENT-STATE.md:9` 仍写 `BASELINE-FROZEN gen=#50 sha16=1f4189c1257737a9`（**本件未动那一行**，如实记）。
+- 🆕 **`D-G80` 并入新实例（**不新增编号**）—— 这次坏在"副本陈旧、而读数取自副本"**：`~/w93a/probe/bin/Release/PresentationFramework.dll` = `2a5b7641f6fba0fb`（`6,123,008 B`、`mtime 2026-09-22 10:02:35`，本件现场现算）**≠ `#50` 冻结值 `f34bc297d19778fd`** ⇒ 车道 W106A 腿脚本第一版指向它 ⇒ 那一趟**拿旧 PF 验新 PF** ⇒ **整趟作废重跑**；**射程要指名**：改 `native` 的车道**不受影响**（shim 走 `WPF_LINUX_WIN32_SHIM` 显式路径），**只有改 `pf` 的车道会被它吞掉**。教训 = **车道开工前必须核"装置读的是哪一份件"**（拿不到那条自证行 ⇒ 记 `NOINFO`）。逐字见册内 `D-G80` 条的新 bullet。
+- 📌 **`docs/WAVE51-PREREGISTRATION.md`（`af21bdf95b848eb9`，`8,049 B`）已进仓**（车道 W101A 的预登记件；本件只读引用，**一字未改**）。
