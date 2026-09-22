@@ -251,7 +251,7 @@ RESURVEY=SURVEY_HITS_PRESENT
 | `docs/ROUTES.md` | `c9bb57e49345739b` | **`abac9ba3103da336`** | 415 → 439 行；`diff` 只有 **2 处状态位替换**（`TASK-0703` `🔴→🟡`、`TASK-0704` `🔴→✅`）＋ 追加块 |
 | `build/MilBridge/tools/defect-registry-declared.tsv` | `0d230bf39f34b9ef` | **`5cddd9ad488e959a`** | 由 `--emit` 生成；**只 ＋1 行 ID（`D-G96`）**；⚠️ 含 `DECL-GEN` 时间戳 ⇒ 每次重生成 sha16 必变（**不是**内容漂移） |
 | `~/w63a/REPORT.md`（**仓外**） | `c837e102c8ada0f1` | **`4d3746698860e12b`** | 只**追加**更正块；原文命中数不变 |
-| `build/MilBridge/W107A-report.md` | — | 本件（新建） | 回填见 §0／§8 |
+| `build/MilBridge/W107A-report.md` | — | 本件（新建；回填前 `a9b095b83f79d98a`，最终值见 §8.4） |
 | `samples/WpfTextDemo/ACCEPTANCE-BASELINE.md` | `1f4189c1257737a9` | **未动** | 锚 `AB=1f4189c1257737a9` 逐字未变（§6 DEFREG 行可核） |
 | `docs/CURRENT-STATE.md`／`handoff.md` | — | **未动** | 锚 `CS=1ff381a9be8c3c7a`／`HO=e4dc264200b421d0` 与改前**相同** |
 
@@ -278,9 +278,25 @@ push : git push origin feat-Linux   ⇒  080af71..5d14a9c  feat-Linux -> feat-Li
 逐径 git add（**未用 -A／--force**）；`git status --porcelain` 只有 staged 的 5 件（无夹带）
 ```
 
-### 8.2 `BYTECHECK`（逐件 `git cat-file blob <rev>:<path>` 与磁盘 `cmp`）
+### 8.2 `BYTECHECK`（逐件 `git cat-file blob <rev>:<path>` 与磁盘 `cmp`，**计数器在主 shell 累加，未用 `tee`**）
 
-见 §8.4 的收尾补记（计数器在主 shell 累加，未用 `tee`）。
+```
+远端 rev = 85f88adb82fc379163be782122e40a3870aec7d6
+=== 本笔 6 件逐件字节核对 ===
+  ok  samples/WpfFeatureProbe/KNOWN-DEFECTS.md              (disk=b79b8cd455746313)
+  ok  docs/ROUTES.md                                        (disk=abac9ba3103da336)
+  ok  build/MilBridge/tools/defect-registry-declared.tsv    (disk=5cddd9ad488e959a)
+  ok  build/MilBridge/W103A-report.md                       (disk=d92f0ede166268a7)
+  ok  docs/WAVE51-PREREGISTRATION.md                        (disk=af21bdf95b848eb9)
+  ok  build/MilBridge/W107A-report.md                       (disk=a9b095b83f79d98a，本报告**回填前**版本)
+=== 前一笔遗留件抽查（应已在远端）===
+  ok  build/MilBridge/W102A-report.md
+  ok  build/MilBridge/W104A-report.md
+  ok  build/MilBridge/tools/wm-awaited.sh
+BYTECHECK ok=9 mismatch=0 nobody=0
+```
+⇒ ✅ **`nobody=0`** —— 这一格正是 **W104A 记的 `nobody=1` 的收口**：`build/MilBridge/W103A-report.md` 当时**盘上还不存在**（W103A 还在跑），本笔它**已存在且已在远端、逐字节相同**。
+⇒ **`mismatch=0`** ⇒ 本笔全部 6 件**盘上内容 == 远端 blob**。
 
 ### 8.3 ⚠️ 两个 `tests/parity/**` 结果件（**点名 ＋ 判定：不推**）
 
@@ -299,10 +315,18 @@ push : git push origin feat-Linux   ⇒  080af71..5d14a9c  feat-Linux -> feat-Li
 
 ⇒ **本件对这两件的处置 = "逐件点名 ＋ 不推 ＋ 理由上表"**；**若主控要推**，必须**同时**给出"为什么可以破坏 `.gitignore` 口径"的理由（且 u14 在 100 MB 硬限下**只能走** LFS 或分片，否则必被拒）。
 
-### 8.4 收尾补记（推送后补写）
+### 8.4 收尾补记（推送后补写 · **本件共 3 笔**）
 
-- **第一笔 head**：`080af718a1c22597947ac7d9fcad2d449a3baebe → 5d14a9c43f5f76fc9733ba7b602c91cdba8d681b`
-- **第二笔 head**（本报告）：见下"记账行"（本报告 sha16 回填后由第二笔提交）。
+| 笔 | commit | 内容 |
+|---|---|---|
+| 1 | `5d14a9c43f5f76fc9733ba7b602c91cdba8d681b` | 册 ＋ 地图 ＋ 声明表 ＋ `W103A-report.md`（补推）＋ `docs/WAVE51-PREREGISTRATION.md` |
+| 2 | `85f88adb82fc379163be782122e40a3870aec7d6` | 本报告首版（逐字引文核对 **17/17 OK**） |
+| 3 | 本笔（§8.2／§8.4 记账 ＋ §7 自身 sha16 回填） | 本报告的记账更新 |
+
+- **推前 head** = `080af718a1c22597947ac7d9fcad2d449a3baebe`
+- **推后 head** = `85f88adb82fc379163be782122e40a3870aec7d6`（`local == remote` ✔，`--symref` 仍 `feat-Linux` ✔）
+- **回填前本报告 sha16** = `a9b095b83f79d98a`（第 2 笔那个版本；`BYTECHECK` 核的就是它）
+- ⚠️ **自指说明（同 W104A 的口径）**：本报告**每改一次自己的记账**，它的 sha16 就变一次（第 3 笔提交的版本 **≠** `a9b095b83f79d98a`）⇒ **最终 sha16 由主控按 `sha256sum build/MilBridge/W107A-report.md | cut -c1-16` 现算**，本件不手抄自己的哈希。
 
 ---
 
