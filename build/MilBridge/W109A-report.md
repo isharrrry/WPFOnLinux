@@ -16,8 +16,8 @@
 | **`TASK-0108` 改绿了吗** | **✅ 已改** | `docs/ROUTES.md:364` 状态位 `🔴` → `✅`（**行锚定**改，改后 `wc -l` 仍 `452` ⇒ **未吞下一行**），并在该行下追加 10 行读数 bullet；依据 = `P3` 落地 ＋ `PASS=8 FAIL=0` ＋ 零回归 ＋ 反极性双向逐位。 |
 | **口径句加了吗** | **加了** | 新增 **§15f**（`wc -l` `452 → 462 → 469`）：`#51` 的产品位移 = **`win32shim` ＋ `pf` 两位** ⇒ **收尾链必须重钉世代 ＋ 重冻 `#51`**；并记 `docs/WAVE51-PREREGISTRATION.md` 已进仓。 |
 | **`DEFREG`** | **`PASS`（两遍逐字节相同，`rc=0/0`）** | `DEFREG=PASS declared=133 route_ids=133`；`DEFREG_DECLDRIFT=0`。 |
-| **`fp_inputs`** | **变了，但与我无关** | 真调用 = `82b3adf3cf52c660…`；覆盖面 **148 件**里我编辑的 5 件**命中 0**；位移的 **5 件全是别人落的**（点名见 §7）。⚠️ **顺带纠正任务书一句前提**：两位产品件（`win32shim`／`pf`）是 `bin/` 下的产物，**按设计被排除**，它们**不是** `inputs_fp` 的位移源。 |
-| **推送** | **第七笔成功** | `a6d99ef4e2fc3d5889665da85acefd5cb6368b64 → …`；`local == remote`、`--symref` 仍 `feat-Linux`；逐件字节核对 `BYTECHECK ok=? mismatch=0 nobody=?`（读数见 §5）。 |
+| **`fp_inputs`** | **变了，但与我无关** | 真调用两趟：`20:28 = 82b3adf3cf52c660…`、`20:30 = cd830bca4c57321d…`（**运行期间被别的车道动过**，见 §7.5）；覆盖面 **148 件**里我编辑的 5 件**命中恒为 0**；位移的 5 件全是别人落的（点名见 §7.3/§7.5）。⚠️ **顺带纠正任务书一句前提**：两位产品件（`win32shim`／`pf`）是 `bin/` 下的产物，**按设计被排除**，它们**不是** `inputs_fp` 的位移源。 |
+| **推送** | **第七笔成功** | `a6d99ef4e2fc3d5889665da85acefd5cb6368b64 → **`96db736bfd58862fc7057124c122dc00e98fae13`**`；`local == remote`、`--symref` 仍 `feat-Linux`；逐件字节核对 **`BYTECHECK ok=13 mismatch=0 nobody=0`**（读数见 §5）。 |
 
 ---
 
@@ -115,7 +115,48 @@
 
 ## §5 第七笔推送：head ＋ `BYTECHECK`
 
-（本节由推送后回填 —— 见下方"推送读数"块。）
+### 5.1 本笔包含哪些件（**逐径 `git add`，未用 `-A`／`--force`**）
+
+`git status --porcelain` 在提交前**只有这 7 行**（无夹带）：
+
+```
+A  build/MilBridge/W106A-report.md
+A  build/MilBridge/W109A-report.md
+M  build/MilBridge/tools/defect-registry-declared.tsv
+A  build/PresentationFramework.Linux/Window.Linux.cs
+M  docs/ROUTES.md
+M  samples/WpfFeatureProbe/KNOWN-DEFECTS.md
+A  src/WpfGfx.Linux.Native/tools/patch-presentationframework-window-minmax-notify.py
+```
+
+- 前 4 件 ＋ 后 2 件是**本件自己的写域**（报告／册／地图／声明表）与任务书点名"**若还没推就补推**"的 W106A 报告 ＋ **两份新件**（`patch-presentationframework-window-minmax-notify.py`、`Window.Linux.cs`）。**复制进 fork 克隆后逐件 `cmp`：7/7 `OK`**（零复制偏差；`perm` 与源件一致）。
+- **未纳入**（如实划界，见 §8.4）：`W101A-report.md`、产品源 3 件、`csproj`、`integration-wave.sh`、`applier-audit-expected.txt` —— 按仓内惯例产品/门禁位移走收尾链的 `sync(#NN)` 提交。
+
+### 5.2 head（**push 之后**才 fetch，并与 `ls-remote` 交叉核）
+
+| 项 | 值 |
+|---|---|
+| 推送前 | `a6d99ef4e2fc3d5889665da85acefd5cb6368b64`（＝ `origin/feat-Linux`） |
+| 推送后 | **`96db736bfd58862fc7057124c122dc00e98fae13`** |
+| `push` 输出 | `a6d99ef..96db736  feat-Linux -> feat-Linux` |
+| `git rev-parse HEAD` | `96db736bfd58862fc7057124c122dc00e98fae13` |
+| `git ls-remote origin HEAD` | `96db736bfd58862fc7057124c122dc00e98fae13` ⇒ **local == remote** |
+| `git ls-remote --symref origin HEAD` | `ref: refs/heads/feat-Linux` ＋ `96db736…` ⇒ **分支未变** |
+
+⚠️ **口径（照 W107A 的假 `MISMATCH` 教训写死）**：`BYTECHECK` 用的 rev 是 **push 之后重新 `git fetch origin feat-Linux:refs/remotes/origin/feat-Linux`** 得到、并与 `ls-remote origin HEAD` 交叉核过的那个值；**不许**顺手取手边的 remote-tracking ref（它可能是上一笔）。
+
+### 5.3 `BYTECHECK`（逐件 `git cat-file blob <rev>:<path>` 与磁盘 `cmp`）
+
+**本笔 7 件**全部 `ok`（sha16 现算）：`KNOWN-DEFECTS.md 5c51bff8f0353ed6`｜`docs/ROUTES.md 69b2bbd3a82c3b47`｜`defect-registry-declared.tsv ff0f400674888823`｜`W109A-report.md`（提交版见 §5.4）｜`W106A-report.md 23cce5799c9e688b`｜`patch-presentationframework-window-minmax-notify.py ce76657c1b020562`｜`Window.Linux.cs 5a0449ccc02e5433`。
+**参照已推件 6 件**全 `ok`（含冻结基线 `samples/WpfTextDemo/ACCEPTANCE-BASELINE.md = 1f4189c1257737a9` **逐位＝冻结值**、`docs/CURRENT-STATE.md = 1ff381a9be8c3c7a`、`W108A-report.md`、`W107A-report.md`、`W103A-report.md`、`W97A-report.md`）。
+
+```
+BYTECHECK ok=13 mismatch=0 nobody=0
+```
+
+### 5.4 本报告的提交版 sha16
+
+本件**第二次提交**（回填本节读数）后的口径值**写在文件末行**（`W109A-report.md sha16 = …`）：末行按 `head -n -2` 的定义**落在被哈希区域之外** ⇒ 不存在自指矛盾（本件第一版曾把该值写进 §5.4 正文 ⇒ `head -n -2` 当场从 `dbb429ce3ed91fff` 变成 `bfe68435fa17625f` ⇒ **自指**，已按此改法改正并留档）。**全文件 `sha256sum`** 同理不在正文内嵌值（嵌了必然自指）。
 
 ---
 
@@ -173,6 +214,17 @@ fp_inputs() live = 82b3adf3cf52c66001bd6cdcf45af652eabef400ca2815f32e7a2e57bb902
 任务书写"现值应当 ≠ `#50` 冻结值（**因为两位产品件已变**）"。**前半句对、后半句的因果不成立**：
 `win32shim`（`src/WpfGfx.Linux.Native/bin/libwpfwin32.so`）与 `pf`（`build/PresentationFramework.Linux/bin/Release/PresentationFramework.dll`）都落在 `*/bin/*` 下，而 `fp_inputs()` 的**每一条 `find` 都带 `-not -path '*/bin/*'`**（这是 `D-G31`／`#29` 的硬约束，`fp-inputs-hygiene-check.sh` 是它的牙）⇒ **两位产品件按设计被排除，它们一格都动不了 `inputs_fp`**。
 ⇒ 正确口径：**`#51` 的 `inputs_fp` 位移源 = 上面 5 件**（原生 C/H 源 ＋ 新 applier 脚本 ＋ `integration-wave.sh`），**与两位产品件无关**；两位产品件的影响面是**九位读数＋世代重钉**（见 §4 的口径句）。
+### 7.5 ⚠️ `fp_inputs` 在本件运行期间**被别的车道移动过两次**（如实记，不是本件造成）
+
+| 时刻 | 真调用 `fp_inputs()` | 覆盖面里相对 rev **有位移的成员** |
+|---|---|---|
+| `20:28`（本件编辑后首测） | `82b3adf3cf52c660…` | **5 件**：`integration-wave.sh`｜`win32_core.c`｜`win32_internal.h`｜`win32_msg.c`｜`patch-…-notify.py` |
+| `20:30:27` / `20:30:48`（**相隔 20 s 两次同值 ⇒ 稳定**） | **`cd830bca4c57321d…`** | **5 件**：`build/close-wave.sh`（`f440ccdb4e29a942 → c757fd5058f1bfd4`，`mtime 2026-09-22 **20:29:49**`）｜`integration-wave.sh`｜`win32_core.c`｜`win32_internal.h`｜`win32_msg.c`（`patch-…-notify.py` 已随本笔进 rev ⇒ 不再算位移） |
+| 期间另取到一次瞬态值 `274964ecd38a13d4…` | —— | **不当作稳定读数**（取数窗口内正好有别的写入 ⇒ 只记录、不下结论） |
+
+**归因（严格）**：`close-wave.sh` 与 `verify-all.sh` **同时**在 `20:29:49` 被改动（`verify-all.sh` **不在**覆盖面，`close-wave.sh` **在** ⇒ 只有后者移动 `fp_inputs`）；**不是本件所写**（本件对这两件**一个字节都没碰**，`git status` 可核：本笔 7 件里没有它们）。⇒ `#51` 的 `inputs_fp` 现值**不是**本件能定的量；**收尾链引用时必须现场现算**，并且 `close-wave.sh` 属于"改它必须安排在 `IN_FP_0` 采样之前"的那一类件。
+**不变的那一格**：无论哪一趟，**本件编辑/新建的 5 件在 148 件覆盖面里命中恒为 0** ⇒ 本件对 `inputs_fp` 的贡献**恒等于 0**。
+
 另：`build/PresentationFramework.Linux/Window.Linux.cs`（本笔要推的新件）**不在**覆盖面里 —— 覆盖面只收 `src/WpfGfx.Linux/**/*.cs`（托管移植源），**不收 `build/PresentationFramework.Linux/**`**（`close-wave.sh` 自己把"PF 的 `*.Linux.cs` 生成件对 `inputs_fp` 不可见"登记为残留缺口）⇒ 命中 0。
 
 ---
@@ -184,7 +236,8 @@ fp_inputs() live = 82b3adf3cf52c66001bd6cdcf45af652eabef400ca2815f32e7a2e57bb902
 3. **`W93A` 报告的提交版口径值对不上**（现算 `81f65f0a7f5cead0` ≠ 任务书 `092c44b3bca27cdd`）：**未去追**是哪一趟改的（本件未碰该件）⇒ 记 `NOINFO`，引用者按**现算值**走。
 4. **以下在仓但尚未推的件**（本件**逐件点名、不擅自推**，交主控裁）：`build/MilBridge/W101A-report.md`（`bbd262c6d749fc1b`，`HEAD` 里没有）｜`src/WpfGfx.Linux.Native/src/{win32_internal.h,win32_core.c,win32_msg.c}`、`build/PresentationFramework.Linux/PresentationFramework.Linux.csproj`、`build/integration-wave.sh`、`build/MilBridge/tools/applier-audit-expected.txt`（都是**已跟踪但落后于磁盘**的件）。⚠️ 仓内既有惯例：**产品侧/门禁侧位移走收尾链的 `sync(#NN)` 提交**（`git log -- src/…` 只出现过 `sync(#49)`／`sync(#50)`／首笔搬入）⇒ 本件**不越界**把它们塞进文档提交。
 5. **`docs/CURRENT-STATE.md:9` 仍写 `gen=#50`**：本件**不许动**（那要收尾链重钉后一起改）⇒ 如实记为"口径句已进地图、机器行未动"。
-6. **未跑任何构建／门禁**（`verify-all`／`close-wave`／`integration-wave` 一条都没跑）⇒ §3 的读数全部**引自 W106A／W101A／主控复核**，本件**未端到端复跑**。
+6. ⚠️ **并发观察（不是本件的缺陷，但影响"现值"类读数）**：本件运行期间 `build/close-wave.sh` ＋ `verify-all.sh` 于 **`20:29:49`** 被**别人**改动（`f440ccdb4e29a942 → c757fd5058f1bfd4`／`1aa2ae4e94827cf3`）；`build/MilBridge/W105A-report.md`（`cd906e8135f2406b`，`mtime 20:26:27`）在本件收工前已出现且**未推**。⇒ 本件对它们的处置 = **只报不动**（既不在写域，也不在任务书授权推的清单里）；**是谁改的我不下结论**（无锁无握手，只给 mtime ＋ sha16 机器证）。
+7. **未跑任何构建／门禁**（`verify-all`／`close-wave`／`integration-wave` 一条都没跑）⇒ §3 的读数全部**引自 W106A／W101A／主控复核**，本件**未端到端复跑**。
 
 ---
 
@@ -196,3 +249,5 @@ fp_inputs() live = 82b3adf3cf52c66001bd6cdcf45af652eabef400ca2815f32e7a2e57bb902
 4. **`D-G80` 多了一个很值的实例**：不是"权威件没刷副本"（那是假红），而是"**读数取自一份 10:02 的旧副本**" ⇒ **整趟作废**；教训一句话：**开工前先核"装置读的是哪一份件"**。
 5. **`DEFREG=PASS declared=133`（两遍逐字节相同）**；声明表只动了一行锚（`KD`），编号集合**一个没变** ⇒ 纯追加有机证。
 6. **`fp_inputs` 变了但与本文档件无关**：覆盖面 148 件里我编辑的 5 件命中 **0**；位移的 5 件全是原生源/门禁件（W106A 与主控落的）。⚠️ 顺带纠正任务书：**两位产品件在 `bin/` 下，被 `fp_inputs` 按设计排除**，别把它们当 `inputs_fp` 的位移源。
+
+W109A-report.md sha16 = a274edf9befba435（口径：`head -n -2 本文件 | sha256sum | cut -c1-16`；本值由现场复算填入，未手抄）
