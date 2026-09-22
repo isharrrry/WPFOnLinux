@@ -192,11 +192,124 @@ COLUMN_FLOOR=PASS reason=decl==frozen-and-decl>=corpus pass=3 fail=0 noinfo=0 se
 
 ## 6 · ⑥ 冻后 `verify-all` ×2（27/27 全绿）
 
-（本节读数在冻后两趟跑完后同趟填入。）
+| 趟 | 日志 | `HEAVYSLOT` | `步骤通过/失败` | `用例通过/跳过` | 结论 |
+|---|---|---|---|---|---|
+| 第 1 趟 | `~/w110a/logs/09-verify-all-post1.log` | `MEMOK`／**`RELEASED rc=0 held=888s max_hold=1500s`** | **27 / 0** | 875 / 2 | **`结论：✅ 全部通过`** |
+| 第 2 趟 | `~/w110a/logs/09b-verify-all-post2.log` | `MEMOK`／**`RELEASED rc=0 held=887s max_hold=1500s`** | **27 / 0** | 875 / 2 | **`结论：✅ 全部通过`** |
+
+**关键机读行两趟逐字比对**（`diff` 口径：逐行取值后字符串比较；现场脚本见 §2 表下方命令）：
+
+| 字段 | 两趟 | 值 |
+|---|---|---|
+| `步骤通过 / 失败` | **IDENTICAL** | `27 / 0` |
+| `用例通过 / 跳过` | **IDENTICAL** | `875 / 2` |
+| `SKIP_GUARD` | **IDENTICAL** | `PASS x_state=available … violations=none` |
+| `BASELINESHA` | **IDENTICAL** | `PASS live=38e67e834430d75c decl=38e67e834430d75c` |
+| `BASELINEGEN` | **IDENTICAL** | `PASS decl_gen=#51 file_newest_gen=#51` |
+| `BASELINEDUP` | **IDENTICAL** | **`PASS n=0`** |
+| `ARMLOG_SHA` | **IDENTICAL** | `PASS required=5 declared=5 pass=5 fail=0 noinfo=0` |
+| `COLUMN_FLOOR` | **IDENTICAL** | **`PASS reason=decl==frozen-and-decl>=corpus pass=3 fail=0 selfreport=PASS reg=089b7324ba12e022 base=38e67e834430d75c`**（**冻前那 1 处红已转绿**） |
+| `VERIFYALL_SELF` | **IDENTICAL** | `PASS names=27 decl=27 gen=#51 dup=0 order=OK prose=OK prereg=PASS` |
+| `NULBYTES` | **IDENTICAL** | **`PASS files=1188 hits=0 bytes=250859711 canary=ok`** |
+| `FP_INPUTS_HYGIENE` | **IDENTICAL** | `PASS reason=clean coverage_n=149 artifact_n=0` |
+| `R_GATE` | **1 处不同** | `crit=13/13 clicks=11 ok=13 red=0 noinfo=0 popup=1 px_open=19449 px_closed=577 win=938x938 win32shim=8392fc09564779a1 pc=722e0ab8205b7c3f` **逐字相同**；唯一差异 = **`mem_mb=2373` vs `mem_mb=2409`**（**运行期内存读数**，不是判词） |
+
+⇒ **判词层两趟逐字相同**；唯一不同的那一格是**运行期内存读数**，**如实记**（不是判据）。
+
+**成对九位（冻后刻，两趟之后复算；命令 `bash ~/w95a/nine.sh`）**：
+
+| 位 | 冻前刻 | 冻后刻 | 一致? |
+|---|---|---|---|
+| `bridge` | `feef049e9d0e313a` | `feef049e9d0e313a` | ✔ |
+| `pc` | `722e0ab8205b7c3f` | `722e0ab8205b7c3f` | ✔ |
+| `pf` | `bc2c47ac7b067bad` | `bc2c47ac7b067bad` | ✔ |
+| `windowsbase` | `2e4e46e539a72cd7` | `2e4e46e539a72cd7` | ✔ |
+| `provider` | `1f9511a7ef395bfe` | `1f9511a7ef395bfe` | ✔ |
+| `win32shim` | `8392fc09564779a1` | `8392fc09564779a1` | ✔ |
+| `wic_shim` | `f7b3026c8c019be2` | `f7b3026c8c019be2` | ✔ |
+| `hbtextline` | `921ba9c65e9fb3be` | `921ba9c65e9fb3be` | ✔ |
+| `dwf` | `ce3469f49efcbcfa` | `ce3469f49efcbcfa` | ✔ |
+
+⇒ **预测命中：九位逐位相同**（含 `pf` —— 冻后两趟只做增量构建，未重编 PF）。冻结件 `ACCEPTANCE-BASELINE.md` 在两趟之后仍是 **`38e67e834430d75c`**（未被任何一趟改写）；`inputs_fp` 仍是 `58a6c094…`。
 
 ## 7 · ⑦ 记录 ＋ 推送 ＋ app-local
 
-（本节在推送与 app-local 刷新后同趟填入。）
+### 7.1 记录件
+
+`~/w21-verify/w51-record.txt`（三段 `===BANNER===`／`===FROZEN===`／`===RECORD===`，口径照 `w50-record.txt`）——**它已被冻结器写入 `ACCEPTANCE-BASELINE.md` 的首部**；冻结**之后**该文件**只在末尾追加一段「冻后补记」**（明确标注**不在冻结块内**）。
+
+### 7.2 推送（第 1 笔）
+
+```
+推前 head   = f933e314749ae6fb11bf12c4759c277beaa70c7f   （== origin/feat-Linux）
+fetch       : git fetch origin feat-Linux:refs/remotes/origin/feat-Linux   （refspec 陷阱已避）
+commit      = c51a7069898132931d6308200eb2cfc2e470da64  （20 件；逐径 git add，**未用 -A／--force**）
+push        : git push origin feat-Linux   ⇒  f933e31..c51a706  feat-Linux -> feat-Linux
+核对（**push 之后重新 fetch**）:
+  HEAD(local)     = c51a7069898132931d6308200eb2cfc2e470da64
+  remote-tracking = c51a7069898132931d6308200eb2cfc2e470da64
+  ls-remote HEAD  = c51a7069898132931d6308200eb2cfc2e470da64   ⇒ **三者一致 ✔**
+  ls-remote --symref origin HEAD ⇒ `ref: refs/heads/feat-Linux  HEAD` ✔
+staged 清单（`git status --porcelain`，无夹带）:
+  A build/MilBridge/W101A-report.md ｜ A build/MilBridge/W105A-report.md ｜ A build/MilBridge/W110A-report.md
+  A build/MilBridge/gen/tline-ledger-lines-20260922-2041.txt
+  M build/MilBridge/arm-logs/tline.log ｜ M build/MilBridge/gen/t2d-family-{baseline,matrix}.txt ｜ M build/MilBridge/known-red.json
+  M build/MilBridge/tools/applier-audit-expected.txt ｜ M build/PresentationFramework.Linux/ARTIFACT-SRC-FP.txt
+  M build/PresentationFramework.Linux/PresentationFramework.Linux.csproj ｜ M build/close-wave.sh ｜ M build/integration-wave.sh
+  M build/wave-audit.log ｜ M docs/CURRENT-STATE.md ｜ M samples/WpfTextDemo/ACCEPTANCE-BASELINE.md
+  M src/WpfGfx.Linux.Native/src/win32_{core.c,internal.h,msg.c} ｜ M verify-all.sh
+```
+
+### 7.3 `BYTECHECK`（**rev = push 之后重新 fetch ＋ `ls-remote` 交叉核**，计数器在主 shell 累加、未用 `tee`）
+
+```
+rev = c51a7069898132931d6308200eb2cfc2e470da64 ／ ls-remote = 同值 ⇒ rev-xcheck 一致 ✔
+ok  build/MilBridge/arm-logs/tline.log                        (disk=9d29470d63791d64)
+ok  build/MilBridge/gen/t2d-family-baseline.txt               (disk=d02dc5feb191f8e8)
+ok  build/MilBridge/gen/t2d-family-matrix.txt                 (disk=4fcd3b23d8d288ae)
+ok  build/MilBridge/known-red.json                            (disk=089b7324ba12e022)
+ok  build/MilBridge/tools/applier-audit-expected.txt          (disk=0f9e718352f183a5)
+ok  build/PresentationFramework.Linux/ARTIFACT-SRC-FP.txt     (disk=f605fccc9b574c4f)
+ok  build/PresentationFramework.Linux/PresentationFramework.Linux.csproj (disk=e22a7457dc4a8010)
+ok  build/close-wave.sh                                       (disk=c757fd5058f1bfd4)
+ok  build/integration-wave.sh                                 (disk=4d19d69c93ba5927)
+ok  build/wave-audit.log                                      (disk=ac3722da2e1fac5f)
+ok  docs/CURRENT-STATE.md                                     (disk=b7b2d513cfdab2eb)
+ok  samples/WpfTextDemo/ACCEPTANCE-BASELINE.md                (disk=38e67e834430d75c)
+ok  src/WpfGfx.Linux.Native/src/win32_core.c                  (disk=e0cbc965772d06c1)
+ok  src/WpfGfx.Linux.Native/src/win32_internal.h              (disk=e4f2de8d038e4780)
+ok  src/WpfGfx.Linux.Native/src/win32_msg.c                   (disk=4ad790f4c26a907c)
+ok  verify-all.sh                                             (disk=1aa2ae4e94827cf3)
+ok  build/MilBridge/W101A-report.md                           (disk=bbd262c6d749fc1b)
+ok  build/MilBridge/W105A-report.md                           (disk=cd906e8135f2406b)
+ok  build/MilBridge/W110A-report.md                           (disk=f01a71faa3c59590)
+ok  build/MilBridge/gen/tline-ledger-lines-20260922-2041.txt   (disk=81880ac3d10638a4)
+BYTECHECK ok=20 mismatch=0 nobody=0
+```
+
+### 7.4 ⚠️ **刻意不推**的件（逐件点名 ＋ 理由；请主控裁）
+
+| 件 | 大小（B） | 为什么没推 |
+|---|---|---|
+| `build/.applocal-selftest.log` | 10,666 | **运行日志**（app-local 校验器自测输出），不构成波产物 |
+| `build/MilBridge/gen/tline-ledger-lines-20260921-1224.txt` 等 **5 件**（`-1231`／`-1540`／`-1623`／`-1629`） | 957／957／958／958／958 | **`#48`–`#50` 遗留**的臂账本（不是本波产物）；本波那一件已推 |
+| `build/MilBridge/src/MilBridge.Resolver/README-合并写.txt` | 1,667 | 与 `#51` 无关的散件（来源未清） |
+
+⚠️ 这三类**都不在** `fp_inputs()` 覆盖面内，也不参与任何判据 ⇒ 不推**不影响** `#51` 的冻结语义。
+
+### 7.5 app-local 刷新（**必须显式补根**，`D-G91`）
+
+```
+AUTH_ROOT=$R SCAN_ROOTS=$R/build:$R/tests:$R/samples:$R/src:$R/tools \
+  bash build/DirectWrite.Linux/wic-shim/sync-applocal-authority.sh --apply
+  ⇒ APPSYNC-REFRESH=refreshed=0 newer=0 applied=1      （没有落单者 ⇒ 真写 0 件）
+  … check-applocal-sync.sh
+  ⇒ 计数：OK=200  MISMATCH=0（STALE=0  NEWER-DIFF=0）  MISSING=0  UNEXPECTED=6[DECL-GAP-EQ=6 DECL-GAP-DIFF=0]  DIVERGENT=0
+    CROSS-CONFIG=101  LIB-COPY=23  SKIP(obj)=14 SKIP(stub)=20 SKIP(ref)=12  RETIRED=0  AUTH-MISSING=0  BRIDGE-ANCHOR=0  BRIDGE-NOINFO=0
+  ⇒ **STALE=0  DIVERGENT=0** ✔（`rc=1` 由 `UNEXPECTED=6` 决定 —— 那是**在册**声明类缺口，**不当绿、不改判据**）
+```
+⚠️ 若按脚本**默认** `SCAN_ROOTS`（`build:tests:samples:src`，**漏 `tools`**）跑，它会给 `STALE=0` 的**假绿**（`D-G91`）⇒ 本车道**显式补根**后取值。
+桥副本 4/4 与发布记录一致（`BRIDGE-ANCHOR=0 BRIDGE-NOINFO=0`）。
 
 ## 8 · ⑧ 作废趟／`NOINFO`／纪律偏离
 
