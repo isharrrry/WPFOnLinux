@@ -14,6 +14,7 @@
 | [`PORT-SPEC.md`](PORT-SPEC.md) | **工程规范**：判据纪律、取证纪律、写域纪律、缺陷登记、发波链、并行约定、推翻流程 |
 | [`ROUTES.md`](ROUTES.md) | **并行子路线图**：每条路线的目标/现状/写域/判据/依赖，以及"怎么认领一条路线" |
 | [`FORK-AND-PUSH.md`](FORK-AND-PUSH.md) | 从 fork 上游到把工作推上 `feat-Linux` 并设为默认分支（含 `.gitignore` 验证与三笔待还账） |
+| [`PREREG-TEMPLATE.md`](PREREG-TEMPLATE.md) | **预登记四要件（回归判定）的权威处**：模板骨架 ＋ 判定依据 ＋ 现算样本量参考（`TASK-0705`；牙 = `build/MilBridge/tools/regression-decision.py`） |
 
 ## 2. 现状与验收（**current**）
 
