@@ -311,6 +311,19 @@ AUTH_ROOT=$R SCAN_ROOTS=$R/build:$R/tests:$R/samples:$R/src:$R/tools \
 ⚠️ 若按脚本**默认** `SCAN_ROOTS`（`build:tests:samples:src`，**漏 `tools`**）跑，它会给 `STALE=0` 的**假绿**（`D-G91`）⇒ 本车道**显式补根**后取值。
 桥副本 4/4 与发布记录一致（`BRIDGE-ANCHOR=0 BRIDGE-NOINFO=0`）。
 
+### 7.6 第二笔推送（**本报告本体**）
+
+```
+推前 head = c51a7069898132931d6308200eb2cfc2e470da64
+commit    = 47db9c26e1632f9b019155f94ca78d1b7aad276d   （1 件：build/MilBridge/W110A-report.md）
+push      : c51a706..47db9c2  feat-Linux -> feat-Linux
+核对      : HEAD(local) == remote-tracking == ls-remote ⇒ 三者一致 ✔ ；--symref 仍 `feat-Linux` ✔
+逐件核对  : git cat-file blob 47db9c2:build/MilBridge/W110A-report.md | cmp - 磁盘 ⇒ ok（该 rev 上本报告 sha16 = 1db430dc1abe6c20）
+```
+
+⚠️ **本报告的自指口径（免得后人算错）**：上面那笔 commit 里的就是本报告的 **v2**。本节这行记账本身又坐一笔（v3）⇒ **报告里写不出自己所在 commit 的 hash**（写了就永远滞后一笔、且改一次 hash 变一次）。
+⇒ **最终 head 记在 `~/w110a/STATUS.md` 与交件消息里**，不在本件内（同 `#50` 的「冻后刻九位不可能落在冻结块内」是同一条道理）。
+
 ## 8 · ⑧ 作废趟／`NOINFO`／纪律偏离
 
 - **作废趟：0**（无 `HEAVYSLOT=NOINFO reason=low-memory`、无 `MAXHOLD_KILL`；每趟都拿到 `MEMOK`）。
