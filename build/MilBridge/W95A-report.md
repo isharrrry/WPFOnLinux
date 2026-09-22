@@ -377,9 +377,29 @@ SYNC-APPLOCAL=PASS target=/home/links-dev/hc-linux/…/HandyControlDemo_Net_GE45
   **按设计不进**（`git check-ignore` 逐件确认）：`tests/parity/geometry/u14/linux-results-u14.json`（`.gitignore:47`）｜`tests/parity/windows/layout-b34/windows-results.json`（`.gitignore:51`）｜`build/DirectWrite.Linux/wic-shim/{libwpfwic.so,libSkiaSharp.so}`（`:26`／`:31`）｜`**/__pycache__/**`｜`upstream/**`。
 * 纪律：逐径 `cp -p` ＋ 逐径 `git add --`（**无 `git add -A`**、**无 `--force`**、**未碰默认分支**）。
 
-<!--PUSH-RESULT-->
-（推送结果与逐件字节核对见本报告 §7.1／§7.2 —— 由收尾链第二笔提交补写）
-<!--/PUSH-RESULT-->
+### §7.1 推送结果（**成功，一笔快进**）
+
+```
+git -C ~/netTest/GitProj/WPFOnLinux push origin feat-Linux
+   7feca48..62c7a7b  feat-Linux -> feat-Linux          （69 files changed, 16,182 insertions(+), 161 deletions(-)）
+```
+
+| 项 | 值 |
+|---|---|
+| **推送前 head** | `7feca487741a8070de81615bd04de889b992766d`（= `origin/feat-Linux`，我开工时与之一致） |
+| **推送后 head** | **`62c7a7b58934e1115c8b6eac7cad6e29c0793dac`** |
+| 提交信息 | `sync(#50): 收尾链后半段 —— 门禁×2 与冻后 verify-all×2 全绿、冻结 #50（1f4189c1257737a9）、R-GATE 判据件 9 处 SIGPIPE 修法（D-G42 复发）、app-local 刷新与两本登记册删表` |
+| 默认分支 | `git ls-remote --symref origin HEAD` = **`ref: refs/heads/feat-Linux`**（**未改**） |
+| 提交前工作树 | `git status --porcelain` = **空**（干净；无夹带） |
+
+### §7.2 逐件字节核对（**远端 blob == 现盘**）
+
+⚠️ **先显式 `git fetch origin feat-Linux:refs/remotes/origin/feat-Linux`**（这个克隆的 fetch refspec **只跟 `main`**；不显式 fetch 会比到**推送前**的旧 ref —— `#48`/`#49` 两度踩到）⇒ 实测 `7feca48..62c7a7b feat-Linux -> origin/feat-Linux`，随后
+
+```
+BYTECHECK ok=69 mismatch=0 nobody=0        ← 逐件 `git cat-file blob origin/feat-Linux:<path> | sha256sum` vs `sha256sum $R/<path>`
+```
+**69/69 逐字节相同、0 不一致、0 缺 blob**（不一致清单为空）。计数器在主 shell 里累加（**没有**用 `… | tee` —— `#49` 那次计数器被关进子 shell、打出来的 `FAIL=0` 不可信）。
 
 ---
 
