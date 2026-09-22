@@ -709,9 +709,14 @@ static void fill_minmaxinfo_defaults(WPF_MINMAXINFO *mmi)
 //   （`_swh` 与 `CompositionTarget` 都已就位）**再问一次**，就地问出应用"真的声明了什么"。
 //   两处调用点必须走**同一段代码**：否则"建窗那一拍"与"map 后那一拍"的语义会各自漂移，
 //   而本仓的判据正是建在这两拍**可对照**上（`[WMSIZE_DIAG]` 行随 `where` 区分）。
-// 【返回值】`app_declared` = 应用**真的改过**上限（回填值 ≠ 我们填的默认值）。
-//   `cls` 可为 NULL ⇒ `wpf_x11_apply_wm_hints` 会跳过 `WM_CLASS`（那一项早已设过、不该重设）。
-static int wpf_ask_minmaxinfo_apply_hints(HWND hwnd, const char *cls, const char *where)
+// 【返回值（波 51 改成出参）】这一拍**算出**的那组值（`*out_max_w/*out_max_h == 0` = "不发 `PMaxSize`"）。
+//   ⚠️ **本函数不再自己写 X**：写 X 的**唯一**入口是 `wpf_hints_publish()`（幂等发布）。
+//   为什么必须拆开：旧码在每次"补问"之后**无条件**调 `wpf_x11_apply_wm_hints`，
+//   而"补问"的停止条件是"终态 ＋ 次数上限"（计的是**问**、不是**改**）⇒ W93A 实测两类吞法。
+//   拆开之后"要不要落 X"由**值的比较**决定，与"问了几次"彻底解耦（`D-G88` 的修法本体）。
+static void wpf_ask_minmaxinfo_apply_hints(HWND hwnd, const char *where,
+                                           int *out_min_w, int *out_min_h,
+                                           int *out_max_w, int *out_max_h)
 {
     WPF_MINMAXINFO mmi;
     fill_minmaxinfo_defaults(&mmi);
@@ -720,6 +725,7 @@ static int wpf_ask_minmaxinfo_apply_hints(HWND hwnd, const char *cls, const char
     wpf_dispatch_to_window(hwnd, WM_GETMINMAXINFO, 0, (LPARAM)&mmi);
     int min_w = mmi.ptMinTrackSize.x, min_h = mmi.ptMinTrackSize.y;
     int max_w = mmi.ptMaxTrackSize.x, max_h = mmi.ptMaxTrackSize.y;
+    (void)where;
     // ── 只把"应用**真的改过**的上限"传给 X ───────────────────────────────────────
     //   怎么判"真的改过"：拿窗口过程回填后的值与**我们填进去的默认值**比。
     //   相等 ⇒ 应用没声明约束（WPF 的 `Window.WmGetMinMaxInfo` 在没有
@@ -735,59 +741,91 @@ static int wpf_ask_minmaxinfo_apply_hints(HWND hwnd, const char *cls, const char
     } else {
         max_w = 0; max_h = 0;      // 0 = "不发 PMaxSize"
     }
-    wpf_x11_apply_wm_hints(hwnd, cls, min_w, min_h, max_w, max_h);
-    wpf_wmsize_diag("%s: 默认 min=%dx%d max(=屏幕)=%dx%d → 窗口过程回填 min=%dx%d max=%dx%d "
-                    "⇒ 应用%s声明上限 ⇒ X 提示 min=%dx%d PMaxSize=%s",
-                    where, d_min_w, d_min_h, d_max_w, d_max_h,
-                    mmi.ptMinTrackSize.x, mmi.ptMinTrackSize.y,
-                    mmi.ptMaxTrackSize.x, mmi.ptMaxTrackSize.y,
-                    app_declared ? "**有**" : "**没有**",
-                    min_w, min_h,
-                    app_declared ? "已发" : "**未发**（不再用钳制值顶替）");
-    return app_declared;
+    if (out_min_w) *out_min_w = min_w;
+    if (out_min_h) *out_min_h = min_h;
+    if (out_max_w) *out_max_w = max_w;
+    if (out_max_h) *out_max_h = max_h;
+    if (where) {   // 诊断行仍由**落 X 前**这一拍打（`where` 决定前缀；见 `wpf_hints_publish`）
+        wpf_wmsize_diag("%s: 默认 min=%dx%d max(=屏幕)=%dx%d → 窗口过程回填 min=%dx%d max=%dx%d "
+                        "⇒ 应用%s声明上限",
+                        where, d_min_w, d_min_h, d_max_w, d_max_h,
+                        mmi.ptMinTrackSize.x, mmi.ptMinTrackSize.y,
+                        mmi.ptMaxTrackSize.x, mmi.ptMaxTrackSize.y,
+                        app_declared ? "**有**" : "**没有**");
+    }
 }
 
-// ── 【波 50 · `D-G83` 修法 H1】首次 map 之后的**补问**（每窗有上限，不许消息风暴）──────
-// 【为什么必须存在】`fill_minmaxinfo_defaults` 的注释与 W81A 报告 §1.4 的静态链条：
-//   建窗那一拍问早了（`_swh` 还没赋值）⇒ 永远问不出"应用声明的值"；**而修前 shim 全仓
-//   只问那一次**（`grep -n 'WM_GETMINMAXINFO' src/**` 的派发点只有建窗那一处）⇒
-//   这条通道对"应用声明的值"整体失效（上、下限都到不了 X，W81A 实测 `minonly` 也是 `1 by 1`）。
-// 【上限为什么必须有】`WPF_HINTS_REASK_MAX`：一个窗口一生最多补问这么多次。
-//   计数分两种停止条件：
-//     · 问出 `app_declared=1` ⇒ `hints_map_declared=1` ⇒ **以后再也不问**（"已声明"是终态）；
-//     · 一直问不出（应用真没声明）⇒ 由次数上限兜住。
-//   为什么允许"问不出就再问"：本函数**无法**分辨"应用真没声明"与"这一拍仍然太早"
-//   （后者在建窗/map 时序上是可能的）⇒ 用**有界重试**代替猜一个"一定够晚"的时刻，
-//   并把实际次数打进 `[WMSIZE_DIAG]`（旁证，读数里可见）。
-// 【只对顶层**非** message-only 窗口】与建窗那一拍同一谓词（子窗口/消息窗没有"最大化"语义）。
-#define WPF_HINTS_REASK_MAX 3
-
-static void wpf_minmaxinfo_reask_after_map(HWND hwnd)
+// ── 【波 51 · `D-G88` 落地 `P1`＋`P4`】幂等发布：**值真的变了才 `XSetWMNormalHints`** ──────
+// 【为什么删掉波 50 的那两个停止条件】W93A 实测（`build/MilBridge/W93A-report.md` §2.2/§2.5）：
+//   · `hints_map_declared`（"问出过一次声明"即**终态**）：`W1` 首次问出后 ⇒ 运行期再改**永不重发**；
+//   · `hints_map_asks < WPF_HINTS_REASK_MAX(3)`：计的是"**问**"不是"**改**" —— `W3` 被 4 次
+//     无意义的 `HIDE/SHOW` 花光预算 ⇒ **第一次真声明也永久发不出去**。
+//   两者都是"用**次数**近似**值变化**"；现在直接比较**上次已发布的那组值**，不需要近似。
+// 【新的不变量（波 51 的先写判据 `I1`）】`XSetWMNormalHints` 的调用次数 == "值真的变了的次数"。
+// 【`P4` 重入闸】下面这一拍会**同步回调托管代码**（`WM_GETMINMAXINFO` ⇒ `Window.WmGetMinMaxInfo`），
+//   而托管回调里可能再次走到 `SetWindowPos` ⇒ 没有闸就是**递归**（本仓 `D-G54` 同族教训：
+//   跨层标记必须在最内层兑现）。
+// 【调用点】① 建窗那一拍（Win32 顺序，`create_window_utf8`）②首次 map 之后（`ShowWindow`）
+//   ③**运行期**改尺寸真的变了时（`MoveWindow`/`SetWindowPos`，`P2`）
+//   ④**托管侧的声明告示**（`WPF_LINUX_WM_HINTS_CHANGED`，波 51 `/TASK-0108` 的 `P3`；调用点见
+//      `win32_msg.c` 的 `wpf_dispatch_to_window`）—— 这一拍补的正是"改**大**/不伴随 resize"
+//      那一半（①②③ 都到不了它）。⇒ 因此 `wpf_hints_publish` **不再** `static`（`win32_internal.h` 有原型）。
+void wpf_hints_publish(HWND hwnd, const char *where)
 {
     char clsbuf[256];
     clsbuf[0] = 0;
     wpf_lock();
     wpf_window *w = wpf_window_find(hwnd);
-    int do_it = 0;
+    int skip = 1;
     if (w && !w->is_message_only && w->parent == NULL && (w->style & WS_CHILD) == 0
-        && !w->hints_map_declared && w->hints_map_asks < WPF_HINTS_REASK_MAX) {
-        w->hints_map_asks++;
-        do_it = 1;
+        && !w->hints_in_refresh) {
+        w->hints_in_refresh = 1;    // ★ P4：闸在整个"问 + 比 + 发"期间保持
+        skip = 0;
+        // `WM_CLASS` 那一项由类名给（旧码在建窗那一拍直接把调用方的 `cls` 传下去；按 atom
+        // 查回来等价，且对"调用方传的是 ATOM 而不是字符串"那种形态更稳）。
         wpf_class *k = wpf_class_find_atom(w->class_atom);
         if (k && k->name) snprintf(clsbuf, sizeof(clsbuf), "%s", k->name);
     }
     pthread_mutex_unlock(&g_wpf.lock);
-    if (!do_it) return;
+    if (skip) return;
 
-    int declared = wpf_ask_minmaxinfo_apply_hints(hwnd, clsbuf[0] ? clsbuf : NULL,
-                                                  "WM_GETMINMAXINFO(after-map)");
-    if (declared) {
-        wpf_lock();
-        wpf_window *w2 = wpf_window_find(hwnd);
-        if (w2) w2->hints_map_declared = 1;
-        pthread_mutex_unlock(&g_wpf.lock);
+    int min_w = 1, min_h = 1, max_w = 0, max_h = 0;
+    wpf_ask_minmaxinfo_apply_hints(hwnd, where, &min_w, &min_h, &max_w, &max_h);
+
+    wpf_lock();
+    wpf_window *w2 = wpf_window_find(hwnd);
+    int changed = 0;
+    if (w2) {
+        changed = !w2->hints_pub_valid
+               || w2->hints_pub_min_w != min_w || w2->hints_pub_min_h != min_h
+               || w2->hints_pub_max_w != max_w || w2->hints_pub_max_h != max_h;
+        if (changed) {
+            w2->hints_pub_valid = 1;
+            w2->hints_pub_min_w = min_w; w2->hints_pub_min_h = min_h;
+            w2->hints_pub_max_w = max_w; w2->hints_pub_max_h = max_h;
+        }
+        w2->hints_in_refresh = 0;
     }
+    pthread_mutex_unlock(&g_wpf.lock);
+    if (changed)   // ★ 只有值真的变了才落 X ⇒ 幂等、无消息风暴
+        wpf_x11_apply_wm_hints(hwnd, clsbuf[0] ? clsbuf : NULL, min_w, min_h, max_w, max_h);
+    wpf_wmsize_diag("%s: X 提示 min=%dx%d PMaxSize=%s ｜ %s",
+                    where, min_w, min_h,
+                    (max_w > 0 && max_h > 0) ? "已发" : "**未发**（不再用钳制值顶替）",
+                    changed ? "**值变了 ⇒ 落 X**" : "与上次已发布的一致 ⇒ **不发 X**（幂等）");
 }
+
+// ── 【波 50 · `D-G83` 修法 H1】首次 map 之后的补问 —— 波 51 起由 `wpf_hints_publish` 承担 ──
+// 【为什么必须存在】`fill_minmaxinfo_defaults` 的注释与 W81A 报告 §1.4 的静态链条：
+//   建窗那一拍问早了（`_swh` 还没赋值）⇒ 永远问不出"应用声明的值"；**而修前 shim 全仓
+//   只问那一次**（`grep -n 'WM_GETMINMAXINFO' src/**` 的派发点只有建窗那一处）⇒
+//   这条通道对"应用声明的值"整体失效（上、下限都到不了 X，W81A 实测 `minonly` 也是 `1 by 1`）。
+// 【波 51 删掉了什么】波 50 在这里放了两个停止条件（`hints_map_declared` 终态 ＋
+//   `hints_map_asks < WPF_HINTS_REASK_MAX(=3)` 次数上限）。W93A 实测它们**两侧都错**：
+//   `W1`/`W2` 被"终态"锁死、`W3` 被"预算"锁死 ⇒ **运行期改动永远发不出去**。
+//   现在改由 `wpf_hints_publish` 的**值比较**兜底（幂等 ⇒ 不需要次数上限，也不会有风暴）。
+// 【只对顶层**非** message-only 窗口】与建窗那一拍同一谓词（子窗口/消息窗没有"最大化"语义）。
+//   ⚠️ 这条谓词现在写在 `wpf_hints_publish` 里（**唯一**一份），三处调用点共用。
 
 static HWND create_window_utf8(uint32_t dwExStyle, const char *cls,
                                const char *title, uint32_t dwStyle,
@@ -909,9 +947,11 @@ static HWND create_window_utf8(uint32_t dwExStyle, const char *cls,
         //       等缓存 —— 见 `fill_minmaxinfo_defaults` 的注释），给全 0 会把"最大尺寸"
         //       缓存成 0；
         //     · 它落的 `WM_NORMAL_HINTS` 是**唯一**在建窗/map 之前设的那一次。
-        //   真正缺的那一步在 `ShowWindow` 里（首次 map 之后补问），见
-        //   `wpf_minmaxinfo_reask_after_map`。
-        wpf_ask_minmaxinfo_apply_hints(w->hwnd, cls, "WM_GETMINMAXINFO");
+        //   真正缺的那一步在 `ShowWindow` 里（首次 map 之后补问），见 `wpf_hints_publish`。
+        //   ⚠️ 【波 51】这里仍走**同一段代码**（`wpf_hints_publish`）⇒ "建窗那一拍"与
+        //   "map 后那一拍"的语义不会各自漂移（本仓判据正建在这两拍可对照上）。
+        //   首拍时 `hints_pub_valid == 0` ⇒ 一定会落一次 X（Win32 顺序不变）。
+        wpf_hints_publish(w->hwnd, "WM_GETMINMAXINFO");
     }
 
     if (!w->is_message_only && (dwStyle & WS_VISIBLE) != 0)
@@ -1070,8 +1110,9 @@ BOOL ShowWindow(HWND hwnd, int nCmdShow)
     //   而在 **`WM_CREATE` 里再建窗**时那种标记很容易被嵌套冲掉（本仓 `D-G54` 同族教训）。
     //   落在 `ShowWindow` 则天然按"显隐语义"区分，且 `SetWindowPos(SWP_SHOWWINDOW)` 也会
     //   走到这里（它自己就 `ShowWindow(hwnd, SW_SHOW)`，见 `:1075`）。
-    // 【不是每次问】次数上限与"已声明即终态"都在 `wpf_minmaxinfo_reask_after_map` 里。
-    if (map) wpf_minmaxinfo_reask_after_map(hwnd);
+    // 【波 51】这里**每次都问**，但只有"值真的变了"才落 X（幂等）⇒ 既不需要次数上限，
+    //   也不会消息风暴。旧的"问出即终态 / 最多问 3 次"两个条件见 `wpf_hints_publish` 的注释。
+    if (map) wpf_hints_publish(hwnd, "WM_GETMINMAXINFO(after-map)");
     if (want_state >= 0) wpf_core_window_state(hwnd, want_state);
     return was;   // Win32: 返回「此前是否可见」
 }
@@ -1097,9 +1138,16 @@ BOOL MoveWindow(HWND hwnd, int x, int y, int w, int h, BOOL repaint)
     win = wpf_window_find(hwnd);
     if (!win) { pthread_mutex_unlock(&g_wpf.lock);
                 wpf_set_last_error(ERROR_INVALID_WINDOW_HANDLE); return 0; }
+    int old_w = win->width, old_h = win->height;      // ★ 波 51：改前尺寸（判"真的变了"）
     win->x = x; win->y = y; win->width = w; win->height = h;
     pthread_mutex_unlock(&g_wpf.lock);
     wpf_x11_move_resize(hwnd, x, y, w, h);
+    // ── 【波 51 · `P2`】改尺寸路径上的**触发器**（`D-G88` 的"运行期"那一半）──────────
+    //   上游 `Window.cs:5879-5884` 在 `MaxWidth` 变**小**时**一定**走 `SetWindowPos`
+    //   （`UpdateHwndSizeOnWidthHeightChange`）⇒ 这一拍必到（W93A 的 `W2-DECLARE` 几何
+    //   `625x521→521x417` 就是它）。放在 `wpf_x11_move_resize` **之后**：应用侧的答案可能
+    //   依赖"当前尺寸"，先落尺寸再问才问得准。
+    if (w != old_w || h != old_h) wpf_hints_publish(hwnd, "after-MoveWindow");
     return 1;
 }
 
@@ -1155,10 +1203,16 @@ BOOL SetWindowPos(HWND hwnd, HWND after, int x, int y, int cx, int cy, UINT flag
     win = wpf_window_find(hwnd);
     if (!win) { pthread_mutex_unlock(&g_wpf.lock);
                 wpf_set_last_error(ERROR_INVALID_WINDOW_HANDLE); return 0; }
+    int old_w = win->width, old_h = win->height;      // ★ 波 51：改前尺寸（判"真的变了"）
     win->x = nx; win->y = ny; win->width = nw; win->height = nh;
     pthread_mutex_unlock(&g_wpf.lock);
 
     wpf_x11_move_resize(hwnd, nx, ny, nw, nh);
+    // ── 【波 51 · `P2`】同上：**只有调用方真的改了尺寸**才补一拍（`SWP_NOSIZE` 那条路上
+    //   尺寸可能正是 WM 自己给的值，那条路不该触发重问）。`SWP_SHOWWINDOW` 会自己走
+    //   `ShowWindow` ⇒ 那一拍由 after-map 那条路覆盖（重入闸保证不会叠加成风暴）。
+    if (!(flags & SWP_NOSIZE) && (nw != old_w || nh != old_h))
+        wpf_hints_publish(hwnd, "after-SetWindowPos");
     if (flags & SWP_SHOWWINDOW) ShowWindow(hwnd, SW_SHOW);
     if (flags & SWP_HIDEWINDOW) ShowWindow(hwnd, SW_HIDE);
 

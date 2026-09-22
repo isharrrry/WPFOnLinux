@@ -36,6 +36,10 @@ patch-presentationcore-lineheight-trace
 patch-presentationcore-hwndtarget-trace
 patch-swe-linux
 patch-presentationcore-mousecapture-release
+patch-presentationframework-window-minmax-notify
+#   ↑ `#51` W106A：`D-G88` 的 `P3`（托管侧通知 ⇒ 幂等发布尺寸提示到 X）。**主控落登记**（两处：
+#     `build/integration-wave.sh` 的 `APPLIERS_EXPLICIT+=` ＋ 本表）；它虽在 `patch-presentation*`
+#     通配里会被兜底执行，但**不显式登记就进不了本清单** ⇒ 漏登记会被本审计判红。
 #   ↑ `#38` 接通（`#36` 曾回退）：官方 `System.Windows.Extensions` 包 → Linux 原生替身。
 #   两条根因 = ① HintPath 写死 `bin/Release/`（波建的是 Debug）⇒ 引用落空、RAR 回落到**包** ⇒ CS0012；
 #   ② `System.Security.Permissions 9.0.0` 传递依赖 SWE ⇒ 必须留"排除 compile/runtime 资产"的占位包引用。

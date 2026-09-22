@@ -513,6 +513,21 @@ LRESULT wpf_dispatch_to_window(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
     WNDPROC proc = NULL;
     wpf_global_init();
+
+    // ── 波 51 · `TASK-0108` 的 `P3`：托管侧的**私有告示消息**在这里落地 ────────────────────
+    // 【为什么拦在**这里**】本函数是 `SendMessageW`（`:837`）与 `DispatchMessageW`（`:744`）的
+    //   **共同落点** ⇒ "发"与"投"两条路都覆盖；并且拦在这里 ⇒ 它**不再进**托管窗口过程
+    //   （托管侧不必认识这条消息，也就不会与上游 `HwndSource` 的未知消息行为打交道）。
+    // 【为什么调 `wpf_hints_publish`】它是写 X 的**唯一**入口、且**幂等**（值没变就不发
+    //   `XSetWMNormalHints`）⇒ 托管侧多喊几次**不会**造成发布风暴（波 51 的先写判据 `I1`）；
+    //   同时它复用 `P1` 的 `hints_pub_*` 缓存与 `P4` 的重入闸，**没有第二套发布路径**。
+    // 【安全】非顶层/子窗口/message-only 窗口由 `wpf_hints_publish` 自己的谓词跳过；
+    //   本分支**不进** `proc`（也就不会触发任何托管回调的同步重入）。
+    if (msg == WPF_LINUX_WM_HINTS_CHANGED) {
+        wpf_hints_publish(hwnd, "managed-DP-change");
+        return 0;
+    }
+
     wpf_trace_msg(hwnd, msg, wp, lp);
     wpf_lock();
     wpf_window *w = wpf_window_find(hwnd);

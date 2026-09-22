@@ -105,6 +105,21 @@
 #define WM_APP           0x8000
 #define WM_USER          0x0400
 
+// ── 波 51 · `TASK-0108` 的 `P3`：托管侧"尺寸提示声明变了"的**私有通知消息** ──────────────
+// 【为什么要有它】应用在**运行期**改 `Min/MaxWidth/Height` 而**不伴随 resize** 时，上游 `Window`
+//   自己什么都不做（`PresentationFramework/System/Windows/Window.cs` 的 `OnMaxHeightChanged` /
+//   `OnMaxWidthChanged` 里 `maxHeight/maxWidth < logicalSize` 那一支才动作，注释原文：
+//   "no need to do anything"）⇒ 我方**没有触发器** ⇒ X 侧的 `WM_NORMAL_HINTS` 只能等
+//   "下一次窗口活动"（W101A 实测：`W3-DECLARE` 应用侧 `469x365` 而 X 侧 `<缺席>`；
+//   `A3 W1-REVERT` 期望 `667x500` 实际停在 `521 by 417`）。
+// 【消息号为什么取 WM_APP + 0x7F00】`WM_APP`(0x8000) 起是"应用私有"段；本 shim 的
+//   `RegisterWindowMessageW` 也从 `WM_APP` 起**递增**分配（见 `win32_core.c` 的
+//   `next_registered_msg`）⇒ 这里从该段**上界往下**取，登记消息不可能涨到 0xFF00
+//   （要 32512 次注册）。
+// 【谁拦它】`win32_msg.c` 的 `wpf_dispatch_to_window()` —— `SendMessageW` 与 `DispatchMessageW`
+//   的**共同落点** ⇒ 发/投两条路都覆盖，且**不再进**托管窗口过程（托管侧不需要认识它）。
+#define WPF_LINUX_WM_HINTS_CHANGED (WM_APP + 0x7F00)   /* = 0xFF00 */
+
 #define WS_VISIBLE       0x10000000L
 #define WS_CHILD         0x40000000L
 #define WS_POPUP         0x80000000L
@@ -323,12 +338,18 @@ typedef struct wpf_window {
     int       maximized;            // 我们请求过 _NET_WM_STATE 最大化且还没还原
     int       iconified;            // 已被最小化（XIconifyWindow）
     int       custom_chrome;        // 应用声明"我自己画窗框"⇒ WM 侧不加装饰（详见 win32_x11.c）
-    // ── 【波 50 · `D-G83` 修法 H1】首次 map 之后补问 `WM_GETMINMAXINFO` 的台账 ────────
-    //   为什么需要两个字段：`hints_map_asks` 是**次数上限**（不许消息风暴），
-    //   `hints_map_declared` 是**终态**（一旦问出"应用真的声明了上限"就再也不问）。
-    //   见 `win32_core.c` 的 `wpf_minmaxinfo_reask_after_map`。
-    int       hints_map_asks;       // 已补问次数（上限 WPF_HINTS_REASK_MAX）
-    int       hints_map_declared;   // 已观察到"应用真的声明了上限" ⇒ 停止补问
+    // ── 【波 50 · `D-G83` 修法 H1／波 51 · `D-G88` 落地 `P1`＋`P4`】提示通道的台账 ────
+    //   ⚠️ 波 51 **删掉了**波 50 的那两个停止条件（`hints_map_asks` 次数上限、
+    //   `hints_map_declared` 终态）：W93A 实测它们都是"**用次数近似值变化**"，
+    //   而近似在两侧都出错 —— ①问出过一次声明即**终态** ⇒ 运行期再改**永不重发**；
+    //   ②上限计的是"**问**"不是"**改**" ⇒ 4 次无意义的 `HIDE/SHOW` 花光预算后
+    //   **连第一次真声明都发不出去**（`build/MilBridge/W93A-report.md` §2.5）。
+    //   现在直接比较**上次已发布的那组值**（下面 5 个字段）⇒ 幂等、无消息风暴。
+    //   见 `win32_core.c` 的 `wpf_hints_publish`（写 X 的**唯一**入口）。
+    int       hints_pub_valid;      // 是否已有"上次发布"（首次发布前 = 0 ⇒ 一定要发一次）
+    int       hints_pub_min_w, hints_pub_min_h;
+    int       hints_pub_max_w, hints_pub_max_h;  // 0,0 = "不发 PMaxSize" 也是**一种已发布状态**
+    int       hints_in_refresh;     // ★ `P4` 重入闸：刷新会**同步回调托管代码**，可能再进 `SetWindowPos`
     int       nc_press_active;      // 当前这次按下已被判成非客户区（抬起要配对成 WM_NCLBUTTONUP）
     int32_t   rc_x, rc_y, rc_w, rc_h;   // 最大化前的客户区矩形（还原用）
     int       in_destroy;           // 正在走 DestroyWindow（防重入）
@@ -436,6 +457,13 @@ extern HWND g_capture_window;
 
 // win32_core.c：某个窗口的创建线程 id（口径 = wpf_thread* 地址的低 31 位）。
 uint32_t wpf_thread_id_of_window(HWND hwnd);
+
+// win32_core.c：**幂等发布**（写 X 的**唯一**入口，`D-G88` 的 `P1`）。
+// 【为什么在这里声明】波 51 起它多了一个调用点 —— `win32_msg.c` 的 `wpf_dispatch_to_window()`
+//   在拦下 `WPF_LINUX_WM_HINTS_CHANGED`（托管侧的声明变化告示）时**复用同一个入口**
+//   （连同 `P1` 的 `hints_pub_*` 缓存一起复用，**不另写一套**发布路径）。
+//   `where` 只影响 `[WMSIZE_DIAG]` 的诊断前缀。
+void wpf_hints_publish(HWND hwnd, const char *where);
 
 // win32_msg.c：记录「最近取出的消息」的位置与时间，供 GetMessagePos/Time 用。
 void wpf_note_message(const WPF_MSG *m);

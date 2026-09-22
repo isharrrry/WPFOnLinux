@@ -41,6 +41,7 @@
 #   ⚠️ 本块**故意放在同一个文件里**：跨文件的手工声明在本仓**已经失败过一次**（`docs/CURRENT-STATE.md`
 #      那句"当前期望是 N 步"在 `#26`/`#27` 连加 3 步时毫无反应、全程零红）⇒ 声明必须与本体同趟改、同趟审。
 #   ⚠️ **不许**用 `echo "====="` 当接线锚（它在本文件里有 **4** 处）；锚用 `run_step "DEFECT-REGISTRY" …`。
+# VERIFYALL-STEPS-DECL: 27 gen=#51   ← `#51` **加一步**（26 → 27）：第 `[27]` 步 `NUL-BYTES` —— `D-G82` 的牙（`TASK-9907`）：判「**被判二进制、本意是文本**的源件」，即**声明覆盖面**（扩展名白名单 ＋ 基名清单 ＋ 基名 glob，排除 `upstream/**` 与 `obj|bin|.artifacts|__pycache__|TestResults`）里**不许有真 NUL 字节**（现场 1186 件 / 250.8 MB，`hits=0`）。三态 `NULBYTES=PASS|FAIL|NOINFO` ＋ **内置金丝雀**（每次真跑先自证扫描器没瞎、偏移/行号算得对、声明被遵守）；**纯读、零 `dotnet`、≈0.4 s**；本步不改产品件 ⇒ 九位逐位不动。四处声明（`DECL`／`STEP-NAMES`／口径句／预登记 H1）**同趟**改。**步数：26 → 27**）
 # VERIFYALL-STEPS-DECL: 26 gen=#50   ← `#50` **加一步**（25 → 26）：第 `[26]` 步 `R-GATE（连续交互）` —— `TASK-0702`：把「连续点击/交互响应」从**仓外仪器**（`$HOME/w47b-click.sh`，`#47` 车道 W47B 留）**收编进仓**并接进门禁（装置 `build/MilBridge/tests/RGateClickProbe/run-r-gate-legs.sh` ＋ **判据唯一实现** `build/MilBridge/tools/r-gate-step.sh`；13 格判据 ＋ 三态机读行 `R_GATE=`；判据**逐格继承** `#49` 预登记 §3 B3 的六格表，见 `docs/WAVE50-PREREGISTRATION.md` §1）。⚠️ 与 `#49` 预登记 §3 B3 那句「并进既有门禁步、步数保持 25」**分叉** —— 本波按任务书 `TASK-0702` 新加一步，四处声明同趟改。**步数：25 → 26**）
 # VERIFYALL-STEPS-DECL: 25 gen=#49   ← `#49` **不动步数**（本波产品改源三处：① `D-G57` 文字零墨 —— `build/shims/PresentationCore.HbTextLine.cs` 单段分支改按**计划面**取字形 id ⇒ 页签/按钮/搜索框出墨（`hbtextline` 位变）＋ `build/PresentationCore.Linux/**` 重建（`pc` 位变）；② `D-G72`/`TASK-0008` —— shim `GetMonitorInfoW` 按 `cbSize` 写入 ⇒ 点顶部菜单条不再 NRE（`win32shim` 位变）；③ `TASK-0403` 通道级具名台账进 `MilChannel`/`MilCommandDispatcher` ⇒ **桥必重发**（`bridge` 位变）。仪器侧：`B4`/`R-CSRC` 把 `src/WpfGfx.Linux.Native/**/*.{c,h}` 纳入 `fp_inputs()` ＋ `C2`/`C4` 纳入 `sync-applocal.sh`／`check-applocal-sync.sh`／`applocal-expect.py` ⇒ **`inputs_fp` 必变**（设计性变更，见 `docs/WAVE49-PREREGISTRATION.md` §4）；`B1` 修"选显示号后不复核"；步数**不动**）
 # VERIFYALL-STEPS-DECL: 25 gen=#48   ← `#48` **不动步数**（修 `D-G56`：两个 applier 把插桩横幅插在**类属性块与类声明之间** ⇒ 属性挂错类 ⇒ `NameScope` 挂不上 ⇒ BAML 页加载即 abort；**整波后实测动三位** `windowsbase`/`pc`/`pf`；`D-G57` 本波只取证未修）
@@ -61,7 +62,7 @@
 # VERIFYALL-STEPS-DECL: 18 gen=#30   ← **史实行**（`#30` 收官当时的步数 —— 那一波**一步未加**）
 #   ⚠️ 读者 `decl_line()` 取**第一条**（`sed -n … | head -1`）⇒ **最上面那条才是当前口径**；
 #   下面两条只为「本波从哪一代起、加了几步」留机读痕迹。⚠️ **史实行只许追加、不许改**（纪律 61 同族）。
-# VERIFYALL-STEP-NAMES: 主工程 WpfGfx.Linux | wpf-linux.sln | Commands.Tests | Rendering.Tests | Windowing.Tests | HelloMil.Tests | ManagedLayer.Tests | Presentation.Tests | verify-cmd-layout.py | tline-gate（五臂） | PcLineOracle·Start 列 | FrameProbe-frame | BASELINE-SHA | ARM-LOG-SHA | BUILD-HYGIENE | DEFECT-REGISTRY | VERIFYALL-SELF | FP-INPUTS-HYGIENE | HIDDEN-ONLY | COLUMN-FLOOR | QUOTE-TRAP | PRODUCT-ENTRY | FRAME-PRESENCE | PIPEFAIL-SIGPIPE | THIRD-PARTY | R-GATE（连续交互）
+# VERIFYALL-STEP-NAMES: 主工程 WpfGfx.Linux | wpf-linux.sln | Commands.Tests | Rendering.Tests | Windowing.Tests | HelloMil.Tests | ManagedLayer.Tests | Presentation.Tests | verify-cmd-layout.py | tline-gate（五臂） | PcLineOracle·Start 列 | FrameProbe-frame | BASELINE-SHA | ARM-LOG-SHA | BUILD-HYGIENE | DEFECT-REGISTRY | VERIFYALL-SELF | FP-INPUTS-HYGIENE | HIDDEN-ONLY | COLUMN-FLOOR | QUOTE-TRAP | PRODUCT-ENTRY | FRAME-PRESENCE | PIPEFAIL-SIGPIPE | THIRD-PARTY | R-GATE（连续交互） | NUL-BYTES
 #   **`#28` 收官起 = 17 步**（`#28` 加第 `[11]` 步 `VERIFYALL-SELF`）｜**`#29` 收官起 = 18 步**
 #   （`#29` 加第 `[12]` 步 `FP-INPUTS-HYGIENE`：核对 `fp_inputs()` 的覆盖面里**不许出现产物路径**）｜
 #   **`#30` 收官起 = 18 步**（**仪器加固波、步数一步未加**）｜**`#31` 收官起 = 21 步**（`#31` 加第 `[13]` 步
@@ -71,6 +72,13 @@
 #   **`#33` 收官起 = 23 步**（`#33` 加第 `[17]` 步 `PIPEFAIL-SIGPIPE`：把「`pipefail` ＋ 管道左侧被
 #   **`#34` 收官起 = 23 步**（本波**不动步数**：★ 的产物修法＋仪器加固；新读者 `frame-presence-check.sh`
 #   **`#35` 收官起 = 23 步**（**不动步数**：本波落第三方原生的正道通道 —— ALC 级钩子 ＋ 5 个映射名 ＋ shim 的 OEM/GDI+ 最小面；
+#   **`#51` 收官起 = 27 步**（**加一步**：第 `[27]` 步 `NUL-BYTES` —— `TASK-9907`／`D-G82`：
+#     判据 = `build/MilBridge/tools/nul-bytes-check.sh`（声明覆盖面里不许有真 NUL 字节；
+#     三态机读行 `NULBYTES=`；**内置金丝雀**每次真跑先自证）。**纯读、零 `dotnet`、≈0.4 s**、
+#     不动九位。⚠️ 若同趟把它纳入 `fp_inputs()` 的 `printf` 名单，**必须安排在 `IN_FP_0` 采样之前**。
+#     判据与逐例自测（31 例）见 `build/MilBridge/W97A-report.md`。）
+#     ⚠️ **本步「绿」的边界（逐字写死，免得被读成「全仓 0 件」）**：本步的绿 = **声明覆盖面内 0 件含 NUL**，
+#       **≠** 全仓 0 件；`upstream/**`（6417 件）未测 ⇒ 该格 **`NOINFO`**；11 件**无扩展名 ELF** 只 `DIAG` **不判红**。
 #   **`#50` 收官起 = 26 步**（**加一步**：第 `[26]` 步 `R-GATE（连续交互）` —— `TASK-0702`：
 #     把「连续点击/交互响应」从**仓外仪器**（`$HOME/w47b-click.sh`）**收编进仓**并接进门禁。
 #     装置 = `build/MilBridge/tests/RGateClickProbe/run-r-gate-legs.sh`（私有 Xvfb ＋ 私有 app 目录 ＋
@@ -868,6 +876,19 @@ run_step "THIRD-PARTY" bash samples/ThirdPartyMini/run-thirdparty-mini.sh 25
 #   用了它机读行里带 `src=external`）。成本实测 ≈30–40 s/趟（见 `build/MilBridge/W84A-report.md` §5）。
 echo "[26] R-GATE：连续点击/交互响应（私有 Xvfb ＋ 真实节奏点击 ＋ 逐格判据）"
 run_step "R-GATE（连续交互）" bash build/MilBridge/tools/r-gate-step.sh
+
+# ── 【`#51` W110A 落地：第 `[27]` 步 `NUL-BYTES` —— 「被判二进制、本意是文本」的源件牙（`D-G82`）】──
+#   `D-G82`（缺陷册 `samples/WpfFeatureProbe/KNOWN-DEFECTS.md`）：源件里出现**真 NUL 字节** ⇒
+#   `file` 判 `data`／`grep -n` **rc=0 但 stdout 0 字节**（行号静默消失），而本仓**一切判据都建在
+#   「文件:行」上**。`#50` W83A 修掉了仓内唯一一件（`wic_proxy.c:289` 的 3 个 NUL），并明确登记
+#   "**修了一次、没有牙**" ⇒ 本步就是那颗牙（工具见 `build/MilBridge/W97A-report.md`，接线见 `W110A-report.md`）。
+#   判据：声明覆盖面里 `hits` 必须为 0；三态 `NULBYTES=PASS|FAIL|NOINFO`（`NOINFO` 在门禁里同样是 ❌）。
+#   **纯读、零 `dotnet`、≈0.4 s**（现场 1186 件 / 250.8 MB）。
+#   ⚠️ **「绿」的边界（逐字，与头注释口径句同款）**：本步的绿 = **声明覆盖面内 0 件含 NUL**，**≠** 全仓 0 件；
+#     `upstream/**` 未测 ⇒ `NOINFO`；11 件**无扩展名 ELF**（首 NUL 恒在偏移 7）只 `DIAG`、**不判红**。
+echo
+echo "[27] 源卫生：声明覆盖面里不许有真 NUL 字节（D-G82 的牙；只读、零 dotnet、≈0.4 s；#51 加）"
+run_step "NUL-BYTES" bash build/MilBridge/tools/nul-bytes-check.sh
 
 echo
 echo "======================================================"

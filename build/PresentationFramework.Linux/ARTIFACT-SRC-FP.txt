@@ -5,8 +5,8 @@
 #   只覆盖 src 时 `state=ok` 是**必要不充分**（源没变、peer 变了 ⇒ 产物照样变）。
 # 排除：build/PresentationFramework.Linux/{bin,obj}/**、.artifacts/**、本文件自己
 # 重算比对：python3 build/artifact-src-fp.py --check（缺本文件 / 缺被引产物 / 旧格式 ⇒ noinfo，**不报绿**）
-fp=5b38ea7420b26377
-n=1362
+fp=01a078bf78c6ed18
+n=1363
 peer_fp=0e31c2dc0c4e31c4
 peer_n=9
 tool_sha256=e856e2e65e6c59cadd8e68b6a39c00b483992f9fdd459fb94c8b0221f8e597fd
@@ -32,6 +32,7 @@ file=6d769e8508f42b40  build/PresentationFramework.Linux/TextBox.Linux.cs
 file=a371e5b48b40447b  build/PresentationFramework.Linux/TextBoxBase.Linux.cs
 file=2859b73dd347fd8b  build/PresentationFramework.Linux/TextContainer.Linux.cs
 file=bb4f98dc236d5e25  build/PresentationFramework.Linux/TextEditorTyping.Linux.cs
+file=5a0449ccc02e5433  build/PresentationFramework.Linux/Window.Linux.cs
 file=c439c7c00f09f909  build/PresentationFramework.Linux/reapply-patches.py
 file=900dad4a3d1ca2d2  build/port-lib.py
 file=693b56ac590ef85d  build/shims/LinuxAssemblyIdentity.cs
@@ -40,5 +41,6 @@ file=a76b6a7edd8bfd8a  build/shims/PresentationFramework.NrbfFrameworkObjects.Sh
 file=1b9852b037da70f1  src/WpfGfx.Linux.Native/tools/patch-presentationframework-mirror-trace.py
 file=9206ea83512f6fd5  src/WpfGfx.Linux.Native/tools/patch-presentationframework-textbox-textdp-trace.py
 file=f8dbac9ac4c5a5ea  src/WpfGfx.Linux.Native/tools/patch-presentationframework-texteditor-trace.py
+file=ce76657c1b020562  src/WpfGfx.Linux.Native/tools/patch-presentationframework-window-minmax-notify.py
 file=8e694cf5cd187121  src/WpfGfx.Linux.Native/tools/patch-presentationframework-xamlaccess.py
 file=1e29cf7d3d0b8600  src/WpfGfx.Linux.Native/tools/patch-swe-linux.py

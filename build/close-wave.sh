@@ -220,6 +220,7 @@ fp_inputs() {  # 手写输入指纹（应用器 + port-lib + 本脚本 + 波脚�
           build/MilBridge/tools/pipefail-sigpipe-check.sh \
           build/MilBridge/tools/frame-presence-check.sh \
           build/MilBridge/tools/r-gate-step.sh \
+          build/MilBridge/tools/nul-bytes-check.sh \
           build/MilBridge/tests/RGateClickProbe/run-r-gate-legs.sh \
           build/MilBridge/tools/sync-applocal.sh \
           build/DirectWrite.Linux/wic-shim/check-applocal-sync.sh \

@@ -1526,6 +1526,12 @@
     <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/SystemResources.Linux.cs" />
   </ItemGroup>
   <!-- ==== WPF-on-Linux M7c 补丁 L 结束 ==== -->
+  <!-- ==== WPF-on-Linux 补丁：Window 的 min/max 声明告示（TASK-0108 P3）=== -->
+  <ItemGroup>
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Window.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/Window.Linux.cs" />
+  </ItemGroup>
+  <!-- ==== WPF-on-Linux 补丁结束（TASK-0108 P3）==== -->
   <!-- ==== T1c 输入链读数（第 2 批）：PF 侧 TextEditorTyping.OnTextInput（patch-presentationframework-texteditor-trace.py 注入）==== -->
   <ItemGroup>
     <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Documents/TextEditorTyping.cs" />

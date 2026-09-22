@@ -1,4 +1,4 @@
 # T1b2/#12 · 本次跑前的**族表基线**（`>0.34 DIP` 桶，逐族计数）
-# 上一趟 artifact gen/t2d-width-diff.txt sha16=F9C8CFC1A2DA2CE0 mtime=2026-09-21 16:29:53（本文件即上一趟跑的产物 ⇒ 它就是「上一趟的族表」）
+# 上一趟 artifact gen/t2d-width-diff.txt sha16=7B4289AD3B56DBE3 mtime=2026-09-22 15:27:32（本文件即上一趟跑的产物 ⇒ 它就是「上一趟的族表」）
 # 由 Program.cs 的 FamilyTable()/FamilyOf() 从上一趟 artifact 重算（**无第二套口径**）
 # 用途：跑后逐族 diff；**允许变化**的族仅 A1_nbsp_zwsp / B_nbsp_zwsp / B_nbsp_zwsp_trim / F_nbsp_zwsp / F_lat_words
