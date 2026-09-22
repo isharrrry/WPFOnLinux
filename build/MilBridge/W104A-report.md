@@ -300,12 +300,13 @@ FP_COVERAGE_DIFF_VS_HEAD=2
 
 ## §10 收尾补记（推完之后复跑，**读数带 head**）
 
-本件共 **2 笔**（第 1 笔 = 数据/登记；第 2 笔 = 本报告；**报告自身 sha16 不可能写进报告自身** ⇒ 自指那一笔的 head 记在 `~/w104a/STATUS.md`）：
+本件共 **3 笔**（① 数据/登记 7 件 ② 本报告 ③ **本节 §10 自己**）：**报告自身的 sha16 与"携带它的那一笔 head"不可能写进报告自身** ⇒ 自指的那一格按仓内惯例记在 **`~/w104a/STATUS.md`**（本节起任何后续修补也**只**记在那里，不回写本节）。
 
 ```
 第 1 笔  90d50c4..312e252  feat-Linux -> feat-Linux   （7 件：册／地图／声明表／W93A／W96A／W102A报告／wm-awaited.sh）
 第 2 笔  312e252..4869397  feat-Linux -> feat-Linux   （1 件：build/MilBridge/W104A-report.md）
-推送前 90d50c4ec34a2fda02f3577d38a6aaf9282fd4f9（== 任务书给的 HEAD）→ 收尾 486939773cd185efedf17bff0277fab9401279c4
+第 3 笔  4869397..f8f18a4  feat-Linux -> feat-Linux   （1 件：本报告 ＋ §10 ＋ §7.9 —— **本节就是这一笔带上去的**）
+推送前 90d50c4ec34a2fda02f3577d38a6aaf9282fd4f9（== 任务书给的 HEAD）→ 本报告定稿时为 f8f18a4e926c21cd0ce820f3138730b8812e66ff
 local == remote（两条命令同值）｜ls-remote --symref origin HEAD ⇒ ref: refs/heads/feat-Linux
 ```
 
@@ -324,5 +325,5 @@ local == remote（两条命令同值）｜ls-remote --symref origin HEAD ⇒ ref
 BYTECHECK ok=8 mismatch=0 nobody=1
 ```
 
-⚠️ `build/MilBridge/W104A-report.md` 那一格是**本报告 §10 之前的版本**（`3a9a383c06577372`）：追加本节后本件变新 sha16（现算见 `~/w104a/STATUS.md`），**§10 这一节由第 3 笔单独推**（§7.9 那条"我自己踩的仪器坑"也在同笔）。**"报告的 sha16 改一次就换一个"是本仓既有现象（见 `D-G92` 那条"哈希别当身份"），这里如实记，不假装它稳定。**
+⚠️ `build/MilBridge/W104A-report.md` 那一格（`3a9a383c06577372`）是**第 2 笔推上去的那一版**；第 3 笔加入本节与 §7.9 后本件变新 sha16（**现算见 `~/w104a/STATUS.md`**）⇒ 第 3 笔之后为 `f8f18a4…`，其后若再修补（第 4 笔起）**只**记在 `~/w104a/STATUS.md`。**"同一件的 sha16 每改一次就换一个"是本仓既有现象（见 `D-G92`："哈希别当身份"）** —— 这里如实记，不假装它稳定。
 
