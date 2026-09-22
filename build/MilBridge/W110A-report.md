@@ -110,7 +110,7 @@ rc=0
 | ⑦ 冻前 `verify-all` | `bash verify-all.sh`（27 步） | `MEMOK`／**`RELEASED rc=1 held=862s max_hold=1500s`**（授权 1500：`#49`/`#50` 实测 ≈16.3 min） | **`步骤通过 26 ❌ 失败 1`**、`用例通过 875 跳过 2`、`结论：❌ 失败项：COLUMN-FLOOR` ⇒ **唯一红 = 设计内声明类** |
 | ⑧ 冻结 | `python3 ~/w21-verify/w27-freeze.py <冻前日志> <rows> '#51'` | —— | **`基线已重冻为 #51；整份 sha16 = 38e67e834430d75c`**；三牙 `BASELINESHA/BASELINEGEN/BASELINEDUP` 全 PASS；`ARMLOG_SHA=PASS 5/5`；`COLUMN_FLOOR=PASS` |
 | ⑨ 冻后 ×2 | `bash verify-all.sh` ×2 | 见 §6 | 两趟 **27/27 全绿** |
-| ⑩ 记录/推送/app-local | 见 §7 | —— | `BYTECHECK ok=? mismatch=? nobody=?`；`STALE=0 DIVERGENT=0` |
+| ⑩ 记录/推送/app-local | 见 §7 | —— | `BYTECHECK ok=20 mismatch=0 nobody=0`；head `f933e31 → c51a706 → 47db9c2 → d1a58e4`；`STALE=0 DIVERGENT=0` |
 
 ### 2.1 步骤④的**预测先写**（`~/w110a/criteria.md` C4，取读数**之前**登记）
 
