@@ -1649,6 +1649,12 @@
     <Compile Include="$(WpfLinuxRoot)build/PresentationCore.Linux/SimpleTextLine.Linux.cs" />
   </ItemGroup>
   <!-- ==== WPF-on-Linux T1c/D 结束 ==== -->
+  <!-- ==== WPF-on-Linux D-G85-M1：MouseDevice 主动释放捕获时同步清托管状态（由 tools/patch-presentationcore-mousecapture-release.py 注入）==== -->
+  <ItemGroup>
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationCore/System/Windows/Input/MouseDevice.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationCore.Linux/MouseDevice.Linux.cs" />
+  </ItemGroup>
+  <!-- ==== WPF-on-Linux D-G85-M1 结束 ==== -->
   <!-- ==== WPF-on-Linux T1c：输入链只读插桩（WM_CHAR→TextInput）（由 tools/patch-presentationcore-inputtrace.py 注入）==== -->
   <ItemGroup>
     <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationCore/System/Windows/InterOp/HwndSource.cs" />

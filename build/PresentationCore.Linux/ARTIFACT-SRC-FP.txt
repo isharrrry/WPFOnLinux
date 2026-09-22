@@ -5,8 +5,8 @@
 #   只覆盖 src 时 `state=ok` 是**必要不充分**（源没变、peer 变了 ⇒ 产物照样变）。
 # 排除：build/PresentationCore.Linux/{bin,obj}/**、.artifacts/**、本文件自己
 # 重算比对：python3 build/artifact-src-fp.py --check（缺本文件 / 缺被引产物 / 旧格式 ⇒ noinfo，**不报绿**）
-fp=fe90cbf1a52a030c
-n=1373
+fp=3ae4746cd655023b
+n=1374
 peer_fp=e442fdc0c64f3379
 peer_n=8
 tool_sha256=e856e2e65e6c59cadd8e68b6a39c00b483992f9fdd459fb94c8b0221f8e597fd
@@ -29,6 +29,7 @@ file=309c5280207061e0  build/PresentationCore.Linux/HwndTarget.Linux.cs
 file=70a5d54ba859fdd7  build/PresentationCore.Linux/InputManager.Linux.cs
 file=3a079a8f23dbdc02  build/PresentationCore.Linux/InputProviderSite.Linux.cs
 file=d816fd8379184813  build/PresentationCore.Linux/MimeTypeMapper.Linux.cs
+file=917d807f43777c49  build/PresentationCore.Linux/MouseDevice.Linux.cs
 file=91077d36783d221c  build/PresentationCore.Linux/OleServicesContext.Linux.cs
 file=66cc785da6da9f87  build/PresentationCore.Linux/SR.g.cs
 file=04b64eaaf77572ee  build/PresentationCore.Linux/SecurityHelper.Linux.cs
@@ -55,6 +56,7 @@ file=e257247a3dacdb6e  src/WpfGfx.Linux.Native/tools/patch-presentationcore-inpu
 file=19a2e6cafba38627  src/WpfGfx.Linux.Native/tools/patch-presentationcore-inputtrace.py
 file=4eccc308340a7c23  src/WpfGfx.Linux.Native/tools/patch-presentationcore-lineheight-trace.py
 file=dc41b2541071bea5  src/WpfGfx.Linux.Native/tools/patch-presentationcore-mimetype.py
+file=b13172b944707620  src/WpfGfx.Linux.Native/tools/patch-presentationcore-mousecapture-release.py
 file=13dac17d5a798f53  src/WpfGfx.Linux.Native/tools/patch-presentationcore-olecontext.py
 file=f1a8f73ff9a4e1f8  src/WpfGfx.Linux.Native/tools/patch-presentationcore-registry.py
 file=131bd986945b71e8  src/WpfGfx.Linux.Native/tools/patch-presentationcore-securityzone.py

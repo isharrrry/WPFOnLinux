@@ -3,8 +3,8 @@
 # 真值来源 = tests/parity/windows/layout-b34/results-cd2.json（LineHeight 组）
 # 被测 shim 源 sha256（本 harness 直接编入） = 921BA9C65E9FB3BE9E31D402FD98568EE78639063D75BB4E656B20201B30DC2B
 # PC 内 shim sha256                         = unknown(FP 里有该文件的行但行内无 sha256)
-# hbtextline_shim_stale                     = false   （口径=源 mtime 1789965167 vs PC 产物 mtime 1789976075（basis=auth，与 run-wpfprobe.sh 的 hbt_stale() 同谓词）；**mtime 谓词、非内容比对** ⇒ 同内容重写会假阳（已登记为已知仪器局限；内容比对需要 PC 侧逐文件 sha，当前不可得））
-# 仪器 = run.sh 711F39F468F61CC8 / Program.cs 149DD986A642FDFC   pc=56EE75CED8D6AECE   applocal=4/4 一致
+# hbtextline_shim_stale                     = false   （口径=源 mtime 1789965167 vs PC 产物 mtime 1790060735（basis=auth，与 run-wpfprobe.sh 的 hbt_stale() 同谓词）；**mtime 谓词、非内容比对** ⇒ 同内容重写会假阳（已登记为已知仪器局限；内容比对需要 PC 侧逐文件 sha，当前不可得））
+# 仪器 = run.sh 711F39F468F61CC8 / Program.cs 149DD986A642FDFC   pc=722E0AB8205B7C3F   applocal=4/4 一致
 # 合计 1242 条（主对拍集 1202 + LineHeight 组 40）
 A1_lat_words_w20 行#1 [file-font] Extent 真值=10.8960 我们=11.1875 差=0.2915
 A1_lat_words_w20 行#2 [file-font] Extent 真值=14.5760 我们=14.2891 差=-0.2869

@@ -27,15 +27,11 @@
 - **共 7 份**（不含 `CycleStub.PresentationFramework.Linux` 的 13,824 B 桩件 —— 那 4 份走 `SKIP(stub)`）
 - ⚠️ `W52C3`（`C1e`）后**本表变动 1 份**：`…/PresentationFramework.Classic.Linux/bin/Debug/PresentationFramework.dll` **已改判 `LIB-COPY`、不再计红**（⇒ 移出本表，进 §6.2）；同时**新增** `…/PresentationFramework.Classic.Linux/bin/Release/PresentationFramework.dll`。
 
+- **⏪ `#50` 波尾（2026-09-22，车道 `W95A`）：本表已按自己的口径**（"已转绿 ⇒ 应从本表移除"）**删掉全部 38 条**
+  （现场由 `check-applocal-sync.sh` 逐条判 `[在册红·已转绿]`；删前本表 **38 条：仍红 0 ｜ 已转绿 38**）⇒ 本表**已无在册红**。
+  原因 = 本波整波重建 ＋ 波尾 `sync-applocal-authority.sh` 把那些 PF/WB 副本都刷成了**新权威**（`pf f34bc297d19778fd`／`wb 2e4e46e539a72cd7`）；删表**不参与判定**。
 | 路径 | 登记时副本 sha16 | 登记时权威 sha16 | 类别 | 首次登记日期 | 处置 |
 |---|---|---|---|---|---|
-| build/PresentationFramework.Classic.Linux/bin/Release/PresentationFramework.dll | e9ea2f57c8a36e7d | 1011da6390c3bf1e | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| build/PresentationFramework.Linux/bin/Debug/PresentationFramework.dll | e9ea2f57c8a36e7d | 1011da6390c3bf1e | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| build/DirectWrite.Linux/SystemFontsProbe/bin/Debug/PresentationFramework.dll | bfb10fe2a01a986b | 1011da6390c3bf1e | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| tests/WpfGfx.Linux.Tests/ManagedLayer.Tests/bin/Debug/net10.0/PresentationFramework.dll | e9ea2f57c8a36e7d | 1011da6390c3bf1e | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| samples/WpfFeatureProbe/bin/Debug/net10.0/PresentationFramework.dll | a93097f7a918597f | 1011da6390c3bf1e | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| samples/HelloWpf/bin/Debug/net10.0/PresentationFramework.dll | 68d31452be50a89c | 1011da6390c3bf1e | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| samples/WpfTextDemo/bin/Debug/net10.0/PresentationFramework.dll | 37fd347eb55ca02e | 1011da6390c3bf1e | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
 
 ## 2 · 表 B：`WindowsBase.dll` 副本（逐份判定 = `STALE`，红）
 
@@ -48,34 +44,6 @@
 
 | 路径 | 登记时副本 sha16 | 登记时权威 sha16 | 类别 | 首次登记日期 | 处置 |
 |---|---|---|---|---|---|
-| build/MilBridge/tests/CompositeFontProbe/bin/Release/WindowsBase.dll | 11c75d228a0b86a3 | 79740e9ba7fbf9ca | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| build/MilBridge/tests/HbTextLineParity/bin/Debug/WindowsBase.dll | 1114a28ec5a03ab7 | 79740e9ba7fbf9ca | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| build/MilBridge/tests/StrictTierProbe/bin/Release/WindowsBase.dll | 1114a28ec5a03ab7 | 79740e9ba7fbf9ca | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| build/MilBridge/tests/T2eLineHeight/bin/Release/WindowsBase.dll | 11c75d228a0b86a3 | 79740e9ba7fbf9ca | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| build/MilBridge/tests/MinMaxProbe/bin/Release/WindowsBase.dll | e6216fe961a2bfb9 | 79740e9ba7fbf9ca | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| build/MilBridge/tests/TabGapProbe/bin/Release/WindowsBase.dll | 84a2826c471e60ea | 79740e9ba7fbf9ca | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| build/MilBridge/tests/TabGapProbe/bin/Debug/WindowsBase.dll | 84a2826c471e60ea | 79740e9ba7fbf9ca | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| build/MilBridge/tests/TextLineProto/bin/Debug/WindowsBase.dll | 1114a28ec5a03ab7 | 79740e9ba7fbf9ca | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| build/MilBridge/tests/CoverageProbe/bin/Debug/WindowsBase.dll | e6216fe961a2bfb9 | 79740e9ba7fbf9ca | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| build/UIAutomationTypes.Linux/bin/Debug/WindowsBase.dll | 19de048ecb968daa | 79740e9ba7fbf9ca | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| build/PresentationCore.Linux/bin/Debug/WindowsBase.dll | 19de048ecb968daa | 79740e9ba7fbf9ca | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| build/WindowsBase.Linux/bin/Debug/WindowsBase.dll | 19de048ecb968daa | 79740e9ba7fbf9ca | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| build/PresentationFramework.Classic.Linux/bin/Release/WindowsBase.dll | 1b385c64c56fb10c | 79740e9ba7fbf9ca | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| build/System.Printing.Linux/bin/Debug/WindowsBase.dll | 1b385c64c56fb10c | 79740e9ba7fbf9ca | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| build/PresentationFramework.Linux/bin/Debug/WindowsBase.dll | b39730566b1b480f | 79740e9ba7fbf9ca | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| build/DirectWriteForwarder.Linux/bin/Release/WindowsBase.dll | 19de048ecb968daa | 79740e9ba7fbf9ca | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| build/DirectWriteForwarder.Linux/bin/Debug/WindowsBase.dll | 19de048ecb968daa | 79740e9ba7fbf9ca | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| build/UIAutomationProvider.Linux/bin/Debug/WindowsBase.dll | 19de048ecb968daa | 79740e9ba7fbf9ca | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| build/DirectWrite.Linux/WicWriteClosedLoop/bin/Debug/WindowsBase.dll | 8c073fab0da88169 | 79740e9ba7fbf9ca | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| build/DirectWrite.Linux/FallbackCriteria/bin/Debug/WindowsBase.dll | e6216fe961a2bfb9 | 79740e9ba7fbf9ca | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| build/DirectWrite.Linux/WicClosedLoop/bin/Debug/WindowsBase.dll | 8c073fab0da88169 | 79740e9ba7fbf9ca | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| build/DirectWrite.Linux/WiringSmoke/bin/Debug/WindowsBase.dll | 8c073fab0da88169 | 79740e9ba7fbf9ca | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| build/DirectWrite.Linux/SystemFontsProbe/bin/Debug/WindowsBase.dll | dc8d9c25a43d0660 | 79740e9ba7fbf9ca | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| build/DirectWrite.Linux/FontEntryClosedLoop/bin/Debug/WindowsBase.dll | 8c073fab0da88169 | 79740e9ba7fbf9ca | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| tests/WpfGfx.Linux.Tests/ManagedLayer.Tests/bin/Debug/net10.0/WindowsBase.dll | 1b385c64c56fb10c | 79740e9ba7fbf9ca | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| samples/WpfFeatureProbe/bin/Debug/net10.0/WindowsBase.dll | 84a2826c471e60ea | 79740e9ba7fbf9ca | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| samples/HelloWpf/bin/Debug/net10.0/WindowsBase.dll | 1b4ef36832ddca03 | 79740e9ba7fbf9ca | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
-| samples/WpfTextDemo/bin/Debug/net10.0/WindowsBase.dll | 19de048ecb968daa | 79740e9ba7fbf9ca | STALE | 2026-09-20 | 刷新（重编该消费者/工程即收敛；或由波尾 3.6 刷成权威）；**本车道未刷**（见 §6） |
 
 ## 3 · 表 C：**不在声明图里**的 PF/WB 副本（`#49` 修后 = `UNEXPECTED-EQ` ⇒ 内容已对，**声明缺口仍在，仍红**）
 
@@ -122,9 +90,6 @@
 
 | 路径 | 登记时副本 sha16 | 登记时权威 sha16 | 类别 | 首次登记日期 | 处置 |
 |---|---|---|---|---|---|
-| build/PresentationFramework.Classic.Linux/bin/Release/PresentationCore.dll | 659a5dc64156b26a | 9465f9dce39e2dfc | STALE | 2026-09-20 | 刷新（重编该工程即收敛；或由波尾 3.6）；**本车道未刷** |
-| build/PresentationFramework.Classic.Linux/bin/Release/ReachFramework.dll | 33b372daa826733e | be2d69ba02c76ef9 | STALE | 2026-09-20 | 刷新（重编该工程即收敛；或由波尾 3.6）；**本车道未刷** |
-| build/PresentationFramework.Classic.Linux/bin/Release/DirectWrite.Linux.Provider.dll | 9aa0d744802aaa31 | 1f9511a7ef395bfe | STALE | 2026-09-20 | 刷新（重编该工程即收敛；或由波尾 3.6）；**本车道未刷** |
 
 ## 4 · 表 D：跨副本一致性（**7 个** `DIVERGENT` 组）—— **信息性**（第 2 列不是 sha ⇒ 本表**不被** `show_registry()` 当登记条目解析）
 

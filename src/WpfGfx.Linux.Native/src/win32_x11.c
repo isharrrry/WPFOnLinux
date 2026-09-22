@@ -792,6 +792,189 @@ static LPARAM xy_lparam(int x, int y)
     return (LPARAM)((((uint32_t)y & 0xFFFF) << 16) | ((uint32_t)x & 0xFFFF));
 }
 
+// ══════════════════════════════════════════════════════════════════════════
+// 【W89A · `D-G81`】WM **单方面**改状态（`_NET_WM_STATE`）时的采纳
+// ══════════════════════════════════════════════════════════════════════════
+// 【缺陷现场】外部（`_NET_WM_STATE` ClientMessage）把窗口最大化 ⇒ 应用侧两条"还原"入口
+//   全部失效（W77A 的成对读数：双击标题栏 3/3 失败、自带还原按钮 3/3 失败，终态恒带
+//   `MAXIMIZED_*`），而**应用自发**的最大化两条都能还原。
+// 【根因】本 shim 的窗口状态缓存（`w->maximized` 与 `w->style` 的 `WS_MAXIMIZE` 位）
+//   **只在应用自己走 `ShowWindow`/`WM_SYSCOMMAND` 那条路时**才更新
+//   （`wpf_core_window_state`，`win32_core.c:626`）⇒ WM 单方面改状态时缓存**不动**，
+//   三个消费者因此全部判错：
+//     ① `DefWindowProcW(WM_NCLBUTTONDBLCLK)`（`win32_core.c:1704-1712`）按 `w->maximized`
+//        **取反** ⇒ 读到 0 ⇒ 双击"还原"变成**再最大化一次**；
+//     ② `ConfigureNotify` 的 `WM_SIZE` wParam 取自 `w->maximized`（本文件 `:854-864`）
+//        ⇒ 恒发 `SIZE_RESTORED` ⇒ 托管侧 `Window.WmSize`（上游 `Window.cs:4734`）把
+//        `WindowState` 掰回 `Normal`；
+//     ③ 托管侧"还原"命令（HC `Window.cs:299` 的 `WindowState = Normal`）**DP 根本没变**
+//        ⇒ `OnWindowStateChanged` 不跑；即便跑，上游 `Window.cs:5188` 的
+//        `if ((_Style & WS_MAXIMIZE) == WS_MAXIMIZE)` 也过不去（`_Style` → `GetWindowLong`
+//        → 我们的 `w->style` 没有该位）⇒ **`ShowWindow(SW_RESTORE)` 永不发**。
+// 【修法】把 X 侧的**权威**状态（EWMH：`_NET_WM_STATE` 里 `MAXIMIZED_HORZ|VERT` 同时在场）
+//   在 `PropertyNotify` 上同步进窗口表，并**派发等价 `WM_SIZE`**（Win32 的 USER32 在状态
+//   真的变化时也是这么发的）⇒ shim 自己那条腿与托管侧 `WindowState` 那条腿恢复一致。
+//   **幂等**：与本表缓存相同 ⇒ 什么都不做（应用自发那条路会收到自己触发的 PropertyNotify，
+//   绝不能重复派发 `WM_SIZE`）。
+static int wpf_wstate_diag_on(void)
+{
+    static int on = -1;
+    if (on < 0) {
+        const char *e = getenv("WPF_LINUX_WINSTATE_DIAG");
+        on = (e && *e && *e != '0') ? 1 : 0;
+    }
+    return on;
+}
+
+static void wpf_wstate_diag(const char *fmt, ...)
+{
+    if (!wpf_wstate_diag_on()) return;
+    static int n = 0;
+    if (n++ >= 400) return;
+    va_list ap;
+    va_start(ap, fmt);
+    fputs("[WINSTATE_DIAG] ", stderr);
+    vfprintf(stderr, fmt, ap);
+    fputc('\n', stderr);
+    va_end(ap);
+    fflush(stderr);
+}
+
+// 读 `_NET_WM_STATE`，返回 1 = `MAXIMIZED_HORZ` **与** `MAXIMIZED_VERT` 同时在场。
+// 口径：与 `wpf_x11_apply_wm_state()`（两个原子一起 ADD/REMOVE）、判据侧 `is_max()` 同一口径。
+// `*found`：1 = 属性读到了（含"属性不存在"这种**确定**的"没最大化"）；0 = 没读到（X 错误 /
+// 原子没 intern）⇒ 调用方**不许**把 0 当成"没最大化"（那就是把"我读不出来"当读数）。
+// 自己取 `xlock`（调用方不许持锁）。
+static int wpf_x11_query_maximized(Window win, int *found)
+{
+    int max = 0, got = 0;
+    if (found) *found = 0;
+    if (!g_wpf.dpy || !win) return 0;
+    if (!a_net_wm_state || !a_net_wm_state_maximized_horz || !a_net_wm_state_maximized_vert)
+        return 0;
+    XLOCK();
+    Atom type = 0;
+    int fmt = 0;
+    unsigned long n = 0, after = 0;
+    unsigned char *prop = NULL;
+    int rc = XGetWindowProperty(g_wpf.dpy, win, a_net_wm_state, 0, 64, False, XA_ATOM,
+                                &type, &fmt, &n, &after, &prop);
+    if (rc == Success) {
+        got = 1;                    // Success ＋ prop==NULL ⇒ 属性确实不存在 ⇒ 没最大化
+        if (prop && type == XA_ATOM && fmt == 32) {
+            Atom *atoms = (Atom *)prop;
+            int horz = 0, vert = 0;
+            for (unsigned long i = 0; i < n; i++) {
+                if (atoms[i] == a_net_wm_state_maximized_horz) horz = 1;
+                if (atoms[i] == a_net_wm_state_maximized_vert) vert = 1;
+            }
+            max = (horz && vert) ? 1 : 0;
+        }
+    }
+    if (prop) XFree(prop);
+    XUNLOCK();
+    if (found) *found = got;
+    return max;
+}
+
+// 窗口表里的状态缓存（读数用；读不出窗口 ⇒ 返回 -1/-1）。
+static void wpf_x11_peek_state(HWND h, int *maximized, int *style_max, int *iconified)
+{
+    if (maximized) *maximized = -1;
+    if (style_max) *style_max = -1;
+    if (iconified) *iconified = -1;
+    wpf_lock();
+    wpf_window *w = wpf_window_find(h);
+    if (w) {
+        if (maximized) *maximized = w->maximized;
+        if (style_max) *style_max = ((w->style & (int64_t)(int32_t)WS_MAXIMIZE) != 0) ? 1 : 0;
+        if (iconified) *iconified = w->iconified;
+    }
+    pthread_mutex_unlock(&g_wpf.lock);
+}
+
+// 是不是"顶层非 message-only 窗口"（＝真的有最大化语义的那种）——与 `wpf_core_is_toplevel`
+// （`win32_core.c:585`）同一口径，但**只读窗口表**、不派发消息。
+static int wpf_x11_is_toplevel(HWND h)
+{
+    int top = 0;
+    wpf_lock();
+    wpf_window *w = wpf_window_find(h);
+    if (w) top = (!w->is_message_only && w->parent == NULL &&
+                  ((w->style & (int64_t)(int32_t)WS_CHILD) == 0)) ? 1 : 0;
+    pthread_mutex_unlock(&g_wpf.lock);
+    return top;
+}
+
+// 把 X 侧的**权威**最大化状态采纳进窗口表。返回 1 = 表里的状态**真的变了**
+// （调用方据此派发 `WM_SIZE`）。同时输出 `sizecode` 与"当前客户区几何"（给 `WM_SIZE` 的
+// wParam/lParam 用）。**幂等**：状态没变 ⇒ 返回 0、一个字节都不改 ⇒ 应用自发那条路
+// （我们发 `_NET_WM_STATE` ⇒ WM 写属性 ⇒ 我们收到事件）**不会**重复派发。
+//
+// 【为什么 `max_now == 0` 时**不碰** `iconified` / `WS_MINIMIZE`】`_NET_WM_STATE` 里除了
+//   两个 `MAXIMIZED_*` 还有 `FOCUSED`/`HIDDEN` 等，任何一次聚焦变化都会发 `PropertyNotify`
+//   ⇒ 若这里无条件清最小化位，就会把"应用自己按最小化按钮"那条路的状态抹掉
+//   （那条路的语义在 `UnmapNotify`/`MapNotify` 里，本件**一个字节都不动**）。
+static int wpf_x11_adopt_maximized(HWND h, int max_now, int *p_sizecode, int *p_w, int *p_h)
+{
+    int changed = 0, sizecode = WM_SIZECODE_RESTORED, ww = 0, hh = 0;
+    wpf_lock();
+    wpf_window *w = wpf_window_find(h);
+    if (!w) { pthread_mutex_unlock(&g_wpf.lock); return 0; }
+    if (max_now) {
+        if (!w->maximized) {
+            // 只在**进入**最大化时记还原矩形（与 `wpf_core_window_state` 同一口径）
+            w->rc_x = w->x; w->rc_y = w->y; w->rc_w = w->width; w->rc_h = w->height;
+            changed = 1;
+        }
+        w->maximized = 1;
+        // ── 【只碰"最大化"那两个位，绝不碰最小化】──────────────────────────────────
+        //   为什么（这是本车道的一次收窄）：`_NET_WM_STATE` 里"最大化"与"最小化"可以
+        //   **同时存在**（xfwm4 最小化一个已最大化窗口时会保留 `MAXIMIZED_*` 并加上
+        //   `HIDDEN`）⇒ 若这里顺手把 `iconified`/`WS_MINIMIZE` 清掉，就会**破坏应用自己
+        //   按"最小化"按钮**那条路的状态。本件的缺陷面只有最大化 ⇒ 最小化那两位
+        //   （以及 `UnmapNotify`/`MapNotify` 那条腿）**一个字节都不动**。
+        //   （`WS_MAXIMIZE` 位则与 Windows 同形：最大化态窗口的样式里就是有它。）
+        w->style |= (int64_t)(int32_t)WS_MAXIMIZE;
+    } else {
+        if (w->maximized) changed = 1;
+        w->maximized = 0;
+        w->style &= ~(int64_t)(int32_t)WS_MAXIMIZE;
+    }
+    sizecode = max_now ? WM_SIZECODE_MAXIMIZED : WM_SIZECODE_RESTORED;
+    ww = w->width;
+    hh = w->height;
+    pthread_mutex_unlock(&g_wpf.lock);
+    if (p_sizecode) *p_sizecode = sizecode;
+    if (p_w) *p_w = ww;
+    if (p_h) *p_h = hh;
+    return changed;
+}
+
+// "把 X 侧状态采纳进表"的一站式入口：顶层窗口 ＋ 属性**确实读到**才动。
+// 返回 1 = 状态变了（`*p_sizecode`/`*p_ww`/`*p_hh` 是给 `WM_SIZE` 用的值）。
+static int wpf_x11_sync_window_state(HWND h, const char *where,
+                                     int *p_sizecode, int *p_ww, int *p_hh)
+{
+    int found = 0, cm = -1, csm = -1, ci = -1;
+    if (!wpf_x11_is_toplevel(h)) return 0;
+    int mx = wpf_x11_query_maximized((Window)(uintptr_t)h, &found);
+    wpf_x11_peek_state(h, &cm, &csm, &ci);
+    wpf_wstate_diag("%s hwnd=0x%llx read_ok=%d x_maximized=%d | 缓存(读属性后) maximized=%d "
+                    "style_WS_MAXIMIZE=%d iconified=%d",
+                    where, (unsigned long long)(uintptr_t)h, found, mx, cm, csm, ci);
+    if (!found) return 0;
+    int changed = wpf_x11_adopt_maximized(h, mx, p_sizecode, p_ww, p_hh);
+    if (changed) {
+        wpf_x11_peek_state(h, &cm, &csm, &ci);
+        wpf_wstate_diag("ADOPT(%s) hwnd=0x%llx x_maximized=%d ⇒ 缓存(采纳后) maximized=%d "
+                        "style_WS_MAXIMIZE=%d；sizecode=%d %dx%d",
+                        where, (unsigned long long)(uintptr_t)h, mx, cm, csm,
+                        p_sizecode ? *p_sizecode : -1, p_ww ? *p_ww : -1, p_hh ? *p_hh : -1);
+    }
+    return changed;
+}
+
 int wpf_x11_pump_into_queue(wpf_thread *t)
 {
     if (!g_wpf.dpy) return 0;
@@ -851,6 +1034,17 @@ int wpf_x11_pump_into_queue(wpf_thread *t)
             //   修前这里恒发 0 ⇒ 一按最大化，WM 改完几何、我们回填窗口表时又把 WPF 的
             //   `WindowState` 掰回 Normal（应用侧的"还原/最大化"按钮图标与后续命令全错位）。
             //   ⇒ 用窗口表里的状态位把 0/1/2 如实送上去（Win32 的 USER32 也是这么发的）。
+            // ── 【W89A · `D-G81`】先把 X 侧的权威状态采纳进表，**再**算 `WM_SIZE` 的 wParam ──
+            //   为什么这一拍也要做（不只 `PropertyNotify`）：本件实测 xfwm4 的次序是
+            //   "**先** `XConfigureWindow`、**后**写 `_NET_WM_STATE`"（读数：两行 `CONFIGURE
+            //   1280x1000` 在 `PROPERTY … x_maximized=1` **之前**）⇒ 若只在属性事件上采纳，
+            //   这一拍发出去的 `WM_SIZE` 仍然是 `SIZE_RESTORED`，托管侧那一瞬仍被判成"普通"。
+            //   两处调**同一个幂等**函数 ⇒ 谁先到谁生效，后到的那次什么都不做。
+            //   代价：每个 `ConfigureNotify` 多一次 `XGetWindowProperty` 往返（与隔壁
+            //   `XTranslateCoordinates` 同量级；只对**顶层**窗口问）。
+            //   ⚠️ 这里**只采纳、不自己派发** `WM_SIZE`：下面那段本来就要按（已更新的）
+            //   状态位发一条正确的 `WM_SIZE` ⇒ 多派一条就是重复（本仓纪律：消息条数也是读数）。
+            wpf_x11_sync_window_state(h, "CONFIGURE", NULL, NULL, NULL);
             int sizecode = WM_SIZECODE_RESTORED;
             wpf_lock();
             wpf_window *w = wpf_window_find(h);
@@ -864,6 +1058,13 @@ int wpf_x11_pump_into_queue(wpf_thread *t)
                 else if (w->maximized) sizecode = WM_SIZECODE_MAXIMIZED;
             }
             pthread_mutex_unlock(&g_wpf.lock);
+            // 【W89A 仪器】`ConfigureNotify ⇒ WM_SIZE` 的 wParam **取自窗口表缓存** ⇒ 这一行
+            //   是"缓存没跟上 ⇒ 托管侧被掰回 Normal"那条因果的现场读点（只打印）。
+            wpf_wstate_diag("CONFIGURE hwnd=0x%llx %dx%d@+%d+%d ⇒ WM_SIZE sizecode=%d "
+                            "(缓存 maximized=%d iconified=%d)",
+                            (unsigned long long)(uintptr_t)h,
+                            ev.xconfigure.width, ev.xconfigure.height, cx_root, cy_root, sizecode,
+                            (w ? w->maximized : -1), (w ? w->iconified : -1));
             push(t, h, WM_SIZE, (WPARAM)sizecode,
                  (LPARAM)((((uint32_t)ev.xconfigure.height & 0xFFFF) << 16) |
                           ((uint32_t)ev.xconfigure.width & 0xFFFF)), 0, 0);
@@ -1216,8 +1417,32 @@ int wpf_x11_pump_into_queue(wpf_thread *t)
             break;
         }
 
+        case PropertyNotify:
+            // ── 【W89A · `D-G81`】WM **单方面**改 `_NET_WM_STATE` 的那一拍 ─────────────
+            //   【为什么它必须被处理】EWMH 里 `_NET_WM_STATE` 是窗口状态的**权威来源**，而
+            //   WM 改它时**不经过**任何 Win32 入口（不是 `ShowWindow`、不是 `WM_SYSCOMMAND`）
+            //   ⇒ 本 shim 的窗口表缓存不会动（根因见 `wpf_x11_query_maximized` 上方的注释）。
+            //   `PropertyChangeMask` 早在建窗时就订阅了（`:419`）⇒ 事件**本来就会到**；
+            //   这里只是把以前那条 `default:`（"对 WPF 输入/生命周期没有语义 ⇒ 丢弃"）
+            //   改成"**采纳**"。
+            //   ⚠️ **第一步只做诊断**（这一步不改行为）：先把"属性到底读到什么 / 缓存当时
+            //   是什么"变成读数，再落地同步 —— 否则"修没修好"和"仪器看不看得见"分不开。
+            //   ✅ 第二版起：**采纳**（同一站式入口；幂等，属性那条路先到就在这里派发 `WM_SIZE`）。
+            if (ev.xproperty.atom == a_net_wm_state &&
+                ev.xproperty.state == PropertyNewValue) {
+                HWND h = (HWND)(uintptr_t)ev.xproperty.window;
+                int sc = 0, ww = 0, hh = 0;
+                if (wpf_x11_sync_window_state(h, "PROPERTY", &sc, &ww, &hh)) {
+                    push(t, h, WM_SIZE, (WPARAM)sc,
+                         (LPARAM)((((uint32_t)hh & 0xFFFF) << 16) | ((uint32_t)ww & 0xFFFF)), 0, 0);
+                    produced++;
+                    wpf_wstate_diag("⇒ 从 PROPERTY 派发 WM_SIZE sizecode=%d %dx%d", sc, ww, hh);
+                }
+            }
+            break;
+
         default:
-            // SelectionRequest / PropertyNotify / VisibilityNotify 等对 WPF
+            // SelectionRequest / VisibilityNotify 等对 WPF
             // 输入与窗口生命周期没有语义 → 丢弃。不产生假消息。
             break;
         }
@@ -1509,6 +1734,17 @@ void wpf_x11_apply_wm_state(HWND hwnd, int maximize)
                SubstructureRedirectMask | SubstructureNotifyMask, &e);
     XFlush(g_wpf.dpy);
     XUNLOCK();
+    // 【W89A 仪器】"**我们自己**请求改状态"的那一拍（与"WM 单方面改"配对读；
+    //   应用自发那条路上这两行会前后出现 ⇒ 幂等性可直接看出来）。只打印。
+    {
+        int cm = -1, csm = -1, ci = -1;
+        wpf_x11_peek_state(hwnd, &cm, &csm, &ci);
+        wpf_wstate_diag("APPLY_WM_STATE hwnd=0x%llx maximize=%d（我们发的 _NET_WM_STATE %s）"
+                        " | 缓存(发送后) maximized=%d style_WS_MAXIMIZE=%d",
+                        (unsigned long long)(uintptr_t)hwnd, maximize,
+                        maximize ? "ADD" : "REMOVE", cm, csm);
+        (void)ci;
+    }
 }
 
 // ── 最小化（图标化）──────────────────────────────────────────────────────────

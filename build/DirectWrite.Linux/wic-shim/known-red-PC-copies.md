@@ -30,20 +30,14 @@ bash build/DirectWrite.Linux/wic-shim/check-applocal-sync.sh
 - 判定行原文（`check-applocal-sync.sh` 的 `scan()` ⑥ 分支，`:278-281`）：`STALE  <路径>  EXPECT e7cabff9417ed380  ACTUAL <sha>（副本早 N 秒 ⇒ 必须刷新）`
 - **共 12 份**（下表的"登记时副本 sha16"由 `sha256sum` 逐份取，`类别`按检查器当时的输出标签抄录）
 
+- **⏪ `#50` 波尾（2026-09-22，车道 `W95A`）：本表已按自己的口径**（"已转绿 ⇒ 应从本表移除"）**删掉 12 条**
+  （现场由 `check-applocal-sync.sh` 逐条判 `[在册红·已转绿]`；删前本表 **13 条：仍红 1 ｜ 已转绿 12**）⇒ 现在**只剩 1 条仍红**。
+  ⚠️ 同趟另**刷新了本表原第 13 条**（`tools/GeometryOracle/bin/Debug/net10.0/WpfGfx.Linux.dll` `16baacfccfcf1df0 → 374b5a538ea955aa`）——
+  它**只能**由 `sync-applocal-authority.sh --apply` 刷，而该件的默认 `SCAN_ROOTS` **不含 `$REPO/tools`**（与校验器的默认根**不一致**，见 `build/MilBridge/W95A-report.md` §6.3）
+  ⇒ 本趟显式传 `SCAN_ROOTS=…:tools` 才刷到；**该缺口已报主控，本波未改那件仪器**。删表**不参与判定**（`show_registry()` 只读只打印、`登记 ≠ 已容忍`）。
 | 路径 | 登记时副本 sha16 | 登记时权威 sha16 | 类别 | 首次登记日期 | 处置 |
 |---|---|---|---|---|---|
-| build/DirectWrite.Linux/FontEntryClosedLoop/bin/Debug/PresentationCore.dll | 23567d420f0dbbaa | e7cabff9417ed380 | STALE | 2026-09-16 | 刷新（重编该工程即收敛） |
-| build/DirectWrite.Linux/SystemFontsProbe/bin/Debug/PresentationCore.dll | 23567d420f0dbbaa | e7cabff9417ed380 | STALE | 2026-09-16 | 刷新（重编该工程即收敛） |
-| build/DirectWrite.Linux/WicClosedLoop/bin/Debug/PresentationCore.dll | 23567d420f0dbbaa | e7cabff9417ed380 | STALE | 2026-09-16 | 刷新（重编该工程即收敛） |
-| build/DirectWrite.Linux/WicWriteClosedLoop/bin/Debug/PresentationCore.dll | 23567d420f0dbbaa | e7cabff9417ed380 | STALE | 2026-09-16 | 刷新（重编该工程即收敛） |
-| build/DirectWrite.Linux/WiringSmoke/bin/Debug/PresentationCore.dll | 23567d420f0dbbaa | e7cabff9417ed380 | STALE | 2026-09-16 | 刷新（重编该工程即收敛） |
-| build/DirectWrite.Linux/FallbackCriteria/bin/Debug/PresentationCore.dll | c0763fc10173e7ff | e7cabff9417ed380 | STALE | 2026-09-16 | 刷新（重编该工程即收敛） |
-| build/MilBridge/tests/CoverageProbe/bin/Debug/PresentationCore.dll | 9adac6b8d8e285c3 | e7cabff9417ed380 | STALE | 2026-09-16 | 刷新（重编该工程即收敛） |
-| build/MilBridge/tests/HbTextLineParity/bin/Debug/PresentationCore.dll | f4a454c8fe69cdfe | e7cabff9417ed380 | STALE | 2026-09-16 | 刷新（重编该工程即收敛） |
-| build/MilBridge/tests/TextLineProto/bin/Debug/PresentationCore.dll | f4a454c8fe69cdfe | e7cabff9417ed380 | STALE | 2026-09-16 | 刷新（重编该工程即收敛） |
 | build/PresentationFramework.Classic.Linux/bin/Debug/PresentationCore.dll | 95a669cc510337d1 | e7cabff9417ed380 | STALE | 2026-09-16 | 待裁决（**另一份 PC 构建**，4,068,864 B，非"旧版同一件"；刷新或声明） |
-| samples/HelloWpf/bin/Debug/net10.0/PresentationCore.dll | f31822ce4a3e510d | e7cabff9417ed380 | STALE | 2026-09-16 | 刷新（重编该样例即收敛） |
-| samples/WpfFeatureProbe/bin/Debug/net10.0/PresentationCore.dll | 9adac6b8d8e285c3 | e7cabff9417ed380 | STALE | 2026-09-16 | 刷新（重编该样例即收敛） |
 
 **表 A 汇总**（来源 = 同一趟读数；全仓 `PresentationCore.dll` 共 **33 份** = 12 + 6 + 12 + 2 + 1）：
 
@@ -59,7 +53,6 @@ bash build/DirectWrite.Linux/wic-shim/check-applocal-sync.sh
 
 | 路径 | 登记时副本 sha16 | 登记时权威 sha16 | 类别 | 首次登记日期 | 处置 |
 |---|---|---|---|---|---|
-| tools/GeometryOracle/bin/Debug/net10.0/WpfGfx.Linux.dll | 16baacfccfcf1df0 | c400ab1638e0c3d2 | STALE | 2026-09-16 | 刷新（重编 `tools/GeometryOracle` 即收敛） |
 
 - 该目录有 `GeometryOracle.runtimeconfig.json` ⇒ **是启动宿主**；288,768 B；mtime 2026-09-11 09:21:37。
 - 补 `tools` 之前它**连枚举都没有过**（`find` 都没 find 到）⇒ 连 sha 都没被打印 ⇒ 本表是它**第一次**被点名。

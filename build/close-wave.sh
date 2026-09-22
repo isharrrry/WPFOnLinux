@@ -199,6 +199,18 @@ fp_inputs() {  # 手写输入指纹（应用器 + port-lib + 本脚本 + 波脚�
       #   ⚠️ 有意**不**纳入 `sync-applocal-authority.sh`（同一目录下"执行判据结论、真写副本"的那件）：
       #     它每次波尾都会真刷副本 ⇒ 把它算进"输入稳定性"会把该断言自己搞成噪音（同 `arm-logs/` 的裁定）；
       #     本波只**登记**这条边界，不顺手扩大覆盖面（如实划界，见 `docs/WAVE49-PREREGISTRATION.md` §8）。
+      # 【`#50` W91A：本波新纳入的**两件 R-GATE 判据件**（同族 —— "判据改了自己没人看着"）】
+      #   · `build/MilBridge/tools/r-gate-step.sh` —— 第 `[26]` 步 `R-GATE（连续交互）` 的**判据唯一实现**
+      #     （13 格判据 ＋ 三态机读行 `R_GATE=PASS|FAIL|NOINFO`）。它**决定"连续点击算不算过"**
+      #     ⇒ 改它 = 改 PASS 的定义；不纳入则**零机器红**（`#26` W84A 建它时把它登记为缺口）。
+      #   · `build/MilBridge/tests/RGateClickProbe/run-r-gate-legs.sh` —— 同一第 `[26]` 步的**装置**：
+      #     它落证据（`evidence.txt` 的 `appline_from/to` 区间 ＋ `app.log` 原文）而不裁决，
+      #     但**装置改了读数就改了**（例如少点一下、把指针移出窗口）⇒ 同样是判据的承重件。
+      #   ⚠️ 流程代价与上面几件相同：从此**改这两件必须安排在 `IN_FP_0` 采样之前**。
+      #   ⚠️ **残留缺口（如实登记，本波不扩大改面）**：本波另有三件**改了却仍不在覆盖面里**的件 ——
+      #     `verify-all.sh`（第 `[26]` 步＋四处声明；**实测它本来就不在覆盖面**，与本行无关）、
+      #     `build/PresentationFramework.Linux/reapply-patches.py` 与 PF 的 `*.Linux.cs` 生成件
+      #     （`TASK-0303` 的 `A2/A3` 修法所在）⇒ 对 `inputs_fp` **不可见**，只有 `ARTIFACT-SRC-FP` 看得见。
       printf '%s\n' build/MilBridge/tools/tline-gate.sh build/MilBridge/known-red.json \
           build/MilBridge/tools/verify-all-step-check.sh build/MilBridge/tools/fp-inputs-hygiene-check.sh \
           build/MilBridge/tools/column-floor-check.sh build/MilBridge/tools/hidden-only-step.sh \
@@ -207,6 +219,8 @@ fp_inputs() {  # 手写输入指纹（应用器 + port-lib + 本脚本 + 波脚�
           build/MilBridge/tools/arm-log-sha-check.sh build/MilBridge/tools/build-hygiene-import-check.sh \
           build/MilBridge/tools/pipefail-sigpipe-check.sh \
           build/MilBridge/tools/frame-presence-check.sh \
+          build/MilBridge/tools/r-gate-step.sh \
+          build/MilBridge/tests/RGateClickProbe/run-r-gate-legs.sh \
           build/MilBridge/tools/sync-applocal.sh \
           build/DirectWrite.Linux/wic-shim/check-applocal-sync.sh \
           build/DirectWrite.Linux/wic-shim/applocal-expect.py \

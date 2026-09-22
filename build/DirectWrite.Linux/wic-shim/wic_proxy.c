@@ -73,6 +73,7 @@
  * （vt@0 / wReserved 2,4,6 / 联合体@8，x64 下 16 字节）——这是从源码抄的，不是猜的 */
 typedef struct { uint16_t vt, r1, r2, r3; uint64_t v1, v2; } propvariant_t;
 #define VT_EMPTY 0
+#define VT_UI2   18   /* GIF `/grctlext/Delay` 在 WIC 里是 ushort（上游 PropVariant.cs:18 "ushort <=> VT_UI2"）*/
 #define VT_UI4   19
 #define VT_LPSTR 30
 #define VT_LPWSTR 31
@@ -117,6 +118,8 @@ typedef struct {
     int32_t width, height, colorType, alphaType;
     unsigned char *pixels; size_t rowBytes;        /* 惰性解码后的 BGRA 像素 */
     int decoded;
+    int32_t frame_index;   /* KIND_FRAME：本帧帧号（0 = 静态图 / 第 0 帧）；由 GetFrame 设定 */
+    int32_t frame_count;   /* KIND_DECODER/KIND_FRAME：已探明帧数（0 = 未探明 ⇒ 当 1）*/
 } wic_obj;
 
 static wic_obj *g_objs[WIC_OBJ_MAX];
@@ -183,6 +186,90 @@ static int is_png_bytes(const unsigned char *b, size_t n)
 { return n >= 8 && b[0]==0x89 && b[1]=='P' && b[2]=='N' && b[3]=='G'; }
 static int is_jpeg_bytes(const unsigned char *b, size_t n)
 { return n >= 3 && b[0]==0xFF && b[1]==0xD8 && b[2]==0xFF; }
+static int is_gif_bytes(const unsigned char *b, size_t n)
+{ return n >= 6 && b[0]=='G' && b[1]=='I' && b[2]=='F' && b[3]=='8'; }
+
+/* ---------------------------------------------------------------------------
+ * GIF：取出**第 index 帧**的 GCE 延迟（单位 1/100 秒，即 WIC 的 `/grctlext/Delay`）。
+ *
+ * 【为什么要自己走一遍结构】Skia 的 C API 只给帧的**像素与帧数**
+ * （`sk_codec_get_frame_count`；帧时长只能从 `sk_codec_frame_info_t` 的 +4 取，
+ *  那是另一处未文档化的 ABI 面）。`/grctlext/Delay` 本来就是 **GIF 容器自己**的语义
+ * ⇒ 按 GIF89a 规范走块结构，读 Graphic Control Extension 的 Delay 字段。
+ * 命中返回 1（含"确实有 GCE、延迟就是 0"），没有 GCE / 结构坏 / 帧号越界返回 0。
+ * 只读、不改、不分配；数据来自父对象的 `o->bytes`（整份文件）。
+ * --------------------------------------------------------------------------- */
+static int gif_frame_delay_cs(const unsigned char *b, size_t n, int32_t index, uint16_t *out)
+{
+    if (!b || n < 13 || !is_gif_bytes(b, n) || index < 0) return 0;
+
+    size_t pos = 13;
+    unsigned char packed = b[10];
+    if (packed & 0x80) {                                  /* 全局色表 */
+        size_t sz = (size_t)3 * (1u << ((packed & 7) + 1));
+        if (pos + sz > n) return 0;
+        pos += sz;
+    }
+
+    int32_t frame_no = 0;
+    int have_gce = 0;
+    uint16_t delay = 0;
+
+    while (pos < n) {
+        unsigned char blk = b[pos];
+        if (blk == 0x3B) break;                           /* trailer */
+        if (blk == 0x21) {                                /* 扩展块 */
+            if (pos + 2 > n) return 0;
+            unsigned char label = b[pos + 1];
+            size_t p = pos + 2;
+            uint16_t gce_delay = 0;
+            int gce_here = 0;
+            while (p < n && b[p] != 0) {                  /* 一个扩展 = 一串子块 */
+                size_t len = b[p];
+                if (p + 1 + len > n) return 0;
+                if (label == 0xF9 && len >= 4) {          /* Graphic Control Extension */
+                    gce_here = 1;
+                    gce_delay = (uint16_t)(b[p + 2] | ((uint16_t)b[p + 3] << 8));
+                }
+                p += 1 + len;
+            }
+            if (p >= n) return 0;
+            pos = p + 1;                                  /* 跳过块终结符 */
+            if (gce_here) { have_gce = 1; delay = gce_delay; }
+            continue;
+        }
+        if (blk == 0x2C) {                                /* 图像描述符 = 一帧 */
+            if (pos + 10 > n) return 0;
+            unsigned char ip = b[pos + 9];
+            size_t p = pos + 10;
+            if (ip & 0x80) {                              /* 局部色表 */
+                size_t sz = (size_t)3 * (1u << ((ip & 7) + 1));
+                if (p + sz > n) return 0;
+                p += sz;
+            }
+            if (p >= n) return 0;
+            p += 1;                                       /* LZW 最小码长 */
+            while (p < n && b[p] != 0) {                  /* 数据子块 */
+                size_t len = b[p];
+                if (p + 1 + len > n) return 0;
+                p += 1 + len;
+            }
+            if (p >= n) return 0;
+            pos = p + 1;
+
+            if (frame_no == index) {                      /* 这就是要查的那一帧 */
+                if (!have_gce) return 0;                  /* 没有 GCE ⇒ 没有该属性 */
+                if (out) *out = delay;
+                return 1;
+            }
+            frame_no++;
+            have_gce = 0; delay = 0;
+            continue;
+        }
+        return 0;                                         /* 结构不认识：如实说"没有" */
+    }
+    return 0;
+}
 
 /* PNG：按 chunk 走。key 匹配 tEXt/iTXt 的关键字（PNG 关键字大小写敏感）。
  * 命中返回 malloc 的字符串（NUL 结尾），否则 NULL。 */
@@ -199,7 +286,7 @@ static char *png_get_text(const unsigned char *b, size_t n, const char *key)
             if (k == klen && k < ln && memcmp(data, key, klen) == 0) {
                 size_t off = k + 1;
                 if (memcmp(type, "iTXt", 4) == 0) {
-                    /* keyword  compFlag compMethod langTag  translatedKeyword  text */
+                    /* keyword\0 compFlag compMethod langTag\0 translatedKeyword\0 text */
                     if (off + 2 > ln) return NULL;
                     int compressed = data[off];
                     off += 2;
@@ -302,6 +389,10 @@ static void pv_set_lpstr(propvariant_t *pv, const char *s, size_t len)
 static void pv_set_empty(propvariant_t *pv)
 { pv->vt = VT_EMPTY; pv->r1 = pv->r2 = pv->r3 = 0; pv->v1 = pv->v2 = 0; }
 
+/* VT_UI2：值放联合体首 2 字节（x64 下 = v1 的低 16 位）*/
+static void pv_set_ui2(propvariant_t *pv, uint16_t v)
+{ pv->vt = VT_UI2; pv->r1 = pv->r2 = pv->r3 = 0; pv->v1 = v; pv->v2 = 0; }
+
 /* 查询串是 ASCII（WIC 的查询语言），非 ASCII 字节按 '?' 落——本轮不做完整 UTF-8 解码（登记）*/
 static void utf16_to_utf8(const uint16_t *w, char *out, size_t cap)
 {
@@ -316,6 +407,13 @@ static char *jpeg_exif_text(wic_obj *o, uint32_t tag, int sub);   /* 定义在 E
 static int meta_has_any(wic_obj *o)
 {
     if (decode_open(o) != S_OK || !o->bytes) return 0;
+    /* `#50` 新增：GIF 的**帧**能提供 `/grctlext/Delay`（GCE 延迟）。
+     * 只对 KIND_FRAME 生效 —— 解码器级元数据查询面（`IWICBitmapDecoder_GetMetadataQueryReader`）
+     * 行为一字不变（PC 那条路只读 decoder 的容器级元数据）。*/
+    if (o->kind == KIND_FRAME && is_gif_bytes(o->bytes, o->size)) {
+        uint16_t cs = 0;
+        return gif_frame_delay_cs(o->bytes, o->size, o->frame_index, &cs);
+    }
     if (is_jpeg_bytes(o->bytes, o->size)) {              /* JPEG：有 EXIF 文本标签才算"有元数据" */
         static const uint32_t t0[] = { 270, 271, 272, 305, 306, 315, 316, 33432 };
         static const uint32_t t1[] = { 36867, 36868, 42036 };
@@ -451,6 +549,24 @@ typedef sk_codec_t *(*pfn_codec_new_from_data)(sk_data_t *);
 typedef void (*pfn_codec_destroy)(sk_codec_t *);
 typedef int (*pfn_codec_get_info)(sk_codec_t *, sk_imageinfo_t *);         /* 返回值无语义 */
 typedef int (*pfn_codec_get_pixels)(sk_codec_t *, const sk_imageinfo_t *, void *, size_t, void *); /* options=NULL */
+typedef int (*pfn_codec_get_frame_count)(sk_codec_t *);   /* `#50`：多帧图的真实帧数 */
+
+/* SkCodec::Options 的**真实布局**（`#50` 反推自 libSkiaSharp.so，**不是**照抄头文件）：
+ *   +0  int32  fZeroInitialized（Skia 默认 1 = kNo_ZeroInitialized）
+ *   +8  ptr    fSubset（SkIRect*，默认 NULL）
+ *   +16 int32  fFrameIndex（默认 0）——**选帧就靠这一格**
+ *   +20 int32  fPriorFrame（默认 -1 = kNoFrame）
+ * 依据：`sk_codec_get_pixels` 收 NULL 时在 .so 内构造"默认 options"的那几条 store
+ *   （`movl $1,0x30(%rsp)` ／ `movq $0,0x38(%rsp)` ／ `movabs $0xffffffff00000000` 写到 +0x40
+ *    ⇒ +16=0、+20=-1），且 +8 被当指针解引用（fSubset）。24 字节。
+ * ⚠ 逐字段照抄；顺序/宽度改一个字就会退化成 InvalidParameters(5)。*/
+typedef struct {
+    int32_t zero_initialized;
+    int32_t _pad;
+    void   *subset;
+    int32_t frame_index;
+    int32_t prior_frame;
+} sk_codec_options_t;
 
 static void *g_skia;
 static pfn_data_new_with_copy sk_data_new_with_copy;
@@ -459,6 +575,7 @@ static pfn_codec_new_from_data sk_codec_new_from_data;
 static pfn_codec_destroy      sk_codec_destroy;
 static pfn_codec_get_info     sk_codec_get_info;
 static pfn_codec_get_pixels   sk_codec_get_pixels;
+static pfn_codec_get_frame_count sk_codec_get_frame_count;   /* 缺失 ⇒ 只能当静态图（具名降级，见 decode_frame_count）*/
 
 #define SK_BGRA_8888 6   /* C API 的 sk_colortype_t：Bgra8888=6（与托管同值，实测一致） */
 
@@ -505,6 +622,9 @@ static int skia_load(void)
     sk_codec_destroy       = (pfn_codec_destroy)dlsym(g_skia, "sk_codec_destroy");
     sk_codec_get_info      = (pfn_codec_get_info)dlsym(g_skia, "sk_codec_get_info");
     sk_codec_get_pixels    = (pfn_codec_get_pixels)dlsym(g_skia, "sk_codec_get_pixels");
+    /* 可选绑定：**不进**下面那条 return 的与式 —— 老 Skia 没有它时不该整个解码面失效，
+     * 而是"帧数退化为 1"并由 decode_frame_count 打具名台账（本机实测该符号存在）。*/
+    sk_codec_get_frame_count = (pfn_codec_get_frame_count)dlsym(g_skia, "sk_codec_get_frame_count");
 
     return sk_data_new_with_copy && sk_data_unref && sk_codec_new_from_data &&
            sk_codec_destroy && sk_codec_get_info && sk_codec_get_pixels;
@@ -583,8 +703,25 @@ static int decode_pixels(wic_obj *o)
     info.colorspace = NULL; info.width = o->width; info.height = o->height;
     info.colorType = SK_BGRA_8888; info.alphaType = o->alphaType;
 
-    /* 关键：options 传 NULL（传零值结构体会得到 InvalidParameters=5，实测） */
-    int res = sk_codec_get_pixels((sk_codec_t *)o->codec, &info, o->pixels, o->rowBytes, NULL);
+    /* 第 0 帧：options 继续传 NULL ⇒ 调用与改动前**逐字相同**（静态图零回归由构造保证）。
+     * 逐帧：options 带 fFrameIndex（见 sk_codec_options_t 的布局来源）。
+     * 实测（`#50`，两份夹具 × 4 种 options 变体）：`fPriorFrame=-1` 的**单帧直解**与
+     * "从 0 重放"逐位相同 ⇒ 不必重放（Skia 自己按 frameInfo.requiredFrame 补前置帧）。*/
+    int res;
+    if (o->frame_index > 0) {
+        sk_codec_options_t opts;
+        memset(&opts, 0, sizeof opts);
+        opts.zero_initialized = 1;          /* = Skia 默认 kNo_ZeroInitialized */
+        opts.subset = NULL;
+        opts.frame_index = o->frame_index;
+        opts.prior_frame = -1;              /* = kNoFrame */
+        res = sk_codec_get_pixels((sk_codec_t *)o->codec, &info, o->pixels, o->rowBytes, &opts);
+        if (getenv("WPF_LINUX_WIC_TRACE") && g_trace_budget-- > 0)
+            fprintf(stderr, "WIC_TRACE DECODE_FRAME index=%d res=%d\n", o->frame_index, res);
+    } else {
+        /* 关键：options 传 NULL（传零值结构体会得到 InvalidParameters=5，实测） */
+        res = sk_codec_get_pixels((sk_codec_t *)o->codec, &info, o->pixels, o->rowBytes, NULL);
+    }
     if (res != 0) { free(o->pixels); o->pixels = NULL; return E_UNEXPECTED; }
     o->decoded = 1;
     return S_OK;
@@ -1026,12 +1163,41 @@ int32_t IWICBitmap_SetResolution_Proxy(void *bitmap, double dpiX, double dpiY)
 }
 
 /* ------------------------------------------------------------------ 导出：decoder */
+
+/* 真实帧数。**单一取数点**：`sk_codec_get_frame_count`（幂等，结果缓存在 o->frame_count）。
+ * 三条具名降级（都不是静默）：① Skia 没这个符号 ② 返回 <= 0（该 codec 不报帧数）
+ * ⇒ 一律按"静态图 1 帧"并打 `FRAME_COUNT_NOINFO` 台账；③ 解码器开不出来 ⇒ 返回那个 hr。
+ * 【`#50` 修法核心】原实现恒 `*pFrameCount = 1;` ⇒ 多帧图（GIF）只出第 0 帧。*/
+static int32_t decode_frame_count(wic_obj *o)
+{
+    if (o->frame_count > 0) return o->frame_count;
+
+    int32_t n = 1;
+    if (o->codec && sk_codec_get_frame_count) {
+        int fc = sk_codec_get_frame_count((sk_codec_t *)o->codec);
+        if (fc > 1) n = (int32_t)fc;
+        else if (fc <= 0 && getenv("WPF_LINUX_WIC_TRACE"))
+            fprintf(stderr, "WIC_TRACE FRAME_COUNT_NOINFO reason=codec-reports-no-frame-info fc=%d -> 1\n", fc);
+    } else if (getenv("WPF_LINUX_WIC_TRACE")) {
+        fprintf(stderr, "WIC_TRACE FRAME_COUNT_NOINFO reason=libSkiaSharp-missing-sk_codec_get_frame_count -> 1\n");
+    }
+    o->frame_count = n;
+    return n;
+}
+
 __attribute__((visibility("default")))
 int32_t IWICBitmapDecoder_GetFrameCount_Proxy(void *decoder, uint32_t *pFrameCount)
 {
     wic_obj *o = obj_get((intptr_t)decoder);
     if (!o || o->kind != KIND_DECODER || !pFrameCount) return E_INVALIDARG;
-    *pFrameCount = 1;                    /* 本 shim 只支持静态图：1 帧 */
+
+    int hr = decode_open(o);
+    if (hr != S_OK) return hr;            /* 开不出解码器 ⇒ 如实报错（PC 只在解码器建成功后调这里）*/
+
+    int32_t n = decode_frame_count(o);
+    *pFrameCount = (uint32_t)n;
+    if (getenv("WPF_LINUX_WIC_TRACE") && g_trace_budget-- > 0)
+        fprintf(stderr, "WIC_TRACE GET_FRAME_COUNT h=%lld -> %d\n", (long long)(intptr_t)decoder, n);
     return S_OK;
 }
 
@@ -1040,14 +1206,27 @@ int32_t IWICBitmapDecoder_GetFrame_Proxy(void *decoder, uint32_t index, void **p
 {
     wic_obj *o = obj_get((intptr_t)decoder);
     if (!o || o->kind != KIND_DECODER || !ppIFrameDecode) return E_INVALIDARG;
-    if (index != 0) return E_INVALIDARG;  /* 静态图只有第 0 帧 */
+
+    int hr = decode_open(o);
+    if (hr != S_OK) return hr;
+
+    int32_t n = decode_frame_count(o);
+    if (index >= (uint32_t)n) {
+        /* 越界帧**如实失败**（不改判据、也不返回一个"看起来能用"的帧）。
+         * 上游 wgx_error.cs 里没有 FRAMEMISSING 这一类 ⇒ 沿用本 shim 既有的 E_INVALIDARG。*/
+        if (getenv("WPF_LINUX_WIC_TRACE") && g_trace_budget-- > 0)
+            fprintf(stderr, "WIC_TRACE GET_FRAME_REFUSE index=%u count=%d\n", index, n);
+        return E_INVALIDARG;
+    }
 
     intptr_t h = obj_new(KIND_FRAME);
     if (!h) return E_OUTOFMEMORY;
 
     wic_obj *f = obj_get(h);
-    int hr = inherit_source_bytes(f, o);   /* frame 自己持一份（fd 或字节），与 decoder 解耦 */
+    hr = inherit_source_bytes(f, o);   /* frame 自己持一份（fd 或字节），与 decoder 解耦 */
     if (hr != S_OK) { obj_drop(h, f); return hr; }
+    f->frame_index = (int32_t)index;   /* ← 逐帧访问的落点：这一帧要解第 index 帧 */
+    f->frame_count = n;
     *ppIFrameDecode = (void *)h;
     return S_OK;
 }
@@ -1283,6 +1462,19 @@ int32_t IWICMetadataQueryReader_GetMetadataByName_Proxy(void *reader, uint16_t *
         char *v = jpeg_exif_text(parent, exifTag, exifSub);
         if (v) { if (propValue) pv_set_lpstr(propValue, v, strlen(v)); free(v); return S_OK; }
         return WINCODEC_ERR_PROPERTYNOTFOUND;
+    }
+
+    /* `#50`：GIF 帧的 `/grctlext/Delay`（GCE 延迟，单位 1/100 秒）。
+     * 上游口径：PC 的 `BitmapMetadata.GetQuery` 把它读成 `ushort`（PropVariant.cs:18/516）。*/
+    if (is_gif_bytes(parent->bytes, parent->size) &&
+        (strcasecmp(q, "/grctlext/Delay") == 0 || strcasecmp(q, "grctlext/Delay") == 0)) {
+        uint16_t cs = 0;
+        int32_t fi = (parent->kind == KIND_FRAME) ? parent->frame_index : 0;
+        if (!gif_frame_delay_cs(parent->bytes, parent->size, fi, &cs)) return WINCODEC_ERR_PROPERTYNOTFOUND;
+        if (propValue) pv_set_ui2(propValue, cs);
+        if (getenv("WPF_LINUX_WIC_TRACE"))
+            fprintf(stderr, "WIC_TRACE METADATA_DELAY \"%s\" frame=%d -> %u cs\n", q, fi, (unsigned)cs);
+        return S_OK;
     }
 
     size_t klen = 0;

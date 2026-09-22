@@ -178,19 +178,30 @@ wpf-linux 路线图
 │   ├─ TASK-0101 [MVP] ✅ `PMaxSize` 把窗口钉死（产品级成对：修前 `max 784x560` → 修后**缺席**）
 │   ├─ TASK-0102 [MVP] ✅ 缩 / 放 / 拖 / 最大化（含应用自带 Max 按钮）
 │   ├─ TASK-0103 [MVP] ✅ 去双层窗口装饰（`_MOTIF_WM_HINTS=0x2`；普通窗口仍被装饰，成对）
-│   ├─ TASK-0104 [Next] 🟡 已最大化态下再双击还原 / 最小化出现**矛盾读数** ⇒ 定性
-│   ├─ TASK-0105 [Next] 🟡 冷启动期 `windowsize` 被 WM 吞掉的**边界时长**
-│   └─ TASK-0106 [Next] 🟡 `PMaxSize` **声明态端到端**应用腿（仓内无声明 `MaxWidth` 的样本）
+│   ├─ TASK-0104 [Next] ✅ **定性完成（W77A）**：**主要是仪器时序假象，不是产品缺陷** —— 自绘 chrome 按钮在 map 后 **4.2–4.7 s** 才进视觉树（`[GEO]` 零点击：`T≤4.2 MAX=[none]`，`T=4.7` 起 `MAX=[943,213 46x28]`；0 s 时点击命中 `StackPanel#ButtonPanel`），且最大化后**面板重排**（`ButtonRestore` 换到 `dx=74`，`ButtonMin` 恒 `dx=122`）⇒ 坐标必须**状态相关**。四入口在"预热 ≥5 s＋状态相关坐标"下全部可用。
+│   │   └─ ⚠️ **唯一真产品不对称 = `D-G81`**（新登记）：**WM 侧发起**的最大化 ⇒ 双击 **3/3** ＋ 自带还原按钮 **3/3** **都还原不了**（终态恒带 `MAXIMIZED_*`）；**应用自发**发起的能还原（双击 6/6、按钮 5/5）。判据待写死，属 `#50`
+│   ├─ TASK-0105 [Next] ✅ **边界已测（W77A）**：单发腿 **d∈[2,3] s 被吞（0/8）**，`d≤1.5`（5/5）与 `d≥4.5`（5/5）全生效 ⇒ 左界 `(1.5,2.0]`、右界 `[3.0,4.5)`；⚠️ 3 趟阶梯腿**推翻"边界是常数"**（迟到 configure 时刻逐趟漂移 ~3.0 s／~6.5 s／不出现）⇒ 只能当"这台机这一刻"的读数。
+│   │   └─ **建议（已采纳进仪器）**：**请求后回读校验＋重试**（最稳）；靠时间就**暖机 ≥5 s（保守 6 s）** —— `~/mvp-accept.sh` 现有 6 s 暖机与此一致
+│   ├─ TASK-0106 [Next] ✅ **已修（`#50`，车道 W82A；主控独立复核）** —— `D-G83`：`WM_GETMINMAXINFO → WM_NORMAL_HINTS` 通道恢复
+│   │   ├─ **真因（推翻我原判定点的一半）**：`H1` 单落地仍 FAIL（补问那拍两个守卫都是 false）；真因 = **波 58 把 `DefWindowProcW` 的 `case WM_GETMINMAXINFO` 写成"填默认值"** ⇒ 托管侧写对（`521x417/667x500`）后被**我们自己就地盖回** `1x1/1280x1024`（上游 `Window.cs:4272-4298` 第二段 `switch` 无该格 ⇒ `default: handled=false` 覆盖 `:4250-4252`）。**Win32 语义里填默认值属发消息方，`DefWindowProc` 本应 no-op** ⇒ 托管侧不用改
+│   │   ├─ **四格**：`declared` ⇒ `maximum size: 667 by 500` ✅｜`minonly` ⇒ `minimum size: 521 by 417` ✅｜`undeclared` ⇒ 缺席 ✅｜`reg58` ⇒ `1280 by 1024` 出现 **0** 次 ✅（装置自证 PASS）
+│   │   ├─ **反极性**：复原修前源 ⇒ `win32shim` 回到 `c493639d15678803`、五窗全缺席；再前进 ⇒ **`3e4390c9ec07f621`**（往返闭合）⇒ **`#50` 位移多一位**
+│   │   └─ ⚠️ 同时**证伪波 58 注释里"那个 case 是不可达死码"**（实测每次都走到且在窗口过程之后，`:885-895` 已更正）；`win32_x11.c` 一字节未动
+│   ├─ TASK-0107 [Next] ✅ **已办（`#50` 波尾，车道 W93A，报告 `build/MilBridge/W93A-report.md`）** —— `D-G83` 后续 `H2`：**两个问题都有读数**：`H2-a` **运行期不跟随**（4 格 `FAIL`，全是运行期改动格；正对照 `W2-TOGGLE` 一按即正确落 `521 by 417` ⇒ **通道没坏、缺的是触发器**）＋ `H2-b` 本机**有** WM（私有 `Xvfb :182`＋`xfwm4`）且约束**真生效**（客户请求 `1000x800→667x500`／`300x200→521x417`；拖边框**对照窗** `667x500→937x692`、**受限窗纹丝不动**）
+│   │   ├─ ⚠️ **反极性 = `VACUOUS`**（按**先写死**的口径，如实报）：`W1` 的 X 侧提示在 14 个 stage 里**一次都没移动过** ⇒ "回到旧值"与"从来没跟过"**不可分** ⇒ **不构成反极性证据，不许当绿**
+│   │   ├─ 🆕 **同趟新登记**：`D-G88`（`H2` 本体 = 运行期改提示到不了 X；终态死锁 ＋ 预算**计"问"不计"改"**）、`D-G89`（`xprop … | grep -q window` **恒真** ⇒ "等 WM 起来"等于没等）、`D-G90`（`[WMSIZE_DIAG]` **每进程 40 行硬截断** ⇒ 不能当派发总数）
+│   │   └─ **落地拆新号**（本件**零产品改动**，探针在仓外）：`TASK-0108`（`H2` 修法 `P1`–`P4`）／`TASK-0703`（恒真判定修法）—— 均属波 `#51`
 │
 ├─ 02xx R2 稳定性（崩溃族）
 │   ├─ TASK-0201 [MVP] 🟡 静默 `rc=139`＋0 字节日志：**15 趟跑满零命中**（上界≈20%）
 │   │   └─ 唯一信号在运行时 `/memfd:doublemapper`（被运行时自愈、不致命）
-│   ├─ TASK-0202 ✅ 修 `D-G72`（点菜单条 NRE）—— 判据/根因见 TASK-0008
-│   ├─ TASK-0203 [Next] 🔴 给静默 `139` 一个**两极化判决**（按 W63A 配方，需重活槽）
+    ├─ TASK-0202 ✅ 修 `D-G72`（点菜单条 NRE；根因 = `GetMonitorInfoW` 不读 `cbSize`、对 40 B `MONITORINFO` 越界写 32 B）—— 已随 `#49` 冻结（`win32shim c493639d15678803`）
+│   ├─ TASK-0203 [Next] 🟡 **`NOINFO`（本轮未拿到两极化）**：gdb 腿**修后 6/6、修前 6/6 全部 `rc=124`**（窗口活满 90 s）＋日志 0 字节＋**恰好一次被处理的非致命 SIGSEGV**（`APP_DIED=no`）⇒ 两臂各 **0/6** 命中"`139`＋0 字节"，**95% 上界各 ≈50%**；**连它自己的阳性对照（响亮 `134`＋6.5 MB）都没复现** ⇒ 操纵没起作用、**这套装置不能给 `D` 归因**。
+│   │   └─ **代价（实测 5.5 min/趟含让路）**：压到 ≤20% 需 **N≥15/臂（≈2.8 h 槽）**、≤5% 需 **N≥60/臂（≈11 h）**；另：两 shim **符号差 14 个导出**（修前少、反向 0）⇒ **即使两极化成立也不许归因单一改动**
 │   └─ TASK-0204 ✅ 登记 `D-G73`（`WM_SYSCOMMAND` 未实现＋`ShowWindow(SW_MAXIMIZE)` 空操作）／`D-G74`（`ConfigureNotify` 父窗相对坐标 ⇒ 命中测试偏掉）
 │
 ├─ 03xx R3 文本与排版
-│   ├─ TASK-0301 [MVP] 🟡 零墨：**修法已落地，待进冻结**
+    ├─ TASK-0301 [MVP] ✅ **随 `#49` 冻结生效**（零墨修法已在世代内：`hbtextline 921ba9c65e9fb3be`／`pc 56ee75ced8d6aece`）
 │   │   ├─ 根因：`build/shims/PresentationCore.HbTextLine.cs:2826` 单段行用**段落主面**取"按计划面整形"的字形 id
 │   │   ├─ 世代位：`hbtextline e89fed55… → 921ba9c65e9fb3be`；`pc 9465f9dc… → 21e3e88a5090cd3b`
 │   │   ├─ 像素成对：页签 `1/0.00%`→`90/9.03%`；按钮 `8`→`120`；搜索框 `19`→`67`
@@ -198,6 +209,7 @@ wpf-linux 路线图
 │   │   └─ 反极性：shim＋pc 逐字节还原 ⇒ 四区回到 `1/8/19/69`、截图 sha 回 `9380291b84d81dd6`
 │   ├─ TASK-0302 [MVP] 🔴 PTS / 原生 LineServices（**111 条 `Fs*`/`Lo*` 缺口**，`D-G70`）
 │   ├─ TASK-0303 [Next] 🟡 **只读侦察＋最小第一步设计已完成**（车道 W78A，报告 `build/MilBridge/W78A-report.md` `0dbc62b1d1cf86ee`，568 行；零 `dotnet`/零应用/零构建）
+│   │   ├─ **`A0` 实测已做（W81A）**：最小 `FlowDocument` 页面**第一跳就死**（`CreateInstalledObjectsInfo` MISS ⇒ `FailFast` `rc=134`；`ld.so` 自己写 `undefined symbol … (fatal)`）⇒ **27 条清单只命中 1 条**，其余 **26 条"还没轮到"**（不是不需要）⇒ 往下走必须先落地 `A1`/`A2`。⚠️ 顺带抓出仪器缺陷 **`D-G84`**（绊线过滤器看不见该致命符号、`LoadCursorA` 9 行被误判 MISS ⇒ 判据要用 `nm -D`）
 │   │   ├─ **出口面实测**（必须现算 `nm`；仓内 `bin/exports.txt` 是 9-14 陈旧件 472 行 vs 现件 **535**）：指向该 DLL 的 `[DllImport]` **145** 条 ⇒ **可用 36 / 缺 109** = `Fs*` 66＋`Lo*` 22＋`Nl*` 6＋`*Wrapper` 5＋其它 10；扣 9 条 `#if NEVER` 死声明＋1 条探测序误报 ⇒ **真会炸 99 条**（`unimplemented.md` §2.7 记 97，差 2 ⇒ **NOINFO**，未改别人的数）
 │   │   ├─ **最小闭包 = 27 条入口**（16 `Fs*`＋6 PTS 上下文/对象＋5 LS）**但不是 27 个 stub，而是一套分页引擎契约＋151 处回调（135 个不同名）的 ABI**
 │   │   ├─ **两条反直觉结论**：① `Lo*` 行引擎 20 条**不在闭包**（行由**托管**排：`PfnFormatLine` 是托管回调 `PtsCache.cs:568`，`TextFormatterImp.Linux.cs:679/690/723` 已接两层兜底）② 但**构造期那 3 条 LS 跑不掉**（`StructuralCache.cs:480` **恒传 `true`**）⇒ PTS 与 LS 构造期**耦合**
@@ -216,7 +228,14 @@ wpf-linux 路线图
 │
 ├─ 05xx R5 图像与解码
 │   ├─ TASK-0501 [MVP] 🟡 GIF 只有第 0 帧（`wic_proxy.c:1030-1035`）
-│   └─ TASK-0502 [Next] 🔴 多帧解码＋帧时序（GDI+ 图像族仍"只做到能起来"）
+│   └─ TASK-0502 [Next] ✅ **已办（2026-09-21，车道 W79A；波 `#50` 首批落地件）** —— GIF **多帧＋帧时序**
+│       ├─ 判定点：`build/DirectWrite.Linux/wic-shim/wic_proxy.c:1034`（修前 `*pFrameCount = 1;`）＋`:1043`（`index != 0` 一律 `E_INVALIDARG`）；修法 **11 处全在一个文件**
+│       ├─ **读数**：3 帧 GIF `COUNT=1 → 3`、4 帧 `→ 4`，逐帧 `CopyPixels` 与真值**逐字节相同**；帧延迟 `/grctlext/Delay` 由 `UNSUPPORTEDOPERATION` → **`VT_UI2` 逐帧相符**（10/20/30、5/10/15/20 cs）
+│       ├─ **三侧都成立**：正 `WICFRAMES=PASS fails=0 noinfo=0`（rc=0）｜反（还原修法）`FAIL rc=1`｜**假修 3/3 全被抓**（`SELFTEST=PASS liars=3 caught=3`：还原／帧数真但像素恒第 0 帧／声明 1 帧却给得出第 1 帧）⇒ 靠 **H2 逐字节＋H3 帧间互不相同** 抓住（只查状态码的判据对它**零射程**）
+│       ├─ **零回归**：单帧 PNG/JPEG/单帧 GIF＋3 帧 GIF 的第 0 帧 → 与修前件**逐字节相同**（4 例）；第 0 帧仍走老那行 `options=NULL`；**导出集合 diff 为空**（96 条逐条相同）
+│       ├─ **世代位**：`wic_shim 56278c14b4ecd672 → f7b3026c8c019be2`（74984 B）——**只动这一位**；`inputs_fp` **不动**（覆盖面不含 `build/DirectWrite.Linux/wic-shim/**`）
+│       ├─ ⚠️ **波尾必做两件**：①`bash build/DirectWrite.Linux/wic-shim/sync-applocal-authority.sh --apply`（权威件换 sha ⇒ `APPSYNC MISMATCH 1[STALE=1] → 5[STALE=5]`，4 条点名：`publish/release_linux-x64`、`.artifacts/bin/ClosedLoop/release`、`samples/WpfFeatureProbe/Release`、`samples/ThirdPartyMini/Debug`）②修前 `libwpfwic.so` 原有 **2 硬链接**（仓内＋另一车道负样例仓 `~/w62a/negrepo`），重建后**链接已断**、那份仍是旧字节（**没替别人改**，但两份不再同 inode）
+│       └─ `NOINFO`：`disposal=2` 的后续帧 —— **Skia 自己返 `kInvalidConversion(3)`**（四种选帧变体全 res=3）⇒ 我们**如实失败 `E_UNEXPECTED`、不假装成功**；托管级端到端**未跑**（本轮零 `dotnet`，samples 无 GIF 载体）⇒ 代理级契约已证、PC 侧后续行为 `NOINFO`。另：`wic_proxy.c:202` 有 **3 个真 NUL 字节** ⇒ 该文件被判二进制、`grep -n` 静默失效 ⇒ 已登记 **`D-G82`**
 │
 ├─ 06xx R6 辅助功能与输入法
 │   └─ TASK-0601 [Next] ✅ 只读侦察完成（报告 `a1b01055b7080502`，**12 条空缺表**）
@@ -226,7 +245,7 @@ wpf-linux 路线图
 │
 ├─ 07xx R7 验收装置与判据完整性
 │   ├─ TASK-0701 [MVP] ✅ `~/mvp-accept.sh` ＋ `~/heavy-slot.sh`（`--max-hold` / **内存闸门 `--min-avail`**）
-│   └─ TASK-0702 [Next] 🔴 `R-GATE`：把"连续点击"判据收编进仓并接进 `verify-all`
+│   └─ TASK-0702 [Next] ✅ `R-GATE`：把"连续点击"判据收编进仓并接进 `verify-all`
 │       └─ ⚠️ 要改 `verify-all.sh` ⇒ **必须等冻结之后**
 │
 ├─ 08xx R8 上游化与发布
@@ -236,7 +255,7 @@ wpf-linux 路线图
 │
 ├─ 09xx R9 性能与内存
 │   ├─ TASK-0901 [MVP] ✅ OOM 的 `rc=137` 不算缺陷（已机器化：`HEAVYSLOT=NOINFO low-memory`）
-│   └─ TASK-0902 [Next] 🔴 首帧时间 / 内存峰值基线
+│   └─ TASK-0902 [Next] ✅ **基线已测（W77A）**：⚠️ **预登记判据失效** —— 窗口最大唯一色数只有 **372 < 800** ⇒ 登记的"首帧 >800 色" 3/3 `NOINFO`。事后口径（**采样分辨率实测 0.090–0.094 s，不许读更细**）：`t(>1 色)` 中位 **1.227 s**（1.223/1.227/1.274）｜`t(>33 色)` 中位 **5.210 s**｜`t(>195 色)` 中位 **6.007 s**。**最靠得住的是内存**：`VmHWM` 中位 **≈891 MB**（912,540／901,336／988,392 kB，全距 87 MB）。⇒ 阈值需**重新标定**（判据口径类）
 │
 ├─ 10xx R10 第三方应用矩阵
 │   ├─ TASK-1001 [MVP] ✅ ThirdPartyMini 配置分叉（`C1c` 根因）
@@ -244,23 +263,93 @@ wpf-linux 路线图
 │
 └─ 99xx 仓库牙齿 · 冻结收尾
     ├─ TASK-9901 [MVP] ✅ `DEFREG=PASS declared=112` / `VERIFYALL_SELF=PASS` / `DECLDRIFT=0`
-    ├─ TASK-9902 [MVP] ✅ 冻结基线 `#48`（`AB 540725342059b820`）在用
+    ├─ TASK-9902 [MVP] ✅ **冻结基线 `#49`**（`f1d340d66c7c6ba3`，615,139 B）—— `#48` 已被取代
     ├─ TASK-9903 [Next] ✅ 连带红已清：`Commands 562/562` ＋ `Rendering 166/168`
-    └─ TASK-9904 [Next] 🟡 波 `#49` 收尾链（**正在跑，车道 W71A**）
+    ├─ TASK-9904 [Next] ✅ **已办（2026-09-21，车道 W76A；主控独立复核）** —— 波 `#49` 收尾链**走到底**
+    │   ├─ **冻结成功**：世代 **`#49`**，基线 **sha16 `f1d340d66c7c6ba3`**（615,139 B）；机器行 `docs/CURRENT-STATE.md:9`（唯一声明处，`BASELINEDUP=PASS n=0`）
+    │   ├─ 冻前**恰好 1 处**声明类红（`COLUMN-FLOOR`，`bad= tline`）；**冻后两趟**：`25 ✅/0 ❌`、`875 通过/2 跳过`、`rc=0`（两趟都真跑）
+    │   ├─ **位移 6 位**：`bridge feef049e9d0e313a`／`pc 56ee75ced8d6aece`／`pf 6375fabf89ac7fef`／`windowsbase 2e4e46e539a72cd7`／`win32shim c493639d15678803`／`hbtextline 921ba9c65e9fb3be`（表外位移为空）；`inputs_fp = 9f2199b212bed2b212035f87ff6006672605ff7bea6221c0be540301b1a8380b`（可归因六件）
+    │   ├─ **推送**：远端默认分支仍 `feat-Linux`；head `a0e783db… → 7feca487741a8070de81615bd04de889b992766d`（三笔纯快进）；**43 件逐字节核对全一致**（两块大 JSON 按 `.gitignore` 不进）
+    │   └─ ⚠️ 冻结途中修掉两处**判据本体**缺陷：`D-G79`（门禁认错窗口 ⇒ 12/12 假 `no-window`；修后认领 `0x200005`，反极性"真窗不可见仍 FAIL"齐）／`D-G77`（`retake-arms-w23.sh` 硬写 `:97` 且无保证 ⇒ 闸门外重取静默 X-混淆）
         ├─ 整波 → 重取五臂 → `repin-generation --why`（逐条写覆盖面变动）→ 门禁 ×2
         ├─ 冻前 `verify-all`（预期**恰好 1 处**声明类红 = `COLUMN-FLOOR`）→ 冻结 `#49` → 冻后 ×2 → 收尾记录三段
         ├─ ⚠️ 重钉前**必须同趟**改 `known-red.json` `entries[1]`（`Extent 余差 95 → 1242`）否则 `registry-stale(drift)` ⇒ FAIL
         └─ ⚠️ 世代位现为**三处**：`hbtextline 921ba9c6…` / `pc 21e3e88a…` / `win32shim c493639d…`；重建桥 ⇒ `wpfgfx_cor3.so` 必出新值
 ```
 
-**`[Next]` 合计 14 条**（逐条点名，不合并）：
-- ✅ **已完成 5 条**：`TASK-0403`｜`TASK-0601`｜`TASK-0802`｜`TASK-1002`｜`TASK-9903`
-- 🟡 **在办 1 条**：`TASK-9904`（收尾链，车道 W71A 在跑）
-- 🔴 **未派 8 条**：`TASK-0104`｜`TASK-0105`｜`TASK-0106`｜`TASK-0203`｜`TASK-0303`｜`TASK-0502`｜`TASK-0702`（**须等冻结后**）｜`TASK-0902`
-
-（另：`TASK-0204` 已完成，但它在本树里属"登记动作"、未挂 `[Next]` 标；`TASK-0301` 挂 `[MVP]`，其修法已落地、由 `TASK-9904` 折进冻结。）
+**`[Next]` 合计 14 条（**一行一条**，不合并）**：
+- `TASK-0104` ✅ 定性完成（仪器时序为主；真不对称另立 `D-G81`）
+- `TASK-0105` ✅ 边界已测（暖机 ≥5–6 s；建议回读校验＋重试）
+- `TASK-0106` ✅ `D-G83` 已修（四格全绿；`win32shim 3e4390c9ec07f621`）
+- `TASK-0203` [Next] ✅ **已办（车道 W85A，报告 `build/MilBridge/W85A-report.md` `eb011130280cf295`）**：**用户签名未复现** —— 全库 **80 趟有效样本 0 命中 ⇒ 95% 上界 3.7%**（单臂 15 趟各 **18.1%**，已达 ≤20%）；再压到 ≤5% 需 **60/臂 ≈ 3.0 h**
+  - `TASK-0203` ✅ **拿到了 `134` 族的真两极化**（单变量 = `libwpfwin32.so`）：无 WM 时**修前 15/15 崩（`rc=134`＋`Stack overflow.`，15/15 都死在"点页签"那一击）vs 修后 0/15**；**无 WM 快连点 150 击**：修后 **4/4 活**（各吃 147–148 击）、修前 **4/4 崩**（第 5/6/76 击）⇒ 判决点 = **两 `.so` 的改动集关掉了 `D-G66` 的 `SetFocus` 回声环**（栈顶闭合 `FilterMessage ← OnSetFocus ← … ← SetFocus`，环 ≈2,950 次）
+  - `TASK-0203` ⚠️ **有 WM 那一格不算数**：修前臂点击**从第 2 击起被吞**（落地 2/13）⇒ `0/15` 无检测力；**"崩不崩"跟着"点击能不能落地"走，而"能不能落地"跟着"有没有 WM"走** ⇒ **两条腿都要**（见 `docs/WAVE49-PREREGISTRATION.md` §13.4-⑦）
+  - `TASK-0203` ⚠️ 它**推翻 W77A「装置不能归因」**：`C101` 本是**无 WM** 趟（W63A `run/C101/meta.txt` 写 `DISP=:196`），W77A 拿"有 WM"去复刻才 0/2；它 §5.3 的"两臂只差 `ENTRY_N`"也是误读（其修前臂 `AE=0` = 死仪器）
+  - `TASK-0203` 🆕 **新登记 `D-G87`**（判据缺陷，车道自报 `W85A-F3`）：**把"日志体积 ≥1 MB"当签名判别量会漏判真崩**（2/15 趟真崩只写 19 KB 折叠形）⇒ 改判"**退出码 ＋ 首行/栈 ＋ 有无 `Unhandled`**"；`W63A` 的"`139`＋0 字节 = 原生层"**只成立"原生不留日志"这一半**
+  - `TASK-0203` `NOINFO`（未做）：14 个导出里**判不到具体哪一处**关掉了环；两臂树是**陈旧 app-local**（未换 `#49/#50` 权威树复验）；`CAL` 只到"输入被吞、跟着 shim 走"，**未到 grab 层**；全程让路排队共 **4,048 s**
+  - `TASK-0203` 续：**用户那个 `139`＋0 字节仍在跑**（臂2 无 WM ×15 → 臂3 有 WM＋gdb ×15 → **定向腿：无 WM＋150 击**（对应 WAVE49 §11.1 的"第二签名 = 静默 core dump"）→ 零点击反极性 ×4）
+  - `TASK-0203` ⚠️ 口径：**这一族"有 WM 时点击不落地 ⇒ 回声环走不到"** ⇒ **两条腿都要**（详见 `docs/WAVE49-PREREGISTRATION.md` §13.4-⑦）；W77A 的"这套装置不能归因"**已被推翻**（它把 `C101` 的 `DISP=:196`（无 WM）误标成"有 WM"）
+- `TASK-0303` 🟡 设计已交（W78A）＋ `A0` 实测已做（W81A）；下一步 `A1`/`A2`（产品改动）
+- `TASK-0403` ✅ 视觉级效果可见化（撤件必红 ∧ 还原必绿）
+- `TASK-0502` ✅ GIF 多帧＋帧时序（`wic_shim f7b3026c8c019be2`）
+- `TASK-0601` ✅ R6 只读侦察（12 条空缺表；`D-G75`/`D-G76`）
+- `TASK-0702` [Next] ✅ **已办（`#50`，车道 W84A）** —— `R-GATE` 收编进仓并接进 `verify-all` 第 **`[26]`** 步（四处声明同趟：口径句＋`DECL 26 gen=#50`＋`STEP-NAMES`＋新建 `docs/WAVE50-PREREGISTRATION.md`）；机读行 `R_GATE=PASS crit=13/13 clicks=11 …`；`--selftest` **21/21**；单趟 ≈37 s
+  - `TASK-0702` ⚠️ **正极性拿到的是 FAIL（11/13、red=2）—— 抓到真缺陷 `D-G85`**（点选下拉项后捕获不释放 ⇒ 后续点击被误路由；路由与命中测试分叉）⇒ **用户拍板要修**；已派生 `TASK-0206`（只读诊断取分界读数）
+  - `TASK-0702` ⚠️ **它推翻了 `#49` §4 一句**："B3 接线 ⇒ `inputs_fp` 必变"**不成立**（机械抽出覆盖面 144 件，它的两件命中 **0**）⇒ 更正见 `docs/WAVE49-PREREGISTRATION.md` §14
+- `TASK-0802` ✅ 43 件推远端并逐字节核对
+- `TASK-0902` ✅ 基线已测（`VmHWM` 中位 ≈891 MB；阈值待重标定）
+- `TASK-1002` ✅ 补声明图（`UNEXPECTED 16→6`）
+- `TASK-9903` ✅ 连带红已清（`Commands 562/562`＋`Rendering 166/168`）
+- `TASK-9904` ✅ 波 `#49` 收尾链走到底（冻结＋冻后 ×2 全绿）
 
 **`[MVP]` 未绿 3 条**（逐条）：
 - `TASK-0007` 🔴 切「富文本」23 /「流文档」24 必死 `rc=134`（真因 `TASK-0302`，属 R3 长线）
 - `TASK-0201` 🟡 静默 `rc=139`＋0 字节：15 趟零命中（上界≈20%）
 - `TASK-0302` 🔴 PTS / LineServices（111 条 `Fs*`/`Lo*` 缺口）
+
+## §14b `D-G85` 修法与 `R-GATE` 收绿（一行一条；2026-09-22）
+
+- `TASK-0207` [Next] ✅ **已办（车道 W88A，报告 `build/MilBridge/W88A-report.md` `97c03dbc26eefe80`）**：`MouseDevice.cs:388` 释放后补 `ChangeMouseCapture(null, null, CaptureMode.None, timeStamp)`（应用器注入、上游零改动）⇒ `R_GATE` **11/13 → 12/13**，承重格 `c11`（连点三下）**转绿**（`EVT combo.down` 7→5、`lst.down`/`tb.focus` 1→2）
+- `TASK-0207` ⚠️ **M2 单做没变绿**（只去掉 `HwndMouseInputProvider.cs:730` 的 `&& _active`）⇒ **没有证伪** W87A 对门(ii) 的判读（红格与普查逐格相同）
+- `TASK-0207` ⚠️ **反极性 ✅**：拆接线＋删生成物 ⇒ `pc` **逐字节回到 `56ee75ced8d6aece`**、`R_GATE` 回到 `11/13 red=2` 逐格相同；`--selftest` 仍 21/21
+- `TASK-0207` 件：新 `pc = 5aa6361a5ba02991`；`hbtextline`/`win32shim` 未变；**两处登记由主控落**（`integration-wave.sh` 的 `APPLIERS_EXPLICIT+=` ＋ `applier-audit-expected.txt`）⇒ 复核 `APPLIER_AUDIT_SUMMARY appliers=27 ok=92 miss=0 red=0`
+- `TASK-0208` [Next] ✅ **已办（车道 W90A，报告 `build/MilBridge/W90A-report.md` `432cde2f15aa69dc`）**：**加强仪器、不放宽判据** ⇒ **`R_GATE=PASS crit=13/13`**（两趟独立复现）；阈值/三态/豁免/`CRIT_TOTAL=13` **一字未改、`L8` 零新豁免**
+- `TASK-0208` 加的两处：`samples/WpfFeatureProbe/FeatureBlocks.cs`（`DropDownClosed` 处**另起一行**补 `EVT capture at=combo.closed captured=…` 直读，`1e8512c0692f350d→2dc0f945b2d87ebb`；**不能**缀到 `combo.closed` 行、**不能**以 `EVT combo.` 开头，否则污染 `c05/c07/c08`）；`r-gate-step.sh`（`c06` 取数换成"**最后一条 `captured=`**"，新增 **`nosrc` 分支＝一条读数都没有仍红**，`f263341ad376d51f→23b6ee91a4a8dc9b`）
+- `TASK-0208` **加严的机器证**：新夹具＋**旧**读法 ⇒ `FAIL cases=21 pass=18 fail=3`（S1/S10/S16 因 `L8` 转红）⇒ 新读法必须存在
+- `TASK-0208` ⚠️ **主控口径更正**：我原写"`grep -c 'captured=ComboBox'` 应降到合法残留"**不成立**（加打印不可能删行）；实测 **8→8**，`null` 17→19（＋2 条新直读）、`PopupRoot` 仍 0 ⇒ **改为判"`c06` 不再因*读不到*而红"**
+- `TASK-0208` ⚠️ **`inputs_fp` 的位移不是本件**（机器证：两件都在覆盖面外，`grep -c 'r-gate-step.sh'`=0、`grep -c 'WpfFeatureProbe'`=0）；窗口内唯一变的覆盖面件是 **`src/WpfGfx.Linux.Native/src/win32_x11.c`（10:23:52）＝车道 W89A（`D-G81`）**，shim 于 10:24:12 重建 ⇒ **重钉请按那件记账**
+- `TASK-0208` `NOINFO`：`inputs_fp` 位移的**字节级闭合**（缺 10:20:45 那一刻快照）、真机对照、shim 侧 `GetCapture()` 直读、`c06` 对"捕获粘在 `PopupRoot`"**无直读**（本趟未暴露 ⇒ 零判别力）
+
+## §14 波 `#50` 的 `[Next]` 清单（**一行一条**；2026-09-22 主控补）
+
+- `TASK-9905` [Next] 🟡 **波 `#50` 收尾链**：整波 → 五臂重取 → `repin-generation --why` → 门禁 ×2 → 冻前 `verify-all`（预期恰 1 处声明类红）→ **冻结 `#50`** → 冻后 `verify-all` ×2 → 推送
+- `TASK-9906` [Next] 🔴 **app-local 副本刷新**：现 `APPSYNC MISMATCH=9[STALE=9]`（含 4 份 `libwpfwin32.so` ＋ 5 份 `libwpfwic.so`）⇒ 不刷则"读 app-local 副本的臂"拿到的仍是修前件
+- `TASK-0203` [Next] 🟡 **静默 `139` 长跑**（**用户已拍板：做**）：修后件与修前件各 **N≥15**（≈2.8 h 槽时间，实测 5.5 min/趟含让路）⇒ 目标把 95% 上界从 ≈50% 压到 ≤20%；⚠️ 即使两极化成立**也不许归因单一改动**（两 shim 差 14 个导出）
+- `TASK-0304` [Next] ✅ **已办（`#50`，车道 W86A）**：`A1` 新 `src/WpfGfx.Linux.Native/src/win32_pts.c` 导出 PTS 上下文族 **6 入口 ＋ 5 个机读面**，**恒返回 `-10000`（`tserrNotImplemented`）**、出参清空、具名台账 `PTS_GAP entry=… seq=… err=-10000 calls=…`（有界 64 行）；自检导出 `PTS_GAP selfcheck`＝**1（真 stub）/0（假 stub）**；导出 535→546（另被迫改 `build-shim.sh` 的 `SRCS` 一行，已登记）
+- `TASK-0305` [Next] ✅ **已办**：PF 注入面＝`build/PresentationFramework.Linux/reapply-patches.py`（每波必重放）⇒ 从上游**逐字复制＋needle 校验**产出 `PtsCache.Linux.cs`(5 处)＋`FlowDocumentView.Linux.cs`(8 处)；毒池项**按对象身份**移除＋具名闩＋`PtsUnavailableException`；**`Invariant.Assert` 一个没删**
+- `TASK-0306` [Next] ✅ **已办（`A3` 同趟做了）**：第 24 项「流文档」⇒ **`alive=yes`、`rc=143`（仪器自发的 SIGTERM ⇒ 进程从没死）、`fatal=0`**，**页级可见**：洋红占位 **54,454 px**（真拍图：洋红矩形＋黑边＋"此页不支持…NOT SUPPORTED…entry=CreateInstalledObjectsInfo err=-10000"）＋台账 `PTS_GAP … seq=1 err=-10000`＋`[PTS-UNAVAILABLE] site=FlowDocumentView.DocumentPage`；第 23 项同样可见降级（49,864 px）。**修前同一点击 = `rc=134`**
+  - `TASK-0306` ⚠️ **判据口径修正（主控采纳车道建议）**：任务书指定的 `N2`（stub 返回成功）**没变红且绿得对**（链上下一个真缺口 `LoCreateContext` 仍缺 ⇒ 闩照样立、占位照样画）⇒ **改用 `N2-b`（A3 只降级不画）**：`alive=yes`、具名行照打，但 **`magenta=0`** ⇒ "**不许把空白读成绿**"这条牙实测咬住
+  - `TASK-0306` ⚠️ 另两条读数：**`N2-c`（只 A2 不 A3）** ⇒ 不再 `FailFast` 但 **`guard=7909` 重试风暴**、页面量不出内容 ⇒ **只看 `alive` 的判据会误判**；**`N2-a2`（假 stub＋撤 A2/A3）** ⇒ `rc=134`，死在**新的**死点 `FontFamily.get_FirstFontFamily`
+  - `TASK-0306` ⚠️ **它推翻两处**：① `W78A` §3.4"假 stub 必然静默半通"**在今天这代树上不成立**；② `W78A` 说终止形态是 `PtsHost.Context` 断言 ⇒ 实测是**毒池项半初始化向下游扩散**、死在 `ComputePageMargin → FontFamily.FirstFontFamily`。**假判据警告**：台账若被伪造成 `err=0`，**只 grep `PTS_GAP` 的判据会被骗** ⇒ 只认托管侧带非零 `err` 那条
+  - `TASK-0306` 零回归：正常页 `BrushDemo` `compare -metric AE = 0`；失败后再点 0/9/10/16 全部 `alive=yes`；`check-appliers.sh miss=0 red=0`；`artifact-src-fp` ⇒ PC/WB `state=ok`、**PF `state=stale kind=src`**（反向证明只动 PF 侧）；`hbtextline`/`pc` 未碰
+  - `TASK-0306` ⚠️ **覆盖面缺口（要收尾链处置）**：`reapply-patches.py` 与 PF 的 `*.Linux.cs` **不在** `fp_inputs()` 覆盖面内 ⇒ A2/A3 那半个改动对 `inputs_fp` **不可见**（只有 `ARTIFACT-SRC-FP` 看得见）
+- `TASK-0205` [Next] ✅ **已办（车道 W89A，报告 `build/MilBridge/W89A-report.md` `675779b2fc2c30ee`）**：**假设被两台独立仪器证实**（新探针逐字读 `Window.WindowState`：外部最大化后 `state=Normal ws_max=0`；真 hc `[GEO]`：`ButtonMax vis=True`；shim `WPF_LINUX_WINSTATE_DIAG=1`：`read_ok=1 x_maximized=1 | 缓存 maximized=0`）
+  - `TASK-0205` 修法：**只动 `src/WpfGfx.Linux.Native/src/win32_x11.c`**（5 hunk，`+238/-2`：权威状态读取＋**幂等采纳**＋一站入口；`ConfigureNotify` **先采纳再算 `WM_SIZE` 的 wParam**；**新增 `case PropertyNotify`**；两处诊断）⇒ 新 `win32shim = 33352e5797031999`
+  - `TASK-0205` 三臂：**外部 ⇒ 双击还原 13/13**｜**外部 ⇒ 自带还原按钮：窗态 15/15**（几何同刻 **13/15**）｜**反极性**（源逐字节复原 ⇒ shim 回 `24e906c194903c8b`）⇒ **双击 3/3＋按钮 3/3 全还原不了**、往返闭合｜对照臂（应用自发）`M1×R1 8/8`、`M2×R2 13/13`、`N1 1/1` 未改坏
+  - `TASK-0205` 零回归：`0104` 四入口＋`N1` = **26/26**；`0106` 四格 **PASS**（`667 by 500`／`521 by 417`／缺席／`reg58`=0）；⚠️ 仓内 `run-w81a-legs.sh` 报过一次**假 NOINFO**（探针 stdout 块缓冲），它用 `stdbuf -oL`＋自读 `xprop` 补上
+  - `TASK-0205` ⚠️ 它**推翻自己判据里一条断言**："`WS_MAXIMIZE` 守卫是堵点" —— 半修 **H1**（只同步 `w->maximized`＋派发 `WM_SIZE`、不同步 style）**两腿都绿**；**H2**（只同步 style）**全红** ⇒ 必要充分的是 `w->maximized`＋告诉托管侧
+  - `TASK-0205` 🆕 **新待查项（未压绿）**：自带还原按钮那 2 趟（`F-btn3/F-btn4`）**窗态已回 `Normal` 但几何卡在 `1280x1024@+0+0`**（多等 4.5 s 仍未收回）；W77A 在应用自发那条路的**修前**读数里就有同形 ⇒ 已登记为独立待查项
+- `TASK-0107` [Next] ✅ **已办（`#50` 波尾，车道 W93A，报告 `build/MilBridge/W93A-report.md`；**主控独立复核**：报告 sha 一致、仓内只这一个文件被动过）** —— `D-G83` 后续 `H2`，**两个问题都有读数**：
+  - **`H2-a` 答：运行期不跟随。** 三窗一台、14 个 stage、两条腿（裸 `Xvfb :181`／`Xvfb :182`＋`xfwm4`）**判据输入列逐格相同** ⇒ `SUMMARY A1_informative=29 PASS=5 FAIL=4 VACUOUS=20`，**4 个 `FAIL` 全是运行期改动格**（`W1-TIGHTEN`／`W2-DECLARE`／`W2-TIGHTEN`／`W3-DECLARE`）；X 侧恒停 `667 by 500`。**正对照证明通道没坏**：`W2-TOGGLE` 一按（**全仓唯一**运行期触发器 = `ShowWindow` 内 `win32_core.c:1074`）即正确落 `521 by 417` ⇒ **缺的不是值，是触发器**。最值钱一格 `W2-DECLARE`：应用**自己**缩窗 `625x521→521x417`，而 X 侧**连 `maximum size` 都没有**。
+  - **`H2-b` 答：本机有 WM（私有 `Xvfb :182`＋`xfwm4`），约束真生效。** 现场证据 = `_NET_SUPPORTING_WM_CHECK window id # 0x4000ae` ＋ `_NET_SUPPORTED n=75` ＋ **重定父**（`parent≠root`；用户会话 `:10` **只读未碰**）；客户请求 `1000x800` → **`667x500`**、`300x200` → **`521x417`**；拖边框：**对照窗** `667x500→937x692`（判别力自证）、**受限窗纹丝不动**。裸 `Xvfb` 臂一律照做（提示只是建议）⇒ **WM 严格执行的是一份过期约束**（`W3` 声明 450 却被放任到 `1000x800`）。
+  - `TASK-0107` ⚠️ **反极性 = `VACUOUS`**（按**先写死**的口径，如实报）：`W1` 的 X 侧提示在 14 个 stage 里**一次都没移动过** ⇒ "回到旧值"与"从来没跟过"**不可分** ⇒ **不构成反极性证据，不许当绿**。
+  - `TASK-0107` ⚠️ **上限 `3`（`WPF_HINTS_REASK_MAX`）的两种吞法都取到读数**：①"已声明终态"型（`W1` 首次问出声明 ⇒ `hints_map_declared=1` **死锁**）；②"预算耗尽"型（`W3` 被 4 次无意义 `HIDE/SHOW` 花光 ⇒ **第一次真声明也永久发不出**）。钩子 `W1[shim=0] W2[shim=1] W3[shim=2]` 与 `diag_aftermap=6` 加法一致。
+  - `TASK-0107` 🆕 **同趟新登记 `D-G88`／`D-G89`／`D-G90`**；**落地拆新号** = `TASK-0108`／`TASK-0703`（波 `#51`）。本件**零产品改动**（探针在仓外）。
+- `TASK-0108` [Next] 🔴 **`H2` 落地：让"运行期改尺寸提示"到得了 X**（`D-G88`，对策 = W93A 报告 §5 的 `P1`–`P4`，波 `#51`）：
+  - `P1`（必做，`src/WpfGfx.Linux.Native/src/win32_core.c`）把"**终态 ＋ 次数上限**"换成"**缓存上次已发布值，值变了才 `XSetWMNormalHints`**" —— 幂等、无消息风暴，**删掉两个停止条件**（`hints_map_declared` 终态与 `hints_map_asks<3`）。
+  - `P2`（必做，**这就是"运行期改"的触发器**）在 `SetWindowPos`/`MoveWindow` 的尺寸**真变**路径上补一拍 ⇒ 改**紧**必到。
+  - `P3`（**需主控裁定**）改**大**那半**无触发器可打** ⇒ 需**托管侧通知**；`P3-a`（shim `OverrideMetadata` 合法性）**未验** ⇒ 落地前先建**最小探针**。⚠️ **不推荐**只把上限 `3` 改大 —— 它计"**问**"不计"**改**"，改大只是延后死锁。
+  - `P4`（必须与 `P1` 同趟）**重入闸** ＋ 新判据"**X 调用次数 == 值变化次数**"（不风暴的证据）。
+  - ⚠️ 反极性**必须重造**（本轮的 `VACUOUS` 不算）：`改紧 → 提示跟到新值 → 撤回 → 提示跟回旧值`；装置已就绪（W93A 的 `W1/W2/W3` 三窗一台 ＋ `xprop` 判据 ＋ `judge.py`）。
+- `TASK-0703` [Next] 🔴 **修掉"等 WM 起来"的恒真判定**（`D-G89` 的落地，波 `#51`）：把 `xprop -root _NET_SUPPORTING_WM_CHECK | grep -q window` 换成**真判据** —— `xprop -root _NET_SUPPORTING_WM_CHECK` 必须解析出**窗口 id**（如 `grep -q 'window id #'`）且 `xprop -id <id> _NET_WM_NAME` 可读，或直接判 `_NET_SUPPORTED` **非空** ＋ **重定父**；并**盘点**全仓同类写法（`grep -rn '_NET_SUPPORTING_WM_CHECK'` 逐处列出，已知既有实例 `build/MilBridge/W53A/cell3.sh:26`）。⚠️ 现状**方向安全但会骗人**：等待第一次就 `break` ⇒ 自证行可能打"WM 不在"而 WM 其实在场（**假阴性**）。
+- `TASK-9907` [Next] 🔴 **`D-G82` 普查做成牙**（可选）：只读核对器"扩展名白名单内不许含 NUL"，三态 ＋ `--selftest`（含"注入 1 个 NUL 必红"）

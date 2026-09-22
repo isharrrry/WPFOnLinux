@@ -41,6 +41,7 @@
 #   ⚠️ 本块**故意放在同一个文件里**：跨文件的手工声明在本仓**已经失败过一次**（`docs/CURRENT-STATE.md`
 #      那句"当前期望是 N 步"在 `#26`/`#27` 连加 3 步时毫无反应、全程零红）⇒ 声明必须与本体同趟改、同趟审。
 #   ⚠️ **不许**用 `echo "====="` 当接线锚（它在本文件里有 **4** 处）；锚用 `run_step "DEFECT-REGISTRY" …`。
+# VERIFYALL-STEPS-DECL: 26 gen=#50   ← `#50` **加一步**（25 → 26）：第 `[26]` 步 `R-GATE（连续交互）` —— `TASK-0702`：把「连续点击/交互响应」从**仓外仪器**（`$HOME/w47b-click.sh`，`#47` 车道 W47B 留）**收编进仓**并接进门禁（装置 `build/MilBridge/tests/RGateClickProbe/run-r-gate-legs.sh` ＋ **判据唯一实现** `build/MilBridge/tools/r-gate-step.sh`；13 格判据 ＋ 三态机读行 `R_GATE=`；判据**逐格继承** `#49` 预登记 §3 B3 的六格表，见 `docs/WAVE50-PREREGISTRATION.md` §1）。⚠️ 与 `#49` 预登记 §3 B3 那句「并进既有门禁步、步数保持 25」**分叉** —— 本波按任务书 `TASK-0702` 新加一步，四处声明同趟改。**步数：25 → 26**）
 # VERIFYALL-STEPS-DECL: 25 gen=#49   ← `#49` **不动步数**（本波产品改源三处：① `D-G57` 文字零墨 —— `build/shims/PresentationCore.HbTextLine.cs` 单段分支改按**计划面**取字形 id ⇒ 页签/按钮/搜索框出墨（`hbtextline` 位变）＋ `build/PresentationCore.Linux/**` 重建（`pc` 位变）；② `D-G72`/`TASK-0008` —— shim `GetMonitorInfoW` 按 `cbSize` 写入 ⇒ 点顶部菜单条不再 NRE（`win32shim` 位变）；③ `TASK-0403` 通道级具名台账进 `MilChannel`/`MilCommandDispatcher` ⇒ **桥必重发**（`bridge` 位变）。仪器侧：`B4`/`R-CSRC` 把 `src/WpfGfx.Linux.Native/**/*.{c,h}` 纳入 `fp_inputs()` ＋ `C2`/`C4` 纳入 `sync-applocal.sh`／`check-applocal-sync.sh`／`applocal-expect.py` ⇒ **`inputs_fp` 必变**（设计性变更，见 `docs/WAVE49-PREREGISTRATION.md` §4）；`B1` 修"选显示号后不复核"；步数**不动**）
 # VERIFYALL-STEPS-DECL: 25 gen=#48   ← `#48` **不动步数**（修 `D-G56`：两个 applier 把插桩横幅插在**类属性块与类声明之间** ⇒ 属性挂错类 ⇒ `NameScope` 挂不上 ⇒ BAML 页加载即 abort；**整波后实测动三位** `windowsbase`/`pc`/`pf`；`D-G57` 本波只取证未修）
 # VERIFYALL-STEPS-DECL: 25 gen=#47   ← `#47` **不动步数**（修 `D-G55`：`SetCapture/ReleaseCapture` 不派发 `WM_CAPTURECHANGED` ⇒ `Mouse.Captured` 恒不复位；只动 `win32shim` 一位）
@@ -60,7 +61,7 @@
 # VERIFYALL-STEPS-DECL: 18 gen=#30   ← **史实行**（`#30` 收官当时的步数 —— 那一波**一步未加**）
 #   ⚠️ 读者 `decl_line()` 取**第一条**（`sed -n … | head -1`）⇒ **最上面那条才是当前口径**；
 #   下面两条只为「本波从哪一代起、加了几步」留机读痕迹。⚠️ **史实行只许追加、不许改**（纪律 61 同族）。
-# VERIFYALL-STEP-NAMES: 主工程 WpfGfx.Linux | wpf-linux.sln | Commands.Tests | Rendering.Tests | Windowing.Tests | HelloMil.Tests | ManagedLayer.Tests | Presentation.Tests | verify-cmd-layout.py | tline-gate（五臂） | PcLineOracle·Start 列 | FrameProbe-frame | BASELINE-SHA | ARM-LOG-SHA | BUILD-HYGIENE | DEFECT-REGISTRY | VERIFYALL-SELF | FP-INPUTS-HYGIENE | HIDDEN-ONLY | COLUMN-FLOOR | QUOTE-TRAP | PRODUCT-ENTRY | FRAME-PRESENCE | PIPEFAIL-SIGPIPE | THIRD-PARTY
+# VERIFYALL-STEP-NAMES: 主工程 WpfGfx.Linux | wpf-linux.sln | Commands.Tests | Rendering.Tests | Windowing.Tests | HelloMil.Tests | ManagedLayer.Tests | Presentation.Tests | verify-cmd-layout.py | tline-gate（五臂） | PcLineOracle·Start 列 | FrameProbe-frame | BASELINE-SHA | ARM-LOG-SHA | BUILD-HYGIENE | DEFECT-REGISTRY | VERIFYALL-SELF | FP-INPUTS-HYGIENE | HIDDEN-ONLY | COLUMN-FLOOR | QUOTE-TRAP | PRODUCT-ENTRY | FRAME-PRESENCE | PIPEFAIL-SIGPIPE | THIRD-PARTY | R-GATE（连续交互）
 #   **`#28` 收官起 = 17 步**（`#28` 加第 `[11]` 步 `VERIFYALL-SELF`）｜**`#29` 收官起 = 18 步**
 #   （`#29` 加第 `[12]` 步 `FP-INPUTS-HYGIENE`：核对 `fp_inputs()` 的覆盖面里**不许出现产物路径**）｜
 #   **`#30` 收官起 = 18 步**（**仪器加固波、步数一步未加**）｜**`#31` 收官起 = 21 步**（`#31` 加第 `[13]` 步
@@ -70,6 +71,14 @@
 #   **`#33` 收官起 = 23 步**（`#33` 加第 `[17]` 步 `PIPEFAIL-SIGPIPE`：把「`pipefail` ＋ 管道左侧被
 #   **`#34` 收官起 = 23 步**（本波**不动步数**：★ 的产物修法＋仪器加固；新读者 `frame-presence-check.sh`
 #   **`#35` 收官起 = 23 步**（**不动步数**：本波落第三方原生的正道通道 —— ALC 级钩子 ＋ 5 个映射名 ＋ shim 的 OEM/GDI+ 最小面；
+#   **`#50` 收官起 = 26 步**（**加一步**：第 `[26]` 步 `R-GATE（连续交互）` —— `TASK-0702`：
+#     把「连续点击/交互响应」从**仓外仪器**（`$HOME/w47b-click.sh`）**收编进仓**并接进门禁。
+#     装置 = `build/MilBridge/tests/RGateClickProbe/run-r-gate-legs.sh`（私有 Xvfb ＋ 私有 app 目录 ＋
+#     `xdotool` 真实节奏 `mousedown`→停 150 ms→`mouseup`，**只落证据**）；**判据唯一实现** =
+#     `build/MilBridge/tools/r-gate-step.sh`（13 格判据 ＋ 三态机读行 `R_GATE=`）。
+#     判据**逐格继承** `#49` 预登记 §3 B3 的六格表（①…⑥）＋ 承重连做腿⑦ ＋ 像素通道⑧（见 `docs/WAVE50-PREREGISTRATION.md` §1）。
+#     **本步不改产品件** ⇒ 九位逐位不动。⚠️ 与 `#49` 预登记 §3 B3 那句「并进既有门禁步、步数保持 25」**分叉**：
+#     本波按任务书 `TASK-0702` **新加一步** —— 四处声明（`DECL`／`STEP-NAMES`／本口径句／预登记 H1）**同趟**改。）
 #   **`#49` 收官起 = 25 步**（**不动步数**：本波产品改源三处 —— ① 零墨修法落 `hbtextline`（`hbtextline` 位变）＋ `pc` 重建（位变）；
 #     ② `D-G72`/`TASK-0008` 的 `GetMonitorInfoW` 修法落 shim C 源（`win32shim` 位变）；③ `TASK-0403` 台账进 `MilChannel`/`MilCommandDispatcher` ⇒ 桥重发（`bridge` 位变）。
 #     仪器侧：`B4` 纳入原生 C 源、`C2`/`C4` 纳入三件判据件 ⇒ **`inputs_fp` 必变**；`B1` 修显示号复查。)
@@ -848,6 +857,17 @@ run_step "PIPEFAIL-SIGPIPE" bash build/MilBridge/tools/pipefail-sigpipe-check.sh
 #   它从 `build/third-party/WpfLinux.props` 接线、**不进 sln**、把产物**复制到仓外**再跑，
 #   并断言"四个 `.so` 与 app 同目录 ⇒ 零环境变量可渲染"（反极性：不部署 shim ⇒ FAIL）。
 run_step "THIRD-PARTY" bash samples/ThirdPartyMini/run-thirdparty-mini.sh 25
+# ── 【`#50` W84A 加：第 `[26]` 步 `R-GATE` —— 「连续点击/交互响应」的**仓内**判据】────────────
+#   为什么加它（`docs/ROUTES.md:73` 的原话是这条欠账）：门禁里与"点击"有关的牙原先只有
+#   `run-wpfprobe.sh` 的 `EXPECT=(… "clickprobe:!22D3EE")` —— 那是**负向式**（"关着时不许有测试色"），
+#   它**不证明"点了有反应"**；而用户报的正是"点了没反应"（`D-G49`/`D-G55` 两次真缺陷都在这一族）。
+#   判据**逐格继承** `#49` 预登记 §3 B3 六格表（①点 ListBox／②点 TextBox／③键入／④点 ComboBox 出下拉／
+#   ⑤点弹窗项／⑥mouse-up 后 `cap=none`）＋ 承重连做腿（**窗口内连点三下**，单发点击会假绿 —— `#47` 实测）
+#   ＋ 像素通道（下拉打开时测试色 `22D3EE` > 0）。
+#   三态：`R_GATE=PASS|FAIL|NOINFO`（`NOINFO` 在门禁里同样是 ❌；`--judge-dir` 只在复核已落盘证据时用，
+#   用了它机读行里带 `src=external`）。成本实测 ≈30–40 s/趟（见 `build/MilBridge/W84A-report.md` §5）。
+echo "[26] R-GATE：连续点击/交互响应（私有 Xvfb ＋ 真实节奏点击 ＋ 逐格判据）"
+run_step "R-GATE（连续交互）" bash build/MilBridge/tools/r-gate-step.sh
 
 echo
 echo "======================================================"

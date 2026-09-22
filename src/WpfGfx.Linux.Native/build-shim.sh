@@ -31,7 +31,7 @@ WARN="-Wall -Wextra -Wno-unused-parameter -Wno-cast-function-type"
 CFLAGS_BASE="$CSTD $OPT $WARN -fPIC -fvisibility=default"
 LDLIBS="-lX11 -ldl -lpthread"
 
-SRCS=(src/win32_core.c src/win32_msg.c src/win32_x11.c src/win32_misc.c src/win32_exports.c src/win32_unicode_tables.c src/win32_classification.c src/win32_oem.c src/win32_gdiplus.c)
+SRCS=(src/win32_core.c src/win32_msg.c src/win32_x11.c src/win32_misc.c src/win32_exports.c src/win32_unicode_tables.c src/win32_classification.c src/win32_oem.c src/win32_gdiplus.c src/win32_pts.c)
 OBJS=()
 TARGET="bin/libwpfwin32.so"
 

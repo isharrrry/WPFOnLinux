@@ -132,7 +132,7 @@ ROSTER_REL='build/MilBridge/tools/build-hygiene-roster.tsv'   # `D-G21` 的声�
 #   环境里传入的任何值（bash 赋值语义）⇒ `env CAND_MIN=0 bash 本件` 的读数与不传**逐字节相同**
 #   （`--selftest` case R 实测）。本文件**唯一**可被环境覆盖的支点是 `BHYGIENE_ROOT` /
 #   `BHYGIENE_ROSTER` / `BHYGIENE_GOLDEN` / `BHYGIENE_FPLIST` —— **它们都不放宽候选下界**。
-CAND_MIN=86                 # 候选 csproj 的**下界**（更少 ⇒ NOINFO：树被截断 ⇒ 反向扫描不可信；
+CAND_MIN=88                 # 候选 csproj 的**下界**（`#50`：W81A `W81AWindowProbe` 86→87、W82A `W82AMinMaxProbe` 87→88；本件在 `fp_inputs()` 覆盖面里 ⇒ `--why` 记账）（更少 ⇒ NOINFO：树被截断 ⇒ 反向扫描不可信；
                             #   更多 ⇒ 允许，走 `UNDECLARED` 判据 —— 新增工程正是要它红）
                             #   ⚠️【`#37` B】**新加一份 csproj ⇒ 必须同趟把本常量抬到新的现场数**
                             #     （`samples/ThirdPartyMini/ThirdPartyMini.csproj` 使 83 → 85；`build/MilBridge/tests/TabGapProbe/TabGapProbe.csproj` 使 85 → 86）。

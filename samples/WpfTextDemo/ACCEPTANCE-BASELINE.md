@@ -1,12 +1,212 @@
-# BASELINE-HEADER date=2026-09-21T16:5x+08:00 display=:99（`verify-all` 的 `DISPLAY_NUM=99`，本趟**常驻**复用；日志头逐字见冻前那趟）／ :97（应用门禁与 `frame-presence` 的常驻显示号，本趟由主控 `setsid` 常驻）
-#   cpu=3核（`nproc` 现场读 = 3）  run_dir=/home/links-dev/w76a（应用门禁两趟：`gate-fix/e`（写 rows）、`gate-fix/f`；机读行 = `/home/links-dev/w76a/gate-fix/rows.txt`）
-#   git_head=(本机 `R` **不是** git 仓库；用户的 fork 克隆在 `~/netTest/GitProj/WPFOnLinux`，本波推送后 head 见 `===RECORD===`)  samples_src=samples/WpfTextDemo  runner=run-wpftextdemo.sh
-#   ⚠️ **权威件的构建配置 = Release**（`#40` 起；唯一声明 = `build/SelfBuiltConfig.props`；本趟现场复核 `bash build/selfbuilt-config.sh` = `Release`）
-#   ⚠️ **本波新登记两件缺陷（都是"判据/仪器认错对象、读数照给"这一族）**：
-#     · `D-G77`（`build/MilBridge/tools/retake-arms-w23.sh:131`）：重取五臂**硬写 `DISPLAY=:97`** 而全仓**没有任何一步保证 `:97` 常驻** ⇒ 闸门之外重取会**静默**拿到 X-混淆读数（本波第一趟现场：`textlineproto` 臂 4/2→3/3、sha 被改写）。**本波已修**（`:97` 不在 ⇒ 自起 Xvfb；起不来 ⇒ `exit 5` 大声失败），两极性读数见 `===RECORD===`②。
-#     · `D-G79`（`tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpftextdemo.sh:869` 原行）：门禁"按标题认领窗口"**其实在按 WM_CLASS 认领**（`grep -F 'WpfTextDemo'` 命中每窗的 `HwndWrapper[WpfTextDemo;;<guid>]`）＋`head -1` ⇒ 被 topmost 的**无名顶层窗**顶掉 ⇒ 本波实测**两趟 12/12 假 `no-window`**。**本波已修**（枚举全部候选、取第一个「标题以 `WpfTextDemo` 开头 ∧ 尺寸 ≥64 ∧ `IsViewable`」者），两极性与逐字树见 `===RECORD===`③。
+# BASELINE-HEADER date=2026-09-22T16:xx+08:00 display=:99（`verify-all` 的 `DISPLAY_NUM=99`，本趟自起）／ :97（应用门禁两趟，本趟自起、跑完按 PID 自收）
+#   cpu=3核（`nproc` 现场读 = 3）  run_dir=/home/links-dev/w95a（应用门禁两趟：`gate-e`（写 `gate-rows.txt`）、`gate-f`（写 `gate-rows-f.txt`）；机读行 = `/home/links-dev/w95a/gate-rows.txt`）
+#   git_head=(本机 `R` **不是** git 仓库；用户的 fork 克隆在 `~/netTest/GitProj/WPFOnLinux`，本波推送前后 head 见 `===RECORD===` ②）  samples_src=samples/WpfTextDemo  runner=run-wpftextdemo.sh
+#   ⚠️ **权威件的构建配置 = Release**（`#40` 起；唯一声明 = `build/SelfBuiltConfig.props`；本趟现场复核 = `Release`）
+#   ⚠️ **本波（`#50`）是「把连续交互收编进仓」的一波**：新增第 `[26]` 步 `R-GATE（连续交互）`
+#     （`TASK-0702`；装置 `build/MilBridge/tests/RGateClickProbe/run-r-gate-legs.sh` ＋ **判据唯一实现**
+#     `build/MilBridge/tools/r-gate-step.sh`，13 格判据、三态机读行 `R_GATE=PASS|FAIL|NOINFO`）
+#     ⇒ `verify-all` **步数 25 → 26**、四处声明同趟改（`VERIFYALL_SELF=PASS names=26 decl=26 gen=#50`）。
+#   ⚠️ **本波波尾新登记三号缺陷**（权威册 `samples/WpfFeatureProbe/KNOWN-DEFECTS.md`，本波 `4234508f811bd9ba` → **`aec62c485d5010b9`**）：
+#     · `D-G88`（**产品缺陷**）：运行期改尺寸提示（`MinWidth/MaxWidth/MinHeight/MaxHeight`）到不了 X —— `H2` 本体
+#       （`D-G83` 的后续：终态死锁 ＋ 预算**计"问"不计"改"**）；正对照 `W2-TOGGLE` 一按即正确落 `521 by 417`
+#       ⇒ **通道没坏、缺的是触发器**。本波**只登记**，落地 = `TASK-0108`（波 `#51`）。
+#     · `D-G89`（**装置缺陷 · 判据恒真**）：`xprop -root _NET_SUPPORTING_WM_CHECK | grep -q window` **恒真**
+#       （`xprop` 的失败文案里就有 `window` 一词）⇒ 任何"等 WM 起来"的等待**等于没等**。本波**只登记**，落地 = `TASK-0703`。
+#     · `D-G90`（**仪器局限 · 判据认错对象**）：`wpf_wmsize_diag` **每进程 40 行硬截断**
+#       （`src/WpfGfx.Linux.Native/src/win32_core.c:475-484`）⇒ `[WMSIZE_DIAG]` **不能当"派发总数"**用。
+#       本波**只登记**（不改截断值：改它会影响既有判据读数）。
+#   ⚠️ **判读纪律（本波复核到的两条既有事实，写在这里免得后人重踩）**：
+#     ① `ARM-LOG-SHA` 与 `COLUMN-FLOOR(ARMLOG)` **不是同一颗牙**（`#49` 起已登记）：前者比"臂日志 vs `known-red.json` 的
+#        `generation.arm_logs`"，后者比"臂日志 vs **冻结块**的 `# ARM-LOG-SHA` 行"。本波**冻前**的成对形态 = 前者 `PASS`、
+#        后者 `FAIL … bad= tline`（**设计如此**：冻结块还是 `#49` 的 `2103f88183b17a6a`，而臂已重取为 `6ce993ad974d32ad`）。
+#     ② `tline.log` **程序上不可复算**（内含 app-local 同步行／耗时／被同步权威件 sha／自指 artifact／日期戳文件名／`mktemp` 路径）
+#        ⇒ **它变了这件事本身不构成产品位移信号**；判据只能是它的**判词**（本波 = `通过 22 / 失败 2`，与 `#49` 逐字相同）。
+#     ③ **`D-G42`（`pipefail` ＋ SIGPIPE ⇒ 判据翻转）在本波波内复发 9 处 —— 冻前已修（详见冻结块 ④ 与本文件 `===RECORD===` ②）**：
+#        `r-gate-step.sh` 8 处 ＋ `run-w81a-legs.sh:255` 1 处，**方向 = 假 FAIL**，`c11` 承载 `D-G55`。第 1 趟冻前 `verify-all`
+#        因此有**第 2 处红**（`PIPEFAIL-SIGPIPE`）⇒ **停手报主控** ⇒ 主控裁定"修那 9 处、不许声明掉" ⇒ 修完重跑才是本件的冻结输入。
 
-# RE-FROZEN #49 —— ✅ **当前冻结基线** —— 内容 = 收掉 `#48` 冻后剩下的一波：**①`D-G57` 文字零墨**（`build/shims/PresentationCore.HbTextLine.cs` 单段分支改按**计划面**取字形 id ⇒ 页签/按钮/搜索框出墨）＋ **②`D-G72`/`TASK-0008`**（shim `GetMonitorInfoW` 按 `cbSize` 写入 ⇒ 点顶部菜单条不再 NRE）＋ **③`TASK-0403`**（通道级具名台账进 `src/WpfGfx.Linux/{Resources/MilChannel.cs,Commands/MilCommandDispatcher.cs}` ⇒ 桥重发）＋ **④`TASK-1002`**（`wic-shim/applocal-expect.py` 补声明图 ⇒ `UNEXPECTED 16→6`）＋ **⑤仪器侧**：`B4`/`R-CSRC` 把 `src/WpfGfx.Linux.Native/**/*.{c,h}` 纳入 `fp_inputs()`、`C2`/`C4` 纳入 `sync-applocal.sh`／`check-applocal-sync.sh`／`applocal-expect.py` ⇒ `inputs_fp` **必变**（设计性）；`B1` 修"显示号选定后不复核"；并修掉 `D-G77`／`D-G79` 两条**会让读数静默失真**的仪器缺陷。
+# RE-FROZEN #50 —— ✅ **当前冻结基线** —— 内容 = 收掉 `#50` 这一波（步骤 1–4 由车道 **W94A** 落定、步骤 5–9 由车道 **W95A** 跑完）：
+#   **① `TASK-0702`／`R-GATE`**：把「连续点击／交互响应」从**仓外仪器**（`$HOME/w47b-click.sh`，`#47` 车道 W47B 留）
+#      **收编进仓**并接进 `verify-all` 第 `[26]` 步（`R-GATE（连续交互）`；13 格判据逐格继承 `docs/WAVE49-PREREGISTRATION.md` §3 B3 的六格表
+#      ＋ 装置自加的 `⑦` 承重连续腿／`⑧` 像素通道；判据唯一实现 = `build/MilBridge/tools/r-gate-step.sh`）。
+#   **② `TASK-0108` 前哨**：本波**只登记** `D-G88`／`D-G89`／`D-G90` 三号（产品缺陷／装置判据恒真／仪器硬截断），
+#      分节标题同趟扩写（`## `#49` 波前新登记 … ＋ `#50` 波尾新登记（`D-G88`…`D-G90`，2026-09-22）`）。
+#   **③ 产品侧修法**（波内车道落，逐件可归因，见 `===RECORD===` ①）：`D-G85`（`pc`）、`A2/A3`（`pf`）、
+#      `D-G83`＋`D-G81`（`win32shim`）、GIF frames（`wic_shim`）；`dwf` **无源改动可归因**（见下 ⚠️）。
+#   **④ `D-G42` 波内复发 ＋ 本波修掉**（**冻前那第 2 处红的处置**，主控裁定"(a) 修那 9 处"）：
+#      本波新建的**两件**被同一族（`pipefail` ＋ 管道左侧被 SIGPIPE 杀死 ⇒ 判据翻转）命中 **9 处** ——
+#      `build/MilBridge/tools/r-gate-step.sh`（`TASK-0702` 的**判据唯一实现**）**8** 处
+#      ＋ `build/MilBridge/tests/W81AWindowProbe/run-w81a-legs.sh:255` **1** 处。
+#      **方向 = 假 FAIL**，且 `r-gate-step.sh` 的 `c11`（"窗口内连做三下、各自 EVT 都出"）**正是承载 `D-G55` 的那一格**
+#      ⇒ **证据切片一旦超过 64 KiB 管道缓冲，`R-GATE` 会假红**。**本波已修**（判据文本一字未动，只换喂法：
+#      `printf '%s' "$S" | grep -qE PAT` → `grep -qE PAT <<<"$S"`；`grep … | head -8 | sed … || echo "（无）"` → 先收进变量再分两路印）。
+#      成对读数：牙 **rc=0／`undeclared_hit=0`**；`--selftest` **21/21**；私有副本把 `c11` 载荷换成 ≈250 KB ⇒
+#      **旧写法 `S1 => NO`＋`crit=12/13`＋`R_GATE_SELFTEST=FAIL 18/21`**、**新写法同载荷 `S1 => yes`＋`crit=13/13`＋`21/21`**、
+#      **阴性对照不放松**（`S11` 缺 `seq-combo` 时两版都 `FAIL`）。**登记**：该族**已有编号 `D-G42`** ⇒ **不新增编号**，
+#      只在 `D-G42` 条目里加一条 bullet（`KNOWN-DEFECTS.md` `aec62c485d5010b9` → `368b293d4ef7f1cb`）＋ `--emit` 重生成 tsv
+#      ⇒ **`DEFREG=PASS declared=126 route_ids=126`（编号总数不变）**、`DEFREG_DECLDRIFT=0`。
+#      ⚠️ 该族**禁止用"写进 `DECL` 声明表"转绿**（`DECL` 口径只许写**不在本车道写域**的真 HIT；对本波自建件用它 = **压绿**）。
+#   ── 九位（Release 权威件）**现算**（占位符由冻结器替换，值 = 冻结那一刻的现场）──────────
+#     · `bridge` `feef049e9d0e313a`（5028208 B）｜`pc` `722e0ab8205b7c3f`（3601408 B）｜`pf` `f34bc297d19778fd`（6123008 B）｜`windowsbase` `2e4e46e539a72cd7`｜
+#       `provider` `1f9511a7ef395bfe`｜`win32shim` `33352e5797031999`｜`wic_shim` `f7b3026c8c019be2`｜`hbtextline` `921ba9c65e9fb3be`（293165 B）｜`dwf` `ce3469f49efcbcfa`。
+#     · ⚠️ **位移对账（相对 `#49` 冻结块那一栏）**：`pc` `56ee75ced8d6aece` → `722e0ab8205b7c3f`｜`pf` `6375fabf89ac7fef` → `f34bc297d19778fd`｜
+#       `win32shim` `c493639d15678803` → `33352e5797031999`｜`wic_shim` `56278c14b4ecd672` → `f7b3026c8c019be2`｜`dwf` `de2d555105b7d04b` → `ce3469f49efcbcfa`；
+#       `bridge`／`windowsbase`／`provider`／`hbtextline` **逐位未变**。
+#     · ⚠️ **`PRE` 快照的口径（必写，否则后人会读成事故）**：`/home/links-dev/w50-pre.sha`（9 行、键=路径）
+#       **不是**本车道开工前活取的 —— 本波五处位移在 **`W95A` 开工之前**就由波内车道／整波重建落定
+#       ⇒ 现场不存在"改前值"⇒ `PRE` 按 **`#49` 冻结块**九位**逐位重建**（可复算：值就是 `#49` 块里那九个数）。
+#       因此冻结器算出的 `changed` = **本波相对 `#49` 冻结点**的位移本身。
+#     · ⚠️ **同时记一个更窄的口径**（两个都写、都标清，免得拿错基准）：`W94A` **活取**的"波前九位"是
+#       `pc 5aa6361a5ba02991`／`pf 2a5b7641f6fba0fb`／`win32shim 33352e5797031999`／`wic_shim f7b3026c8c019be2`／`dwf de2d555105b7d04b`
+#       ⇒ 相对它，**本波之内**真正位移的只有 `pc`／`pf`／`dwf`；`win32shim`／`wic_shim` 的位移发生在 `#49` 冻结之后、`W94A` 开工之前。
+#     · ⚠️ 本代 `prev_pc`=56ee75ced8d6aece／`prev_pf`=6375fabf89ac7fef／`prev_wsh`=c493639d15678803／`prev_wb`=2e4e46e539a72cd7／`prev_dwf`=de2d555105b7d04b（= `PRE`）。
+#   ── 🔴🔴 **`pf` 这一格不是构建身份（主控裁定，必读；逐字照录）** ────────────────────────────
+#     **`pf` 这一格不是构建身份**：同源、同命令、逐字相同的整波重建**可给出不同字节**。
+#     四条成对读数（四趟整波，每趟预测先写后取）：`881c56e26808269f`／`decd920092287b03`／`581c864a7f2ad36c`／**`f34bc297d19778fd`**；
+#     而 `ARTIFACT_SRC_FP proj=PresentationFramework fp=5b38ea7420b26377 n=1362` **四趟逐位相同**，
+#     隔离 `dotnet build -t:Rebuild` **连跑两次同值**（`decd920092287b03` ×2）。
+#     二进制级差异 = 同尺寸（6123008 B）、**72 字节**不同，簇全在 PE `TimeDateStamp` ＋ MVID ＋ 调试目录（**不是**时间戳随机）。
+#     ⇒ 本格**只作"当下那一刻的现场值"**，**不许**被后人当漂移／回归判据；真凶留 `NOINFO`（复算配方见 `build/MilBridge/W94A-report.md` §3.4 与 §7.1）。
+#     ⇒ 同理：本波 `dwf` **无源改动可归因**（`NOINFO`），但它的值**四趟整波稳定** ⇒ 可用；"为什么第一趟会变"是 `NOINFO`。
+#   ── 冻前／冻后**成对九位**（主控要求必写）────────────────────────────────────────────
+#     · **冻前刻**（本件写盘那一刻，现场 `sha256sum` 复算）= **本块九位那一栏**（即 `feef049e9d0e313a`／`722e0ab8205b7c3f`／`f34bc297d19778fd`／`2e4e46e539a72cd7`／`1f9511a7ef395bfe`／`33352e5797031999`／`f7b3026c8c019be2`／`921ba9c65e9fb3be`／`ce3469f49efcbcfa`）。
+#     · **冻后刻**（本件写盘之后、冻后两趟 `verify-all` 之后各复算一次）——⚠️ **该读数在物理上不可能落在本块内**：
+#       本块与 `docs/CURRENT-STATE.md:9` 的机器行**同趟写盘、必须逐字自洽**（`BASELINE-SHA` 比的就是这份整份 sha16），
+#       **冻后不许再改本件**（改了 `BASELINE-SHA`／`BASELINEDUP` 立刻红）。⇒ 成对读数的**后半**逐位并列在
+#       `build/MilBridge/W95A-report.md` §5 与 `~/w95a/STATUS.md`（同趟现场算，命令 `bash ~/w95a/nine.sh`）。
+#     · **判据先写死（后取，`W95A` 写盘前登记）**：预测 = 冻后刻与冻前刻**逐位相同**（特别是 `pf`：冻后两趟 `verify-all`
+#       只做**增量构建**，PF 的 `obj/` 与 csproj 在整波末态下已最新 ⇒ 不重编 ⇒ 字节不动）。**失败判据**：任一位不同
+#       ⇒ 必须在 `W95A-report.md` 里**逐位并列并点名是哪一位**；其中 **`pf` 不同不算失败**（本节上一条已裁明它不是构建身份）。
+#   ⚠️ **`BRIDGE_SRC_FP` = `0a8f69b3c5fabd43`**（上一代 `0a8f69b3c5fabd43`，**两侧同值**：现树 == 发布记录 `build/MilBridge/.artifacts/publish/MilBridge.Linux/release_linux-x64/bridge-src-fp.txt`）
+#     ⇒ `close-wave.sh:301-304` 的桥身份自检**会过**；`SRC_ROOTS=src/WpfGfx.Linux build/MilBridge`、`BRIDGE_SRC_N=78`。
+#   **臂日志**：本波 `tline` 位变字节（`2103f88183b17a6a` → `6ce993ad974d32ad`，36 行 diff **全部**是运行相关字段
+#     ⇒ **非产品位移**）⇒ 按纪律**重取五臂**（`ARMS_OUT=$HOME/w94a/arms bash build/MilBridge/tools/retake-arms-w23.sh`，`rc=0`、`held=307s`、
+#     `ARMS_DISPLAY=:97 source=self-started`）；其余四臂与 `#49` 冻结值**逐位相同**。五臂判词：
+#     `tline` 通过 22/失败 2（两条既有 ❌，与 `#49` 逐字相同）｜`tab-zero` 退出码=1（唯一失败 = 在册 `notab-control@w40@em24@RTL@tab0`）｜
+#     `tab-anchor` 退出码=0（`START 绿=615`／`OVERFLOWED 绿=421`）｜`tab-rtl` 退出码=0｜`textlineproto` 探针 4/2 ＋ 通过 10/0。
+#   **臂日志聚合（两种口径都算，`#31` 起同趟写）**：`cat` 口径 = `f59631f6af2f6c43`；`find|sort|xargs` 口径 = `60c635413a71ee83`。
+#   **`inputs_fp`** = `ee543f44b1090c7498dcc2562ef69e1309764aaa2b92b8fa65e29d06a1e18f48`（上一代 `9f2199b212bed2b212035f87ff6006672605ff7bea6221c0be540301b1a8380b`）。本代 `inputs_fp` 的位移**可逐条归因**（覆盖面 147 件）：
+#     ① `build/MilBridge/tools/r-gate-step.sh` ＋ `build/MilBridge/tests/RGateClickProbe/run-r-gate-legs.sh`
+#        两件 R-GATE 判据件是本波**新纳入** `fp_inputs()` 的（`#50` W91A 接线动作）；② 本波冻前那第 2 处红
+#        （`PIPEFAIL-SIGPIPE`）的修法改了 `r-gate-step.sh` —— **它在覆盖面内 ⇒ `inputs_fp` 必变**。
+#        ⚠️ 修前的值 `f3fb5db87480ada8fd1502148f3c889549be756c0e60912bfc38109a4a3cc730`（`W94A` 步骤④重钉后的终值）
+#        **作废**；本代断言的是**修后终值**（见冻结器 `GENS['#50']['infp']`）。
+#        ⚠️ 登记动作（`KNOWN-DEFECTS.md`／四个路由件／`defect-registry-declared.tsv`）**不在**覆盖面内（现场点算）
+#        ⇒ **不动** `inputs_fp`（登记前后两次现场复算同值，见 `W95A-report.md` §2.5）。
+#   **`known-red.json`**：`a747b713532e7631`（本波开工，`#49` 重钉件的后继）→ **`8a0c0f221e35f42b`**（步骤④ `repin-generation.py --why` 重钉）；
+#     JSON diff **只有 3 处语义**：`generation.arm_logs.tline`／`arms_retaken`（`history` 追加 ＋ `when`/`why`）／`evidence_log_sha256`；
+#     `entries[*].caliber` 改动字段数 = **0**；`--check` 前 `FAIL n=2` → 后 **`REPIN_GENERATION=PASS`**。
+#     备份：`~/w94a/known-red.before-repin.json`（65143 B，与 before 逐位相同 ⇒ 备份有效）。
+#   **`verify-all.sh` 的世代声明**：`gen=#49` → **`#50`**（`VERIFYALL-STEPS-DECL: 26 gen=#50`；**加一步** 25 → 26）。
+#     现场读数：`VERIFYALL_SELF=PASS names=26 decl=26 gen=#50 dup=0 order=OK prose=OK prereg=PASS dynamic_trace=NOINFO vfile_sha16=227623000850ca5d`。
+#   【外挂声明：`D-G27` 的读者要读的 4 类行】⚠️ 谁改它们谁要让读者一起绿。
+# COLUMN-FLOOR arm=tab-oracle-anchor col=START      judged_min=615 released_min=194
+# COLUMN-FLOOR arm=tab-oracle-anchor col=OVERFLOWED judged_min=421
+# COLUMN-CORPUS file=tests/parity/windows/tab-anchor/out/tab-anchor-oracle.json sha16=0cebc0afd5142fbf
+# ARM-LOG-SHA arm=tab-anchor    sha16=1c43a12dcaa5718a
+# ARM-LOG-SHA arm=tab-zero      sha16=9150c3a26a3cb789
+# ARM-LOG-SHA arm=tab-rtl       sha16=92570318851ca7e8
+# ARM-LOG-SHA arm=tline         sha16=6ce993ad974d32ad
+# ARM-LOG-SHA arm=textlineproto sha16=4bceceeed570ba70
+#   【冻前那 1 处声明类红（**这是设计，不是失败**）】`verify-all` 第 `[14]` 步 `COLUMN-FLOOR` 在**冻前必红**：
+#     `COLUMN_FLOOR_ARMLOG=FAIL n_decl=5 n_ok=4 bad= tline`（冻结块还是 `#49` 的 `2103f88183b17a6a`，而臂已重取为 `6ce993ad974d32ad`/登记表已重钉）
+#     ＋ `COLUMN_FLOOR_SELFREPORT=PASS` ⇒ 形态**逐字命中** `w27-freeze.py` 的 `_is_declaration_class()`
+#     （`COLUMN_FLOOR_ARMLOG=FAIL` ∧ `selfreport=PASS`）⇒ 冻后同一批检查器**必须转绿**（`ARMLOG_SHA=PASS 5/5` ＋ `COLUMN_FLOOR=PASS`）。
+#     ⚠️ 任务书那一栏写的是 `n_ok=3`；**现场是 `n_ok=4`**（`n_decl=5 = n_ok 4 ＋ bad 1`，`bad` 恰好只剩 `tline` 一个名）
+#     ⇒ 以现场为准（本波**冻前**现场三次复算同值：15:4x 只读一趟、16:0x 冻前 `verify-all` 内、冻结器运行时）。
+# ── ① 本波改了什么（逐件 sha16，改前 → 改后）────────────────────────────────────
+#   **产品/构建件**（值进九位；改前 = `#49` 冻结块那一栏）：
+#     · `src/WpfGfx.Linux.Native/tools/patch-presentationcore-mousecapture-release.py`（**W88A 新建应用器**，`D-G85`）
+#       ＋ 由其生成的 `MouseDevice.Linux.cs` ⇒ `pc` `56ee75ced8d6aece` → **`722e0ab8205b7c3f`**
+#     · `build/PresentationFramework.Linux/reapply-patches.py`（**W86A `A2`/`A3`**）⇒ `pf` `6375fabf89ac7fef` → **`f34bc297d19778fd`**（⚠️ 见冻结块的"不是构建身份"）
+#     · `src/WpfGfx.Linux.Native/src/{win32_core.c,win32_internal.h}`（**W82A** `D-G83`）＋ `src/win32_x11.c`（**W89A** `D-G81`）
+#       ＋ **W86A `A1` 新增源** `src/win32_pts.c` ⇒ `win32shim` `c493639d15678803` → **`33352e5797031999`**
+#     · `build/DirectWrite.Linux/wic-shim/**`（**W79A**：GIF frames）⇒ `wic_shim` `56278c14b4ecd672` → **`f7b3026c8c019be2`**
+#     · `dwf` `de2d555105b7d04b` → **`ce3469f49efcbcfa`**（**无源改动可归因**，`NOINFO`；值四趟整波稳定）
+#   **仪器/判据件**（本波新接线；两件**已进** `fp_inputs()` 覆盖面 —— `#50` W91A 裁定）：
+#     · `build/MilBridge/tools/r-gate-step.sh`  `23b6ee91a4a8dc9b`（**W84A** 新建，**W90A** 加强读数）—— 第 `[26]` 步的**判据唯一实现**
+#     · `build/MilBridge/tests/RGateClickProbe/run-r-gate-legs.sh`  `93f914d6c041c88d`（**W84A** 新建装置：私有 Xvfb ＋ 私有 app 目录 ＋ `xdotool` 真实节奏）
+#     · `build/integration-wave.sh`  `0ac2eed4c66cd43d`（**W84A** R-GATE 接线 ＋ **W91A** `APPLIERS_EXPLICIT` 注册）
+#     · `build/close-wave.sh`  `f440ccdb4e29a942`（**W91A**：`fp_inputs()` 纳入上面两件 R-GATE 判据件）
+#     · `build/MilBridge/tools/build-hygiene-import-check.sh`  `545f3bd1d21b6ee8`（**W81A**，`build-hygiene-roster.tsv` 同趟）
+#     · `build/MilBridge/tools/product-entry-step.sh`  `4fdf5de43f1a211a`（`#49` 波尾 W76A，落在 `#49` 冻结**之后**）
+#   **本波冻前收尾修掉的两件**（`PIPEFAIL-SIGPIPE` 那第 2 处红的处置，详见冻结块 ④）：
+#     · `build/MilBridge/tools/r-gate-step.sh`  `23b6ee91a4a8dc9b` → **`aa9d7188b6b01a2f`**（8 处 `printf … | grep -q` → `grep -q … <<<`）
+#     · `build/MilBridge/tests/W81AWindowProbe/run-w81a-legs.sh`  `5691050c5c67cf1d` → **`08b917a54b18b965`**（`… | head -8 | sed … || echo "（无）"` → 先收进变量再分两路印）
+#   **登记/预登记/地图件**：`docs/WAVE50-PREREGISTRATION.md`（`TASK-0702` 的预登记）｜
+#     `samples/WpfFeatureProbe/KNOWN-DEFECTS.md`  `4234508f811bd9ba` → **`aec62c485d5010b9`**（2382 → 2407 行；新登记 `D-G88`/`D-G89`/`D-G90`）｜
+#     `docs/ROUTES.md`（四处地图改动，W96A）｜`build/MilBridge/tools/defect-registry-declared.tsv`（`DEFREG=PASS declared=126 route_ids=126`，
+#     `DEFREG_DECLDRIFT=0`）｜`build/MilBridge/known-red.json`（见冻结块）｜`docs/CURRENT-STATE.md` 机器行（本冻结同趟改）。
+# ── ② 收尾链每步读数（命令 + rc + 关键原文）──────────────────────────────────
+#   【步骤 ⑤·应用门禁 ×2】两趟**都写 rows**（第 2 趟写另一本，避免追加语义把 6 行变成 12 行）：
+#     第 1 趟：`WPTD_RUN_DIR=$HOME/w95a/gate-e WPTD_BASELINE_OUT=$HOME/w95a/gate-rows.txt bash tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpftextdemo.sh 60 --tier both`
+#       槽内 ⇒ `HEAVYSLOT=ACQUIRED waited=0s`／`MEMOK avail=2818MB`／**`RELEASED rc=0 held=161s`**；
+#       `WPTD_TIER=default rep=1/2/3 RESULT=PASS` ＋ `WPTD_TIER=env rep=1/2/3 RESULT=PASS` ⇒ **机读行 6/6 `result=PASS`**；
+#       `WPTD_SUMMARY=PASS tiers_passed=2/2`、`WPTD_GATE=PASS acceptance=2/2 line_advance=PASS`、
+#       `WPTD_BRIDGE_SRC_STALE=no basis=pub=0a8f69b3c5fabd43 now=0a8f69b3c5fabd43 so_file_match=yes`；
+#       `rows.txt` sha16 = `4a7fad3a66f527fe`（`BASELINE` 6 行 / `result=PASS` 6 / `result=FAIL` 0）；
+#       窗口：**自起 Xvfb :97**（PID 2352477），收工无孤儿、跑完按 PID 自收（`pgrep Xvfb` rc=1）。
+#     第 2 趟（`--no-build`，写 `gate-rows-f.txt`）：**`RELEASED rc=0 held=157s`**、同样三条机读行逐字相同、
+#       `rows-f.txt` sha16 = `abbb0cc925d50e6e`（6/6 `result=PASS`）。两本的 `BASELINE` 六行 **config/result 读数逐项相同**
+#       （只有 header 的 `date`/`loadavg`/`mem` 与 `run_dir` 不同）⇒ **门禁本波 12/12 PASS**。
+#   【步骤 ⑥·冻前 `verify-all`】**跑了两趟**（第 1 趟出现第 2 处红 ⇒ 修 ⇒ 第 2 趟才是冻结输入）：
+#     第 1 趟 `~/w95a/logs/06-verify-all-pre.log`（`HEAVYSLOT=RELEASED rc=1 held=874s`）⇒ `步骤通过 24 ❌ 失败 2`、
+#       `结论：❌ 失败项：COLUMN-FLOOR PIPEFAIL-SIGPIPE` —— 第 1 处是**设计内**（见下），第 2 处是 `PIPEFAIL-SIGPIPE`
+#       （`undeclared_hit=9`，9 处**全在本波自建件里**）⇒ **按纪律停手报主控**（未冻结）。
+#     第 2 趟（**本件的冻结输入**）`~/w95a/logs/06b-verify-all-pre2.log`：修完那 9 处之后重跑，
+#       预期**恰好 1 处声明类红 = `COLUMN-FLOOR`**（`bad= tline`）＋ 第 `[26]` 步 `R-GATE` 仍 `PASS crit=13/13`。
+#   【步骤 ⑦·冻结】`python3 $HOME/w21-verify/w27-freeze.py ~/w95a/logs/06-verify-all-pre.log ~/w95a/gate-rows.txt '#50'`
+#     ⇒ 本文件即其 `TXT` 输入；`PRE=/home/links-dev/w50-pre.sha`；`nstep=26`、`875 通过 2 跳过`。
+#   【步骤 ⑧·冻后 `verify-all` ×2】两趟都必须全绿（含第 `[26]` 步 `R-GATE`）；逐条读数见 `build/MilBridge/W95A-report.md` §5 与 `~/w95a/STATUS.md`。
+#   【步骤 ⑨·记录／推送／app-local 刷新】
+#     · 推送（fork 克隆 `~/netTest/GitProj/WPFOnLinux`，`HEAD=7feca487741a8070` = `origin/feat-Linux`）：
+#       `git push origin feat-Linux`；⚠️ **`fetch` refspec 陷阱**（`#48`/`#49` 两度踩到）⇒ 核对前**必须**显式
+#       `git fetch origin feat-Linux:refs/remotes/origin/feat-Linux`，再逐件 `git cat-file blob origin/feat-Linux:<path> | sha256sum` 与磁盘比对；
+#       `git ls-remote --symref origin HEAD` 仍须是 `feat-Linux`。推送前后 head sha 与逐件核对结果见 `W95A-report.md` §7。
+#     · `TASK-9906` app-local 刷新：`sync-applocal.sh`／`check-applocal-sync.sh`（含 `--apply`）until `STALE=0`；
+#       再把两本**书面登记册**（`build/DirectWrite.Linux/wic-shim/known-red-PC-copies.md` ＋ `known-red-PFWB-copies.md`）里
+#       **已转绿的 30 条删掉**、**保留 8 条在册红**；`UNEXPECTED=6[DECL-GAP-EQ=5 DECL-GAP-DIFF=1]` 是**在册**声明类缺口
+#       （**不许**当绿、**不许**擅自改判据）。
+#       ⚠️ **口径已先核**：两本册子**都不在** `fp_inputs()` 覆盖面里（现场点算
+#       `sed -n '/^fp_inputs()/,/^}/p' build/close-wave.sh | grep -c 'known-red-PC-copies|known-red-PFWB-copies'` = **0**）
+#       ⇒ 删表**不动 `inputs_fp`**、不构成"必须先于 `IN_FP_0` 采样"的约束（任务书给的那条前提**现场被否**，如实记）。
+# ── ③ 冻前 `verify-all` 的逐项读数（本件的冻结输入）─────────────────────────────
+#   第 1 趟（`~/w95a/logs/06-verify-all-pre.log`，`RELEASED rc=1 held=874s`）：`步骤通过 24 ❌ 失败 2`／`用例通过 875 跳过 2`／
+#     `SKIP_GUARD=PASS x_state=available violations=none`／`结论：❌ 失败项：COLUMN-FLOOR PIPEFAIL-SIGPIPE`。
+#     · ① `COLUMN-FLOOR ❌`（设计内）—— 逐字形态 `COLUMN_FLOOR_ARMLOG=FAIL n_decl=5 n_ok=4 bad= tline` ＋ `COLUMN_FLOOR_SELFREPORT=PASS`
+#       ＋ 总判 `COLUMN_FLOOR=FAIL reason=floor-lowered-or-below-corpus-or-gate-selfreport-mismatch pass=3 fail=1 noinfo=0 selfreport=PASS`
+#       （第 `[14]` 步）。⚠️ 现场是 `n_ok=4`（不是 `3`：`n_decl=5 = 4 ok ＋ 1 bad`，`bad` 恰好只剩 `tline`）。
+#     · ② `PIPEFAIL-SIGPIPE ❌`（**第 2 处红**）—— `PIPEFAIL_SIGPIPE=FAIL undeclared_hit=9 decl_stale=0 files=67 sites=92 hit=12 low=10 diag=2 safe=68 runs=12`；
+#       9 条 `UNDECLARED_HIT` 全在本波自建件（`r-gate-step.sh` 8 处 ＋ `run-w81a-legs.sh:255` 1 处）⇒ **按纪律停手报主控**。
+#     · 其余 24 步**全绿**（含第 `[26]` 步 `R-GATE（连续交互）`：`R_GATE=PASS crit=13/13 clicks=11 ok=13 red=0 noinfo=0 popup=1 px_open=19449 px_closed=577 sabotage=none win=938x938`）。
+#   第 2 趟（**本件写盘所依据的那一趟**）—— 在**修掉那 9 处**并**重算 `inputs_fp`** 之后重跑：预期**恰好 1 处声明类红 = `COLUMN-FLOOR`**、
+#     其余 25 步全绿（含 `R-GATE` 仍 `PASS crit=13/13`、`PIPEFAIL-SIGPIPE` 必须**转绿**）；`[0]` 段选的显示号与 `X_STATE` 见 `W95A-report.md` §2。
+#   ⚠️ 第 2 趟若**再出现第 2 处非声明类红** ⇒ 按纪律**再次停手报主控**，不自己压绿（本波第 1 趟就是照这条停的）。
+# ── ④ `NOINFO` / 残余（逐条如实）────────────────────────────────────────────────
+#   ① **`pf` 不可复现的根因**（`NOINFO`，主控已裁定"不修、不追凶"）：已排除工程确定性开关（`Deterministic=true`）、
+#      PF 单独构建（两次同值）、csproj 内容（每波末态可复现）；已证源指纹四趟相同而产物四趟不同。
+#      **要什么样的读数**：一个能覆盖 PF **全部**编译输入（含 `obj/` 生成源、引用件、`Compile` 项集合与次序）的指纹。
+#   ② **`dwf` 第一趟整波为何位移**（`NOINFO`；此后三趟稳定 ⇒ 值可用）。
+#   ③ **`D-G88`／`D-G89`／`D-G90` 的落地**不在本波（只登记；`TASK-0108`／`TASK-0703` 等）。
+#   ④ **`UNEXPECTED=6[DECL-GAP-EQ=5 DECL-GAP-DIFF=1]`** 未逐条归因（`#49` 已认定为**在册**声明类缺口；本件只确认"不因本波变多"）。
+#   ⑤ **`D-G77` 的 `exit 5` 支**（自起 Xvfb 失败 ⇒ 大声失败）本波未实测（本波 `:97` 顺利自起 ⇒ 走的是正常支）；`ARMS_XVFB_BIN` 反极性留给专门车道。
+#   ⑥ **冻后刻九位**的读数位置（不在本块内）已在冻结块里写明并**先写了预测与失败判据**；取值结果见 `W95A-report.md` §5。
+# ── ⑤ 内存三值与纪律偏离（逐条写）──────────────────────────────────────────────
+#   · 短步照 300/280：门禁每趟（held **161 s**／**157 s**）。
+#   · **两条长步放宽（主控授权，理由逐条）**：门禁 `--max-hold 1200`（任务书明示；实际 held ≤161 s）／
+#     `verify-all` `--min-avail 1500 --max-hold 1500 -- timeout 1450`（`#49` 实测单趟 ≈16.3 min ⇒ 300 s 装不下，用它只会拿 `MAXHOLD_KILL` ＝作废趟）。
+#     `--min-avail 1500`（内存闸门）**未动**；两趟都拿到 `HEAVYSLOT=MEMOK`，无 `NOINFO reason=low-memory`、无 `MAXHOLD_KILL`。
+#   · **零 `pkill -f`**：全部按 PID（自起的 Xvfb 由 runner 自己按 PID 收）。
+#   · **写域**：本车道只写 `~/w95a/**`、`build/MilBridge/W95A-report.md`、本文件、以及收尾链按配方必须动的件
+#     （冻结产物 `samples/WpfTextDemo/ACCEPTANCE-BASELINE.md`、`docs/CURRENT-STATE.md:9` 机器行、app-local 副本与两本登记册）。
+#     产品件／`close-wave.sh`／`verify-all.sh`／五臂判据／`docs/ROUTES.md`／`KNOWN-DEFECTS.md`／`handoff.md` **一字节未改**。
+BASELINE tier=default rep=1 config=pc:722e0ab8205b7c3f,bridge:feef049e9d0e313a,pf:f34bc297d19778fd,provider:1f9511a7ef395bfe,win32shim:33352e5797031999,wic_shim:f7b3026c8c019be2,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=261 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=4112 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w95a/gate-e
+BASELINE tier=default rep=2 config=pc:722e0ab8205b7c3f,bridge:feef049e9d0e313a,pf:f34bc297d19778fd,provider:1f9511a7ef395bfe,win32shim:33352e5797031999,wic_shim:f7b3026c8c019be2,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=261 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=4112 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w95a/gate-e
+BASELINE tier=default rep=3 config=pc:722e0ab8205b7c3f,bridge:feef049e9d0e313a,pf:f34bc297d19778fd,provider:1f9511a7ef395bfe,win32shim:33352e5797031999,wic_shim:f7b3026c8c019be2,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=261 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=4112 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w95a/gate-e
+BASELINE tier=env rep=1 config=pc:722e0ab8205b7c3f,bridge:feef049e9d0e313a,pf:f34bc297d19778fd,provider:1f9511a7ef395bfe,win32shim:33352e5797031999,wic_shim:f7b3026c8c019be2,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=144 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=2945 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w95a/gate-e
+BASELINE tier=env rep=2 config=pc:722e0ab8205b7c3f,bridge:feef049e9d0e313a,pf:f34bc297d19778fd,provider:1f9511a7ef395bfe,win32shim:33352e5797031999,wic_shim:f7b3026c8c019be2,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=144 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=2945 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w95a/gate-e
+BASELINE tier=env rep=3 config=pc:722e0ab8205b7c3f,bridge:feef049e9d0e313a,pf:f34bc297d19778fd,provider:1f9511a7ef395bfe,win32shim:33352e5797031999,wic_shim:f7b3026c8c019be2,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=144 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=2945 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w95a/gate-e
+# ⏪ **（历史，已被 `#50` 取代）**# RE-FROZEN #49 —— ✅ **当前冻结基线** —— 内容 = 收掉 `#48` 冻后剩下的一波：**①`D-G57` 文字零墨**（`build/shims/PresentationCore.HbTextLine.cs` 单段分支改按**计划面**取字形 id ⇒ 页签/按钮/搜索框出墨）＋ **②`D-G72`/`TASK-0008`**（shim `GetMonitorInfoW` 按 `cbSize` 写入 ⇒ 点顶部菜单条不再 NRE）＋ **③`TASK-0403`**（通道级具名台账进 `src/WpfGfx.Linux/{Resources/MilChannel.cs,Commands/MilCommandDispatcher.cs}` ⇒ 桥重发）＋ **④`TASK-1002`**（`wic-shim/applocal-expect.py` 补声明图 ⇒ `UNEXPECTED 16→6`）＋ **⑤仪器侧**：`B4`/`R-CSRC` 把 `src/WpfGfx.Linux.Native/**/*.{c,h}` 纳入 `fp_inputs()`、`C2`/`C4` 纳入 `sync-applocal.sh`／`check-applocal-sync.sh`／`applocal-expect.py` ⇒ `inputs_fp` **必变**（设计性）；`B1` 修"显示号选定后不复核"；并修掉 `D-G77`／`D-G79` 两条**会让读数静默失真**的仪器缺陷。
 #   ── 九位（Release 权威件）**现算**（占位符由冻结器替换，值 = 冻结那一刻的现场）──────────
 #     · `bridge` `feef049e9d0e313a`（5028208 B）｜`pc` `56ee75ced8d6aece`（3601408 B）｜`pf` `6375fabf89ac7fef`（6119424 B）｜`windowsbase` `2e4e46e539a72cd7`｜
 #       `provider` `1f9511a7ef395bfe`｜`win32shim` `c493639d15678803`｜`wic_shim` `56278c14b4ecd672`｜`hbtextline` `921ba9c65e9fb3be`（293165 B）｜`dwf` `de2d555105b7d04b`。

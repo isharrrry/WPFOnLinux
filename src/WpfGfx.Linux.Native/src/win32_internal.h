@@ -323,6 +323,12 @@ typedef struct wpf_window {
     int       maximized;            // 我们请求过 _NET_WM_STATE 最大化且还没还原
     int       iconified;            // 已被最小化（XIconifyWindow）
     int       custom_chrome;        // 应用声明"我自己画窗框"⇒ WM 侧不加装饰（详见 win32_x11.c）
+    // ── 【波 50 · `D-G83` 修法 H1】首次 map 之后补问 `WM_GETMINMAXINFO` 的台账 ────────
+    //   为什么需要两个字段：`hints_map_asks` 是**次数上限**（不许消息风暴），
+    //   `hints_map_declared` 是**终态**（一旦问出"应用真的声明了上限"就再也不问）。
+    //   见 `win32_core.c` 的 `wpf_minmaxinfo_reask_after_map`。
+    int       hints_map_asks;       // 已补问次数（上限 WPF_HINTS_REASK_MAX）
+    int       hints_map_declared;   // 已观察到"应用真的声明了上限" ⇒ 停止补问
     int       nc_press_active;      // 当前这次按下已被判成非客户区（抬起要配对成 WM_NCLBUTTONUP）
     int32_t   rc_x, rc_y, rc_w, rc_h;   // 最大化前的客户区矩形（还原用）
     int       in_destroy;           // 正在走 DestroyWindow（防重入）

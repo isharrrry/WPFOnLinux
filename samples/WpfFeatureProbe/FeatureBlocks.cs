@@ -1195,7 +1195,23 @@ namespace WpfFeatureProbe
             };
             _combo.GotFocus += (_, __) => Ev("combo.focus");
             _combo.DropDownOpened += (_, __) => { Ev("combo.opened"); ReportPopupItems(); };
-            _combo.DropDownClosed += (_, __) => Ev("combo.closed");
+            // 【`W90A` 加强 · `TASK-0208`：`DropDownClosed` 处**直读** `Mouse.Captured`】
+            //   为什么必须补这一条（`build/MilBridge/W88A-report.md` §3.4 的读数空洞）：
+            //     `R-GATE` 的 `c06`（`D-G55` 机器指纹）原先**只**从**主窗口卡片**的 `MouseMove`
+            //     （`:1220-1227` 那条 `EVT move … captured=`）取数。而"点弹窗项"这条腿（`L8`）的
+            //     2px 挪动**正确地**落在**弹窗窗口**上 ⇒ 修好之后主窗口卡片**一条 move 都读不到**
+            //     ⇒ `grep '^EVT move ' | tail -1` 取到的是**点击之前**那条（那时下拉正开着、
+            //     `ComboBox` 持有捕获**本来是合法的**）⇒ 判据只好判红。**这一格红的是"读不到"，不是"读到了错的值"。**
+            //   本行按**同一时刻**的 `Mouse.Captured` 直读 ⇒ 那一格从"读不到"变成"读得对"。
+            //   ⚠️ **不许**把 `captured=` 直接缀到 `combo.closed` 那一行上：`c05` 与 `c06` 的豁免计数
+            //      都用 `^EVT combo\.closed[[:space:]]*$` **锚定整行** ⇒ 缀上去会把它们打红（本件实测过）。
+            //   ⚠️ 新行**不许**以 `EVT lst.` / `EVT tb.` / `EVT combo.` 开头：`c07`/`c08` 用
+            //      `^EVT (lst|tb|combo)\.` 数"控件级 EVT"⇒ 那会把反极性格的判据面污染。
+            _combo.DropDownClosed += (_, __) =>
+            {
+                Ev("combo.closed");
+                Ev("capture at=combo.closed captured=" + (Mouse.Captured?.GetType().Name ?? "null"));
+            };
             _combo.SelectionChanged += (_, __) => Ev("combo.selection=" + _combo.SelectedIndex);
             _combo.AddHandler(UIElement.MouseLeftButtonDownEvent, new MouseButtonEventHandler((_, e) =>
                 Ev($"combo.down src={e.OriginalSource?.GetType().Name ?? "?"} state={e.ButtonState}")), true);

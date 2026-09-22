@@ -462,3 +462,15 @@ echo "WAVE_START=$(date +%FT%T)"; (date +%FT%T; time env WAVE_OWNER=w48a bash bu
 2026-09-21T15:32:23+08:00  owner=W76A  pid=8039  ppid=8038  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
     ppid_cmd=timeout 280 env WAVE_OWNER=W76A bash build/integration-wave.sh 
     ppid2_cmd=timeout --foreground --kill-after=5 300 timeout 280 env WAVE_OWNER=W76A bash build/integration-wave.sh 
+2026-09-22T15:03:31+08:00  owner=W94A  pid=1974834  ppid=1974833  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=timeout 1150 env WAVE_OWNER=W94A bash build/integration-wave.sh 
+    ppid2_cmd=timeout --foreground --kill-after=5 1200 timeout 1150 env WAVE_OWNER=W94A bash build/integration-wave.sh 
+2026-09-22T15:09:55+08:00  owner=W94A  pid=2107861  ppid=2107860  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=timeout 1150 env WAVE_OWNER=W94A bash build/integration-wave.sh 
+    ppid2_cmd=timeout --foreground --kill-after=5 1200 timeout 1150 env WAVE_OWNER=W94A bash build/integration-wave.sh 
+2026-09-22T15:16:52+08:00  owner=W94A  pid=2188042  ppid=2188041  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=timeout 1150 env WAVE_OWNER=W94A bash build/integration-wave.sh 
+    ppid2_cmd=timeout --foreground --kill-after=5 1200 timeout 1150 env WAVE_OWNER=W94A bash build/integration-wave.sh 
+2026-09-22T15:21:45+08:00  owner=W94A  pid=2267002  ppid=2267001  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=timeout 1150 env WAVE_OWNER=W94A bash build/integration-wave.sh 
+    ppid2_cmd=timeout --foreground --kill-after=5 1200 timeout 1150 env WAVE_OWNER=W94A bash build/integration-wave.sh 

@@ -35,6 +35,7 @@ patch-presentationcore-hbtextline-shimsha
 patch-presentationcore-lineheight-trace
 patch-presentationcore-hwndtarget-trace
 patch-swe-linux
+patch-presentationcore-mousecapture-release
 #   ↑ `#38` 接通（`#36` 曾回退）：官方 `System.Windows.Extensions` 包 → Linux 原生替身。
 #   两条根因 = ① HintPath 写死 `bin/Release/`（波建的是 Debug）⇒ 引用落空、RAR 回落到**包** ⇒ CS0012；
 #   ② `System.Security.Permissions 9.0.0` 传递依赖 SWE ⇒ 必须留"排除 compile/runtime 资产"的占位包引用。

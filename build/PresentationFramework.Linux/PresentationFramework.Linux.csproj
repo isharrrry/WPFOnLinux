@@ -1490,6 +1490,35 @@
     <Reference Include="System.Printing"><HintPath>$(WpfLinuxRoot)build/System.Printing.Linux/bin/Debug/System.Printing.dll</HintPath><Private>true</Private></Reference>
   </ItemGroup>
 
+  <!-- ============================================================================
+       WPF-on-Linux 补丁 C（`TASK-0304`/`TASK-0305`，车道 W86A）：PTS 缺口 = 具名能力边界
+       ============================================================================
+       把 `D-G70`（切「富文本」/「流文档」页 ⇒ `rc=134`）从"整进程必死"变成
+       "**具名、可判、可见的能力边界**"。三处改动，**全部在托管侧**（native 侧是
+       `src/WpfGfx.Linux.Native/src/win32_pts.c`，与本补丁同批）：
+
+        ① `PtsCache.AcquireContextCore`（**`A2`，修 `D-G78`**）：
+           `CreatePTSContext` 抛异常时，把**那条半初始化的池项从 `_contextPool` 里移除**
+           （今天留着 ⇒ 下一趟布局在 `:182-189` 把它当空闲项复用 ⇒ `PtsHost.Context` 的
+           `Invariant.Assert(_context != IntPtr.Zero)` 失败 ⇒ `Environment.FailFast`），
+           并立**具名能力闩**（只对"PTS 能力不可用"这**一个**条件生效 ⇒ 后续 `AcquireContext`
+           立即抛 `PtsUnavailableException`，不再进 native、不再扫池 ⇒ 不重试风暴）。
+           ⚠️ **`Invariant.Assert` 一个都没删、没放宽** —— 目标是让它们**不再被走到**。
+        ② `FlowDocumentView`（**`A3`**）：PTS 不可用时给**页级具名占位**（洋红矩形 +
+           边框 + 三行说明文字），**不留空白**；且**一次失败只降级一次**（视图级闩 ⇒ 幂等）。
+        ③ 两处**只读**打印（`[PTS-UNAVAILABLE]`）⇒ 失败**不许静默**。
+
+       ⚠️ 生成物（`*.Linux.cs`）由本脚本从**上游逐字复制 + needle 校验后改写**：
+          锚点找不到 / 命中数不符 ⇒ **报错退出**（绝不静默产出未打补丁的副本）。
+       ⚠️ 本块**必须排在 port-lib 之后**（`port-lib.py PresentationFramework` 会整份重写 csproj）。
+       ============================================================================ -->
+  <ItemGroup>
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/PtsCache.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/PtsCache.Linux.cs" />
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/documents/FlowDocumentView.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/FlowDocumentView.Linux.cs" />
+  </ItemGroup>
+
   <!-- ==== WPF-on-Linux 补丁结束 ==== -->
   <!-- ==== WPF-on-Linux M7c 补丁 L：主题字典路径上的 XamlAccessLevel（由 tools/patch-presentationframework-xamlaccess.py 注入）==== -->
   <ItemGroup>

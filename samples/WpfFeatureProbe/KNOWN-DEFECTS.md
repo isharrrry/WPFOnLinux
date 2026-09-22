@@ -1458,6 +1458,13 @@ max 探针传 `modifierOpenIndex`+`modifierCloseIndex` 而**不传** `modifierSc
 - **成对读数**：五个站点在 216 KB 多行载荷上 **OLD 真阳性 `wrong=40/40` → NEW `0/40`**；两种真阴性**改前改后都 `0/40`**（不放松、不新增假红）。整件：`check-applocal-sync.sh --selftest` 18/18 → 18/18；**判定面零位移机器证** = `1..543` 与 `936..$` 逐字节相同、47 处改动全在其 `--selftest` 分支（`:544` 起）内。
 - **同趟新建的牙**：`build/MilBridge/tools/pipefail-sigpipe-check.sh`（`--selftest` **15/15**，含"单行左端 ⇒ 必不命中"的阴性对照；三态；真树 `PIPEFAIL_SIGPIPE=PASS undeclared_hit=0 declared=1 files=56 sites=73 hit=1 low=10 diag=2 safe=60`、单趟 **≈4.8 s**），并**接线为 `verify-all` 第 `[17]` 步**（`22 → 23 步`）。**它的判据不是正则**：每个候选站点**抽进沙箱真跑**（造"左端多行 ≫ 管道缓冲、右端命中即退"的最小复现）实测 rc 才算 `HIT`；抽不出来跑的降 `DIAG`；数据面够不着的单列 `LOW`（可见、不入 rc）。**金丝雀**含那条阴性对照；弄瞎 ⇒ `NOINFO`（**不是绿**）。
 - **未修的唯一一处（已在牙的声明表里）**：`tests/…/run-wpfprobe.sh:566`（诊断分支）—— `#33` W33A 的写域外，**声明为例外**且牙自带 `decl_stale` 检测；**留给 `#34`**。
+- **🆕 `#50` 波内复发（W95A 现场 ＋ 主控裁定；**不新增编号**）**：本波新建的两件**又被同一族命中 9 处**，由 `verify-all` 第 `[17]` 步抓出（`PIPEFAIL_SIGPIPE=FAIL undeclared_hit=9 decl_stale=0`，**这是本波冻前那第 2 处红**）——
+  `build/MilBridge/tools/r-gate-step.sh`（本波 `TASK-0702` 的**判据唯一实现**）`:164 :167 :197 :201 :301 :302 :303 :308` 共 **8** 处（形态：`printf '%s' "$S" | grep -qE PAT`）
+  ＋ `build/MilBridge/tests/W81AWindowProbe/run-w81a-legs.sh:255` **1** 处（形态：`grep … | head -8 | sed … || echo "（无）"` ⇒ 明明有异常原文却印"（无）"）。
+  **方向 = 假 FAIL**（`:301-303` 的 `c11`「连续三下各自 EVT 都出现」正是**承载 `D-G55`** 的那一格 ⇒ **证据切片一旦超过 64 KiB 管道缓冲，`R-GATE` 会假红**）；牙的动态探针逐格读数 `dyn_big=12/12 dyn_off=0/12 dyn_small=0/12`（本趟实跑的切片都小 ⇒ `R_GATE=PASS crit=13/13` **成立**，不是假绿）。
+  **本波已修**（同一改法：`grep -qE PAT <<<"$S"`／把 `head` 的结果先收进变量再分两路印；**判据文本一字未动**）：修后 `pipefail-sigpipe-check.sh` **rc=0、`PIPEFAIL_SIGPIPE=PASS undeclared_hit=0 declared=1 hit=1`（唯一剩下的 HIT 就是上面那条已声明的写域外站点）**、`r-gate-step.sh --selftest` **21/21**。
+  **两极化（私有副本，把 `c11` 的载荷换成 ≈250 KB）**：旧写法 ⇒ `S1 正极性（全绿） => NO want rc=0/R_GATE=PASS got rc=1`、失败格点名 `c11(连续腿缺格：seq-lst0,seq-tb,seq-combo,…)`、`R_GATE_SELFTEST=FAIL cases=21 pass=18 fail=3`；新写法 ⇒ 同载荷 `S1 => yes R_GATE=PASS crit=13/13`、`R_GATE_SELFTEST=PASS cases=21 pass=21`；**阴性对照不放松**（`S11` 真的缺 `seq-combo` 时两版都 `FAIL fails=c11(…seq-combo…)`）。
+  ⚠️ **该族禁止用"写进 `DECL` 声明表"转绿**：`pipefail-sigpipe-check.sh` 的 `DECL` 口径明写"只许写**不在本车道写域**的现场真 HIT" ⇒ 对**本波自建件**用它转绿 = **把未登记红压成绿**（本仓明令禁止；`#50` 主控已就此裁定"修，不许声明掉"）。
 
 ### 🆕 `D-G43`：**`--selftest` 的"清单"本身没有权威**，且**有一支自测会写"真树"**（`#33` W33B 实测；**本波只加固、未治本**）
 - **清点口径三版不一**：`grep -rln '--selftest'` 命中 **60** 个文件（其中 48 个是 `.md`/`.cs`/仅提及者）｜`#32` W32B 数 **12**｜`#33` W33B 实测 **15** ⇒ **"本仓有几件实现了 `--selftest`"这个问题今天没有单一权威**，也**没有牙**看着这份清单。
@@ -2170,7 +2177,7 @@ AE 上界本就在 1 万量级；`P3>20000` 是按"弹窗=一整块白"的几何
 
 ---
 
-## `#49` 波前新登记（`D-G62` … `D-G70`）＋ 波中新登记（`D-G71`…`D-G80`，2026-09-21）
+## `#49` 波前新登记（`D-G62` … `D-G70`）＋ 波中新登记（`D-G71`…`D-G87`，2026-09-21/22）＋ `#50` 波尾新登记（`D-G88`…`D-G90`，2026-09-22）
 
 > 口径：这九条都是 `#48` 冻结之后**用户实测 / 车道取证**新立的，**登记 ≠ 已容忍**。
 > 每条都带"现象（读数）→ 判定点（`文件:行`）→ 修法/处置 → 判据（含反极性）→ 边界"。
@@ -2318,3 +2325,90 @@ AE 上界本就在 1 万量级；`P3>20000` 是按"弹窗=一整块白"的几何
 ### ★ 收尾提醒（`#49` 波内，主控加）
 `build/MilBridge/tools/product-entry-step.sh` 的 `PRODUCT-ENTRY` 步在 `#49` 冻前**红了 5 格**，红**全在 `field=ext`（Extent）**（例：`PEA_LINE case=M_modifier_w80 k=0 field=ext ours=17.484375 truth=18.000000 delta=-0.515625`，同例其余列全 OK）⇒ 根因与 `known-red.json` `entries[1]` 的 `95 → 1242` **同一件事**（`D-G57` 零墨修法改了墨迹盒）。
 ⚠️ **主控裁定（2026-09-21）**：**有条件批准**判为"判据口径类"（已知代价具名在册）—— **必须先给同代 A/B**（放回修前 `hbtextline`/`pc` 跑同一套，逐例列 `ext` 的 `ours/truth/delta`）：若修前 `ext` 也 OK **而那时是零墨** ⇒ 旧口径是"按不可见渲染算的墨迹盒" ⇒ 批准登记（逐例点名 ＋ 写明"`D-G57` 的已知代价、不是产品回归" ＋ 后续 TASK 重新标定 `ext` 真值）；**拿不到 A/B 就不许登记成"已知代价"**，只能如实记 `NOINFO`＋"冻结被挡"，由主控另派车道定。**不许把红说绿。**
+
+### `D-G81`（**产品缺陷**）：**WM 侧发起的最大化不被应用状态位采纳** ⇒ 双击 / 自带还原按钮**都还原不了**（而应用自发发起的能还原）
+- 现象（车道 W77A 实测，报告 `build/MilBridge/W77A-report.md` `af9987e29f761e78`，成对读数）：**外部**（`_NET_WM_STATE` ClientMessage）把窗口最大化 ⇒ **双击标题栏 3/3 还原失败、自带还原按钮 3/3 还原失败**，终态恒带 `MAXIMIZED_*`；而**应用自发**发起的最大化 **双击 6/6、按钮 5/5 都能还原**。
+- 判定点（**待钉**）：应用侧"已最大化"状态位（`Window.WindowState` / shim 侧的窗口状态缓存）在**WM 单方面改状态**后没有更新；车道明确标注"**只是假设，需 shim 侧状态位读数才能证伪**"。
+- 处置：**本波只登记**（`#49` 已冻结 ⇒ 属 `#50`）。判据（待写死）：外部 `_NET_WM_STATE` 最大化 ⇒ 应用状态位应随之更新 ⇒ 双击/按钮**必须**能还原；反极性 = 不改 ⇒ 必须复现"还原不了"。
+- 边界：本条**推翻了 W59A `NOINFO#7` 的"按钮命令"那一半**（W59A 记"成功那次的最大化来自双击、失败几次来自按钮命令/WM 会话恢复"）—— 实测的判别变量是"**最大化由谁发起**"，不是"由双击还是按钮发起"。另：`D-G73` 里"点自带 Max 按钮 ⇒ 真最大化"仍然成立（那只讲**发起**，不讲**还原**）。
+
+### ★ `TASK-0104` 的另一个结论（同报告，主控记）：那条"已最大化态下再双击还原/最小化没反应"**主要不是产品缺陷，而是仪器时序假象**
+- 证据：自绘 chrome 的按钮在窗口 map 后 **4.2–4.7 s** 才进视觉树（`[GEO]` 零点击证据：`T≤4.2 MAX=[none]`，`T=4.7` 起 `MAX=[943,213 46x28]`；2×2 成对读数证明**只由预热支配、与仪器无关**：0 s 时点击命中的是 `StackPanel#ButtonPanel` 而非按钮）。
+- 且最大化后面板**重排**（`ButtonRestore` 换到常态 `ButtonMax` 的槽 `dx=74`，`ButtonMin` 恒在 `dx=122`）⇒ **点击坐标必须"状态相关"**，否则会点在错的控件上。
+- ⇒ 四种入口在**正确预热（≥5 s，保守 6 s）＋ 状态相关坐标**下**全部可用**；剩下的真产品不对称只有 `D-G81`。
+
+### `D-G82`（**源卫生缺陷 · 新一格**）：`wic_proxy.c` 注释里有 **3 个真 NUL 字节** ⇒ `file` 判 `data`、`grep -n` **只报"匹配到二进制文件"不给行号**
+- 现象（车道 W79A 实测，报告 `build/MilBridge/W79A-report.md` `7f8c7fd14abe8ff8`）：`build/DirectWrite.Linux/wic-shim/wic_proxy.c:289` 的注释把 `\0` 写成了**实字节 NUL**，该文件因此被判为**二进制** ⇒ **任何按行号的工具（`grep -n`/`sed -n`）在那一段上静默失效**（只回一句"匹配到二进制文件"，不报行号）。
+- 为什么算缺陷不是"小事"：本仓的**一切判据都建在"文件:行"上**（缺陷册、派单书、车道的判定点）；一个静默变成"二进制"的源文件会让**后续所有按行引用失效**，且失效形态不是报错而是**少给信息**。
+- 处置：**本波只登记**（`#50` 里顺手清掉那 3 个字节即可，**不许**顺手改注释语义）。判据：`file <该件>` 应回 `C source`；`grep -n '任意已知串' <该件>` 应给行号。
+- **全仓普查（`#50`，车道 W83A，报告 `build/MilBridge/W83A-report.md` `9c90ef1d928863b5`）**：**该类恰好 1 件**（就是本件，3 个 NUL 全在 `:289`，偏移 15873/15902/15921）⇒ **已修**（`f0d3d1501aebcd8c → 8dc634b9254295f4`）。仪器 = **两趟白名单/catch-all（1155／1142 件）＋ 独立第二仪器 libmagic**（非 text 共 67 = json 54＋ELF 11＋octet-stream **1**＋空件 1），两仪器**同结论**，且**合成控制对**证明仪器对两极化敏感。
+- **危害射程比原文窄（如实）**：`$R` 内**没有任何判据/脚本**用 `grep/sed` 按行读这个件（现场搜索 0 命中）；`frames-check.sh:74` 的突变手术用 `open(src,"rb")` ⇒ 不受影响 ⇒ 它今天伤的是**人**（引用/review/`grep -rn`），不是某条已接线的判据。
+- **零回归强证**：用**修后**源按 `build-wic-shim.sh:7-8` 原样旗标编译 ⇒ `libwpfwic.so` 与仓内权威件**逐字节相同**（`gcc -E` 同、`-c` 目标文件同 `143b8eb940783bac`），正控（真改一处）确实把目标文件改成 `4bcc40a76ff1d915` ⇒ **不需重建、不动任何世代位**。
+- **另一类（不算本缺陷，另行点名）**：**11 件无扩展名 ELF PIE** 留在源码树里（`probe_*` 10 件 ＋ `tools/t1b-ls-selftest`），首个 NUL 在偏移 7（ELF 头）⇒ 真二进制；"是否该留在树里"**未判**。
+- 边界：**`upstream/**` 未普查**、`.log` 14 件未纳（按"非自有源码"排除 ⇒ 若纳入则该格 `NOINFO`）、`wic_proxy.c:2315` 的 2 条既有 `-Wcomment` 告警**未处置**（非本件）。
+
+### `D-G83`（**产品缺陷**）：**`WM_GETMINMAXINFO → WM_NORMAL_HINTS` 整条通道对"应用声明的值"失效（上、下限都到不了 X）**
+- 现象（车道 W81A 实测，报告 `build/MilBridge/W81A-report.md` `257b2f45784aa69b`，`TASK-0106` 的正极性**不成立**）：声明 `MaxWidth=640/MaxHeight=480` 的窗口 ⇒ `xprop WM_NORMAL_HINTS` **没有 `maximum size`**（按工具包自报 `dpi=1.041667` 换算的期望 = `667 by 500`）；**更重的是**：`minonly` 臂声明 `MinWidth=500/MinHeight=400`（布局实测被撑到 `500.16x400.32`）⇒ X 提示**照样是 `1 by 1`** ⇒ **上限与下限都没送到 X**。而 `sizecontent` 臂证明这些 DP 在**布局里是活的**（2000×1500 内容被钳到 640×480）⇒ 坏的只是"**送去 X**"这一步。
+- 判定点：shim **全仓只问一次** `WM_GETMINMAXINFO`（`src/WpfGfx.Linux.Native/src/win32_core.c:809-840`，在 `CreateWindowEx` 内、map **之前**），而那一刻 WPF 的写回块被它**自己的守卫**挡住（`Window.cs:4885` 的 `!IsSourceWindowNull`；上游 `:4243-4246` 逐字自述"`WM_GETMINMAXINFO` 要在 `_swh` 赋值**之前**处理"）⇒ 实测 **9/9 次回填 == 默认值**（`max=1280x1024`、`min=1x1`）⇒ `app_declared` **恒假** ⇒ `PMaxSize` 永不发，**且 shim 再也不问第二次**。`wpf_x11_apply_wm_hints()` 也只有这一个调用点。
+- 装置判别力自证（重要）：一个**与 WPF/shim 无关的裸 X 客户端**（`xprobe-hints.c`）设 `PMaxSize` ⇒ `xprop` **读得到** `640 by 480`；不设 ⇒ 读不到（`DEVICE=PASS`）⇒ "缺席"是**真的没发**，不是读不出来。
+- ✅ **已修（`#50`，车道 W82A，报告 `build/MilBridge/W82A-report.md` `863c7e89dcb3e6b0`）** —— 且**推翻了我登记时给的判定点的一半**：
+  **`H1` 单落地仍 FAIL**（`34ff601ebd76c0ee`；补问那拍两个守卫**都是 false**：`IsSourceWindowNull=False／IsCompositionTargetInvalid=False／rawCT.IsDisposed=False`）。
+  **真因 = 波 58 把 `DefWindowProcW` 的 `case WM_GETMINMAXINFO` 写成"填默认值"**：配对读数显示托管侧**写对了**（`min=521x417 max=667x500`），紧接着 `DefWindowProcW(WM_GETMINMAXINFO)` **就地改成默认值**（`1x1／1280x1024`）⇒ 我们自己盖回去。为什么走得到 `DefWindowProc`：上游 `Window.cs:4272-4298` 第二段 `switch` **没有这一格** ⇒ `default: handled=false` **覆盖**了 `:4250-4252` 刚设的 `true`（车道反射直调 `WindowFilterMessage` 得 `handled=False` 而结构体确实被写好）。⇒ **Win32 语义里"填默认值"属于发消息方，`DefWindowProc` 本应 no-op** ⇒ 本 case 回 no-op 即与 Windows 一致，**托管侧不用改**。
+  **两半都修才通**：`:704-750` 抽 `wpf_ask_minmaxinfo_apply_hints()`／`:751-790` `WPF_HINTS_REASK_MAX 3` ＋ `wpf_minmaxinfo_reask_after_map()`／`:1074` `ShowWindow` 内 `WM_SHOWWINDOW` 之后补问一次／`:1713-1746` **`case WM_GETMINMAXINFO` 回 no-op**（`win32_internal.h:330-331` 两个字段；`win32_x11.c` **一字节未动**）。
+  **四格读数**：`declared` ⇒ **`maximum size: 667 by 500`** ✅｜`minonly` ⇒ **`minimum size: 521 by 417`** ✅｜`undeclared` ⇒ `maximum size` **缺席** ✅｜`reg58` ⇒ `1280 by 1024` 出现 **0** 次 ✅（装置自证 `PASS`、`rc=0`）。**反极性**：复原修前源重建 ⇒ `win32shim` **逐位回到 `c493639d15678803`**、五窗全缺席；再前进 ⇒ **`3e4390c9ec07f621`**（往返闭合）。⇒ **`win32shim` 位移多一位**（`#50`）。
+  ⚠️ **同时证伪波 58 注释里"那个 case 是不可达死码"**：实测**每次都走到、且在窗口过程之后**（`:885-895` 已就地更正）。
+- 原始处置记录（保留）：**本波只登记**（`#50`）。**修法假设 `H1`（可证伪、未落地）**：首次 map 之后（`_swh` 已赋值）**再派发一次** `WM_GETMINMAXINFO` 并重发提示 ⇒ 预测：`declared` 出现 `667 by 500`、`undeclared` 仍缺席、`minonly` 出现 `521 by 417`、`late` 视"只问一次/跟着变重问"而分档。
+  ⚠️ **判据必须带 `reg58` 那一格**：若出现的是**屏幕尺寸** `1280 by 1024`（= 波 58 的旧错法）⇒ **点名，不是绿**。
+- 边界：本轮**没有 WM**（裸 Xvfb）⇒ 只判"X 提示里有没有那个值"，**不判** WM 是否真照 `PMaxSize` 约束拖拽/改尺寸；`late` 臂真因（"只问一次" vs "问了也不写回"）与"运行期改 `MaxWidth` 提示是否跟着变"**未测**（都要先落地 `H1`）。
+
+### `D-G84`（**仪器缺陷 · 判据射程错**）：`t1b-ls-tripwire.sh` 的**家族过滤器看不见致命符号**，且它的"**行数 ≥6 ⇒ MISS**"有反例
+- 现象（同报告 `TASK-0303` 的 `A0`）：①`:41` 的过滤器只认 `^(Lo|Ls|Nl|Fs)`，而真正致命的 **`CreateInstalledObjectsInfo` 不以这四个前缀开头** ⇒ 装置自证 `PASS` 的同时对真凶报"**0 次查找**"；它**反倒把 `LoadCursorA` 算进家族**。②`:44` 自述的判据"**查找行数 ≥6 ⇒ MISS**"**不成立**：`LoadCursorA` 有 **9 行**查找链、**末行才是 shim**（全局作用域查找），而 `nm -D` 说 shim 定义了它 ⇒ **假 MISS**。
+- 判定点：`build/MilBridge/tools/t1b-ls-tripwire.sh:41`（过滤器）与 `:44`（MISS 判据）。
+- 处置：**本波只登记**。修法方向：①过滤器改成"**清单 ∪ 前缀**"（W81A 的分析器 `w81a-a0-analyze.py` 已按此实现，可直接借用）；②**MISS 判据必须用 `nm -D` 的导出成员关系**，行数只能当旁证。
+- 边界：本条只判"**装置对致命符号零射程 ＋ 假 MISS**"；`A0` 的**完整需求序列**仍拿不到（进程死在第一跳）⇒ 要 `A1`/`A2` 落地后才能继续。
+
+### `D-G85`（**产品缺陷 · 用户"点了没反应"那一族**）：**点选下拉项之后捕获不释放** ⇒ 之后窗口内点击被路由到 `ComboBox`（**输入路由与命中测试分叉**）
+- 现象（车道 W84A 用**新收编进仓的** `R-GATE` 判据抓到，报告 `build/MilBridge/W84A-report.md` `7661782391a2270b`）：**点选下拉项之后（`combo.closed` 已出现）`Mouse.Captured` 恒为 `ComboBox`** ⇒ 之后窗口内的点击**全被路由到 ComboBox**：`SEQ_lst0` 点在 `ListBox` 行上却收到 `EVT combo.down src=ComboBox`，而**当场重算的 `freshhit=Border`**（⇒ **路由与命中测试分叉**）；`SEQ_tb` 因此收不到 `tb.focus`。
+- **对照实验（判据自带）**：`L7`（下拉开着时点外面）**释放了**捕获 ⇒ **差别只在"下拉怎么关的"**：**点外面关 ⇒ 释放／点选项关 ⇒ 不释放**。
+- **旁证**：`WM_CAPTURECHANGED` 那趟派发 **4 次全部给主窗口，从未给弹窗窗口**（`0x200007/0x200008`）。
+- **A/B（排除并发干扰）**：只把 `win32shim` 换回 `3e4390c9ec07f621` ⇒ **红格逐格相同** ⇒ **不是**另一条车道 09:23 那次 shim 改动引入的。
+- 判定点（**两条假设都还站着，分界读数未取**）：① shim 侧**没有把 `WM_CAPTURECHANGED` 派发给弹窗窗口**；② 托管侧 `ComboBoxItem` **粘性捕获未清**。⇒ 已在 `#50` 派一条**只读**诊断车道取分界读数（`TASK-0206`）。
+- 复现器：`verify-all` 第 `[26]` 步（`R_GATE`）一条命令，**≈35–37 s**；机读行 `R_GATE=FAIL crit=11/13 … fails=c06(L8_comboitem1,SEQ_lst0,SEQ_tb),c11(seq-lst0,seq-tb)`。
+- 边界：本条只判"**捕获不释放 ⇒ 后续点击被误路由**"；`D-G66`（`SetFocus` 回声环）是**同族但不同机制**，两者都在 `HwndKeyboardInputProvider`/输入路由那一带，**不许合并成一条**。
+
+### `D-G86`（**产品缺陷 · 同族欠账**）：`DestroyWindow` **不清捕获、也不派发 `WM_CAPTURECHANGED`** ⇒ **悬垂 HWND 捕获通道**
+- 现象/判定点（车道 W87A 只读诊断点名，报告 `build/MilBridge/W87A-report.md` `f1fb2a8894486248`）：`src/WpfGfx.Linux.Native/src/win32_core.c:946-984` 的 `DestroyWindow` **不检查 `g_capture_window`**、也**不派发** `WM_CAPTURECHANGED` ⇒ 若被销毁的窗口正是捕获持有者，捕获会**指向已销毁的 HWND**（后续输入只会落到一条死通道）。
+- 与 `D-G85` 的**因果关系（当前为假设，非读数）**：`D-G85` 的修法（`MouseDevice.cs` 里补 `ChangeMouseCapture(null,…)`）**必须同趟查**这条 —— 否则可能把"粘在 `ComboBox`"换成"**粘在已销毁弹窗**"（两条都是"捕获指向不该指的对象"）。
+- 处置：**本波只登记**；修法（清捕获 ＋ 派发捕获变更）排在 `D-G85` 修法**同趟或紧随**（同族，别分两波各改一半）。
+- 边界：本条只判"**销毁时不处理捕获**"这一机制；"销毁时是否**应当**先派发 `WM_CAPTURECHANGED`"要与 Windows 语义对齐后再改（`upstream/` 只读核过再落），**不许**凭直觉加派发。
+
+### `D-G87`（**判据缺陷 · 新一格**）：**把"日志体积"当签名判别量会漏判真崩**（车道自报编号 `W85A-F3`）
+- 现象（车道 W85A，报告 `build/MilBridge/W85A-report.md` `eb011130280cf295`）：预登记里用"日志 ≥1 MB"当 `134` 族崩的**签名判别量**，而实测 **2/15 趟真崩只写 19 KB**（coreclr 的**折叠形**）⇒ 这 2 趟会被自己的判据判成"**不是同一签名**"。
+- 判定点：判据侧的"日志体积门槛"（本仓多处用"日志很大"当"真崩了"的旁证）。
+- 结论：**日志体积不是可靠的签名判别量**；可靠的是**退出码 ＋ 栈/首行 ＋ 有无 `Unhandled`**。另：`W63A` 那条"`139`＋0 字节 = 原生层"**只成立"原生不留日志"这一半**（不能反过来推"日志非空 ⇒ 不是原生"）。
+- 处置：**本波只登记**；凡用日志体积的判据请改判"**退出码 ＋ 首行/栈**"（本次已按此重判：修前 15/15 崩 = `rc=134`＋`Stack overflow.`）。
+
+### `D-G88`（**产品缺陷**）：**运行期改尺寸提示（`MinWidth/MaxWidth/MinHeight/MaxHeight`）到不了 X** —— `H2` 本体（`D-G83` 的后续：终态死锁 ＋ 预算**计"问"不计"改"**）
+- 现象（车道 W93A，报告 `build/MilBridge/W93A-report.md`，`TASK-0107`）：三窗一台、14 个 stage、两条腿（裸 `Xvfb :181` ／ `Xvfb :182` ＋ `xfwm4`）**判据输入列逐格相同** ⇒ `SUMMARY A1_informative=29 PASS=5 FAIL=4 VACUOUS=20`，而 **4 个 `FAIL` 全是"运行期改动"格**（`W1-TIGHTEN`／`W2-DECLARE`／`W2-TIGHTEN`／`W3-DECLARE`）。应用侧每格**都答对**（`W93A_SELF` 每格读到新值）⇒ **缺的不是值，是触发器**：X 侧提示恒停 `667 by 500`。最值钱的一格 = `W2-DECLARE`：应用**自己**把窗缩到 `521x417`（`625x521→521x417`），而 X 侧**连 `maximum size` 都没有**。
+- 正对照（**通道没坏**）：`W2-TOGGLE` 一按 ⇒ 提示**立刻**正确落到 `521 by 417`；按下的就是**全仓唯一**的运行期触发器 = `src/WpfGfx.Linux.Native/src/win32_core.c:1074` `if (map) wpf_minmaxinfo_reask_after_map(hwnd);`（在 `ShowWindow` 内、`WM_SHOWWINDOW` 之后）。
+- 机制（代码行级，为什么必然如此）：**唯一**写 `WM_NORMAL_HINTS` 的地方 = `win32_core.c:714-748` `wpf_ask_minmaxinfo_apply_hints()`；两个停止条件 = `:763` `#define WPF_HINTS_REASK_MAX 3` ＋ `:765-790` `wpf_minmaxinfo_reask_after_map()` 里的 `hints_map_declared`（**已声明 = 终态**）与 `hints_map_asks < 3` ⇒ **计的是"问"，不是"改"**。两条改尺寸路径（`:1078-1100` `MoveWindow`／`:1108-1172` `SetWindowPos`）**都不派发** `WM_GETMINMAXINFO`、也不重发提示。上游 `Window.cs:5864-5889` `OnMaxWidthChanged` **只在 `maxWidth < logicalSize.X` 时缩窗**、**调高时什么也不做** ⇒ "调高"那半**连托管侧触发器都没有**。
+- 上限 `3` 的**实际后果**（逐窗钩子计数，**无截断**）：两种吞法**都取到读数** —— ①"**已声明终态**"型：`W1` 首次问出声明即落终态（`hints_map_declared=1`），此后**任何**再问路径被 `!w->hints_map_declared` 挡死；②"**预算耗尽**"型：`W3` 被 4 次**无意义**的 `HIDE/SHOW` 花光预算（`asks=3`=上限）⇒ 之后**第一次真声明也永久发不出去**。钩子 `W1[shim=0] W2[shim=1] W3[shim=2]` 与旁证 `diag_aftermap=6`（`=1+1+1+1+2`）加法一致。
+- 反极性：按**先写死的口径**判 **`VACUOUS`**（`W1-REVERT` 撤回后 X 侧 == 应用侧 `667x500`，但 `W1` 的提示在 14 个 stage 里**一次都没移动过** ⇒ "回到旧值"与"从来没跟过"**不可分**）⇒ **不构成反极性证据，不许当绿**；真反极性只能等修法落地后重造（`改紧 → 跟到新值 → 撤回 → 跟回旧值`）。
+- **有 WM 时后果更重**（`H2-b`，本机**有** WM）：私有 `Xvfb :182` ＋ `xfwm4` 下 WM **真执行**提示 —— 客户请求 `1000x800`→**`667x500`**、`300x200`→**`521x417`**；拖边框：**对照窗** `667x500→937x692`（判别力自证）、**受限窗纹丝不动** ⇒ **WM 严格执行的是一份过期约束**（`W3` 运行期声明了 450 却被**放任**到 `1000x800`）⇒ 本缺陷不只是"提示没更新"，而是**用户可见的窗口行为错误**。
+- 处置：**本波只登记**（`#50` 波尾；车道 W93A **零产品改动**，探针在仓外）。落地 = 新任务 `TASK-0108`（波 `#51`）；补丁草案 `P1`–`P4` 见 W93A 报告 §5 —— `P1` 把"终态 ＋ 次数上限"换成**缓存上次已发布值、值变了才 `XSetWMNormalHints`**（幂等、删掉两个停止条件）；`P2` `SetWindowPos`/`MoveWindow` 尺寸**真变**时补一拍（改**紧**必到）；`P3` 改**大**那半需**托管侧通知**（shim `OverrideMetadata` 合法性**未验** ⇒ 落地前先建最小探针；**不推荐**只把上限 `3` 改大 —— 它计"问"不计"改"）；`P4` 必须带**重入闸** ＋ 新判据"**X 调用次数 == 值变化次数**"。
+- 边界：`A3` 反极性 `VACUOUS`（见上）；**调高 `MaxWidth` 的产品面读数未取**（`P3-a` 的托管钩子可行性未验）；EWMH 最大化未测；无 WM 时"用户拖拽"按定义不适用（`NOINFO reason=no-wm-no-frame`）；`NOINFO` 共 **10 条**（W93A 报告 §7）。
+
+### `D-G89`（**装置缺陷 · 判据恒真**）：`xprop -root _NET_SUPPORTING_WM_CHECK | grep -q window` **恒真** ⇒ 任何"等 WM 起来"的等待**等于没等**
+- 现象（车道 W93A，报告 `build/MilBridge/W93A-report.md` §8；装置 `~/w93a/x-wm-test.sh` 实测）：逐 0.25 s 计时 ⇒ `atom appeared at iteration 1`（≈0.25 s 就 break），而**同刻** `xprop` 输出仍是 `_NET_SUPPORTING_WM_CHECK:  no such atom on any window. ` ⇒ **谓词为真、原子却不存在**；真上位要 ~1–5 s（`+5 s` 后才见 `_NET_SUPPORTING_WM_CHECK(WINDOW): window id # 0x2000ae`）。
+- 根因：`xprop` 的**失败文案**里含 `no such atom on any **window**.`，其中的 `window` 被 `grep -q window` 匹配 ⇒ **谓词恒真**。
+- 既有实例：`build/MilBridge/W53A/cell3.sh:26` 就是这一行；`W54A` 的 WM 腿同源。
+- 后果（方向安全但**会骗人**）：任何"等 WM 初始化完"的循环**第一次就 break** ⇒ 之后**立刻**取的 `_NET_SUPPORTING_WM_CHECK` 自证可能是 `no such atom`（**假阴性**），而 WM 其实正在管理窗口（本件现场：重定父 ＋ `PMaxSize` 真被强制 ⇒ WM 在场无疑，但自证行仍打"不在"）。
+- 处置：**本波只登记**（`#50` 波尾）。落地 = 新任务 `TASK-0703`（波 `#51`）：把谓词换成**真判据** —— `xprop -root _NET_SUPPORTING_WM_CHECK` 必须解析出**窗口 id** 且 `xprop -id <id> _NET_WM_NAME` 可读，或直接判 `_NET_SUPPORTED` **非空** ＋ **重定父**；并**盘点**全仓同类写法。最小一行修法：`grep -q 'window id #'`。
+- 可反驳性：若某 WM 在 `_NET_SUPPORTING_WM_CHECK` 里给出**不含** `window id #` 的合法值，此判据需重写。
+
+### `D-G90`（**仪器局限 · 判据认错对象**）：`wpf_wmsize_diag` **每进程 40 行硬截断** ⇒ `[WMSIZE_DIAG]` **不能当"派发总数"**用
+- 现象（车道 W93A，报告 `build/MilBridge/W93A-report.md` §8）：`src/WpfGfx.Linux.Native/src/win32_core.c:475-484` 的 `if (n++ >= 40) return;` ⇒ 两趟探针腿日志里 `[WMSIZE_DIAG]` **恰好 40 行**，最后一行落在日志第 **189／248** 行 ⇒ **尾段（`W3-DECLARE` 之后）没有 diag 行**，**不能**据此断言"尾段没有派发"。
+- 判定点：`src/WpfGfx.Linux.Native/src/win32_core.c:475-484`；承重用法见 `build/MilBridge/W82A-report.md` §3.3（"补问 5 行"）与 W93A 报告 §2.4／§2.5（"逐窗归因"）。
+- 结论：**"看不见"与"没发生"分不开**（本仓明令禁止的那一族）。凡用 `[WMSIZE_DIAG]` 计数的判据必须**与不受截断的计数互印**（W93A 改用应用内 `HwndSource` 钩子计数、无截断；两者在**重叠区一致**，`W93A_ASKS diag_aftermap=6` 只当**旁证**不当判据）。
+- 处置：**本波只登记**（`#50` 波尾）。建议修法（**未落**）：抬高上限，并把"已截断"这件事**打出来**（`[WMSIZE_DIAG] TRUNCATED n>=40`）。
+- 边界：本条**不改**现有截断值（改它会影响既有判据的读数）；登记它在册 = 让"`[WMSIZE_DIAG]` 计数"这个用法**被看着**，而不是让它**静默**地充当总数。

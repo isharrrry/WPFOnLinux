@@ -701,6 +701,94 @@ static void fill_minmaxinfo_defaults(WPF_MINMAXINFO *mmi)
     mmi->ptMaxTrackSize.y = sh;
 }
 
+// ── 【波 50 · `D-G83` 修法 H1】"WM_GETMINMAXINFO 的一拍" = 一个函数 ───────────────
+// 【为什么抽出来】修前这一拍**只在建窗里发生过一次**（见 `create_window_utf8` 的注释）：
+//   那一刻 WPF 的写回块被它自己的守卫挡住（`Window.cs:4885` 的 `!IsSourceWindowNull`
+//   ∧ `!IsCompositionTargetInvalid`）⇒ 窗口过程回填 == 我们填的默认值 ⇒ `app_declared` 恒假
+//   ⇒ `PMaxSize` 永不发（W81A 实测 9/9 次回填 == 默认值）。修法 = **首次 map 之后**
+//   （`_swh` 与 `CompositionTarget` 都已就位）**再问一次**，就地问出应用"真的声明了什么"。
+//   两处调用点必须走**同一段代码**：否则"建窗那一拍"与"map 后那一拍"的语义会各自漂移，
+//   而本仓的判据正是建在这两拍**可对照**上（`[WMSIZE_DIAG]` 行随 `where` 区分）。
+// 【返回值】`app_declared` = 应用**真的改过**上限（回填值 ≠ 我们填的默认值）。
+//   `cls` 可为 NULL ⇒ `wpf_x11_apply_wm_hints` 会跳过 `WM_CLASS`（那一项早已设过、不该重设）。
+static int wpf_ask_minmaxinfo_apply_hints(HWND hwnd, const char *cls, const char *where)
+{
+    WPF_MINMAXINFO mmi;
+    fill_minmaxinfo_defaults(&mmi);
+    int d_min_w = mmi.ptMinTrackSize.x, d_min_h = mmi.ptMinTrackSize.y;
+    int d_max_w = mmi.ptMaxTrackSize.x, d_max_h = mmi.ptMaxTrackSize.y;
+    wpf_dispatch_to_window(hwnd, WM_GETMINMAXINFO, 0, (LPARAM)&mmi);
+    int min_w = mmi.ptMinTrackSize.x, min_h = mmi.ptMinTrackSize.y;
+    int max_w = mmi.ptMaxTrackSize.x, max_h = mmi.ptMaxTrackSize.y;
+    // ── 只把"应用**真的改过**的上限"传给 X ───────────────────────────────────────
+    //   怎么判"真的改过"：拿窗口过程回填后的值与**我们填进去的默认值**比。
+    //   相等 ⇒ 应用没声明约束（WPF 的 `Window.WmGetMinMaxInfo` 在没有
+    //   `MaxWidth/MaxHeight` 时把 `maxSizeLogicalUnits`（= 我们给的默认值）原样写回）
+    //   ⇒ 这时**不发 `PMaxSize`**，而不是像波 58 那样拿"装得下"的钳制值顶上去
+    //   （那正是"最大也放不大"的根因，也是本件判据的 `reg58` 那一格）。
+    int app_declared = (max_w != d_max_w) || (max_h != d_max_h);
+    if (min_w < 1) min_w = 1;
+    if (min_h < 1) min_h = 1;
+    if (app_declared) {
+        if (max_w < min_w) max_w = min_w;
+        if (max_h < min_h) max_h = min_h;
+    } else {
+        max_w = 0; max_h = 0;      // 0 = "不发 PMaxSize"
+    }
+    wpf_x11_apply_wm_hints(hwnd, cls, min_w, min_h, max_w, max_h);
+    wpf_wmsize_diag("%s: 默认 min=%dx%d max(=屏幕)=%dx%d → 窗口过程回填 min=%dx%d max=%dx%d "
+                    "⇒ 应用%s声明上限 ⇒ X 提示 min=%dx%d PMaxSize=%s",
+                    where, d_min_w, d_min_h, d_max_w, d_max_h,
+                    mmi.ptMinTrackSize.x, mmi.ptMinTrackSize.y,
+                    mmi.ptMaxTrackSize.x, mmi.ptMaxTrackSize.y,
+                    app_declared ? "**有**" : "**没有**",
+                    min_w, min_h,
+                    app_declared ? "已发" : "**未发**（不再用钳制值顶替）");
+    return app_declared;
+}
+
+// ── 【波 50 · `D-G83` 修法 H1】首次 map 之后的**补问**（每窗有上限，不许消息风暴）──────
+// 【为什么必须存在】`fill_minmaxinfo_defaults` 的注释与 W81A 报告 §1.4 的静态链条：
+//   建窗那一拍问早了（`_swh` 还没赋值）⇒ 永远问不出"应用声明的值"；**而修前 shim 全仓
+//   只问那一次**（`grep -n 'WM_GETMINMAXINFO' src/**` 的派发点只有建窗那一处）⇒
+//   这条通道对"应用声明的值"整体失效（上、下限都到不了 X，W81A 实测 `minonly` 也是 `1 by 1`）。
+// 【上限为什么必须有】`WPF_HINTS_REASK_MAX`：一个窗口一生最多补问这么多次。
+//   计数分两种停止条件：
+//     · 问出 `app_declared=1` ⇒ `hints_map_declared=1` ⇒ **以后再也不问**（"已声明"是终态）；
+//     · 一直问不出（应用真没声明）⇒ 由次数上限兜住。
+//   为什么允许"问不出就再问"：本函数**无法**分辨"应用真没声明"与"这一拍仍然太早"
+//   （后者在建窗/map 时序上是可能的）⇒ 用**有界重试**代替猜一个"一定够晚"的时刻，
+//   并把实际次数打进 `[WMSIZE_DIAG]`（旁证，读数里可见）。
+// 【只对顶层**非** message-only 窗口】与建窗那一拍同一谓词（子窗口/消息窗没有"最大化"语义）。
+#define WPF_HINTS_REASK_MAX 3
+
+static void wpf_minmaxinfo_reask_after_map(HWND hwnd)
+{
+    char clsbuf[256];
+    clsbuf[0] = 0;
+    wpf_lock();
+    wpf_window *w = wpf_window_find(hwnd);
+    int do_it = 0;
+    if (w && !w->is_message_only && w->parent == NULL && (w->style & WS_CHILD) == 0
+        && !w->hints_map_declared && w->hints_map_asks < WPF_HINTS_REASK_MAX) {
+        w->hints_map_asks++;
+        do_it = 1;
+        wpf_class *k = wpf_class_find_atom(w->class_atom);
+        if (k && k->name) snprintf(clsbuf, sizeof(clsbuf), "%s", k->name);
+    }
+    pthread_mutex_unlock(&g_wpf.lock);
+    if (!do_it) return;
+
+    int declared = wpf_ask_minmaxinfo_apply_hints(hwnd, clsbuf[0] ? clsbuf : NULL,
+                                                  "WM_GETMINMAXINFO(after-map)");
+    if (declared) {
+        wpf_lock();
+        wpf_window *w2 = wpf_window_find(hwnd);
+        if (w2) w2->hints_map_declared = 1;
+        pthread_mutex_unlock(&g_wpf.lock);
+    }
+}
+
 static HWND create_window_utf8(uint32_t dwExStyle, const char *cls,
                                const char *title, uint32_t dwStyle,
                                int32_t X, int32_t Y, int32_t nWidth, int32_t nHeight,
@@ -801,42 +889,29 @@ static HWND create_window_utf8(uint32_t dwExStyle, const char *cls,
     //   ⇒ `DefWindowProcW` 里那个 `case WM_GETMINMAXINFO: return 0;` 是**不可达的死码**：
     //   把它填对**单独不会改变任何行为**（这一点与派单书里"尺寸约束从未生效"的表述
     //   不完全一致，如实写在报告 §4）。真正缺的是"**问一声**"这一步。
+    // ⚠️ 【波 50 · `D-G83` 更正（推翻上一段最后两句）】"那个 case 是**不可达的死码**"
+    //   **被实测证伪**：W82A 用 `[WMSIZE_DIAG] DefWindowProcW(WM_GETMINMAXINFO): 进来时 …`
+    //   读到它**每次派发都被走到**，而且是在**窗口过程写好之后** ⇒ 波 58 把默认值填进
+    //   `DefWindowProcW` 反而成了"事后覆盖"，把应用声明的值（`521x417/667x500`）抹成默认值。
+    //   该 case 已改回 no-op（详见它的注释），默认值由**发消息方**（本函数/`wpf_x11_apply_*`）
+    //   在派发**之前**填 —— 这才是 Win32 的顺序。
     // 【Win32 顺序】USER32 在建窗过程中发 WM_GETMINMAXINFO（上游 `Window.cs:4244-4252`
     //   的注释明确写了"我们可能在 CreateWindowEx 期间同步收到它"，且它的处理函数
     //   允许此刻 `_swh == null`）⇒ 这里按同一顺序补上：先填默认值，再让窗口过程回填
     //   （WPF 的 `Window` 会按 Min/MaxWidth 改写），最后把**结果**落成 X 的
     //   `WM_NORMAL_HINTS`。X 侧没有"尺寸约束"的其他来源，这是唯一的。
     if (!w->is_message_only && hWndParent == NULL && (dwStyle & WS_CHILD) == 0) {
-        WPF_MINMAXINFO mmi;
-        fill_minmaxinfo_defaults(&mmi);
-        int d_min_w = mmi.ptMinTrackSize.x, d_min_h = mmi.ptMinTrackSize.y;
-        int d_max_w = mmi.ptMaxTrackSize.x, d_max_h = mmi.ptMaxTrackSize.y;
-        wpf_dispatch_to_window(w->hwnd, WM_GETMINMAXINFO, 0, (LPARAM)&mmi);
-        int min_w = mmi.ptMinTrackSize.x, min_h = mmi.ptMinTrackSize.y;
-        int max_w = mmi.ptMaxTrackSize.x, max_h = mmi.ptMaxTrackSize.y;
-        // ── 【波 59 · A】只把"应用**真的改过**的上限"传给 X ───────────────────────
-        //   怎么判"真的改过"：拿窗口过程回填后的值与**我们填进去的默认值**比。
-        //   相等 ⇒ 应用没声明约束（WPF 的 `Window.WmGetMinMaxInfo` 在没有
-        //   `MaxWidth/MaxHeight` 时原样留着默认值）⇒ 这时**不发 `PMaxSize`**，
-        //   而不是像波 58 那样拿"装得下"的钳制值顶上去（那正是"最大也放不大"的根因）。
-        int app_declared = (max_w != d_max_w) || (max_h != d_max_h);
-        if (min_w < 1) min_w = 1;
-        if (min_h < 1) min_h = 1;
-        if (app_declared) {
-            if (max_w < min_w) max_w = min_w;
-            if (max_h < min_h) max_h = min_h;
-        } else {
-            max_w = 0; max_h = 0;      // 0 = "不发 PMaxSize"
-        }
-        wpf_x11_apply_wm_hints(w->hwnd, cls, min_w, min_h, max_w, max_h);
-        wpf_wmsize_diag("WM_GETMINMAXINFO: 默认 min=%dx%d max(=屏幕)=%dx%d → 窗口过程回填 min=%dx%d max=%dx%d "
-                        "⇒ 应用%s声明上限 ⇒ X 提示 min=%dx%d PMaxSize=%s",
-                        d_min_w, d_min_h, d_max_w, d_max_h,
-                        mmi.ptMinTrackSize.x, mmi.ptMinTrackSize.y,
-                        mmi.ptMaxTrackSize.x, mmi.ptMaxTrackSize.y,
-                        app_declared ? "**有**" : "**没有**",
-                        min_w, min_h,
-                        app_declared ? "已发" : "**未发**（不再用钳制值顶替）");
+        // ── 【波 50 · `D-G83`】这一拍**原样保留**（Win32 顺序：USER32 在建窗过程中发它）──
+        //   它今天仍然**问不出**应用声明的值（`_swh` 此刻还没赋值 ⇒ 写回被 `Window.cs:4885`
+        //   的守卫挡住 ⇒ `app_declared` 恒假 ⇒ 不发 `PMaxSize`），**但它不是多余的**：
+        //     · 它把 `ptMaxSize/ptMaxTrackSize` 的默认值交到托管侧
+        //       （`Window.WmGetMinMaxInfo` 会**无条件**把它存进 `_trackMaxWidthDeviceUnits`
+        //       等缓存 —— 见 `fill_minmaxinfo_defaults` 的注释），给全 0 会把"最大尺寸"
+        //       缓存成 0；
+        //     · 它落的 `WM_NORMAL_HINTS` 是**唯一**在建窗/map 之前设的那一次。
+        //   真正缺的那一步在 `ShowWindow` 里（首次 map 之后补问），见
+        //   `wpf_minmaxinfo_reask_after_map`。
+        wpf_ask_minmaxinfo_apply_hints(w->hwnd, cls, "WM_GETMINMAXINFO");
     }
 
     if (!w->is_message_only && (dwStyle & WS_VISIBLE) != 0)
@@ -985,6 +1060,18 @@ BOOL ShowWindow(HWND hwnd, int nCmdShow)
     w->mapped = map;
     pthread_mutex_unlock(&g_wpf.lock);
     if (map) wpf_dispatch_to_window(hwnd, WM_SHOWWINDOW, 1, 0);
+    // ── 【波 50 · `D-G83` 修法 H1】首次 map 之后补问 `WM_GETMINMAXINFO` ──────────────
+    // 【为什么落在这里】`ShowWindow(map=1)` 是"窗口**真的**要出现"的那一拍，而它**必然晚于**
+    //   `Window.CreateSourceWindow` 里的 `_swh = new SourceWindowHelper(source)`
+    //   （`Window.cs:2521`；`Show()` → `SafeCreateWindowDuringShow` → … → `ShowWindow`，`:5548`）
+    //   ⇒ 此刻 WPF 的写回块不再被 `_swh == null` 挡住，声明值才问得出来。
+    // 【为什么不在 `wpf_x11_map` 里做】那一层在**建窗路径**里也会被调（`create_window_utf8`
+    //   的 `WS_VISIBLE` 分支）—— 那一拍正是不该问的那一拍；要区分就得引入"正在建窗"的跨层标记，
+    //   而在 **`WM_CREATE` 里再建窗**时那种标记很容易被嵌套冲掉（本仓 `D-G54` 同族教训）。
+    //   落在 `ShowWindow` 则天然按"显隐语义"区分，且 `SetWindowPos(SWP_SHOWWINDOW)` 也会
+    //   走到这里（它自己就 `ShowWindow(hwnd, SW_SHOW)`，见 `:1075`）。
+    // 【不是每次问】次数上限与"已声明即终态"都在 `wpf_minmaxinfo_reask_after_map` 里。
+    if (map) wpf_minmaxinfo_reask_after_map(hwnd);
     if (want_state >= 0) wpf_core_window_state(hwnd, want_state);
     return was;   // Win32: 返回「此前是否可见」
 }
@@ -1624,14 +1711,40 @@ LRESULT DefWindowProcW(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             }
             return 0;
         case WM_GETMINMAXINFO:
-            // 【波 58】修前这里是 `return 0;`（**什么都不填**）。两个问题：
-            //   ① 若有人真问这条消息，拿到的是一份**全 0** 的 MINMAXINFO —— 而托管侧
-            //      `Window.WmGetMinMaxInfo` 会把 `ptMaxSize`/`ptMaxTrackSize` 存成布局用的
-            //      "窗口最大尺寸" ⇒ "没有约束"会变成"约束 = 0"（比空返回更坏）；
-            //   ② 本 shim **从不发**这条消息 ⇒ 这个 case 在修前是**死码**（见 create_window_utf8
-            //      里的注释与报告 §4 的复核）。
-            //   现在按 Win32 语义填默认值（= USER32 发消息前的填法）；窗口过程可以照常改写。
-            if (lParam) fill_minmaxinfo_defaults((WPF_MINMAXINFO *)(uintptr_t)lParam);
+            // ── 【波 50 · `D-G83` 真因】本 case 必须是 **no-op**（`return 0;` 什么都不填）──
+            // 【Win32 语义】这条消息是**系统发给窗口过程**的，而结构体在**发之前**就由
+            //   USER32 按"最大化后的尺寸/位置"填好了（"the system ... sets the default values
+            //   ... before sending"）；`DefWindowProc` 对它的默认处理是**什么都不做**。
+            //   ⇒ "填默认值"这件事属于**发消息方**，不属于 `DefWindowProc`。
+            // 【波 58 的错在哪 —— 本件实测反证】波 58 把这里从 `return 0;` 改成
+            //   `fill_minmaxinfo_defaults(lParam);`，理由是"这个 case 是**死码**"
+            //   （旧注释逐字：本 shim 从不发这条消息 ⇒ DefWindowProc 的分支不可达）。
+            //   **那个前提是错的**：W82A 的读数证明本 case **每次派发都被走到**，而且是在
+            //   **窗口过程已经写好之后**（配对读数，`WPF_LINUX_CREATE_DIAG=1`）：
+            //       [WMSIZE_DIAG] WM_GETMINMAXINFO(after-map): 默认 min=1x1 max(=屏幕)=1280x1024
+            //                    → 窗口过程回填 min=1x1 max=1280x1024 ⇒ 应用**没有**声明上限 …
+            //       [WMSIZE_DIAG] DefWindowProcW(WM_GETMINMAXINFO): 进来时 **min=521x417 max=667x500**
+            //                    → 本 case 会把它**就地改成**默认值
+            //   ⇒ 托管侧明明写对了（`521x417/667x500` 正是 `MinWidth=500/MinHeight=400` 与
+            //   `MaxWidth=640/MaxHeight=480` × dpi `1.041667` 的换算结果），却被**我们自己的
+            //   `DefWindowProcW` 覆盖回默认值** ⇒ `app_declared` 恒假 ⇒ `PMaxSize` 永不发。
+            //   这条通道"对应用声明的值失效"的最后一跳就在这里（不是"问早了"那一跳）。
+            // 【为什么窗口过程写对了却还走到 DefWindowProc】托管侧**故意**把它复位成
+            //   `handled = false`：`WindowFilterMessage`（上游 `Window.cs:4234-4302`）第一段
+            //   `switch` 在 `:4250-4252` 把 `handled = WmGetMinMaxInfo(lParam)`（返回 `true`），
+            //   紧接着 `:4258` 的 `if(_swh != null && _swh.CompositionTarget != null)` **第二段**
+            //   `switch`（`:4272-4298`）里**没有** `WM_GETMINMAXINFO` 这一格 ⇒ 落到
+            //   `default: handled = false;` ⇒ 覆盖掉前一格的 `true`（W82A 的反射直调读数：
+            //   `handled=False` 而结构体**确实被写好**）。**这不是我们的错、也不是要改托管侧**：
+            //   在真 Windows 上 `handled=false` 只意味着"顺带也请默认过程过一遍"，而默认过程
+            //   对这条消息本来就是 no-op ⇒ **只要本 case 回到 no-op，语义就与 Windows 一致**。
+            if (lParam) {
+                WPF_MINMAXINFO *pin = (WPF_MINMAXINFO *)(uintptr_t)lParam;
+                wpf_wmsize_diag("DefWindowProcW(WM_GETMINMAXINFO): 进来时 min=%dx%d max=%dx%d "
+                                "⇒ 本 case 是 no-op（默认值由**发消息方**填）⇒ 原样保留",
+                                pin->ptMinTrackSize.x, pin->ptMinTrackSize.y,
+                                pin->ptMaxTrackSize.x, pin->ptMaxTrackSize.y);
+            }
             return 0;
         case WM_PAINT:     return 0;
         default:           return 0;

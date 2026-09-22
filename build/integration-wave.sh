@@ -206,6 +206,7 @@ APPLIERS_EXPLICIT+=( patch-uiautomationtypes-reservedvalue )
 #   修法 = 失败路径上 `Registry.LocalMachine?.OpenSubKey(...)` + **主动打印 assert 原文**
 #   （语义不变：仍 `FailFast`；**不是**把 assert 变 no-op）。
 APPLIERS_EXPLICIT+=( patch-shared-invariant-failfast )
+APPLIERS_EXPLICIT+=( patch-presentationcore-mousecapture-release )   # `#50` W88A：`D-G85` 修法（`MouseDevice.cs:388` 释放后补 `ChangeMouseCapture(null,…)`）
 
 # 2026-09-13 主控补：M7b 的**补丁 P**（建窗失败只报 `Win32Exception 1400`，1400 是本工程自己映射的码
 #   ⇒ **真原因被吞掉**，这正是"`XOpenDisplay` 偶发抖动"那条悬案的观测盲区）。

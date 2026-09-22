@@ -1,0 +1,121 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(MSBuildThisFileDirectory)../../../../build/SelfBuiltConfig.props" />
+
+  <!--
+    ============================================================================
+    W82AMinMaxProbe —— `W81A`（波 `#50`）的**最小仓内探针**
+    ============================================================================
+    【它为什么存在】两件任务，一个二进制：
+
+      ① `TASK-0106`：`PMaxSize` **声明态端到端腿**。
+         本仓 **没有**任何声明 `MaxWidth/MaxHeight` 的样本（现场：`grep -l 'MaxWidth\|MaxHeight'
+         samples/**/*.xaml` = 0 命中）⇒ "应用声明上限 ⇒ X 侧 `WM_NORMAL_HINTS(PMaxSize)` 出现"
+         这句话**今天在仓内无法复算**。本探针就把这句话变成一格可复算读数：
+         **一个进程、两个窗口**（一个声明 `MaxWidth/MaxHeight`、一个不声明），
+         应用自己把 `WindowInteropHelper.Handle`（本移植里 == X 窗口 id）印出来，
+         由装置脚本用 `xprop -id <xid> WM_NORMAL_HINTS` 读 **X 服务器自己的属性**。
+         ⚠️ 两极化必须在**同一进程**里：自变量只该是那两个 DP，不该是"两次运行的环境"。
+
+      ② `TASK-0303` 的 `A0`：把 `D-G70` 的最小闭包**从静态推断变实测**。
+         `mode=flowdoc`（命令行参数写作两道横线）走"最小 `FlowDocument` 页面"（`RichTextBox` → `FlowDocument` →
+         `Paragraph` → `Run`，与上游 `RichTextBoxDemo` 同形），整条包在**已存在**的
+         `build/MilBridge/tools/t1b-ls-tripwire.sh`（真值 = `ld.so` 自己的 `LD_DEBUG=symbols` 日志）里跑，
+         看**实际**按名字要过哪些 PTS/LS 导出、顺序如何。
+
+    【本工程的三条纪律（都与仓内既有探针同款）】
+      · **不参与任何产品构建**：不在 `wpf-linux.sln`、不被任何产品工程 `ProjectReference`；
+      · `EnableDefaultCompileItems=false` + 显式 `<Compile Include>`（⇒ `obj/**` 永不可能被默认 glob 吃进）
+        ⇒ hygiene 声明册里是 `notneeded` + 见证 `no-compile-glob`（同 `#42` 的 `TabGapProbe`）；
+      · 引用一律走**唯一声明处** `build/SelfBuiltConfig.props`（`$(WpfLinuxSelfBuiltConfiguration)`），
+        与 `close-wave.sh` 读九位时用的**同一个档**（Release）⇒ 探针跑的**就是冻结的那一代件**。
+    ============================================================================
+  -->
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>W82AMinMaxProbe</AssemblyName>
+    <RootNamespace>W82AMinMaxProbe</RootNamespace>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <NoWarn>$(NoWarn);CS0067;CS0169;CA1416;CS8002</NoWarn>
+    <!-- 与 TabGapProbe/FrameProbe 同款：输出目录钉在本工程下、不带 TFM 子目录 -->
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <BaseOutputPath>$(MSBuildThisFileDirectory)bin\</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)obj\</BaseIntermediateOutputPath>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <!-- `build/MilBridge/tests/Directory.Build.targets` 的 Provider 权威默认指向 `bin/Debug`；
+         这里显式改成**声明档** —— 免得把跨配置副本拷进输出目录（那会是 APPSYNC 的一格红）。 -->
+    <ProviderAuthorityPath>$(MSBuildThisFileDirectory)../../../../build/DirectWrite.Linux/Provider/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWrite.Linux.Provider.dll</ProviderAuthorityPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 自产四件套 + 兄弟件（清单与 `samples/HelloWpf/HelloWpf.csproj` 的 HintPath 段同口径） -->
+    <Reference Include="WindowsBase">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/WindowsBase.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/WindowsBase.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="System.Xaml">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/System.Xaml.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/System.Xaml.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="PresentationCore">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/PresentationCore.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationCore.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="PresentationFramework">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/PresentationFramework.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationFramework.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="DirectWriteForwarder">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/DirectWriteForwarder.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWriteForwarder.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="UIAutomationTypes">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/UIAutomationTypes.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/UIAutomationTypes.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="UIAutomationProvider">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/UIAutomationProvider.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/UIAutomationProvider.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="System.Windows.Input.Manipulations">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/System.Windows.Input.Manipulations.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/System.Windows.Input.Manipulations.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <!-- 主题程序集：WPF 在 `IsThemeActive()==0` 下按名 `Assembly.Load("PresentationFramework.classic")`
+         ⇒ 不声明它就只有"窗口出来但 `Window.Template == null`"（`samples/HelloWpf` 的现场教训） -->
+    <Reference Include="PresentationFramework.Classic">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/PresentationFramework.Classic.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationFramework.Classic.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="DirectWrite.Linux.Provider">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/DirectWrite.Linux/Provider/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWrite.Linux.Provider.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- ⚠️ 版本锁：与 T3/M7c/TabGapProbe/PcLineOracle 一致，不许动 -->
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.88.9" />
+    <PackageReference Include="System.IO.Packaging" Version="9.0.0" />
+    <PackageReference Include="System.Formats.Nrbf" Version="9.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.0" />
+    <PackageReference Include="System.Diagnostics.EventLog" Version="9.0.0" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="9.0.0" />
+    <PackageReference Include="System.Security.Permissions" Version="9.0.0" />
+    <!-- 官方包在非 Windows 上把 `XamlAccessLevel`/`SoundPlayer` 实现成**必抛**桩 ⇒ 整条换掉
+         （与 `samples/HelloWpf` 同款；`#36` 波的落地） -->
+    <PackageReference Include="System.Windows.Extensions" Version="9.0.0" ExcludeAssets="compile;runtime" />
+    <Reference Include="System.Windows.Extensions">
+      <HintPath>$(MSBuildThisFileDirectory)../../../../build/System.Windows.Extensions.Linux/bin/$(WpfLinuxSelfBuiltConfiguration)/System.Windows.Extensions.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+</Project>
