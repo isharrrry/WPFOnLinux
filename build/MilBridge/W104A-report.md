@@ -295,3 +295,34 @@ FP_COVERAGE_DIFF_VS_HEAD=2
 4. 顺手把 **`TASK-0703` 的说明补齐**（W102A 的工具 `wm-awaited.sh` 交件读数、**未接线**、路径笔误更正），并新立 **`TASK-0109`**：产品侧 `has_ewmh_wm()` **只查属性不查窗还在不在** ⇒ WM 死了但属性残留时**可能静默丢一次移动**（等建场景验）。
 5. 那条"`build/MilBridge/W53A/cell3.sh`"是**笔误**（那个目录**仓里根本没存在过**）⇒ 真身是**仓外** `~/w53a/cell3.sh`；我在 **5 处**都**只追加**更正行，**原文一字没动**。
 6. 门禁与推送都干净：`DEFREG=PASS declared=131`（＋1 = 新号）、`DECLDRIFT=0`；推送到 **`312e252`**、`BYTECHECK ok=7 mismatch=0`；**本件对 `fp_inputs` 贡献为零**（7 件全在覆盖面外），⚠️ 但**当前指纹 `c138491c…` ≠ `#50` 冻结值** —— 机证归因是**车道 W101A 在飞的 `win32_core.c`／`win32_internal.h`**，不是本件。
+
+---
+
+## §10 收尾补记（推完之后复跑，**读数带 head**）
+
+本件共 **2 笔**（第 1 笔 = 数据/登记；第 2 笔 = 本报告；**报告自身 sha16 不可能写进报告自身** ⇒ 自指那一笔的 head 记在 `~/w104a/STATUS.md`）：
+
+```
+第 1 笔  90d50c4..312e252  feat-Linux -> feat-Linux   （7 件：册／地图／声明表／W93A／W96A／W102A报告／wm-awaited.sh）
+第 2 笔  312e252..4869397  feat-Linux -> feat-Linux   （1 件：build/MilBridge/W104A-report.md）
+推送前 90d50c4ec34a2fda02f3577d38a6aaf9282fd4f9（== 任务书给的 HEAD）→ 收尾 486939773cd185efedf17bff0277fab9401279c4
+local == remote（两条命令同值）｜ls-remote --symref origin HEAD ⇒ ref: refs/heads/feat-Linux
+```
+
+**收尾 `BYTECHECK`（`REV=486939773cd185efedf17bff0277fab9401279c4`，逐件 `git cat-file blob` 与磁盘 `cmp`）**：
+
+```
+  ok       samples/WpfFeatureProbe/KNOWN-DEFECTS.md                   395cc255b95cc125
+  ok       docs/ROUTES.md                                             c9bb57e49345739b
+  ok       build/MilBridge/tools/defect-registry-declared.tsv         0d230bf39f34b9ef
+  ok       build/MilBridge/W93A-report.md                             8228314623797d43
+  ok       build/MilBridge/W96A-report.md                             582fb4d82568c507
+  ok       build/MilBridge/W102A-report.md                            387599041ff1abb0
+  ok       build/MilBridge/tools/wm-awaited.sh                        57a852f6948e1c67
+  ok       build/MilBridge/W104A-report.md                            3a9a383c06577372
+  nobody   build/MilBridge/W103A-report.md                            （在盘上还不存在 = W103A 仍在跑）
+BYTECHECK ok=8 mismatch=0 nobody=1
+```
+
+⚠️ `build/MilBridge/W104A-report.md` 那一格是**本报告 §10 之前的版本**（`3a9a383c06577372`）：追加本节后本件变新 sha16（现算见 `~/w104a/STATUS.md`），**§10 这一节由第 3 笔单独推**（§7.9 那条"我自己踩的仪器坑"也在同笔）。**"报告的 sha16 改一次就换一个"是本仓既有现象（见 `D-G92` 那条"哈希别当身份"），这里如实记，不假装它稳定。**
+
