@@ -399,7 +399,8 @@ M tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpftextdemo.sh ｜ M verify-al
 ls-remote --symref origin HEAD ⇒ `ref: refs/heads/feat-Linux  HEAD` ✔
 逐件字节核对：`git cat-file blob 4a38d4f:build/MilBridge/W126A-report.md | cmp - 磁盘` ⇒ **ok**
 ```
-⇒ **本波最终 head = `4a38d4f44e348b5ac384c0c2e98273144854ca8d`**（两笔：`40a31ba → 37def7e`（16 件）→ `4a38d4f`（本报告））。
+⇒ 两笔：`40a31ba → 37def7e`（**16 件波产物**）→ `4a38d4f`（**本报告 v1**）。
+⚠️ **本文件所在的这一笔本身也会让 head 再前进一笔** —— 这是**结构性**的（报告是波产物之一，写"最终 head"必然滞后一笔）。⇒ **权威 head 请现场取**：`git -C ~/netTest/GitProj/WPFOnLinux rev-parse HEAD` ＋ `git ls-remote origin refs/heads/feat-Linux` 交叉核；**本报告落地时**（v2 那一笔之前）实测 = `4a38d4f44e348b5ac384c0c2e98273144854ca8d`。
 ### 7.4 `BYTECHECK`（**rev = push 之后重新 fetch ＋ `ls-remote` 交叉核**）
 ```
 rev = 37def7e480ea33fbd965195588410a7ee68b6434 ／ ls-remote = 同值 ⇒ rev-xcheck 一致 ✔
@@ -530,4 +531,4 @@ AUTH_ROOT=$R SCAN_ROOTS=$R/build:$R/tests:$R/samples:$R/src:$R/tools bash build/
 
 ---
 
-**报告自身口径**：不含本行 sha16 = `097b2e74e308529a`（**恰好一行** ⇒ `head -n -1 build/MilBridge/W126A-report.md | sha256sum` 复算应得同值；FULL sha256 由读者现场算／见收尾消息）
+**报告自身口径**：不含本行 sha16 = `42f6df69f2130eeb`（**恰好一行** ⇒ `head -n -1 build/MilBridge/W126A-report.md | sha256sum` 复算应得同值；FULL sha256 由读者现场算／见收尾消息）
