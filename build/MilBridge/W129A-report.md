@@ -214,5 +214,22 @@ rc=0
 - **`$R` 与远端不同的件**（**本地领先，预期，本件不代推**）= `src/WpfGfx.Linux.Native/src/{win32_core.c,win32_x11.c,win32_internal.h}` 三件（车道 **W131A** 在办，属 `#53`；`$R` 值 `a9cc8762908b417a`／`9fa20864404ab01b`／`4e1880e6054635ff`，远端 = 冻结声明值）。
 - 件对账：`git status --porcelain` 提交前 = **恰好 3 件 ` M`**、`git diff --cached --stat` = `3 files changed, 53 insertions(+), 2 deletions(-)` ⇒ **无夹带**。
 
+### 第 2 笔（**本报告自身**）—— **已推**
+- 推送后 head = **`966c3c983c90a177d63bdc56606e41613375dd56`**；`git push` 逐字 = `a0a0205..966c3c9  feat-Linux -> feat-Linux`；**重 `fetch` 后** `HEAD == origin/feat-Linux == ls-remote origin HEAD` **三者相等**、`--symref` 仍 `feat-Linux`。
+- **`BYTECHECK`（实测，4 件）**：**`ok=4 mismatch=0 nobody=0`** —— 逐件三方比（`git cat-file -p HEAD:<path>` vs 克隆工作树 vs `$R`）**全等**：
+
+  | 件 | 远端 blob = 克隆工作树 = `$R` |
+  |---|---|
+  | `samples/WpfFeatureProbe/KNOWN-DEFECTS.md` | `9e22f5f695af6365` |
+  | `docs/ROUTES.md` | `3712b63a52875344` |
+  | `build/MilBridge/tools/defect-registry-declared.tsv` | `423bff22079d04ea` |
+  | `build/MilBridge/W129A-report.md`（第 2 笔那一版） | `2bc0acf0c363828b` |
+
+- **`$R` 与远端不同（本地领先，预期，本件不代推）**：`win32_core.c` `3117923a7c899e05` → `$R` `a9cc8762908b417a`｜`win32_x11.c` `11142fbef049eb66` → `$R` `9fa20864404ab01b`｜`win32_internal.h` `e4f2de8d038e4780` → `$R` `4e1880e6054635ff`（三件 = 车道 **W131A** 在办，属 `#53`）。
+
+### 第 3 笔（**RECORD-补** —— 本段，本报告自身）—— 已推
+- ⚠️ **"最终 head"这一格对本报告是自指**：写进去就会再前进一笔 ⇒ 按 **W126A 的结构性自洽表述**：**最终 head = 携带本报告的最后一笔**；**可机读的等价判据 = `HEAD == origin/feat-Linux == ls-remote origin HEAD` 三者相等 ∧ `--symref` 仍 `feat-Linux`**（第 1、2 笔均已用这条判据实测通过）。
+- `BYTECHECK`：本报告这一行的**新 blob** = 本文件现字节（由上表 `FULL sha256` 唯一确定）；**等价式** = `remote blob(report) == 克隆工作树 == $R` —— 本笔**就是用这三者相等的字节建的**（`cp -p` 后逐件 `cmp` 通过才 `git add`）；其余 **3 件实测 `ok=3 mismatch=0 nobody=0`**（值同上表）。
+
 （末两行 = 本行 ＋ sha16 行；口径 `head -n -2 <本文件> | sha256sum | cut -c1-16`）
-本报告 sha16 = `46ee1e5dcd2c4421`
+本报告 sha16 = `e12cdbafb61f2f0d`
