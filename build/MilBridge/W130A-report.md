@@ -145,3 +145,19 @@ rc=0        （第 2 遍；两遍输出 cmp IDENTICAL）
 4. 三条交叉引用**全落**：`D-G106`／`D-G107` 各加一行实例（正是那两趟真命中被旧口径漏判 2、误剔 2），`D-G109` 加终报补；**一个新编号都没开**。
 5. `DEFREG=PASS declared=145 route_ids=145`、`DECLDRIFT=0`，连跑两遍一样；**零幻影声明**；我改的 4 件**不进门禁指纹**（拷贝前后 `inputs_fp` 逐位相同）。
 6. 唯一要盯的：`--emit` 把 `$R` 现场值 `KRJ=f108775906eac9aa` 写进了声明表，而远端还是 `d4e0080df6ec497c`（`#53` 在办）⇒ **远端那条诊断行会读成 1**，等 `#53` 推了就自愈。
+
+---
+
+## RECORD-补（推送后补记；本节写入时 §⑤ 的 head/`BYTECHECK` 已是实测值）
+
+- **第 1 笔（本批正文，4 件）**：`4b2d7c3a6935bf4184d6c1d5578d77b358423f7e` → **`fb235d444c580fe8eaa586112e1445e42d0e6fdf`**
+  - `git show --stat HEAD` 逐字：`4 files changed, 170 insertions(+), 5 deletions(-)`（`build/MilBridge/W130A-report.md` 147 ＋／`build/MilBridge/tools/defect-registry-declared.tsv` 4（2＋2−）／`docs/ROUTES.md` 20（17＋3−）／`samples/WpfFeatureProbe/KNOWN-DEFECTS.md` 4 ＋）⇒ **件清单 = 本批 4 件，无第 5 件**。
+- **推送后三方一致（重新 `fetch` 后现取）**：`git rev-parse HEAD` = `git rev-parse refs/remotes/origin/feat-Linux` = `git ls-remote origin HEAD` = **`fb235d444c580fe8eaa586112e1445e42d0e6fdf`**；`git ls-remote --symref origin HEAD` 仍 **`ref: refs/heads/feat-Linux`**。
+- **`BYTECHECK`（判据 = 远端 blob == 克隆工作树，逐件 `git cat-file -p HEAD:<path> | sha256sum` 现算）**：**`BYTECHECK ok=4 mismatch=0 nobody=0`**
+  - `docs/ROUTES.md` `caa09cbdd105e564` ｜ `samples/WpfFeatureProbe/KNOWN-DEFECTS.md` `58d9056f497799ba` ｜ `build/MilBridge/tools/defect-registry-declared.tsv` `c8d59c5b8dc36ef1` ｜ `build/MilBridge/W130A-report.md` `45d1ec3b4504ce4c`（= 第 1 笔里那份；本节改了报告本体 ⇒ 第 2 笔为**报告 RECORD-补**、其 head 落在交件消息里，与 `W100A`/`W127A` 同法）。
+- **冻结物复核（推送前后各一次，逐位未变）**：`samples/WpfTextDemo/ACCEPTANCE-BASELINE.md` = `27293fb5ab91b778`｜`docs/CURRENT-STATE.md` = `737c78e3a7e5a3a5`（`:9` 机器行 = `gen=#52`）｜`handoff.md` = `e4dc264200b421d0`。
+- **`$R` 与远端不同的件**：§⑥ 那 6 件（`#53` 在办）**推送前后都未进任何一笔**（克隆 `git status` 干净后可复核）。
+- **`DEFREG` 推送后复跑一遍**（同一现场）：`DEFREG=PASS declared=145 route_ids=145`｜`DEFREG_DECLDRIFT=0`｜`rc=0`。
+
+（口径：`head -n -2 <本文件> | sha256sum | cut -c1-16` = 下一行的值，即"正文含本行"的字节；本文件末两行 = 本行 ＋ sha16 行）
+本报告 sha16 = `38ce22bec6639c68`
