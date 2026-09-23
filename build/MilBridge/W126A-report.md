@@ -392,6 +392,14 @@ M tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpfprobe.sh
 M tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpftextdemo.sh ｜ M verify-all.sh
 ```
 
+### 7.3b 推送（第 2 笔：**报告本体**）
+```
+37def7e..4a38d4f  feat-Linux -> feat-Linux
+核对（push 之后重新 fetch）: HEAD(local) == remote-tracking == ls-remote == 4a38d4f44e348b5ac384c0c2e98273144854ca8d  ⇒ 三者一致 ✔
+ls-remote --symref origin HEAD ⇒ `ref: refs/heads/feat-Linux  HEAD` ✔
+逐件字节核对：`git cat-file blob 4a38d4f:build/MilBridge/W126A-report.md | cmp - 磁盘` ⇒ **ok**
+```
+⇒ **本波最终 head = `4a38d4f44e348b5ac384c0c2e98273144854ca8d`**（两笔：`40a31ba → 37def7e`（16 件）→ `4a38d4f`（本报告））。
 ### 7.4 `BYTECHECK`（**rev = push 之后重新 fetch ＋ `ls-remote` 交叉核**）
 ```
 rev = 37def7e480ea33fbd965195588410a7ee68b6434 ／ ls-remote = 同值 ⇒ rev-xcheck 一致 ✔
@@ -522,4 +530,4 @@ AUTH_ROOT=$R SCAN_ROOTS=$R/build:$R/tests:$R/samples:$R/src:$R/tools bash build/
 
 ---
 
-**报告自身口径**：不含本行 sha16 = `b81fb4a66fa80972`（**恰好一行** ⇒ `head -n -1 build/MilBridge/W126A-report.md | sha256sum` 复算应得同值；FULL sha256 由读者现场算／见收尾消息）
+**报告自身口径**：不含本行 sha16 = `097b2e74e308529a`（**恰好一行** ⇒ `head -n -1 build/MilBridge/W126A-report.md | sha256sum` 复算应得同值；FULL sha256 由读者现场算／见收尾消息）
