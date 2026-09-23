@@ -278,17 +278,22 @@ DEFREG=PASS declared=137 route_ids=137（每个声明编号在其 req 的每个 
 
 ---
 
-## §12 后续批次二／三的推送（**顺延笔**）
+## §12 后续各笔的推送（**顺延笔**；逐笔读数）
 
-| 笔 | 提交 | 件 | 推送前 head → 推送后 head | `BYTECHECK` |
+| 笔 | 提交 | 件 | 推送前 head → 推送后 head | `BYTECHECK`（**发出时**核） |
 |---|---|---|---|---|
-| 第十一笔 | `2192c5a7c57f29e8` ＋ `e7c87183f0ea5604`（报告） | 3 ＋ 1 | `b1d3ad6a…` → **`e7c87183f0ea5604557bc394207494cfc6f9e1c6`** | `ok=3 mismatch=0 nobody=0`（＋报告 blob=disk 逐位相同） |
-| 第十一笔续（`W121A`） | **`11e25916e969ae2b82bfe1015fd5df9af4273e80`** | 3 | `e7c87183…` → **`11e25916e969ae2b82bfe1015fd5df9af4273e80`** | 见 `~/w122a/STATUS.md` |
-| 下一笔（`W123A` ／本报告补） | 见 `~/w122a/STATUS.md` | 2 | `11e25916…` → 见 `STATUS.md` | 见 `STATUS.md` |
+| 第十一笔 | `2192c5a7c57f29e8`（件）＋ `e7c87183f0ea5604`（本报告） | 3 ＋ 1 | `b1d3ad6a8da723f6908c0bea729916df789b3ed4` → **`e7c87183f0ea5604557bc394207494cfc6f9e1c6`** | `ok=3 mismatch=0 nobody=0`；报告 blob=disk **逐位相同** |
+| 第十一笔续（`W121A`） | **`11e25916e969ae2b82bfe1015fd5df9af4273e80`** | 3 | `e7c87183f0ea5604…` → **`11e25916e969ae2b82bfe1015fd5df9af4273e80`** | `ok=3 mismatch=0 nobody=0`（**发出时**；事后复算该笔 2 件显示 `MISMATCH`，**原因是它们已被下一笔的 `KNOWN-DEFECTS.md` 取代** ⇒ **`BYTECHECK` 只对"当时的最新提交"有意义**） |
+| 第十一笔续二（`W123A` 入册 ＋ 本报告 §10–§12） | **`0239f09d36d321874b795166366fa554a2f29959`** | 2 | `11e25916…` → **`0239f09d36d321874b795166366fa554a2f29959`** | `ok=2 mismatch=0 nobody=0` |
+| **补救笔（本件自记的操作失误）** | **`bfd07d7004e27b4c0109cc094c027d5e8ae778eb`** | 1 | `0239f09d…` → **`bfd07d7004e27b4c0109cc094c027d5e8ae778eb`** | `ok=1 mismatch=0 nobody=0` |
 
-**纪律照旧**：逐径 `git add`（零 `-A`／零 `--force`）｜push 前一次 `fetch`、push 后再 `fetch` ＋ `ls-remote` **交叉核**｜`--symref` 须仍 `feat-Linux`｜**不推别家在飞件**（`hygiene-tooth.sh`／`uia-door-check.sh`／`ime-landing-check.sh`／`repin-generation.py`／`W115A`·`W118A`·`W119A`·`W121A`·`W123A` 报告／native 源与产品件／`tests/parity/**` —— **一件都没进本车道任何一笔**）。
+### 12.1 ⚠️ **本件的一处自伤：漏推声明表**（如实记，不当成判据问题）
+上一笔（`0239f09d…`）我要推 **3 件**（`KNOWN-DEFECTS.md` ＋ `W122A-report.md` ＋ `defect-registry-declared.tsv`），但**复制清单只写了 2 件** ⇒ `defect-registry-declared.tsv` **留在原地没进提交**。后果：远端那份的 `DECL-ANCHORS` 仍停在**上一笔**的册锚（`KD=2566d4173a312c1c`），而当时册已变成 `bcf8240c8c9cd896` ⇒ **远端会读成 `DEFREG_DECLDRIFT=1`**（`declared` 数仍 137、判据仍 `PASS`，所以**不是**判据红，而是**声明表的元数据过期**）。
+**补救（`bfd07d7004e27b4c`）**：把 `--emit` 后的正确版推上 —— 现场核 **`KD=bcf8240c8c9cd896`，与当前册 sha16 逐位相同** ⇒ **远端 `DECLDRIFT=0`**。`declared=137` 不变。**根因**：**"改了几件"与"推了几件"没有机械对账** ⇒ **教训：推送前必须用 `git status --porcelain` 与"本笔件清单"逐件对账**（本件的 `BYTECHECK` 是针对**提交内容**做的、抓不到"该进提交却没进"的件）。
 
-**`DEFREG`（每一笔都现场跑两遍，`cmp` IDENTICAL）**：第十一笔 `declared=137`｜续笔 `declared=137`（`--emit` 重生成把 `DECLDRIFT` 从 **1 拉回 0**）｜本笔 `declared=137`、`DECLDRIFT=0`、`rc=0`。
+**纪律照旧**：逐径 `git add`（零 `-A`／零 `--force`）｜push 前一次 `fetch`、push 后再 `fetch` ＋ `ls-remote` **交叉核**（每一笔都做，`local == remote`、`--symref` 仍 `feat-Linux`）｜**不推别家在飞件**（`hygiene-tooth.sh`／`uia-door-check.sh`／`ime-landing-check.sh`／`repin-generation.py`／`W115A`·`W118A`·`W119A`·`W121A`·`W123A` 报告／native 源与产品件／`tests/parity/**` —— **一件都没进本车道任何一笔**）。
+
+**`DEFREG`（每一笔都现场跑两遍，`cmp` IDENTICAL、`rc=0`）**：第十一笔 `declared=137`／`DECLDRIFT=0`｜续笔 `declared=137`（`--emit` 把 `DECLDRIFT` 从 **1 拉回 0**）｜续笔二 `declared=137`／`DECLDRIFT=0`｜**远端最终态核 = `KD` 锚与现册 sha16 逐位相同 ⇒ `DECLDRIFT=0`**。
 
 <!-- SHA16-W122A 见下（口径：`grep -v '^<!-- SHA16' 本文件 | sha256sum | cut -c1-16`） -->
-<!-- SHA16 6b3a012c664b6fbd -->
+<!-- SHA16 2d6907eeef06e850 -->
