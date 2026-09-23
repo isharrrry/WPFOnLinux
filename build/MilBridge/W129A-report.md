@@ -150,7 +150,7 @@ rc=0
 | `build/MilBridge/tools/defect-registry-declared.tsv` | `b784a0a7ff2fd784` | **`423bff22079d04ea`** | 152 → **154** |
 | `build/MilBridge/W129A-report.md` | —（新建） | 见文末 `===RECORD===` | 本文件 |
 
-**改法是"追加 ＋ 行锚定"，事后 `wc -l` 复核**：`KNOWN-DEFECTS.md` **2790 → 2824**（＋34 = 两个新节），`docs/ROUTES.md` **648 → 663**（＋15 = 空行 ＋ `## §15o` 标题 ＋ 空行 ＋ 12 条 bullet）⇒ **无吞行**；`D-G107` 的"边界 / `NOINFO`"行改后仍**恰好 1 处**（`grep -c` = `1`）。既有 `D-` 节标题（行首 `### `）数 = **63**（未被删改）。
+**改法是"追加 ＋ 行锚定"，事后 `wc -l` 复核**：`KNOWN-DEFECTS.md` **2790 → 2824**（＋34 = 两个新节），`docs/ROUTES.md` **648 → 663**（＋15 = 空行 ＋ `## §15o` 标题 ＋ 空行 ＋ 12 条 bullet）⇒ **无吞行**；`D-G107` 的"边界 / `NOINFO`"行改后仍**恰好 1 处**（`grep -c` = `1`）。册内 `### ` 开头的 `D-` 节标题数 = **63**（= 改前 **61** ＋ 本件新增 **2**；`grep -c '^### \`D-'` 现算）⇒ **既有节标题一个都没被删改**。
 
 ---
 
@@ -229,7 +229,7 @@ rc=0
 
 ### 第 3 笔（**RECORD-补** —— 本段，本报告自身）—— 已推
 - ⚠️ **"最终 head"这一格对本报告是自指**：写进去就会再前进一笔 ⇒ 按 **W126A 的结构性自洽表述**：**最终 head = 携带本报告的最后一笔**；**可机读的等价判据 = `HEAD == origin/feat-Linux == ls-remote origin HEAD` 三者相等 ∧ `--symref` 仍 `feat-Linux`**（第 1、2 笔均已用这条判据实测通过）。
-- `BYTECHECK`：本报告这一行的**新 blob** = 本文件现字节（由上表 `FULL sha256` 唯一确定）；**等价式** = `remote blob(report) == 克隆工作树 == $R` —— 本笔**就是用这三者相等的字节建的**（`cp -p` 后逐件 `cmp` 通过才 `git add`）；其余 **3 件实测 `ok=3 mismatch=0 nobody=0`**（值同上表）。
+- `BYTECHECK`：本报告这一行的**新 blob** = 本文件现字节（⚠️ **自指** ⇒ 本报告**不把自己的 sha 写进正文**，口径 = 末行的 `head -n -2 <本文件> | sha256sum | cut -c1-16`，FULL sha256 现场现算：`git cat-file -p HEAD:build/MilBridge/W129A-report.md | sha256sum`）；**等价式** = `remote blob(report) == 克隆工作树 == $R` —— 本笔**就是用这三者相等的字节建的**（`cp -p` 后逐件 `cmp` 通过才 `git add`）；其余 **3 件实测 `ok=3 mismatch=0 nobody=0`**（值同上表）。
 
 （末两行 = 本行 ＋ sha16 行；口径 `head -n -2 <本文件> | sha256sum | cut -c1-16`）
-本报告 sha16 = `e12cdbafb61f2f0d`
+本报告 sha16 = `8d11645a9a3bd20f`
