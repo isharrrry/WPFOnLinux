@@ -102,3 +102,38 @@
 
 **写成时刻**：见 `~/w114a/STATUS.md` 的 `STEP 1` 追加行（早于本车道任何 `src/**` 改动）。
 **本文件的 sha16**：现场算（见 W114A 报告 §0）。
+
+---
+
+## §R1 · 追加（**判据件变更**）：`verify-all.sh` 的 **X 显示几何守卫** —— 车道 **W126A**（2026-09-23 10:2x）
+
+**谁改**：车道 W126A（波 `#52` 收尾链唯一执行者）。**授权**：主控 2026-09-23 10:2x 明示授权（"给 `verify-all.sh` 加几何守卫，这是**更严**的改动，不是放宽"）。
+
+**为什么**：`#52` 冻前 `verify-all` 报 **`Windowing.Tests ❌`**（`失败: 3，通过: 41，总计: 44`；`用例通过 831`，而 `#51` 是 `875`，差 **44 = Windowing 全套件总数**）。三条失败**全是** `[X11Fact]`/`[X11Theory]`：
+`X11PresentationTargetTests.EventLoop_DeliversExpose_And_Close`｜`X11PresentationTargetTests.PresentationTarget_SatisfiesContract`｜
+`X11RealInputEventTests.MouseMove_DeliversMotionNotify_WithExactCoordinates(x: 473, y: 2)`。
+
+**根因（现场取证）**：`verify-all.sh` 的 `[0] Xvfb` 段**只验"这个 display 连得上"（`xdpyinfo`）、不验几何**，于是复用了**别的车道（W128A）**的
+`Xvfb :185 -screen 0 1024x768x24`（该 Xvfb 的客户端进程 `/proc/*/environ` 实测 `DISPLAY=:185`，属 `~/w128a/run/W010/**`），
+而本闸门**自己起的那台是 `1280x1024x24`** ⇒ 依赖窗口几何/指针坐标的用例在**别人的几何**上假红。
+
+**判据怎么变严（逐字）**：复用前**必须**核该显示的几何 `== 本闸门要求的 $XREQ_GEOM（1280x1024）`；
+**不符 ⇒ 跳过它、并点名**（不许静默），全部不符则**照常自起自己的**（并在 `$DISPLAY_NUM` 被别人占着时**避开该号**）。
+三态机读行：`X-REUSE=reused` ｜ `X-REUSE=skipped-geom-mismatch` ｜ `X-REUSE=self-started`。
+**两处**复用点同趟加：`[0]` 段 与 `x_recheck_alive()`（`D-G59` 的"中途复核换显示"—— 它**同样**只看能连上 ⇒ 同样会换到别人的几何）。
+
+**两极化实测（对**真件**跑提取出来的真段落，只注入 `pgrep` 的候选清单）**：
+· 极性① 场上只有 `:185`(1024x768) ⇒ `skipped-geom-mismatch :185` ＋ `self-started :99 -screen 0 1280x1024x24` ✓
+· 极性② 场上有 `:97`(**1280x1024**) ⇒ **`reused :97`** ✓（**证明复用能力没有被砍掉**）
+· 极性③（附加）`$DISPLAY_NUM=:99` 被一台几何不符的占着 ⇒ `skipped-geom-mismatch :99` ＋ `self-started :100`（**避开被占号**）✓
+
+**件 before/after**：`verify-all.sh` `1fb43fc4522c8784` → `cb30ccae51a7607a`（`[0]` 段守卫）→ **`0cdd12547a634b37`**（`x_recheck_alive()` 守卫 ＋ 定义提到顶层）；`bash -n` rc=0；
+`VERIFYALL_SELF=PASS names=27 decl=27 gen=#52 … vfile_sha16=0cdd12547a634b37`（**步数不变**）。
+**我没有动**：自起几何（仍 `1280x1024x24`）、`DISPLAY_NUM`、任何阈值/判据/步数；`fp_inputs()` 覆盖面不变（下条）。
+
+**机械核（我自己算，不引主控）**：`verify-all.sh` **不在** `fp_inputs()` 覆盖面 ⇒ 本改动**不动** `inputs_fp`
+（证据：我自己的覆盖面清单 `~/w126a/precheck/cov-before.txt`（149 件）里 `grep -c 'verify-all.sh'` = **0**；
+改后复算 `inputs_fp` 仍 = `84fd55d384e93203317d22601cec854d518e69c8f026006231302a2cfbc93366`）。
+
+**边界（它证什么、不证什么）**：它证"**不会因复用几何不符的 X 而假红**"；**不证**"任何 X 环境问题都不存在"，
+也**不证**那三条用例本身的产品正确性（它们由 `Windowing.Tests` 自己的断言判）。

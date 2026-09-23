@@ -10,7 +10,7 @@
   [applocal] WindowsBase.dll：已与权威一致（2e4e46e539a72cd7）
   [applocal] 汇总：4/4 权威产物均已就位并与副本一致/已同步
 
-已用时间 00:00:02.06
+已用时间 00:00:02.25
 == T1b · 直构分支（PC 内形态）+ 默认值语义自检 ==
   PASS  D1 编的是直构分支（Direct == true）
         IsDirect=True
@@ -64,7 +64,7 @@ ICU      = 70.1.0.0；HB = 2.7.4
    [口径·宽度分桶] 0=173 / ≤0.34DIP=1125 / >0.34DIP=0 行（三桶和==1298 机检：OK）最大差 0.333333 @ A1_long_word_w150
    [隔离矩阵] 族 × >0.34 红数：（无）    各和=0 == 总数 0 : OK
    [隔离矩阵] 允许变化的族（其余族**一位不动**）：A1_nbsp_zwsp / B_nbsp_zwsp / B_nbsp_zwsp_trim / F_nbsp_zwsp / F_lat_words / M_modifier
-   [隔离矩阵] before（上一趟 artifact gen/t2d-width-diff.txt sha16=7B4289AD3B56DBE3 mtime=2026-09-22 15:27:32（本文件即上一趟跑的产物 ⇒ 它就是「上一趟的族表」））：（无）
+   [隔离矩阵] before（上一趟 artifact gen/t2d-width-diff.txt sha16=7B4289AD3B56DBE3 mtime=2026-09-22 20:40:59（本文件即上一趟跑的产物 ⇒ 它就是「上一趟的族表」））：（无）
    [隔离矩阵] after ：（无）
    [隔离矩阵] 逐族 diff：一位未动（全部族计数与基线逐位相同）
    [隔离矩阵] 已写 /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/gen/t2d-family-matrix.txt
@@ -142,7 +142,7 @@ ICU      = 70.1.0.0；HB = 2.7.4
   ❌ T3b 折叠明细**契约级**断言（① 判别式 `ours<0 ⇒ truth<0` ② 起止==真机 ③ |cr.Width−真机| < 0.34）
        ① 判别式红 0/236（**真违反**）；裸形式红 0/236（多出的 0 条 = 两侧同为负 0 条的**假红**：真机自己在 oracle 的 430 条折叠区间里有 7 条 Width<0）；② 红 4/236；③ 红 2/236（容差 0.34，**未放宽**）
    [完整明细] 折叠不符 4 条（样例上限 24 ⇒ 未截断）；记账不一致 5 条（用例样例上限 80）；Extent 余差 1242 条（控制台样例上限 45）
-   [记账行级清单] 0 条（无上限 ⇒ 未截断）⇒ 已写 /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/gen/tline-ledger-lines-20260922-2041.txt
+   [记账行级清单] 0 条（无上限 ⇒ 未截断）⇒ 已写 /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/gen/tline-ledger-lines-20260923-0926.txt
    [完整明细] 已写 /home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/gen/tline-detail-full.txt（1263 行；含 3 段：折叠 4 / Extent 1242 / 记账 5）
   ✅ T2d-lh **T2d 的 LineHeight 覆盖不再为 0**（真值来源 cases-cd2.json；口径见输出）
        LineHeight 用例 10 例 / 40 行（Height 10/10、Baseline 6/10）
@@ -225,7 +225,7 @@ ICU      = 70.1.0.0；HB = 2.7.4
   ✓ nm -D：LoAcquireBreakRecord **未定义**（与日志 MISS 一致）
 
 ⇒ 装置自证 通过（捕获到的查找与 nm -D 事实一致）
-  原始日志保留在 /tmp/tmp.RzFxmyg9Pf/（未删，供复核）
+  原始日志保留在 /tmp/tmp.wN6u1GR4Pc/（未删，供复核）
 ST_ATTEST=PASS self=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/MilBridge/tools/t1b-ls-tripwire.sh sha16=82f6a05afb1f9db9（自测期间本件未变 ⇒ 读数可归因）
 
 → harness 退出码 1（0 = 73 例逐行全等 + 真机口径记账/Collapse 全绿；

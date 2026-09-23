@@ -43,9 +43,9 @@
     "instr_shim": "921ba9c65e9fb3be9e31d402fd98568ee78639063d75bb4e656b20201b30dc2b",
     "instr_pc": "7b47a7b3d69ad62f",
     "evidence_log": "build/MilBridge/arm-logs/tline.log",
-    "evidence_log_sha256": "9d29470d63791d64",
+    "evidence_log_sha256": "56bea7233ba05c7b",
     "arm_logs": {
-      "tline": "9d29470d63791d64b5f7b57cef22be1b51273c0c85649fa9a251ea7cb9dfe0e5",
+      "tline": "56bea7233ba05c7ba19d71125f80297c5f74b5d9579085849358ef663fa0be4a",
       "tab-zero": "9150c3a26a3cb789582f3df655006955cf1db10dda00d91097d24d97b40e1912",
       "tab-rtl": "92570318851ca7e85f64017c89bd784d971cfe4028f7b8e47cb79035146755c4",
       "tab-anchor": "1c43a12dcaa5718a27f5e4c66d6ff59bd3b6da0b199e384a315b54e7041cc916",
@@ -106,8 +106,8 @@
     "instr_pc_path": "build/PresentationCore.Linux/bin/Debug/PresentationCore.dll",
     "evidence_log_origin": "/home/links-dev/wfp-runs/arms23/tline.log（硬链接）⚠️ 【#31 W31E 复核 · 2026-09-18】「硬链接」已过期：现盘该路径是**真副本**（inode=5138770、nlink=1、size=21501、mtime=2026-09-17 00:36:36），与 `build/MilBridge/arm-logs/tline.log` 的 inode=5143817 **不同**，`cmp` 两者 **IDENTICAL**、sha16 同为 `57d752a3981a9b91` ⇒ 被引内容零位移、mtime 与源件逐位相同（弱配对判据不受影响）。原文括号描述的是 `#23` 当时的状态。",
     "arms_retaken": {
-      "when": "2026-09-22 20:46:18 +0800",
-      "why": "波 #51（车道 W110A 收尾链）：① 产品侧 TASK-0108 的 H2 落地 —— W101A 的 P1（幂等发布：缓存上次已发布值、值变才 XSetWMNormalHints）/P2（SetWindowPos|MoveWindow 尺寸真变时补一拍）/P4（重入闸；新判据 X 调用次数==值变化次数）落 src/WpfGfx.Linux.Native/src/{win32_core.c,win32_internal.h,win32_msg.c} ⇒ win32shim 位 33352e5797031999→8392fc09564779a1（导出 546→547）；② W106A 的 P3 托管侧通知：新 applier src/WpfGfx.Linux.Native/tools/patch-presentationframework-window-minmax-notify.py 生成的 build/PresentationFramework.Linux/Window.Linux.cs ⇒ pf 位变（pf 不是构建身份，D-G92）；③ 波尾重取五臂：tline 位 6ce993ad974d32ad→9d29470d63791d64（运行相关字段；判词通过 22/失败 2 与 #50 逐字相同），其余四臂逐位未变；④ 仪器侧：TASK-9907 接线，verify-all 26→27 步（新第 [27] 步 NUL-BYTES = D-G82 的牙），nul-bytes-check.sh 纳入 fp_inputs() 覆盖面 ⇒ inputs_fp 变（设计性变更）；⑤ 登记侧新号 D-G88..D-G97",
+      "when": "2026-09-23 09:32:16 +0800",
+      "why": "波 #52 收尾（车道 W126A）：① 产品侧唯一改动 = D-G100 独立卫生修（src/WpfGfx.Linux.Native/src/win32_core.c 3117923a7c899e05 + win32_x11.c 11142fbef049eb66）⇒ win32shim 8392fc09564779a1 → bd037229be8db4f6（导出 547 不变）；不修 D-G98。② 装置/危险处置三件（不是产品改动）：跨区硬链断链 D-G101（W123A，bin/obj 4588 + 6 产品 DLL + 1421 登记件，只换 inode）；repin-generation.py 写者改 temp+os.replace（a2ca0a26bf99dc7a → 711a1fc30764d84c，不在 fp_inputs 覆盖面内）；两件新牙未接线（hygiene-tooth.sh dc1e79a23dbb7eb2 / regression-decision.py 1eda9e3575960cba）。③ 波尾重取五臂：只有 tline 位变（9d29470d63791d64 → 56bea7233ba05c7b），五臂判词与 #51 逐字相同 ⇒ 重钉 arm_logs + evidence_log_sha256。④ 仪器侧零接线：verify-all 仍 27 步，但四处声明同趟改为 gen=#52（VERIFYALL_SELF=PASS names=27 decl=27 gen=#52）。",
       "how": "**只跑三支**（不复用 `retake-arms-w23.sh`：其 `:11` 的 `OUT` 是普通赋值且指向 `$HOME/wfp-runs/arms23`，该目录与 `arm-logs/tline.log`/`textlineproto.log` **同 inode** ⇒ 直接重跑会**就地覆盖归档源件**、中断还会留半截日志）。本趟时序（纪律 59）：① `OUT` 换成本趟专属 `$HOME/w30b-run/arms30b`；② 旧件先 `cp -p` 归档到 `$HOME/w30b-run/backup/armlogs/`；③ 记 `nlink`/mtime/inode；④ `dotnet build CoverageProbe -c Release -m:1`（仅此一次，**未重建 `pc`**）；⑤ 逐支跑 `--tab-lines-oracle`；⑥ **先验 `TAB_LINES_PROBE` 自报行存在**（无则停、不 `ln -f`）；⑦ `ln -f` 进 `arm-logs/`；⑧ 复跑门禁；⑨ `arm-log-sha-check.sh`；⑩ 重钉本节；⑪ 归档。 ⚠️ 【#31 W31E 加注 · 2026-09-18】本行有两处随时间变化（**原文保持不动**）：① 它引的 `:11` 已不再是「普通赋值」—— `#31` W31E 把第 11 行改成 `OUT=${ARMS_OUT:-$HOME/wfp-runs/arms23}`（env 可覆写；**不设该变量时取值逐字不变**）并在第 12 行之后加了**硬链接别名守卫**（`OUT` 目标与真件同 inode ⇒ `exit 4`、逐支点名 inode 与两条路径、**一个字节都不写**）⇒ 纪律 59 的第①步不再需要手改脚本；② 「该目录与 `arm-logs/tline.log`/`textlineproto.log` 同 inode」描述的是 `#30` 当时的状态，`#31` W31C 之后 `arms23` 已是真副本（nlink=1）⇒ 现状下守卫**不会**拦默认 `OUT`（实测 rc=0）。",
       "result": "`tab-zero 78204619fa5b4eee → 9150c3a26a3cb789`｜`tab-anchor 574d012a41a3db06 → 1c43a12dcaa5718a`｜`tab-rtl cbaa579c547b4ac3 → 92570318851ca7e8`；`tline`/`textlineproto` **逐字节未动**。**最硬的一条**：三支新日志**剥掉 `^TAB_LINES_PROBE` 行后与旧件 `cmp` 逐字节 IDENTICAL** （行数 210/1346/193 ↔ 209/1345/192）⇒ 重取**只新增了身份行**，**读数零位移**；`判定行=615`/`字形释放行=194` 与 `column_gate.arms[\"tab-oracle-anchor\"]` 的下限**逐位相符**。 ⚠️ 【#31 W31E 复核 · 2026-09-18】「`ln -f` 后 `nlink=2`」描述的是 `#30` W30B 当时的状态（**原文保持不动**）：`#31` W31C 清理别名后现盘该件 **nlink=1**，`sha256` 前16位 `1c43a12dcaa5718a` **逐位未变**。",
       "arms": [
@@ -174,6 +174,10 @@
         {
           "when": "2026-09-22 20:46:18 +0800",
           "why": "波 #51（车道 W110A 收尾链）：① 产品侧 TASK-0108 的 H2 落地 —— W101A 的 P1（幂等发布：缓存上次已发布值、值变才 XSetWMNormalHints）/P2（SetWindowPos|MoveWindow 尺寸真变时补一拍）/P4（重入闸；新判据 X 调用次数==值变化次数）落 src/WpfGfx.Linux.Native/src/{win32_core.c,win32_internal.h,win32_msg.c} ⇒ win32shim 位 33352e5797031999→8392fc09564779a1（导出 546→547）；② W106A 的 P3 托管侧通知：新 applier src/WpfGfx.Linux.Native/tools/patch-presentationframework-window-minmax-notify.py 生成的 build/PresentationFramework.Linux/Window.Linux.cs ⇒ pf 位变（pf 不是构建身份，D-G92）；③ 波尾重取五臂：tline 位 6ce993ad974d32ad→9d29470d63791d64（运行相关字段；判词通过 22/失败 2 与 #50 逐字相同），其余四臂逐位未变；④ 仪器侧：TASK-9907 接线，verify-all 26→27 步（新第 [27] 步 NUL-BYTES = D-G82 的牙），nul-bytes-check.sh 纳入 fp_inputs() 覆盖面 ⇒ inputs_fp 变（设计性变更）；⑤ 登记侧新号 D-G88..D-G97"
+        },
+        {
+          "when": "2026-09-23 09:32:16 +0800",
+          "why": "波 #52 收尾（车道 W126A）：① 产品侧唯一改动 = D-G100 独立卫生修（src/WpfGfx.Linux.Native/src/win32_core.c 3117923a7c899e05 + win32_x11.c 11142fbef049eb66）⇒ win32shim 8392fc09564779a1 → bd037229be8db4f6（导出 547 不变）；不修 D-G98。② 装置/危险处置三件（不是产品改动）：跨区硬链断链 D-G101（W123A，bin/obj 4588 + 6 产品 DLL + 1421 登记件，只换 inode）；repin-generation.py 写者改 temp+os.replace（a2ca0a26bf99dc7a → 711a1fc30764d84c，不在 fp_inputs 覆盖面内）；两件新牙未接线（hygiene-tooth.sh dc1e79a23dbb7eb2 / regression-decision.py 1eda9e3575960cba）。③ 波尾重取五臂：只有 tline 位变（9d29470d63791d64 → 56bea7233ba05c7b），五臂判词与 #51 逐字相同 ⇒ 重钉 arm_logs + evidence_log_sha256。④ 仪器侧零接线：verify-all 仍 27 步，但四处声明同趟改为 gen=#52（VERIFYALL_SELF=PASS names=27 decl=27 gen=#52）。"
         }
       ]
     }

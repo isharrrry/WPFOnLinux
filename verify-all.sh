@@ -41,6 +41,7 @@
 #   ⚠️ 本块**故意放在同一个文件里**：跨文件的手工声明在本仓**已经失败过一次**（`docs/CURRENT-STATE.md`
 #      那句"当前期望是 N 步"在 `#26`/`#27` 连加 3 步时毫无反应、全程零红）⇒ 声明必须与本体同趟改、同趟审。
 #   ⚠️ **不许**用 `echo "====="` 当接线锚（它在本文件里有 **4** 处）；锚用 `run_step "DEFECT-REGISTRY" …`。
+# VERIFYALL-STEPS-DECL: 27 gen=#52   ← `#52` **不动步数**（本波 = 「`D-G100` 独立卫生修」＋ **装置/危险处置三件**：跨区硬链断链（`D-G101`，车道 W123A）／`repin-generation.py` 写者改 `temp`＋`os.replace`／两件新牙未接线）。产品侧**唯一**改动 = `D-G100`（`src/WpfGfx.Linux.Native/src/win32_core.c` ＋ `win32_x11.c`）⇒ `win32shim` 位变（**导出符号 547 不变** —— 卫生修不动导出面）；⚠️ **不修 `D-G98`**（真因已转向「过期尺寸约束挡还原」，属 `TASK-0111`）。**不加步**（四件新牙的接线走 `TASK-0708` 仪器波）⇒ `VERIFYALL_SELF` 现场 = `names=27 decl=27`（`gen` 与代号一致）。**步数：27 → 27（不动）**）
 # VERIFYALL-STEPS-DECL: 27 gen=#51   ← `#51` **加一步**（26 → 27）：第 `[27]` 步 `NUL-BYTES` —— `D-G82` 的牙（`TASK-9907`）：判「**被判二进制、本意是文本**的源件」，即**声明覆盖面**（扩展名白名单 ＋ 基名清单 ＋ 基名 glob，排除 `upstream/**` 与 `obj|bin|.artifacts|__pycache__|TestResults`）里**不许有真 NUL 字节**（现场 1186 件 / 250.8 MB，`hits=0`）。三态 `NULBYTES=PASS|FAIL|NOINFO` ＋ **内置金丝雀**（每次真跑先自证扫描器没瞎、偏移/行号算得对、声明被遵守）；**纯读、零 `dotnet`、≈0.4 s**；本步不改产品件 ⇒ 九位逐位不动。四处声明（`DECL`／`STEP-NAMES`／口径句／预登记 H1）**同趟**改。**步数：26 → 27**）
 # VERIFYALL-STEPS-DECL: 26 gen=#50   ← `#50` **加一步**（25 → 26）：第 `[26]` 步 `R-GATE（连续交互）` —— `TASK-0702`：把「连续点击/交互响应」从**仓外仪器**（`$HOME/w47b-click.sh`，`#47` 车道 W47B 留）**收编进仓**并接进门禁（装置 `build/MilBridge/tests/RGateClickProbe/run-r-gate-legs.sh` ＋ **判据唯一实现** `build/MilBridge/tools/r-gate-step.sh`；13 格判据 ＋ 三态机读行 `R_GATE=`；判据**逐格继承** `#49` 预登记 §3 B3 的六格表，见 `docs/WAVE50-PREREGISTRATION.md` §1）。⚠️ 与 `#49` 预登记 §3 B3 那句「并进既有门禁步、步数保持 25」**分叉** —— 本波按任务书 `TASK-0702` 新加一步，四处声明同趟改。**步数：25 → 26**）
 # VERIFYALL-STEPS-DECL: 25 gen=#49   ← `#49` **不动步数**（本波产品改源三处：① `D-G57` 文字零墨 —— `build/shims/PresentationCore.HbTextLine.cs` 单段分支改按**计划面**取字形 id ⇒ 页签/按钮/搜索框出墨（`hbtextline` 位变）＋ `build/PresentationCore.Linux/**` 重建（`pc` 位变）；② `D-G72`/`TASK-0008` —— shim `GetMonitorInfoW` 按 `cbSize` 写入 ⇒ 点顶部菜单条不再 NRE（`win32shim` 位变）；③ `TASK-0403` 通道级具名台账进 `MilChannel`/`MilCommandDispatcher` ⇒ **桥必重发**（`bridge` 位变）。仪器侧：`B4`/`R-CSRC` 把 `src/WpfGfx.Linux.Native/**/*.{c,h}` 纳入 `fp_inputs()` ＋ `C2`/`C4` 纳入 `sync-applocal.sh`／`check-applocal-sync.sh`／`applocal-expect.py` ⇒ **`inputs_fp` 必变**（设计性变更，见 `docs/WAVE49-PREREGISTRATION.md` §4）；`B1` 修"选显示号后不复核"；步数**不动**）
@@ -72,6 +73,9 @@
 #   **`#33` 收官起 = 23 步**（`#33` 加第 `[17]` 步 `PIPEFAIL-SIGPIPE`：把「`pipefail` ＋ 管道左侧被
 #   **`#34` 收官起 = 23 步**（本波**不动步数**：★ 的产物修法＋仪器加固；新读者 `frame-presence-check.sh`
 #   **`#35` 收官起 = 23 步**（**不动步数**：本波落第三方原生的正道通道 —— ALC 级钩子 ＋ 5 个映射名 ＋ shim 的 OEM/GDI+ 最小面；
+#   **`#52` 收官起 = 27 步**（**不动步数**：`D-G100` 独立卫生修 ⇒ `win32shim` 位变、**导出 547 不变**；
+#     装置/危险处置三件（跨区硬链断链 `D-G101`／`repin-generation.py` `temp`＋`os.replace`／两件新牙未接线）**都不加步**。
+#     本波**零接线**；四件新牙走 `TASK-0708`。）｜
 #   **`#51` 收官起 = 27 步**（**加一步**：第 `[27]` 步 `NUL-BYTES` —— `TASK-9907`／`D-G82`：
 #     判据 = `build/MilBridge/tools/nul-bytes-check.sh`（声明覆盖面里不许有真 NUL 字节；
 #     三态机读行 `NULBYTES=`；**内置金丝雀**每次真跑先自证）。**纯读、零 `dotnet`、≈0.4 s**、
@@ -374,6 +378,13 @@ echo "======================================================"
 # [0] Xvfb
 # ---------------------------------------------------------
 echo
+# 🦷【`#52` W126A · 几何守卫的**共同定义**（提到顶层：`[0]` 与 `x_recheck_alive()` **两处复用显示**都要用）】
+#   判据：**能连上 ∧ 几何 == `$XREQ_GEOM`**；不符 ⇒ 跳过并点名。规格必须与本闸门自起那行逐字一致。
+XREQ_GEOM="1280x1024"
+_disp_geom() {                   # _disp_geom <号> ⇒ 打该显示的 `WxH`（连不上/取不到 ⇒ 空）
+  DISPLAY=:$1 xdpyinfo 2>/dev/null \
+    | sed -n 's/^[[:space:]]*dimensions:[[:space:]]*\([0-9][0-9]*x[0-9][0-9]*\).*/\1/p' | head -1
+}
 echo "[0] Xvfb（目标 :$DISPLAY_NUM）"
 if [ $USE_X -eq 0 ]; then
   echo "  --no-x：跳过 Xvfb"
@@ -384,29 +395,56 @@ else
   #    输入用例**假红**（应用 `CreateWindowEx` 抛 1400）、Windowing/HelloMil 大面积跳过。
   #    ⇒ **判据必须落在"这个 display 能不能连上"（`xdpyinfo`），不是"有没有 Xvfb 进程"**；
   #       并且**复用时要复用它真实所在的那个 display**。
+  # ── 🦷【`#52` W126A 加：**几何守卫**（授权 = 主控 2026-09-23 10:2x；**更严，不是放宽**）──────
+  #   为什么加（现场，非推测）：`#52` 冻前 `verify-all` 报 `Windowing.Tests ❌`（`失败: 3，通过: 41，总计: 44`）
+  #   三条全是 `[X11Fact]`/`[X11Theory]`：`EventLoop_DeliversExpose_And_Close`｜
+  #   `PresentationTarget_SatisfiesContract`｜`MouseMove_DeliversMotionNotify_WithExactCoordinates(x:473,y:2)`。
+  #   根因 = 本段**只验"这个 display 连得上"、不验几何** ⇒ 复用了**别的车道**（W128A）的
+  #   `Xvfb :185 -screen 0 1024x768x24`，而本闸门自己起的是 **1280x1024x24**（见下方自起那行）
+  #   ⇒ 依赖窗口几何/指针坐标的用例在**别人的几何**上假红。对照：`#51` 时 `用例通过 875`，
+  #   本趟 `831`，差 **44 = Windowing 全套件总数**。
+  #   ⇒ 判据从「能连上」加严成「能连上 **∧** 几何 == 本闸门要求的 `$XREQ_GEOM`」；
+  #     不符的**跳过并点名**（不静默），全都不符就**照常自起自己的**。
+  #   ⚠️ 三态机读行（供人/机核对，逐条可见）：`X-REUSE=reused`｜`X-REUSE=skipped-geom-mismatch`｜`X-REUSE=self-started`。
   chosen=""
   if DISPLAY=:$DISPLAY_NUM xdpyinfo > /dev/null 2>&1; then
-    chosen=":$DISPLAY_NUM"
-    echo "  ✅ :$DISPLAY_NUM 上已有可用 X server（复用）"
+    if [ "$(_disp_geom "$DISPLAY_NUM")" = "$XREQ_GEOM" ]; then
+      chosen=":$DISPLAY_NUM"
+      echo "  ✅ X-REUSE=reused display=:$DISPLAY_NUM（:$DISPLAY_NUM 上已有可用 X server，几何 $XREQ_GEOM 相符而复用）"
+    else
+      echo "  ⏭ X-REUSE=skipped-geom-mismatch display=:$DISPLAY_NUM 实测几何=$(_disp_geom "$DISPLAY_NUM")（空=取不到）≠ 本闸门要求 $XREQ_GEOM ⇒ **不复用它**（几何不符会让 [X11Fact]/[X11Theory] 假红）"
+    fi
   else
     # 【`D-G59` 修法①：**数值序**】原先是 `sort -u`（字符串序）⇒ `:10` 会排在 `:66`/`:97` 前面，
     #   跨趟**不可复算**（`#47` 冻后 run2 就是这样选到 `:66` 的死显示）。改成 `sort -n`。
     for d in $(pgrep -a Xvfb 2>/dev/null | grep -oE ' :[0-9]+' | tr -d ' :' | LC_ALL=C sort -n -u); do
-      if DISPLAY=:$d xdpyinfo > /dev/null 2>&1; then chosen=":$d"; break; fi
+      if DISPLAY=:$d xdpyinfo > /dev/null 2>&1; then
+        if [ "$(_disp_geom "$d")" = "$XREQ_GEOM" ]; then
+          chosen=":$d"
+          echo "  ✅ X-REUSE=reused display=:$d（已运行的 Xvfb；几何 $XREQ_GEOM 相符；注意不是 :$DISPLAY_NUM）"
+          break
+        fi
+        echo "  ⏭ X-REUSE=skipped-geom-mismatch display=:$d 实测几何=$(_disp_geom "$d")（空=取不到）≠ 本闸门要求 $XREQ_GEOM ⇒ **跳过它**（几何不符会让 [X11Fact]/[X11Theory] 假红）"
+      fi
     done
-    [ -n "$chosen" ] && echo "  ✅ 复用已运行的 Xvfb（实测 display $chosen，注意不是 :$DISPLAY_NUM）"
   fi
   if [ -z "$chosen" ]; then
-    Xvfb :$DISPLAY_NUM -screen 0 1280x1024x24 > /tmp/xvfb-$DISPLAY_NUM.log 2>&1 &
+    # 自起时**避开被占用但几何不符的号**（否则 Xvfb 起不来 ⇒ 制造新的假红）
+    _n="$DISPLAY_NUM"
+    while DISPLAY=:$_n xdpyinfo > /dev/null 2>&1; do
+      _n=$((_n + 1))
+      [ "$_n" -gt $((DISPLAY_NUM + 20)) ] && break
+    done
+    Xvfb :$_n -screen 0 ${XREQ_GEOM}x24 > /tmp/xvfb-$_n.log 2>&1 &
     for _ in $(seq 1 40); do
       sleep 0.25
-      DISPLAY=:$DISPLAY_NUM xdpyinfo > /dev/null 2>&1 && break
+      DISPLAY=:$_n xdpyinfo > /dev/null 2>&1 && break
     done
-    if DISPLAY=:$DISPLAY_NUM xdpyinfo > /dev/null 2>&1; then
-      chosen=":$DISPLAY_NUM"
-      echo "  ✅ 已启动 Xvfb :$DISPLAY_NUM -screen 0 1280x1024x24"
+    if DISPLAY=:$_n xdpyinfo > /dev/null 2>&1; then
+      chosen=":$_n"
+      echo "  ✅ X-REUSE=self-started display=:$_n -screen 0 ${XREQ_GEOM}x24"
     else
-      echo "  ❌ Xvfb 启动失败（详见 /tmp/xvfb-$DISPLAY_NUM.log）；X 相关用例将不可信"
+      echo "  ❌ Xvfb 启动失败（详见 /tmp/xvfb-$_n.log）；X 相关用例将不可信"
       fail=$((fail + 1))
       failed_items+=("Xvfb")
     fi
@@ -444,8 +482,12 @@ x_recheck_alive() {   # $1 = 调用点说明（进日志，便于归因）
   for d2 in $(pgrep -a Xvfb 2>/dev/null | grep -oE ' :[0-9]+' | tr -d ' :' | LC_ALL=C sort -n -u); do
     [ ":$d2" = "$DISPLAY" ] && continue
     if DISPLAY=":$d2" xdpyinfo > /dev/null 2>&1; then
+      if [ "$(_disp_geom "$d2")" != "$XREQ_GEOM" ]; then
+        echo "  ⏭ X-REUSE=skipped-geom-mismatch display=:$d2（X 复核 $1）实测几何=$(_disp_geom "$d2")（空=取不到）≠ 本闸门要求 $XREQ_GEOM ⇒ **跳过它**（换过去会制造 [X11Fact]/[X11Theory] 假红）"
+        continue
+      fi
       export DISPLAY=":$d2"; X_STATE=available
-      echo "  ✅ X 复核（$1）：改用 $DISPLAY（仍 available）"
+      echo "  ✅ X-REUSE=reused display=:$d2（X 复核 $1：换到它，几何 $XREQ_GEOM 相符 ⇒ 仍 available）"
       return 0
     fi
   done

@@ -985,8 +985,11 @@ run_tier() {
             convert "$OUT/burst-$tag-1.xwd" "$root_png" 2>/dev/null
             ring_out="$(convert "$root_png" -format "%[pixel:p{${ring_x},$((ay + gh / 2))}]" info: 2>/dev/null)"
             ring_in="$(convert "$root_png" -format "%[pixel:p{$((ax + 5)),$((ay + gh / 2))}]" info: 2>/dev/null)"
-            if printf '%s' "$ring_out" | grep -qE '\(0,0,0\)|gray\(0\)|srgb\(0,0,0\)'; then
-                if ! printf '%s' "$ring_in" | grep -qE '\(0,0,0\)|gray\(0\)|srgb\(0,0,0\)'; then
+            # 【`D-G42` 族修法 · 车道 W113A · 2026-09-22】原为 `printf '%s' "$ring_out" | grep -qE PAT`：
+            #   本件是 `set -uo pipefail`（`:36`）⇒ `grep -q` 命中即早退、`printf` 吃 SIGPIPE(141)
+            #   ⇒ **pipefail 把"命中"读成 rc≠0** ⇒ 判据被翻转（假 FAIL）。**只换喂法、正则一字未动**。
+            if grep -qE '\(0,0,0\)|gray\(0\)|srgb\(0,0,0\)' <<<"$ring_out"; then
+                if ! grep -qE '\(0,0,0\)|gray\(0\)|srgb\(0,0,0\)' <<<"$ring_in"; then
                     ring_verdict="ok"
                     echo "   判据⑤b 几何互证 ✅（窗口外 x=$ring_x 处 $ring_out 是根底色；窗口内 +5px=$ring_in 是应用内容）"
                 else
@@ -1287,7 +1290,8 @@ run_tier() {
             # 【让"红"可归因】image_content_* 为 0 时，自动附上 WIC 侧取证：
             #   期望 D-d 修好后是 `size=96x96 fmt=…c90f`（Bgra32）；
             #   若仍是 `1x1` + `…c910`（Pbgra32）⇒ **修法没生效**，不是"另有原因"。
-            if printf '%s' "$textpx_missing" | grep -q 'image_content'; then
+            # 【`D-G42` 族修法 · 车道 W113A · 2026-09-22】同上一处：`printf … | grep -q` 在 `pipefail` 下会翻转 rc。
+            if grep -q 'image_content' <<<"$textpx_missing"; then
                 echo "      ↳ WIC 取证（期望 96x96 + …c90f=Bgra32；1x1/…c910=Pbgra32 即未修好）："
                 if grep -qE '\[cwic-trace\]' "$log" 2>/dev/null; then
                     grep -E '\[cwic-trace\]' "$log" 2>/dev/null | tail -4 | sed 's/^/         /'

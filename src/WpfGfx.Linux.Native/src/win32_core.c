@@ -486,6 +486,30 @@ static void wpf_wmsize_diag(const char *fmt, ...)
     fflush(stderr);
 }
 
+// ── 【TASK-0109 仪器】窗态站点（`wpf_core_window_state`）的**分支自报** ──────────────
+//   为什么必须有：该站点与 `wpf_x11_moveresize_window()` **同因**（都问
+//   `wpf_x11_has_ewmh_wm()`），但此前站点内部**没有任何打点** ⇒ 死 WM 残留时
+//   "最大/还原静默失效"这件事在读数上与"命令没送到"长得一样（`W130A` §5 ★）。
+//   `site=wmstate`：走 EWMH ⇒ `branch=ewmh`；走无 WM 退化支 ⇒ `branch=fallback`
+//   并**打出它给 `MoveWindow` 的目标矩形**（判据侧据此判 `at_target`）。
+//   env = `WPF_LINUX_WINSTATE_DIAG`（与 `win32_x11.c` 的窗态诊断同一个开关；不新增 env）。
+static int wpf_wmck_diag_on(void)
+{
+    static int cached = -1;
+    if (cached < 0) { const char *e = getenv("WPF_LINUX_WINSTATE_DIAG"); cached = (e && *e && *e != '0') ? 1 : 0; }
+    return cached;
+}
+static void wpf_wmck_diag(HWND hwnd, const char *site, int mode, const char *branch,
+                          int x, int y, int w, int h)
+{
+    if (!wpf_wmck_diag_on()) return;
+    static int n = 0;
+    if (n++ >= 60) return;
+    fprintf(stderr, "[WMCK_DIAG] hwnd=0x%llx site=%s mode=%d branch=%s target=%d,%d,%dx%d\n",
+            (unsigned long long)(uintptr_t)hwnd, site, mode, branch, x, y, w, h);
+    fflush(stderr);
+}
+
 // 顶层判定用**显式参数**（建窗时 hwnd 还没分配 ⇒ 不能查表）
 static int clamp_toplevel_extent_flags(int is_msgonly, HWND parent, int64_t style,
                                        const char *where, int *x, int *y, int *w, int *h)
@@ -650,8 +674,13 @@ void wpf_core_window_state(HWND hwnd, int mode)
 
     if (mode == WPF_WS_MIN) { wpf_x11_iconify(hwnd); return; }
 
+    // 【TASK-0109】这一问是**两个站点共用**的判据（谓词语义已在 `win32_x11.c` 升级为
+    //   "属性在 ∧ 检查窗在树里"）⇒ 死 WM 残留时它**不再为真** ⇒ 本函数第一次能走到
+    //   下面那条**早就写好**的"没有 EWMH WM"退化支（旧版在这里 `return` 去等一个
+    //   **永远不会来的** `ConfigureNotify` ⇒ 最大/还原静默失效）。
     if (wpf_x11_has_ewmh_wm()) {
         wpf_x11_apply_wm_state(hwnd, mode == WPF_WS_MAX);
+        wpf_wmck_diag(hwnd, "wmstate", mode, "ewmh", 0, 0, 0, 0);
         return;                                          // 几何由 WM 改 ⇒ 等 ConfigureNotify
     }
 
@@ -659,10 +688,17 @@ void wpf_core_window_state(HWND hwnd, int mode)
     if (mode == WPF_WS_MAX) {
         int wx = 0, wy = 0, ww = 0, wh = 0;
         wpf_x11_workarea(&wx, &wy, &ww, &wh);
-        if (ww <= 0 || wh <= 0) return;
+        if (ww <= 0 || wh <= 0) {
+            wpf_wmck_diag(hwnd, "wmstate", mode, "fallback-no-workarea", 0, 0, 0, 0);
+            return;
+        }
+        wpf_wmck_diag(hwnd, "wmstate", mode, "fallback", wx, wy, ww, wh);
         MoveWindow(hwnd, wx, wy, ww, wh, 1);
     } else if (rw > 0 && rh > 0) {
+        wpf_wmck_diag(hwnd, "wmstate", mode, "fallback", rx, ry, rw, rh);
         MoveWindow(hwnd, rx, ry, rw, rh, 1);
+    } else {
+        wpf_wmck_diag(hwnd, "wmstate", mode, "fallback-no-rect", 0, 0, 0, 0);
     }
 }
 
@@ -1207,7 +1243,27 @@ BOOL SetWindowPos(HWND hwnd, HWND after, int x, int y, int cx, int cy, UINT flag
     win->x = nx; win->y = ny; win->width = nw; win->height = nh;
     pthread_mutex_unlock(&g_wpf.lock);
 
-    wpf_x11_move_resize(hwnd, nx, ny, nw, nh);
+    // ── 【波 52 · W114A · `D-G98`】`SWP_NOSIZE|SWP_NOMOVE` ⇒ 这次调用**不改几何** ────────
+    //   【Win32 语义】两个位**同时**置位时，`SetWindowPos` 对位置与尺寸**什么都不做**；
+    //   上游正是这么用的：`WindowChromeWorker._ApplyNewCustomChrome()` 的
+    //   `_SwpFlags = FRAMECHANGED|NOSIZE|NOMOVE|NOZORDER|NOOWNERZORDER|NOACTIVATE`
+    //   （`upstream/wpf/…/WindowChromeWorker.cs:28/246`），以及 `HwndStyleManager.Flush()`
+    //   （`Window.cs:6845-6867`，实测标志位 `0x37`）—— 它们要的是"**请按新窗框重算非客户区**"，
+    //   **几何意图为零**。（两条的标志族在本仓 `:544-548` 已登记。）
+    //   【修前为什么错】这里**无条件**落一次 `wpf_x11_move_resize`，而 `nx/ny/nw/nh` 在上面
+    //   全部取自**窗口表缓存**（`SWP_NOMOVE`/`SWP_NOSIZE` 分支）⇒ 一次"本应无副作用"的调用
+    //   被落成一次**真实的 X 几何写**，写的是**缓存里的矩形**。
+    //   【它怎么变成 `D-G98`】应用点"还原" ⇒ `ShowWindow(SW_RESTORE)` ⇒ `_NET_WM_STATE` REMOVE；
+    //   同一拍的下一次 `SetWindowPos(0x237)` 若在 X 泵把 WM 的还原 `ConfigureNotify` 采纳进缓存
+    //   **之前**到达（缓存值的竞态），写出的就是**陈旧的最大化矩形**，而这条客户端请求排在
+    //   `REMOVE` **之后** ⇒ WM 先完成 unmaximize（几何回基准），**再**顺从它把窗口改回最大化
+    //   ⇒ 终态 = `_NET_WM_STATE_FOCUSED`（窗态已还原）＋ client 与 frame **双双卡在**
+    //   `1280x1024@+0+0`。**这就是 `D-G98`。**
+    //   ⇒ 两个位同时置位时**不落这次 X 写**。（窗框/装饰的副作用由本函数上半段的
+    //   `SWP_FRAMECHANGED` 分支承担，**不受影响**；`win->x/y/width/height` 的自赋值在
+    //   这两个位下是**恒等赋值**，一并保留。）
+    if (!((flags & SWP_NOSIZE) && (flags & SWP_NOMOVE)))
+        wpf_x11_move_resize(hwnd, nx, ny, nw, nh);
     // ── 【波 51 · `P2`】同上：**只有调用方真的改了尺寸**才补一拍（`SWP_NOSIZE` 那条路上
     //   尺寸可能正是 WM 自己给的值，那条路不该触发重问）。`SWP_SHOWWINDOW` 会自己走
     //   `ShowWindow` ⇒ 那一拍由 after-map 那条路覆盖（重入闸保证不会叠加成风暴）。

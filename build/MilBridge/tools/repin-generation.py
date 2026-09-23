@@ -109,8 +109,34 @@ def main():
         ar["history"] = hist
         ar["when"] = hist[-1]["when"]
         ar["why"] = args.why
-    json.dump(d, open(REG, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
-    open(REG, "a", encoding="utf-8").write("\n")
+    # ══【W123A `D-G101` 落地：写盘 = temp ＋ `rename`（原为以 `"w"` 模式直接 open(REG) 原地截断）】══
+    # 为什么必须改：`$R/build/MilBridge/known-red.json` 与仓外负控夹具
+    #   `~/w62a/negrepo/build/MilBridge/known-red.json`、
+    #   `~/w113a/fixture/fp-farm/build/MilBridge/known-red.json` 曾**同 inode**
+    #   （夹具是用 **`cp -al` 硬链接克隆**建的）⇒ 旧的**原地截断**会**穿透到夹具**，
+    #   把 W62A／W113A 两个车道的判据夹具**静默改掉**，而**写者自己看不出来**。
+    #   这与 `D-G80`（"读到旧的"）是**同一手段的两个反面**：`cp -al` 省钱，
+    #   但把"写"和"读"都变成了共享。
+    # 行为等价（判据）：同一输入产出的**字节**与旧实现逐位相同 —— 同缩进／同结尾换行／同权限位。
+    # （下方注释**刻意不写出旧写的字面量**，免得让"搜字面量判形态"的牙把本件继续认成原地写。）
+    tmp = "%s.w123a-tmp.%d" % (REG, os.getpid())
+    try:
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(d, f, ensure_ascii=False, indent=2)
+            f.write("\n")
+            f.flush()
+            os.fsync(f.fileno())
+        try:
+            os.chmod(tmp, os.stat(REG).st_mode & 0o7777)   # 保住旧实现的权限位（现场 600）
+        except OSError:
+            pass
+        os.replace(tmp, REG)                                # rename(2)：原子，且**换 inode** ⇒ 不穿透
+    except BaseException:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+        raise
     print("REPIN_GENERATION=APPLIED")
     for k in GEN_KEYS:
         print(f"  generation.{k} = {now[k][:16]}")

@@ -26,6 +26,12 @@
 #   bash sync-applocal-authority.sh            # 干跑（默认）：只打印"会刷什么"，一个字节都不写
 #   bash sync-applocal-authority.sh --apply    # 真刷 + 刷新后再跑一次校验器并打印 APPSYNC 行
 # 环境：AUTH_ROOT（权威根，默认仓库根）/ SCAN_ROOTS（冒号分隔，默认与校验器一致）
+# 【`D-G91` 修复 · 车道 W113A · 2026-09-22】上面那句"默认与校验器一致"**修前是假的**：
+#   本脚本 `:59` 自己写死一份**漏了 `$REPO/tools`** 的根集合（校验器的默认根里有它）⇒
+#   ① 默认参数永远刷不到只藏在 `$REPO/tools/**` 下的 `STALE`；② 它拿收窄根打出 `STALE=0` 的**假绿**
+#   （成对读数：默认＋`--apply` ⇒ `refreshed=0/STALE=0`；同刻全文口径 ⇒ `STALE=1`）。
+#   现行为：不覆盖时**从判据唯一实现派生**（`check-applocal-sync.sh --print-scan-roots`）；
+#   显式收窄 ⇒ `APPSYNC_ROOTS=MISMATCH` ＋ `NOINFO` ＋ `rc=2`，**在打印任何 `STALE=` 汇总之前退出**。
 #
 # 【打印格式（刷新前后 sha 对比）】
 #   REFRESH        <相对路径>  <before16> → <after16>  （权威 <auth16>；副本曾早 <N> 秒）
@@ -56,7 +62,7 @@ set -uo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CHECK="$HERE/check-applocal-sync.sh"
 REPO="${AUTH_ROOT:-$(cd "$HERE/../../.." && pwd)}"
-SCAN_ROOTS="${SCAN_ROOTS:-$REPO/build:$REPO/tests:$REPO/samples:$REPO/src}"
+SCAN_ROOTS="${SCAN_ROOTS:-}"        # 空 = 调用方未覆盖 ⇒ 下面**从判据唯一实现派生**（`D-G91` 修复）
 APPLY=0
 for a in "$@"; do case "$a" in --apply) APPLY=1;; esac; done
 short() { printf '%s' "${1:0:16}"; }
@@ -67,6 +73,48 @@ sha() { [ -f "$1" ] && sha256sum "$1" | awk '{print $1}' || echo "<missing>"; }
 echo "== app-local 副本刷新（判据唯一实现：check-applocal-sync.sh）"
 echo "   权威根=$REPO"
 echo "   模式=$([ "$APPLY" = 1 ] && echo '--apply（会写副本）' || echo '干跑（默认，不写任何文件）')"
+
+# ────────────────────────────────────────────────────────────────────────────
+# 【`D-G91` 修复 · 车道 W113A · 2026-09-22】**根集合派生 ＋ 自检（假绿不可能）**
+#   原状：本脚本 `:59` **自己写死**一份默认根集合，且**漏了 `$REPO/tools`**（判据唯一实现
+#   `check-applocal-sync.sh` 的默认根里有它）⇒ ① 默认参数**永远刷不到**只藏在 `$REPO/tools/**`
+#   下的 `STALE`；② 更危险：它拿**收窄根**打出 **`STALE=0` 的假绿**。
+#   修法三条：
+#     ① **派生**：不覆盖时，默认根集合**只从判据唯一实现取**（`--print-scan-roots`，只读、不扫描）
+#        ⇒ "同一条语义两处各写一份"在结构上不可能；
+#     ② **自检**：调用方**显式收窄**（`SCAN_ROOTS` 非空且与判据唯一实现**不同集**）⇒
+#        大声 `APPSYNC_ROOTS=MISMATCH` ＋ `NOINFO` ＋ **rc=2**，且**在打印任何 `STALE=` 汇总之前就退出**
+#        ⇒ 收窄根**再也打不出 `STALE=0`**（那正是假绿的唯一出口）；
+#     ③ 取不到根集合（判据件不吐）⇒ 同样**大声拒绝**（`NOINFO`，rc=2），**不许自己猜一份**。
+#   ⚠️ 比的是**集合**（逐个 `realpath -m` ＋ 排序去重），不比书写顺序 —— 顺序不改变射程。
+# ────────────────────────────────────────────────────────────────────────────
+norm_roots() {
+    local r out=""
+    IFS=:; for r in $1; do [ -n "$r" ] && out="$out$(realpath -m -- "$r" 2>/dev/null)
+"; done; IFS=$' \t\n'
+    printf '%s' "$out" | LC_ALL=C sort -u | paste -sd: -
+}
+CHECK_ROOTS="$(AUTH_ROOT="$REPO" bash "$CHECK" --print-scan-roots 2>/dev/null)"; croots_rc=$?
+if [ "$croots_rc" != 0 ] || [ -z "$CHECK_ROOTS" ]; then
+    printf 'APPSYNC_ROOTS=NOINFO reason=checker-cannot-print-roots rc=%s check=%s\n' "$croots_rc" "$CHECK" >&2
+    printf '❌ **判据唯一实现不吐根集合 ⇒ 本脚本无权自己猜一份**（旧版正是"自己写死一份"才漏了 `$REPO/tools`）⇒ 拒绝继续。\n' >&2
+    exit 2
+fi
+if [ -z "$SCAN_ROOTS" ]; then
+    SCAN_ROOTS="$CHECK_ROOTS"
+    printf '   扫描根=%s（**派生自判据唯一实现** `--print-scan-roots`）\n' "$SCAN_ROOTS"
+else
+    if [ "$(norm_roots "$SCAN_ROOTS")" != "$(norm_roots "$CHECK_ROOTS")" ]; then
+        printf 'APPSYNC_ROOTS=MISMATCH sync=%s\n' "$SCAN_ROOTS"
+        printf 'APPSYNC_ROOTS=MISMATCH check=%s\n' "$CHECK_ROOTS"
+        printf 'APPSYNC_ROOTS=NOINFO reason=narrowed-scan-roots（**根集合不是同一个集合** ⇒ 本趟读数不可当"全仓一致"）\n' >&2
+        printf '❌ **拒绝给出任何 `STALE=` 汇总**：收窄扫描根打出 `STALE=0` 就是 `D-G91` 的假绿。\n' >&2
+        printf '   收窄根看不见的副本既不会被刷、也不会被报 ⇒ 要么去掉 `SCAN_ROOTS` 覆盖（改用派生值），\n' >&2
+        printf '   要么把缺的根补进判据唯一实现（`check-applocal-sync.sh` 的 `SCAN_ROOTS_DEFAULT`，**唯一定义处**）。\n' >&2
+        exit 2
+    fi
+    printf '   扫描根=%s（调用方显式给定；**与判据唯一实现同集合** ⇒ 自检通过）\n' "$SCAN_ROOTS"
+fi
 
 # 1) 让校验器给出分类（它就是判据）——本脚本不自己重算"什么算落后"
 out="$(AUTH_ROOT="$REPO" SCAN_ROOTS="$SCAN_ROOTS" bash "$CHECK" 2>&1)"; chk_rc=$?

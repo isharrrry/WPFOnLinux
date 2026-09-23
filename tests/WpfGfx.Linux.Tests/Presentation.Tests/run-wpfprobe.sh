@@ -565,7 +565,16 @@ run_once() {           # $1=tag  $2=app_args
     echo "WFP_MSGHIST tag=$tag 原生[MSGFLOW]pop:$hist2"
     kd_rows="$(grep -ac '^\[KEY_DIAG\]' "$log" 2>/dev/null || true)"
     echo "WFP_KEYDIAG tag=$tag key_diag_lines=${kd_rows:-0}$([ "${kd_rows:-0}" = "0" ] && echo '（未开 WPF_LINUX_KEY_DIAG=1 或键没到 shim）' || echo '')"
-    if [ "${kd_rows:-0}" != "0" ]; then grep -a '^\[KEY_DIAG\]' "$log" | head -4 | sed 's/^/WFP_KEYDIAG_ROW /'; fi
+    # 【`D-G42` 族修法 · 车道 W113A · 2026-09-22】原为
+    #   `grep -a '^\[KEY_DIAG\]' "$log" | head -4 | sed 's/^/WFP_KEYDIAG_ROW /'`。
+    #   本件 `set -uo pipefail`（`:15`）⇒ 当日志里 KEY_DIAG 的**匹配输出超过管道缓冲（64 KiB）**时
+    #   `head -4` 先退出 ⇒ `grep` 吃 SIGPIPE ⇒ **整条 `if` 语句 rc=141**（现场实测 3/3；
+    #   <64 KiB 时 3/3 不翻）。修法：**先收进变量、再分两路印** —— 判据（`grep -a '^\[KEY_DIAG\]'`）
+    #   与打印格式**一字未动**，只让生产端的 SIGPIPE 不再进 rc。
+    if [ "${kd_rows:-0}" != "0" ]; then
+        _kd4="$(grep -a '^\[KEY_DIAG\]' "$log" 2>/dev/null | head -4 || true)"
+        if [ -n "$_kd4" ]; then printf '%s\n' "$_kd4" | sed 's/^/WFP_KEYDIAG_ROW /'; fi
+    fi
     if [ "${push_rows:-0}" != "0" ]; then
         grep -a '^\[DRAW_CENSUS\] MilPushOpacityMask' "$log" 2>/dev/null | head -2 | sed 's/^/WFP_PUSHROW /'
     fi
