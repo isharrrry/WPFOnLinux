@@ -185,5 +185,82 @@ rc=0
 - **责任边界（机械证）**：`~/w131a/` 里**零 `git`／`git push` 痕迹**（`grep -rln` 五类关键词 ⇒ 无命中），且 **W131A 自己的 `LANDING-CHECKLIST.md` §0 闸门尚未勾选**（它按主控裁定**要等 `POST_ALL_DONE` 才落**）⇒ **不是 W131A 推的**；**我这一笔只 add 了 4 件**（`samples/WpfFeatureProbe/KNOWN-DEFECTS.md`／`docs/ROUTES.md`／`build/MilBridge/tools/defect-registry-declared.tsv`／本报告）⇒ **也不是我夹带的**。落在谁的笔里：**`37def7e`（W126A 的收尾链笔）**。
 - **后果（供主控裁定，我**不**自行处置）**：远端现在**同时**存在"`gen=#52` 冻结声明（`win32shim=bd037229be8db4f6`、源 `3117923a…/11142fbe…`）"与"W131A 未登记的产品改动（源 `a9cc8762…/9fa20864…`、件 `a6365183…`）"，且**后者没有 commit message、没有 `KNOWN-DEFECTS` 登记、没有报告**。⇒ 三种可能处置（**由主控选**）：① 视为"`#52` 之后的第一笔产品改动"，**补登记 ＋ 让 W131A 按其清单继续**；② 若认为不该进远端 ⇒ **在 W131A 完成前不动**（它的 `apply-fix.py` 有锚点断言，重放安全），**另开一代冻结**；③ 逐字核对"`bd037229…` 是否曾经真实存在于现场"（**我拿不到**：该件**不在 git 里** ⇒ 无法从历史复原 ⇒ **这一格如实 `NOINFO`**）。
 - **与本件的关系**：本件四件**纯文档**（`KNOWN-DEFECTS.md`／`ROUTES.md`／声明表／本报告），**与产品位无关**；本件的 `DEFREG` 读数、`TASK-0707`／`TASK-0203`／`D-G103…D-G107` 的判词**不受此位移影响**。
+
+## §⑪ 发布完整性事件（**主控裁定：按"还原发布态"处置**；2026-09-23 车道 W127A 收尾）
+
+### ① 现象（远端与冻结块不符，逐件值）
+
+`#52` 冻结块（`samples/WpfTextDemo/ACCEPTANCE-BASELINE.md:46–47`、`:57`，**文字一字未动**）逐字宣称：
+
+| 件 | 冻结块宣称 | 远端 `37def7e..3faedc3` 实际 |
+|---|---|---|
+| `src/WpfGfx.Linux.Native/src/win32_core.c` | `3117923a7c899e05` | **`a9cc8762908b417a`** |
+| `src/WpfGfx.Linux.Native/src/win32_x11.c` | `11142fbef049eb66` | **`9fa20864404ab01b`** |
+| `src/WpfGfx.Linux.Native/src/win32_internal.h` | （冻结块未单独列；`#51` 值 `e4f2de8d038e4780`） | **`4e1880e6054635ff`** |
+| `win32shim`（`libwpfwin32.so`） | `bd037229be8db4f6`（327,256 B） | **`a6365183fa6d26b9`**（327,512 B；**该件不在 git 里** ⇒ 只能取现场值） |
+
+### ② 机制 = `git add -A` 把当时克隆里**所有脏件**扫进同一笔
+
+**两条取证命令的原始清单**（逐件）：
+
+```
+$ git show --stat 37def7e
+ .../wic-shim/sync-applocal-authority.sh            |  50 +++-
+ build/MilBridge/arm-logs/tline.log                 |   8 +-
+ build/MilBridge/gen/t2d-family-baseline.txt        |   2 +-
+ build/MilBridge/gen/t2d-family-matrix.txt          |   2 +-
+ build/MilBridge/known-red.json                     |  12 +-
+ build/MilBridge/tools/repin-generation.py          |  30 ++-
+ build/wave-audit.log                               |   3 +
+ docs/CURRENT-STATE.md                              |   2 +-
+ docs/WAVE52-PREREGISTRATION.md                     |  35 +++
+ samples/WpfTextDemo/ACCEPTANCE-BASELINE.md         | 260 +++++++++++++++++++--
+ src/WpfGfx.Linux.Native/src/win32_core.c           |  60 ++++-
+ src/WpfGfx.Linux.Native/src/win32_internal.h       |   6 +-
+ src/WpfGfx.Linux.Native/src/win32_x11.c            | 122 +++++++++-
+ .../Presentation.Tests/run-wpfprobe.sh             |  11 +-
+ .../Presentation.Tests/run-wpftextdemo.sh          |  10 +-
+ verify-all.sh                                      |  64 ++++-
+ 16 files changed, 623 insertions(+), 54 deletions(-)
+
+$ git show --stat 4d125f8
+ build/MilBridge/W126A-report.md                    |  10 +-
+ build/MilBridge/W127A-report.md                    | 169 +++++++++++++++++++++
+ build/MilBridge/tools/defect-registry-declared.tsv |  17 ++-
+ docs/ROUTES.md                                     |  34 ++++++-
+ samples/WpfFeatureProbe/KNOWN-DEFECTS.md           |  50 +++++-
+ 5 files changed, 271 insertions(+), 9 deletions(-)
+$ git show --stat 4d125f8 -- src/
+（空 —— **未碰 `src/`**）
+$ git show --stat 37def7e -- src/
+ src/WpfGfx.Linux.Native/src/win32_core.c     |  60 ++++++++-
+ src/WpfGfx.Linux.Native/src/win32_internal.h |   6 +-
+ src/WpfGfx.Linux.Native/src/win32_x11.c      | 122 ++++++++++++++++++++++++++-
+ 3 files changed, 183 insertions(+), 5 deletions(-)
+```
+
+- ⇒ **① 三件 native 源确实是在 `37def7e` 被改的**（且 `src/` 下**只有**这三件）；**② `4d125f8` 确是 `git add -A` 形态** —— 它的 5 件清单**恰好等于当时克隆里除"W126A 自己的报告"以外的全部脏件**，其中 **`W127A-report.md`／`ROUTES.md`／`KNOWN-DEFECTS.md`／声明表就是本车道那 4 件**（这正是"我这 4 件为何由 W126A 的第 2 笔带上远端"的原因）。
+- **时间线（14 秒）**：W131A 改源件 `mtime = 11:49:23` → `37def7e` 提交于 **11:49:37** ⇒ 那一笔把 W131A 的**在办**树扫进了"冻结 `#52`"这一笔。
+- ⚠️ **边界（机械证）**：`~/w131a/` 内 **零 `git`／`git push` 痕迹**（五类关键词 `grep -rln` 无命中），且它自己的 `LANDING-CHECKLIST.md` §0 闸门**尚未勾选**（按主控裁定它**要等 `POST_ALL_DONE`** 才落）⇒ **不是 W131A 推的**；本车道那一笔**只 add 了 4 件** ⇒ **也不是本车道夹带的**。
+
+### ③ 处置（还原 ＋ 该笔）—— 含**一处必须更正的指令**
+
+⚠️ **主控第 2 步给的 `git checkout 37def7e^ -- <三件>` 不能执行**（本件**停手并复核**后才动手）：`37def7e^` 的值 = **`e0cbc965772d06c1`／`6477af56fdcfdf20`／`e4f2de8d038e4780`**，即 **`#51` 的态**，**既不等于冻结块声明值，也会把 `#52` 的产品侧改动（`D-G100`）一起回退掉**。⇒ 按"**还原到 `#52` 冻结态**"的字面目标，正确源头是 **W131A 的开工备份**（`~/w131a/backup/{win32_core.c,x11,internal.h}.orig`；值 = `3117923a7c899e05`／`11142fbef049eb66`／`e4f2de8d038e4780`，**与冻结块声明逐位相同** —— 本件**从 AB 冻结块正则现取声明值**再比对，**不手打**；三件全 `MATCH`）。
+- ⚠️ **本件自记一处操作小错**：第一版对照脚本里我把 `x11` 的期望值**手打成 `11142febf049eb66`**（多一个 `e`）⇒ 打出一次假 `MISMATCH`；**随即改为"从冻结块现取"**并重跑 ⇒ `MATCH`。留档理由 = **"不许手抄哈希"**这条纪律是我自己写在 `criteria.md` 里的。
+- **另核：W131A 是否还改了别的件** —— `git show --stat 37def7e -- src/` 只有那三件；`37def7e^` 的另外 13 件属 W126A 自己的收尾链（未动，本件不碰）。
+- **提交**：`1890b007985709b079112e167f455bbe91f8da58`（`revert(#52): 还原被 git add -A 夹带进 37def7e 的 W131A 在办 native 源至 #52 冻结态…`；**逐径 `git add` 三件、无 `-A`**）。
+
+### ④ 口径句
+
+> **在克隆里一律逐径 `git add`；`git add -A` 会把别的车道的在办件夹带进发布。**
+
+### ⑤ `$R` 未动、W131A 的工作未受影响
+
+- 本件**只改克隆**（`~/netTest/GitProj/WPFOnLinux`）；`$R` 的 `src/**` **一个字节都没写**（`$R` 侧仍是 W131A 的值 —— 见下 `BYTECHECK` 的"`$R`=不同(本地领先,预期)"那一列）。
+- `ACCEPTANCE-BASELINE.md` = **`27293fb5ab91b778`**（克隆 HEAD 与 `$R` 两侧**同值**）、`docs/CURRENT-STATE.md:9` = **`gen=#52`**（两侧同值）⇒ **未被任何人动**。
+- **`BYTECHECK`（还原笔）**：判据 = **远端 blob == 克隆工作树**；**`ok=3 mismatch=0 nobody=0`**；`$R` 单列并**明确预期不同**（W131A 领先）：`core`/`x11`/`internal.h` 三件**全部**"远端==克隆 ✔ ｜ `$R`=不同"。
+- **推送后 head**：`3faedc3f4e9f0a0697783abb48425eedc1d302f0` → **`1890b007985709b079112e167f455bbe91f8da58`**；`HEAD = remote-tracking = ls-remote` **三者一致**；`--symref` 仍 `feat-Linux`。
+- **`TASK-0109` 归属**：属 **`#53`**，将随其预登记与收尾链正式落地（本件**不**替它登记）。
+
 （末两行 = 本行 ＋ sha16 行；口径 `head -n -2 <本文件> | sha256sum | cut -c1-16`）
-本报告 sha16 = `dabed3f67c0c6b4a`
+本报告 sha16 = `7f1a05372a0ae215`
