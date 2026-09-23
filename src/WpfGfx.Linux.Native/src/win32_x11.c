@@ -1673,72 +1673,10 @@ void wpf_x11_screen_size(int *sw, int *sh)
 }
 
 // ── "有没有 EWMH 窗口管理器"（决定最大化/移动缩放走 WM 还是自己来）───────────────
-// 【TASK-0109 · 语义升级（**修法 M1**）】判据从"`_NET_SUPPORTING_WM_CHECK` **属性在不在**"
-//   改成"**属性在 ∧ 那个检查窗此刻真的在树里**"。
-//
-// 【为什么必须升级 —— 缺陷本体】WM **死了但属性残留在 root 上**（实测：`xprop -root`
-//   仍解析出 `window id # 0x…`，而 `xwininfo -id` 报 `No such window`；`wm-awaited.sh`
-//   回 `FAIL c1=yes c2=no`）⇒ 旧谓词**恒真** ⇒ 下游两条路径**都**走 EWMH 分支
-//   （`XSendEvent` 给 root，**没有任何客户端在听**）而**不走它们各自早就写好的
-//   "没有 EWMH WM"退化支** ⇒
-//     · `wpf_x11_moveresize_window()`（拖动/程序改几何）⇒ **静默丢一次移动**；
-//     · `wpf_core_window_state()`（最大/还原，`win32_core.c:653` 那个调用点）
-//       ⇒ 发完消息就 `return` 去等 `ConfigureNotify`，而**永远等不到** ⇒ 静默失效。
-//   两处的共同症状：**窗纹丝不动 ∧ 无任何失败行**（= 判据里的"红／静默丢"）。
-//   ⇒ **残留属性不是 WM**，所以"属性在"这一半必须补上"窗还在"。
-//
-// 【为什么不看 `XSendEvent` 的返回值（实测排除）】对 root 发
-//   `SubstructureRedirectMask|SubstructureNotifyMask` 时，返回值在 **活 WM／死 WM／无 WM
-//   三相都 = 1**（9/9）—— X 只报"事件发出去了"，**不报有没有客户端收** ⇒ 那条方向不可行。
-// 【为什么不看 `_NET_SUPPORTED` 非空（实测排除）】WM 死后它照样在（实测 `n=78`）⇒ 同样会被骗。
-//
-// 【判活必须自带错误处理器】四个候选 liveness API 在"已销毁窗"上、**不装处理器时全部
-//   `exit(1)`**（Xlib 默认处理器把进程带走）—— 那比原缺陷更糟。⇒ 本函数**临时**装一个
-//   只记账的处理器 ＋ `XSync` 逼出异步错 ＋ **换回原来那个**。
-//   ⚠️ 本 shim 在 `.so` 构造期已经装了**非致命**的 `wpf_x_error_handler`（`:86`/`:112`）
-//    ⇒ 这一层是**双保险**；仍然自带，是为了不把判据建在"别人的全局状态恰好装好了"上。
-//   ⚠️ 处理器是**进程级**的，而别的线程可能同时产生与本判定无关的错 ⇒ 处理里**按
-//    `resourceid` 过滤**（只认"我们问的那个窗"身上的错），否则活 WM 下会被别人的错
-//    误判成"WM 死了" ⇒ 走兜底 = **回归**。
-// 【不许按错误码过滤】同一语义"窗没了"，`XGetWindowAttributes`/`XGetWindowProperty`/
-//   `XQueryTree` 报 `BadWindow(3)`，而 `XGetGeometry` 报 `9 (BadDrawable)` ⇒ 只认
-//   `BadWindow` 会漏。这里**只认"那次请求有没有失败"**（返回值 ∨ 有没有错），不认错误码。
-//
-// 【代价（如实登记）】谓词每次调用多**一次 X 往返**（`XGetWindowAttributes` ＋ `XSync`）。
-//   本机实测（1280x1024 本地 display）：整条 `moveresize` 调用 14–171 µs（见报告 §③）。
-//   刻意**不做缓存**：缓存活性的任何一个 ms 级窗口都会把本缺陷"按时间窗重新打开"。
-static unsigned long g_wmcheck_res = 0;   // 只记这个资源身上的错（见处理器里的过滤）
-static int           g_wmcheck_err = 0;
-
-static int wpf_wmcheck_err_handler(Display *d, XErrorEvent *e)
-{
-    (void)d;
-    if (e && (((unsigned long)e->resourceid & 0xffffffffUL) == g_wmcheck_res))
-        g_wmcheck_err = (int)e->error_code;   // 两侧都掩到 32 位（见上面的符号扩展）
-    return 0;                             // 不终止进程
-}
-
-// `M3`：**失败要大声**。残留属性是**异常条件**（健康运行下不出现：活 WM ⇒ 窗在；
-//   无 WM ⇒ 属性不在）⇒ **无条件**打**一次**（每进程一条，不刷屏；不打进诊断开关，
-//   否则"大声"就变成了"要设了 env 才大声"）。
-static void wpf_wmcheck_stale_notice_once(unsigned long wm_win, int xerr)
-{
-    static int done = 0;
-    if (done) return;
-    done = 1;
-    fprintf(stderr,
-            "[WMCHECK_STALE] `_NET_SUPPORTING_WM_CHECK` 仍残留在 root 上，但那个检查窗"
-            "**已不在树里**(wm_win=0x%lx xerr=%d) ⇒ 视为**没有 EWMH WM**，"
-            "改走无 WM 兜底路径（移动缩放走 XMoveResizeWindow；最大/还原按工作区自算）。\n",
-            wm_win, xerr);
-    fflush(stderr);
-}
-
 int wpf_x11_has_ewmh_wm(void)
 {
     if (!wpf_x11_ensure()) return 0;
-    int found = 0, xerr = 0;
-    unsigned long wm_win = 0, prop_n = 0;
+    int found = 0;
     XLOCK();
     Atom type = 0; int fmt = 0;
     unsigned long n = 0, left = 0;
@@ -1747,40 +1685,10 @@ int wpf_x11_has_ewmh_wm(void)
         XGetWindowProperty(g_wpf.dpy, g_wpf.root, a_net_supporting_wm_check, 0, 1, False,
                            XA_WINDOW, &type, &fmt, &n, &left, &data) == Success &&
         data && n >= 1 && fmt == 32) {
-        // format=32 ⇒ 一个 `long` 元素；`Window` 就是 `XID` —— **必须掩到 32 位**：
-        // Xlib 把 32 位属性值放进 `long` 时**会做符号扩展**（实测：写 `0xdeadbeef`
-        // 读回 `0xffffffffdeadbeef`），不掩的话下面按 `resourceid` 过滤会失配。
-        wm_win = ((unsigned long)(*(Window *)data)) & 0xffffffffUL;
-        prop_n = n;
         found = 1;
     }
     if (data) XFree(data);
-
-    if (found && (wm_win == 0 || wm_win == (unsigned long)g_wpf.root)) {
-        // EWMH 规定 WM 把自己的**检查窗**（它自己建的窗）id 写进 root 的属性；
-        // 指向 `0x0` 或 **root 自己**都不是 WM ⇒ 直接判否（对抗格 `L4`）。
-        found = 0;
-    } else if (found) {
-        /* 属性在 ⇒ 还要问"**那个窗此刻在不在树里**"（这才是本修法补上的那一问） */
-        XErrorHandler old = XSetErrorHandler(wpf_wmcheck_err_handler);
-        g_wmcheck_res = wm_win & 0xffffffffUL; g_wmcheck_err = 0;
-        XWindowAttributes attrs;
-        int st = (int)XGetWindowAttributes(g_wpf.dpy, (Window)wm_win, &attrs);
-        XSync(g_wpf.dpy, False);            // 逼出异步错（此刻临时处理器还装着）
-        XSetErrorHandler(old);              // **换回**（全局状态必须复原）
-        xerr = g_wmcheck_err;
-        g_wmcheck_res = 0; g_wmcheck_err = 0;
-        if (st == 0 || xerr != 0) found = 0;
-    }
     XUNLOCK();
-
-    if (!found && wm_win != 0)
-        wpf_wmcheck_stale_notice_once(wm_win, xerr);
-    // 每次都报一行（`W130A` §10-C：此前"走了哪一支"在产品里**没有可读打点**）
-    if (wpf_wstate_diag_on())
-        wpf_wstate_diag("WMCHECK atom=%s prop_n=%lu wm_win=0x%lx xerr=%d ⇒ has_ewmh_wm=%d",
-                        a_net_supporting_wm_check ? "present" : "absent",
-                        prop_n, wm_win, xerr, found);
     return found;
 }
 
@@ -1888,10 +1796,7 @@ int wpf_x11_moveresize_window(HWND hwnd, int x, int y, int w, int h)
     Window win = (Window)(uintptr_t)hwnd;
     int use_wm = wpf_x11_has_ewmh_wm();     // 自己取锁（下面 XLOCK 是另一把锁，顺序：xlock 在外）
     XLOCK();
-    // 【TASK-0109 仪器】分支在这里定下来 —— 下面**照旧**二选一，语义一字未改；
-    //   新增的只有"我走了哪一支"的产品自报（`W130A` §10-C 的缺口）。
-    int branch_ewmh = (use_wm && a_net_moveresize_window) ? 1 : 0;
-    if (branch_ewmh) {
+    if (use_wm && a_net_moveresize_window) {
         XEvent e;
         memset(&e, 0, sizeof(e));
         e.xclient.type = ClientMessage;
@@ -1911,12 +1816,6 @@ int wpf_x11_moveresize_window(HWND hwnd, int x, int y, int w, int h)
     }
     XFlush(g_wpf.dpy);
     XUNLOCK();
-    // 【TASK-0109 仪器】`site=moveresize` 分支自报：死 WM 残留时**必须是** `branch=fallback`
-    //   （旧版恒走 `ewmh` ⇒ 判据侧只能靠外部推断，见 `W130A` §5 ★）。
-    wpf_wstate_diag("MOVERESIZE hwnd=0x%llx site=moveresize branch=%s has_wm=%d "
-                    "req=%d,%d,%dx%d",
-                    (unsigned long long)(uintptr_t)hwnd, branch_ewmh ? "ewmh" : "fallback",
-                    use_wm, x, y, w, h);
     return 1;
 }
 

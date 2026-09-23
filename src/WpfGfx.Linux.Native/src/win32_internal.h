@@ -609,11 +609,7 @@ void     wpf_x11_apply_wm_hints(HWND hwnd, const char *cls,
 void     wpf_x11_set_decorations(HWND hwnd, int decorated);
 void     wpf_x11_apply_wm_state(HWND hwnd, int maximize);       // `_NET_WM_STATE` 加/去 MAXIMIZED_HORZ|VERT
 void     wpf_x11_iconify(HWND hwnd);                            // XIconifyWindow（最小化）
-// 【TASK-0109】判据 = "`_NET_SUPPORTING_WM_CHECK` 属性在 **∧** 它指向的那个检查窗
-//   **此刻真的在树里**（且 ≠ `0x0`、≠ root）" —— **不是**"属性在不在"：WM 死后属性会残留，
-//   只查属性会让下游两条路（`win32_x11.c` 的 moveresize ／ `win32_core.c:653` 的窗态）
-//   都走 `XSendEvent` 而**静默失效**。射程 = 这两个调用点（全仓再无第三处）。
-int      wpf_x11_has_ewmh_wm(void);
+int      wpf_x11_has_ewmh_wm(void);                             // 有 EWMH 窗口管理器？（_NET_SUPPORTING_WM_CHECK）
 // 把客户区改到 (x,y,w,h) —— **走 WM**（`_NET_MOVERESIZE_WINDOW`）：WM 会连窗框一起摆。
 //   【为什么不用 `_NET_WM_MOVERESIZE`】那条"把拖动交给 WM"的消息虽然在 xfwm4 的
 //   `_NET_SUPPORTED` 里，但**实测无效**（按住左键期间从外部单独发它，窗口纹丝不动；
