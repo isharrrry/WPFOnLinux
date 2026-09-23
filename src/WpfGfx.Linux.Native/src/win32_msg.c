@@ -838,14 +838,21 @@ BOOL PostMessageW(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
     //   （F3b 在线程退出时把 owner_thread 置空，见 win32_core.c 的 wpf_thread_destroy）。
     //   ⚠️ 必须在**锁内**取这个布尔：解锁之后 `w` 可能已被 DestroyWindow 释放（悬垂指针）。
     int owner_dead_in_table = 0;
+    // 【W146A · TASK-0211 · 关闭 TOCTOU（站点 A）】「查表 → 判死 → 取 pt → 入队」必须是**同一个临界区**。
+    //   g_wpf.lock 可重入（win32_core.c:49 PTHREAD_MUTEX_RECURSIVE）⇒ 持锁跨 wpf_queue_push 安全：
+    //   push 的 :98 再取一次（深度 1→2）、:132 只把深度掉回 1（本函数这层仍持锁）
+    //   ⇒ :134 的 wpf_queue_wake 与 :137-145 的 msgflow 仍在**本临界区内**。
+    //   ⚠️【前提】这套修法**只靠递归锁计数成立**：若 g_wpf.lock 变成普通互斥量、或 push 少放/多放一次锁，
+    //     它会**静默失效**（读数看似 HELD，实际 push 中途已放锁）⇒ 由 ~/w146a/bin/premise.py 盯着。
+    //   充分性：属主线程的 wpf_thread_destroy 清 owner_thread 在锁内（win32_core.c:180-185）、
+    //     free(t) 在其后（:190）⇒ 读到非空之后一直持锁 ⇒ 把它卡在 :180，到不了 :190。
+    wpf_lock();
     if (hwnd) {
-        wpf_lock();
         wpf_window *w = wpf_window_find(hwnd);
         // owner_thread 直接就是 wpf_thread*（见 win32_internal.h 的说明），
         // 不需要再查表 —— 这也保证了 PostMessage 能在任意线程上安全调用。
         target = w ? (wpf_thread *)w->owner_thread : NULL;
         if (w && !w->owner_thread) owner_dead_in_table = 1;
-        pthread_mutex_unlock(&g_wpf.lock);
         if (!target) {
             // (A)+(B)：先打具名台账，再按 **Win32 正确语义** 拒绝投递。
             //   为什么可以改语义（机械证，见报告 §⑬）：`wpf_window_add`（win32_core.c:893）
@@ -854,12 +861,14 @@ BOOL PostMessageW(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
             //   既有调用者可能依赖那支"改投调用者队列"的兜底；唯一能走到它的就是"线程已死"。
             //   （`hwnd == g_wpf.root` 那一格 **不受影响**，仍走下面的 `target = wpf_thread_self()`。）
             if (owner_dead_in_table) {
+                pthread_mutex_unlock(&g_wpf.lock);   // 早退支：先放锁再报错
                 wpf_postmsg_dead_target(hwnd);
                 wpf_set_last_error(ERROR_INVALID_WINDOW_HANDLE);
                 return 0;
             }
             // 窗口不在表里（已销毁或从未创建）→ Win32 返回 FALSE。
             if (!wpf_window_find(hwnd) && hwnd != (HWND)(uintptr_t)g_wpf.root) {
+                pthread_mutex_unlock(&g_wpf.lock);   // 早退支：先放锁再报错
                 wpf_set_last_error(ERROR_INVALID_WINDOW_HANDLE);
                 return 0;
             }
@@ -876,11 +885,10 @@ BOOL PostMessageW(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
     m.wParam = wp;
     m.lParam = lp;
     m.time = (uint32_t)wpf_now_ms();
-    wpf_lock();
-    m.pt_x = target ? target->last_pt_x : 0;
+    m.pt_x = target ? target->last_pt_x : 0;      // 与"取指针"同一临界区 ⇒ 不再在陈旧指针上取锁
     m.pt_y = target ? target->last_pt_y : 0;
-    pthread_mutex_unlock(&g_wpf.lock);
     wpf_queue_push(target, &m);
+    pthread_mutex_unlock(&g_wpf.lock);            // ← 唯一一次放锁，在投递**之后**
     return 1;
 }
 BOOL PostMessageA(HWND h, UINT m, WPARAM w, LPARAM l) { return PostMessageW(h, m, w, l); }
@@ -890,11 +898,22 @@ BOOL PostThreadMessageW(uint32_t threadId, UINT msg, WPARAM wp, LPARAM lp)
 {
     wpf_global_init();
     wpf_thread *target = NULL;
+    // 【W146A · TASK-0211 · 关闭 TOCTOU（站点 B）】与 PostMessageW 同形、同根因：
+    //   修前 :896 放锁、:906 才用 ⇒ 缝里目标线程可退出并被 free（TLS 析构 wpf_thread_destroy），
+    //   而这条路径**没有任何存活校验**。修法：**唯一一次放锁挪到 push 之后**
+    //   （g_wpf.lock 可重入 ⇒ 嵌套安全；前提见站点 A 的注释）。
+    //   充分性：wpf_thread_destroy 摘链在锁内（win32_core.c:161-168）⇒
+    //     ① 目标线程先摘链 ⇒ 本函数找不到它 ⇒ 走 1444 早退（拿不到悬垂指针）；
+    //     ② 本函数先找到 ⇒ 一直持锁到 push 完成 ⇒ 目标线程卡在 :161 摘不了链，
+    //        更到不了 :180（清属主）与 :190（free）。
     wpf_lock();
     for (wpf_thread *t = g_wpf.threads; t; t = t->next)
         if (WPF_THREAD_ID(t) == threadId) { target = t; break; }
-    pthread_mutex_unlock(&g_wpf.lock);
-    if (!target) { wpf_set_last_error(1444); return 0; }  // ERROR_INVALID_THREAD_ID
+    if (!target) {
+        pthread_mutex_unlock(&g_wpf.lock);   // 早退支：先放锁再报错
+        wpf_set_last_error(1444);            // ERROR_INVALID_THREAD_ID
+        return 0;
+    }
 
     WPF_MSG m;
     memset(&m, 0, sizeof(m));
@@ -904,6 +923,7 @@ BOOL PostThreadMessageW(uint32_t threadId, UINT msg, WPARAM wp, LPARAM lp)
     m.lParam = lp;
     m.time = (uint32_t)wpf_now_ms();
     wpf_queue_push(target, &m);
+    pthread_mutex_unlock(&g_wpf.lock);            // ← 唯一一次放锁，在投递**之后**
     return 1;
 }
 

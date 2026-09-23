@@ -489,3 +489,12 @@ echo "WAVE_START=$(date +%FT%T)"; (date +%FT%T; time env WAVE_OWNER=w48a bash bu
 2026-09-23T20:53:45+08:00  owner=W141A  pid=1575650  ppid=1575518  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
     ppid_cmd=bash build/close-wave.sh --skip-verify-all 
     ppid2_cmd=bash /home/links-dev/w141a/logs/run-wave.sh 
+2026-09-23T22:28:13+08:00  owner=W143A  pid=1912592  ppid=1912463  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh --skip-verify-all 
+    ppid2_cmd=bash /home/links-dev/w143a/logs/run-wave.sh 
+2026-09-23T22:31:05+08:00  owner=W142A  pid=1918013  ppid=1917884  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh --skip-verify-all 
+    ppid2_cmd=timeout --foreground --kill-after=5 1200 bash build/close-wave.sh --skip-verify-all 
+2026-09-24T00:14:58+08:00  owner=close-wave:links-dev  pid=2262657  ppid=2262527  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh --skip-verify-all 
+    ppid2_cmd=timeout --foreground --kill-after=5 1800 bash -c cd /home/links-dev/netTest/wpf-linux-20260906/wpf-linux && bash build/close-wave.sh --skip-verify-all 

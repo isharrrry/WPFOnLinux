@@ -148,8 +148,17 @@ static void wpf_thread_destroy(void *p)
 {
     wpf_thread *t = (wpf_thread *)p;
     if (!t) return;
-    if (t->wake_read >= 0) close(t->wake_read);
-    if (t->wake_write >= 0) close(t->wake_write);
+    // 【W146A · TASK-0211 · 关闭第 3 处（fd 生命周期）】修前两行在**锁外** close() 且**不置 -1**
+    //   （`-1` 只在创建路径 :210 写）⇒ 站点 A/B 修好之后仍有一条缝：
+    //     T 关掉 fd（此处）→ P 取锁、读到**还非空**的 owner_thread（清属主在更晚的 :180-185）
+    //     → P 持锁 push → push 末尾 wpf_queue_wake（win32_msg.c:134）的判据是 `t->wake_write < 0`（:152）
+    //     —— 而 wake_write 还是那个**已关闭、可能已被别人 pipe()/open() 复用**的 fd 号
+    //     ⇒ write() 落到无关 fd 上（后果比 UAF 轻，但不是零）。
+    //   修法：**锁内先置 -1 再 close**（次序不可反：先 close 后置 -1 仍留一个"半开"窗口）。
+    wpf_lock();
+    if (t->wake_read >= 0) { int fd = t->wake_read; t->wake_read = -1; close(fd); }
+    if (t->wake_write >= 0) { int fd = t->wake_write; t->wake_write = -1; close(fd); }
+    pthread_mutex_unlock(&g_wpf.lock);
     // 【W136A · TASK-0209 · F3「写坏者」堵源】旧实现只 `free(t)` 而**从不把线程从
     //   `g_wpf.threads` 摘链**（全仓 `g_wpf.threads` 只有 :61 初始化与 :191 头插两处写）⇒
     //   线程一死，链上就留下一个指向已释放内存的 `wpf_thread*`：

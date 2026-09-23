@@ -43,9 +43,9 @@
     "instr_shim": "921ba9c65e9fb3be9e31d402fd98568ee78639063d75bb4e656b20201b30dc2b",
     "instr_pc": "7b47a7b3d69ad62f",
     "evidence_log": "build/MilBridge/arm-logs/tline.log",
-    "evidence_log_sha256": "69b070d4fe25877d",
+    "evidence_log_sha256": "59a203de30d745a8",
     "arm_logs": {
-      "tline": "69b070d4fe25877d1c6ab04231564ccdb1600ae1a72dea2d8146151f2432a326",
+      "tline": "59a203de30d745a8fbffc96b013725bdf2ffcb8dd105fe81678cf8bf10ef1c66",
       "tab-zero": "9150c3a26a3cb789582f3df655006955cf1db10dda00d91097d24d97b40e1912",
       "tab-rtl": "92570318851ca7e85f64017c89bd784d971cfe4028f7b8e47cb79035146755c4",
       "tab-anchor": "1c43a12dcaa5718a27f5e4c66d6ff59bd3b6da0b199e384a315b54e7041cc916",
@@ -106,8 +106,8 @@
     "instr_pc_path": "build/PresentationCore.Linux/bin/Debug/PresentationCore.dll",
     "evidence_log_origin": "/home/links-dev/wfp-runs/arms23/tline.log（硬链接）⚠️ 【#31 W31E 复核 · 2026-09-18】「硬链接」已过期：现盘该路径是**真副本**（inode=5138770、nlink=1、size=21501、mtime=2026-09-17 00:36:36），与 `build/MilBridge/arm-logs/tline.log` 的 inode=5143817 **不同**，`cmp` 两者 **IDENTICAL**、sha16 同为 `57d752a3981a9b91` ⇒ 被引内容零位移、mtime 与源件逐位相同（弱配对判据不受影响）。原文括号描述的是 `#23` 当时的状态。",
     "arms_retaken": {
-      "when": "2026-09-23 22:45:48 +0800",
-      "why": "波 #56（仪器波 TASK-0708）五臂重取：tline 臂日志 sha16 a46cb0b4e853fa1f → 69b070d4fe25877d（该日志含耗时/日期戳/app-local 同步行；判词逐字与 #55 相同：通过 22 / 失败 2）；另四臂（tab-zero/tab-anchor/tab-rtl/textlineproto）sha16 逐位不变；本波零产品改动，重取属世代成本",
+      "when": "2026-09-24 00:25:08 +0800",
+      "why": "#57（TASK-0211 三处 TOCTOU：PostMessageW／PostThreadMessageW 放锁挪到 wpf_queue_push 之后、wpf_thread_destroy 锁内置 -1 再 close）落地；native 重建 ⇒ win32shim 2067cb1c97728791→d2b76a0a56a41be1；五臂按纪律重取（tline 含耗时戳变化，另四臂逐字节相同、判词逐字同 #56）",
       "how": "**只跑三支**（不复用 `retake-arms-w23.sh`：其 `:11` 的 `OUT` 是普通赋值且指向 `$HOME/wfp-runs/arms23`，该目录与 `arm-logs/tline.log`/`textlineproto.log` **同 inode** ⇒ 直接重跑会**就地覆盖归档源件**、中断还会留半截日志）。本趟时序（纪律 59）：① `OUT` 换成本趟专属 `$HOME/w30b-run/arms30b`；② 旧件先 `cp -p` 归档到 `$HOME/w30b-run/backup/armlogs/`；③ 记 `nlink`/mtime/inode；④ `dotnet build CoverageProbe -c Release -m:1`（仅此一次，**未重建 `pc`**）；⑤ 逐支跑 `--tab-lines-oracle`；⑥ **先验 `TAB_LINES_PROBE` 自报行存在**（无则停、不 `ln -f`）；⑦ `ln -f` 进 `arm-logs/`；⑧ 复跑门禁；⑨ `arm-log-sha-check.sh`；⑩ 重钉本节；⑪ 归档。 ⚠️ 【#31 W31E 加注 · 2026-09-18】本行有两处随时间变化（**原文保持不动**）：① 它引的 `:11` 已不再是「普通赋值」—— `#31` W31E 把第 11 行改成 `OUT=${ARMS_OUT:-$HOME/wfp-runs/arms23}`（env 可覆写；**不设该变量时取值逐字不变**）并在第 12 行之后加了**硬链接别名守卫**（`OUT` 目标与真件同 inode ⇒ `exit 4`、逐支点名 inode 与两条路径、**一个字节都不写**）⇒ 纪律 59 的第①步不再需要手改脚本；② 「该目录与 `arm-logs/tline.log`/`textlineproto.log` 同 inode」描述的是 `#30` 当时的状态，`#31` W31C 之后 `arms23` 已是真副本（nlink=1）⇒ 现状下守卫**不会**拦默认 `OUT`（实测 rc=0）。",
       "result": "`tab-zero 78204619fa5b4eee → 9150c3a26a3cb789`｜`tab-anchor 574d012a41a3db06 → 1c43a12dcaa5718a`｜`tab-rtl cbaa579c547b4ac3 → 92570318851ca7e8`；`tline`/`textlineproto` **逐字节未动**。**最硬的一条**：三支新日志**剥掉 `^TAB_LINES_PROBE` 行后与旧件 `cmp` 逐字节 IDENTICAL** （行数 210/1346/193 ↔ 209/1345/192）⇒ 重取**只新增了身份行**，**读数零位移**；`判定行=615`/`字形释放行=194` 与 `column_gate.arms[\"tab-oracle-anchor\"]` 的下限**逐位相符**。 ⚠️ 【#31 W31E 复核 · 2026-09-18】「`ln -f` 后 `nlink=2`」描述的是 `#30` W30B 当时的状态（**原文保持不动**）：`#31` W31C 清理别名后现盘该件 **nlink=1**，`sha256` 前16位 `1c43a12dcaa5718a` **逐位未变**。",
       "arms": [
@@ -202,6 +202,10 @@
         {
           "when": "2026-09-23 22:45:48 +0800",
           "why": "波 #56（仪器波 TASK-0708）五臂重取：tline 臂日志 sha16 a46cb0b4e853fa1f → 69b070d4fe25877d（该日志含耗时/日期戳/app-local 同步行；判词逐字与 #55 相同：通过 22 / 失败 2）；另四臂（tab-zero/tab-anchor/tab-rtl/textlineproto）sha16 逐位不变；本波零产品改动，重取属世代成本"
+        },
+        {
+          "when": "2026-09-24 00:25:08 +0800",
+          "why": "#57（TASK-0211 三处 TOCTOU：PostMessageW／PostThreadMessageW 放锁挪到 wpf_queue_push 之后、wpf_thread_destroy 锁内置 -1 再 close）落地；native 重建 ⇒ win32shim 2067cb1c97728791→d2b76a0a56a41be1；五臂按纪律重取（tline 含耗时戳变化，另四臂逐字节相同、判词逐字同 #56）"
         }
       ]
     }
