@@ -1,0 +1,46 @@
+T 1790155991226313 WID=0xc00004 name_pattern=HandyControlDemo cgeo=800x600@+0+0
+T 1790155991226395 CENSUS root_child=0x2000b5 pid=0 name=- class=-
+T 1790155991226423 CENSUS root_child=0x2000b4 pid=0 name=- class=-
+T 1790155991226450 CENSUS root_child=0x2000b3 pid=0 name=- class=-
+T 1790155991226476 CENSUS root_child=0x2000b2 pid=0 name=- class=-
+T 1790155991226535 CENSUS root_child=0x200001 pid=1083652 name=xfwm4 class=xfwm4
+T 1790155991226564 CENSUS root_child=0x400001 pid=0 name=- class=-
+T 1790155991226591 CENSUS root_child=0x2000ac pid=0 name=- class=-
+T 1790155991226629 CENSUS root_child=0x2000ae pid=1083652 name=xfwm4 class=xfwm4
+T 1790155991226656 CENSUS root_child=0x2000b9 pid=0 name=- class=-
+T 1790155991226709 CENSUS root_child=0x200295 pid=0 name=- class=-
+T 1790155991226738 CENSUS root_child=0xc00001 pid=0 name=- class=-
+T 1790155991226774 CENSUS root_child=0xc00002 pid=1153880 name=SystemResourceNotifyWindow class=HwndWrapper[HandyControlDemo;;3f64c0d5-a464-4aa7-95fc-63261a709ad2]
+T 1790155991226832 CENSUS root_child=0xc00003 pid=1153880 name=- class=HwndWrapper[HandyControlDemo;;09b2d2b4-1797-40a5-b0c7-b4c4eb40315c]
+T 1790155991226864 CENSUS root_child=0xc00004(TARGET) pid=1153880 name=HandyControlDemo class=HwndWrapper[HandyControlDemo;;268a2563-98b8-4e70-b741-47706a50d046]
+T 1790155991227014 rel=0.920 SEG cgeo=800x600@+0+0 frame=0x50d fgeo=1280x1024@+0+0 state=[] hints={flags=0x10 PMinSize=1x1 PMaxSize=-1x-1}
+T 1790155991275358 rel=0.968 EVT ConfigureNotify win=0xc00004 send_event=0 800x600@+240+212 above=0xc00003 override=0
+T 1790155991276551 rel=0.968 SEG cgeo=800x600@+240+212 frame=0x50d fgeo=1280x1024@+0+0 state=[] hints={flags=0x10 PMinSize=1x1 PMaxSize=-1x-1}
+T 1790155991450751 rel=1.142 EVT PropertyNotify win=0xc00004 atom=_MOTIF_WM_HINTS state=0
+T 1790155991450760 rel=1.142 EVT PropertyNotify win=0xc00004 atom=_NET_WM_STATE state=0
+T 1790155991450878 rel=1.142 EVT PropertyNotify win=0xc00004 atom=_NET_WM_DESKTOP state=0
+T 1790155991450883 rel=1.142 EVT ConfigureNotify win=0xc00004 send_event=0 800x600@+0+0 above=0x200801 override=0
+T 1790155991450884 rel=1.142 EVT ConfigureNotify win=0xc00004 send_event=1 800x600@+0+0 above=0x0 override=0
+T 1790155991451033 rel=1.142 EVT PropertyNotify win=0xc00004 atom=WM_STATE state=0
+T 1790155991451088 rel=1.142 EVT PropertyNotify win=0xc00004 atom=_NET_WM_ALLOWED_ACTIONS state=0
+T 1790155991451092 rel=1.142 EVT PropertyNotify win=0xc00004 atom=_NET_WM_STATE state=0
+T 1790155991451211 rel=1.142 EVT PropertyNotify win=0xc00004 atom=_NET_FRAME_EXTENTS state=0
+T 1790155991451216 rel=1.142 EVT PropertyNotify win=0xc00004 atom=_NET_WM_STATE state=0
+T 1790155991451217 rel=1.142 EVT PropertyNotify win=0xc00004 atom=_NET_WM_STATE state=0
+T 1790155991451814 rel=1.142 SEG cgeo=800x600@+0+0 frame=0x2007f2 fgeo=800x600@+0+0 state=[FOCUSED] hints={flags=0x10 PMinSize=1x1 PMaxSize=-1x-1}
+T 1790155998490970 rel=8.184 EVT PropertyNotify win=0xc00004 atom=_NET_FRAME_EXTENTS state=0
+T 1790155998490984 rel=8.184 EVT PropertyNotify win=0xc00004 atom=_NET_WM_ALLOWED_ACTIONS state=0
+T 1790155998490986 rel=8.184 EVT ConfigureNotify win=0xc00004 send_event=0 1280x1024@+0+0 above=0x200801 override=0
+T 1790155998490988 rel=8.184 EVT ConfigureNotify win=0xc00004 send_event=1 1280x1024@+0+0 above=0x0 override=0
+T 1790155998490989 rel=8.184 EVT PropertyNotify win=0xc00004 atom=_NET_WM_STATE state=0
+T 1790155998491337 rel=8.184 SEG cgeo=1280x1024@+0+0 frame=0x2007f2 fgeo=1280x1024@+0+0 state=[MAXIMIZED_HORZ,MAXIMIZED_VERT,FOCUSED] hints={flags=0x10 PMinSize=1x1 PMaxSize=-1x-1}
+T 1790156003834718 rel=13.527 EVT PropertyNotify win=0xc00004 atom=_MOTIF_WM_HINTS state=0
+T 1790156003834726 rel=13.527 EVT ConfigureNotify win=0xc00004 send_event=1 1280x1024@+0+0 above=0x0 override=0
+T 1790156003834728 rel=13.527 EVT PropertyNotify win=0xc00004 atom=_NET_FRAME_EXTENTS state=0
+T 1790156004157880 rel=13.850 EVT PropertyNotify win=0xc00004 atom=_NET_FRAME_EXTENTS state=0
+T 1790156004157890 rel=13.850 EVT PropertyNotify win=0xc00004 atom=_NET_WM_ALLOWED_ACTIONS state=0
+T 1790156004157892 rel=13.850 EVT ConfigureNotify win=0xc00004 send_event=0 800x600@+0+0 above=0x200801 override=0
+T 1790156004157905 rel=13.850 EVT ConfigureNotify win=0xc00004 send_event=1 800x600@+0+0 above=0x0 override=0
+T 1790156004157907 rel=13.850 EVT PropertyNotify win=0xc00004 atom=_NET_WM_STATE state=0
+T 1790156004157980 rel=13.850 SEG cgeo=800x600@+0+0 frame=0x2007f2 fgeo=800x600@+0+0 state=[FOCUSED] hints={flags=0x10 PMinSize=1x1 PMaxSize=-1x-1}
+T 1790156012736416 rel=22.429 EVT DestroyNotify win=0xc00004

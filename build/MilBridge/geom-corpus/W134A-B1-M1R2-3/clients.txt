@@ -1,0 +1,13 @@
+=== xlsclients -l（同刻）===
+Window 0x200001:
+  Machine:  linksdev-VirtualBox
+  Name:  xfwm4
+  Icon Name:  xfwm4
+  Command:  xfwm4
+  Instance/Class:  xfwm4/Xfwm4
+=== xdpyinfo screen ===
+name of display:    :221
+version number:    11.0
+vendor string:    The X.Org Foundation
+vendor release number:    12101004
+X.Org version: 1.21.1.4

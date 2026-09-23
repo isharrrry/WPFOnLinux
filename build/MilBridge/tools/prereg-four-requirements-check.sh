@@ -44,12 +44,30 @@ MARK2='成对归因臂'
 MARK3='复现性'
 MARK4='Fisher'
 
-# ── 生效波次（**防造假红**）：本要件**只对 `#57` 及以后的新波生效**
+# ── 生效波次（**防造假红 ＋ `#59` 生效边界修法**）：本要件**只对 `#58` 及以后的新波生效**
 #    （`TASK-0705` 的纪律 = "不许倒填进既有冻结件来美化历史判词"）。
 #    现场机械证：不加这道守卫时，`docs/WAVE*-PREREGISTRATION.md` **37 件里 35 件会红**
 #    （含当波 `#56`）—— 那是"**拿新规则审判历史件**"，是**造假红**，不是缺陷。
-#    ⇒ 早于生效波的件**一律 `NOINFO reason=history-frozen-before-requirement`**（跳过、逐件可见）。
-REQ_EFFECTIVE_WAVE=57
+#    ⏪ 上面那句的件数是**当时**的（37）—— **加注不覆盖**，原文留档。**现测（`#59` W151A，2026-09-24）**：
+#      `docs/WAVE*-PREREGISTRATION.md` 共 **39 件**；**旧牙（生效代 57）**在全量扫描下 = `PASS 1 / FAIL 1（仅 `WAVE57`，`missing=7`）/ 跳过 37`；**新牙（生效代 58）** = **`pass=1 / fail=0 / skip=38 / noinfo=0`**（`WAVE57` 由"假红"变 `SKIP`）。
+#
+#    ⚠️ **为什么是 `58`（旧值 `57` 的后果 —— `#59` W151A 就地更正，加注不覆盖，旧值留档如下）**：
+#      · 旧值 `REQ_EFFECTIVE_WAVE=57` 会**漏掉一代**：`docs/WAVE57-PREREGISTRATION.md` 落在**射程内**
+#        ⇒ 真判 ⇒ 而 `#57` 的预登记**写在本工具存在之前**、且按 `TASK-0705` 的"**只加不改**"**不许倒填**
+#        ⇒ 它**必然** `FAIL missing=7`。那是"**拿晚出的规则审判早出的件**"＝**造假红**，
+#        与这道守卫**要防的东西是同一个** —— 守卫自己漏了一代。
+#      · 而 `#58` 的预登记是**第一份合规件**（现场已 `PASS`）⇒ 必须**真判**、**不许**被 SKIP 掉，
+#        否则"跳过"就成了"放低边界换取好过"—— `HANDOFF-NEXT.md` 第 20 条**明令禁止**。
+#      ⇒ 这两条**同时**只有 `58` 满足。改这一位**必须**同步改自测的两例
+#        （`WAVE57 ⇒ SKIP`、`WAVE58 ⇒ 真判`），否则自测当场抓到你。
+#
+#    【三态口径（`HANDOFF-NEXT.md` 第 20 条"判据的生效边界必须可见"）】
+#      超出射程 ⇒ 打 **`PREREG4=SKIP`**（**独立 token**，与 `PASS`/`FAIL`/`NOINFO` **四态分开计数**）
+#      ＋ **逐件点名** `PREREG4_SKIP … reason=pre-effective(…)`；
+#      **`SKIP` 既 ≠ 通过、也 ≠ 违规** ⇒ `PREREG4_RC=$RC_NOINFO`（`3`：不是 `0`=绿，也不是 `1`=红）。
+#    【`--min-wave` = **仅覆盖口**】只许用来**抬高**射程起点（局部复核用）；
+#      **禁止**用它"放低边界换取好过"（handoff 第 20 条原文），也**禁止**据此删件。
+REQ_EFFECTIVE_WAVE=58
 MIN_WAVE="$REQ_EFFECTIVE_WAVE"
 
 wave_num() {
@@ -95,9 +113,9 @@ check_file() {
   # ── 防造假红：早于生效波的**冻结历史件**一律跳过（既不判绿也不判红）
   local wn; wn="$(wave_num "$f")"
   if [[ -n "$wn" && "$wn" -lt "$MIN_WAVE" ]]; then
-    echo "PREREG4=NOINFO"; echo "PREREG4_RC=$RC_NOINFO"
-    echo "PREREG4_SKIP file=$f wave=#${wn} reason=history-frozen-before-requirement(本要件对 #${MIN_WAVE} 及以后生效；TASK-0705 = 只加不改)"
-    echo "PREREG4_NOTE NOINFO 既不算绿也不算红（跳过，不是绿也不是红）"
+    echo "PREREG4=SKIP"; echo "PREREG4_RC=$RC_NOINFO"
+    echo "PREREG4_SKIP file=$f wave=#${wn} reason=pre-effective(本要件对 #${MIN_WAVE} 及以后生效；TASK-0705 = 只加不改 ⇒ 早于生效代的件不许倒填)"
+    echo "PREREG4_NOTE SKIP 既不算绿（PASS）也不算红（FAIL）—— **超出射程 ≠ 通过、≠ 违规**；rc=$RC_NOINFO"
     return $RC_NOINFO
   fi
 
@@ -216,22 +234,43 @@ selftest() {
   tot=$((tot+1))
   if [[ $rc -eq 0 ]]; then pass=$((pass+1)); echo "SELFTEST repair-back-to-green want_rc=0 got_rc=0 = OK"; else fail=$((fail+1)); echo "SELFTEST repair-back-to-green want_rc=0 got_rc=$rc = FAIL"; fi
 
-  # ★ 防造假红：早于生效波的**冻结历史件**（连内容都缺要件）必须 **NOINFO（跳过）**、**不许判红**
+  # ★ 防造假红：早于生效波的**冻结历史件**（连内容都缺要件）必须 **SKIP（超出射程）**、**不许判红**
   cp -p "$d/missing-1.md" "$d/WAVE54-PREREGISTRATION.md"
   out="$(check_file "$d/WAVE54-PREREGISTRATION.md" 2>&1)"; rc=$?
   tot=$((tot+1))
-  if [[ $rc -eq 3 && "$out" == *'history-frozen-before-requirement'* ]]; then
-    pass=$((pass+1)); echo "SELFTEST history-frozen-skip(内容缺件但属冻结历史) want_rc=3 got_rc=3 = OK"
+  if [[ $rc -eq 3 && "$out" == *'PREREG4=SKIP'* && "$out" == *'reason=pre-effective'* ]]; then
+    pass=$((pass+1)); echo "SELFTEST pre-effective-skip(wave54,内容缺件但属冻结历史) want=SKIP/rc=3 got_rc=3 = OK"
   else
-    fail=$((fail+1)); echo "SELFTEST history-frozen-skip(内容缺件但属冻结历史) want_rc=3 got_rc=$rc = FAIL"
+    fail=$((fail+1)); echo "SELFTEST pre-effective-skip(wave54) want=SKIP/rc=3 got_rc=$rc = FAIL"
     printf '%s\n' "$out" | sed 's/^/    /'
   fi
 
-  # ★ 反向：**当波件**（内容缺件）必须**判红**（守卫不许把当波也放过）
+  # ★ **`#59` 生效边界修法的主例**：`WAVE57` 正是"旧种子的一代缺口"（旧值 57 会把它真判 ⇒ 造假红）
+  #   ⇒ 生效代改 58 后它**必须 SKIP**。这一例就是"今天 `WAVE57` 被判 `FAIL missing=7`"那件事的**反面**。
   cp -p "$d/missing-1.md" "$d/WAVE57-PREREGISTRATION.md"
   out="$(check_file "$d/WAVE57-PREREGISTRATION.md" 2>&1)"; rc=$?
   tot=$((tot+1))
-  if [[ $rc -eq 1 ]]; then pass=$((pass+1)); echo "SELFTEST current-wave-missing-must-fail want_rc=1 got_rc=1 = OK"; else fail=$((fail+1)); echo "SELFTEST current-wave-missing-must-fail want_rc=1 got_rc=$rc = FAIL"; fi
+  if [[ $rc -eq 3 && "$out" == *'PREREG4=SKIP'* && "$out" == *'reason=pre-effective'* && "$out" == *'wave=#57'* ]]; then
+    pass=$((pass+1)); echo "SELFTEST wave57-now-pre-effective(旧值 57 的真红 ⇒ 改 58 后必须 SKIP) want=SKIP/rc=3 got_rc=3 = OK"
+  else
+    fail=$((fail+1)); echo "SELFTEST wave57-now-pre-effective want=SKIP/rc=3 got_rc=$rc = FAIL"
+    printf '%s\n' "$out" | sed 's/^/    /'
+  fi
+
+  # ★ 反向：**当波件**（内容缺件）必须**判红**（守卫不许把当波也放过）—— 且当波随生效代一起移到 `58`
+  cp -p "$d/missing-1.md" "$d/WAVE58-PREREGISTRATION.md"
+  out="$(check_file "$d/WAVE58-PREREGISTRATION.md" 2>&1)"; rc=$?
+  tot=$((tot+1))
+  if [[ $rc -eq 1 ]]; then pass=$((pass+1)); echo "SELFTEST current-wave-missing-must-fail(wave58) want_rc=1 got_rc=1 = OK"; else fail=$((fail+1)); echo "SELFTEST current-wave-missing-must-fail(wave58) want_rc=1 got_rc=$rc = FAIL"; fi
+
+  # ★ `--min-wave` **只作覆盖口**：抬高它 ⇒ 连当波件也进 SKIP（**不改变**任何判据文本）
+  out="$(MIN_WAVE=99 check_file "$d/WAVE58-PREREGISTRATION.md" 2>&1)"; rc=$?
+  tot=$((tot+1))
+  if [[ $rc -eq 3 && "$out" == *'reason=pre-effective'* ]]; then
+    pass=$((pass+1)); echo "SELFTEST min-wave-override(抬高射程起点 ⇒ 当波也 SKIP) want=SKIP/rc=3 got_rc=3 = OK"
+  else
+    fail=$((fail+1)); echo "SELFTEST min-wave-override want=SKIP/rc=3 got_rc=$rc = FAIL"
+  fi
 
   rm -rf "$d"
   echo "PREREG4_SELFTEST_ROSTER cases=$tot pass=$pass fail=$fail"
@@ -257,13 +296,21 @@ main() {
     echo "PREREG4_NOTE 没给件 ⇒ NOINFO（既不算绿也不算红）"
     return $RC_NOINFO
   fi
-  local any=0 worst=0
+  local any=0 worst=0 n_pass=0 n_fail=0 n_skip=0 n_noinfo=0
   for f in "${files[@]}"; do
     local out rc; out="$(check_file "$f" 2>&1)"; rc=$?
     printf '%s\n' "$out"
+    # 【`#59` 生效边界修法】四态**分开计数**：`SKIP`（超出射程）**不许**并进 `PASS`、也**不许**并进 `FAIL`
+    case "$(printf '%s\n' "$out" | sed -n 's/^PREREG4=\([A-Z]*\)$/\1/p' | head -1)" in
+      PASS) n_pass=$((n_pass+1)) ;;
+      FAIL) n_fail=$((n_fail+1)) ;;
+      SKIP) n_skip=$((n_skip+1)) ;;
+      *)    n_noinfo=$((n_noinfo+1)) ;;
+    esac
     [[ $rc -ne 0 ]] && any=1
     [[ $rc -eq 1 ]] && worst=1
   done
+  echo "PREREG4_SUMMARY files=${#files[@]} pass=$n_pass fail=$n_fail skip=$n_skip noinfo=$n_noinfo min_wave=#$MIN_WAVE（**四态分开计数**：`SKIP` 超出射程 ≠ 通过 ≠ 违规）"
   if [[ $worst -eq 1 ]]; then return $RC_FAIL; fi
   if [[ $any -eq 1 ]]; then return $RC_NOINFO; fi
   return $RC_PASS

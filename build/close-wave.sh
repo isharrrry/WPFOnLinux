@@ -243,6 +243,8 @@ fp_inputs() {  # 手写输入指纹（应用器 + port-lib + 本脚本 + 波脚�
           build/MilBridge/tools/uia-door-check.sh \
           build/MilBridge/tools/ime-landing-check.sh \
           build/MilBridge/tools/known-red-arms-check.sh \
+          build/MilBridge/tools/geom-revert-beat-check.sh \
+          build/MilBridge/tools/geom-resend-regression-check.sh \
           build/MilBridge/tools/regression-decision-cases.tsv
     } | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -d' ' -f1
 }

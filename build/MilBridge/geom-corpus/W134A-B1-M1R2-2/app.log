@@ -1,0 +1,26 @@
+[HC-UNHANDLED] #1 EntryPointNotFoundException: Unable to find an entry point named 'SHAppBarMessage' in shared library 'shell32.dll'. ｜ 首帧 at HandyControl.Tools.Interop.InteropMethods.SHAppBarMessage(Int32 dwMessage, APPBARDATA& pData)
+[WINSTATE_DIAG] CONFIGURE hwnd=0xc00004 read_ok=1 x_maximized=0 | 缓存(读属性后) maximized=0 style_WS_MAXIMIZE=0 iconified=0
+[WINSTATE_DIAG] CONFIGURE hwnd=0xc00004 800x600@+0+0 ⇒ WM_SIZE sizecode=0 (缓存 maximized=0 iconified=0)
+[WINSTATE_DIAG] PROPERTY hwnd=0xc00004 read_ok=1 x_maximized=0 | 缓存(读属性后) maximized=0 style_WS_MAXIMIZE=0 iconified=0
+[WINSTATE_DIAG] CONFIGURE hwnd=0xc00004 read_ok=1 x_maximized=0 | 缓存(读属性后) maximized=0 style_WS_MAXIMIZE=0 iconified=0
+[WINSTATE_DIAG] CONFIGURE hwnd=0xc00004 800x600@+0+0 ⇒ WM_SIZE sizecode=0 (缓存 maximized=0 iconified=0)
+[WINSTATE_DIAG] CONFIGURE hwnd=0xc00004 read_ok=1 x_maximized=0 | 缓存(读属性后) maximized=0 style_WS_MAXIMIZE=0 iconified=0
+[WINSTATE_DIAG] CONFIGURE hwnd=0xc00004 800x600@+0+0 ⇒ WM_SIZE sizecode=0 (缓存 maximized=0 iconified=0)
+[WINSTATE_DIAG] PROPERTY hwnd=0xc00004 read_ok=1 x_maximized=0 | 缓存(读属性后) maximized=0 style_WS_MAXIMIZE=0 iconified=0
+[WINSTATE_DIAG] PROPERTY hwnd=0xc00004 read_ok=1 x_maximized=0 | 缓存(读属性后) maximized=0 style_WS_MAXIMIZE=0 iconified=0
+[WINSTATE_DIAG] PROPERTY hwnd=0xc00004 read_ok=1 x_maximized=0 | 缓存(读属性后) maximized=0 style_WS_MAXIMIZE=0 iconified=0
+[WINSTATE_DIAG] APPLY_WM_STATE hwnd=0xc00004 maximize=1（我们发的 _NET_WM_STATE ADD） | 缓存(发送后) maximized=1 style_WS_MAXIMIZE=1
+[WINSTATE_DIAG] CONFIGURE hwnd=0xc00004 read_ok=1 x_maximized=1 | 缓存(读属性后) maximized=1 style_WS_MAXIMIZE=1 iconified=0
+[WINSTATE_DIAG] CONFIGURE hwnd=0xc00004 1280x1024@+0+0 ⇒ WM_SIZE sizecode=2 (缓存 maximized=1 iconified=0)
+[WINSTATE_DIAG] CONFIGURE hwnd=0xc00004 read_ok=1 x_maximized=1 | 缓存(读属性后) maximized=1 style_WS_MAXIMIZE=1 iconified=0
+[WINSTATE_DIAG] CONFIGURE hwnd=0xc00004 1280x1024@+0+0 ⇒ WM_SIZE sizecode=2 (缓存 maximized=1 iconified=0)
+[WINSTATE_DIAG] PROPERTY hwnd=0xc00004 read_ok=1 x_maximized=1 | 缓存(读属性后) maximized=1 style_WS_MAXIMIZE=1 iconified=0
+[HC-UNHANDLED] #2 EntryPointNotFoundException: Unable to find an entry point named 'SHAppBarMessage' in shared library 'shell32.dll'. ｜ 首帧 at HandyControl.Tools.Interop.InteropMethods.SHAppBarMessage(Int32 dwMessage, APPBARDATA& pData)
+[WINSTATE_DIAG] APPLY_WM_STATE hwnd=0xc00004 maximize=0（我们发的 _NET_WM_STATE REMOVE） | 缓存(发送后) maximized=0 style_WS_MAXIMIZE=0
+[WINSTATE_DIAG] CONFIGURE hwnd=0xc00004 read_ok=1 x_maximized=0 | 缓存(读属性后) maximized=0 style_WS_MAXIMIZE=0 iconified=0
+[WINSTATE_DIAG] CONFIGURE hwnd=0xc00004 1280x1024@+0+0 ⇒ WM_SIZE sizecode=0 (缓存 maximized=0 iconified=0)
+[WINSTATE_DIAG] CONFIGURE hwnd=0xc00004 read_ok=1 x_maximized=0 | 缓存(读属性后) maximized=0 style_WS_MAXIMIZE=0 iconified=0
+[WINSTATE_DIAG] CONFIGURE hwnd=0xc00004 800x600@+0+0 ⇒ WM_SIZE sizecode=0 (缓存 maximized=0 iconified=0)
+[WINSTATE_DIAG] CONFIGURE hwnd=0xc00004 read_ok=1 x_maximized=0 | 缓存(读属性后) maximized=0 style_WS_MAXIMIZE=0 iconified=0
+[WINSTATE_DIAG] CONFIGURE hwnd=0xc00004 800x600@+0+0 ⇒ WM_SIZE sizecode=0 (缓存 maximized=0 iconified=0)
+[WINSTATE_DIAG] PROPERTY hwnd=0xc00004 read_ok=1 x_maximized=0 | 缓存(读属性后) maximized=0 style_WS_MAXIMIZE=0 iconified=0
