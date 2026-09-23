@@ -354,6 +354,26 @@ def decision(args):
         out.update(state="NOINFO", rc=2, reason=None, refuse=e.code)
         return out
 
+    # ── ③ 的取值必须与**旧臂红数**自洽（`F-B` 修复点）—— 与分母守门**同族**：
+    #    要件值与计数**自相矛盾** ⇒ 归因不可信 ⇒ **拒绝**（`rc=2` ＋ 点名），不许换一条支路悄悄给判词。
+    #    ⚠️⚠️ **位置 = 分母守门之后（就在上一行的 `except` 之后）**，这是**机械证**不是口味：
+    #       台账行 `DG94-denominator-counts-skipped` 是 `old=7/9` ∧ `repro=no` ⇒ **正好命中 F-B2 形态**；
+    #       而 `run_cases` **只比 `state`＋`rc`、不比 `reason`**（本件 run_cases 里那句
+    #       `ok = (got_state == want_state and got_rc == want_rc)`）⇒ 本守卫若放到分母门**之前**，
+    #       该行**仍 PASS**、但 `reason` 被顶成 `repro-inconsistent` ⇒ **静默丢掉「D-G94 分母门」那一格的覆盖**。
+    #       （同一约束由 `--selftest` 的两条 `needles` 自动守卫：`denominator-unreconciled`／`denominator-not-tried`。）
+    if args.old_repro == "yes" and old_red == 0:
+        out.update(state="NOINFO", rc=2, reason=None,
+                   refuse="repro-inconsistent(--old-repro yes 却旧臂红数=0/%d ⇒ ③ 的值与计数矛盾："
+                          "旧件根本不复现该红，谈何「旧件也红」⇒ 拒绝，不许走 rate-aggravated 那条支路)" % old_tried)
+        return out
+    if args.old_repro == "no" and old_red > 0:
+        out.update(state="NOINFO", rc=2, reason=None,
+                   refuse="repro-inconsistent(--old-repro no 却旧臂红数=%d/%d ⇒ ③ 的值与计数矛盾："
+                          "旧件也红就不能声明「只在原件红」⇒ 拒绝，否则子类名 deterministic/statistical-new-only 是假分类)"
+                          % (old_red, old_tried))
+        return out
+
     # ── 四要件：①②③④ 的**输入**是否在位
     gates = {}
     gates["same_time"] = bool(args.same_time)
@@ -425,6 +445,30 @@ def decision(args):
     out["mde"] = _mde(p0_obs, n_eff, alpha, power_target)
     out["mde_n"] = n_eff
 
+    # ── ④ 先写趟数与功效（**设计入口条件**）：**必须在判词分支之前判** —— `F-A` 修复点（#58 / 车道 W150A）
+    #    ⚠️ 旧写法把这三格**只放在 `old_repro == "no"` 支路里**（改前 :449-460）⇒ `--old-repro yes`
+    #       那条支路（改前 :433-442）**先 return 了**、**永不经过它们** ⇒ 乱写的计划
+    #       （`--planned-legs 99` 与现场 `pairs=16` 不符）**仍判 `REGRESSION`／`rc=0`** = **假绿**。
+    #    ④ 是"**实验之前**先写死"的东西（`D-G99`）⇒ 它是**设计的入口条件**，不是事后借口；
+    #       故：**任何判词（含 `OK`/`REGRESSION`/`not-significant`）都不许在计划不合规时给出**。
+    #    位置约束（两条，都有机械证）：
+    #      ① **必须晚于"①②③ 在位"那扇门** —— 否则"缺 pairs ∧ 缺计划"会被顶成 `plan-absent`、
+    #         把 `missing-paired-arm` 那一格的覆盖丢掉。
+    #      ② **必须晚于全部诊断行**（本处）—— 否则既有的三例会**少印 5 行诊断**（实测）。
+    #         计划不合规**不等于**"统计不用算"：`p` 与所需趟数照印，供人留档；**只是不许据此下判词**。
+    if not gates["plan"]:
+        out.update(state="NOINFO", rc=3,
+                   reason="plan-absent(④先写趟数与功效：缺 --planned-legs/--planned-power ⇒ 事后挑样本量不许判回归)")
+        return out
+    if args.planned_legs != args.pairs:
+        out.update(state="NOINFO", rc=3,
+                   reason="plan-mismatch(planned_legs=%d ≠ 现场成对臂 pairs=%d ⇒ 计划与现场不一致)" % (args.planned_legs, args.pairs))
+        return out
+    if args.planned_power < power_target:
+        out.update(state="NOINFO", rc=3,
+                   reason="planned-power-below-target(计划功效 %.2f < 目标 %.2f ⇒ 计划本身功效不足)" % (args.planned_power, power_target))
+        return out
+
     # ── 判词
     if new_red == 0 and old_red == 0:
         out.update(state="OK", rc=0, reason="no-red-either-arm(两臂都 0 红 ⇒ 没有可归因的差异)")
@@ -446,18 +490,8 @@ def decision(args):
         out.update(state="NOINFO", rc=3,
                    reason="not-significant(fisher_p=%.4g>alpha=%.3g 且旧件 0 红 ⇒ 分不开「随机」与「件相关」；见 D-G99)" % (p, alpha))
         return out
-    if not gates["plan"]:
-        out.update(state="NOINFO", rc=3,
-                   reason="plan-absent(④先写趟数与功效：缺 --planned-legs/--planned-power ⇒ 事后挑样本量不许判回归)")
-        return out
-    if args.planned_legs != args.pairs:
-        out.update(state="NOINFO", rc=3,
-                   reason="plan-mismatch(planned_legs=%d ≠ 现场成对臂 pairs=%d ⇒ 计划与现场不一致)" % (args.planned_legs, args.pairs))
-        return out
-    if args.planned_power < power_target:
-        out.update(state="NOINFO", rc=3,
-                   reason="planned-power-below-target(计划功效 %.2f < 目标 %.2f ⇒ 计划本身功效不足)" % (args.planned_power, power_target))
-        return out
+    # ⚠️ ④ 的三格**已前移**到本函数开头（`F-A` 修复点，见上面的注释块）⇒ 这里**不再重复**；
+    #    留此注释是为了让"改前为什么 `--old-repro yes` 能假绿"这件事在源码里可追。
     if new_red == new_tried:
         out.update(state="REGRESSION", rc=0, subkind="deterministic-new-only",
                    reason="deterministic-new-only(fisher_p=%.4g≤alpha；新臂 %d/%d **每腿都红** ⇒ 确定性复现 ∧ 旧件 0/%d)" % (p, new_red, new_tried, old_tried))
@@ -481,6 +515,13 @@ def emit(d, args):
     if d.get("fisher_p") is not None:
         print("REGDEC_FISHER p=%.6f two_tailed=yes method=hypergeometric-le-observed"
               % d["fisher_p"])
+        # `F-C`（`#58`）：**危险窗** = `p` 的三位小数落在 `alpha` 上（例 `p=0.050152 ⇒ 0.050`）。
+        # 口径句 = "**判定一律用机器行原值，三位小数只作显示**"（册 `samples/WpfFeatureProbe/KNOWN-DEFECTS.md:2984`）。
+        # 下面这行把**两种读法并排**印出来、逐字标注，
+        # 从物理上排除"拿 `0.050` 去比 `0.05`"这条读法。**不改判词**：`verdict_input` 就是上面那行 `state`。
+        _pr = d["fisher_p"]
+        print("REGDEC_ALPHA p_raw=%.6f p_display_only=%.3f alpha=%g decide=raw compare=%s verdict_input=%s"
+              % (_pr, _pr, d["alpha"], "le" if _pr <= d["alpha"] else "gt", d["state"]))
     g = d.get("gates") or {}
     if g:
         # ⚠️ `repro_input` 印的是**③那一格的取值**（`yes`/`no`/`absent`），不是"给没给"
@@ -729,6 +770,25 @@ def build_cases():
          _ok(_fixture_args(old="0/5", new="5/5", pairs=5, pair_both=0, pair_old_only=0,
                            pair_new_only=4, old_repro="no")),
          "NOINFO", 3, ("reason=pair-inconsistent",))
+    # ⑮ `F-A` 正极性：`--old-repro yes` ＋ **乱写的计划** ⇒ 必须 `NOINFO/plan-mismatch`（改前是假绿 `REGRESSION`）
+    f = _ok(_fixture_args(old="3/16", new="10/16", pairs=16, old_repro="yes"))
+    f.planned_legs = 99
+    f.planned_power = 0.1
+    case("f-a-plan-mismatch-on-repro-yes-NOINFO", f, "NOINFO", 3, ("reason=plan-mismatch",))
+    # ⑯ `F-B` 正极性 1：`repro=yes` 却**旧臂 0 红** ⇒ 拒绝（改前判 `REGRESSION/rate-aggravated`，理由自相矛盾）
+    case("f-b-repro-yes-but-old-zero-REFUSE",
+         _ok(_fixture_args(old="0/5", new="4/5", pairs=5, old_repro="yes")),
+         "NOINFO", 2, ("REGDEC_REFUSE=repro-inconsistent",))
+    # ⑰ `F-B` 正极性 2：`repro=no` 却**旧臂 >0 红** ⇒ 拒绝（改前给假分类 `statistical-new-only`）
+    case("f-b-repro-no-but-old-red-REFUSE",
+         _ok(_fixture_args(old="3/16", new="10/16", pairs=16, old_repro="no")),
+         "NOINFO", 2, ("REGDEC_REFUSE=repro-inconsistent",))
+    # ⑱ `F-C` 危险窗：`0/25 vs 5/25 ⇒ p=0.050152`（三位 = `0.050`）⇒ 机判 `NOINFO`；
+    #    新行**并排**印原值与只供显示的三位 ⇒ 从物理上排除"拿 0.050 比 0.05"
+    case("f-c-alpha-display-window-NOINFO",
+         _ok(_fixture_args(old="0/25", new="5/25", pairs=25, old_repro="no")),
+         "NOINFO", 3, ("REGDEC_FISHER p=0.050152", "p_display_only=0.050", "compare=gt",
+                       "decide=raw"))
 
 
 # `CROSSPATH`：两条独立数值路径 + **四条仓内历史读数**（判据 `C2b`）
