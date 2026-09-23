@@ -222,5 +222,73 @@ DEFREG=PASS declared=137 route_ids=137（每个声明编号在其 req 的每个 
 
 ---
 
+---
+
+## §10 后续批次一（`W121A` 仪器登记）—— `D-G76` / `D-G75` / `TASK-0706` ✅ / `TASK-0708`
+
+**落点**：`KNOWN-DEFECTS.md` 的 `D-G76` 条（新增 3 行，`decl_hits` 承重行在**第一行**）｜`D-G75` 条（新增 1 行）｜`docs/ROUTES.md` 的 `TASK-0706`（**状态位 `🔴 → ✅`** ＋ 追加 1 行 ✅ 收口 bullet）＋ 新 `TASK-0708`（6 行）＋ `§15l`。
+
+### 10.1 `D-G76`「有意降级」声明的**成对读数**（这是本批次最值钱的机械证）
+
+| | `IME_LANDING` 总行 | `decl_hits` | `rc` |
+|---|---|---|---|
+| **改前**（本件现场跑） | `IME_LANDING=FAIL landings=0 declared=no ctrl=5 sm82_nonzero=0 shim_map=0 so_syms=0 **decl_hits=0**` `reason=[door-not-declared]` | `0` | **`1`** |
+| **改后**（本件现场跑） | `IME_LANDING=**PASS** landings=0 **declared=yes** ctrl=5 sm82_nonzero=0 shim_map=0 so_syms=0 **decl_hits=2**` | **`2`** | **`0`** |
+
+**为什么是 2 而不是 1**：本件在**两处**落了同一句声明（`KNOWN-DEFECTS.md` ＋ `docs/ROUTES.md §15l`），该牙的登记面含 `docs/**` ⇒ 两行都算（`IME_DECL_HIT path=samples/WpfFeatureProbe/KNOWN-DEFECTS.md line=2309` ＋ `IME_DECL_HIT path=docs/ROUTES.md line=603`）。**改前那条**:`KNOWN-DEFECTS.md:2307` 的旧处置行**仍是 `IME_DECL_PROPOSAL`**（含否决词）—— 原判词**一字未动**，**没有被改造成声明**。
+⚠️ **`landings=0` 不变** ⇒ **转绿只表示"这份降级已在册且被声明"**，**不表示 IME 可用**（这正是本件在册子里 + 地图里都写死的那句）。
+⚠️ **本件没有改那件牙的 `IME_DECL_*` 词表**（词表就是它的判据）—— 只把措辞写成"**决定/声明**"。
+
+### 10.2 `UIA` 牙（`D-G75` 追加）
+**改前 = 改后**（本件现场两次跑，**逐字相同**）：`UIA_DOOR=FAIL prod=0 consume=1 core_shim=0 uia_syms=0 ctrl_syms=8 live_calls=2 (all=69) libs=1 reason=[no-producer head-severed:core-shim=0 head-severed:uia-syms=0]`、`rc=1` —— **这个红是设计**（门不存在）。⇒ **不登记为在册红、本波不接线**（接线 = `TASK-0708`）。
+
+### 10.3 `TASK-0706` 转 ✅ —— **唯一一处"就地改字"**（逐位证）
+现场 `git diff -U0` 该行**只有 1 个字符位置不同**：`pos 21: '🔴'(LARGE RED CIRCLE) → '✅'(WHITE HEAVY CHECK MARK)`，**行长度不变**、**其余逐字相同**。除这一处外本批次**全部只追加**。
+
+---
+
+## §11 后续批次二（`W123A` 处置）—— `D-G101` 的**落地读数**
+
+**落点**：`KNOWN-DEFECTS.md` 的 `D-G101` 条尾（新增 1 段、7 个子条，**原判词一字未动**）。
+
+### 11.1 三个口径的**逐一复算**（本件独立算，不转抄）
+
+| 口径 | 定义 | 本件复算 | 主控/牙报的 | 判 |
+|---|---|---|---|---|
+| 全树 | 只排 `.git` | **12432** | 12432 | ✅ |
+| **W123A 口径** | prune `upstream/`＋`obj/`＋`bin/`＋`.artifacts/` | **1421** | 1421 | ✅ **逐位相同** |
+| **牙口径** | 牙的 `HYG_SKIPDIRS`（再含 `__pycache__`／`node_modules`／`.vs`／`TestResults`／`.dotnet`） | **1388** | 1388 | ✅ **逐位相同** |
+
+**差 = 33，且本件现场定位差集：33 件**全部**落在 `__pycache__/`** ⇒ **两个数都对、口径不同**（必须并排写明）。
+
+### 11.2 其余现场复核（逐条与主控转来的读数比）
+
+| 项 | 主控转来 | 本件现场 | 判 |
+|---|---|---|---|
+| `$R` 内部同 inode 组 | 0 | **0**（prune 口径内 1534 件、`links>1`=**0**） | ✅ |
+| 口径外残余 `links>1` | 11011（`bin/` 2963＋`obj/` 1631＋`upstream/` 6417） | **11011**，三个分项 **2963／1631／6417** | ✅ **逐位相同** |
+| `repin-generation.py` | `a2ca0a26bf99dc7a → 711a1fc30764d84c` | **`711a1fc30764d84c`**；`open(REG, "w"` = **0**／`os.replace(` = **1**／`mode 600` | ✅ |
+| `known-red.json`（$R 侧） | `sha16` 前=后=`089b7324ba12e022`、`links 3→1`、`ino 5251064→4853410` | 四格**逐位相同** | ✅ |
+| 牙第四类 | `HYGIENE_INODE=PASS multilink=0 cross_region=0` | **同**；总行 `HYGIENE_TOOTH=PASS … inode=PASS …`、**`rc=0`** | ✅ |
+| **6 件产品 DLL ↔ `~/w113a/fixture/repo/**`** | **6 件**"已上膛未击发" | 清理**进行中**抓到 **3 件**（`PresentationCore.dll` `ino 5126522`／`WindowsBase.dll` `ino 5126541`／`ReachFramework.dll` `ino 5138421`，均 `links=2`）；**收工前再测 = 0** | ⚠️ **本件未复现 6 这个数**（清理已推进）⇒ **如实记"3（中途）→ 0（收工）"，不转抄 6** |
+| `W123A-report.md` | `02cda62724d4d702` | **本件现场 = `abd86b0bbdabfc9d`**（1745 行 ✅） | ⚠️ **两者不同** ⇒ 记**两个值**并注"该报告仍在写"；`~/w123a/criteria.md` **`9557dc58a986d106`** 与主控转来**逐位相同** ✅ |
+
+### 11.3 本件现场作出的**一处归类裁定**（主控授权"你现场定并写理由"）
+「`repin-generation.py` 不在 `fp_inputs()` 覆盖面 ⇒ 改它零机器红」**并入 `D-G101`（不新号）**。**理由**：`D-G80` 的射程是"**读者拿到旧件**"（副本陈旧 ⇒ 假红／整趟作废）；本条的射程是"**覆盖面缺口 ⇒ 判据看不见这个写者**"，而**这个写者正是 `D-G101` 的施害者** ⇒ 放在 `D-G101` 下**因果同一**；放进 `D-G80` 会把**两个方向**混成一条。**本件独立复算支持**：`fp_inputs()` 149 件里 `grep -c repin` = **0**。
+
+---
+
+## §12 后续批次二／三的推送（**顺延笔**）
+
+| 笔 | 提交 | 件 | 推送前 head → 推送后 head | `BYTECHECK` |
+|---|---|---|---|---|
+| 第十一笔 | `2192c5a7c57f29e8` ＋ `e7c87183f0ea5604`（报告） | 3 ＋ 1 | `b1d3ad6a…` → **`e7c87183f0ea5604557bc394207494cfc6f9e1c6`** | `ok=3 mismatch=0 nobody=0`（＋报告 blob=disk 逐位相同） |
+| 第十一笔续（`W121A`） | **`11e25916e969ae2b82bfe1015fd5df9af4273e80`** | 3 | `e7c87183…` → **`11e25916e969ae2b82bfe1015fd5df9af4273e80`** | 见 `~/w122a/STATUS.md` |
+| 下一笔（`W123A` ／本报告补） | 见 `~/w122a/STATUS.md` | 2 | `11e25916…` → 见 `STATUS.md` | 见 `STATUS.md` |
+
+**纪律照旧**：逐径 `git add`（零 `-A`／零 `--force`）｜push 前一次 `fetch`、push 后再 `fetch` ＋ `ls-remote` **交叉核**｜`--symref` 须仍 `feat-Linux`｜**不推别家在飞件**（`hygiene-tooth.sh`／`uia-door-check.sh`／`ime-landing-check.sh`／`repin-generation.py`／`W115A`·`W118A`·`W119A`·`W121A`·`W123A` 报告／native 源与产品件／`tests/parity/**` —— **一件都没进本车道任何一笔**）。
+
+**`DEFREG`（每一笔都现场跑两遍，`cmp` IDENTICAL）**：第十一笔 `declared=137`｜续笔 `declared=137`（`--emit` 重生成把 `DECLDRIFT` 从 **1 拉回 0**）｜本笔 `declared=137`、`DECLDRIFT=0`、`rc=0`。
+
 <!-- SHA16-W122A 见下（口径：`grep -v '^<!-- SHA16' 本文件 | sha256sum | cut -c1-16`） -->
-<!-- SHA16 2840d3fa120d76cf -->
+<!-- SHA16 6b3a012c664b6fbd -->
