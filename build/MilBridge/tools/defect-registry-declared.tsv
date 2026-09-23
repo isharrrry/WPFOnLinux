@@ -1,5 +1,5 @@
-# DECL-GEN = (--emit) 2026-09-23 13:15:11 +0800
-# DECL-ANCHORS = KD=58d9056f497799ba CS=737c78e3a7e5a3a5 HO=e4dc264200b421d0 AB=27293fb5ab91b778 KRJ=f108775906eac9aa KRF=ab09235afd949bc2 KRP=3c9e3a309b990d31
+# DECL-GEN = (--emit) 2026-09-23 13:29:07 +0800
+# DECL-ANCHORS = KD=edd5d6199fcdb733 CS=737c78e3a7e5a3a5 HO=e4dc264200b421d0 AB=27293fb5ab91b778 KRJ=f108775906eac9aa KRF=ab09235afd949bc2 KRP=3c9e3a309b990d31
 # grammar: D-[A-Z][0-9]*[a-z]?(-[A-Za-z0-9]+)*
 # fields:  ID<TAB><id><TAB>req=<key,key,...|-><TAB>present=<key,key,...>
 # 词法边界（实测）：D-ZZ9 **不合法**（scope 段只许"1 个大写字母 + 数字量词 + 可选 1 个小写"）
