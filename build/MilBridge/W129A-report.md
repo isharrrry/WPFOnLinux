@@ -231,5 +231,11 @@ rc=0
 - ⚠️ **"最终 head"这一格对本报告是自指**：写进去就会再前进一笔 ⇒ 按 **W126A 的结构性自洽表述**：**最终 head = 携带本报告的最后一笔**；**可机读的等价判据 = `HEAD == origin/feat-Linux == ls-remote origin HEAD` 三者相等 ∧ `--symref` 仍 `feat-Linux`**（第 1、2 笔均已用这条判据实测通过）。
 - `BYTECHECK`：本报告这一行的**新 blob** = 本文件现字节（⚠️ **自指** ⇒ 本报告**不把自己的 sha 写进正文**，口径 = 末行的 `head -n -2 <本文件> | sha256sum | cut -c1-16`，FULL sha256 现场现算：`git cat-file -p HEAD:build/MilBridge/W129A-report.md | sha256sum`）；**等价式** = `remote blob(report) == 克隆工作树 == $R` —— 本笔**就是用这三者相等的字节建的**（`cp -p` 后逐件 `cmp` 通过才 `git add`）；其余 **3 件实测 `ok=3 mismatch=0 nobody=0`**（值同上表）。
 
+### `===RECORD-补 2===`（推送**后**复测：⚠️ `$R` 是**活的工作树**，别家车道在推送期间仍在改）
+- **复测时刻** = 本段写入时（≈ 12:1x）；**本件 4 件**逐件仍是 `remote blob == 克隆工作树 == $R`（值同上表）⇒ **`BYTECHECK ok=4 mismatch=0 nobody=0`**；`DEFREG` 终值两遍仍 `PASS declared=145 route_ids=145`／`DECLDRIFT=0`／`rc=0/0`（`cmp` IDENTICAL）。
+- ⚠️ **复测时新出现一件"本地领先"，但不是本件的**：`verify-all.sh` —— `$R` 现 = **`32ddbe487235cc38`**（`mtime 2026-09-23 12:10:02`）vs 远端/克隆 = **`0cdd12547a634b37`**；`diff` 逐字 = **`43a44`／`75a77` 两行新增**，内容 = **`#53` 的预登记**（逐字含 `# VERIFYALL-STEPS-DECL: 27 gen=#53` ＋ `TASK-0109`：「WM 已死但 EWMH 属性残留 ⇒ 静默丢一次移动」；`win32shim` `bd037229be8db4f6` → `a6365183fa6d26b9`；**步数 27 → 27 不动**）⇒ **车道 W131A 在办（属 `#53`）**，**本件未 `add`、未改一字节**。⚠️ **这正是 `D-G108` 要防的形态**：**我推送时，别人的在办件就躺在同一个 `$R` 里** —— 本笔四件**逐径 `git add`** ⇒ **未被夹带**。
+- ⇒ `$R ↔ 远端` **不同件终值 = 4**（W131A 的三件 native 源 ＋ `verify-all.sh`）；**本件 4 件已全部与远端一致**。⚠️ **§⑦ 那句"不同者恰好 6 件"是当时的读数**（当时 `verify-all.sh` 两侧相同、我的报告尚未成为 tracked 件 ⇒ tracked `15262`）；此处**如实给出终值**（`tracked=15263`、不同 **4**）—— **两个数都给**，原因是**工作树在动**，不是判据放宽。
+- **§⑧ 第 2 条复测（终值）**：覆盖面成员件里 `$R != 克隆` 的 = **0 个**（复算）；且 `verify-all.sh` **不在** `fp_inputs()` 覆盖面（**去注释**后 `grep verify-all` 只命中 `verify-all-step-check.sh` —— **另一个**件）⇒ **§⑧ 的"零影响"结论在终值上仍成立**。
+
 （末两行 = 本行 ＋ sha16 行；口径 `head -n -2 <本文件> | sha256sum | cut -c1-16`）
-本报告 sha16 = `8d11645a9a3bd20f`
+本报告 sha16 = `3ff9455c9a7f03eb`
