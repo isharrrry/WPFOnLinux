@@ -369,6 +369,18 @@ COLUMN_FLOOR=PASS reason=decl==frozen-and-decl>=corpus pass=3 fail=0 noinfo=0 se
   **`ok=13 mismatch=0 nobody=0`**（逐件值见上表，逐件逐位相同）
 - `git ls-remote --symref origin HEAD` ⇒ **`ref: refs/heads/feat-Linux  HEAD`** ✓
 
+**第二笔（本报告 ＋ 恢复 `verify-all.sh` 的可执行位）**：
+- 件：`verify-all.sh`（`chmod 755`，**内容 sha16 逐位不变 = `32ddbe487235cc38`**）＋
+  `build/MilBridge/W133A-report.md`（新增，`e3683efe054fbf1e`）
+- 逐件计数对账：`git status --porcelain` **2 行** = `git diff --cached --name-only` **2 件** ⇒ **"本笔恰好 2 件、无夹带"**
+- commit = **`067d719b0a0ec5647657534519ca38c8da01f490`**（`2 files changed, 494 insertions(+)`；
+  `create mode 100644 build/MilBridge/W133A-report.md`；**`mode change 100644 => 100755 verify-all.sh`**）
+- `git push origin feat-Linux`：`aaa5bb5..067d719`；**push 后重新 fetch ＋ `ls-remote` 交叉核 ⇒ 三者一致** ✓
+- **`BYTECHECK ok=2 mismatch=0 nobody=0`**；`--symref` 仍 **`ref: refs/heads/feat-Linux`** ✓
+- ⚠️ **本报告自己那一笔又会让 head 前进**（本报告在 `067d719` 之后还有一次"报告定稿"提交）
+  ⇒ **本报告刻意不写死最终 head**；**最终 head 以 `git ls-remote --symref origin HEAD` 现场读为准**，
+  读数记录在 `$HOME/w133a/logs/17-push3.log` 与 `build/MilBridge/W133A-report.md` 的**末次提交说明**里。
+
 **⚠️ 两处如实记的观察（都不影响任何判据/指纹）**：
 
 1. **`verify-all.sh` 的 `mode` 被本笔记成 `100755 → 100644`**。**根因不是本件的改动**：`$R` 里它**本来就是 `644`**
