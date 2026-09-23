@@ -390,8 +390,15 @@ typedef struct wpf_msg_node {
     //   `PostMessageW`/`SetTimer` 等**非翻译层**入队会沿用上一次残留的 `s_push_mods`
     //   ⇒ 修法乙若不加这道闸，一条被 post 的按键消息就会用**陈旧戳**改写实时表（真回归）。
     uint8_t  mods_valid;
+    // 【W136A · TASK-0209 · F2「写坏者」取证】占原 padding 6 字节 ⇒ **sizeof 不变（仍 64）**：
+    //   magic    —— 节点魔数：写坏者若覆盖它，校验即失配 ⇒ **可区分「链本来坏」与「运行期被写坏」**；
+    //   push_seq —— 入队序号（进程内单调）：台账里可指名「第几个节点、由哪个 tid 写入」。
+    uint16_t magic;
+    uint32_t push_seq;
     struct wpf_msg_node *next;
 } wpf_msg_node;
+_Static_assert(offsetof(wpf_msg_node, next) == 56, "W136A: next 必须仍在 0x38（崩点 mov 0x38(%rax),%rax 的口径）");
+_Static_assert(sizeof(wpf_msg_node) == 64, "W136A: 节点仍须 0x40（尺寸变化会改变与 wpf_thread 的复用关系）");
 
 typedef struct wpf_thread {
     // 线程标识：**就是本结构体自身的地址**。选它的理由——托管侧的

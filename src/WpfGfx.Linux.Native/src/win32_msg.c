@@ -44,6 +44,33 @@ static unsigned long wpf_msgflow_tid(void);
 static const char *wpf_msg_name(UINT m);
 static void wpf_msgflow_snapshot(wpf_thread *t, char *buf, size_t cap);   // v2 仪器③：队列内容快照
 
+// 【W136A · TASK-0209 · F2】队列链腐蚀**具名台账**（**static ⇒ 不新增导出，导出数仍 547**）。
+//   不受 `WPF_LINUX_MSGFLOW_TRACE` 开关限制：故障诊断不是 trace —— **静默失败正是 D-G109 的要害**。
+//   有界：每进程 ≤32 行。三件「写坏者」证据见函数体。
+#define WPF_QNODE_MAGIC  0x51A7u
+#define WPF_QCORRUPT_MAX 32
+static uint64_t      s_push_seq;          // 进程内单调入队序号
+static unsigned long s_last_push_tid;     // 最后一次写队列的 tid
+static int           s_qcorrupt_lines;
+
+static void wpf_queue_corrupt_report(wpf_thread *t, wpf_msg_node *suspect, uint32_t msg, const char *why)
+{
+    if (s_qcorrupt_lines >= WPF_QCORRUPT_MAX) return;
+    s_qcorrupt_lines++;
+    uintptr_t v = (uintptr_t)suspect;
+    // ③ **不解引用**的形态判据：x86-64 上 malloc 指针必然 ≥ 0x10000 且 16 字节对齐
+    //    ⇒ `0x102`（消息号 WMP_CHAR 当了指针）当场现形。这一条是本波现场崩点的指纹。
+    int looks_like_node = (v >= 0x10000u) && ((v & 0xFu) == 0);
+    fprintf(stderr,
+            "[QUEUE_CORRUPT] 站点=wpf_queue_push 原因=%s 线程队列=%p 可疑链头=%p 形态判据=%s "
+            "触发消息=0x%04x tid=%lu 上次写队列: seq=%llu tid=%lu 对策=隔离可疑链(零解引用)+本条消息照常入队\n",
+            why, (void *)t, (void *)suspect,
+            looks_like_node ? "疑似节点指针(须人工核)" : "**必非节点指针**（低值/未对齐 ⇒ 类型混淆或运行期被写坏）",
+            (unsigned)msg, wpf_msgflow_tid(),
+            (unsigned long long)s_push_seq, s_last_push_tid);
+    fflush(stderr);
+}
+
 // ── 队列原语 ───────────────────────────────────────────────────────────────
 // [D-K1 · 波 20] 入队时刻的修饰位（翻译层单线程设置 ⇒ 无需原子）
 static uint32_t s_push_mods;
@@ -66,21 +93,38 @@ void wpf_queue_push(wpf_thread *t, const WPF_MSG *m)
     s_push_mods_valid = 0;
     n->msg = *m;
     n->next = NULL;
+    n->magic = WPF_QNODE_MAGIC;          // 【F2】写入魔数（写坏者覆盖它 ⇒ 校验失配，可归因）
 
     wpf_lock();
+    s_push_seq++;                                  // 【F2】进程内单调：台账可指名"第几次写"
+    s_last_push_tid = wpf_msgflow_tid();           // 【F2】谁写的
+    n->push_seq = (uint32_t)s_push_seq;            // 【F2】把「谁写的、第几次」钉在这个节点上
     if (t->tail) {
         t->tail->next = n;
     } else if (t->head) {
-        // 【MSGFLOW v3 · F-B 防御】非法状态：`head != NULL` 而 `tail == NULL`。
-        //   旧实现走 `else t->head = n;` ⇒ **覆盖 head、把整条链孤儿化**（既不在队里也没 free
-        //   ⇒ **静默丢件、出队侧一行都不打**：这正是 textbox 那条 `WM_CHAR` 消失的机制）。
-        //   现在：**绝不覆盖 head**，改为自愈 tail（走到真正队尾再接上）并**打一行告警**（不静默）。
-        wpf_msg_node *p = t->head;
-        while (p->next) p = p->next;
-        t->tail = p;
-        p->next = n;
-        wpf_msgflow("⚠ push：检测到 head!=NULL 而 tail==NULL（队列状态不一致）⇒ 已自愈 tail 并接在队尾，"
-                    "**没有覆盖 head**（msg=0x%04x）", (unsigned)m->message);
+        // 【W136A · TASK-0209 · F1 修法】本分支**禁止再走链**。
+        //   ── 旧实现（波 #53 现场件）逐字是：
+        //        wpf_msg_node *p = t->head;
+        //        while (p->next) p = p->next;          ← ⚠️ 崩点
+        //   ── 崩点已被**逐指令钉死**（沙箱件与仓内权威件逐字节相同，见 logs/disasm-queue_push.txt）：
+        //        wpf_queue_push+259 = 0x14983 = `mov 0x38(%rax),%rax`
+        //        0x38 = offsetof(wpf_msg_node, next) = 56；rax = `t->head`
+        //   ── 为什么 `tail==NULL && head!=NULL` 会**真的发生**（不是理论）：
+        //        sizeof(wpf_thread) == sizeof(wpf_msg_node) == 64 == 0x40
+        //        ⇒ 一个**已 free 的线程结构**会被下一次 `malloc(0x40)` **原样复用成消息节点**；
+        //          按 wpf_thread 视图读那块内存：head(@8) = msg.message|_pad0 = 0x0102、
+        //          tail(@16) = msg.wParam = 0（`PostMessageW(hwnd,msg,0,0)` 的常见形态）
+        //        ⇒ 恰好命中本分支 ⇒ 把**消息号 0x102 当节点指针**去读 `->next`
+        //        ⇒ 确定性 SEGV，且**一行输出都没有**（应用 0 字节输出 = D-G109 的判词形态）。
+        //   ── 修法：**一次 dereference 都不做**。可疑链**隔离登记**（有界、具名、可归因），
+        //      本条消息照常入队成一条干净的单节点队列 ⇒ 既不崩，也**不静默丢件**。
+        //      （"只加空指针守卫"被明令禁止：那会把"链被写坏"降级成"静默丢消息"，正是本缺口要防的。）
+        wpf_msg_node *quarantine = t->head;      // 只记指针，**绝不解引用**
+        n->next = NULL;
+        t->head = n;
+        t->tail = n;
+        wpf_queue_corrupt_report(t, quarantine, m->message,
+                                 "tail==NULL 而 head!=NULL（链已不可信）");
     } else {
         t->head = n;
     }
@@ -765,20 +809,55 @@ LRESULT DispatchMessageA(const WPF_MSG *m) { return DispatchMessageW(m); }
 LRESULT DispatchMessage(const WPF_MSG *m) { return DispatchMessageW(m); }
 
 // ── 投递 / 发送 ────────────────────────────────────────────────────────────
+// 【W136A · F3b 后续 · 主控裁定 (A)】(A) 具名台账：`PostMessageW` 打到**线程已死**的窗口时，
+//   **不许静默改投调用者队列**（本仓铁律：不许静默 no-op）。
+//   **static ⇒ 不新增导出（导出数仍 547）**；**不受 MSGFLOW 开关限制**；每进程有界 ≤32 行。
+//   主控要求的字段：hwnd / tid / caller_tid 都给到（tid 用"窗口的 owner 已置空"表达，
+//   真线程 id 在 F3b 置空那一刻已不可追，故用 owner_thread=(nil) 指明"死因是线程退出"）。
+#define WPF_POSTMSG_DEAD_MAX 32
+static int s_postmsg_dead_lines;
+static void wpf_postmsg_dead_target(HWND hwnd)
+{
+    if (s_postmsg_dead_lines >= WPF_POSTMSG_DEAD_MAX) return;
+    s_postmsg_dead_lines++;
+    fprintf(stderr,
+            "[POSTMSG_DEAD_TARGET] hwnd=%p owner_thread=(nil) 原因=该窗口的线程已退出 "
+            "caller_tid=%lu 处理=拒绝投递(return 0 + ERROR_INVALID_WINDOW_HANDLE) **不再改投调用者队列** "
+            "（Win32：窗口线程退出后该 hwnd 已不可用；改投会导致窗口过程在错误线程上执行）\n",
+            (void *)hwnd, wpf_msgflow_tid());
+    fflush(stderr);
+}
+
 BOOL PostMessageW(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
     wpf_global_init();
 
     // 目标线程：窗口的创建线程；hwnd 为 NULL 时是调用线程（Win32 语义）。
     wpf_thread *target = NULL;
+    // 【W136A · 主控裁定 (A)/(B)】"窗口在表里但它的 owner_thread 为空" = 该窗口的线程已死
+    //   （F3b 在线程退出时把 owner_thread 置空，见 win32_core.c 的 wpf_thread_destroy）。
+    //   ⚠️ 必须在**锁内**取这个布尔：解锁之后 `w` 可能已被 DestroyWindow 释放（悬垂指针）。
+    int owner_dead_in_table = 0;
     if (hwnd) {
         wpf_lock();
         wpf_window *w = wpf_window_find(hwnd);
         // owner_thread 直接就是 wpf_thread*（见 win32_internal.h 的说明），
         // 不需要再查表 —— 这也保证了 PostMessage 能在任意线程上安全调用。
         target = w ? (wpf_thread *)w->owner_thread : NULL;
+        if (w && !w->owner_thread) owner_dead_in_table = 1;
         pthread_mutex_unlock(&g_wpf.lock);
         if (!target) {
+            // (A)+(B)：先打具名台账，再按 **Win32 正确语义** 拒绝投递。
+            //   为什么可以改语义（机械证，见报告 §⑬）：`wpf_window_add`（win32_core.c:893）
+            //   与 `w->owner_thread = …`（:920）在**同一个临界区**（:880 lock … :921 unlock）
+            //   ⇒ 在 F3b 之前，`窗口在表里 ∧ owner_thread==NULL` **不可观测** ⇒ 没有任何
+            //   既有调用者可能依赖那支"改投调用者队列"的兜底；唯一能走到它的就是"线程已死"。
+            //   （`hwnd == g_wpf.root` 那一格 **不受影响**，仍走下面的 `target = wpf_thread_self()`。）
+            if (owner_dead_in_table) {
+                wpf_postmsg_dead_target(hwnd);
+                wpf_set_last_error(ERROR_INVALID_WINDOW_HANDLE);
+                return 0;
+            }
             // 窗口不在表里（已销毁或从未创建）→ Win32 返回 FALSE。
             if (!wpf_window_find(hwnd) && hwnd != (HWND)(uintptr_t)g_wpf.root) {
                 wpf_set_last_error(ERROR_INVALID_WINDOW_HANDLE);

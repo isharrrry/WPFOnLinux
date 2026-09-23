@@ -150,8 +150,43 @@ static void wpf_thread_destroy(void *p)
     if (!t) return;
     if (t->wake_read >= 0) close(t->wake_read);
     if (t->wake_write >= 0) close(t->wake_write);
-    wpf_msg_node *n = t->head;
+    // 【W136A · TASK-0209 · F3「写坏者」堵源】旧实现只 `free(t)` 而**从不把线程从
+    //   `g_wpf.threads` 摘链**（全仓 `g_wpf.threads` 只有 :61 初始化与 :191 头插两处写）⇒
+    //   线程一死，链上就留下一个指向已释放内存的 `wpf_thread*`：
+    //     · `PostThreadMessageW` 按 id 走这条链找人（win32_msg.c 现场件）；
+    //     · 任何诊断遍历也会踩它；
+    //     · 而 `free(t)` 后的 0x40 块会被下一次 `malloc(0x40)` 复用成消息节点（同尺寸）
+    //       ⇒ 队列指针读出来就是消息号（本波崩点 rax=0x102 的来历）。
+    //   摘链后：悬挂指针不再挂在全局表上 ⇒ "同一块内存又被当成线程队列来写"的第一条路径断掉。
+    wpf_lock();
+    if (g_wpf.threads == t) {
+        g_wpf.threads = t->next;
+    } else {
+        for (wpf_thread *q = g_wpf.threads; q; q = q->next)
+            if (q->next == t) { q->next = t->next; break; }
+    }
+    pthread_mutex_unlock(&g_wpf.lock);
+
+    // 【W136A · TASK-0209 · F3b】把**窗口 / 定时器**上指向本线程的 owner_thread 一并清掉。
+    //   依据（逐字）：win32_msg.c:779 `target = w ? (wpf_thread *)w->owner_thread : NULL;`
+    //   紧接着 :803 `wpf_queue_push(target, &m);` —— **没有任何"target 还活着吗"的检查**；
+    //   而全仓 `grep -rn "owner_thread" src/*.c` = 6 处**读**、**0 处置空** ⇒ 线程一死，
+    //   它的窗口仍握着一个指向已释放 wpf_thread 的指针，任何线程 `PostMessageW(那个 hwnd)` 都会
+    //   把它送进 `wpf_queue_push`（与 D-G109 同一形态）。
+    //   实测（本件 sandbox/repro/repro_owner.c：真窗口 + 真 PostMessageW + 真线程退出）：
+    //     修前 窗口仍在表里=1 owner_thread=悬挂线程 ⇒ rc=139，崩点仍在链遍历。
+    //   置空后：PostMessageW 走 `if (!target)` 分支 ⇒ 窗口在表里 ⇒ `target = wpf_thread_self()`
+    //     ⇒ 消息落到**调用者队列**（不再写已释放内存；"这个窗口的线程已经死了"本来就是事实）。
+    wpf_lock();
+    for (wpf_window *w = g_wpf.windows; w; w = w->next)
+        if (w->owner_thread == (void *)t) w->owner_thread = NULL;
+    for (wpf_timer *it = g_wpf.timers; it; it = it->next)
+        if (it->owner_thread == (void *)t) it->owner_thread = NULL;
+    pthread_mutex_unlock(&g_wpf.lock);
+
+    wpf_msg_node *n = t->head;                     // ⚠️ 次序：先遍历释放节点，**再**归零
     while (n) { wpf_msg_node *nx = n->next; free(n); n = nx; }
+    t->head = NULL; t->tail = NULL;                // 显式归零（不依赖"反正要 free"）
     free(t);
 }
 

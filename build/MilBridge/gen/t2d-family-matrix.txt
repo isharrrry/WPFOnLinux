@@ -1,6 +1,6 @@
 # T1b2/#12 · 隔离矩阵（族 × `>0.34 DIP` 桶红数）—— **机器断言，不是人眼比对**
 # 口径：档位后缀 `_wNN`/`_winf` 归一后按族计数（Family()/FamilyOf()，与 t2d-width-diff.txt 同源）
-# before 来源：上一趟 artifact gen/t2d-width-diff.txt sha16=7B4289AD3B56DBE3 mtime=2026-09-23 12:45:16（本文件即上一趟跑的产物 ⇒ 它就是「上一趟的族表」）
+# before 来源：上一趟 artifact gen/t2d-width-diff.txt sha16=7B4289AD3B56DBE3 mtime=2026-09-23 17:51:29（本文件即上一趟跑的产物 ⇒ 它就是「上一趟的族表」）
 # 允许变化的族：A1_nbsp_zwsp / B_nbsp_zwsp / B_nbsp_zwsp_trim / F_nbsp_zwsp / F_lat_words / M_modifier（其余族必须一位不动）
 # 各和 = 0 == 总数 0 : OK
 # 逐族 diff = 一位未动（全部族计数与基线逐位相同）
