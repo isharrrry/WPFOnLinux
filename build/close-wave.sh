@@ -211,6 +211,18 @@ fp_inputs() {  # 手写输入指纹（应用器 + port-lib + 本脚本 + 波脚�
       #     `verify-all.sh`（第 `[26]` 步＋四处声明；**实测它本来就不在覆盖面**，与本行无关）、
       #     `build/PresentationFramework.Linux/reapply-patches.py` 与 PF 的 `*.Linux.cs` 生成件
       #     （`TASK-0303` 的 `A2/A3` 修法所在）⇒ 对 `inputs_fp` **不可见**，只有 `ARTIFACT-SRC-FP` 看得见。
+      # 【`#56` W142A 补一行（**主控 22:5x 逐条批准**）：`regression-decision-cases.tsv` 是第 `[29]` 步
+      #   `REGRESSION-DECISION` 的**判据输入** —— `verify-all.sh:959` 把它当 `--cases` 交给牙，
+      #   牙逐行比对「台账里**声明的期望** == 工具给的判词」⇒ **改台账 = 改 PASS 的定义**
+      #   （与 `tline-gate.sh`／`known-red.json`／`r-gate-step.sh` **同族**：判据件改它必须看得见）。
+      #   机械证（两向，都已现场跑过）：
+      #     ① `grep -c 'regression-decision' build/MilBridge/tools/tline-gate.sh` = **0**
+      #        ⇒ 五臂门禁**不读**它（所以它**不是**走 `tline-gate.sh` 那条路进来的）；
+      #     ② `grep -n 'regression-decision-cases' verify-all.sh` = `:959`（步 `[29]` 的 `--cases` 参数）
+      #        ⇒ **接线后的 `verify-all` 读它**。
+      #   判据：**读 ⇒ 进 `fp_inputs()`**（若判"不读"，则须给"命中 0"的机械证才能不进）。
+      #   ⚠️ 本行让 `inputs_fp` 再位移一次（连同 `close-wave.sh` 自含于覆盖面）⇒ 属**设计性变更**，
+      #      必须在 `IN_FP_0` 采样**之前**落定（本行落在此处，早于波）。
       printf '%s\n' build/MilBridge/tools/tline-gate.sh build/MilBridge/known-red.json \
           build/MilBridge/tools/verify-all-step-check.sh build/MilBridge/tools/fp-inputs-hygiene-check.sh \
           build/MilBridge/tools/column-floor-check.sh build/MilBridge/tools/hidden-only-step.sh \
@@ -225,7 +237,13 @@ fp_inputs() {  # 手写输入指纹（应用器 + port-lib + 本脚本 + 波脚�
           build/MilBridge/tools/sync-applocal.sh \
           build/DirectWrite.Linux/wic-shim/check-applocal-sync.sh \
           build/DirectWrite.Linux/wic-shim/applocal-expect.py \
-          samples/ThirdPartyMini/run-thirdparty-mini.sh
+          samples/ThirdPartyMini/run-thirdparty-mini.sh \
+          build/MilBridge/tools/hygiene-tooth.sh \
+          build/MilBridge/tools/regression-decision.py \
+          build/MilBridge/tools/uia-door-check.sh \
+          build/MilBridge/tools/ime-landing-check.sh \
+          build/MilBridge/tools/known-red-arms-check.sh \
+          build/MilBridge/tools/regression-decision-cases.tsv
     } | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -d' ' -f1
 }
 sha16() { sha256sum "$1" 2>/dev/null | cut -c1-16; }

@@ -1,0 +1,13 @@
+# regression-decision-cases.tsv —— 「回归判定」的**台账**（`TASK-0705` 的牙 · **接线件**；W117A 起草、接线那一波落）
+#   ⚠️ 台账 = "**我声明的期望**"；牙判的是"工具给的判词 == 这里的期望"，两者不符 ⇒ 红。
+#   列序（TAB 分隔、`#` 注释、空行忽略；`-` = 该格不给）：
+#     name  old  new  pairs  repro  planned_legs  planned_power  alt_old  alt_new  denominator  old_total  old_skipped  want_state  want_rc
+#   `old`/`new` = **红数/真尝试过的趟数**（`D-G94`：分母只算"真尝试过的趟"）。
+#   `want_state ∈ REGRESSION|NOINFO|OK`；`want_rc ∈ 0|2|3`。
+DG98-historical-replay	2/36	3/36	36	yes	36	0.80	-	-	tried	-	-	OK	0
+W112A-old-clean-not-significant	0/40	2/16	16	no	16	0.80	-	-	tried	-	-	NOINFO	3
+W114A-sixteen-legs-6pct	0/16	1/16	16	no	16	0.80	-	-	tried	-	-	NOINFO	3
+deterministic-new-only-5-of-5	0/5	5/5	5	no	5	0.80	-	-	tried	-	-	REGRESSION	0
+significant-intermittent-5-of-16	0/16	5/16	16	no	16	0.80	-	-	tried	-	-	REGRESSION	0
+DG94-denominator-counts-skipped	7/9	4/9	9	no	9	0.80	-	-	tried	9	2	NOINFO	2
+both-arms-green	0/16	0/16	16	no	16	0.80	-	-	tried	-	-	OK	0

@@ -32,6 +32,7 @@
 #   **时间预算（实测，不是估计）**：第 11 步 ≈66 s；**第 12 步 `WALL≈394–428 s`、峰值 RSS ≈690 MB**
 #   （干净单跑 394 s / 并发下 428 s）⇒ 整趟 `verify-all` 比 `#23` **长约 7 分钟**。
 #
+#   **`#56` 收官起 = 31 步**（`#56` **加四步**：第 `[28]` 步 `HYGIENE` ＋ 第 `[29]` 步 `REGRESSION-DECISION` ＋ 第 `[30]` 步 `UIA-DOOR`（**在册红**形态）＋ 第 `[31]` 步 `IME-LANDING`；`TASK-0708` 的接线，四件**纯读、零 `dotnet`、秒级**。⚠️ 这半句是 `verify-all-step-check.sh:169` 用 `grep -qF` **逐字**找的 ⇒ 一个字符都不能改。）
 # ── 步名/步数声明（**机器读**；`D-G22` 的「声明的集合」= 这一段；**改步必同趟改本块**）──────
 #   读者 = `build/MilBridge/tools/verify-all-step-check.sh`（第 `[11]` 步）。它比对三件事：
 #     ① 本块的**步名清单** ⇔ 现场 `^run_step "` 抽出的步名（**多重集合 + 次序 + 无重名**）；
@@ -41,6 +42,7 @@
 #   ⚠️ 本块**故意放在同一个文件里**：跨文件的手工声明在本仓**已经失败过一次**（`docs/CURRENT-STATE.md`
 #      那句"当前期望是 N 步"在 `#26`/`#27` 连加 3 步时毫无反应、全程零红）⇒ 声明必须与本体同趟改、同趟审。
 #   ⚠️ **不许**用 `echo "====="` 当接线锚（它在本文件里有 **4** 处）；锚用 `run_step "DEFECT-REGISTRY" …`。
+# VERIFYALL-STEPS-DECL: 31 gen=#56   ← `#56` **加四步**（27 → 31）：第 `[28]` 步 `HYGIENE`（`TASK-0706` 的牙 `build/MilBridge/tools/hygiene-tooth.sh`：四类装置/口径卫生 —— ① `D-G91` 根集合一致性 ② `D-G96` 证据保全 ③ `D-G97`/`D-G42` 口径射程**审计报告** ④ 跨区同 inode；`HYGIENE_SCOPE` **永不为 PASS**（恒 `REPORT`/`NOINFO`）⇒ 它**不**声称全域干净）＋ 第 `[29]` 步 `REGRESSION-DECISION`（`TASK-0705`：回归判定四要件，缺一即 `NOINFO`）＋ 第 `[30]` 步 `UIA-DOOR`（`D-G75` 的牙，**走在册红形态**：该步跑新消费者 `build/MilBridge/tools/known-red-arms-check.sh`，**红 == 在册 ⇒ `rc=0`；红不在册 ⇒ `rc=1`** —— 直接跑 `uia-door-check.sh` 会每趟多一个 ❌，因为 UIA 的门今天**不存在**、红是设计）＋ 第 `[31]` 步 `IME-LANDING`（`D-G76` 的牙，靠本册那条「有意降级」的正式声明才绿）。四件**纯读、零 `dotnet`、秒级**；不改产品件 ⇒ 九位逐位不动。四处声明（`DECL`／`STEP-NAMES`／口径句／预登记 H1）**同趟**改。**步数：27 → 31**）
 # VERIFYALL-STEPS-DECL: 27 gen=#55   ← `#55` **不动步数**（本波 = **`TASK-0209`：「静默 SEGV／`D-G109`」的产品修法** —— `src/WpfGfx.Linux.Native/src/win32_msg.c:57-82` 的**队列链遍历**（约 `:79` 的 `while (p->next) p = p->next;`）在**坏链**输入下踩到被写坏的节点 ⇒ 进程静默死（应用自己 0 字节输出）；机制 = `sizeof(wpf_thread)==sizeof(wpf_msg_node)==0x40` ⇒ 线程退出 `free` 的块被下一次 `malloc(0x40)` 复用成消息节点／`owner_thread` 悬垂。修法四件（**不是**只加空指针守卫）：F1 零解引用隔离抢救 ＋ F2 具名台账 `[QUEUE_CORRUPT]`（`static`）＋ F3 `wpf_thread_destroy` 摘链 ＋ F3b 置空 `owner_thread`／拒绝投递 `[POSTMSG_DEAD_TARGET]`。⇒ `win32shim` `a6365183fa6d26b9` → `2067cb1c97728791`（**327,672 B**；**导出符号 547 不变**）。两极化**四档成对**：基线 `rc=139` → `fixed` 主队列 +0 → `fixed2` +1（静默改投）→ `fixed3` 返回 0／+0／具名行；件级逐字节回 `a6365183fa6d26b9`。**不加步**（本波零接线）⇒ `VERIFYALL_SELF` 现场 = `names=27 decl=27`（`gen` 与代号一致）。**步数：27 → 27（不动）**）
 # VERIFYALL-STEPS-DECL: 27 gen=#54   ← `#54` **不动步数**（本波 = **`TASK-0210`：「桥侧几何重发／接管」**，修 `D-G98` 族；唯一产品改动 = `src/WpfGfx.Linux/Interop/MilPresentation.cs`（`8b44b61f944aeeaa` → `a5ecf1a8faaa2a00`），**唯一改动点 `:1086-1115`**：接既有窗（`OwnsWindow==false`）时**只读尺寸、不写几何**，自建窗分支逐字保留 ⇒ `bridge` `feef049e9d0e313a` → `4e25e4b27d4d5ae1`（**5,028,208 B 尺寸不变**）。W134A 两点承重判据：**① 协议台账那条 `ConfigureWindow` 命中数 12/12 → 0**（旧件 12/12 红 ⇒ 新件 0/12 红）；**② `xobs` 时间轴四跳 → 三跳**（末态 `800x600`）；率（`N=12`/臂）**只作支撑**。**不加步**（本波零接线）⇒ `VERIFYALL_SELF` 现场 = `names=27 decl=27`（`gen` 与代号一致）。**步数：27 → 27（不动）**）
 # VERIFYALL-STEPS-DECL: 27 gen=#53   ← `#53` **不动步数**（本波 = **`TASK-0109`：「WM 已死但 EWMH 属性残留 ⇒ 静默丢一次移动」** —— 与 `D-G81` 同族）：把 `wpf_x11_has_ewmh_wm()` 的语义从「**属性在不在**」改成「**属性在 ∧ 那个检查窗此刻真的在树里**」（临时 `XSetErrorHandler` ＋ `XSync` 换回；判活**不按错误码白名单** —— 同一语义「窗没了」`XGetWindowAttributes`/`XGetWindowProperty`/`XQueryTree` 报 `BadWindow(3)` 而 `XGetGeometry` 报 `9`）；两处调用点**同因同修**（`win32_x11.c` 的 `moveresize` ＋ `win32_core.c:653` 的**窗态最大/还原**）＋ 一条**无条件大声诊断** `[WMCHECK_STALE]`（`M3`）；**保持返回 1 的对外契约**。⇒ `win32shim` `bd037229be8db4f6` → `a6365183fa6d26b9`（**导出符号 547 不变**）。W131A 深仪器三态：修前 `green=7 red=5 noinfo=0` ⇒ 修后 **`green=12 red=0`**；两极化闭合（复原源 ⇒ `.so` `cmp` 逐字节回 `bd037229…`）。**不加步**（本波零接线）⇒ `VERIFYALL_SELF` 现场 = `names=27 decl=27`（`gen` 与代号一致）。**步数：27 → 27（不动）**）
@@ -66,7 +68,7 @@
 # VERIFYALL-STEPS-DECL: 18 gen=#30   ← **史实行**（`#30` 收官当时的步数 —— 那一波**一步未加**）
 #   ⚠️ 读者 `decl_line()` 取**第一条**（`sed -n … | head -1`）⇒ **最上面那条才是当前口径**；
 #   下面两条只为「本波从哪一代起、加了几步」留机读痕迹。⚠️ **史实行只许追加、不许改**（纪律 61 同族）。
-# VERIFYALL-STEP-NAMES: 主工程 WpfGfx.Linux | wpf-linux.sln | Commands.Tests | Rendering.Tests | Windowing.Tests | HelloMil.Tests | ManagedLayer.Tests | Presentation.Tests | verify-cmd-layout.py | tline-gate（五臂） | PcLineOracle·Start 列 | FrameProbe-frame | BASELINE-SHA | ARM-LOG-SHA | BUILD-HYGIENE | DEFECT-REGISTRY | VERIFYALL-SELF | FP-INPUTS-HYGIENE | HIDDEN-ONLY | COLUMN-FLOOR | QUOTE-TRAP | PRODUCT-ENTRY | FRAME-PRESENCE | PIPEFAIL-SIGPIPE | THIRD-PARTY | R-GATE（连续交互） | NUL-BYTES
+# VERIFYALL-STEP-NAMES: 主工程 WpfGfx.Linux | wpf-linux.sln | Commands.Tests | Rendering.Tests | Windowing.Tests | HelloMil.Tests | ManagedLayer.Tests | Presentation.Tests | verify-cmd-layout.py | tline-gate（五臂） | PcLineOracle·Start 列 | FrameProbe-frame | BASELINE-SHA | ARM-LOG-SHA | BUILD-HYGIENE | DEFECT-REGISTRY | VERIFYALL-SELF | FP-INPUTS-HYGIENE | HIDDEN-ONLY | COLUMN-FLOOR | QUOTE-TRAP | PRODUCT-ENTRY | FRAME-PRESENCE | PIPEFAIL-SIGPIPE | THIRD-PARTY | R-GATE（连续交互） | NUL-BYTES | HYGIENE | REGRESSION-DECISION | UIA-DOOR | IME-LANDING
 #   **`#28` 收官起 = 17 步**（`#28` 加第 `[11]` 步 `VERIFYALL-SELF`）｜**`#29` 收官起 = 18 步**
 #   （`#29` 加第 `[12]` 步 `FP-INPUTS-HYGIENE`：核对 `fp_inputs()` 的覆盖面里**不许出现产物路径**）｜
 #   **`#30` 收官起 = 18 步**（**仪器加固波、步数一步未加**）｜**`#31` 收官起 = 21 步**（`#31` 加第 `[13]` 步
@@ -937,6 +939,31 @@ run_step "R-GATE（连续交互）" bash build/MilBridge/tools/r-gate-step.sh
 echo
 echo "[27] 源卫生：声明覆盖面里不许有真 NUL 字节（D-G82 的牙；只读、零 dotnet、≈0.4 s；#51 加）"
 run_step "NUL-BYTES" bash build/MilBridge/tools/nul-bytes-check.sh
+# W137A-0708-BEGIN
+# ── 【第 `[28]`–`[31]` 步 —— `TASK-0708`（波 `#56` 仪器波）：四件新牙**同趟**接线】──────
+#   为什么加：四件牙此前**牙已备、无人跑**（`build/MilBridge/W119A-report.md` §5、
+#   `W117A-report.md` §5、`W121A-report.md` §5 各自登记为"未接线"）。
+#   ⚠️ **`UIA-DOOR` 那一步跑的**不是 `uia-door-check.sh` 本身**而是新消费者**
+#      `known-red-arms-check.sh` —— 因为 `D-G75` 的 UIA 门今天**不存在**，那件牙
+#      `rc=1` **是设计**；直接 `run_step` ⇒ 每趟多一个 ❌（冻结脚本 `nfail == _expected_red`
+#      当场失败）⇒ 必须走仓内既有的「**在册红**」形态（样板 = `tline-gate.sh` 的
+#      `GATE_REASON=all-as-registered`：**红 == 在册 ⇒ 绿；红不在册 ⇒ 红**）。
+#   ⚠️ 且**只加 `known-red.json` 的 `entries[]` 是惰性的** —— 门禁的臂是硬编码 5 臂
+#      （`tline-gate.sh:124 ARMS=(…)`），`arm ∉ ARMS` 的条目**永远不会被取到**、且
+#      无任何未知臂告警（现场机械核）⇒ 必须有消费者，本步就是。
+echo
+echo "[28] 装置/口径卫生：根集合一致性 ＋ 证据保全 ＋ 口径射程 ＋ 跨区同 inode（TASK-0706 的牙；只读、零 dotnet、秒级；#56 加）"
+run_step "HYGIENE" bash build/MilBridge/tools/hygiene-tooth.sh
+echo
+echo "[29] 回归判定四要件：两臂同刻 ＋ 成对归因臂 ＋ 复现性 ＋ Fisher 双尾（TASK-0705 的牙；纯 python、零 dotnet；#56 加）"
+run_step "REGRESSION-DECISION" python3 build/MilBridge/tools/regression-decision.py --cases build/MilBridge/tools/regression-decision-cases.tsv
+echo
+echo "[30] 在册红臂（不在门禁 5 臂内的那些）：UIA-DOOR / D-G75 的门今天不存在（纯读、零 dotnet；#56 加）"
+run_step "UIA-DOOR" bash build/MilBridge/tools/known-red-arms-check.sh
+echo
+echo "[31] IME 落点 ＋ 那道『巧合关闭的门』的在册声明（D-G76；纯读、零 dotnet；#56 加）"
+run_step "IME-LANDING" bash build/MilBridge/tools/ime-landing-check.sh
+# W137A-0708-END
 
 echo
 echo "======================================================"
