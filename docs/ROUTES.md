@@ -380,7 +380,7 @@ wpf-linux 路线图
     - ⚠️ **仍红的诚实项**：幂等 `I1` 在 `W3` 由 `2/2/0` 变 **`3/2/1`（红，如实报）**，相邻同值那一次的**精确机制记 `NOINFO`**（直接原因之一是 `D-G90` 的 40 行截断把该趟发布决定行截掉）；同装置 `w3one`（只改一个 DP ＋ 2 次 `HIDE/SHOW`）`blocks=2 reps=0` ⇒ **幂等路径本身是好的**。
     - **登记侧**：新 applier 的登记已由**主控**落两处（`build/integration-wave.sh` 的 `APPLIERS_EXPLICIT+=( patch-presentationframework-window-minmax-notify )` ＋ `build/MilBridge/tools/applier-audit-expected.txt`）⇒ 主控现场审计 **`APPLIER_AUDIT_SUMMARY appliers=28 ok=95 miss=0 red=0 rc=0`**（登记前 `27/92`）。
     - ⚠️ **未跑项（`NOINFO`）**：`0104` 四入口 **26 腿**（装置在别人车道的 `~/w89a/bin/**`，≈30 min）**没跑**；W106A 自报"**它是收尾链的第一优先**"（`P2`/`P4` 正落在最大化/还原与重入那条路上）。
-- `TASK-0109` [Next] ✅ **产品侧 `wpf_x11_has_ewmh_wm()` 的残留边界：`WM` 已死而 EWMH 属性残留时，可能**静默丢一次移动**（来源 = W102A 报告 §8.5 记的 `NOINFO`；与 `D-G88`／`H2` 相邻但**不同因**）：
+- `TASK-0109` ✅ **产品侧 `wpf_x11_has_ewmh_wm()` 的残留边界：`WM` 已死而 EWMH 属性残留时，可能**静默丢一次移动**（来源 = W102A 报告 §8.5 记的 `NOINFO`；与 `D-G88`／`H2` 相邻但**不同因**）：
   - 判定点：`src/WpfGfx.Linux.Native/src/win32_x11.c` 的 `:1659 wpf_x11_has_ewmh_wm()`（`_NET_SUPPORTING_WM_CHECK` 的 intern 在 `:198`）＋ `:1780 wpf_x11_moveresize()`；声明在 `src/WpfGfx.Linux.Native/src/win32_internal.h:590`。
   - 现象与推因（**未实测产品面**）：`has_ewmh_wm()` 用的是**真** `XGetWindowProperty`（**不是**恒真谓词 ⇒ **不属 `D-G89` 族**），但它**只查"属性在不在"，不查"那个窗还在不在"**；而既有留档已证 **WM 死后 EWMH 属性会残留**（`build/MilBridge/W54A-report.md` §0.4(1) 逐字 `WMPROOF_AFTER: … window id # 0x2000ae  xfwm4_alive=no`；同一现象另见 `~/w53a/logs/WFP3-wm-killwm/report.txt:9`）⇒ `wpf_x11_moveresize()` 在"**WM 已死但属性残留**"时会**走 EWMH 分支**（`XSendEvent` 给 root，无人处理）而**不走兜底 `XMoveResizeWindow`** ⇒ **可能静默丢一次移动**。
   - 要建的场景（**判据先写**）：起 WM ⇒ 用 `TASK-0703` 的真判据确认三条件在场 ⇒ **杀 WM 但保留属性** ⇒ 请求一次移动/改尺寸 ⇒ 期望 = **兜底路径生效（窗口真的动了）**或**大声失败**；**取不到读数 ⇒ `NOINFO`**（既不算绿也不算红，不许猜）。
