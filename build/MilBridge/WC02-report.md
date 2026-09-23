@@ -3,7 +3,7 @@
 > **车道 = WC02**（会话级前缀 `WC##`；目录 `~/wc02/`，**不用 `wNNNa` 命名**）。
 > **任务** = 登记 `D-G98` 的「一格定罪」终局 ＋ 改 `TASK-0111`／`TASK-0110` 要件 ＋ 推一笔。
 > **性质** = **纯文本编辑 ＋ 推送**（零 `dotnet`／零构建／零门禁／零应用／**不占槽**）。
-> **判据先行** = `~/wc02/criteria.md`（**开工、动任何册/地图/声明表之前**写完并现算 sha16 = **`0fab7fd5ce05f96c`**，84 行）。
+> **判据先行** = `~/wc02/criteria.md`（**开工、动任何册/地图/声明表之前**写完）—— **两口径都给**：**封存值（§0–§5 写完那一刻，追加执行记录之前）** = **`0fab7fd5ce05f96c`**（84 行）｜**追加 §6 执行记录之后现算 FULL** = **`c337c25ee0b8275f`**（97 行）；**§0–§5 原文一字未动**，§6 = **执行记录**（含本件对 `E2b` 未命中的如实记账）。
 > **冻结基线（本件全程）= `#52` `27293fb5ab91b778`**；`docs/CURRENT-STATE.md:9` = `gen=#52`（**收尾复核：逐位未变**）。
 > **报告自身口径**（照 `D-G104` 第三条"同一件两个值必须两行都给"）：**FULL** = `sha256sum build/MilBridge/WC02-report.md`；**去行口径** = `head -n -2 build/MilBridge/WC02-report.md | sha256sum | cut -c1-16`（本文件末两行是空行 ＋ 自证行）⇒ **两个值都写在 §⑨**。
 
@@ -168,6 +168,60 @@ DEFREG_ROUTES=KD=edd5d6199fcdb733 CS=737c78e3a7e5a3a5 HO=e4dc264200b421d0 AB=272
 3. 所以我把 `TASK-0111` 的要件改了：**`N1`（少写提示）撤销/暂缓**（提示族已被排除 ⇒ 落它只会拿到"红率不变"的空结果），**下一步做 `N3` 写者归因、专抓那 0.1 秒里的那次申请、靶子用 `M1:R2` 臂**（88.9% 红，功效最高）；`TASK-0110` 仍 🟡。
 4. 新教训按"**能并就并**"落：观测器第一版**只遍历一层** ⇒ 找不到被 reparent 的客户窗（**并入 `D-G107`**，同一陷阱产品侧先例 `D-G64`）；W124A 的 `pkill -f` 自杀式误杀**划清**为"`~/w128a` **之外**的另一个实例"（并入 `D-G103`）；`sed` 漏换变量把 4 件写进禁改车道（并入 `D-G101`）；编排器顺序错**腿根本没跑**（并入 `D-G102`）—— **本批零新号**。
 5. 我自己也踩了两处：判据里截断分隔符**写错一位**（空转一枪 ⇒ 封存值那格如实记 `NOINFO`）、`--emit` 其实是打 stdout（**当场改成临时件 ＋ rename**）；`DEFREG=PASS declared=145 route_ids=145`／`DECLDRIFT=0`／`rc=0/0`，推送读数见 §⑤-补。
+
+---
+
+## §⑤-补 `RECORD-补`（**推送后现算**；本笔 = **仅报告自身**）
+
+### 第 1 笔（内容笔：3 改 ＋ 1 新建）
+
+- **笔前 head** = `17fa2c6ae392e3dbeba2212c558283f525fd1b77`（＝ 车道 WC01 的 `RECORD-补`；**开工时三方一致、`git status` 干净**）。
+- **暂存/提交/推送件 = 4**（`git status --porcelain` 与"改了几件"**逐件对账**：`M`×3 ＋ `??`×1 ⇒ 与 §⑤ 表**逐件对应**）：
+  `samples/WpfFeatureProbe/KNOWN-DEFECTS.md`｜`docs/ROUTES.md`｜`build/MilBridge/tools/defect-registry-declared.tsv`｜`build/MilBridge/WC02-report.md`（新建）。
+  **`git add` 一律逐径**（**无 `-A`／无 `--force`**）。
+- **提交** = `d4e3d50855ca29a68209a0554e566770edb3b21d`（提交信息 = `docs(#52): D-G98 一格定罪终局（判词 K3）＋ TASK-0111 要件改写（N1 撤销/暂缓、N3 先做、靶子 M1:R2）＋ TASK-0110 仍 🟡 ＋ 仪器缺陷并入 D-G107 ＋ 三自伤并入 D-G103/D-G101/D-G102（车道 WC02）`）。
+- **推送** = `git push origin feat-Linux` ⇒ `17fa2c6..d4e3d50  feat-Linux -> feat-Linux`（`rc=0`）⇒ **重新 fetch** 后**三方一致**：
+  `git rev-parse HEAD` ＝ `git rev-parse refs/remotes/origin/feat-Linux` ＝ `git ls-remote origin HEAD` ＝ **`d4e3d50855ca29a68209a0554e566770edb3b21d`**；`ls-remote --symref origin HEAD` 仍 **`refs/heads/feat-Linux`**。
+- **`BYTECHECK`（判据 = 远端 blob **逐件** `== ` 克隆工作树；逐件 `git cat-file -p HEAD:<path> | sha256sum | cut -c1-16` 现算）**：
+
+  | 件 | 远端 blob sha16 ＝ 工作树 sha16 | 判定 |
+  |---|---|---|
+  | `samples/WpfFeatureProbe/KNOWN-DEFECTS.md` | `edd5d6199fcdb733` | ok |
+  | `docs/ROUTES.md` | `cd51130c11c13032` | ok |
+  | `build/MilBridge/tools/defect-registry-declared.tsv` | `a8013a170c7dd367` | ok |
+  | `build/MilBridge/WC02-report.md` | `53ef68a836801f17` | ok |
+
+  ⇒ **`BYTECHECK ok=4 mismatch=0 nobody=0`**。
+- **已推送那一版的报告自身 sha16（从 git 取，不手抄）**：`git cat-file -p HEAD:build/MilBridge/WC02-report.md | sha256sum | cut -c1-16` = **`53ef68a836801f17`**；`… | head -n -2 | sha256sum | cut -c1-16` = **`8924478a66cd94e5`**；**181 行**。
+- ⚠️ **本笔之后还有第 2 笔（仅本报告）**：第 2 笔的 head 与"**含本 `§⑤-补` 的最终版**"的 sha16 = **自指** ⇒ **本文件不写死**（照 `WC01` 的 `RECORD-补` 先例记 **`NOINFO`**），复核者用 `git log -1 --format=%H` ＋ `git show <head>:build/MilBridge/WC02-report.md | sha256sum` 现算即可。
+
+### §⑥-补 `$R` ↔ 远端／克隆 逐件对照（**推送后**重跑；口径先写）
+
+**口径**：覆盖面 = 克隆 `git ls-files` 的**全部在册件**（`15267` 条），逐件对 `$R` 与克隆工作树做**逐字节比较**（先比 `size`，再按 `1 MiB` 分块 `read` 比较；**不是抽样**）。**推送后**结果：
+
+- **两侧都在、且逐字节不同 = 12 件**（其中 **4 件 = 本件刚推的** ⇒ 这 4 件在 `$R`／克隆／远端**三方已逐位相同**，见上表 `BYTECHECK`）；余 **8 件全属"$R 领先"**：
+
+  | 件 | `$R` sha16 | `$R` mtime | 克隆/远端 sha16 | 归类 |
+  |---|---|---|---|---|
+  | `verify-all.sh` | `32ddbe487235cc38` | `09-23 12:10:02` | `0cdd12547a634b37` | **`#53` 在办**（主控点名） |
+  | `build/MilBridge/known-red.json` | `f108775906eac9aa` | `09-23 12:48:50` | `d4e0080df6ec497c` | **`#53` 在办**（主控点名；≡ §④ 的 `KRJ` 漂移项） |
+  | `src/WpfGfx.Linux.Native/src/win32_core.c` | `a9cc8762908b417a` | `09-23 11:49:23` | `3117923a7c899e05` | **`#53` 在办**（W131A 值；**远端已由 `1890b007` 还原为 `#52` 声明值**） |
+  | `src/WpfGfx.Linux.Native/src/win32_x11.c` | `9fa20864404ab01b` | `09-23 11:49:23` | `11142fbef049eb66` | 同上 |
+  | `src/WpfGfx.Linux.Native/src/win32_internal.h` | `4e1880e6054635ff` | `09-23 11:49:23` | `e4f2de8d038e4780` | 同上 |
+  | `build/MilBridge/arm-logs/tline.log` | `44c21d648f79126c` | `09-23 12:45:18` | `56bea7233ba05c7b` | **派生件（日志）**，在办车道重跑过 ⇒ `$R` 领先 |
+  | `build/MilBridge/gen/t2d-family-baseline.txt` | `ab0758aa92ca8356` | `09-23 12:43:17` | `6316c5d08aa9da25` | **派生件**（`gen/`），同上 |
+  | `build/MilBridge/gen/t2d-family-matrix.txt` | `e442cefd0e2b6e4a` | `09-23 12:45:16` | `67c1f48d565f3985` | **派生件**（`gen/`），同上 |
+  | `build/wave-audit.log` | `4d1eb629c9323e4f` | `09-23 12:25:58` | `98ef260af36407ea` | **派生件（波审计日志）**，同上 |
+
+  ⇒ **本件对这 9 件一件未 add／未改**（`git status` 已证：暂存/提交件**恰为 4**）。⚠️ 上面 4 件派生/日志件**不是本件写的**（mtime 全落在本件开工 `13:26` 之前）；它们与克隆不同的原因是**克隆侧那版是 `37def7e` 那笔 `git add -A` 扫进去的旧快照**（见 `D-G108`），在办车道此后重跑过。
+- **只在克隆/远端、`$R` 里没有 = `7365` 件**（`upstream/**` 等 WPF 原仓件；`$R` 是**过滤后的工作树**，不是全仓镜像）⇒ 这是**结构性差异、非漂移**，本件**不据此判红**。
+- ⚠️ **计数口径如实记（`D-G104` 精神）**：本件 §⑤-补 的"覆盖 `15267` 条、两侧都在 `7902` 条"是**本件现算**；它与前几笔登记里出现过的"覆盖面 `147`／`149` 件"**不是同一个口径**（那几笔指的是 `fp_inputs()` 的**输入覆盖面**，见下）⇒ **两个数本件不互相换算、也不互相覆盖**。
+
+### §⑥-补-2 `fp_inputs()` **零影响**（机械证，两层）
+
+1. **承重层（结构性，先写后算）**：我改的 **4 件**逐一对照 `fp_inputs()` 的**四条 `find` 支**的**名称/扩展名模式** —— `patch-*.py`｜`port-lib.py`｜`integration-wave.sh`｜`close-wave.sh`｜`build/shims/**/*.cs`｜`src/WpfGfx.Linux/**/*.cs`｜`src/WpfGfx.Linux.Native/**/*.{c,h}` —— **一件都不匹配**（`KNOWN-DEFECTS.md`／`ROUTES.md`／`defect-registry-declared.tsv`／`WC02-report.md` 全不在这些模式里）⇒ **结构性不可能进入覆盖面** ⇒ 改它们**按定义**不动 `inputs_fp`。
+2. **现场层（只读复刻，不跑门禁）**：本件用**与 `fp_inputs()` 逐字相同的四条 `find` 命令**（**只读**、不调用 `close-wave.sh`）复刻覆盖面 ⇒ **现算 `128` 件**，其中 `grep` 我改的 4 件 = **`0` 命中**；吻合模式的在办件 = **`win32_core.c`／`win32_x11.c`／`win32_internal.h` 3 件**（⇒ 现值被 **`#53` 在办源**主导，**与我无关**）；复刻管道现算指纹 = `a500c944b04ab46a`（口径 = `sort | xargs sha256sum | sha256sum | cut -d' ' -f1 | cut -c1-16`）。
+   ⚠️ **如实记两处不一致（不缩小）**：① 本件复刻的覆盖面 **`128` 件** ≠ 前几笔记的 `147`／`149` 件（**口径不同或彼时覆盖面更大**，本件**不替它们解释**，也**不引用**它们的数）；② 本件复刻指纹 `a500c944…` ≠ 前几笔记过的现值（如 `f0e2b3e8…`／冻结值 `84fd55d3…`）⇒ **那是复刻口径差异**，且现值含 `#53` 在办源 ⇒ **不作等价断言**。**承重结论只靠第 1 层**（结构性排除）。
 
 ---
 
