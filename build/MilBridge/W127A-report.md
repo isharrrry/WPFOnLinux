@@ -167,3 +167,14 @@ rc=0
 
 ===RECORD===
 （推送前 head = `37def7e480ea33fbd965195588410a7ee68b6434`；本行以下为推送后补写的机读读数）
+- **推送前 head** = `37def7e480ea33fbd965195588410a7ee68b6434`（W126A 冻结笔）
+- **推送尝试（我这一笔）**：`11:56` 逐径 `git add` 四件 → `git status --porcelain` **恰四件**（无夹带）→ `git fetch origin feat-Linux:refs/remotes/origin/feat-Linux` → `git commit` ⇒ **`无文件要提交，干净的工作区`**（见下"托管变更"）
+- 🔴 **托管变更（如实记，不是我的笔）**：车道 **W126A** 在 `11:5x` 用 **`git add -A` 形态**把**我当时已 `cp` 进 fork 的四件**一并收进了**它自己的**第 2 笔报告提交 —— commit = **`4d125f8f102fee4ffcf5b61584cb03c57c8768d2`**（`docs(#52): W126A 报告 v2 …`；其 `--stat` 里同时含 `W126A-report.md` 与我那四件）⇒ **我的四件是被别人的笔带上去的**（**不是**我漏推、也**不是**我用了 `-A`）。⇒ 我随即**按远端 head 反查逐件 blob**：四件与 `$R` **逐字节相同**（`SAME ×4`）⇒ **内容无误**。
+- **`--symref`**：仍 `feat-Linux`（`git ls-remote --symref origin HEAD` ⇒ `ref: refs/heads/feat-Linux`）
+- **`BYTECHECK`（远端口径，逐件 blob vs `$R` 现件，sha256 全 64 位）**：**`BYTECHECK ok=4 mismatch=0 nobody=0`** —— `samples/WpfFeatureProbe/KNOWN-DEFECTS.md`（`2f63679f3dcf20c7`）｜`docs/ROUTES.md`（`5d615a54f1d46807`）｜`build/MilBridge/tools/defect-registry-declared.tsv`（`b784a0a7ff2fd784`）｜`build/MilBridge/W127A-report.md`（本件）
+- **远端自洽复核（在 `4d125f8` 上直接取 blob 重算）**：声明表 `DECL-ANCHORS` 的 `KD=2f63679f3dcf20c7` 与**该笔自己的** `KNOWN-DEFECTS.md` sha16 **逐位相同** ⇒ **远端不会读成 `DECLDRIFT=1`**（这一格正是先前车道踩过的坑）；`^ID` 行 **143** 条。
+- **`$R` 侧复核（同步后）**：`DEFREG=PASS declared=143 route_ids=143`｜`DEFREG_DECLDRIFT=0`｜**两遍 `cmp` 逐字节 IDENTICAL、`rc=0`/`0`**。
+- **推送后 head**：`37def7e480ea33fbd965195588410a7ee68b6434` → **`4d125f8f102fee4ffcf5b61584cb03c57c8768d2`**；`git rev-parse HEAD` = `refs/remotes/origin/feat-Linux` = `git ls-remote origin refs/heads/feat-Linux` **三者一致**。
+
+（末两行 = 本行 ＋ sha16 行；口径 `head -n -2 <本文件> | sha256sum | cut -c1-16`，即"正文含 RECORD 段头"的字节）
+本报告 sha16 = `23cceab87a0daf46`
