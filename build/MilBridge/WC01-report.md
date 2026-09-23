@@ -150,3 +150,24 @@ DEFREG=PASS declared=145 route_ids=145（每个声明编号在其 req 的每个 
 3. 推送**只有 3 件、全逐径 `git add`**（今天 `git add -A` 刚出过事故）：报告 2 件 ＋ `ROUTES.md`（`677→685` 行，**纯追加、0 删除**）。
 4. head 从 `9241f9f8…` 到 **`4c3a513c…`**，`HEAD`／远端分支／`ls-remote` **三者一致**、`symref` 仍 `feat-Linux`，**`BYTECHECK ok=3 mismatch=0 nobody=0`**。
 5. `$R` 与远端现在**差 9 件，全部是别家 `#53` 的在办件或它跑波生成的日志**（其中 4 件的归属只是**推断**、已如实标注）；冻结基线（`#52`）与本地 `DEFREG`（`145/145`、漂移 0）**都没动**。
+
+---
+
+## §②-补 推送后读数（**RECORD-补**；本笔 ＝ 第 **3** 笔，**仅本报告自身**）
+
+**三笔总账**：
+
+| 笔 | 件 | 件数 | head 前 → 后 | `BYTECHECK` |
+|---|---|---|---|---|
+| 第 1 笔 | `W128A-report.md`／`W118A-report.md`／`docs/ROUTES.md` | 3 | `9241f9f82beb2b21a5e7b37cde064d8dd5a21ead` → **`4c3a513c48acb17ffd293e3df50efb8f8a2d81ff`** | **`ok=3 mismatch=0 nobody=0`** |
+| 第 2 笔 | `build/MilBridge/WC01-report.md`（本报告第 1 版） | 1 | `4c3a513c48acb17ffd293e3df50efb8f8a2d81ff` → **`6428396e1b43157796397a03da954dac784b8998`** | **`ok=1 mismatch=0 nobody=0`** |
+| 第 3 笔（**本补笔**） | `build/MilBridge/WC01-report.md`（追加本节） | 1 | `6428396e1b43157796397a03da954dac784b8998` → **`NOINFO`**（见下"自指"条） | **`NOINFO`**（同因） |
+
+- **第 1／2 笔的推送后复核（逐笔现场现取）**：两笔**各自**在 push **之后**重新 `git fetch origin feat-Linux:refs/remotes/origin/feat-Linux`，再与 `git ls-remote origin HEAD` **交叉核** ⇒ 两笔都 **`THREE_WAY=CONSISTENT`**（`HEAD` ＝ `origin/feat-Linux` ＝ `ls-remote`）；`git ls-remote --symref origin HEAD` 逐字 `ref: refs/heads/feat-Linux	HEAD` ⇒ **`symref` 仍 `feat-Linux`** ✅。
+- **`BYTECHECK` 判据**（＝**远端 blob == 克隆工作树**）：第 1 笔 3 件逐件 `git cat-file blob HEAD:<件> | sha256sum` vs 克隆磁盘件 **全 MATCH**（`789d01e5f8959b0b`／`77cd063b2234643e`／`94bea50bd8bac16f`）；第 2 笔 1 件同法 **MATCH**（`0c50fe11d0be7892`）。两笔 `nobody=0`（无"远端没有该路径"的件）。
+- **第 2 笔 blob 的可复核入口**：`git cat-file blob 6428396e1b43157796397a03da954dac784b8998:build/MilBridge/WC01-report.md | sha256sum | cut -c1-16` ⇒ 应得 **`0c50fe11d0be7892`**（＝第 2 笔推上去的那一版本报告）。
+- ⚠️ **第 3 笔（本补笔）的 head 与 `BYTECHECK` = `NOINFO`，原因是"自指"、不是没做**：本补笔的提交**就是本文件所在的提交** ⇒ 把它的 head 写进本文件**在逻辑上不可能**（写完又要再提交，无穷后退）。**记账方式**：该 head 逐字落 **`~/wc01/STATUS.md`**（**仓外**、**无自指**）＋ 本件交付回复逐字给出；**未用任何推测值顶替**、**未手抄任何哈希**。⚠️ 同理，本节里"件数 = 1"这一格由 `git diff --cached --name-only` 的**推前**读数支撑（现取 = `1`）。
+- **占位符门对本报告自身复跑（同一硬门，两法）**：`grep -n -F -e <三连尖括号> -e <双 at>` 命中 **0 行**；python `bytes.count()` 现算 **`U+003C`×3 = 0 ∧ `U+0040`×2 = 0** ⇒ **0/0 通过**（**第一版命中 3 行**的自伤已在 §① 如实留档、并已改写为描述式）。
+- **本报告自 sha16 口径（消自指，逐字）**：本文件**末行**给出的值 = `head -n -1 <本件> | sha256sum | cut -c1-16`（即"**不含末行**的全文"的 sha16）—— 任何人可现场复算；⚠️ **本节的 sha16 不引用"含末行"的全文件值**（那会自指）。
+
+本报告 sha16 = `3211add9fb90f37d`
