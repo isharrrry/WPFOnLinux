@@ -1079,8 +1079,53 @@ namespace WpfGfx.Linux.Interop
                       $" X11={xw}x{xh}）" +
                       $" 清屏色=({target.ClearColor.R:F2},{target.ClearColor.G:F2},{target.ClearColor.B:F2},{target.ClearColor.A:F2})");
 
-            if (presentation.Width != width || presentation.Height != height)
-                presentation.Resize(width, height);
+            // ================================================================
+            //  【TASK-0210 / `D-G98`】呈现层**不是接窗路径上的几何主人**
+            // ================================================================
+            //  本桥只**包装**别人的窗口 —— 全仓唯一的创建点是
+            //  `X11PresentationTarget.WrapExisting`（本文件 `:561`）⇒ 真应用里
+            //  `OwnsWindow == false`：这扇窗的几何归 `HwndWrapper → Win32 shim → WM`，
+            //  **不归呈现层**。呈现层做的是"往那个窗口里画"，所以它只需要**读**尺寸。
+            //
+            //  【旧行为为什么是缺陷（`D-G98`，现场逐字段读数）】WM 把窗**真还原**成
+            //  `800x600` 之后，桥在 **`+85…99 ms`** 用一条裸 `ConfigureWindow` 把它改回
+            //  `1280x1024`。证据链（两份独立仪器）：
+            //   · 协议级台账（syscall 层）：`configure(0xc00004, mask=0xc, 1280x1024)`，
+            //     调用链 `_XSend ← _XReply ← XSync ← wpfgfx_cor3.so+0x131b36`
+            //     `(X11Native.XSync) ← +0x1339f5 (X11Window.Resize) ← +0x16fa4a (本方法)`；
+            //   · 桥自带诊断（`WPF_LINUX_MIL_LOG`）读到了那一帧的**全部输入**：
+            //     `目标尺寸=1280x1024 来源=WindowRect  X11=800x600 X11缓存=800x600
+            //      haveLast=True last=800x600  Owns=False
+            //      HwndTargetCreate=800x600 WindowRect=1280x1024`。
+            //  ⇒ 机制 = **"X 尺寸变化"只被消费一次**（`_lastXSize` 在每次呈现里都无条件
+            //    刷新）：采纳 X 尺寸的那一帧（上面 `:1052`，正是本文件既有的"债务 #3"修法）
+            //    过后，`last == xw` ⇒ 那条分支不再触发 ⇒ `width/height` 落回 MIL 侧**过期**的
+            //    `WindowRect`（仍是最大化几何）⇒ 与 X 缓存（`800x600`）不等 ⇒ 这一行
+            //    **把过期几何顶回 X**。窗口于是永远回不到 `800x600`。
+            //
+            //  【修法】接窗路径上**只读尺寸、不写几何**：按 server（X）报的尺寸渲染，
+            //  几何同步由窗口主人负责 —— 它是**唯一**知道 WM/工作区规则（标题栏、
+            //  frame extents、最大化策略）的一侧。⚠️"真正的尺寸变化仍然到得了 X"不受影响：
+            //  它走的是 shim 的 `SetWindowPos`/`MoveWindow → wpf_x11_move_resize`，
+            //  **从来不是**这条路（本方法只在"MIL 与 X 不一致"时才动手，而那正是打架）。
+            //  自己建的窗（M1 / HelloMil 路径，`OwnsWindow == true`）**逐字不变**。
+            if (presentation.OwnsWindow)
+            {
+                if (presentation.Width != width || presentation.Height != height)
+                    presentation.Resize(width, height);
+            }
+            else if (presentation.Width > 0 && presentation.Height > 0 &&
+                     (presentation.Width != width || presentation.Height != height))
+            {
+                MilDiagnostics.Note(
+                    $"[GEOWRITE-SUPPRESSED] HWND 0x{(long)hwnd:x} 接窗路径**不回写 X 几何**：" +
+                    $"MIL 侧 {width}x{height}（来源={sizeSource}）≠ X 侧 " +
+                    $"{presentation.Width}x{presentation.Height} ⇒ 以 X 为准渲染" +
+                    "（几何归窗口主人 HwndWrapper→shim→WM）");
+                width = presentation.Width;
+                height = presentation.Height;
+                sizeSource = "X11（接窗路径：server 为准，呈现层不回写几何）";
+            }
 
             SKImage frame;
             // ★ 本帧统计必须**渲染完立刻抓成本地量**（设计稿 §9-G4）：`DrawnCommands` /

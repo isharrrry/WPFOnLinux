@@ -43,9 +43,9 @@
     "instr_shim": "921ba9c65e9fb3be9e31d402fd98568ee78639063d75bb4e656b20201b30dc2b",
     "instr_pc": "7b47a7b3d69ad62f",
     "evidence_log": "build/MilBridge/arm-logs/tline.log",
-    "evidence_log_sha256": "44c21d648f79126c",
+    "evidence_log_sha256": "664a0c048a1ed3a1",
     "arm_logs": {
-      "tline": "44c21d648f79126c88eeede3e2b2537d6421904768c24330c75d946e9ac25d96",
+      "tline": "664a0c048a1ed3a18642eafab9f09998608ce45a46cc792b4f32dafd70ab8d98",
       "tab-zero": "9150c3a26a3cb789582f3df655006955cf1db10dda00d91097d24d97b40e1912",
       "tab-rtl": "92570318851ca7e85f64017c89bd784d971cfe4028f7b8e47cb79035146755c4",
       "tab-anchor": "1c43a12dcaa5718a27f5e4c66d6ff59bd3b6da0b199e384a315b54e7041cc916",
@@ -106,8 +106,8 @@
     "instr_pc_path": "build/PresentationCore.Linux/bin/Debug/PresentationCore.dll",
     "evidence_log_origin": "/home/links-dev/wfp-runs/arms23/tline.log（硬链接）⚠️ 【#31 W31E 复核 · 2026-09-18】「硬链接」已过期：现盘该路径是**真副本**（inode=5138770、nlink=1、size=21501、mtime=2026-09-17 00:36:36），与 `build/MilBridge/arm-logs/tline.log` 的 inode=5143817 **不同**，`cmp` 两者 **IDENTICAL**、sha16 同为 `57d752a3981a9b91` ⇒ 被引内容零位移、mtime 与源件逐位相同（弱配对判据不受影响）。原文括号描述的是 `#23` 当时的状态。",
     "arms_retaken": {
-      "when": "2026-09-23 12:48:50 +0800",
-      "why": "① 产品位移 `win32shim`（TASK-0109「WM 已死但 EWMH 属性残留 ⇒ 静默丢一次移动」；车道 W131A，11:49 落地）：bd037229be8db4f6 → a6365183fa6d26b9（导出 547 不变）② 环成员 `pf` 由本波整波重建自变（D-G92：不是构建身份；358136b0c806ee88 → 4973bcb28e331cf0，同尺寸 6123520 B）③ 波尾重取五臂：只有 `tline` 位变（56bea7233ba05c7b → 44c21d648f79126c，该日志程序上不可复算 ⇒ 不是产品信号），判词与 #52 逐字相同（tline 22/2、tab-zero rc=1、tab-anchor rc=0、tab-rtl rc=0、textlineproto 10/0）④ 仪器侧零接线（verify-all 仍 27 步）；四处声明改 gen=#53 ＋ 新建 docs/WAVE53-PREREGISTRATION.md（两件都不在 fp_inputs 覆盖面内）",
+      "when": "2026-09-23 17:55:18 +0800",
+      "why": "① 产品位移 `bridge`：`TASK-0210`（波 #54，车道 W134A）—— `src/WpfGfx.Linux/Interop/MilPresentation.cs` 一处接窗门控（`OwnsWindow==false` 只读尺寸不写几何），件 `feef049e9d0e313a` → `4e25e4b27d4d5ae1`（同尺寸 5,028,208 B）；② 环成员 `pf` 整波重建自变 `4973bcb28e331cf0` → `ec570d30f6754631`（D-G92：pf 不是构建身份，同尺寸 6,123,520 B）；③ 波尾重取只有 `tline` 变化 `44c21d648f79126c` → `664a0c048a1ed3a1`，五臂判词与 #53 逐字相同（tline 通过22/失败2；tab-zero 退出码=1；tab-anchor 退出码=0；tab-rtl 退出码=0；textlineproto 通过10/失败0）；④ 仪器侧零接线（本波不改 run.sh/Program.cs/HbTextLine.cs 三件，世代三项现场逐位不变）；⑤ 仪器/文档域两件：verify-all.sh 两处声明改 gen=#54（步名步数一字不动）、新建 docs/WAVE54-PREREGISTRATION.md —— 两件都不在 fp_inputs() 覆盖面内。",
       "how": "**只跑三支**（不复用 `retake-arms-w23.sh`：其 `:11` 的 `OUT` 是普通赋值且指向 `$HOME/wfp-runs/arms23`，该目录与 `arm-logs/tline.log`/`textlineproto.log` **同 inode** ⇒ 直接重跑会**就地覆盖归档源件**、中断还会留半截日志）。本趟时序（纪律 59）：① `OUT` 换成本趟专属 `$HOME/w30b-run/arms30b`；② 旧件先 `cp -p` 归档到 `$HOME/w30b-run/backup/armlogs/`；③ 记 `nlink`/mtime/inode；④ `dotnet build CoverageProbe -c Release -m:1`（仅此一次，**未重建 `pc`**）；⑤ 逐支跑 `--tab-lines-oracle`；⑥ **先验 `TAB_LINES_PROBE` 自报行存在**（无则停、不 `ln -f`）；⑦ `ln -f` 进 `arm-logs/`；⑧ 复跑门禁；⑨ `arm-log-sha-check.sh`；⑩ 重钉本节；⑪ 归档。 ⚠️ 【#31 W31E 加注 · 2026-09-18】本行有两处随时间变化（**原文保持不动**）：① 它引的 `:11` 已不再是「普通赋值」—— `#31` W31E 把第 11 行改成 `OUT=${ARMS_OUT:-$HOME/wfp-runs/arms23}`（env 可覆写；**不设该变量时取值逐字不变**）并在第 12 行之后加了**硬链接别名守卫**（`OUT` 目标与真件同 inode ⇒ `exit 4`、逐支点名 inode 与两条路径、**一个字节都不写**）⇒ 纪律 59 的第①步不再需要手改脚本；② 「该目录与 `arm-logs/tline.log`/`textlineproto.log` 同 inode」描述的是 `#30` 当时的状态，`#31` W31C 之后 `arms23` 已是真副本（nlink=1）⇒ 现状下守卫**不会**拦默认 `OUT`（实测 rc=0）。",
       "result": "`tab-zero 78204619fa5b4eee → 9150c3a26a3cb789`｜`tab-anchor 574d012a41a3db06 → 1c43a12dcaa5718a`｜`tab-rtl cbaa579c547b4ac3 → 92570318851ca7e8`；`tline`/`textlineproto` **逐字节未动**。**最硬的一条**：三支新日志**剥掉 `^TAB_LINES_PROBE` 行后与旧件 `cmp` 逐字节 IDENTICAL** （行数 210/1346/193 ↔ 209/1345/192）⇒ 重取**只新增了身份行**，**读数零位移**；`判定行=615`/`字形释放行=194` 与 `column_gate.arms[\"tab-oracle-anchor\"]` 的下限**逐位相符**。 ⚠️ 【#31 W31E 复核 · 2026-09-18】「`ln -f` 后 `nlink=2`」描述的是 `#30` W30B 当时的状态（**原文保持不动**）：`#31` W31C 清理别名后现盘该件 **nlink=1**，`sha256` 前16位 `1c43a12dcaa5718a` **逐位未变**。",
       "arms": [
@@ -182,6 +182,10 @@
         {
           "when": "2026-09-23 12:48:50 +0800",
           "why": "① 产品位移 `win32shim`（TASK-0109「WM 已死但 EWMH 属性残留 ⇒ 静默丢一次移动」；车道 W131A，11:49 落地）：bd037229be8db4f6 → a6365183fa6d26b9（导出 547 不变）② 环成员 `pf` 由本波整波重建自变（D-G92：不是构建身份；358136b0c806ee88 → 4973bcb28e331cf0，同尺寸 6123520 B）③ 波尾重取五臂：只有 `tline` 位变（56bea7233ba05c7b → 44c21d648f79126c，该日志程序上不可复算 ⇒ 不是产品信号），判词与 #52 逐字相同（tline 22/2、tab-zero rc=1、tab-anchor rc=0、tab-rtl rc=0、textlineproto 10/0）④ 仪器侧零接线（verify-all 仍 27 步）；四处声明改 gen=#53 ＋ 新建 docs/WAVE53-PREREGISTRATION.md（两件都不在 fp_inputs 覆盖面内）"
+        },
+        {
+          "when": "2026-09-23 17:55:18 +0800",
+          "why": "① 产品位移 `bridge`：`TASK-0210`（波 #54，车道 W134A）—— `src/WpfGfx.Linux/Interop/MilPresentation.cs` 一处接窗门控（`OwnsWindow==false` 只读尺寸不写几何），件 `feef049e9d0e313a` → `4e25e4b27d4d5ae1`（同尺寸 5,028,208 B）；② 环成员 `pf` 整波重建自变 `4973bcb28e331cf0` → `ec570d30f6754631`（D-G92：pf 不是构建身份，同尺寸 6,123,520 B）；③ 波尾重取只有 `tline` 变化 `44c21d648f79126c` → `664a0c048a1ed3a1`，五臂判词与 #53 逐字相同（tline 通过22/失败2；tab-zero 退出码=1；tab-anchor 退出码=0；tab-rtl 退出码=0；textlineproto 通过10/失败0）；④ 仪器侧零接线（本波不改 run.sh/Program.cs/HbTextLine.cs 三件，世代三项现场逐位不变）；⑤ 仪器/文档域两件：verify-all.sh 两处声明改 gen=#54（步名步数一字不动）、新建 docs/WAVE54-PREREGISTRATION.md —— 两件都不在 fp_inputs() 覆盖面内。"
         }
       ]
     }
