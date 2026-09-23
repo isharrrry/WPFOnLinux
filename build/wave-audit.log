@@ -480,3 +480,6 @@ echo "WAVE_START=$(date +%FT%T)"; (date +%FT%T; time env WAVE_OWNER=w48a bash bu
 2026-09-23T09:17:46+08:00  owner=W126A  pid=572117  ppid=572116  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
     ppid_cmd=timeout --foreground --kill-after=5 1200 bash build/integration-wave.sh 
     ppid2_cmd=bash /home/links-dev/heavy-slot.sh --min-avail 1500 --max-hold 1200 --wait 1800 -- bash build/integration-wave.sh 
+2026-09-23T12:25:58+08:00  owner=W133A  pid=625144  ppid=625012  tty=-  cwd=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh --skip-verify-all 
+    ppid2_cmd=bash /home/links-dev/w133a/bin/step1.sh 

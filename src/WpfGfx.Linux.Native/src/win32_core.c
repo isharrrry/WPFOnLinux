@@ -486,6 +486,30 @@ static void wpf_wmsize_diag(const char *fmt, ...)
     fflush(stderr);
 }
 
+// ── 【TASK-0109 仪器】窗态站点（`wpf_core_window_state`）的**分支自报** ──────────────
+//   为什么必须有：该站点与 `wpf_x11_moveresize_window()` **同因**（都问
+//   `wpf_x11_has_ewmh_wm()`），但此前站点内部**没有任何打点** ⇒ 死 WM 残留时
+//   "最大/还原静默失效"这件事在读数上与"命令没送到"长得一样（`W130A` §5 ★）。
+//   `site=wmstate`：走 EWMH ⇒ `branch=ewmh`；走无 WM 退化支 ⇒ `branch=fallback`
+//   并**打出它给 `MoveWindow` 的目标矩形**（判据侧据此判 `at_target`）。
+//   env = `WPF_LINUX_WINSTATE_DIAG`（与 `win32_x11.c` 的窗态诊断同一个开关；不新增 env）。
+static int wpf_wmck_diag_on(void)
+{
+    static int cached = -1;
+    if (cached < 0) { const char *e = getenv("WPF_LINUX_WINSTATE_DIAG"); cached = (e && *e && *e != '0') ? 1 : 0; }
+    return cached;
+}
+static void wpf_wmck_diag(HWND hwnd, const char *site, int mode, const char *branch,
+                          int x, int y, int w, int h)
+{
+    if (!wpf_wmck_diag_on()) return;
+    static int n = 0;
+    if (n++ >= 60) return;
+    fprintf(stderr, "[WMCK_DIAG] hwnd=0x%llx site=%s mode=%d branch=%s target=%d,%d,%dx%d\n",
+            (unsigned long long)(uintptr_t)hwnd, site, mode, branch, x, y, w, h);
+    fflush(stderr);
+}
+
 // 顶层判定用**显式参数**（建窗时 hwnd 还没分配 ⇒ 不能查表）
 static int clamp_toplevel_extent_flags(int is_msgonly, HWND parent, int64_t style,
                                        const char *where, int *x, int *y, int *w, int *h)
@@ -650,8 +674,13 @@ void wpf_core_window_state(HWND hwnd, int mode)
 
     if (mode == WPF_WS_MIN) { wpf_x11_iconify(hwnd); return; }
 
+    // 【TASK-0109】这一问是**两个站点共用**的判据（谓词语义已在 `win32_x11.c` 升级为
+    //   "属性在 ∧ 检查窗在树里"）⇒ 死 WM 残留时它**不再为真** ⇒ 本函数第一次能走到
+    //   下面那条**早就写好**的"没有 EWMH WM"退化支（旧版在这里 `return` 去等一个
+    //   **永远不会来的** `ConfigureNotify` ⇒ 最大/还原静默失效）。
     if (wpf_x11_has_ewmh_wm()) {
         wpf_x11_apply_wm_state(hwnd, mode == WPF_WS_MAX);
+        wpf_wmck_diag(hwnd, "wmstate", mode, "ewmh", 0, 0, 0, 0);
         return;                                          // 几何由 WM 改 ⇒ 等 ConfigureNotify
     }
 
@@ -659,10 +688,17 @@ void wpf_core_window_state(HWND hwnd, int mode)
     if (mode == WPF_WS_MAX) {
         int wx = 0, wy = 0, ww = 0, wh = 0;
         wpf_x11_workarea(&wx, &wy, &ww, &wh);
-        if (ww <= 0 || wh <= 0) return;
+        if (ww <= 0 || wh <= 0) {
+            wpf_wmck_diag(hwnd, "wmstate", mode, "fallback-no-workarea", 0, 0, 0, 0);
+            return;
+        }
+        wpf_wmck_diag(hwnd, "wmstate", mode, "fallback", wx, wy, ww, wh);
         MoveWindow(hwnd, wx, wy, ww, wh, 1);
     } else if (rw > 0 && rh > 0) {
+        wpf_wmck_diag(hwnd, "wmstate", mode, "fallback", rx, ry, rw, rh);
         MoveWindow(hwnd, rx, ry, rw, rh, 1);
+    } else {
+        wpf_wmck_diag(hwnd, "wmstate", mode, "fallback-no-rect", 0, 0, 0, 0);
     }
 }
 
