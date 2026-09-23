@@ -176,5 +176,14 @@ rc=0
 - **`$R` 侧复核（同步后）**：`DEFREG=PASS declared=143 route_ids=143`｜`DEFREG_DECLDRIFT=0`｜**两遍 `cmp` 逐字节 IDENTICAL、`rc=0`/`0`**。
 - **推送后 head**：`37def7e480ea33fbd965195588410a7ee68b6434` → **`4d125f8f102fee4ffcf5b61584cb03c57c8768d2`**；`git rev-parse HEAD` = `refs/remotes/origin/feat-Linux` = `git ls-remote origin refs/heads/feat-Linux` **三者一致**。
 
-（末两行 = 本行 ＋ sha16 行；口径 `head -n -2 <本文件> | sha256sum | cut -c1-16`，即"正文含 RECORD 段头"的字节）
-本报告 sha16 = `23cceab87a0daf46`
+
+### RECORD-补（落批后我现场发现的一处**未登记产品位移**，如实记；本段不推翻上面任何读数）
+
+- **发现**：`git log` 显示 `37def7e`（提交信息 = `chore(#52): 收尾链 W126A 步骤①-⑩ —— 冻结 #52`，**11:49:37**）**其 diff 里含**
+  `src/WpfGfx.Linux.Native/src/{win32_core.c,win32_x11.c,win32_internal.h}`（`+183/-5`）—— 而这三个件**当时正被车道 W131A 改**（源件 `mtime` = **11:49:23**，早该 commit **14 秒**）。
+- **实际值**：远端 head 上 `win32_core.c` = **`a9cc8762908b417a`**、`win32_x11.c` = **`9fa20864404ab01b`**；而 `#52` 冻结块**逐字宣称**的是 **`3117923a7c899e05`** ／ **`11142fbef049eb66`**。现场 `$R` 侧 `libwpfwin32.so` = **`a6365183fa6d26b9`（327,512 B）**，冻结块宣称 **`bd037229be8db4f6`（327,256 B）**。⇒ **产品位与"宣称冻结的产品位"不是同一个**。
+- **责任边界（机械证）**：`~/w131a/` 里**零 `git`／`git push` 痕迹**（`grep -rln` 五类关键词 ⇒ 无命中），且 **W131A 自己的 `LANDING-CHECKLIST.md` §0 闸门尚未勾选**（它按主控裁定**要等 `POST_ALL_DONE` 才落**）⇒ **不是 W131A 推的**；**我这一笔只 add 了 4 件**（`samples/WpfFeatureProbe/KNOWN-DEFECTS.md`／`docs/ROUTES.md`／`build/MilBridge/tools/defect-registry-declared.tsv`／本报告）⇒ **也不是我夹带的**。落在谁的笔里：**`37def7e`（W126A 的收尾链笔）**。
+- **后果（供主控裁定，我**不**自行处置）**：远端现在**同时**存在"`gen=#52` 冻结声明（`win32shim=bd037229be8db4f6`、源 `3117923a…/11142fbe…`）"与"W131A 未登记的产品改动（源 `a9cc8762…/9fa20864…`、件 `a6365183…`）"，且**后者没有 commit message、没有 `KNOWN-DEFECTS` 登记、没有报告**。⇒ 三种可能处置（**由主控选**）：① 视为"`#52` 之后的第一笔产品改动"，**补登记 ＋ 让 W131A 按其清单继续**；② 若认为不该进远端 ⇒ **在 W131A 完成前不动**（它的 `apply-fix.py` 有锚点断言，重放安全），**另开一代冻结**；③ 逐字核对"`bd037229…` 是否曾经真实存在于现场"（**我拿不到**：该件**不在 git 里** ⇒ 无法从历史复原 ⇒ **这一格如实 `NOINFO`**）。
+- **与本件的关系**：本件四件**纯文档**（`KNOWN-DEFECTS.md`／`ROUTES.md`／声明表／本报告），**与产品位无关**；本件的 `DEFREG` 读数、`TASK-0707`／`TASK-0203`／`D-G103…D-G107` 的判词**不受此位移影响**。
+（末两行 = 本行 ＋ sha16 行；口径 `head -n -2 <本文件> | sha256sum | cut -c1-16`）
+本报告 sha16 = `dabed3f67c0c6b4a`
