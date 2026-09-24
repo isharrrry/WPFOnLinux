@@ -127,3 +127,5 @@ COLUMN_FLOOR=PASS reason=decl==frozen-and-decl>=corpus pass=3 fail=0 noinfo=0 se
 | 本报告 `build/MilBridge/W153A-report.md` | 见本件末行（口径 `head -n -1`） |
 
 **零残留**：无本车道遗留 `dotnet`／`verify-all`／`close-wave`／`Xvfb :2xx` 进程（按 `/proc/*/cmdline` 的 **argv0** 判、**未用** `pgrep -f`／`pkill`）；`/tmp/.X11-unix/` 只有别人的 `X0 X1 X97 X99`。
+
+`W153A-report.md` sha16（去自身行口径 `head -n -1`）= `c50e2e6d8759c772`
