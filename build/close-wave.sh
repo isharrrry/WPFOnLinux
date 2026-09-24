@@ -223,6 +223,17 @@ fp_inputs() {  # 手写输入指纹（应用器 + port-lib + 本脚本 + 波脚�
       #   判据：**读 ⇒ 进 `fp_inputs()`**（若判"不读"，则须给"命中 0"的机械证才能不进）。
       #   ⚠️ 本行让 `inputs_fp` 再位移一次（连同 `close-wave.sh` 自含于覆盖面）⇒ 属**设计性变更**，
       #      必须在 `IN_FP_0` 采样**之前**落定（本行落在此处，早于波）。
+      # 【`#64` W157A（`TASK-0717`）加两行：`D-G118` 的牙 ＋ **它自己的台账**。
+      #   判据照 `#56` 那条「**读 ⇒ 进 `fp_inputs()`**」：本牙**决定门禁判什么**
+      #   （基线率闸：*在册速率还能不能用来定 `N`* —— 时间窗／同窗现取／闸是否被排除），
+      #   而它在 `verify-all.sh` 第 `[37]` 步被接线 ⇒ `verify-all` **波波都读它**；台账同因
+      #   （`--cases` 的输入：11 行确定性用例，改它 = 改门禁判什么）。
+      #   **先例（存量惯例，不是本波发明）**：回归判定牙**与它的台账**成对在名单里
+      #   （`bash ~/w153a/bin/infp.sh list` 实测命中 2 行）⇒ 本波照同一体例「牙 ＋ 台账」成对入名单。
+      #   ⚠️ 本函数**自含 `close-wave.sh`** ⇒ 本行改动必然再挪一次 `inputs_fp`（设计使然）。
+      #   ⚠️ 下面两行**必须留在 `\` 续行的参数表内**：注释只能放在**语句之前** ——
+      #      插进续行中间会把 `printf` 截断，并把后续行当**命令执行**（本波现场咬到过，见 W157A 报告）。
+      #   ⚠️ **九位**：本波零产品改动 ⇒ 只允许 `pf` 同尺寸位移；出现第二处 ⇒ 停手报主控。
       printf '%s\n' build/MilBridge/tools/tline-gate.sh build/MilBridge/known-red.json \
           build/MilBridge/tools/verify-all-step-check.sh build/MilBridge/tools/fp-inputs-hygiene-check.sh \
           build/MilBridge/tools/column-floor-check.sh build/MilBridge/tools/hidden-only-step.sh \
@@ -246,6 +257,8 @@ fp_inputs() {  # 手写输入指纹（应用器 + port-lib + 本脚本 + 波脚�
           build/MilBridge/tools/geom-revert-beat-check.sh \
           build/MilBridge/tools/geom-resend-regression-check.sh \
           build/MilBridge/tools/proc-pattern-guard.sh \
+          build/MilBridge/tools/baseline-rate-gate.sh \
+          build/MilBridge/tools/baseline-rate-cases.tsv \
           build/MilBridge/tools/regime-identity-check.sh \
           build/MilBridge/tools/regression-decision-cases.tsv
     } | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -d' ' -f1
