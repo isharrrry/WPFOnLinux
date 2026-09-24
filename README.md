@@ -5,31 +5,28 @@
 > **上游**：`upstream/wpf/`（`dotnet/wpf` 的一个快照，MIT，见 `upstream/wpf/LICENSE.TXT`）；上游**原始 README** 已保留为 [`README-Window.md`](README-Window.md)。
 > **工程规范**（并行车道必须遵守）：[`docs/PORT-SPEC.md`](docs/PORT-SPEC.md)｜**并行路线图**：[`docs/ROUTES.md`](docs/ROUTES.md)｜**文档地图**：[`docs/INDEX.md`](docs/INDEX.md)｜**发 fork / 推分支**：[`docs/FORK-AND-PUSH.md`](docs/FORK-AND-PUSH.md)。
 
-## 0. MVP 现状（2026-09-20）与"已知问题"
+## 0. 现状（现读 2026-09-24；**本段是快照，权威一律以现场为准**）
 
-**MVP 成立**：真实 WPF 应用（HandyControl 示例）**从源码编译通过 → 开窗 → 渲染出完整界面 → 点击/打字/下拉/列表都可用**。
-一条命令跑起来（自动把 `app-local` 五个件刷成仓内权威并打印 sha16，然后启动）：
+**MVP 成立**：真实 WPF 应用（HandyControl 示例）**从源码编译通过 → 开窗 → 渲染 → 交互**，一条命令跑起来（`bash ~/run-hc.sh`；`--no-sync` 只启动，`--diag` 开输入仪器）。真机口径：hc 示例**逐页实测 29/31 页可用**。
 
-```bash
-bash ~/run-hc.sh          # 见 §4；--no-sync 只启动，--diag 开输入仪器（⚠️ 已知会让应用闪退，勿用）
-```
+| 现读入口 | 位置 |
+|---|---|
+| **世代与基线** | `docs/CURRENT-STATE.md:9`（现读 `gen=#59`，基线件 `02f80e388d308c4d`／846,233 B） |
+| **交接件（新会话先读这个）** | `build/MilBridge/HANDOFF-NEXT.md`（§5 = **23 条纪律**；§7 = **七条命令**重建存活态） |
+| **路线图（权威状态）** | `docs/ROUTES.md` **§13 树**；`§15x+` = 逐波记录；`§14` = `[Next]` 清单 |
+| **牙齿自检（一条命令）** | `bash build/MilBridge/tools/defect-registry-check.sh`（现读 `DEFREG=PASS declared=149`） |
 
-**⚖️ 当前已知问题（都是真读数，不是猜测）**：
+**仍然已知的问题（2026-09-24 现读，**只剩 4 条**）**：
 
-| # | 现象 | 状态 |
+| # | 现象 | 状态 / 处置 |
 |---|---|---|
-| ① | **有窗口管理器的会话里点击全被吞**（无 WM 的验收装置永远复现不出来） | ✅ 已修（`WindowFromPoint` 框架→客户窗下降；四腿两极化验证）；**待发波冻结** |
-| ② | **点页签就崩**（`SetFocus ⇄ WM_SETFOCUS` 回声环 ⇒ `Stack overflow.`，最小复现 **2 击**） | ✅ 已修（补 `old != hwnd` 守卫；同趟两极化：修前 `rc=134`/`setfocus=4034`，修后 `alive=yes`/`setfocus=0`） |
-| ③ | **启动即死**（UI 线程锁竞争 ⇒ `WaitForMultipleObjectsEx` 失败桩 ⇒ 未处理异常；修前单实例 **7/38 ≈ 18%**） | ✅ 已修（`DispatcherSynchronizationContext.Wait` 走托管等待；修后 **0/30**） |
-| ④ | **窗口比屏幕大 ⇒ WM 自动最大化 ⇒ 拖不动缩不了**（用户桌面 `:0`/`:1` = **800x600**，而窗口是 800x600＋装饰） | ✅ 已修（移植层让默认尺寸**屏幕感知**：800x600 屏上窗口 784x560、标题栏在屏内；1280x1024 屏不被改小） |
-| ⑤ | **不能放大/最大化 + 拖边框无效；外面又套一层 WM 窗框**（应用用 `WindowChrome` 自绘标题栏） | 🔄 **回归＋老缺口**：`PMaxSize` 误用了钳制值（`win32_x11.c:1163-1213`）＋ `WM_NCHITTEST` 被 shim 吞掉（`win32_core.c:1411` 恒 `HTCLIENT`）＋ `_MOTIF_WM_HINTS` 故意不设 ⇒ 车道 W59A 修法中（`D-G69`） |
-| ⑥ | **切「富文本」/「流文档」页必崩**（`EntryPointNotFoundException: CreateInstalledObjectsInfo` @ `PresentationNative_cor3.dll` ⇒ abort 134） | ⛔ **本波不修**：这是 **PTS/LineServices 未实现**（我们自己的注释：那 **111 条 `Fs*`/`Lo*` 缺口**就是它）⇒ 属路线 R3（文本栈）⇒ 逐页实测（车道 W60A 报告 `0dfd49ab332c317d` §4，31 页全表）：**只有第 23 项「富文本框」与第 24 项「流文档」会崩**（各复现 3/3、2/2，均 `rc=134`），其余 **29 页 `alive=yes`、`unh=0`、帧差 >0**；`137`(OOM) 0 次、`139`(静默 SIGSEGV) **未复现**。⚠️ 另：demo 侧的 `InstallUnhandledGuard()` **救不了这两页**（守护接住第一个异常后 WPF 仍 `Environment.FailFast` ⇒ 照样 134） |
-| ⑦ | **偶发静默 SIGSEGV**（`rc=139`、日志 0 字节；用户 2/6 次运行遇到） | 🔄 第三类签名，取证中（仪器全关 ≥10 趟压力表 + 逐类归类） |
-| ⑧ | 「工具」页第 2 项 `Effects` 一打开就异常（缺 `0x6c`/`0x70` 两个 MIL 命令 `case`）；页签/按钮**文字零墨**；GIF **只出第 0 帧** | 🔄 根因均已到行，排在 `docs/WAVE49-PREREGISTRATION.md` 的 A 类 |
+| ① | 切「富文本」23／「流文档」24 **必死 `rc=134`** | 🔴 真因 = **PTS／原生 LineServices 未实现**（`TASK-0302`，111 条 `Fs*`/`Lo*` 缺口，月级长线）；已落**页级可见降级**（洋红占位，不再静默空白） |
+| ② | **PTS／LineServices 真实现** | 🔴 `TASK-0302`（同上，长线） |
+| ③ | 静默 `rc=139`＋0 字节日志 | 🟡 产品修法（UAF 链 `F1/F2/F3/F3b`）**已随 `#55` 冻结落地** ⇒ **本行读数须重取**（`TASK-0201`：用 `SILENT_SEGV_HIT` 逐字判别式 ＋ ≥131 腿/臂） |
+| ④ | 零墨修法的**反极性腿**未跑 | 🟡 `TASK-0301`（正极已成立；**只差这一条腿**） |
 
-**上面三个 ✅ 都还没重冻**：它们动了 `win32shim` 与 `windowsbase` 两位 ⇒ 必须按 `PORT-SPEC` §5 走整波链（重建 → 重取五臂 → 重钉 → 门禁 ×2 → `verify-all` ×2 → 重冻基线）后才算"基线"。
+> ⏪ **本段原是一张 8 行"已知问题"表（2026-09-20）**，其中 6 条（点页签崩 `D-G66`／启动即死／`PMaxSize` 钉死／双层窗框／顶部菜单条 NRE／Effects 缺 `0x6c`、`0x70`）**均已修**，另 2 条并入上表 ⇒ **该表已删除**；全文可从 git 历史逐字取回（`git -C ~/netTest/GitProj/WPFOnLinux log --oneline -- README.md`）。逐条细节见 `samples/WpfFeatureProbe/KNOWN-DEFECTS.md` 与 `docs/ROUTES.md`。
 
----
 
 ## 1. 今天能做什么（每条都可复算）
 
@@ -165,7 +162,7 @@ GDI+ 的**图像编解码族**只做到"应用能起来"；`ntdll` 面只有 `Rt
 
 ## 6. 已知边界（诚实清单，发布初版照抄）
 
-- **权威件是 Debug 构建**（切 Release 是下一步；上游 `Debug.Assert`/`Invariant.Assert` 未做 `[Conditional("DEBUG")]` 处理，Release 化需要同趟处理）。
+- **权威件构建配置 = `Release`**（**`#40` 起已经切换并冻结**；唯一声明 = `build/SelfBuiltConfig.props`，自检 `bash build/selfbuilt-config.sh --check`）。⏪ 原句写「权威件是 Debug 构建（切 Release 是下一步）」**已过期**，其全文可从 git 历史取回。
 - **GDI+ 图像族**（`GdipCreateBitmapFromFile`/`Save`…）返回"如实失败"；查询类返回空结果 ⇒ 依赖 GDI+ 解码的第三方代码会走不到图。
 - **`D-T4`**：帧步的 3 条**结构族**红（已登记、判据刻意不判结构族）。修它会让像素变、需重取五臂与 136 条 `tab0` 真值 ⇒ 独立成波。
 - **`D-G45`**：`System.Windows.Extensions` 的 Linux 原生替身**已写好但停用**（接线后 `PresentationFramework` 报 `CS0012`：程序集身份不一致）。
