@@ -122,3 +122,53 @@ ROWS_IDENTICAL=no —— **仅 `rundir=` 与头注释（时间戳/loadavg/mem）
 ```
 **⑥ 冻前 `verify-all`**：第一趟**被会话生命周期带走**（我自己事故：把 17 min 的等待写成回合内前台循环；停在 `[5]`、无 `rc` 痕迹）
 ⇒ 主控改由**托管后台作业**重启（`logs/verify-all-prefreeze2.log`）；本车道按**新硬规则**把"等待＋守卫＋冻结"整体写进**托管脚本** `freeze65.sh`（PID `1291109`，日志 `logs/freeze65.out`，标记 `freeze65.DONE`／`freeze65.STOP`）。
+## ⑪ 【落地后独立复验】车道 W152A-W65 的只读 POST-LAND（**来源 = 它的报告，主控已现核 `cmp`**）
+
+```
+§ 落地后独立复验（车道 W152A-W65，只读；取数 2026-09-24 18:09–18:13，全量 ~/w152a/w65/logs/20-postland.txt 78 行）
+- 落点两件 `39a2e2cdf1948675`／`be19edddf7f02797`：与它作者件 `cmp` **逐字节相同**；自测 41/41、13/13，真 rc=0。
+- 用**落点件**复跑两极化：`pos.sh` ⇒ FAIL reason=continuation-comment ∧ 点名 line=14 col=5；
+  对照 = 它留的**补丁前原件** `d4317aa7605a31e1` ⇒ PASS traps=0（**旧件全盲**）；`neg.sh` ⇒ PASS traps=0。
+- 扫树：files=165 sh=80 py=85 ／ traps=0 ／ diag=71 ／ probes=31 cc_fired=24,30 ⇒ 与落仓预期逐项命中；覆盖面 162。
+- ★ 覆盖面位移的**第三方佐证**：seg_sha16 758f0d3843202bbe → c9f0c90bf447e08d、段 28→29 行、名字 33→34、161→162，
+  `diff` 全文只有一行 `> build/MilBridge/tools/fp-manifest-teeth-check.sh \` ⇒ 本波"+1 行"由独立复验复现。
+  ⚠️ 口径：`ANCHOR_SAMPLE=same` 是"与上一次抽样比"（那次已在 #65 之后）⇒ 跨世代位移必须看成对值。
+- 成本：一次"污染趟"≈5–6 s（游离命令＝整趟树扫描 ＋ 867 个假名喂 sha256sum）⇒ 整件 58–62 s，按纪律走后台作业。
+```
+
+**另记它的两条"字面量脱钩"自纠**（与 `D-G131` 同族，属"**结论里写死的字面量必须现算**"）：
+`demo-old-vs-new.sh` 硬编码「33 件」⇒ 改为**现算**；`postland-verify.sh` 的"无长跑"结论 ⇒ 改为**现算 `SELF_PID`／`LONG_RUN`／墙钟**。
+⇒ **并入本波必记（第 13 条）**：**凡写进结论的字面量（件数/段数/名字数）都必须现取，不许硬编码**（与纪律 49「冻结 sha 只许脚本算」同族）。
+
+## ⑫ 【链条收尾】冻后 ×2 ＋ POST.done ＋ 推送 ＋ app-local ＋ 哨兵（**读数由 `logs/*.DONE` 现取填入**）
+
+**冻后 `verify-all` ×2（托管后台作业；各带四守卫）**
+```
+第 1 趟 rc=0 ｜ 步骤通过 37  ❌ 失败 0 ｜ 结论：✅ 全部通过
+        [11] VERIFYALL_SELF=PASS names=37 decl=37 gen=#65 dup=0 order=OK prose=OK prereg=PASS
+        [7]  BASELINESHA=PASS live=b9c97237afd4c214
+第 2 趟 rc=0 ｜ 步骤通过 37  ❌ 失败 0 ｜ 结论：✅ 全部通过 ｜ [11] 同上 ｜ [7] BASELINESHA=PASS live=b9c97237afd4c214
+```
+**`w65-POST.done`**：两趟全绿才 touch ⇒ 真 `stat` = `mtime=2026-09-24 18:36:40.926749073 +0800 size=0`（见 `logs/postfreeze65.DONE`）。
+
+**逐径推送（照 `FORK-AND-PUSH §3.1` 七步）**：白名单 **15 件**、**逐径 `git add`**（禁 `-A`／`--force`）⇒ 见 `logs/push65.DONE`：
+`OLD_HEAD=f158988cf770f1aed8405548c21d5ec70d7eb83e` → `NEW_HEAD=9ea45567f82e9f32cfa78fa0bbcdd9b82713d821`／`LSREMOTE_HEAD=9ea45567…`（**三方一致**，独立复核：`ls-remote feat-Linux` = clone HEAD = 9ea45567…）／`SYMREF=refs/heads/feat-Linux`／`PORCELAIN=0`／
+**`BYTECHECK ok=15 mismatch=0 nobody=0`**（判据 = **`HEAD:` 的 blob == `$R` 工作树**）／`whitelist_n=15`
+**对账**：`改了几件（`$R` vs clone `HEAD:` 逐件比）= 推了几件 = 15`；`git status` 只用于对账，**未**用于生成清单。
+
+**app-local（"五件"权威 ⇒ 目标目录；判据归 `check-applocal-sync.sh`）** ⇒ 见 `logs/applocal65.DONE`：
+`APP_LOCAL_TARGET=/home/links-dev/hc-linux/src/Net_GE45/HandyControlDemo_Net_GE45/bin/Debug/net10.0`／
+`APPSYNC=MISMATCH（MISMATCH=0[STALE=0 NEWER-DIFF=0] MISSING=0 UNEXPECTED=6[DECL-GAP-EQ=6 DECL-GAP-DIFF=0] DIVERGENT=0 RETIRED=0 AUTH-MISSING=0 BRIDGE-ANCHOR=0）` ⇒ **合格线 `STALE=0 ∧ DIVERGENT=0` 成立**；`UNEXPECTED=6` 是 **`DECL-GAP-EQ=6`（已声明的缺口）**，且该牙自述 **`APPSYNC` 是告警不是硬闸** ⇒ 不构成不合格。
+
+**两处哨兵**：`/tmp/bridge-frozen.flag` ＋ `~/wfp-runs/bridge-frozen.flag` —— 九位行 **9/9**，并**手工补**
+`BASELINE=#65 sha16=b9c97237afd4c214`（哨兵自身只自动写九位，基线号按 `NOTE` 要求手工补）。
+
+## ⑬ 本波必记（最终 13 条）
+
+1 镜像 `not-reached` 标签不许带过来｜2 自检沙箱那一行不许带过来｜3 故障注入必须断言"注入真的改变了行为"｜4 区间替换要核对被吃掉的末行｜5 构造期守卫｜
+6 改源必重建（源→派生件）｜7 3‑9 改严不是读数反复｜8 **备份清单必须在读完全部落地目标之后才动手**（`D-G126`）｜
+9 **建预登记件必须同趟带 `PREREG-NO-REGRESSION-DECISION:` 声明**｜10 **新建/改动任何被牙读的件后立刻单独跑那颗牙**（别等整趟 16 分钟）｜
+11 **任何"影子/副本/回退树"写前先断言 `stat -c %h` == 1，否则拒写**（硬链接写穿）｜
+12 **冻结记录/模板里的每个字面常量都要有"现取校验"**（我给 `tab-rtl` 手打错过一位）｜
+13 **凡写进结论的字面量（件数/段数/名字数）都必须现取，不许硬编码**（W152A 自纠两条，与 `D-G131` 同族）。
+**＋ 两条方法学**：**判据要判在渲染产物上、不判模板**（我那条守卫口径错了一格）｜**长跑一律托管后台作业（报 `$!` 与日志路径），并把"判定＋后续动作"写进脚本自身（落 `DONE`/`STOP` 标记）**。
