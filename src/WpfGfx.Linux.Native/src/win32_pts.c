@@ -56,6 +56,9 @@ static const char *const k_pts_entries[] = {
     "DestroyDocContext",
     "GetFloaterHandlerInfo",
     "GetTableObjHandlerInfo",
+    "LoCreateContext",
+    "LoAcquirePenaltyModule",
+    "LoGetPenaltyModuleInternalHandle",
 };
 #define WPF_PTS_ENTRY_COUNT ((int)(sizeof(k_pts_entries) / sizeof(k_pts_entries[0])))
 
@@ -171,6 +174,31 @@ int GetTableObjHandlerInfo(const void *pfstableobjinit, void *pTableObjectInfo)
     return wpf_pts_gap("GetTableObjHandlerInfo");
 }
 
+// 批 2a：LS 构造期的 3 条，与既有 6 条同形（诚实失败 + 具名台账）。
+// 托管返回类型 = `LsErr`（`LineServices.cs:1407/1570/1581`）⇒ 失败值 = -10000，出参一律置零。
+// 调用方**都**检查返回码并 ThrowExceptionFromLsError（`TextFormatterContext.cs:113`、
+// `TextPenaltyModule.cs:26`、`:80`）⇒ 不会被静默吞掉（机械读数 bare_calls=0 与它一致）。
+int LoCreateContext(const void *lscontextinfo, void **pfscontext)
+{
+    (void)lscontextinfo;
+    if (pfscontext) *pfscontext = NULL;
+    return wpf_pts_gap("LoCreateContext");
+}
+
+int LoAcquirePenaltyModule(void *ploc, void **penaltyModuleHandle)
+{
+    (void)ploc;
+    if (penaltyModuleHandle) *penaltyModuleHandle = NULL;
+    return wpf_pts_gap("LoAcquirePenaltyModule");
+}
+
+int LoGetPenaltyModuleInternalHandle(void *penaltyModuleHandle, void **internalHandle)
+{
+    (void)penaltyModuleHandle;
+    if (internalHandle) *internalHandle = NULL;
+    return wpf_pts_gap("LoGetPenaltyModuleInternalHandle");
+}
+
 // ══════════════════════════════════════════════════════════════════════════
 //  机器可读面（照 `WpfLinuxWin32_EscStringSelfCheck` / `ClassificationSelfCheck` 的形状）
 // ══════════════════════════════════════════════════════════════════════════
@@ -225,7 +253,7 @@ int WpfLinuxWin32_PtsGapReport(char *buf, int cap)
 // 自检（**这就是防"后人顺手把 return 改成 0"的那道牙**）：
 //   ① 6 个入口**逐个真调一次**，返回值必须都 == -10000（非 0！）；
 //   ② 出参必须被清成 NULL/0（不许留未初始化内存、不许给假句柄）；
-//   ③ `WpfLinuxWin32_PtsGapReport` 必须写出一行、且含 `entries=6`、含 `err=-10000`。
+//   ③ `WpfLinuxWin32_PtsGapReport` 必须写出一行、且含 `entries=9`、含 `err=-10000`。
 //   调用本身会动台账 ⇒ 自检**保存/复原**计数，跑完台账与本进程"自检前"一致（可重复跑）。
 int WpfLinuxWin32_PtsGapSelfCheck(void)
 {
@@ -238,6 +266,9 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
     char sb[64] = { 0 }, sp[64] = { 0 };
     void *p1 = (void *)0x1; int c1 = 12345;
     void *p2 = (void *)0x2;
+    // 【`#66` W158A 修订】3 个新入口**各自一个先被投毒的出参**：否则链条走到这里时 `p1`
+    //   早已被第 1 条入口清成 NULL ⇒ `p1 != NULL` 那三条断言**恒不成立**（恒绿假牙）。
+    void *q1 = (void *)0x33, *q2 = (void *)0x34, *q3 = (void *)0x35;
     int rc = 0;
 
     if (CreateInstalledObjectsInfo(sb, sp, &p1, &c1) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 1;
@@ -248,11 +279,17 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
     else if (DestroyDocContext((void *)0xdead) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 6;
     else if (GetFloaterHandlerInfo(sb, sp) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 7;
     else if (GetTableObjHandlerInfo(sb, sp) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 8;
+    else if (LoCreateContext(sb, &q1) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 11;
+    else if (q1 != NULL) rc = 12;
+    else if (LoAcquirePenaltyModule(sb, &q2) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 13;
+    else if (q2 != NULL) rc = 14;
+    else if (LoGetPenaltyModuleInternalHandle(sb, &q3) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 15;
+    else if (q3 != NULL) rc = 16;
 
     if (rc == 0) {
         char rep[256];
         if (WpfLinuxWin32_PtsGapReport(rep, (int)sizeof(rep)) <= 0) rc = 9;
-        else if (!strstr(rep, "entries=6") || !strstr(rep, "err=-10000")) rc = 10;
+        else if (!strstr(rep, "entries=9") || !strstr(rep, "err=-10000")) rc = 10;
     }
 
     // 复原台账（自检不许改变可观测状态）

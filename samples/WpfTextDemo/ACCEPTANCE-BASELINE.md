@@ -1,10 +1,62 @@
-# BASELINE-HEADER date=2026-09-24T16:xx+08:00 display=:99（`verify-all` 头标目标显示号）｜车道 = **W153A-RATES2**（`#65`：`D-G125` 静默丢行修法 ＋ `DECL_UPPER` 承重 token ＋ `AMENDMENT-2/3` ＋ `TASK-0718` 两件牙的交接入仓；**唯一 owner**）
-#   cpu=4核  run_dir=/home/links-dev/w153a ｜车道工作目录 `~/w153a/w65rate2/`（仓外预备）｜`$R` 不是 git 仓（推送面 = `~/netTest/GitProj/WPFOnLinux` 的 `feat-Linux`）
+# BASELINE-HEADER date=2026-09-24T19:xx+08:00 display=:99（`verify-all` 头标目标显示号）｜车道 = **W158A-W66EXEC**（`#66`：`TASK-0720` 落仓 —— A3 口径更正 ＋ 11 条 `#if NEVER` 死声明名单落册 ＋ 批 2a 三条 `LsErr` 诚实失败 ＋ `Nl*` 有意降级声明牙 ＋ `fp_inputs()` +1 行；**唯一 owner**）
+#   cpu=4核  run_dir=/home/links-dev/w158a ｜车道工作目录 `~/w158a/`（仓外预备：`patches/`／`tools/`／`criteria.md`）｜`$R` 不是 git 仓（推送面 = `~/netTest/GitProj/WPFOnLinux` 的 `feat-Linux`）
 #   ⚠️ 权威件构建配置 = Release（唯一声明 = build/SelfBuiltConfig.props）
-#   判据先行：`~/w153a/w65rates/criteria.md`（`3a1ccf6e40888114`，**链的起点**，14:58）｜`~/w153a/w65rate2/criteria.md`（`a08293721b805036`，§3 ③ 判定表／§11 `AMENDMENT-2/3`／白名单／四不变量）｜`~/w153a/w65rate2/CONSTRUCTION-ORDER.md`（`0fbba59efae0c578`，施工单 ＋ 施工必记）｜`~/w153a/w65rate2/cases.tsv`（`c36a1a5d2d906f22`）｜`~/w153a/w65rate2/cases-grammar.tsv`（`fcde8e09b014175a`）｜`~/w153a/w65rate2/template-amendment.md`（`3dd6db267aebf055`）
-#   ⚠️ `docs/WAVE65-PREREGISTRATION.md` 是**落地读数之后补建**的（如实声明，见该件开头）：它的存在是 `verify-all-step-check.sh` 的要求 ⇒ 判据链以 mtime 为准（见该件 §1）。
+#   判据先行：`~/w158a/criteria.md`（`730f9d283bb9d2fc`，**链的起点**：C1–C6 ＋ 两极化 ＋ 判否条件 ＋ 三条修订记录）｜施工单 `~/w154a/w66prep/W66-WORKORDER.md`（`c1e1a0a3a2b0e0e6` 之外，本波按其 §S0–S6 执行）｜验收器 `~/w154a/w66prep/w66-accept.sh`
+#   ⚠️ `docs/WAVE66-PREREGISTRATION.md`（`e6d368b565357ec1`）与**落地同趟**产出（标题行含 `#66` 是第 `[11]` 步的硬要求）；**本件不冒充"早于落地"**，判据链以 `criteria.md` 的 mtime 为准。
 
-# RE-FROZEN #65 —— ✅ **当前冻结基线** —— 内容 = **判据装置批 E**（**零产品改动**）：`D-G125`（静默丢行 ⇒ 假绿）的修法 ＋ `DECL_UPPER` 承重 token ＋ 四条册级不变量 ＋ 3‑9 改判，另交接入仓两件牙（`TASK-0718`）。
+# RE-FROZEN #66 —— ✅ **当前冻结基线** —— 内容 = **`TASK-0720` 落仓**：A3 口径更正 ＋ 11 条 `#if NEVER` 死声明名单落册 ＋ 批 2a 三条 `LsErr` 诚实失败（导出 `547 → 550`）＋ `Nl*` 有意降级声明牙 ＋ `fp_inputs()` +1 行。**本波有产品面位移**（native 源改了）⇒ 见 ⑥。
+#   ① **A3 口径更正**：`src/WpfGfx.Linux.Native/src/win32_classification.c` **`1e17b8331c2d3d73` → `a5923b2fc07dea0b`**（13,661 → 13,744 B）：**单行、保行数**，保留字面「111 条」（留下"旧数被作废"的痕迹）＋ 同行 `TOOL-UNSOUND` 更正标记 ＋ 两个新口径（`可操作 91`／`实现口径 97`）。判据 = `check-111-sweep.sh` `live_uncorrected=0`（修前 = 1）。
+#   ② **11 条 `#if NEVER` 死声明名单落册**：`samples/WpfFeatureProbe/KNOWN-DEFECTS.md` **`7a663e8d4d8ee953` → `a31f34c113235dd3`**（717,620 → 718,486 B，**`+1 行 / -0 行`**）：11 名与 `check-numbers.py` 现算 `DEAD` 集合**相等**（成员表先取）；独立复核：8 个 `#if NEVER` 区间与现算 `DEAD_RANGES` 逐字相同，另两区间（`3442-3466`／`3598-3617`）只有**裸 C 原型、无 `[DllImport]`** ⇒ 正确地不在名单内。**⚠️ 该件由主控搬行**（口径：字符串由本车道 `patches/P02-NEWLINE.txt` 产、`apply.sh` 的 applier 产字节；主控落 `$R` 并同趟重发 `declared.tsv` = `342a25e8795f58b5`、`DEFREG=PASS declared=167 DECLDRIFT=0`）。
+#   ③ **批 2a 三条 `LsErr` 诚实失败**：`src/WpfGfx.Linux.Native/src/win32_pts.c` **`e6559d0bba3c1044` → `bcb9858919e6237e`**（13,404 → 15,189 B；`P03`（5 处）＋`P03X`（2 处）**必须同趟**）：新增 `LoCreateContext`／`LoAcquirePenaltyModule`／`LoGetPenaltyModuleInternalHandle`（`ret == -10000` ∧ 出参置 `NULL`）；**导出 `547 → 550`**；`WpfLinuxWin32_PtsGapSelfCheck() == 1`；台账逐条 `PTS_GAP entry=… seq=7/8/9 err=-10000`。
+#      🔴 **`D-G128` 实例①（假牙）＋ 修法同趟**：原自检 `else if (p1 != NULL) rc = 12/14/16;` 三条**恒绿**（链条走到第 7/9 条时 `p1` 早被第 1 条入口清成 `NULL`）⇒ 删掉出参清零仍 `SELFCHECK=1`。`P03X` 给三条入口**各自投喂毒的出参**（`q1/q2/q3`）⇒ **删掉清零 ⇒ `SELFCHECK=0`（判否翻转）**，且 honest 档两树都 `=1`。**2×2 矩阵**见本波报告。
+#   ④ **`Nl*` 有意降级声明牙（新建）**：`build/MilBridge/tools/nl-intent-check.sh` **新建 `44f5e87b0ed0929c`**（15,123 B，单文件自足）：`--selftest` **4/4**（含**现场 gcc 编的假 `.so`** 阳性对照）∧ live `NL_INTENT_RESULT=PASS capability=0 declared=yes anchors=3/3`。
+#   ⑤ **覆盖面 +1 行**：`build/close-wave.sh` **`9dfc1e43b4d67fbf` → `3f190c323b543275`**（`fp_inputs()` 名单 **+1 行** `build/MilBridge/tools/nl-intent-check.sh`；注释块置于 `printf` **语句之前**，新行留在 `\` 续行参数表内）⇒ **覆盖面 `162 → 163`**（`FPHYG_COVERAGE_N=163`）。
+#      ⚠️ **`inputs_fp` 一笔（成对）**：`4c1056ddca8afc700df3f0777a2c134932a5fc2ddcfc7d1192c38940e3c15fd5`（`#65` 冻后值）→ **`2fa59979bcdd0148281fb3c011578ce0da43c30c89c11eca1b1da9a9d48610c8`**（整波自印"波前==波后"）。
+#      ⚠️ **`UNWIRED`（如实声明，不许算绿）**：`nl-intent-check.sh` **在覆盖面内但未被 `verify-all` 调用** —— 证据 = **只看代码形状**：`grep '^run_step "' verify-all.sh | grep -c 'nl-intent'` = **0**（全文 `grep -c` = 2，那两条是**本波新加的声明正文**，**属 `D-G119` 实例㉔ 的污染形态**）⇒ 接线归 `[Next] TASK-0724`。
+#   ⑥ **产品面位移 = 两位（预期即两位）**：`win32shim`（native 源改了 ⇒ 必变）＋ `pf`（环成员 ⇒ 必变）；其余七位**逐位未变**。**没有第三处位移、也没有"该动没动"**。
+#   **九位（Release 权威件）**：`bridge` `4e25e4b27d4d5ae1`（5028208 B）／`pc` `722e0ab8205b7c3f`（3601408 B）／`pf` `29ad6d7cf3246938`（6123520 B）／`windowsbase` `2e4e46e539a72cd7`／`provider` `1f9511a7ef395bfe`／`win32shim` `fc60c34d51fd9247`／`wic_shim` `f7b3026c8c019be2`／`hbtextline` `921ba9c65e9fb3be`（293165 B）／`dwf` `ce3469f49efcbcfa`。
+#     · **相对 `#65` 冻结值**：`pf` `59ba7d2997fcdd62` → `29ad6d7cf3246938`（**环成员**）；`win32shim` `d2b76a0a56a41be1` → `fc60c34d51fd9247`（**native 源新增 3 条导出** ⇒ `547 → 550`）；其余**七位逐位未变**（`pc` 仍 `722e0ab8205b7c3f`、`windowsbase` 仍 `2e4e46e539a72cd7`、`dwf` 仍 `ce3469f49efcbcfa`）。
+#   **`BRIDGE_SRC_FP` = `d697b1e10ff48881`**（上一代 `d697b1e10ff48881`；本波未改桥源 ⇒ 逐位未变）。
+#   **臂日志聚合（两种口径都给）**：`cat` 口径 `2f276db59de241cb`／`find|sort|xargs` 口径 `6e246ef5b87d69ea`（本波**不改** `GEN_KEYS` ⇒ **五臂不重取**）。
+#   **冻前 `verify-all` = `37` 步（`37 ✅ / 0 ❌`、`用例通过 875 跳过 2`）**：见下 §RECORD 的 ⑥ 行。
+#   —— 外挂声明（**两族必须落在最新 `# RE-FROZEN` 块内**）——
+# COLUMN-FLOOR arm=tab-oracle-anchor col=START      judged_min=615 released_min=194
+# COLUMN-FLOOR arm=tab-oracle-anchor col=OVERFLOWED judged_min=421
+# COLUMN-CORPUS file=tests/parity/windows/tab-anchor/out/tab-anchor-oracle.json sha16=0cebc0afd5142fbf
+# ARM-LOG-SHA arm=tab-anchor    sha16=1c43a12dcaa5718a
+# ARM-LOG-SHA arm=tab-zero      sha16=9150c3a26a3cb789
+# ARM-LOG-SHA arm=tab-rtl       sha16=92570318851ca7e8
+# ARM-LOG-SHA arm=tline         sha16=59a203de30d745a8
+# ARM-LOG-SHA arm=textlineproto sha16=4bceceeed570ba70
+#   【① 落地（全部 `temp ＋ os.replace`；前后 sha **双断言** ＋ **写前逐件 `%h==1` 断言**）】7 件：`P01`／`P03`＋`P03X`／`P04`／`P05`／`P06`（`verify-all.sh` 两条声明）／`P07`（新建预登记件）；`P02` 由主控搬行（见 `# RE-FROZEN` ②）。
+#      ⚠️ **拒绝写穿的机制**：全部走**同目录 `mkstemp` ＋ `os.replace`**（换 inode）；写前用**唯一实现** `~/w158a/tools/shadow-gate.sh` 断言每件 `stat -c %h == 1`（不满足 ⇒ `exit 3` 拒写）。现场命中一行**假阳性**（`w153a` 车道推文档的 shell 命令行文本里含 `WpfFeatureProbe`）⇒ 后续实测均在 `%h==1` 下进行。
+#   【② 缺陷与判据（先写）】`D-G128` 实例①（**反极性腿恒绿假牙**：注入点被上游清空 ⇒ 该腿不是证据）／`D-G119` 实例㉔（**判据的输入被它自己的文档正文污染**：`grep -c nl-intent` 被新写的声明正文从 0 顶到 2）—— 判据、两极化与判否条件见 `~/w158a/criteria.md`（含三条**测量后**追加的判据修订，未就地改写原判据）。
+#   【③ 整波】`close-wave.sh --skip-verify-all`（槽内，`held=183s`）：波前/波后 `inputs_fp` 对账 = `2fa59979bcdd0148281fb3c011578ce0da43c30c89c11eca1b1da9a9d48610c8`；九位位移 = **预期 `pf` ＋ `win32shim` 两位**（**出现第三处、或该动没动 ⇒ 停手报主控**）⇒ 实测**正好两位**。
+#   【④ 五臂／重钉】**本波不改 `GEN_KEYS`**（不动 `run.sh`／`HbTextLineParity/Program.cs`／`build/shims/PresentationCore.HbTextLine.cs`）⇒ **五臂不重取**、臂日志 sha 与 `#65` **逐位相同**（`ARMLOG_SHA=PASS declared=5 pass=5`）。
+#   【⑤ 门禁 ×2（槽内、严格串行）】**合格线 = 判词行逐字一致**（`BASELINE` 六条机读行 `result=PASS`、`pc:722e0ab8205b7c3f`／`pf:29ad6d7cf3246938`／`win32shim:fc60c34d51fd9247` 为终态）。显示号按硬规则 `:23x`（`WPTD_DISPLAY=:231`；脚本自起 Xvfb 并按 PID 收尾）＝**本波新立**（`run-wpftextdemo.sh` 默认 `:97`，而 `:97` 现场已被占用）。
+#   【⑥ 冻前 `verify-all`（槽内）】**`37 ✅ / 0 ❌`**、`rc=0`、`结论：✅ 全部通过`、`用例通过 875 跳过 2`。
+#      ⚠️ **本波第 1 趟冻前 `verify-all` 曾 `36 ✅ / 1 ❌`**：失败项 = `PREREG-FOUR-REQ`（`PREREG4_FILE … state=fail missing=7`）。
+#        **根因＝声明写错了节**：`prereg-four-requirements-check.sh` 的 `extract_section()` 只取**第一个标题含「判据」的节**，
+#        而我把「本波不做任何回归判定」写在 `§0`（**判据节之外**）⇒ `no_rd_decl=0` ⇒ 落进四要件判据。
+#        **修法**：`patches/P07B.py`（只加不改）把同一条声明补进 `§1 判据` 节内 ⇒ 该件 `e6d368b565357ec1 → bf6b683d94549087`（2,890 → 3,409 B）；
+#        单独复验（照 `verify-all` 的形态）`PREREG4=PASS files=47 pass=1 fail=0 na=8` ⇒ 该件从 `fail` 移入 `na`。
+#        ⇒ **施工必记（本波新增）**：**「不做回归判定」这类节级声明，必须落在牙真正抽取的那一节里** —— 位置错了等于没写。
+#        ⚠️ 同趟的**守卫生效记录**：`w66-freeze.sh` 见 `步骤通过 36 … 失败 1` ⇒ 当场 `STOP`、**没有冻结**（`FRC≠0／步数不符 ⇒ 不写 DONE` 这条纪律不是摆设）。
+#      逐步骤核：`VERIFYALL_SELF=PASS names=37 decl=37 gen=#66 prose=OK prereg=PASS` ＋ `FP-INPUTS-HYGIENE` 覆盖面 `163`／`artifact_n=0`。
+#   【⑦⑧⑨ 冻后追加（`APPEND_ONLY`）】冻结 `#66` 的 `FREEZE_RC`／冻后两极化（`BASELINE-SHA`／`ARM-LOG-SHA`／`COLUMN-FLOOR` 冻前红 ⇒ 冻后绿）／**冻后 ×2 两趟**（各 `37 ✅ / 0 ❌`）。
+#   【牙与件（现算 sha16）】`~/w158a/criteria.md`（`730f9d283bb9d2fc`）｜`~/w158a/apply.sh`｜`~/w158a/patches/P0{1,2,3,3X,4,5,6,7}.py`｜`~/w158a/tools/{shadow-gate.sh,verify-chain.py,sparse-leg.sh,anchor-precheck.sh,report-table-check.sh,land-r66.sh}`｜`build/MilBridge/W66-report.md`（本波报告）｜`docs/WAVE66-PREREGISTRATION.md`（`e6d368b565357ec1`）。
+#   【本波四条口径句（落册，均来自现场实测）】
+#      ① **凡「反极性／对照」腿，必须先证明它的注入点在自己那一层还活着**（切断被注入的对象 ⇒ 该腿**必须翻转**）；注入点在链路下游被上游清空／覆盖 ⇒ 那条腿是**假牙**（恒绿），不是证据（`D-G128` 实例①）。
+#      ② **凡「未接线／未调用」类主张，必须把 grep 限定到「代码形状」**（`^run_step` 之类）；**全文命中只作数量级旁证** —— 判据的输入会被它自己的文档正文污染（`D-G119` 实例㉔）。
+#      ③ **凡「某物已不存在／已清空」的判据，必须由「创建它的那条路径」同趟检查一遍**（否则检查本身就是它的创建者）—— 现场：`apply.sh` 开工的 `mkdir -p … shadow` 每跑一次就把空 `shadow/` 造回来，而"农场已清"的验收格正是 `ls -d … shadow`（`D-G128` 实例③）。
+#      ④ **同一逻辑不许存在两处** —— 本波把"链式复核"抽成**唯一实现**（`tools/verify-chain.py`）并**三处迁移**：同一个"把补丁的 `after` 直接比现态"的 bug 在 `apply.sh`／`sparse-leg`／`land-r66` **犯了三次**，每次都是**假红**。
+BASELINE tier=default rep=1 config=pc:722e0ab8205b7c3f,bridge:4e25e4b27d4d5ae1,pf:29ad6d7cf3246938,provider:1f9511a7ef395bfe,win32shim:fc60c34d51fd9247,wic_shim:f7b3026c8c019be2,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=261 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=4112 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w158a/w66gate/gate-r2
+BASELINE tier=default rep=2 config=pc:722e0ab8205b7c3f,bridge:4e25e4b27d4d5ae1,pf:29ad6d7cf3246938,provider:1f9511a7ef395bfe,win32shim:fc60c34d51fd9247,wic_shim:f7b3026c8c019be2,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=261 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=4112 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w158a/w66gate/gate-r2
+BASELINE tier=default rep=3 config=pc:722e0ab8205b7c3f,bridge:4e25e4b27d4d5ae1,pf:29ad6d7cf3246938,provider:1f9511a7ef395bfe,win32shim:fc60c34d51fd9247,wic_shim:f7b3026c8c019be2,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=261 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=4112 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w158a/w66gate/gate-r2
+BASELINE tier=env rep=1 config=pc:722e0ab8205b7c3f,bridge:4e25e4b27d4d5ae1,pf:29ad6d7cf3246938,provider:1f9511a7ef395bfe,win32shim:fc60c34d51fd9247,wic_shim:f7b3026c8c019be2,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=144 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=2945 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w158a/w66gate/gate-r2
+BASELINE tier=env rep=2 config=pc:722e0ab8205b7c3f,bridge:4e25e4b27d4d5ae1,pf:29ad6d7cf3246938,provider:1f9511a7ef395bfe,win32shim:fc60c34d51fd9247,wic_shim:f7b3026c8c019be2,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=144 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=2945 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w158a/w66gate/gate-r2
+BASELINE tier=env rep=3 config=pc:722e0ab8205b7c3f,bridge:4e25e4b27d4d5ae1,pf:29ad6d7cf3246938,provider:1f9511a7ef395bfe,win32shim:fc60c34d51fd9247,wic_shim:f7b3026c8c019be2,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=144 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=2945 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w158a/w66gate/gate-r2
+# ⏪ **（历史，已被 `#66` 取代）**# RE-FROZEN #65 —— ✅ **当前冻结基线** —— 内容 = **判据装置批 E**（**零产品改动**）：`D-G125`（静默丢行 ⇒ 假绿）的修法 ＋ `DECL_UPPER` 承重 token ＋ 四条册级不变量 ＋ 3‑9 改判，另交接入仓两件牙（`TASK-0718`）。
 #   ① **`TASK-0719`（`D-G125`／`D-G121` 的承载件）**：`build/MilBridge/tools/baseline-rate-gate.sh` **`31cf77abc6a882e3` → `1bad58c07a8264e6`**（580 行）。
 #      · **`D-G125` 修法**：删掉 `run_cases()` 里 `if len(parts) != len(COLS): continue` 的**静默跳过** ⇒ 改**按行宽分派**（8 列旧形态／10 列新形态）＋ **册级自洽**（行宽既非 8 也非 10 ⇒ **响亮 `NOINFO-DECL-COLUMN-WIDTH`**；前缀/新行一致性 ⇒ `decl-upper-legacy-judged`／`decl-upper-newrow-unjudged`）。
 #      · **`DECL_UPPER=EVALUATED|NOT-EVALUATED`**（**单一承重 token，可 grep**）：在 `F = {}` 下一行初始化 ⇒ **任何早退都恰打一个值、永不为 `-`**；3‑4 自洽处置 `EVALUATED`。**保留** `decl_upper_checked` 七值细分。

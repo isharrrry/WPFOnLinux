@@ -234,6 +234,14 @@ fp_inputs() {  # 手写输入指纹（应用器 + port-lib + 本脚本 + 波脚�
       #   ⚠️ 下面两行**必须留在 `\` 续行的参数表内**：注释只能放在**语句之前** ——
       #      插进续行中间会把 `printf` 截断，并把后续行当**命令执行**（本波现场咬到过，见 W157A 报告）。
       #   ⚠️ **九位**：本波零产品改动 ⇒ 只允许 `pf` 同尺寸位移；出现第二处 ⇒ 停手报主控。
+      # 【`#66` W158A（`TASK-0720`）加一行：`Nl*`（连字/拼写）有意降级的**判据牙**
+      #   `build/MilBridge/tools/nl-intent-check.sh`。判据照本函数上方那条
+      #   「**读 ⇒ 进 `fp_inputs()`**」的同族惯例：它是**判据件**（导出面出现那 6 个 `Nl*`
+      #   ⇒ 必红；声明面缺合格声明行 ⇒ FAIL），与 `ime-landing-check.sh` 同目录、同风格。
+      #   ⚠️ 本改**必须排在 `IN_FP_0` 采样之前**，且**与整波同趟**（本函数自含 `close-wave.sh`
+      #      ⇒ 改本文件必然再挪一次 `inputs_fp`；这是设计使然，不是副作用）。
+      #   ⚠️ 新增的那一行**必须留在 `\` 续行的参数表内** —— 注释只能放在**语句之前**
+      #      （插进续行中间会把 `printf` 截断，并把后续行当**命令执行**；本仓现场咬到过）。
       printf '%s\n' build/MilBridge/tools/tline-gate.sh build/MilBridge/known-red.json \
           build/MilBridge/tools/verify-all-step-check.sh build/MilBridge/tools/fp-inputs-hygiene-check.sh \
           build/MilBridge/tools/column-floor-check.sh build/MilBridge/tools/hidden-only-step.sh \
@@ -261,7 +269,8 @@ fp_inputs() {  # 手写输入指纹（应用器 + port-lib + 本脚本 + 波脚�
           build/MilBridge/tools/baseline-rate-cases.tsv \
           build/MilBridge/tools/regime-identity-check.sh \
           build/MilBridge/tools/fp-manifest-teeth-check.sh \
-          build/MilBridge/tools/regression-decision-cases.tsv
+          build/MilBridge/tools/regression-decision-cases.tsv \
+          build/MilBridge/tools/nl-intent-check.sh
     } | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -d' ' -f1
 }
 sha16() { sha256sum "$1" 2>/dev/null | cut -c1-16; }
