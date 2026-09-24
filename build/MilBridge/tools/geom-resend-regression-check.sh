@@ -38,7 +38,7 @@
 # 【用法】
 #   bash build/MilBridge/tools/geom-resend-regression-check.sh --selftest
 #   bash build/MilBridge/tools/geom-resend-regression-check.sh --corpus="$HOME/w134a/run" [--verify-arms]
-#   `--fix=<sha16>` / `--pre=<sha16>` 可换臂（默认见下）；
+#   `--fix=<sha16>` / `--pre=<sha16>` 可换臂（**真换臂**：这两个值直接进判据的分组与角色判定，不只是打印；相等 ⇒ 拒载 `USAGE_ERR`；传进来的 sha 若不在语料里 ⇒ 该臂无腿 ⇒ 顶层 `NOINFO single-arm`）；  [W153A-#61]
 #   `--pattern='0c 02 05 00 04 00 c0 00'` 可换命中模式（默认与 `leg.sh` 逐字相同）。
 #   `--verify-arms` 另在**给定目录集合**里现算 `wpfgfx_cor3.so` 的 sha16 与尺寸，确认两臂件都在盘上
 #   （缺 ⇒ 该格 `NOINFO` 并点名；**不**影响四元组判词）。
@@ -68,8 +68,8 @@ def sha16_file(p):
         return None
     return h.hexdigest()[:16]
 
-def read_leg(d, pattern):
-    """→ dict（缺件一律显式记账，不静默丢弃）"""
+def read_leg(d, pattern, fix=FIX_SHA, pre=PRE_SHA):
+    """→ dict（缺件一律显式记账，不静默丢弃）；[W153A-#61] `fix`/`pre` 决定 `nametrap` 按哪一对臂判"""
     leg = os.path.basename(d.rstrip("/"))
     probe, xw, ml = (os.path.join(d, n) for n in ("probe.txt", "xwrap.log", "mil.log"))
     out = dict(leg=leg, bridge="?", r_ok=None, printed=None, cfg_hit=None, geowrite=None, missing=[])
@@ -95,14 +95,14 @@ def read_leg(d, pattern):
         out["geowrite"] = sum(1 for ln in open(ml, errors="replace") if "GEOWRITE-SUPPRESSED" in ln)
     out["reconcile"] = ("n/a" if (out["cfg_hit"] is None or out["printed"] is None)
                         else ("OK" if out["cfg_hit"] == out["printed"] else "COUNT_MISMATCH"))
-    out["nametrap"] = name_trap(leg, out["bridge"])
+    out["nametrap"] = name_trap(leg, out["bridge"], fix, pre)
     return out
 
-def name_trap(leg, bridge):
+def name_trap(leg, bridge, fix=FIX_SHA, pre=PRE_SHA):
     """腿名里的 OLD/NEW **不等于**桥件的旧/新 —— 名字与趟印 BRIDGE 冲突时点名（分组仍只认 BRIDGE）"""
     u = leg.upper()
-    if "OLD" in u and bridge == FIX_SHA: return "name=OLD>bundle=fix"
-    if "NEW" in u and bridge == PRE_SHA: return "name=NEW>bundle=pre"
+    if "OLD" in u and bridge == fix: return "name=OLD>bundle=fix"
+    if "NEW" in u and bridge == pre: return "name=NEW>bundle=pre"
     return ""
 
 def classify_row(r):
@@ -113,8 +113,9 @@ def classify_row(r):
         return None
     return (r["bridge"], r["cfg_hit"], r["geowrite"], r["r_ok"])
 
-def judge(rows):
-    """核心判词（供 main 与 --selftest 共用）→ dict(verdict, reason, arms, counters)"""
+def judge(rows, fix=FIX_SHA, pre=PRE_SHA):
+    """核心判词（供 main 与 --selftest 共用）→ dict(verdict, reason, arms, counters）
+    ⚠️ [W153A-#61] `D-G113` 修：`fix`/`pre` **必须**从 `main` 传进来（`--fix=`/`--pre=` 直接决定「谁是修的臂」）—— 修前本函数只认模块级常量 ⇒ 两个开关只改 `NOTE` 打印（假旋钮）。"""
     from collections import defaultdict
     arms = defaultdict(list)
     excluded = []
@@ -129,7 +130,7 @@ def judge(rows):
         red = sum(1 for _, h, g, ok, _ in ds if h >= 1)
         grn = sum(1 for _, h, g, ok, _ in ds if h == 0 and ok == "1")
         gw0 = sum(1 for _, h, g, ok, _ in ds if g == 0)
-        role = "fix" if b == FIX_SHA else ("pre" if b == PRE_SHA else "unknown")
+        role = "fix" if b == fix else ("pre" if b == pre else "unknown")
         rate = (red / len(ds)) if ds else 0.0
         if len(ds) < MIN_LEGS_PER_ARM:
             v, why = "NOINFO", "legs<%d（腿数不足）" % MIN_LEGS_PER_ARM
@@ -142,7 +143,7 @@ def judge(rows):
         elif role == "pre":
             bad = []
             if rate < RISEUP_MIN: bad.append("回升率 %.2f < 先写界 %.2f" % (rate, RISEUP_MIN))
-            fixds = arms.get(FIX_SHA) or []
+            fixds = arms.get(fix) or []
             fixrate = (sum(1 for _, h, _, _, _ in fixds if h >= 1) / len(fixds)) if fixds else None
             if fixrate is not None and not (rate > fixrate):
                 bad.append("回升率 %.3f 未严格大于修后臂占比 %.3f" % (rate, fixrate))
@@ -157,7 +158,7 @@ def judge(rows):
         for leg, h, g, ok, nt in ds:
             if (h >= 1) != (ok == "0"):
                 res["pair_violations"].append("%s(HIT=%d r_ok=%s)" % (leg, h, ok))
-            if b == PRE_SHA and h == 0 and ok == "1":
+            if b == pre and h == 0 and ok == "1":
                 res["counterexamples"].append(leg)
             if nt:
                 res["nametraps"].append("%s(%s)" % (leg, nt))
@@ -280,6 +281,16 @@ def main(argv):
         elif a.startswith("--pre="): pre = a.split("=", 1)[1]
         elif a == "--verify-arms": verify = True
         elif a in ("-h", "--help"): print("见本文件头注释【用法】"); return 0
+        else:   # [W153A-#61] 修前**静默忽略**未认参数 —— 打错一个字母就会得到「开关没起作用」的假实验
+            print("GEOMRESEND=NOINFO reason=USAGE_ERR unknown-arg=%s（本牙不认这个参数；"
+                  "静默忽略参数正是 D-G113 的另一半 ⇒ 现在拒载）" % a)
+            print("USAGE_ERR=unknown-arg value=%s rc=2" % a)
+            return 2
+    if fix == pre:      # [W153A-#61] 两个角色塌成一个 ⇒ 判据无意义（**显式拒**，不许静默）
+        print("GEOMRESEND=NOINFO reason=USAGE_ERR fix==pre（%s）：两个角色塌成一个，"
+              "「换臂」不可能成立 ⇒ 拒载" % fix)
+        print("USAGE_ERR=fix-eq-pre value=%s rc=2" % fix)
+        return 2
     if not corpus and not legs:
         corpus = [os.path.expanduser("~/w134a/run")]
     for c in corpus:
@@ -287,14 +298,14 @@ def main(argv):
     if not legs:
         print("GEOMRESEND=NOINFO reason=no-input（给 --corpus=<root> 或 --leg=<dir>）")
         return 2
-    rows = [read_leg(d, pattern) for d in legs]
+    rows = [read_leg(d, pattern, fix, pre) for d in legs]
     for r in rows:
         print("RESEND leg=%-24s bridge=%-18s cfg_hit=%-5s geowrite=%-5s r_ok=%-5s printed=%-5s reconcile=%-15s nametrap=%s"
               % (r["leg"], r["bridge"], r["cfg_hit"], r["geowrite"], r["r_ok"], r["printed"],
                  r["reconcile"], r["nametrap"] or "-"))
     print("NOTE pattern=%s（与 leg.sh:127 逐字相同）fix=%s pre=%s riseup_min=%.2f min_legs=%d"
           % (pattern, fix, pre, RISEUP_MIN, MIN_LEGS_PER_ARM))
-    res = judge(rows)
+    res = judge(rows, fix, pre)   # [W153A-#61] `--fix=`/`--pre=` **真的**进判据
     for b, v in sorted(res["arms"].items()):
         print("ARM bridge=%-18s role=%-8s n=%-3d hit_legs=%-3d rate=%-6.3f geowrite0=%-3d verdict=%-7s why=%s"
               % (b, v["role"], v["n"], v["red"], v["rate"], v["geowrite0"], v["verdict"], v["why"]))

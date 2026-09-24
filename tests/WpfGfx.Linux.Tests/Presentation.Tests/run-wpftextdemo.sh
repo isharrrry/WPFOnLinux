@@ -460,7 +460,10 @@ if [ -n "${WPTD_BASELINE_OUT:-}" ]; then
         echo "#   mem_available=$(awk '/MemAvailable/{printf "%d MB", $2/1024}' /proc/meminfo)  mem_total=$(awk '/MemTotal/{printf "%d MB", $2/1024}' /proc/meminfo)"
         echo "#   run_dir=$OUT  repeat=${REPEAT:-${WPTD_REPEAT:-3}}  timeout=${TIMEOUT:-?}s  tier=${TIER:-?}"
         echo "#   git_head=(no git) samples_src=samples/WpfTextDemo  runner=run-wpftextdemo.sh"
-    } >> "$WPTD_BASELINE_OUT"
+    } > "$WPTD_BASELINE_OUT"   # [W153A-#61] 修前是 `>>`（**追加**）⇒ 复用同一路径就累积成 12 行，
+    #   而冻结器 `w27-freeze.py:765` 断言 `len(rows)==6` ⇒ 冻结当场失败（`#57` 现场）。
+    #   本行是**第一个**写点（表头）⇒ 改成截断后：**一次调用 = 恰好一批**（表头 ＋ 6 行 ＋ 注释块），
+    #   与目标文件此前有没有内容无关 ⇒ 调用方**不再需要**先 `rm -f`。
 fi
 
 # ── 杀进程审计（自查）：本脚本**只按 PID 杀**，且只杀自己的子进程 ─────────────

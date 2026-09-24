@@ -65,7 +65,11 @@
 #   新增一格 **`GEOMCORPUS=`**（`#59` 主控裁定 ③）：在 `--corpus=` 模式下把**现场语料聚合**
 #   与 `known-red.json` 的 `generation.geom_corpus.sha256` **全 64 位逐字**比，**不等 ⇒ `NOINFO`**
 #   （点名 `geom-corpus-declared-mismatch`）⇒ **顶层 `GEOMBEAT=NOINFO`**（rc=2）。
-#   `--leg=` 模式（逐腿诊断 / `--live-selftest`）**按定义不适用** ⇒ 打 `NOT_APPLICABLE` 且**不传染**。
+#   `--leg=` 模式（逐腿诊断 / `--live-selftest`）**[W153A-#61 改] 也真判**：把「该腿所属语料」取为
+#   **腿目录的父目录**，对它算聚合与声明比；**对得上 ⇒ `GEOMCORPUS=PASS`**（顶层仍走臂判词），
+#   **对不上 / 派生不出来（多个不同父目录 / 件数超限）⇒ `NOINFO` 且传染顶层**
+#   （`GEOMBEAT=NOINFO reason=corpus-anchor（leg-mode-corpus-unresolved…）`）——
+#   **修前那条「顶层 PASS 而锚未行使」的旁路因此不存在**（`D-G114`）。
 #   `--pair=yes|no` **保留兼容，但不改变顶层口径**：顶层**恒为成对制**（缺任一臂 ⇒ `NOINFO single-arm`）；
 #   `--pair=no` 只用于"单腿/单臂读取"的场景，逐腿 `BEAT` 行与臂级 `ARM` 行不受影响。
 #
@@ -219,10 +223,12 @@ PRE_SHA = "feef049e9d0e313a"   # 修前桥件
 #            不等 => `NOINFO reason=geom-corpus-declared-mismatch`（**点名**，裁定原文）；
 #            缺声明／登记表读不到／锚不是 64 位小写 hex => `NOINFO`（**缺声明 != 通过**）。
 #
-#   **射程（写死，不许读成全量覆盖）**：本格**只在 `--corpus=<root>` 模式**成立 -- 它比的是
-#    「**整份语料**」。`--leg=<dir>` 模式**按定义不适用** => 打
-#    `GEOMCORPUS=NOINFO reason=leg-mode-not-a-corpus`（**"没查"必须看得见**），**且不传染顶层**
-#    （否则逐腿诊断与真装置自测全废）。
+#   **射程（`#61` W153A 加严，就地更正；原句保留如下供对照）**：
+#     〔原〕本格**只在 `--corpus=<root>` 模式**成立 —— `--leg=<dir>` 模式打 `NOT_APPLICABLE` 且**不传染**。
+#     〔今〕**两种模式都真判**：`--corpus=` 比「整份语料」；`--leg=` 比「腿的**父目录**」（=该腿所属语料）。
+#      `--leg=` 派生失败（多个不同父目录／父目录件数 > `LEG_CORPUS_MAX_FILES`／登记表读不到）
+#      ⇒ `GEOMCORPUS=NOINFO` 且**传染顶层** ⇒ **没有任何路径能印「顶层 PASS 而锚未行使」**。
+#      ⚠️ 逐腿 `BEAT` 行**一字不受影响**（锚格只动 `GEOMCORPUS=` 与顶层 `GEOMBEAT=` 两行）。
 #    ⚠️ `verify-all.sh` 第 `[32]` 步**只**用 `--corpus=` 调用 => 本格在该步**必然行使**。
 GEOM_REGISTRY_REL = "build/MilBridge/known-red.json"
 _UNSAFE = re.compile(r"""[\s'"\\]""")
@@ -236,8 +242,10 @@ def registry_path():
     """留 `GEOMBEAT_REGISTRY` 覆盖口（自测与沙箱用）-- 与仓内 `ALSC_REG`/`CFC_REG` 同一套机制。"""
     return os.environ.get("GEOMBEAT_REGISTRY") or os.path.join(_repo_root(), GEOM_REGISTRY_REL)
 
-def corpus_aggregate(root):
-    """-> (hex64|None, note)。口径 = 上述写死算法（python 重实现，自测与 shell 版对拍）。"""
+def corpus_aggregate(root, max_files=None):
+    """-> (hex64|None, note)。口径 = 上述写死算法（python 重实现，自测与 shell 版对拍）。
+    [W153A-#61] `max_files`（供 `--leg` 派生语料用）：**枚举件数超限 ⇒ 先不哈希、直接 NOINFO**
+    （防「`--leg` 指到一个巨大父目录」把一次诊断变成全盘哈希）。"""
     import hashlib
     if not os.path.isdir(root):
         return None, "root-absent:" + root
@@ -253,6 +261,8 @@ def corpus_aggregate(root):
             rels.append(rel)
     if not rels:
         return None, "empty-corpus"
+    if max_files is not None and len(rels) > max_files:
+        return None, "too-many-files:%d>%d" % (len(rels), max_files)
     outer = hashlib.sha256()
     for rel in sorted(rels, key=lambda t: t.encode("utf-8", "surrogateescape")):
         with open(os.path.join(root, rel[2:]), "rb") as f:
@@ -277,13 +287,14 @@ def declared_corpus_anchor():
         return None, "anchor-malformed:" + str(v)[:24]
     return str(v), "declared"
 
-def corpus_anchor_state(corpus_roots):
-    """-> (state, detail)。`--leg` 模式 => ('NOT_APPLICABLE', ...)（**不传染顶层**）。"""
+def corpus_anchor_state(corpus_roots, max_files=None):
+    """-> (state, detail)。[W153A-#61] **只**负责「给了一组语料根」这一种形态（`--corpus=` 与
+    `--leg=` 派生后的父目录都归它判）；「没有任何输入」时才返回 `NOT_APPLICABLE`（**不传染**）。"""
     if not corpus_roots:
-        return "NOT_APPLICABLE", "leg-mode-not-a-corpus（`--leg` 只给单腿 => 「整份语料」的聚合按定义不存在；本格未行使）"
+        return "NOT_APPLICABLE", "no-input（既没给 `--corpus=` 也没给 `--leg=` ⇒ 本格未行使）"
     if len(corpus_roots) != 1:
         return "NOINFO", "multi-corpus-unsupported（给了 %d 个 `--corpus` => 聚合口径未定义）" % len(corpus_roots)
-    live, note = corpus_aggregate(corpus_roots[0])
+    live, note = corpus_aggregate(corpus_roots[0], max_files=max_files)
     if live is None:
         return "NOINFO", "anchor-uncomputable:%s" % note
     want, why = declared_corpus_anchor()
@@ -292,6 +303,35 @@ def corpus_anchor_state(corpus_roots):
     if live != want:
         return "NOINFO", "geom-corpus-declared-mismatch（现场=%s 声明=%s）" % (live, want)
     return "PASS", "files=%s live=%s == declared" % (note.split("=")[-1], live)
+
+LEG_CORPUS_MAX_FILES = 4000   # [W153A-#61] `--leg=` 派生语料时的**件数上限**（先写死；超限 ⇒ NOINFO，不哈希）
+
+def leg_mode_corpus_roots(legs):
+    """`--leg=` 模式：「该腿**所属语料**」= **腿目录的父目录**（口径先写死，**不许猜**）。
+    → (roots|None, why)：多个 `--leg` 的父目录不唯一 ⇒ (None, 具名理由)。"""
+    roots = sorted({os.path.dirname(os.path.abspath(p)) for p in legs})
+    if len(roots) == 1:
+        return roots, ""
+    return None, ("multi-leg-parent（%d 个不同的父目录 ⇒ 「该腿所属语料」不唯一：%s）"
+                  % (len(roots), ",".join(os.path.basename(r) for r in roots[:3])))
+
+def anchor_for_inputs(corpus_roots, legs):
+    """**唯一入口**（[W153A-#61]）：`--corpus=` ⇒ 整份语料；`--leg=` ⇒ 腿的**父目录**（**真判**）。
+    ⚠️ 修前 `--leg=` 走 `NOT_APPLICABLE` 且**不传染** ⇒ 顶层可印 `PASS` 而锚从未行使
+      （`#59` 预登记 §5.7 自述的「声明过的旁路」）。修后：**派生得出来就真判**，
+      派生不出来 ⇒ `NOINFO` ＋ **传染顶层** ⇒ 「锚未行使却顶层绿」这条路径被删掉。
+    ⚠️ 只有「聚合 == 声明（全 64 位）」才给 `PASS` ⇒ **派生错永远不会变成绿**。"""
+    if corpus_roots:                      # `--corpus=` 优先（与修前的次序语义一致）
+        return corpus_anchor_state(corpus_roots)
+    if not legs:
+        return "NOT_APPLICABLE", "no-input（既没给 `--corpus=` 也没给 `--leg=` ⇒ 本格未行使）"
+    roots, why = leg_mode_corpus_roots(legs)
+    if roots is None:
+        return "NOINFO", "leg-mode-corpus-unresolved（%s）" % why
+    st, det = corpus_anchor_state(roots, max_files=LEG_CORPUS_MAX_FILES)
+    if st == "PASS":
+        return "PASS", "leg-mode（父目录=%s）：%s" % (os.path.basename(roots[0]), det)
+    return "NOINFO", "leg-mode-corpus-unresolved（父目录=%s；%s）" % (os.path.basename(roots[0]), det)
 
 TANY  = re.compile(r"^T (\d+) ")
 RELRE = re.compile(r"\brel=([0-9.]+)")
@@ -605,13 +645,41 @@ def selftest():
         good = (a3 == "NOINFO" and "geom-corpus-undeclared" in d3)
         tot += 1; ok += 1 if good else 0
         print("   %-16s want=%-9s got=%-9s %-9s" % ("anchor_undeclared", "NOINFO", a3, "OK" if good else "MISMATCH"))
-        # ⑤ `--leg` 模式 ⇒ NOT_APPLICABLE 且**不传染**（逐腿诊断与真装置自测靠它活着）
-        a4, d4 = corpus_anchor_state([])
+        # ⑤ **无输入档** ⇒ NOT_APPLICABLE 且**不传染**（`#61` 改：原例名 `anchor_legmode`，
+        #    它断言的是「`--leg` 一律不传染」——那条**已被 `#61` 删掉**，例名与语义就地更正）
+        a4, d4 = anchor_for_inputs([], [])
         v4, _w4 = top_verdict_with_anchor(_rowsA, a4, d4)
-        good = (a4 == "NOT_APPLICABLE" and v4 == _base_v)
+        good = (a4 == "NOT_APPLICABLE" and "no-input" in d4 and v4 == _base_v)
         tot += 1; ok += 1 if good else 0
-        print("   %-16s want=%-9s got=%-9s %-9s 顶层=%s（不传染）"
-              % ("anchor_legmode", "N/A", a4, "OK" if good else "MISMATCH", v4))
+        print("   %-16s want=%-9s got=%-9s %-9s 顶层=%s（不传染：两种输入都没给，本格没机会行使）"
+              % ("anchor_noinput", "N/A", a4, "OK" if good else "MISMATCH", v4))
+        # ⑥ **`--leg=` 真判**（腿的父目录 == 语料根 `sbA`）⇒ PASS，顶层**不受影响**
+        _mkreg(live); os.environ["GEOMBEAT_REGISTRY"] = regp   # ⚠️ ④ 刚把登记表改成「缺锚」⇒ 这里必须改回来
+        a5, d5 = anchor_for_inputs([], [_leg_a])
+        v5, _w5 = top_verdict_with_anchor(_rowsA, a5, d5)
+        good = (a5 == "PASS" and "leg-mode" in d5 and v5 == _base_v)
+        tot += 1; ok += 1 if good else 0
+        print("   %-16s want=%-9s got=%-9s %-9s 顶层=%s（派生语料真判 ⇒ 不传染掉）"
+              % ("anchor_leg_ok", "PASS", a5, "OK" if good else "MISMATCH", v5))
+        # ⑦ **`--leg=` 派生失败** ⇒ NOINFO ＋ 点名 ＋ **顶层被传染**（PASS → NOINFO）
+        #    （登记表此刻是 ⑥ 重新装好的 `live` ⇒ 失败**只能**来自「父目录不是那个语料」）
+        _sbX = tempfile.mkdtemp(prefix="geombeat-legsolo-")
+        try:
+            _leg_x = write_leg(_sbX, "L-OLD-1", synth(d_push_ms=70), bridge=PRE_SHA)
+            _rowsX = [dict(analyze_dir(_leg_x, screen), leg="L-OLD-1")]
+            a6, d6 = anchor_for_inputs([], [_leg_x])
+            good = (a6 == "NOINFO" and "leg-mode-corpus-unresolved" in d6)
+            tot += 1; ok += 1 if good else 0
+            print("   %-16s want=%-9s got=%-9s %-9s 点名=%s"
+                  % ("anchor_leg_unres", "NOINFO", a6, "OK" if good else "MISMATCH",
+                     "yes" if "leg-mode-corpus-unresolved" in d6 else "NO"))
+            v6, _w6 = top_verdict_with_anchor(_rowsA, a6, d6)
+            good = (v6 == "NOINFO" and "corpus-anchor" in _w6)
+            tot += 1; ok += 1 if good else 0
+            print("   %-16s want=%-9s got=%-9s %-9s 顶层 %s→%s（**旁路已封**）"
+                  % ("anchor_leg_prop", "NOINFO", v6, "OK" if good else "MISMATCH", _base_v, v6))
+        finally:
+            shutil.rmtree(_sbX, ignore_errors=True)
     finally:
         if _old is None: os.environ.pop("GEOMBEAT_REGISTRY", None)
         else: os.environ["GEOMBEAT_REGISTRY"] = _old
@@ -626,7 +694,8 @@ def selftest():
     tot += 1; ok += 1 if good else 0
     print("   %-16s want=%-9s got=%-9s %-9s GEOMBEAT_REPO=%s"
           % ("anchor_reporoot", "==bash侧", "==bash侧" if good else "DIFF", "OK" if good else "MISMATCH", str(_envrr)[:40]))
-    print("   —— 上面 7 例 = **语料锚格**；与文件开头的 12 例**分开计**（总数 = 两者之和）——")
+    print("   —— 上面 10 例 = **语料锚格**（`#61` 由 7 例增至 10 例：`anchor_legmode`→`anchor_noinput` ＋"
+          + " 新增 `anchor_leg_ok`／`anchor_leg_unres`／`anchor_leg_prop`）；与文件开头的 12 例**分开计**（总数 = 两者之和）——")
     print("GEOMBEAT_SELFTEST=%d/%d" % (ok, tot))
     return 0 if ok == tot else 1
 
@@ -640,7 +709,7 @@ def main(argv):
         elif a.startswith("--screen="): screen = parse_screen(a.split("=", 1)[1])
         elif a.startswith("--pair="): pair = (a.split("=", 1)[1] != "no")
         elif a in ("-h", "--help"): print("见本文件头注释【用法】"); return 0
-    a_state, a_detail = corpus_anchor_state(corpus)
+    a_state, a_detail = anchor_for_inputs(corpus, legs)   # [W153A-#61] `--leg=` 不再绕行
     if a_state == "PASS":
         print("GEOMCORPUS=PASS %s（现场聚合 == known-red.json 的 generation.geom_corpus.sha256，全 64 位逐字）" % a_detail)
     else:
