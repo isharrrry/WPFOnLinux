@@ -60,7 +60,11 @@
 ## §5 冻前 / 冻后 `verify-all`
 
 - **冻前（第 2 趟，采用趟）**：`logs/w66-verify-all-prefreeze2-20260924-191603.log` ⇒ `步骤通过 37 ❌ 失败 0`、`结论：✅ 全部通过`、`VERIFYALL_SELF=PASS names=37 decl=37 gen=#66 dup=0 order=OK prose=OK prereg=PASS`、`BASELINESHA=PASS live=b9c97237afd4c214`。
-- **冻后 ×2**：见本件末的**冻后追加段**（`APPEND_ONLY`）。
+- **冻后 ×2（各在槽内、独立生命周期）**：
+  - 第 1 趟 `19:49:17` **`rc=0`** ｜ `步骤通过 37 ❌ 失败 0` ｜ `结论：✅ 全部通过` ｜ `[11] VERIFYALL_SELF=PASS names=37 decl=37 gen=#66 dup=0 order=OK prose=OK prereg=PASS` ｜ `[7] BASELINESHA=PASS live=8c53d8da067472cb`
+  - 第 2 趟 `20:04:01` **`rc=0`** ｜ 同上逐字相同
+  - ⇒ **`touch ~/w21-verify/w66-POST.done`**：真 stat = `mtime=2026-09-24 20:04:01.611727101 +0800 size=0`
+  （第 `[7]` 步的 `live` 是**动态现读** ⇒ 两趟判的都是**新基线**，不是写死的旧值。）
 
 ## §6 🔴 第 1 趟冻前 `verify-all` 失败（`36 ✅ / 1 ❌`）—— 根因、修法、守卫
 
@@ -97,3 +101,28 @@
 3. **凡「某物已不存在／已清空」的判据，必须由创建它的那条路径同趟检查一遍**（否则检查本身就是它的创建者）。
 4. **「不做回归判定」这类节级声明，必须落在牙真正抽取的那一节里** —— 位置错了等于没写（本波现场）。
 5. **波前值只能从当代 `# RE-FROZEN` 块取**；从件正文的历史行取 ⇒ 会拿到中间值。
+
+---
+
+## §10 冻后收口（**本段在冻结之后追加** —— 冻结件本身**一字未动**，其声明 sha `8c53d8da067472cb` 保持有效）
+
+### §10.1 逐径推送（`git add` 逐径、**禁 `-A`**）
+白名单 **11 件**（= 本波**声明**的改动件，**不从 `git status` 生成**）：
+`verify-all.sh`（`f31123fac6e2c1e6`）｜`build/close-wave.sh`（`3f190c323b543275`）｜`build/MilBridge/tools/nl-intent-check.sh`（新 `44f5e87b0ed0929c`）｜`src/WpfGfx.Linux.Native/src/win32_classification.c`（`a5923b2fc07dea0b`）｜`src/WpfGfx.Linux.Native/src/win32_pts.c`（`bcb9858919e6237e`）｜`samples/WpfFeatureProbe/KNOWN-DEFECTS.md`（`a31f34c113235dd3`）｜`docs/WAVE66-PREREGISTRATION.md`（新 `bf6b683d94549087`）｜`samples/WpfTextDemo/ACCEPTANCE-BASELINE.md`（`8c53d8da067472cb`）｜`docs/CURRENT-STATE.md`（`15cad8c179c99258`）｜`build/MilBridge/W66-report.md`｜`build/MilBridge/tools/defect-registry-declared.tsv`（`333d8190c865eaca`）
+- 逐件 `staged blob == $R 现读` ✅ 11/11；对账 `staged=11 == 白名单=11` ∧ **白名单外零改动** ✅
+- 提交 **`08118d1ed4b7 → 64881eedb4fe8add21900fb6a5a4241d27be4b0c`**｜`git push` 后 `ls-remote HEAD == 本地 HEAD` ✅｜`symref=refs/heads/feat-Linux` ✅｜`porcelain=0` ✅
+- **BYTECHECK（`HEAD:` 逐件核字节）`ok=11 mismatch=0 nobody=0`** ✅
+- ⚠️ **不含** `docs/ROUTES.md`／`build/MilBridge/HANDOFF-NEXT.md`（主控明说那两件等 `POST.done` 之后由主控落 ⇒ 不进本笔）。
+
+### §10.2 app-local 同代同步（**如实记录：判词行是 `MISMATCH`，不是全绿**）
+`APPSYNC=MISMATCH（MISMATCH=0[STALE=0 NEWER-DIFF=0] MISSING=0 **UNEXPECTED=6[DECL-GAP-EQ=6 DECL-GAP-DIFF=0]** DIVERGENT=0 …）`｜`OK=200`
+- **app 目录侧**：`STALE=0 ∧ DIVERGENT=0 ∧ MISSING=0 ∧ MISMATCH=0` ⇒ **app-local 自身同代同步成立**。
+- **那 6 条 `UNEXPECTED-EQ` 与本波无关**（机械证：mtime = **`2026-09-19 15:10:31/32`（5 条）＋ `2026-09-23 17:45:39`（1 条）**，全部**早于本波开工 `2026-09-24 18:42`**；且内容 `sha == 权威`）：`build/MilBridge/.artifacts/bin/ClosedLoop/release/`、`tests/{ResolverGuardProbe,InputTraceProbe,BboxProbe,IcuBreakParity}/bin/Release/…/DirectWrite.Linux.Provider.dll`（= `1f9511a7ef395bfe`）＋ `build/DirectWrite.Linux/FallbackCriteria/bin/Debug/WpfGfx.Linux.dll`（= `05433f1ee7e4092b`）。**都在 app 目录之外**。
+- 工具自身在输出里声明这一族"**登记在册、且 `APPSYNC` 是告警不是硬判据**"（`close-wave.sh` 会长期打印 `[⚠️ APPSYNC 非 PASS]`）。
+- ⇒ **本车道不把它读成绿、也不读成"我这波弄红的"**：按现读上报，**口径由主控裁定**。
+
+### §10.3 两处哨兵
+`/tmp/bridge-frozen.flag` 与 `~/wfp-runs/bridge-frozen.flag`：两处都补 `BASELINE=#66 sha16=8c53d8da067472cb` ⇒ **`cmp -s` `IDENTICAL`** ✅｜哨兵 sha16 = `66b43b62c9553a0b`。
+
+### §10.4 冻结件**未被后续步骤改动**
+`samples/WpfTextDemo/ACCEPTANCE-BASELINE.md` 仍是 `8c53d8da067472cb`（= `CURRENT-STATE` 声明值）⇒ 冻后两步（推送/同步）**没有**碰它；本报告的 §10 是**报告**上的追加，不改任何冻结件。
