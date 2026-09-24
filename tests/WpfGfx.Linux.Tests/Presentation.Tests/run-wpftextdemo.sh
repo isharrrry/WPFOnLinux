@@ -335,8 +335,23 @@ XPID=""
 #   【为什么必须限定到自己的进程树】这台机上**别的 agent 也在跑同一个样例**（同一个
 #   `dotnet WpfTextDemo.dll`）。用全局 `pgrep -f` 会：① 把别人的进程算成"我的残留"（假红）；
 #   ② 更糟 —— 我的 cleanup 会**把别人的应用杀掉**（跨车道的破坏）。
-#   由于启动时用了 `exec`，应用就是 runner 的**直接子进程**，所以 `-P $$` 既精确又安全。
-app_procs() { pgrep -P "$$" -f 'dotnet WpfTextDemo.dll' 2>/dev/null || true; }
+#   由于启动时用了 `exec`，应用就是 runner 的**直接子进程**；但 ⚠️ **只靠 `-P $$` 还不够**：
+#   命令替换的子 shell 也是 `$$` 的子进程、cmdline 与脚本同源 ⇒ 会自匹配（`D-G103` 族）。
+#   ⇒ 现在 `app_procs` 在 `-P $$` 之上**再加 argv 精确比对**（见其函数体）。
+# 【`D-G103` 族修法】同 `run-wpfprobe.sh`：`pgrep -P "$$" -f <模式>` 只是**集合限定**，
+#   命令替换的子 shell 也是 `$$` 的子进程且 cmdline 同源 ⇒ 仍会自匹配。
+#   ⇒ 保留 `-P "$$"`（只认我的直接子进程）＋ 逐 pid 读 `/proc` 做 **argv 精确比对**（只更窄、不放宽）。
+app_procs() {
+    local p a0 a1
+    for p in $(pgrep -P "$$" 2>/dev/null | grep -oE '^[0-9]+'); do
+        [ -r "/proc/$p/cmdline" ] || continue
+        a0="$(tr '\0' '\n' < "/proc/$p/cmdline" 2>/dev/null | sed -n 1p)"
+        a1="$(tr '\0' '\n' < "/proc/$p/cmdline" 2>/dev/null | sed -n 2p)"
+        case "${a0##*/}" in dotnet) ;; *) continue ;; esac
+        [ "$a1" = "WpfTextDemo.dll" ] || continue
+        printf '%s\n' "$p"
+    done
+}
 app_procs_count() { app_procs | grep -c . || true; }
 # ── 孤儿回收（精确比对 argv + 只认 ppid==1 + 按 PID 杀）────────────────────────
 #   【为什么需要】我调用的两个辅助趟（T1c 的普查装置 / 我自己的 WIC 诊断趟）会**各自**起一次
@@ -377,7 +392,27 @@ reap_orphans() {
     echo "   ♻️ $label：回收了 $n 个**孤儿**应用进程（精确 argv 比对 + ppid==1，按 PID 杀）: $(printf '%s' "$ids" | tr '\n' ' ')"
 }
 # 全局计数（**只作环境观测，绝不据此杀进程：那是别人的车**）
-app_procs_global_count() { pgrep -f 'dotnet WpfTextDemo.dll' 2>/dev/null | grep -v "^$$\$" | grep -c . || true; }
+# 【`D-G103` 族修法】旧写法 `pgrep -f … | grep -v "^$$\$"` 有两个洞：① 只排了 `$$`；
+#   ② `$$` 在 `$( )` 里指的是**外层 shell**、而命令替换的**子 shell** 是另一个 pid ⇒ 排不掉。
+#   ⇒ 逐 pid 读 `/proc`，显式排除 `$$` 与 `${PPID}`，并按 **argv 精确比对**认领
+#     （argv0 基名 == `dotnet` ∧ argv1 逐字 == `WpfTextDemo.dll`）⇒ 承载本判据的 shell **构造上匹配不到**。
+#   ⚠️ 语义仍为**全机计数**（别的人的应用照样数进来 —— 这是原意）；改动只把**假阳性**（提到该字面量的
+#      包装 shell）去掉 ⇒ **只更窄、不放宽**。
+app_procs_global_count() {
+    local p a0 a1 n=0
+    for p in /proc/[0-9]*; do
+        p="${p#/proc/}"
+        [ "$p" = "$$" ] && continue
+        [ "$p" = "${PPID:-0}" ] && continue
+        [ -r "/proc/$p/cmdline" ] || continue
+        a0="$(tr '\0' '\n' < "/proc/$p/cmdline" 2>/dev/null | sed -n 1p)"
+        a1="$(tr '\0' '\n' < "/proc/$p/cmdline" 2>/dev/null | sed -n 2p)"
+        case "${a0##*/}" in dotnet) ;; *) continue ;; esac
+        [ "$a1" = "WpfTextDemo.dll" ] || continue
+        n=$((n + 1))
+    done
+    printf '%s\n' "$n"
+}
 
 cleanup() {
     # ★【只在主 shell 里收尾】实测（2026-09-11）：EXIT trap 会被**后台子 shell 继承**

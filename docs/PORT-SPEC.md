@@ -2,7 +2,8 @@
 
 > 这份文件是**规范**（normative）。它规定了"在这个仓里做移植"的**判据纪律、取证纪律、写域纪律、发波纪律**。
 > 每一轮/每条车道的产出，只要与它冲突，**以它为准**；若你认为它错了 ⇒ 走"推翻"流程（见 §7），**不许默默绕过**。
-> 配套：路线划分见 [`ROUTES.md`](ROUTES.md)｜文档地图见 [`INDEX.md`](INDEX.md)｜上游 README 见 [`../README-Window.md`](../README-Window.md)。
+> 配套：**现读入口**（以现场为准）= `docs/CURRENT-STATE.md:9`（世代＋冻结）｜`../build/MilBridge/HANDOFF-NEXT.md`（现场交接）｜[`ROUTES.md`](ROUTES.md) §13（任务树）；路线划分见 [`ROUTES.md`](ROUTES.md)｜文档地图见 [`INDEX.md`](INDEX.md)｜上游 README 见 [`../README-Window.md`](../README-Window.md)。
+> ⚠️ **历史件的读法**：`§15x+` 逐波记录、旧交接件 `../handoff.md`（`HO` 路由键，**正文原文保留、不许删行**）、各波 `WAVE*-PREREGISTRATION.md` 都是**证据**，**不是**现行判据。
 
 ---
 
@@ -38,6 +39,7 @@
 4. **件要被钉住**：跑应用/探针前记输入件的 sha16，跑完再记一次；两趟不一致 ⇒ 该趟读数**作废**。
 5. **仪器会改变时序/行为**：任何"产品行为"的结论都必须有**仪器全关**的腿；仪器腿只能用于**定位**（并且必须同时记 `alive`，否则会把"死前读数"当绿）。
 6. **自伤要如实入册**：仪器崩溃、坐标量错、假零（stderr 缓冲）、`pgrep` 自匹配、`| head` 造成 SIGPIPE……踩了就写进报告，**不许粉饰**。
+   - 其中「**按模式匹配命令行**收/数进程」这一族**已有牙**：`build/MilBridge/tools/proc-pattern-guard.sh`（`TASK-0714`，`#62` 起接线为 `verify-all` 的一步）。判据 = 凡按模式收/数进程**必须能证明排除了自身**（`$$` **∧** `$PPID`；`pgrep -P "$$" -f …` **不算** —— 它只是**集合限定**）。牙扫全仓 `*.sh`/`*.py`，缺证明 ⇒ `FAIL` 逐处点名 `file:line`。
 7. **本机没有 core 文件**（`ulimit -c=0` + apport 管道）⇒ 需要现场就**先抓日志**（`stdout/stderr` 落文件），别指望事后从 core 里挖。
 
 ---
@@ -66,16 +68,22 @@
 ```
 ① 预登记 docs/WAVE<NN>-PREREGISTRATION.md（判据先写死、§4 预期位移先写死）
 ② WAVE_OWNER=<你> bash build/integration-wave.sh          # 整波重建（不设 OWNER ⇒ exit 9）
+   ⚠️ **本脚本从不编译 native**（机械证据：件内无 `gcc`/`build-shim` 调用）⇒ 改了 `src/WpfGfx.Linux.Native/**` 的波**必须另跑**：
+      `bash src/WpfGfx.Linux.Native/build-shim.sh --all`   # native 权威件入口（`close-wave.sh` 的 `[2/6]` 用的就是它）
 ③ ARMS_OUT=… bash build/MilBridge/tools/retake-arms-w23.sh  # 重取五臂
 ④ python3 build/MilBridge/tools/repin-generation.py --why '…'   # 重钉；随后 --check
 ⑤ 应用门禁 ×2（`WPTD_BASELINE_OUT=…`；先 rm -f 输出；期望每趟 6 行 result=PASS）
-⑥ 冻前 verify-all（预期**恰好 1 处**声明类红 = COLUMN-FLOOR 未重冻）
+⑥ 冻前 verify-all（**声明类红照现场报**）
+   · **重取了臂**的波 ⇒ 预期**恰好 1 处**声明类红（`COLUMN-FLOOR` 未重冻）；
+   · **未重取臂**的波（只改判据件/仪器/登记表） ⇒ 现场可能是 **`[]`（全绿）** —— `#59` 实测就是全绿。**若全绿照实报全绿，不许为凑预期去动东西**（旧版把"恰好 1 处"写成硬预期 = 会逼出假动作）。
 ⑦ python3 $HOME/w21-verify/w27-freeze.py <valog> <rows> '#<NN>'   # 重冻基线
 ⑧ 冻后 verify-all ×2（两趟都必须 rc=0）
-⑨ 收尾记录：`$HOME/w21-verify/w<NN>-record.txt` 三段（BANNER/FROZEN/RECORD）＋ `docs/CURRENT-STATE.md` 机器行 ＋ `handoff.md` 速览
+⑨ 收尾记录：`$HOME/w21-verify/w<NN>-record.txt` 三段（`===BANNER===`／`===FROZEN===`／`===RECORD===`）＋ `docs/CURRENT-STATE.md` 机器行（`:9` 的 `BASELINE-FROZEN`）＋ `build/MilBridge/HANDOFF-NEXT.md` 刷新（**不是** `handoff.md` —— 那是 `HO` 路由键、旧交接正文、**不许删行**，只加现读指针 banner）
+   ⚠️ **先建模板、再冻结**：冻结机器 `$HOME/w21-verify/w27-freeze.py` 只在**最新 `# RE-FROZEN` 块**里按 `^# COLUMN-FLOOR `/`^# ARM-LOG-SHA `/`^# COLUMN-CORPUS ` 找外挂声明 ⇒ **模板缺声明行 ⇒ `COLUMN_FLOOR=NOINFO`（缺声明 ≠ 通过）**（`#57` 为此停过一次）。
 ```
 
-**为什么必须这样**：`verify-all` 的 25 步里有**声明链**（步名/步数/口径句/预登记 H1 四处必须同趟一致）与**世代绑定**（`inputs_fp`、五臂 sha、`ARTIFACT_SRC_FP`）。手改生成物、绕过波序、或"顺手"改判据件，都会让"绿"失去意义。
+**为什么必须这样**：`verify-all` 里有**声明链**（**四处必须同趟一致**：`VERIFYALL-STEPS-DECL` 首行／`VERIFYALL-STEP-NAMES`／头注释口径句 `` **`#<NN>` 收官起 = <N> 步** ``／`docs/WAVE<NN>-PREREGISTRATION.md` 的标题行）与**世代绑定**（`inputs_fp`、五臂 sha、`ARTIFACT_SRC_FP`）。手改生成物、绕过波序、或"顺手"改判据件，都会让"绿"失去意义。
+> **步数别在这份文档里写死**：现读（2026-09-24）= **33 步**（`#59` 收官起）；**唯一权威处 = `verify-all.sh` 首行 `VERIFYALL-STEPS-DECL`**（`build/MilBridge/tools/verify-all-step-check.sh` 用**位置锚**解析它，并在尾行印 `VERIFYALL_SELF=PASS names=<N> decl=<N> gen=<#NN> …`）。旧版此处写"25 步" ⇒ **已过时且会误导**（作者按 25 步去数，永远对不上）。
 
 ---
 
@@ -85,6 +93,7 @@
 2. 报告命名：`build/MilBridge/<车道号>-report.md`（例 `W57A-report.md`）；开头写**自报 sha16**（先写正文再补最后一行）与**开工/收工件 sha16**。
 3. **重活互斥**：整波重建 / `verify-all` / 冻结链**同一时刻只跑一个**（本机 `nproc=3`）。
 4. 应用类实验：**每个车道自己的私有应用目录 + 自己的私有 X display**（`Xvfb :<随机>`；有 WM 的腿用 `xfwm4`），收工按 PID 收拾自己的进程，**禁止** `pkill -f`。
+   - 这条**已有牙**：`build/MilBridge/tools/proc-pattern-guard.sh`（`TASK-0714`）—— 凡按模式匹配命令行收/数进程，**必须能证明排除了自身**（`$$` ∧ `$PPID`；`pgrep -P "$$" -f …` **不算证明**，它是**集合限定**）。牙自己**不用** `pkill`/`pgrep`（`--self-check` 自扫）。
 5. **有 WM 与无 WM 两条腿都要有**：本工程曾有整类缺陷（点击被吞）只在有窗口管理器的会话里出现，而无 WM 的验收装置永远复现不出来（见 `ROUTES.md` 的"验收装置"一节）。
 6. 语言：中文为主；**命令、路径、字段名、sha16 一律原样**，方便机器复算。
 

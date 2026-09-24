@@ -106,7 +106,22 @@ KILL_AUDIT="$(grep -vE '^[[:space:]]*#' "$0" | grep -nE '(^|[^a-zA-Z])pkill|kill
 
 XPID=""
 REAPED_TOTAL=0
-app_procs() { pgrep -P "$$" -f "dotnet $SAMPLE.dll" 2>/dev/null || true; }
+# 【`D-G103` 族修法】`pgrep -P "$$" -f <模式>` 只做了**集合限定**、**不构成"排除自身"**：
+#   命令替换的**子 shell 也是 `$$` 的子进程**，它的 cmdline 与脚本同源（含同一 argv）⇒ **仍会自匹配**。
+#   ⇒ 保留 `-P "$$"` 那层"只认我的直接子进程"，**再**逐 pid 读 `/proc/<pid>/cmdline` 做 **argv 精确比对**
+#     （argv0 基名 == `dotnet` ∧ argv1 **逐字** == "$SAMPLE.dll"）—— 子 shell 的 argv0 是 `bash`
+#     ⇒ **构造上匹配不到**（改动只**更窄**，不放宽）。
+app_procs() {
+    local p a0 a1
+    for p in $(pgrep -P "$$" 2>/dev/null | grep -oE '^[0-9]+'); do
+        [ -r "/proc/$p/cmdline" ] || continue
+        a0="$(tr '\0' '\n' < "/proc/$p/cmdline" 2>/dev/null | sed -n 1p)"
+        a1="$(tr '\0' '\n' < "/proc/$p/cmdline" 2>/dev/null | sed -n 2p)"
+        case "${a0##*/}" in dotnet) ;; *) continue ;; esac
+        [ "$a1" = "$SAMPLE.dll" ] || continue
+        printf '%s\n' "$p"
+    done
+}
 app_procs_count() { app_procs | grep -c . || true; }
 orphan_app_pids() {   # 精确 argv + 只认 ppid==1（别人的活进程有父进程 ⇒ 绝不误伤）
     local p a0 a1

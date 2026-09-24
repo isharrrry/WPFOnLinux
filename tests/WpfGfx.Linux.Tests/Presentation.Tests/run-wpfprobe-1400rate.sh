@@ -57,10 +57,28 @@ if ! xdpyinfo -display "$DISPLAY_NUM" >/dev/null 2>&1; then
 fi
 echo "   Xvfb PID=$XPID（本脚本只按这个 PID 收尾）"
 
+# 【`D-G103` 族修法】`pgrep -f "Xvfb :N"` 会匹配到**承载本脚本的 shell**（其 cmdline 含同一字面量）。
+#   ⇒ 逐 pid 读 `/proc/<pid>/cmdline`：**先排除 `$$` 与 `${PPID}`**，再按 argv0 基名 == `Xvfb`
+#     ∧ **某个 argv 恰好等于** `:N`（`grep -qx`）认领；只**报告** pid，**不据此杀进程**。
+xvfb_pid_of() {
+    local p a0
+    for p in /proc/[0-9]*; do
+        p="${p#/proc/}"
+        [ "$p" = "$$" ] && continue
+        [ "$p" = "${PPID:-0}" ] && continue
+        [ -r "/proc/$p/cmdline" ] || continue
+        a0="$(tr '\0' '\n' < "/proc/$p/cmdline" 2>/dev/null | sed -n 1p)"
+        case "${a0##*/}" in Xvfb) ;; *) continue ;; esac
+        tr '\0' '\n' < "/proc/$p/cmdline" 2>/dev/null | grep -qx ":${DISPLAY_NUM}" || continue
+        printf '%s\n' "$p"
+        return 0
+    done
+}
+
 crash1400=0; alive_ok=0; other_crash=0; no_window=0
 for i in $(seq 1 "$N"); do
     xstate=dead; xdpyinfo -display "$DISPLAY_NUM" >/dev/null 2>&1 && xstate=ok
-    xpid_now="$(pgrep -f "Xvfb $DISPLAY_NUM" | head -1 || true)"     # 只记录，不据此杀
+    xpid_now="$(xvfb_pid_of | head -1 || true)"     # 只记录，不据此杀（见下方函数：按 argv 精确认领）
     la="$(cut -d' ' -f1 /proc/loadavg)"
     log="$OUT/r$i.log"
     if [ "$TIER" = "env" ]; then
@@ -105,7 +123,25 @@ for f in "$OUT"/r*.log; do
 done
 [ "$hit" = "0" ] && echo "（无命中：$N 次里一次都没出现 1400）"
 
-leftover="$(pgrep -c -f "dotnet $SAMPLE.dll" 2>/dev/null || true)"; leftover=${leftover:-0}
+leftover="$(app_leftover_count)"; leftover=${leftover:-0}
+# 【`D-G103` 族修法】旧写法 `pgrep -c -f "dotnet $SAMPLE.dll"` 会把**自己这条调用链**算进去 ⇒ `LEFTOVER` 永假。
+#   ⇒ 逐 pid 读 `/proc`，显式排除 `$$` 与 `${PPID}`，并按 argv **精确比对**（argv0 基名 ∈ {dotnet} ∧
+#     argv1 逐字 == "$SAMPLE.dll"）。仍是**全机计数**（原意），只去假阳性。
+app_leftover_count() {
+    local p a0 a1 n=0
+    for p in /proc/[0-9]*; do
+        p="${p#/proc/}"
+        [ "$p" = "$$" ] && continue
+        [ "$p" = "${PPID:-0}" ] && continue
+        [ -r "/proc/$p/cmdline" ] || continue
+        a0="$(tr '\0' '\n' < "/proc/$p/cmdline" 2>/dev/null | sed -n 1p)"
+        a1="$(tr '\0' '\n' < "/proc/$p/cmdline" 2>/dev/null | sed -n 2p)"
+        case "${a0##*/}" in dotnet) ;; *) continue ;; esac
+        [ "$a1" = "$SAMPLE.dll" ] || continue
+        n=$((n + 1))
+    done
+    printf '%s\n' "$n"
+}
 echo
 echo "WFP1400_SUMMARY tier=$TIER total=$N crash1400=$crash1400 alive_ok=$alive_ok other_crash=$other_crash no_window=$no_window"
 echo "WFP1400_RATE=$crash1400/$N"

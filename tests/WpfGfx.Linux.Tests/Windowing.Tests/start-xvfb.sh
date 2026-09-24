@@ -30,7 +30,22 @@ start() {
 }
 
 stop() {
-    pkill -f "Xvfb :${DISPLAY_NUM}" && echo "已停止 Xvfb :${DISPLAY_NUM}" || echo "Xvfb :${DISPLAY_NUM} 未运行"
+    # 【`D-G103` 族修法】旧写法 `pkill -f "Xvfb :N"` **会匹配到承载本脚本的那个 shell 自己**
+    #   （它的 cmdline 里含同一串字面量）⇒ 自杀（本会话现场咬过一次）。
+    #   ⇒ 逐 pid 读 `/proc/<pid>/cmdline`：**先排除 `$$` 与 `${PPID}`**，再按 argv0 基名 == `Xvfb`
+    #     ∧ **某个 argv 恰好等于** `:N`（`grep -qx`，不是子串）认领，最后**只按 PID** kill。
+    local p a0 hit=""
+    for p in /proc/[0-9]*; do
+        p="${p#/proc/}"
+        [ "$p" = "$$" ] && continue
+        [ "$p" = "${PPID:-0}" ] && continue
+        [ -r "/proc/$p/cmdline" ] || continue
+        a0="$(tr '\0' '\n' < "/proc/$p/cmdline" 2>/dev/null | sed -n 1p)"
+        case "${a0##*/}" in Xvfb) ;; *) continue ;; esac
+        tr '\0' '\n' < "/proc/$p/cmdline" 2>/dev/null | grep -qx ":${DISPLAY_NUM}" || continue
+        kill "$p" 2>/dev/null && hit="$p"
+    done
+    if [ -n "$hit" ]; then echo "已停止 Xvfb :${DISPLAY_NUM}（只按 PID：pid=$hit）"; else echo "Xvfb :${DISPLAY_NUM} 未运行"; fi
 }
 
 run() {
