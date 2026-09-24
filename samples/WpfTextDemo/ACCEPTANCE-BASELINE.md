@@ -1,11 +1,73 @@
-# ⏱ 本件 = 波 `#62` 的收尾记录（三段结构：头标 / 冻结 / 记录）；**模板先建于冻结之前**。现读入口 = `docs/CURRENT-STATE.md:9` ／ `build/MilBridge/HANDOFF-NEXT.md` ／ `docs/ROUTES.md §13`。
-# BASELINE-HEADER date=2026-09-24T1x:xx+08:00 display=:99（verify-all 头标目标显示号；本趟现场判 `X-REUSE=reused`、`X_STATE=available`、`SKIP_GUARD=PASS`）
-#   cpu=4核  run_dir=/home/links-dev/w1xxx（收尾链 ①–⑨）｜车道 = **W1xxA**（`#62`：判据先行 ＋ 落地 ＋ 收尾链的唯一执行者）
-#   git_head=(no git —— `$R` 不是 git 仓；推送面 = `~/netTest/GitProj/WPFOnLinux` 的 `feat-Linux`，它是**该 fork 的默认分支**（`git ls-remote --symref origin HEAD` ⇒ `ref: refs/heads/feat-Linux`）)  samples_src=samples/WpfTextDemo  runner=run-wpftextdemo.sh
+# BASELINE-HEADER date=2026-09-24T13:xx+08:00 display=:99（verify-all 头标目标显示号；本趟现场判 `X-REUSE=reused`、`X_STATE=available`、`SKIP_GUARD=PASS`）
+#   cpu=4核  run_dir=/home/links-dev/w152a（收尾链 ①–⑨）｜车道 = **W152A**（`#63`：判据先行 ＋ 落地 ＋ 收尾链的唯一执行者）
+#   git_head=(no git —— `$R` 不是 git 仓；推送面 = ~/netTest/GitProj/WPFOnLinux 的 `feat-Linux`)  samples_src=samples/WpfTextDemo  runner=run-wpftextdemo.sh
 #   ⚠️ 权威件构建配置 = Release（唯一声明 = build/SelfBuiltConfig.props）
-#   判据 `~/w154a/criteria.md`（**判据先写**，`§0–§6` 写定于取任何自有读数之前）｜接线预备 `~/w154a/tooth-plan.md`（四处声明的**位置锚** ＋ 6 处调用点最小修法）｜文档收尾 `~/w154a/docs-align.md`（15 处 `OLD` 逐字锚，已机械复核 `count==1`）｜报告 `~/w154a/report.md`
+#   判据 `~/w152a/criteria63.md`（**判据先写**：`§0–§8` 写定于取任何"修后"读数之前）｜链报告 `~/w152a/report.md`（逐段追加）
 
-# RE-FROZEN #62 —— ✅ **当前冻结基线** —— 内容 = **装置欠债批 C（`TASK-0714`：把「按模式收/数进程」做成牙）＋ 文档收尾（`TASK-0715` 剩余两件）**
+# RE-FROZEN #63 —— ✅ **当前冻结基线** —— 内容 = **判据／显示层批 D**（**零产品改动**）：① `D-G115` 判词补「方向」 ② `D-G116` 新牙「跨臂体制同一性」 ③ `D-G117` 自报抽取器隐去状态（两半） ④ `known-red.json` 陈旧 `why` 更正＋重钉；并把第 `[36]` 步接进 `verify-all`（**35 → 36 步**）。
+#   ① **`D-G115`（判词方向）**：`build/MilBridge/tools/regression-decision.py` `71734fce77842478`（1003 行）**→ `6a0e8ccc0c6cb5d7`**（1058 行）。新增机读行 **`REGDEC_DIRECTION=A高于B|B高于A|无显著差`**（由 `p` ＋ 两臂**点估计现算**）＋ 图例行 `REGDEC_DIRECTION_LEGEND`（`A`=新臂／被试件，`B`=旧臂／对照件）；判词**按方向选词**：上行 ⇒ `rate-aggravated`（**既有口径逐字保留**）／下行 ⇒ `rate-mitigated` ＋ 逐字写「**这不是本波引入** —— 本波做的是把它**压下去**」；**显著 ∧ 两臂点估计相等 ⇒ 方向算不出来 ⇒ `NOINFO`**（不许印任何方向词）。**成对现场**：`--old 24/27 --new 0/40 … --old-repro yes` ⇒ 修前 `rate-aggravated`（**印反**：事实 88.9% → 0%）／修后 `REGDEC_DIRECTION=B高于A` ＋ `rate-mitigated`。`--selftest` **26/26 → 28/28**（**只增两例**：下行＋上行）；台账 `regression-decision-cases.tsv` `5d3c26a1c8d83688` → `de6290cfad8892a1`（**+2 行**）⇒ 真台账 `--cases` **9/9 PASS**。**口径句**：判词带方向断言 ⇒ 判据必须真的判方向；双尾显著 ≠ 上行显著。
+#   ② **`D-G116`（跨臂体制同一性）**：**新建** `build/MilBridge/tools/regime-identity-check.sh` **`97cfab155dfa9bce`**（284 行）。**体制列 = 输入侧四列**：`BASE`／`MAXGEOM`（`AFTER_M1` 的 geom）／`START_MAX`／`m_ok`；不等 ⇒ 该 `pair` 标 `INCOMPARABLE` ＋ **逐腿点名** ＋ `FAIL`。**结果侧**（`after_R` geom／`r_ok`／`r_ok2`／`fgeom`／`frame`／`CFG_HIT`／`GEOWRITE`）**只作诊断列 `REGIME_OUTCOME_DIAG=`、不进 `rc`** —— **"不进 `rc`" ≠ "不显示"**。**口径句**：**把结果算进体制，等于用「保护可比性」的名义否掉可比性。** ⚠️ 这一条是 `#63` 派单的**规格错误**（原表把 `AFTER_R2_SETTLED` 的 `fgeom` 列进体制），由车道现场现算推翻、主控 `2026-09-24` **裁定采纳车道方案**：39 腿 / 6 pair 实测 **输入侧四列在多臂 pair 里逐项相同（0 个不可比）**，而 `fgeom` **与 `r_ok2` 39/39 同向**（修后臂 `800x600@+0+0 ∧ r_ok2=1`；修前臂 `1280x1024@+0+0 ∧ r_ok2=0`）⇒ 若把它算进体制，**A1／POL2（唯一的两个多臂 pair）全部被判不可比**。另断言「**判红 = 四件合取**」（`START_MAX=0 ∧ m_ok=1 ∧ r_ok2=0 ∧ APP_ALIVE=yes`；`APP_ALIVE` 的**声明式派生** = `RESULT` ∧ `AFTER_R2_SETTLED` ∧ `DONE` 三行都在）⇒ **单格 `r_ok2` 判红必判违规**。现场：`REGIME_IDENTITY=PASS reason=ok legs=39 pairs=6 multi_arm_pairs=2 incomparable=0 red=19 red_violations=0 unchecked=1`。**射程缺口逐字上屏**：`REGIME_NOT_IN_LEDGER frame-at-base reason=probe-no-T0-decoration-geom` ＋ `REGIME_UNCHECKED=1`（现台账不记录 T0 装饰几何 ⇒ **不冒充"装饰也查过了"**）。`--selftest` **12/12**。
+#   ③ **`D-G117`（显示层把状态吃掉）**：**两半同趟**。半① `build/MilBridge/tools/prereg-four-requirements-check.sh` `235d76b61cdc46a4`（443 行）**→ `a40aac9031304a8f`**（459 行）：批次门禁形态下**逐件输出先缓冲**，末尾把批次判词行印在**最前面** —— `PREREG4=<批次判词> files=… pass=… fail=… na=… noinfo=… out_of_scope=…`（**逐字匹配**抽取正则、**零语义改动**）。半② `verify-all.sh` 的「自报口径」抽取器：**值词表 `(PASS|FAIL|NOINFO) → (PASS|FAIL|NOINFO|NA|SKIP|REPORT)`**（本仓工具今天真会印的状态）＋ **汇总/计数/射程三类行**（`…_SUMMARY`／`…_COUNTS`／`…_SCOPE `）另开出口；显示窗 `12 → 16`（**只放宽显示窗、判定语义零改动**，与 `#31` 那次 `8 → 12` 同口径）。**成对现场**：修前屏上只有 `自报口径 PREREG4=PASS`（`na=4`／`out_of_scope=38` 只在步日志）⇒ 修后首行 `PREREG4=PASS files=43 pass=1 fail=0 na=4 skip=0 noinfo=0 out_of_scope=38`；**阳性对照**（喂「只有 `NA` 态」的步）⇒ `PREREG4=NA` ＋ `PREREG4_SUMMARY …` **都上屏**。**口径句**：判据的沉默/半可见，必须能被证明是「没东西可判」，而不是被显示层吃掉。
+#   ④ **`known-red.json` 陈旧 `why`**：`cc0dd903972d7f73` **→ `2209966ee1d2c5cc`**（`generation.geom_corpus.why` 里那句**与现场为假**的『本波（`#59`）只接线、不改两件牙……今天**没有机器读它**』⇒ 逐字留档 ＋ 更正为『**本键有机器读者** = `build/MilBridge/tools/geom-revert-beat-check.sh` 的 `GEOMCORPUS=` 那一格；`#59` **实测改了牙1**（`9412ec0149111348 → ee43a703736489a3`）而**该牙就是读者**（实际读点 `:283`，`:274` 是它的文档串）⇒ 纪律 47 那条缺口在 `#59` 落地时即已闭合；另一件牙 `geom-resend-regression-check.sh` 现场 `grep` = **0 命中**』）；同趟 `repin-generation.py --why` 重钉 ⇒ `REPIN_GENERATION=PASS`，**世代三项／五臂／证据日志／`geom_corpus.sha256` 逐位未变**。
+#   ⑤ **接线（`verify-all.sh`：35 → 36 步；四处声明同趟）**：第 `[36]` 步 `REGIME-IDENTITY`。四处声明 = `VERIFYALL-STEPS-DECL` 首行 `36 gen=#63`（**位置锚**：解析首个 `^#\s*VERIFYALL-STEPS-DECL:\s*(\d+)\s+gen=(#\d+)` ＋ **先断言 `DECL 数 == grep -c '^run_step "'`** 再插，**不照抄上一代文本**）／`VERIFYALL-STEP-NAMES` 尾加 `REGIME-IDENTITY`／头注释逐字 ``**`#63` 收官起 = 36 步**``（冻结器硬断言）／新建 `docs/WAVE63-PREREGISTRATION.md`（**标题行含字面 `#63`**）。`verifall_self` 现场 = `VERIFYALL_SELF=PASS names=36 decl=36 gen=#63 dup=0 order=OK prose=OK prereg=PASS`。
+#   ⑥ **零产品改动**：`src/**`／`build/shims/**`／native 源**一字节未动** ⇒ 九位**不应有产品位移**；`pf` 是**环成员**（整波重建必变、**同尺寸 6,123,520 B**）⇒ 机械位移，**不许当漂移/回归判据**。
+#   **九位（Release 权威件）**：`bridge` `4e25e4b27d4d5ae1`（5028208 B）／`pc` `722e0ab8205b7c3f`（3601408 B）／`pf` `9bf76afe89944ccc`（6123520 B）／`windowsbase` `2e4e46e539a72cd7`／`provider` `1f9511a7ef395bfe`／`win32shim` `d2b76a0a56a41be1`／`wic_shim` `f7b3026c8c019be2`／`hbtextline` `921ba9c65e9fb3be`（293165 B）／`dwf` `ce3469f49efcbcfa`。
+#     · **相对 `#62` 冻结值**：`pf` `3c808e94034c4514` → `9bf76afe89944ccc`（**环成员 `D-G92`**：**同尺寸 6,123,520 B** ⇒ 机械位移）；其余**八位逐位未变**。
+#   ⚠️ **`inputs_fp` 两笔（成对、带机械归因）**：`1ffd13f7c927dea71fd5dca866f7c6f81e8efce9939c22c85d55c0a35fb20f96`（`#62` 冻后值）→ **`7836c5fa17cd454893f9a4101fe2210181217f035c306122cbbed259293a772f`**。**覆盖面 `158 → 159` 件**：
+#      ① 被改 4 件：`regression-decision.py`／`regression-decision-cases.tsv`／`known-red.json`／
+#         **`build/close-wave.sh`**（后者是**名单变更**所致 —— `close-wave.sh` **自含于**覆盖面，设计使然）；
+#      ② **新增 1 件**：`build/MilBridge/tools/regime-identity-check.sh`（**新牙入名单**，与 `#62` 加
+#         `proc-pattern-guard.sh` **同形**存量惯例；位置锚 = `geom-resend-regression-check.sh` 之后）。
+#      **机械归因（16 行交叉表 ＋ 断言命中数）**：把 4 件**逐件/逐子集**退回 `#62` 版（新牙行**删除**）重算指纹 ⇒
+#      **全部退回（hits=5）＝ `1ffd13f7c927dea71fd5dca866f7c6f81e8efce9939c22c85d55c0a35fb20f96` ＝ `#62` 声明值逐位相同**；
+#      **现盘 ＝ `7836c5fa17cd454893f9a4101fe2210181217f035c306122cbbed259293a772f` ＝ `infp.sh fp` 真函数实测逐位相同**；16 档**互不相同**（hits 逐档 0/1/2/3/4）⇒ 无静默 no-op。
+#   **`BRIDGE_SRC_FP` = `d697b1e10ff48881`**（上一代 `d697b1e10ff48881`；本波未改桥源 ⇒ 逐位未变）。
+#   **冻前 `verify-all` = `36` 步（`36 ✅ / 0 ❌`、`用例通过 875 跳过 2`）**：见下 §RECORD 的 ⑥ 行。
+#   —— 外挂声明（**两族必须落在最新 `# RE-FROZEN` 块内**；`column-floor-check.sh:229` 用 `grep -E '^# COLUMN-FLOOR '` 在本块里找，缺 ⇒ `COLUMN_FLOOR=NOINFO`（**缺声明 ≠ 通过**））——
+# COLUMN-FLOOR arm=tab-oracle-anchor col=START      judged_min=615 released_min=194
+# COLUMN-FLOOR arm=tab-oracle-anchor col=OVERFLOWED judged_min=421
+# COLUMN-CORPUS file=tests/parity/windows/tab-anchor/out/tab-anchor-oracle.json sha16=0cebc0afd5142fbf
+# ARM-LOG-SHA arm=tab-anchor    sha16=1c43a12dcaa5718a
+# ARM-LOG-SHA arm=tab-zero      sha16=9150c3a26a3cb789
+# ARM-LOG-SHA arm=tab-rtl       sha16=92570318851ca7e8
+# ARM-LOG-SHA arm=tline         sha16=59a203de30d745a8
+# ARM-LOG-SHA arm=textlineproto sha16=4bceceeed570ba70
+#   【① 落地（全部 `temp ＋ rename`；前后 sha **双断言**；落前 `cp -p` 备份到 `$HOME/w152a/backups/`）】
+#      `regression-decision.py` `71734fce77842478`（1003 行）**→ `6a0e8ccc0c6cb5d7`**（1058 行）｜
+#      `regression-decision-cases.tsv` `5d3c26a1c8d83688` → `de6290cfad8892a1`（15 行）｜
+#      `regime-identity-check.sh` **新**（284 行）｜
+#      `prereg-four-requirements-check.sh` `235d76b61cdc46a4`（443 行）**→ `a40aac9031304a8f`**（459 行）｜
+#      `verify-all.sh` `58422c5f1f2c5682`（1122 行／`run_step=35`）**→ `2819b5990e74cc80`**（1139 行／`run_step=36`）｜
+#      `close-wave.sh` `07ee249b8f570895` **→ `9ee0c2488d25f6f6`**（名单 +1 行）｜
+#      `known-red.json` `cc0dd903972d7f73` → `2209966ee1d2c5cc`｜
+#      `docs/WAVE63-PREREGISTRATION.md` **新**（`#63` 在标题）。
+#   【② 缺陷复现（改前，逐字机读行）】
+#      `D-G115`：`--old 24/27 --new 0/40 --same-time --old-sha16 feef049e9d0e313a --new-sha16 4e25e4b27d4d5ae1 --pairs 40 --pair-old-only 24 --old-repro yes --planned-legs 40 --planned-power 0.80`
+#        ⇒ 修前 `REGDEC_SUBKIND=rate-aggravated` ＋ `REGDEC_REASON reason=rate-aggravated(fisher_p=3.006e-15≤alpha 且旧件也红 ⇒ …本波把速率**显著加重**…)` —— **事实是 88.9% → 0%**（降到 0）⇒ **判词方向印反**。
+#      `D-G116`：`fgeom` 与 `r_ok2` **39/39 同向**（修后臂 `800x600@+0+0 ∧ r_ok2=1`；修前臂 `1280x1024@+0+0 ∧ r_ok2=0`）⇒ 它是**结果**不是**体制**（见 §FROZEN ②）。
+#      `D-G117`：修前屏上只有 `自报口径 PREREG4=PASS`，`na=4`／`out_of_scope=38` 只在步日志。
+#   【③ 整波】`close-wave.sh --skip-verify-all`：槽内 `rc=0`、`[4/6]` **波前==波后 = `7836c5fa17cd454893f9a4101fe2210181217f035c306122cbbed259293a772f`**；九位位移 = **预期只有 `pf`**（环成员）；**`inputs_fp` 必变**（见 §FROZEN）。
+#   【④ 五臂／重钉】**本波不改 `GEN_KEYS`**（不动 `build/MilBridge/run.sh`／`HbTextLineParity/Program.cs`／`build/shims/PresentationCore.HbTextLine.cs`）⇒ **五臂不重取**、**五臂 sha 与 `#62` 逐位相同**（现场现算 5/5）；**`known-red.json` 本波改了（只改散文）** ⇒ 同趟 `repin-generation.py --why/--check`（`REPIN_GENERATION=PASS`，**世代三项／五臂／证据日志／`geom_corpus.sha256` 逐位未变**）。
+#   【⑤ 门禁 ×2（槽内、严格串行）】**合格线 = 判词行逐字一致**。
+#   【⑥ 冻前 `verify-all`（槽内）】**`36 ✅ / 0 ❌`**、`rc=0`、`结论：✅ 全部通过`、**`用例通过 875 跳过 2`**；
+#      ⚠️ **本波是首个带「自报口径抽取器改动」的波** ⇒ 逐步骤核对「匹配行数 ≤ 显示窗（16）」且「总判行在窗内」，
+#      并把三类新增出口行的**实际条数**逐段点名（见报告 §…「自报口径窗核对表」）。
+#   【⑦⑧⑨ 待冻后追加（`APPEND_ONLY`）】冻结 `#63` 的 `FREEZE_RC`／四颗牙／**冻后 ×2 两趟**（各 `36 ✅ / 0 ❌`、`用例通过 875 跳过 2`、`NOFILE_SWAP`）／`~/w21-verify/w63-POST.done`（**真 `stat` 时刻**）／逐径推送 ＋ `HEAD:` 字节核对 ＋ app-local ＋ 两处哨兵。
+#   【牙与件（现算 sha16）】`~/w152a/criteria63.md`（**判据先行**）｜`~/w152a/report.md`（链报告，`APPEND_ONLY`）｜
+#      `~/w152a/logs/patch-dg115.py`／`patch-dg117a.py`／`wire-verify-all63.py`（**位置锚**补丁器，每条替换 `assert count==1`）｜
+#      `~/w152a/w63-pre.sha`（开工前九位快照，**按 `#62` 冻结块九位行逐位重建**）。
+#   【本波四条口径句（落册，均来自现场实测）】
+#      ① **「结果」不许算进「体制」**：把与被试项**同向**的量当体制条件 ⇒ 会**用「保护可比性」的名义否掉可比性**（`D-G116`）。
+#      ② **「不进 `rc`」≠「不显示」**：结果侧差异必须**照样可见**（诊断列），否则就是另一种「显示层把状态吃掉」。
+#      ③ **判词带方向断言 ⇒ 判据必须真的判方向**；双尾显著 ≠ 上行显著（`D-G115`）。
+#      ④ **对拍/解析在任一侧为空时必须响亮失败**；且**替换/撤销类脚本必须断言命中行数**（本波现场：交叉表第一版静默匹配 **0** 行 ⇒ 8 档全部同值 ＝ 假「无位移」；断言后 hits=5 才成立）。
+BASELINE tier=default rep=1 config=pc:722e0ab8205b7c3f,bridge:4e25e4b27d4d5ae1,pf:9bf76afe89944ccc,provider:1f9511a7ef395bfe,win32shim:d2b76a0a56a41be1,wic_shim:f7b3026c8c019be2,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=261 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=4112 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w152a/gate-r1
+BASELINE tier=default rep=2 config=pc:722e0ab8205b7c3f,bridge:4e25e4b27d4d5ae1,pf:9bf76afe89944ccc,provider:1f9511a7ef395bfe,win32shim:d2b76a0a56a41be1,wic_shim:f7b3026c8c019be2,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=261 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=4112 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w152a/gate-r1
+BASELINE tier=default rep=3 config=pc:722e0ab8205b7c3f,bridge:4e25e4b27d4d5ae1,pf:9bf76afe89944ccc,provider:1f9511a7ef395bfe,win32shim:d2b76a0a56a41be1,wic_shim:f7b3026c8c019be2,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=261 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=4112 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w152a/gate-r1
+BASELINE tier=env rep=1 config=pc:722e0ab8205b7c3f,bridge:4e25e4b27d4d5ae1,pf:9bf76afe89944ccc,provider:1f9511a7ef395bfe,win32shim:d2b76a0a56a41be1,wic_shim:f7b3026c8c019be2,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=144 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=2945 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w152a/gate-r1
+BASELINE tier=env rep=2 config=pc:722e0ab8205b7c3f,bridge:4e25e4b27d4d5ae1,pf:9bf76afe89944ccc,provider:1f9511a7ef395bfe,win32shim:d2b76a0a56a41be1,wic_shim:f7b3026c8c019be2,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=144 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=2945 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w152a/gate-r1
+BASELINE tier=env rep=3 config=pc:722e0ab8205b7c3f,bridge:4e25e4b27d4d5ae1,pf:9bf76afe89944ccc,provider:1f9511a7ef395bfe,win32shim:d2b76a0a56a41be1,wic_shim:f7b3026c8c019be2,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=144 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=2945 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w152a/gate-r1
+# ⏪ **（历史，已被 `#63` 取代）**# RE-FROZEN #62 —— ✅ **当前冻结基线** —— 内容 = **装置欠债批 C（`TASK-0714`：把「按模式收/数进程」做成牙）＋ 文档收尾（`TASK-0715` 剩余两件）**
 #   ① **背景（`D-G103` 族本会话咬 5 次，全零损害）**：① `pkill -f '<模式>'` 误杀自身本体｜② `pgrep -P "$$" -f <模式>`（`$$` 只作 **`-P` 集合限定**、**不构成"排除"**；命令替换的子 shell 与脚本同源 argv ⇒ 仍自匹配）｜③ 收拾看门狗时把自己那条 shell `kill -TERM`｜④ 数残留进程**把自己算进去**（假阳性 1）｜⑤ `--live-selftest` 按**整条 cmdline 子串**判"显示被占" ⇒ 自匹配伪报 `display busy`。判据 = **凡按模式匹配命令行文本收/数进程，必须能证明排除了自身（`$$` ∧ `$PPID` 两者），能按 PID 就绝不按模式**。
 #   ② **接线（`verify-all.sh`：**实测 34 → 35 步**；四处声明同趟）**　⚠️ 基线是**实测 34**（`#60` 收官起，`DECL` 首行 `34 gen=#60`、`^run_step "` 计 34）—— **不是** `#59` 的 33；本波 +1 ⇒ 预期 **35**，**以落地时实测 + 1 为准**。：新步 `PROC-PATTERN-GUARD`（`build/MilBridge/tools/proc-pattern-guard.sh`；纯读、零 `dotnet`、无 `X`、秒级）。四处声明 = `VERIFYALL-STEPS-DECL` **首行** `35 gen=#62`（**位置锚**：解析**首个** `^#\s*VERIFYALL-STEPS-DECL:\s*(\d+)\s+gen=(#\d+)`；插在它**之上** —— 本仓每代都在其上方再插一行 ⇒ **不许用上一代文本当锚**）/`VERIFYALL-STEP-NAMES` 行尾追加 `` | PROC-PATTERN-GUARD ``/头注释口径句**逐字** `` **`#62` 收官起 = 35 步** ``（`verify-all-step-check.sh:169` 用 `grep -qF` 找，一个字符都不能改）/新建 `docs/WAVE62-PREREGISTRATION.md`（**标题行含 `#62`** —— 冻结器的 `prereg` 前置）。**预期** `VERIFYALL_SELF=PASS names=35 decl=35 gen=#62 dup=0 order=OK prose=OK prereg=PASS dynamic_trace=NOINFO vfile_sha16=58422c5f1f2c5682`。
 #   ③ **牙本体（仓外原型 → 落仓）** `~/w154a/tooth/proc-pattern-guard.sh`：三态 `PROCGUARD=PASS|FAIL|NOINFO`（**红优先于 `NOINFO`**）；`FAIL` 时**逐处点名** `file:line` ＋ 形态 ＋ 缺什么 ＋ 理由码（`missing-any-proof`／`missing-PPID($$-only-as--P-set-restriction)`／`missing-$$`／`exclude-self-label-without-pid`／`proc-scan-no-self-exclusion`）；`--selftest` **19/19**（两例两极化 ＋ 现场各次咬的**专门格**：裸 `pkill -f` 必红／`/proc` 双排除必绿／`pgrep -P "$$" -f` 必红／`pkill -x` 名模式必绿／`--exclude-self` 单标签必红／**注释里的 `pkill -f` 必绿**（防 20+ 条纪律注释被误判）／`ps|grep -c` 必红／祖先链必绿／`kill $(pgrep -f)` 必红／`/proc` 子串自匹配必红／argv 身份必绿／零命中树必 `PASS`（活性证明）／空树必 `NOINFO`／**自扫本件零 `pkill`**）；件内**零** `pkill`/`pgrep`（读 `/proc` 并显式排除自身 pid）；输出固定打 `PROCGUARD_BLINDSPOT indirect=invisible eval=invisible non-sh-py=invisible outside-repo=invisible interactive=invisible`。

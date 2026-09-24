@@ -404,17 +404,25 @@ main() {
     return $RC_NOINFO
   fi
   local any=0 worst=0 n_pass=0 n_fail=0 n_skip=0 n_noinfo=0 n_na=0 n_oos=0
+  # ★ `#63` W152A／`D-G117` 半①：批次形态下**逐件输出先缓冲**，末尾把「批次判词行」印在**最前面**
+  #   —— 那一行形如 `PREREG4=<批次判词> files=… pass=… fail=… na=… noinfo=… out_of_scope=…`，
+  #   **逐字匹配** `verify-all.sh` 的自报口径抽取正则（`^[A-Z][A-Z0-9_]*=(PASS|FAIL|NOINFO)( |$)`）
+  #   ⇒ 屏上立刻带上**四态计数**（修前：只有 `PREREG4=PASS` 上屏，`na=`/`out_of_scope=` 全被吃掉）。
+  #   ⚠️ **零语义改动**：判定/`rc` 的口径一字未动，只是把一句已经算得出来的话**搬到能被显示层看见的位置**。
+  local buf=""
   for f in "${files[@]}"; do
     # ★ 批次门禁形态：早于生效边界的件**不判**，但**逐件点名 ＋ 计数**（"没判什么"永远可见）
     if [[ $GATE_MODE -eq 1 ]]; then
       local wn0; wn0="$(wave_num "$f")"
       if [[ -n "$wn0" && "$wn0" -lt "$MIN_WAVE" ]]; then
-        echo "PREREG4_OUT-OF-SCOPE file=$f wave=#${wn0} reason=pre-effective(<#${MIN_WAVE})（超出射程 ⇒ 本趟不判；它**不是**违规、也**不是**通过）"
+        buf="${buf}PREREG4_OUT-OF-SCOPE file=$f wave=#${wn0} reason=pre-effective(<#${MIN_WAVE})（超出射程 ⇒ 本趟不判；它**不是**违规、也**不是**通过）
+"
         n_oos=$((n_oos+1)); continue
       fi
     fi
     local out rc; out="$(check_file "$f" 2>&1)"; rc=$?
-    printf '%s\n' "$out"
+    buf="${buf}${out}
+"
     # 【`#59` 生效边界修法】四态**分开计数**：`SKIP`（超出射程）**不许**并进 `PASS`、也**不许**并进 `FAIL`
     case "$(printf '%s\n' "$out" | sed -n 's/^PREREG4=\([A-Z]*\)$/\1/p' | head -1)" in
       PASS) n_pass=$((n_pass+1)) ;;
@@ -429,6 +437,14 @@ main() {
   # ★ `D-G114` 现场物（`#60` W152A 修）：旧行在双引号里写了 "反引号 SKIP 反引号" ⇒ bash **真的**做命令替换
   #   ⇒ stderr 每趟多一行 `prereg-four-requirements-check.sh: 行 313: SKIP: 未找到命令`、且汇总行里
   #   "SKIP" 那几个字**消失**（与 quote-trap 牙自己记录的第 ③ 条血案同形）。改用直角引号，语义不变。
+  # ★ `D-G117` 半①：批次判词行**先印**（只在批次门禁形态；逐件形态一字不变）
+  if [[ $GATE_MODE -eq 1 ]]; then
+    local bv="PASS"
+    if [[ $n_fail -gt 0 ]]; then bv="FAIL"
+    elif [[ $n_noinfo -gt 0 ]]; then bv="NOINFO"; fi
+    echo "PREREG4=$bv files=${#files[@]} pass=$n_pass fail=$n_fail na=$n_na skip=$n_skip noinfo=$n_noinfo out_of_scope=$n_oos min_wave=#$MIN_WAVE（**批次门禁形态的判词**：出射程件逐件点名、**不进 rc**；na 与 pass 分开计数）"
+  fi
+  printf '%s' "$buf"
   echo "PREREG4_SUMMARY files=${#files[@]} pass=$n_pass fail=$n_fail na=$n_na skip=$n_skip noinfo=$n_noinfo out_of_scope=$n_oos min_wave=#$MIN_WAVE（**五态分开计数**：PASS／NA／SKIP／NOINFO／OUT-OF-SCOPE 各自独立——NA = 显式声明「本波不做回归判定」⇒ 该要求对本波不适用，**既不是 PASS 也不是违规**；SKIP = 波次早于生效边界；OUT-OF-SCOPE 只在批次门禁形态出现）"
   if [[ $worst -eq 1 ]]; then return $RC_FAIL; fi
   if [[ $GATE_MODE -eq 1 ]]; then

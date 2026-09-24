@@ -11,3 +11,5 @@ deterministic-new-only-5-of-5	0/5	5/5	5	no	5	0.80	-	-	tried	-	-	REGRESSION	0
 significant-intermittent-5-of-16	0/16	5/16	16	no	16	0.80	-	-	tried	-	-	REGRESSION	0
 DG94-denominator-counts-skipped	7/9	4/9	9	no	9	0.80	-	-	tried	9	2	NOINFO	2
 both-arms-green	0/16	0/16	16	no	16	0.80	-	-	tried	-	-	OK	0
+DG115-downward-24of27-vs-0of40	24/27	0/40	40	yes	40	0.80	-	-	tried	-	-	REGRESSION	0
+DG115-upward-10of40-vs-35of40	10/40	35/40	40	yes	40	0.80	-	-	tried	-	-	REGRESSION	0

@@ -106,8 +106,8 @@
     "instr_pc_path": "build/PresentationCore.Linux/bin/Debug/PresentationCore.dll",
     "evidence_log_origin": "/home/links-dev/wfp-runs/arms23/tline.log（硬链接）⚠️ 【#31 W31E 复核 · 2026-09-18】「硬链接」已过期：现盘该路径是**真副本**（inode=5138770、nlink=1、size=21501、mtime=2026-09-17 00:36:36），与 `build/MilBridge/arm-logs/tline.log` 的 inode=5143817 **不同**，`cmp` 两者 **IDENTICAL**、sha16 同为 `57d752a3981a9b91` ⇒ 被引内容零位移、mtime 与源件逐位相同（弱配对判据不受影响）。原文括号描述的是 `#23` 当时的状态。",
     "arms_retaken": {
-      "when": "2026-09-24 03:24:57 +0800",
-      "why": "波 #59（TASK-0110 改题后）：加 generation.geom_corpus（两件几何牙的冻结语料锚，39 腿 / 234 件；聚合 sha256 = 相对路径口径）；同趟接线两块牙为 verify-all 第 [32] 步 GEOM-BEAT / 第 [33] 步 GEOM-RESEND",
+      "when": "2026-09-24 13:20:24 +0800",
+      "why": "#63 W152A：本波只改 generation.geom_corpus.why 的散文（陈旧断言更正：本键有机器读者 = geom-revert-beat-check.sh 的 GEOMCORPUS= 格）；未重取任何臂，世代三项与五臂逐位不变 —— 本条为「改了 known-red.json 就必须看得见」的体例记录。",
       "how": "**只跑三支**（不复用 `retake-arms-w23.sh`：其 `:11` 的 `OUT` 是普通赋值且指向 `$HOME/wfp-runs/arms23`，该目录与 `arm-logs/tline.log`/`textlineproto.log` **同 inode** ⇒ 直接重跑会**就地覆盖归档源件**、中断还会留半截日志）。本趟时序（纪律 59）：① `OUT` 换成本趟专属 `$HOME/w30b-run/arms30b`；② 旧件先 `cp -p` 归档到 `$HOME/w30b-run/backup/armlogs/`；③ 记 `nlink`/mtime/inode；④ `dotnet build CoverageProbe -c Release -m:1`（仅此一次，**未重建 `pc`**）；⑤ 逐支跑 `--tab-lines-oracle`；⑥ **先验 `TAB_LINES_PROBE` 自报行存在**（无则停、不 `ln -f`）；⑦ `ln -f` 进 `arm-logs/`；⑧ 复跑门禁；⑨ `arm-log-sha-check.sh`；⑩ 重钉本节；⑪ 归档。 ⚠️ 【#31 W31E 加注 · 2026-09-18】本行有两处随时间变化（**原文保持不动**）：① 它引的 `:11` 已不再是「普通赋值」—— `#31` W31E 把第 11 行改成 `OUT=${ARMS_OUT:-$HOME/wfp-runs/arms23}`（env 可覆写；**不设该变量时取值逐字不变**）并在第 12 行之后加了**硬链接别名守卫**（`OUT` 目标与真件同 inode ⇒ `exit 4`、逐支点名 inode 与两条路径、**一个字节都不写**）⇒ 纪律 59 的第①步不再需要手改脚本；② 「该目录与 `arm-logs/tline.log`/`textlineproto.log` 同 inode」描述的是 `#30` 当时的状态，`#31` W31C 之后 `arms23` 已是真副本（nlink=1）⇒ 现状下守卫**不会**拦默认 `OUT`（实测 rc=0）。",
       "result": "`tab-zero 78204619fa5b4eee → 9150c3a26a3cb789`｜`tab-anchor 574d012a41a3db06 → 1c43a12dcaa5718a`｜`tab-rtl cbaa579c547b4ac3 → 92570318851ca7e8`；`tline`/`textlineproto` **逐字节未动**。**最硬的一条**：三支新日志**剥掉 `^TAB_LINES_PROBE` 行后与旧件 `cmp` 逐字节 IDENTICAL** （行数 210/1346/193 ↔ 209/1345/192）⇒ 重取**只新增了身份行**，**读数零位移**；`判定行=615`/`字形释放行=194` 与 `column_gate.arms[\"tab-oracle-anchor\"]` 的下限**逐位相符**。 ⚠️ 【#31 W31E 复核 · 2026-09-18】「`ln -f` 后 `nlink=2`」描述的是 `#30` W30B 当时的状态（**原文保持不动**）：`#31` W31C 清理别名后现盘该件 **nlink=1**，`sha256` 前16位 `1c43a12dcaa5718a` **逐位未变**。",
       "arms": [
@@ -210,11 +210,15 @@
         {
           "when": "2026-09-24 03:24:57 +0800",
           "why": "波 #59（TASK-0110 改题后）：加 generation.geom_corpus（两件几何牙的冻结语料锚，39 腿 / 234 件；聚合 sha256 = 相对路径口径）；同趟接线两块牙为 verify-all 第 [32] 步 GEOM-BEAT / 第 [33] 步 GEOM-RESEND"
+        },
+        {
+          "when": "2026-09-24 13:20:24 +0800",
+          "why": "#63 W152A：本波只改 generation.geom_corpus.why 的散文（陈旧断言更正：本键有机器读者 = geom-revert-beat-check.sh 的 GEOMCORPUS= 格）；未重取任何臂，世代三项与五臂逐位不变 —— 本条为「改了 known-red.json 就必须看得见」的体例记录。"
         }
       ]
     },
     "geom_corpus": {
-      "why": "`TASK-0110`（改题后）两块几何牙（`verify-all.sh` 第 `[32]` 步 `GEOM-BEAT` / 第 `[33]` 步 `GEOM-RESEND`）所读的**冻结语料**（39 腿，每条腿一个子目录）的**内容锚**。**为什么必须有它**：两件牙都以 `--corpus=<root>` 取语料，而语料是**派生件**（一趟趟跑出来的腿归档）⇒ 与 `generation.arm_logs` **同族**：换掉它就是换掉被判决的数据；在此之前「换整套自洽语料」**零机器红** —— 那正是本仓明令禁止的失效形态（判据的结论取决于没人看着的输入）。本键把那个数**钉在一处声明**（纪律 53 同族）。⚠️ **本键是「声明锚」，读者在下一趟**：本波（`#59`）只接线、**不改两件牙**（它们是判据件，改它们要另走一次反极化并会再动 `inputs_fp`）⇒ 今天**没有机器读它**；按纪律 47「没有人读的声明 = 半个牙」，这条缺口已在 `docs/WAVE59-PREREGISTRATION.md` §6 逐条登记。候选读者（下一趟择一）：① 并在第 `[32]`/`[33]` 步的调用之前；② 照 `arm-log-sha-check.sh` ＋ 第 `[8]` 步 `ARM-LOG-SHA` 的先例加一件外挂读者。",
+      "why": "`TASK-0110`（改题后）两块几何牙（`verify-all.sh` 第 `[32]` 步 `GEOM-BEAT` / 第 `[33]` 步 `GEOM-RESEND`）所读的**冻结语料**（39 腿，每条腿一个子目录）的**内容锚**。**为什么必须有它**：两件牙都以 `--corpus=<root>` 取语料，而语料是**派生件**（一趟趟跑出来的腿归档）⇒ 与 `generation.arm_logs` **同族**：换掉它就是换掉被判决的数据；在此之前「换整套自洽语料」**零机器红** —— 那正是本仓明令禁止的失效形态（判据的结论取决于没人看着的输入）。本键把那个数**钉在一处声明**（纪律 53 同族）。⚠️ **✅ **本键有机器读者**（`#63` W152A 更正 —— 旧文在此处写错，逐字留档见下）：读者 = `build/MilBridge/tools/geom-revert-beat-check.sh` 的 **`GEOMCORPUS=`** 那一格：它把**现场语料聚合**与本键 `sha256` **全 64 位逐字**比，不等 ⇒ `NOINFO` ＋ 点名 `geom-corpus-declared-mismatch`（`--corpus=` 与 `--leg=`／`--live-selftest` **两种模式都真判**，见 `W153A-#61`）。⚠️ **旧文逐字留档（已被本行取代；加注不覆盖）**：『本波（`#59`）只接线、**不改两件牙**（它们是判据件，改它们要另走一次反极化并会再动 `inputs_fp`）⇒ 今天**没有机器读它**；按纪律 47「没有人读的声明 = 半个牙」，这条缺口已在 `docs/WAVE59-PREREGISTRATION.md` §6 逐条登记。』—— 这句**与现场为假**：`#59` **实测改了牙1**（`geom-revert-beat-check.sh` `9412ec0149111348 → ee43a703736489a3`，见 `#59` 冻结块 §③），而**该牙就是本键的读者**（实际读点在 `geom-revert-beat-check.sh:283`；`:274` 是它的文档串）⇒ 结论订正为：**本键有读者；纪律 47 那条缺口在 `#59` 落地时即已闭合**。另一件牙 `geom-resend-regression-check.sh` 现场 `grep` = **0 命中**（它不读本键）。",
       "unit": "目录（每条腿一个子目录）→ 该目录**整份内容**的聚合 sha256（**相对路径口径**）",
       "path": "build/MilBridge/geom-corpus",
       "sha256": "0f702ccd8eb3938a03be55e17e0c978013d73eb37485847fcaad6f88b1bb9fe2",

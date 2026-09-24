@@ -246,6 +246,7 @@ fp_inputs() {  # 手写输入指纹（应用器 + port-lib + 本脚本 + 波脚�
           build/MilBridge/tools/geom-revert-beat-check.sh \
           build/MilBridge/tools/geom-resend-regression-check.sh \
           build/MilBridge/tools/proc-pattern-guard.sh \
+          build/MilBridge/tools/regime-identity-check.sh \
           build/MilBridge/tools/regression-decision-cases.tsv
     } | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -d' ' -f1
 }

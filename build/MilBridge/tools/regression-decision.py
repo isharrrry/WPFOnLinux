@@ -58,7 +58,13 @@
 #   · **判据射程**：本工具判的是"**两臂速率有没有显著差别**"，**不判**"这个差是不是本波引入的"
 #     —— 那需要**机制**（逐位可分的确定性判据／`D-G98` 那类外部观测器）⇒ 缺机制时最多到 `REGRESSION`，
 #     措辞上**不许**升级成"已归因"。
-#   · **`--old-repro=yes` 且显著** ⇒ 判 `REGRESSION` 但 `subkind=rate-aggravated`
+#   · **`--old-repro=yes` 且显著** ⇒ 判 `REGRESSION`，`subkind` **按方向选词**：
+#       ★ `#63` W152A／`D-G115`：`subkind` 由「两臂点估计＋`p` **现算的方向**」决定 ——
+#         上行（新 > 旧）⇒ `rate-aggravated`（**既有口径逐字保留**）；
+#         下行（旧 > 新）⇒ `rate-mitigated` ＋ 逐字写明「**这不是本波引入**（是把它压下去）」。
+#         ⚠️ 旧件在这一支**无条件**印 `rate-aggravated`（源码里没有任何方向判定）⇒ 下行腿印反。
+#       **口径句**：判词带方向断言 ⇒ 判据必须真的判方向；双尾显著 ≠ 上行显著。
+#       方向另印机读行 `REGDEC_DIRECTION=A高于B|B高于A|无显著差` ＋ 图例行（`A`=新臂／`B`=旧臂）。
 #     （该红**本来就存在**、本波把速率**显著加重**）—— 这与"本波**引入**"**不是同一句话**。
 #   · `--pairs` 只做**一致性核对**（`both+old_only == old_red` 等）：对不上一律 `NOINFO`。
 #   · `--skipped-*`／`--*-total` 只用于**识别 `D-G94` 那个坑**；本工具**不替**记录层改分母。
@@ -413,6 +419,27 @@ def decision(args):
     out["fisher_p"] = p
     sig = p <= alpha
 
+    # ── ★ `#63` W152A／`D-G115`：**判词必须真的判方向**（**双尾显著 ≠ 上行显著**）────────────
+    #   机制：`fisher_2x2` 是**双尾** ⇒ `p ≤ alpha` 只说「两臂速率**有**显著差别」，**不说朝哪边**。
+    #     旧件在 `p ≤ alpha ∧ 旧件也红` 时**无条件**印 `rate-aggravated`（源码里**没有任何方向判定**）
+    #     ⇒ 在下行腿／必要性设计里把「修好了（降到 0）」印成「显著加重」＝ **判词与结论方向相反**。
+    #   口径：`A` = **新臂**（被试件）｜`B` = **旧臂**（对照件）；方向由两臂**点估计现算**，
+    #         **与 `subkind`/`state` 无关**、**不许用任何既有字段反推**。
+    #   ⚠️ 显著 ∧ 两臂点估计**相等** ⇒ 方向**算不出来** ⇒ 不许印任何方向词（走 `NOINFO`，见下面判词分支）。
+    new_rate = (new_red / new_tried) if new_tried else 0.0
+    old_rate = (old_red / old_tried) if old_tried else 0.0
+    if not sig:
+        direction = "无显著差"
+    elif new_rate > old_rate:
+        direction = "A高于B"
+    elif old_rate > new_rate:
+        direction = "B高于A"
+    else:
+        direction = "无显著差"
+    out["direction"] = direction
+    out["new_rate"] = new_rate
+    out["old_rate"] = old_rate
+
     # ── 所需趟数（**先写趟数与功效**）：现场点估计 + 可选备择
     p0_obs = old_red / old_tried if old_tried else 0.0
     p1_obs = new_red / new_tried if new_tried else 0.0
@@ -480,9 +507,19 @@ def decision(args):
             out.update(state="OK", rc=0,
                        reason="pre-existing-reproduces-on-old(fisher_p=%.4g>alpha=%.3g；旧件也红同一形态 ⇒ 判不出差别，不是本波引入)" % (p, alpha))
             return out
-        out.update(state="REGRESSION", rc=0, subkind="rate-aggravated",
-                   reason="rate-aggravated(fisher_p=%.4g≤alpha 且旧件也红 ⇒ 该红**本来就存在**、本波把速率**显著加重**；⚠️这不是「本波引入」)" % p)
-        out["notes"].append("subkind=rate-aggravated 与「本波引入」不是同一句话（见本件头注释·边界）")
+        # ★ `D-G115`：**按方向选词**。上行（新 > 旧）逐字保留既有口径；下行（旧 > 新）改 `rate-mitigated`。
+        if direction == "A高于B":
+            out.update(state="REGRESSION", rc=0, subkind="rate-aggravated",
+                       reason="rate-aggravated(fisher_p=%.4g≤alpha 且旧件也红 ⇒ 该红**本来就存在**、本波把速率**显著加重**（新臂 %.4f > 旧臂 %.4f）；⚠️这不是「本波引入」)" % (p, new_rate, old_rate))
+            out["notes"].append("subkind=rate-aggravated 与「本波引入」不是同一句话（见本件头注释·边界）")
+        elif direction == "B高于A":
+            out.update(state="REGRESSION", rc=0, subkind="rate-mitigated",
+                       reason="rate-mitigated(fisher_p=%.4g≤alpha 且旧件也红 ⇒ 该红**本来就存在**、本波把速率**显著降低**（新臂 %.4f < 旧臂 %.4f）；⚠️**这不是本波引入** —— 本波做的是把它**压下去**)" % (p, new_rate, old_rate))
+            out["notes"].append("subkind=rate-mitigated：方向由两臂**点估计现算**（`D-G115`）；「不是本波引入」这句**仍然成立**")
+        else:
+            # 显著 ∧ 两臂点估计相等 ⇒ **方向算不出来** ⇒ 不许印任何方向词（宁可 NOINFO，不许伪造方向）
+            out.update(state="NOINFO", rc=3,
+                       reason="direction-undecidable(fisher_p=%.4g≤alpha 但两臂点估计相等（%.4f vs %.4f）⇒ 方向算不出来；**不许**印任何方向词)" % (p, old_rate, new_rate))
         return out
 
     # old_repro == "no"：旧件 0 红
@@ -556,6 +593,11 @@ def emit(d, args):
         print("REGDEC_CI0_OLD 0/%d 的单侧95%%上界=%.4f" % (d["old_tried"], d["ci0_old"]))
     if d.get("ci0_new") is not None:
         print("REGDEC_CI0_NEW 0/%d 的单侧95%%上界=%.4f" % (d["new_tried"], d["ci0_new"]))
+    if d.get("direction"):
+        # ★ `D-G115`：机读方向行（`A`=新臂／被试件，`B`=旧臂／对照件 —— 图例**同趟**印，免得读的人猜）
+        print("REGDEC_DIRECTION=%s" % d["direction"])
+        print("REGDEC_DIRECTION_LEGEND A=new(被试件) B=old(对照件) new_rate=%.4f old_rate=%.4f"
+              % (d.get("new_rate", 0.0), d.get("old_rate", 0.0)))
     if d.get("subkind"):
         print("REGDEC_SUBKIND=%s" % d["subkind"])
     for m in d.get("missing", []) or []:
@@ -736,6 +778,19 @@ def build_cases():
     case("historical-DG98-OK",
          _ok(_fixture_args(old="2/36", new="3/36", pairs=36, old_repro="yes")),
          "OK", 0, ("REGDEC_FISHER p=1.000000",))
+    # ★ `#63` W152A／`D-G115` ⑭：**下行腿**（旧 `24/27` 红 → 新 `0/40` 红）⇒ 必须印 `rate-mitigated`
+    #   ＋ 方向行 `B高于A`（旧 > 新）。**这就是 `D-G115` 的现场物**：旧件在这一例把「降到 0」印成
+    #   「**显著加重**」＝ 判词方向与结论方向相反。
+    case("DG115-downward-rate-mitigated",
+         _ok(_fixture_args(old="24/27", new="0/40", pairs=40, pair_both=0,
+                           pair_old_only=24, pair_new_only=0, old_repro="yes")),
+         "REGRESSION", 0, ("REGDEC_SUBKIND=rate-mitigated", "REGDEC_DIRECTION=B高于A"))
+    # ★ `#63` W152A／`D-G115` ⑮：**上行腿**（旧 `10/40` → 新 `35/40`）⇒ 仍必须印 `rate-aggravated`
+    #   ＋ 方向行 `A高于B`。**这一例是「既有口径逐字保留」的钉子**（改成按方向选词后它不许变词）。
+    case("DG115-upward-rate-aggravated",
+         _ok(_fixture_args(old="10/40", new="35/40", pairs=40, pair_both=10,
+                           pair_old_only=0, pair_new_only=25, old_repro="yes")),
+         "REGRESSION", 0, ("REGDEC_SUBKIND=rate-aggravated", "REGDEC_DIRECTION=A高于B"))
     # ⑦ 两臂全绿 ⇒ OK
     case("both-green-OK", _ok(_fixture_args(old="0/16", new="0/16", pairs=16, old_repro="no")),
          "OK", 0, ("reason=no-red-either-arm",))

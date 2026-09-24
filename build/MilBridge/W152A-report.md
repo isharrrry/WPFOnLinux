@@ -1,382 +1,264 @@
-# W152A 报告（波 `#60`：仪器波 · 装置/判据欠账批 A）
+# W152A 报告（波 `#63`：判据／显示层批 D）
 
-车道 **W152A**｜仓 `R=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux`（**不是 git 仓**）
-基线上代 `#59` = `02f80e388d308c4d`／846,233 B｜判据 `~/w152a/criteria.md`（**判据先写**）
-本报告 **APPEND_ONLY**（逐段追加，不覆盖既有段落）。
+> ⚠️ **本文件是车道 W152A 的当前报告（波 `#63`）**。上一代（波 `#60`，仪器波 · 装置/判据欠账批 A）的版本
+> 在 commit **`6f2b482`**：`git show 6f2b482:build/MilBridge/W152A-report.md`。
+> 仓 `R=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux`（**不是 git 仓**）｜基线上代 `#62` = `845219762aa61fb8`／903,901 B
+> 判据 `~/w152a/criteria63.md`（**判据先写**，写定于取任何"修后"读数之前）｜本报告 `APPEND_ONLY`
 
 ---
 
-## §0 开工闸（四条 ＋ **"排除自身"的口径**）
+## §0 开工闸（四条）
 
 | # | 判据 | 现场值 | 判 |
 |---|---|---|---|
-| ① | `sed -n '9p' $R/docs/CURRENT-STATE.md` | `BASELINE-FROZEN gen=#59 sha16=02f80e388d308c4d …` | ✓ |
-| ② | `~/w21-verify/w59-POST.done` | mtime `2026-09-24 04:29:47` | ✓ |
-| ③ | 现场无收尾/构建链在跑 | 见下 | ✓ |
-| ④ | `flock -n ~/heavy.lock -c 'echo FREE'` | `FREE` | ✓ |
+| ① | `~/w21-verify/w62-POST.done`（**真 `stat`**） | `2026-09-24 13:09:14.404562549 +0800` | ✓ |
+| ② | `docs/CURRENT-STATE.md:9` | `gen=#62 sha16=845219762aa61fb8`（件 903,901 B） | ✓ |
+| ③ | 现场无链在跑 | **none** | ✓ |
+| ④ | `flock -n ~/heavy.lock` | `FREE` | ✓ |
 
-**③ 的"排除自身"口径（本波留档，供 `TASK-0714` 当样本）**：
-逐 pid 读 `/proc/<pid>/cmdline`，**显式排除 `$$`／`$PPID` 及其祖孙链**（沿 `/proc/<pid>/stat` 的 ppid 上溯到 `1`）。
-**实测事故（真发生）**：不改口径时，我自己那条 `bash -c '… wpf-linux …'` 的命令行**命中了扫描模式**
-（PID=3098942）⇒ 若照此停手就是**误停**。⇒ **判"有链在跑"必须有非自身的证据。**
-本波用的两条非自身证据：① 无任何 `dotnet`／`msbuild` 进程；② `~/heavy.lock` 无持有者。
+### §0.1 闸③ 的"排除自身"口径——本波**又逮到第二种变体**
+逐 pid 读 `/proc/<pid>/cmdline`，排除 `$$` ∧ `$PPID` ∧ 沿 `/proc/<pid>/stat` 上溯到 `1` 的祖先链。
+⚠️ **第一版只排了 `$PPID` 的祖孙链、漏排 `$$` 自己** ⇒ **把自己的扫描进程判成"非自身进程"**。
+⇒ 口径订正为**显式列出 `$$`**。**这是 `TASK-0714` 那条纪律的第二个活样本**（自匹配族：
+① 漏排 `$$` ② `NEW` 逐字包含 `OLD` ③ 空集恒相等 ④ 读 `/proc` 被当枚举…）。
 
 ---
 
-## §1 本波三件（落地清单）
+## §1 四项改动（落地清单）
 
 | 件 | 入口件 | 修前 → 修后 |
 |---|---|---|
-| A `TASK-0709` | `build/MilBridge/tools/prereg-four-requirements-check.sh` | `b436ae561ae1f396`（319 行）→ **`235d76b61cdc46a4`**（443 行） |
-| B `TASK-0713` | `build/MilBridge/tools/shell-quote-trap-check.sh` | `e5d4cf05ef5fc2ea`（840 行）→ **`d4317aa7605a31e1`**（907 行） |
-| C `D-G114` | 同上（与 B 同件） | 同上 |
-| 接线 | `verify-all.sh` | `ec29c571be6b19da`（1103 行／`run_step=33`）→ **`970bb48ba8ebd384`**（1114 行／`run_step=34`） |
-| 预登记 | `docs/WAVE60-PREREGISTRATION.md` | **新建**（H1 含 `#60`） |
+| ① `D-G115` | `build/MilBridge/tools/regression-decision.py` | `71734fce77842478`（1003 行）→ **`6a0e8ccc0c6cb5d7`**（1058 行） |
+| ①b 台账 | `build/MilBridge/tools/regression-decision-cases.tsv` | `5d3c26a1c8d83688`（13 行）→ **`de6290cfad8892a1`**（15 行） |
+| ② `D-G116` | `build/MilBridge/tools/regime-identity-check.sh` | **新建** → **`97cfab155dfa9bce`**（284 行） |
+| ③ `D-G117` | `build/MilBridge/tools/prereg-four-requirements-check.sh` | `235d76b61cdc46a4`（443 行）→ **`a40aac9031304a8f`**（459 行） |
+| ③b `D-G117` | `verify-all.sh` | `58422c5f1f2c5682`（1122 行／`run_step=35`）→ **`2819b5990e74cc80`**（1139 行／`run_step=36`） |
+| ④ `why` | `build/MilBridge/known-red.json` | **`b3f264bbf43dbd61`**（`#62` 真值，`HEAD:` 复核）→ **`2209966ee1d2c5cc`** |
+| ④b 名单 | `build/close-wave.sh`（新牙入覆盖面） | `07ee249b8f570895` → **`9ee0c2488d25f6f6`** |
+| 接线 | `docs/WAVE63-PREREGISTRATION.md` | **新建**（H1 含字面 `#63`） |
 
-全部 `temp ＋ rename`；落前 `cp -p` 备份到 `~/w152a/backups/`；**前后 sha 双断言**（暂存件 sha == 已测 sha，且落盘后 sha == 暂存 sha）。
-
----
-
-## §2 件 A（`TASK-0709`）：`N/A` 语义 ＋ 接线 `[34]`
-
-### 2.1 新增 `PREREG4=NA`（`rc=0`）
-
-**充要两条**：① **判据节内**逐字有「本波 … 不做任何回归判定」（或机读行 `PREREG-NO-REGRESSION-DECISION:`）；
-② **全文无回归判定证据**（判定工件自己印的机读判词行／回归判定台账文件名）。
-⇒ 四要件**对本波不适用**，**与 `PASS` 分开计数**（`--glob` 汇总新增独立一格 `na=`）＋ 逐件点名 `PREREG4_NA …`。
-
-- **缺声明** ⇒ 走正常路径（该 `FAIL` 就 `FAIL`）。
-- **留声明却引用了证据** ⇒ **仍 `FAIL`**（声明**不许**当免死金牌）。
-- **格式声明不算证据**：`PREREG-REGRESSION-FOUR:` 那一行只是格式承诺 —— `docs/WAVE59-PREREGISTRATION.md:47-50`
-  **自己逐字写着**「**是"这一刻不适用"的声明，不是"我已经做过"的声明**。**不许**把本节读成本波做过四要件。」
-  ⇒ 若把那一行算成证据，`#59` 仍会被逼着抄四要件 ＝ **正是本任务要治的病**。
-
-### 2.2 `--selftest` 12/12 → **18/18**（既有 12 例**逐字未变**，只增 6 例）
-
-```
-SELFTEST NA-1-declared-no-rd            want_rc=0 got_rc=0 = OK
-SELFTEST NA-2-decl-removed-fails        want_rc=1 got_rc=1 = OK
-SELFTEST NA-3-decl-plus-evidence-fails  want_rc=1 got_rc=1 = OK
-SELFTEST NA-4-wave58-stays-pass         want_rc=0 got_rc=0 = OK
-SELFTEST NA-5-gate-batch-form           rc=0 ＋ 出射程件逐件点名 ＋ out_of_scope 计数 = OK
-SELFTEST NA-6-gate-batch-fails-when-broken rc=1 = OK
-PREREG4_SELFTEST=PASS total=18 pass=18 fail=0
-```
-
-### 2.3 真实件读数（`--glob docs/WAVE*-PREREGISTRATION.md`，41 件）
-
-| 形态 | 读数 | rc |
-|---|---|---|
-| 逐件形态 | `files=41 pass=1(W58) fail=0 na=2(W59,W60) skip=38 noinfo=0 out_of_scope=0` | `3`（`SKIP` 语义**一字未动**） |
-| **批次门禁形态 `--gate`**（接线用） | `files=41 pass=1 fail=0 na=2 skip=0 noinfo=0 out_of_scope=38` | **`0`** |
-
-**`WAVE58` 仍 `PASS 4/4`**（**不许**被降级成 `NA` ✓）｜**`WAVE59` `PASS → NA`**（**设计性位移**，逐件记账）｜
-**`WAVE60` `NA`**。stderr **0 字节**（见 §3 的 `:313` 真陷阱）。
-
-### 2.4 为什么接线必须走 `--gate`（**不是放宽**）
-
-`verify-all.sh` 的 `run_step` 把**任何 `rc≠0`** 判 `❌`，而逐件形态下「波次早于生效边界 ⇒ `SKIP` ⇒ `rc=3`」
-⇒ 裸 `--glob` **每趟都会多一个 ❌**、门禁**永远接不上**。批次形态下那些件**不判但逐件点名**
-（`PREREG4_OUT-OF-SCOPE` ＋ `out_of_scope=`，**永不静默**），批次 `rc` 只由**违规**与**查不动**决定
-（`fail>0 ⇒ 1`／`noinfo>0 ⇒ 3`），`na`／`out_of_scope` 是**适用性/射程**声明、**不进 `rc`**。
-**理由**：射程边界 `REQ_EFFECTIVE_WAVE=58` 是**版本受控的常量**，`<#58` 的件按"只加不改"**永远**出射程
-⇒ 该集合**永不增长、永不包含当前波**；它与 `NOINFO`（查不动）不是一回事。
-把 `SKIP` 也算进批次 `rc` ⇒ 批次**永不为 0** ⇒ 只会把人推向"**吞掉 rc**"（**真**假绿，比这个洞更坏）。
-**逐件形态的 `SKIP ⇒ rc=3` 一字未动**（W151A 的读法逐位保留）。
-**被否决的备选**：只判当波那一份（射程 → 1 件，明显更弱）。
+全部 `temp ＋ rename`；落前 `cp -p` 备份到 `~/w152a/backups/`；**前后 sha 双断言**。
 
 ---
 
-## §3 件 B（`TASK-0713`）＋ 件 C（`D-G114`）：同一颗牙
+## §2 件①：`D-G115` 判词补「方向」
 
-### 3.1 件 B：`*/bin/*` **静默出射程**（成对实测）
+### 2.1 机制与修法
+`fisher_2x2` 是**双尾** ⇒ `p ≤ alpha` 只说"两臂速率**有**显著差别"、**不说朝哪边**。
+旧件在 `p ≤ alpha ∧ 旧件也红` 时**无条件**印 `rate-aggravated`（源码里**没有任何方向判定**）。
 
-| 输入 | 修前 | 修后 |
-|---|---|---|
-| **同一颗真陷阱**放 `*/bin/*` | `PASS traps=0`（**静默出射程 ＝ 假绿方向**） | **`FAIL traps=2` 逐条点名** |
-| **同一份样本**挪到 `build/MilBridge/tools/` | `FAIL traps=2` | `FAIL traps=2`（成对对照） |
-| `*/bin/*` 下的**干净**件 | `PASS` | `PASS traps=0`（不许因为"扫了 bin"就多红） |
-
-修法 = **`bin/` 纳入扫描**（真判）＋ 每次跑印射程行：
-
+修后新增：
 ```
-QUOTE_TRAP_SCOPE root=… files=161 sh=76 py=85 included=*.sh,*.py bin=INCLUDED excluded=upstream:1 obj:0 .artifacts:0 __pycache__:0
+REGDEC_DIRECTION=A高于B | B高于A | 无显著差      ← 由 p 与两臂**点估计现算**
+REGDEC_DIRECTION_LEGEND A=new(被试件) B=old(对照件) new_rate=… old_rate=…
+判词按方向选词：上行 ⇒ rate-aggravated（既有口径**逐字保留**）｜下行 ⇒ rate-mitigated ＋「**这不是本波引入**」
+显著 ∧ 两臂点估计相等 ⇒ 方向算不出来 ⇒ NOINFO（**不许印任何方向词**）
 ```
 
-⇒ **"没扫什么"永不许静默**（`upstream/` 刻意保留排除**并点名**）。
-今天实测全树 `*/bin/*` 下的 `*.sh|*.py` = **0 件** ⇒ **读数零位移**（`files=161` 不变）；它治的是**将来**有件落进 `bin/` 时"牙看不见"。
+### 2.2 成对现场（同一命令、只换被测件）
 
-### 3.2 件 C：`D-G114` 帧栈泄漏（**一行无关代码把整份文件的判据降级成诊断**）
+命令 = `--old 24/27 --new 0/40 --same-time --old-sha16 feef049e9d0e313a --new-sha16 4e25e4b27d4d5ae1 --pairs 40 --pair-old-only 24 --old-repro yes --planned-legs 40 --planned-power 0.80`
 
-**机制（定到行）**：`shell-quote-trap-check.sh:325` 的 N 态 `#` 判注释条件把 `{` 放进字符类
-（`p ~ /[;|&(){}<>]/`）⇒ `${#arr[@]}` 的 `#` 因**前一字符是 `{`** 被判成"注释"⇒ `return` 到行末
-⇒ `${`（`:280` 压 `b` 帧）**永远等不到 `}`**（`:301` 只有 `}` 能弹）⇒ **帧顶永久滞留 `b`**
-⇒ 此后该文件**任何**双引号内裸反引号都走 `:291` 的 `emit("DIAG","DQ-BRACE-BACKTICK")` ⇒ **不进 `rc`**。
-
-**现场实物** = `prereg-four-requirements-check.sh:313`（本波正要改的那件）的汇总 `echo` 双引号里写了反引号包着的 `SKIP`：
-```
-prereg-four-requirements-check.sh: 行 313: SKIP: 未找到命令      ← stderr（每趟）
-PREREG4_SUMMARY … （**四态分开计数**： 超出射程 ≠ 通过 ≠ 违规）    ← 那几个字消失
-```
-（与该牙自己记录的第 ③ 条血案同形。）**基线 `traps=0` 是假绿。**
-
-**两极化**（同一颗陷阱、只挪一行无关代码）：
-
-| 输入 | 读数 |
+| | 读数 |
 |---|---|
-| 沙箱件 A：真陷阱，**无** `${#…}` 前置 | `FAIL traps=2` |
-| 沙箱件 B：**同一颗陷阱**，前面只多一行 `if [[ ${#arr[@]} -gt 0 ]]` | 旧件 **`PASS traps=0`**（假绿）｜新件 `FAIL traps=2` |
+| **修前** | `REGDEC_SUBKIND=rate-aggravated`｜`reason=rate-aggravated(fisher_p=3.006e-15≤alpha 且旧件也红 ⇒ …本波把速率**显著加重**…)` ⇒ **印反**（事实 = 旧臂 `24/27 = 88.9%` 红、新臂 `0/40 = 0%` ⇒ **降到 0**） |
+| **修后** | `REGDEC_DIRECTION=B高于A`｜`LEGEND … new_rate=0.0000 old_rate=0.8889`｜`REGDEC_SUBKIND=rate-mitigated`｜`reason=…本波把速率**显著降低**…⚠️**这不是本波引入** —— 本波做的是把它**压下去**` |
 
-**全树量化（用 `$HOME` 补丁副本 `--root $R`，同 161 件口径）**：`traps 0→2`（两条**全指向** `:313` 那处真陷阱）、
-`diag 73→71`、`--selftest` 仍 **30/30** ⇒ **只增红、零假红**（实测，非推测）。
+**上行真例**（`--old 10/40 --new 35/40`）⇒ `REGDEC_DIRECTION=A高于B` ＋ `rate-aggravated` ⇒ **既有口径逐字保留** ✓
 
-**成对归因（同一颗新牙、只换 prereg4 一件）**：
-```
-修前件 ⇒ SHELL_QUOTE_TRAP=FAIL reason=dq-backtick traps=2（:313 col=147/152）
-修后件 ⇒ SHELL_QUOTE_TRAP=PASS reason=ok traps=0
-```
-**终态全树**：`SHELL_QUOTE_TRAP=PASS reason=ok traps=0 files=161 sh=76 py=85 diag=71 allow=0`、`rc=0`。
+### 2.3 自测与台账
+`--selftest` **26/26 → 28/28**（既有例**判据文本一字未改**，只增 `DG115-downward-rate-mitigated`／`DG115-upward-rate-aggravated` 两例）。
+真台账 `--cases` ⇒ `REGRESSION_LEDGER=PASS rows=9 pass=9 fail=0`。
 
-修法 = `:325` 加 `topk() != "b"` 前置（**只修"帧顶错成 `b`"**；"**真的**在 `${ … }` 里"那一档**仍只诊断**、语义未动）
-＋ 把 `:313` 那处**真陷阱**改掉。`--selftest` **30/30 → 35/35**（新增 `S30`–`S34`，**只增不减**）。
-
-### 3.3 射程（受影响件）
-
-全树 **12 件**含 `${#…}`：`verify-all.sh`／`tools/{prereg-four-requirements-check,r-gate-step,arm-log-sha-check,
-baseline-sha-check,build-hygiene-import-check,sync-applocal}.sh`／`wic-shim/check-applocal-sync.sh`／
-`FallbackCriteria/run-df1-criteria.sh`／`RGateClickProbe/run-r-gate-legs.sh`／`run-wpftextdemo.sh`
-⇒ **这 12 件此后若藏真陷阱，旧牙一律看不见**（这就是 `D-G114` 的射程）。
+**⚠️ 与派单措辞的一处分叉（如实记）**：派单写"上行例 `24/27` vs `0/40` 的既有口径**逐字保留**"，但**同一份派单引的 `D-G115` 台账原文**把这个组算作"**判词方向印反**"的现场物 ⇒ 我按**事实方向**落（`B高于A` ⇒ `rate-mitigated`），把"逐字保留"理解为**格式/字段形状**不变（`REGDEC_TABLE`／`REGDEC_FISHER`／`REGDEC_REASON` 的形状与字段一字未动）。
 
 ---
 
-## §4 接线 `verify-all.sh`（33 → 34 步）
+## §3 件②：`D-G116` 跨臂体制同一性（新牙）
 
-**四处声明同趟改，插入一律用位置锚**（解析首个 `^#\s*VERIFYALL-STEPS-DECL:\s*(\d+)\s+gen=(#\d+)`
-＋ **先断言 `DECL 数 == grep -c '^run_step "'`** 再插；**不照抄上一代文本**）：
+### 3.1 ★ 范畴订正（**派单的规格错误，主控已裁定采纳车道方案**）
+`D-G116` 的字段表原写「`BASE`／最大化几何／**`frame` 几何**／`START_MAX`／`m_ok` 逐项相同」。
+**现场 39 腿 / 6 pair 逐腿现算**：
 
-1. `VERIFYALL-STEPS-DECL` 首行 → `34 gen=#60`（**插在最上面**：读者 `decl_line()` 取 `head -1`）
-2. `VERIFYALL-STEP-NAMES` 尾加 `| PREREG-FOUR-REQ`
-3. 头注释逐字 `**\`#60\` 收官起 = 34 步**`（冻结器 `grep -qF` **逐字**找）
-4. 新建 `docs/WAVE60-PREREGISTRATION.md`（标题行含 `#60`）
+| pair | 臂 | 腿 | **输入侧四列** | `AFTER_R2_SETTLED` 的 `fgeom` |
+|---|---|---|---|---|
+| **A1** | NEW,OLD | 24 | **逐项相同 ✓** | NEW `800x600@+0+0` vs OLD `1280x1024@+0+0` **不等** |
+| **POL2** | NEW,OLD | 3 | **逐项相同 ✓** | 同上 **不等** |
+| B1／D1／F1／POL | 单臂 | 3/3/4/2 | 相同 | — |
 
-新步原文：
+- **输入侧：0 个不可比**；**若把 `fgeom` 也算体制：2/2 个多臂 pair 全部不可比（100%）**。
+- `fgeom` 与 `r_ok2` **39/39 同向**（NEW `800x600 ∧ r_ok2=1`；OLD `1280x1024 ∧ r_ok2=0`）⇒ 它是**动作之后**的读数 ＝ **被测结果**。
+  派单引的 `D-G116` 实例 1 里的 `frame=810x634@+0+0` 是**基准时刻的装饰几何**（输入侧），与它**不是同一个量**；现台账**不记录 T0 装饰几何**。
+- ⇒ 把结果算进体制，**这条牙会用「保护可比性」的名义否掉唯一真正可比的那对臂**，并在现树恒 `FAIL`。
+  **口径句**：**"把结果算进体制，等于用『保护可比性』的名义否掉可比性。"**
+
+### 3.2 落地口径
 ```
-echo "[34] 预登记四要件（判据节里四要件在不在；不做回归判定的波按 --gate 标 N/A；只读、零 dotnet、秒级；#60 加）"
-run_step "PREREG-FOUR-REQ" bash build/MilBridge/tools/prereg-four-requirements-check.sh --gate --glob 'docs/WAVE*-PREREGISTRATION.md'
+体制列（判用）= BASE ｜ MAXGEOM ｜ START_MAX ｜ m_ok
+结果侧（只诊断 REGIME_OUTCOME_DIAG=，**不进 rc**）= after_R geom ｜ r_ok ｜ r_ok2 ｜ fgeom ｜ frame ｜ CFG_HIT ｜ GEOWRITE
+PASS/FAIL/NOINFO 三态；判红 = 四件合取 START_MAX=0 ∧ m_ok=1 ∧ r_ok2=0 ∧ APP_ALIVE=yes
+APP_ALIVE（声明式派生）= RESULT 行 ∧ AFTER_R2_SETTLED 行 ∧ DONE 行「三条都在」
 ```
-**检查器**：`VERIFYALL_SELF=PASS names=34 decl=34 gen=#60 dup=0 order=OK prose=OK prereg=PASS`。
+⚠️ **「不进 `rc`」≠「不显示」**：结果侧差异照样逐项上屏（`REGIME_OUTCOME_DIAG`），只是不进 `rc`。
+
+### 3.3 真语料读数
+```
+REGIME_IDENTITY=PASS reason=ok legs=39 pairs=6 multi_arm_pairs=2 incomparable=0 red=19 red_violations=0 unchecked=1
+REGIME_PAIR pair=A1   arms=NEW,OLD legs=24 state=COMPARABLE
+REGIME_PAIR pair=POL2 arms=NEW,OLD legs=3  state=COMPARABLE
+REGIME_PAIR pair=B1/D1/F1/POL … state=SINGLE-ARM（无可比臂 ⇒ 本件对它不判）
+REGIME_OUTCOME_DIAG pair=A1 col=fgeom values=1280x1024@+0+0,800x600@+0+0（结果侧、不得进体制、不进 rc）
+REGIME_NOT_IN_LEDGER frame-at-base reason=probe-no-T0-decoration-geom（已知射程缺口）
+REGIME_UNCHECKED=1 frame-at-base
+```
+`--selftest` **12/12**（S1 同体制 PASS／S2 结果侧差异**只作诊断**／S3–S4 换体制 FAIL＋点名＋标不可比／
+S5–S6 单格判红与死腿 FAIL／S7 缺列 NOINFO／S8 空台账 NOINFO／S9 无多臂 pair NOINFO／S10 单臂不误判／S11–S12 射程缺口可见）。
 
 ---
 
-## §5 整波（`close-wave.sh --skip-verify-all`，槽内）
+## §4 件③：`D-G117` 自报抽取器隐去状态（**两半**）
 
+### 4.1 半①：批次形态判词行**置顶**（`prereg-four-requirements-check.sh`）
+逐件输出**先缓冲**，末尾把批次判词行印在**最前面**（**位置锚**：主循环 ＋ 汇总行两处）：
 ```
-HEAVYSLOT=ACQUIRED waited=0s cmd=bash build/close-wave.sh --skip-verify-all
-HEAVYSLOT=MEMOK avail=4525MB min_avail=1500MB
-[0/6] ✅ 无应用进程、无重发锁   波前输入指纹 = 5390d01e4040b5c33fd3064caac5910821aeb89850e63a92696ec7c78d43b69c
-     计划：native 重建=否｜桥重发=否（现树 fp=d697b1e10ff48881 记录=d697b1e10ff48881）｜verify-all=跳过
-[1/6] integration-wave.sh  rc=0
-[2/6] native shim：源码不比权威件新 ⇒ 跳过重建｜d2b76a0a56a41be1
-[3/6] 桥：源指纹一致 ⇒ 无需重发
-[4/6] ✅ 桥源指纹两侧一致｜✅ 生成物指纹 state=ok（PC/WB/PF）｜⚠️ APPSYNC 非 PASS（继承自上一代）
-     ✅ 应用器审计 miss=0｜✅ 输入稳定性：波前==波后 == 5390d01e…（期间无手写改动）
-[5/6] verify-all：按要求跳过
-HEAVYSLOT=RELEASED rc=0 held=192s
+PREREG4=PASS files=44 pass=1 fail=0 na=5 skip=0 noinfo=0 out_of_scope=38 min_wave=#58（**批次门禁形态的判词**…）
 ```
+**零语义改动**（判定/`rc` 一字未动）。
+⚠️ **写这行时我自己踩了一次 `QUOTE-TRAP`**：`echo` 双引号里写了反引号 ⇒ stderr 打 `na: 未找到命令`、行里丢字 ⇒ 已改（现 `SHELL_QUOTE_TRAP=PASS traps=0`）。**主控在 `#60` 给的两条教训，第 ① 条当场兑现。**
 
-**九位位移 = 实测只有 `pf`**（`70f5fd87457ca0f3` → **`a1fbf721ae964f8e`**，**同尺寸 6,123,520 B** ⇒ 环成员 `D-G92` 机械位移）；
-其余**八位逐位与 `PRE` 相同** ✓ 与预期一致。
-
-### 5.1 `inputs_fp` 两笔 ＋ **机械归因**
-
+### 4.2 半②：抽取器（`verify-all.sh`）——**只治批次形态 = 只治一处症状**
+```diff
+- grep -E '^[A-Z][A-Z0-9_]*=(PASS|FAIL|NOINFO)( |$)' "$log" | head -12 | sed 's/^/      · 自报口径 /'
++ grep -E '^[A-Z][A-Z0-9_]*=(PASS|FAIL|NOINFO|NA|SKIP|REPORT)( |$)|^[A-Z][A-Z0-9_]*_(SUMMARY|COUNTS|SCOPE) ' "$log" | head -16 | sed 's/^/      · 自报口径 /'
 ```
-#59 声明值            e7b94e10171b55e1786a63c30a8da568ba24da62228bfb3903eb4f46e3f9a398
-本波波前/波后（真跑）  5390d01e4040b5c33fd3064caac5910821aeb89850e63a92696ec7c78d43b69c   ← [0/6] 与 [4/6] 逐位相同
-归因反证（只把逐件清单里 quote-trap 那一行换回修前 sha） ⇒ e7b94e10…（**逐位回到 #59 声明值**）
-```
-⇒ **位移 100% 归因于 `build/MilBridge/tools/shell-quote-trap-check.sh` 一件**（覆盖面 157 件里恰好 1 件）。
+- **值词表纳入 `NA|SKIP|REPORT`**（本仓工具今天真会印的状态词）⇒ **下一个新状态**再不会被静默吃掉（加状态＝改这一处，**它有名字了**）。
+- **汇总/计数/射程三类行**（`…_SUMMARY`／`…_COUNTS`／`…_SCOPE `）**另开出口** —— 它们**不是**"行首即 `KEY=VALUE`"形态，旧正则全吃不到。
+- 显示窗 `12 → 16`：**只放宽显示窗、判定语义零改动**（与 `#31` 那次 `8 → 12` 同口径）。
 
-⚠️ **推翻派单的一处预期（如实记）**：派单说"`verify-all.sh` 与 `prereg-four-requirements-check.sh` 也在 `fp_inputs()` 白名单内"
-—— **现场 `grep` 反证：两件都不在**（`verify-all.sh` 的 4 处命中**全在注释里**；`prereg-…` 命中 **0**）。
+### 4.3 成对现场 ＋ 阳性对照
+| 档 | 读数 |
+|---|---|
+| 修复前 | 屏上只有 `自报口径 PREREG4=PASS`；`na=4`／`out_of_scope=38` **只在步日志** |
+| 修复后 | `[34]` 上屏 8 条：批次判词行（带四态计数）＋ `PREREG4=PASS` ＋ **`PREREG4=NA` ×4** |
+| 阳性对照 | 喂「**只有 `NA` 态**」的步 ⇒ `PREREG4=NA` ＋ `PREREG4_SUMMARY …` **都上屏**（否则"看不见"无法区分"没有"与"被吃掉"） |
 
-### 5.2 五臂／重钉
-
-**本波不改 `GEN_KEYS`**（不动 `build/MilBridge/run.sh`／`HbTextLineParity/Program.cs`／`build/shims/PresentationCore.HbTextLine.cs`）
-⇒ **五臂不重取**，现场现算 **5/5 与 `#59` 逐位相同**；**`known-red.json` 本波未改** ⇒ **不需要** `repin-generation.py`。
+### 4.4 自报口径窗核对表（预登记 §5 承诺；**冻前 `verify-all` 现测**）
+逐步骤匹配行数：`[4]=4 [5]=1 [6]=2 [7]=3 [8..13]=1 [14]=7 [15]=2 [16]=1 [17]=5 [26]=1 [27]=2 [28]=5 [29]=1 [30]=2 [31]=2 [32]=2 [33]=1 [34]=8 [35]=2 [36]=2`
+⇒ **最大 8 ＜ 窗 16**，**无步骤触窗**、**总判行全部在窗内**；三类新出口各有实际上屏条数（`PREREG4=` 7、`REGIME_IDENTITY=` 1、`REGIME_RED_COUNTS` 1、`PROCGUARD=` 1 …）。
 
 ---
 
-## §6 门禁 ×2（槽内、严格串行）
+## §5 件④：`known-red.json` 陈旧 `why`
 
-```
-RUN 1  TLINE_GATE=PASS arms=5 red=2 green=3 noinfo_arm=0 registered=4 unlocated=1 drift=0 gone=0 unregistered=0 \
-        caliber=OK generation=#23 tree_gen=same saved_shim=921ba9c65e9fb3be gate=747c078dbf040862 judge=t1b3-tline-gate/7   RC1=0
-RUN 2  （逐字同上）                                                                                                      RC2=0
-```
-**判词行逐字一致** ✓（两趟落在同一秒 ⇒ `outdir=` 也相同；该项**本不参与合格线**，此处恰好相同 ⇒ 点名）。
+现文写「本波（`#59`）只接线、**不改两件牙**……今天**没有机器读它**」——**与现场为假**：
+- `#59` **实测改了牙1**（`geom-revert-beat-check.sh` `9412ec0149111348 → ee43a703736489a3`，见 `#59` 冻结块 §③）；
+- **该牙就是本键的读者** —— 实际读点 = `geom-revert-beat-check.sh` 里读 `known-red.json` 的 `generation.geom_corpus.sha256` 那一句（现场 `grep -n` = **`:283`**；该件本波未改、该句唯一 ⇒ 此号可引；派单引的 `:273` 是它的文档串 `:274` 附近）。
+- 另一件牙 `geom-resend-regression-check.sh` 现场 `grep` = **0 命中**（它不读本键）。
 
----
-
-## §7 `NOINFO` 清单（照录，不许缩小）
-
-1. 件 A **判不了**"四要件**内容为真**"（只判"文档里在不在"）。
-2. 件 A **判不了**"声明是否诚实"（声明"不做判定"却偷偷做了 ⇒ 除非留下判定工件的机读判词行）。
-3. 件 A 的**证据界定是子串匹配**（全文）⇒ 一个波**仅仅在散文里提到**那些名字也会被判成"有证据"
-   ＝ **假红方向**（可见、可改写法），**不是**假绿 —— 本波按"宁可假红"保留。
-   **本波预登记自己就踩过这一格**：初稿 §2.1／§3／§5 逐字复现了那两个串 ⇒ 牙当场把它判成
-   `有证据`（本该 `NA` 却会走 `FAIL`）⇒ 已改写措辞（用「判定工件自己印的机读判词行」指代）
-   ＋ 把这条**登记成射程边界**，而不是悄悄放宽检测。
-4. 件 B／C **只证**"该红处会红"；**不证**本仓今后不会出现别的帧配对形态。
-5. 第 `[34]` 步**只判文档层**：不读产品件、不跑臂、不碰冻结语料。
-6. `--min-wave` 仍是**仅覆盖口**（只许抬高射程起点，禁止用来放低边界换取好过）。
+改法：**旧文逐字留档（加注不覆盖）** ＋ 更正结论「**本键有机器读者；纪律 47 那条缺口在 `#59` 落地时即已闭合**」
+＋ `repin-generation.py --why` 重钉 ⇒ `REPIN_GENERATION=PASS`（`--check` 前后都 PASS），
+且**世代三项／五臂／证据日志／`geom_corpus.sha256` 逐位未变**（只错在散文）。
 
 ---
 
-## §8 我推翻／更正的
+## §6 接线（`verify-all.sh` 35 → 36 步）
 
-1. **派单的 `fp_inputs` 覆盖面预期**（§5.1）：`verify-all.sh` 与 `prereg-four-requirements-check.sh` **都不在白名单内**。
-2. **派单把 `TASK-0713` 的现场描述成 `scan-empty`** —— 实测**不是** `scan-empty`（扫描集非空，17 件），
-   而是**静默出射程**：真陷阱放 `bin/` ⇒ `PASS traps=0`。**比派单描述的更隐蔽**。
-3. **我自己引入的 `[17] PIPEFAIL-SIGPIPE` 红**（`undeclared_hit=1`）：我按 `HANDOFF-NEXT.md` 第 21 条
-   把 `printf … | grep -q` 改成 `[[ =~ ]]`／`==` 子串（并实测 `=~` 的 `.` **跨行匹配**，语义与原来一致）。
-   ⇒ 该族**第 4 次咬人**。
-4. **`w152a` 预登记初稿触发自己的证据检测**（§7 第 3 条）。
+第 `[36]` 步 `REGIME-IDENTITY`。**四处声明同趟、插入全用位置锚**（解析首个 `^#\s*VERIFYALL-STEPS-DECL:\s*(\d+)\s+gen=(#\d+)`
+＋ **先断言 `DECL 数 == grep -c '^run_step "'`** 再插）：
+`DECL` 首行 `36 gen=#63`／`STEP-NAMES` 尾加／口径句逐字 ``**`#63` 收官起 = 36 步**``／新建 `docs/WAVE63-PREREGISTRATION.md`（H1 含字面 `#63`）。
+⇒ `VERIFYALL_SELF=PASS names=36 decl=36 gen=#63 dup=0 order=OK prose=OK prereg=PASS`。
 
 ---
 
----
+## §7 成对记账（承重）：`inputs_fp` 覆盖面 158 → 159
 
-## §9 冻前 → 冻结 → 冻后（实测，逐条）
+**改 4 件／新增 1 件**：`regression-decision.py`｜`regression-decision-cases.tsv`｜`known-red.json`｜
+`close-wave.sh`（**名单变更的载体 ⇒ 自含**）＋ **新牙** `regime-identity-check.sh`（入名单，与 `#62` 加 `proc-pattern-guard.sh` 同形存量惯例）。
 
-### 9.1 冻前 `verify-all`（槽内）
+**交叉表（16 行，全部互不相同；每行 `hits` = 实际被替换/删除的行数）** —— 摘要：
 
-```
-[0] ✅ X-REUSE=reused display=:99 ｜ X_STATE=available
-步骤通过 34  ❌ 失败 0 ｜ 用例通过 875  跳过 2 ｜ 结论：✅ 全部通过 ｜ rc=0
-```
-**声明类红项 = `[]`（全绿）** —— 本波不动臂、不改 `GEN_KEYS`、不改 `known-red.json` ⇒ 与主控的**条件式预期**一致。
-**新增第 `[34]` 步 `PREREG-FOUR-REQ` 首跑即 ✅**；`QUOTE-TRAP`／`PIPEFAIL-SIGPIPE`／`VERIFYALL-SELF`／
-`BASELINE-SHA`／`ARM-LOG-SHA`／`COLUMN-FLOOR`／`DEFECT-REGISTRY` **全部 ✅**。
+| 组合 | hits | 指纹（前 32） |
+|---|---|---|
+| `py=NEW tsv=NEW krj=NEW cw=NEW`（**现盘**） | 0 | `7836c5fa17cd454893f9a4101fe22101…` |
+| `py=OLD tsv=OLD krj=OLD cw=OLD`（**全退**，含删新牙行） | **5** | `1ffd13f7c927dea71fd5dca866f7c6f8…` |
 
-### 9.2 应用级门禁 ×2（6 行矩阵，喂冻结器）
-
-```
-PASS 1  rc=0  rows=6  WPTD_SUMMARY=PASS tiers_passed=2/2  WPTD_GATE=PASS acceptance=2/2 line_advance=PASS
-PASS 2  rc=0  rows=6  WPTD_SUMMARY=PASS tiers_passed=2/2  WPTD_GATE=PASS acceptance=2/2 line_advance=PASS
-```
-- 矩阵 = `tier=default rep=1..3` ＋ `tier=env rep=1..3`（**6/6 行 `result=PASS`**）
-- **两趟判词行逐字一致**（剥 `rundir=` 后 `diff` = 0）
-- 配置 = `pc:722e0ab8205b7c3f,pf:a1fbf721ae964f8e`（= 波后现场九位）
-
-### 9.3 冻结 `#60`
-
-```
-FREEZE_RC=0
-BASELINE-FROZEN gen=#60 sha16=da24cb43d2123612 file=samples/WpfTextDemo/ACCEPTANCE-BASELINE.md
-BASELINE_BYTES=864300        （上代 #59 = 02f80e388d308c4d／846,233 B）
-四牙：BASELINESHA=PASS live=da24cb43d2123612 decl=da24cb43d2123612
-      BASELINEGEN=PASS decl_gen=#60 ｜ BASELINEDUP=PASS n=0
-      ARMLOG_SHA=PASS required=5 declared=5 pass=5 fail=0
-      COLUMN_FLOOR=PASS pass=3 fail=0 selfreport=PASS reg=b3f264bbf43dbd61 base=da24cb43d2123612
-世代交叉断言：树上 #59 == GENS[#60][prev]
-牙齿②：^run_step " = 34 == 步数 34，且头注释逐字声明了同一数字
-```
-九位终态：位移**只有** `pf`（`70f5fd87457ca0f3 → a1fbf721ae964f8e`，同尺寸 6,123,520 B）。
-
-### 9.4 冻后 ×2（槽内、严格串行、空盘预检）
-
-```
-空盘预检  df: /dev/sda2 187G 用 132G 可用 47G (74%)
-post1  10:11:50→10:27:02  slot_rc=0  步骤通过 34 ❌ 失败 0 ｜ 用例通过 875 跳过 2 ｜ 结论：✅ 全部通过 ｜ VERIFYALL_RC=0 ｜「设备上没有空间」命中=0
-post2  10:27:02→10:42:03  slot_rc=0  步骤通过 34 ❌ 失败 0 ｜ 用例通过 875 跳过 2 ｜ 结论：✅ 全部通过 ｜ VERIFYALL_RC=0 ｜「设备上没有空间」命中=0
-```
-- **两趟步判词行（34 行 ＋ 结论行）逐字一致**；**冻前 vs 冻后也逐字一致**
-  （⚠️ 我第一版抽取脚本用了非法字符类 ⇒ 两个文件都**空** ⇒ `diff` **假报 IDENTICAL**；已改用
-  `awk '/^  [^ ]/ && (/✅/ || /❌/)'` 重取，**35 行**才是真读数。**"空集恒相等"是判据陷阱**，留档。）
-- **不参与合格线、但必须点名的仪器漂移**（两趟各不相同，逐项点名）：
-  `FRAMEPRESENCE frames=80/79` ＋ `dir=…-102324/-103838`｜`THIRDPARTY frames=41/42` ＋ `dir=…-102540/-104050`｜
-  `R_GATE mem_mb=4009/4298`。（`px_open/px_closed/win/win32shim/pc` 两趟**相同**。）
-- **`NOFILE_SWAP` 证据**：两趟 `saved_shim=921ba9c65e9fb3be` 相同、`BASELINESHA=PASS live=da24cb43d2123612` 相同。
-
-### 9.5 放行标记
-
-`touch ~/w21-verify/w60-POST.done` ⇒ mtime **`2026-09-24 10:43:04`**、0 B（**唯一**放行信号，`#61` 的入口）。
-
-### 9.6 ⚠️ 一处**主控需知**的表面缺口（我**没有**擅自改，因为改了要重跑冻后 ×2）
-
-`verify-all.sh:355` 的「自报口径」抽取器 = `grep -E '^[A-Z][A-Z0-9_]*=(PASS|FAIL|NOINFO)( |$)' | head -12`：
-
-- 我这条步的**逐件判词行**里，只有 `PREREG4=PASS`（`WAVE58`）匹配该正则；
-  `PREREG4=NA` **不匹配**（`NA` 不在那个择一表里）、`PREREG4_OUT-OF-SCOPE …`／`PREREG4_SUMMARY …` **也不匹配**
-  （它们不是 `行首即 KEY=VALUE` 形态）。
-- ⇒ 屏上只见 `自报口径 PREREG4=PASS`，而**四态计数（`pass=1 fail=0 na=2 out_of_scope=38`）没有上屏**
-  （它们**在步日志里**，`head -12` 只是没抽到）。
-- **建议（留给主控裁定）**：批次形态下**在最前面**多印一行
-  `PREREG4=<批次判词> files=… pass=… fail=… na=… noinfo=… out_of_scope=…` —— 它**逐字匹配**上面那个正则
-  ⇒ 屏上立刻带上四态计数，**不需要**动 `verify-all.sh` 的抽取器、也**不改**任何判定语义。
-  **本波不擅自改**：改它就得重跑冻后 ×2 才配得上"冻后读数"这句话。
+- **全退 ⇒ `1ffd13f7c927dea71fd5dca866f7c6f81e8efce9939c22c85d55c0a35fb20f96` ＝ `#62` 声明值（派单给的 `prev_infp`）逐位相同** ✓
+  ⇒ 位移 **100% 归因**于上面这 4 改 1 增。
+- **现盘 ⇒ `7836c5fa17cd454893f9a4101fe2210181217f035c306122cbbed259293a772f` ＝ `infp.sh fp` 真函数实测** ✓
+- ⚠️ **本波现场栽过一次"静默 no-op"**：交叉表第一版把**绝对路径**与清单里的**相对路径**比 ⇒ **一行都没匹配上** ⇒ **8 档全部同值** ＝ 假"无位移"。**改法 = 逐档断言 `hits`**（现 0/1/2/3/4 逐档正确）后才成立。
+  ⇒ 与我在 `#60` 落册的"**对拍/解析在任一侧为空时必须响亮失败**"**同族**，本波升格为：**"替换/撤销类脚本必须断言命中行数"**。
+- `regime-identity-check.sh` **不在** `fp_inputs()` 原名单 → 本波**同趟纳入**（新牙在 `verify-all` 里判 ⇒ 它的字节必须被指纹看得见）。
+- ⚠️ **本波的一处自伤（如实）**：我第一次取「改前快照」时，`cp -p ... known-red.json.before63` 是在**改 `why` 那一句之后**执行的
+  ⇒ 该快照 = `cc0dd903972d7f73`，是个**中间态／混合态**（现场复核：它**含新文**『本键有机器读者』、**不含旧文**『本键是「声明锚」』），
+  **不是** `#62` 冻后态 ⇒ **真回滚会回到混合态**。
+  ⇒ 交叉表**没有**踩这个坑：它用的是 `git cat-file blob HEAD:<path>`（`HEAD` = `#62` 冻后态 = `b3f264bbf43dbd61`），**不是**我的备份件。
+  **订正后的口径**：凡「改前值」一律取 **`HEAD:` 的 blob**（或冻结块原文），并在同一行**注明取数来源**；
+  备份件只用于「回滚现场文件」，**不许**当「改前真值」的声明源。
 
 ---
 
+## §8 整波／门禁／冻前／冻结
+
+| 环节 | 读数 |
+|---|---|
+| 整波 | `HEAVYSLOT=RELEASED rc=0 held=255s`；`[1/6] rc=0`；`[2/6]`/`[3/6]` 跳过重建；`[4/6]` 桥源两侧一致 `d697b1e10ff48881`、应用器审计 `miss=0`、**输入稳定性 波前==波后 == `7836c5fa…`**；`APPSYNC 非 PASS`（继承 `#59`–`#62`） |
+| 九位 | **只有 `pf` 动**：`3c808e94034c4514` → **`9bf76afe89944ccc`**（**同尺寸 6,123,520 B** ⇒ 环成员 `D-G92`）；其余八位逐位与 `PRE` 相同 |
+| 门禁 ×2 | 两趟 `TLINE_GATE=PASS … saved_shim=921ba9c65e9fb3be gate=747c078dbf040862 judge=t1b3-tline-gate/7`，`RC1=RC2=0`，**判词行逐字一致** |
+| 应用级门禁 ×2 | 两趟 `rc=0`、`rows=6/6`、`WPTD_GATE=PASS acceptance=2/2`、`WPTD_SUMMARY=PASS tiers_passed=2/2`；**逐字一致**（先断言两侧非空） |
+| 冻前 `verify-all` | **`36 ✅ / 0 ❌`**、`rc=0`、`结论：✅ 全部通过`、`用例通过 875 跳过 2`；**声明类红项 = `[]`（全绿）** |
+| 冻结 | `FREEZE_RC=0`｜`gen=#63 sha16=4ee96c043b472c11`｜**`BASELINE_BYTES=919687`**（上代 `#62` = `845219762aa61fb8`／903,901 B） |
+| 四牙 | `BASELINESHA=PASS live=4ee96c043b472c11 decl=4ee96c043b472c11`｜`BASELINEGEN=PASS decl_gen=#63`｜`BASELINEDUP=PASS n=0`｜`ARMLOG_SHA=PASS required=5 declared=5 pass=5 fail=0`｜`COLUMN_FLOOR=PASS pass=3 fail=0 selfreport=PASS reg=2209966ee1d2c5cc base=4ee96c043b472c11 corpus=0cebc0afd5142fbf` |
+
+⚠️ **一处行号更正（结论对、但「引行号」这件事本身错了 —— 主控裁定为纪律 31）**：`w63-pre.sha` 要对齐的九位声明行，
+派单写 `:13`、`#61` 那代 W153A 写 `:13`、我现场读到 `:15` —— **三个数都对不上不是谁错了**：该句在基线里**随世代重写**、
+且**同句多处出现**（现盘 `grep -n '九位（Release 权威件）'` ⇒ **`:14` 与 `:77` 两处，加上各历史块共 7 处**）
+⇒ **行号天生不稳、也不唯一**。**订正口径 = 内容锚**；我对 `PRE` 的抽取**本来就是按内容**
+（`九位（Release 权威件）` 那一行的**第一个**匹配 ＋ 逐键正则取 16 位）⇒ **`PRE` 与 `#62` 冻结块 9/9 相同不受影响** ✓。
+**落册**：凡「随世代重写或同句多处出现」的件，**禁止引用绝对行号**；一律引内容锚，或现场 `grep -n` 取数并**同时声明取数时刻**。
 
 ---
 
----
+## §9 我推翻／更正的
 
-## §10 ⑧ 推送／app-local／哨兵（实测）
-
-### 10.1 推送（逐径 `git add`，**绝不** `git add -A`）
-
-```
-远端实况（ls-remote；⚠️ **不用**陈旧跟踪引用 origin/feat-Linux —— 它停在 636a3e7）：
-  推送前 remote = 32eaaf06f53c6215ef0bc92c24cb643afaad1667 == local ⇒ ✅ 快进（**无 --force**）
-  推送     32eaaf0..332d503  feat-Linux -> feat-Linux
-  推送后 remote head = 332d5032472c899d2e846cad1e53e172e604bdf3（== local HEAD）
-  远端默认分支：ref: refs/heads/feat-Linux	HEAD  ⇒ **仍是 feat-Linux**（只读它，未改设置）
-commit 变更件数 = 8（porcelain 计数 = 8，全部显式列入白名单）
-```
-
-白名单 8 件：`verify-all.sh`／`build/MilBridge/tools/shell-quote-trap-check.sh`／
-`build/MilBridge/tools/prereg-four-requirements-check.sh`／`docs/WAVE60-PREREGISTRATION.md`（新）／
-`samples/WpfTextDemo/ACCEPTANCE-BASELINE.md`／`docs/CURRENT-STATE.md`／`build/wave-audit.log`／
-`build/MilBridge/W152A-report.md`（新）。
-
-**主控四件**（`docs/ROUTES.md`／`samples/WpfFeatureProbe/KNOWN-DEFECTS.md`／
-`build/MilBridge/tools/defect-registry-declared.tsv`／`build/MilBridge/HANDOFF-NEXT.md`）
-**逐字不在变更集里**（现场 `git show --stat` 核过）。
-
-### 10.2 字节核对（口径：`$R` 磁盘 vs **`HEAD:`** 的 blob）
-
-```
-BYTECHECK ok=8 mismatch=0
-970bb48ba8ebd384  verify-all.sh                         2b9eb8c1426735c2  docs/WAVE60-PREREGISTRATION.md
-d4317aa7605a31e1  …/shell-quote-trap-check.sh           da24cb43d2123612  samples/WpfTextDemo/ACCEPTANCE-BASELINE.md
-235d76b61cdc46a4  …/prereg-four-requirements-check.sh   1ef2cb91160b5d4d  docs/CURRENT-STATE.md
-9fdac186592676bc  build/wave-audit.log                   1dff6ed003d50a4d  build/MilBridge/W152A-report.md
-```
-
-CRLF 口径（`FORK-AND-PUSH.md` §7 教训）：`git check-attr text eol` 全 `text: unset`（本仓刻意 `* -text`）、
-`core.autocrlf=false`、`git add` **零 CRLF 告警**。
-
-### 10.3 app-local
-
-```
-APPSYNC=MISMATCH（MISMATCH=0[STALE=0 NEWER-DIFF=0] MISSING=0 UNEXPECTED=6[DECL-GAP-EQ=6 DECL-GAP-DIFF=0]
-                 DIVERGENT=0 RETIRED=0 AUTH-MISSING=0 BRIDGE-ANCHOR=0 BRIDGE-NOINFO=0）
-```
-
-⇒ **`STALE=0`／`DIVERGENT=0`**；`UNEXPECTED=6[DECL-GAP-EQ=6]` 与 `#59` 的读数**形态逐字相同**
-⇒ **继承自上一代、非本波引入**（`close-wave.sh` `[4/6]` 那句 `APPSYNC 非 PASS` 由此解释）。
-
-### 10.4 两处哨兵（`/tmp/bridge-frozen.flag` ＋ `~/wfp-runs/bridge-frozen.flag`）
-
-- 逐位复核 close-wave 写下的**九位**：**9/9 相符**（`SHA`/`PC`/`PF`/`WB`/`WIN32SHIM`/`HBTL`/`WIC`/`PROVIDER`/`DWF`）。
-- 按 `NOTE=` 的指示**手工补** `BASELINE=#60 sha16=da24cb43d2123612 bytes=864300`（两处，`temp ＋ rename`）。
-- 两处 `cmp` = **IDENTICAL** ✓。
+1. **`D-G116` 的字段表（派单规格错误）**：把 `AFTER_R2_SETTLED` 的 `fgeom`（**结果侧**）列进体制 ⇒ 会让 **A1／POL2 全对不可比**、新步恒红。**主控已裁定采纳车道方案**并改册。
+2. **`D-G115` 的"上行例"措辞**：`24/27 vs 0/40` 是**下行**现场物 ⇒ 按事实方向落（见 §2.3）。
+3. **`known-red.json` 读者行号**：派单写 `:273`，现场实际读点 **`:283`**（`:274` 是文档串）。
+4. **`w63-pre.sha` 对齐行**：派单写 `:13`，实际 **`:15`**。
+5. **闸③ 自我排除漏排 `$$`**（§0.1）—— `TASK-0714` 纪律的第 2 个活样本。
+6. **`PIPEFAIL-SIGPIPE` 第 5 次咬人**：我新牙里 `printf … | grep -qE` 两处 ⇒ `undeclared_hit=2`。
+   修法有坑：**`[[ "$out" =~ $pat ]]` 是整串匹配**（`^`/`$` 只在整串首尾生效）⇒ 多行里 `^REGIME_IDENTITY=PASS` 永远匹配不到（**自测当场抓到 2 例**）⇒ 必须**逐行** ＋ here-string（零管道）。
+7. **`QUOTE-TRAP` 咬了我一次**（§4.1）。
+8. **交叉表第一版静默匹配 0 行**（§7）。
+9. **「改前快照」取在第一次写之后**（§7 自伤）⇒ 备份件是**混合态**、不是 `#62` 真值。
+10. **引绝对行号本身**（`:13`/`:15`）在随世代重写、同句多处出现的件上**不成立** ⇒ 改内容锚（§8）。
 
 ---
 
-## §11 机读摘要（末行）
+## §10 `NOINFO` 清单（照录，不许缩小）
 
+1. 新牙**只判可比性**：不重判 `GEOM-BEAT`/`GEOM-RESEND` 的结论、不测当前桥件、**不**主张"体制同一 ⇒ 结论正确"。
+2. **`frame-at-base`（T0 装饰几何）未查**：现台账不记录 ⇒ `REGIME_NOT_IN_LEDGER` ＋ `REGIME_UNCHECKED=1`（**不冒充"装饰也查过了"**）。
+3. **单臂 pair 不判**（`B1`/`D1`/`F1`/`POL`）⇒ 逐条 `SINGLE-ARM`。
+4. `APP_ALIVE` 是**声明式派生**（三行都在），**不是**对进程的直接观测。
+5. `D-G117` 的**显示窗仍有限**（16 行）⇒ 单步骤匹配行数若超窗仍可能截「总判」（本波实测最大 8 ⇒ 未触窗，但**边界是真的**）。
+6. `D-G115` 只改**判词**：`state`/`rc`/FISHER 表语义未动；**不判**"这个差是不是本波引入的"（那要机制）。
+7. 不给探针加 T0 装饰几何记录（建议后续波）。
+8. 不动 `docs/ROUTES.md`／`KNOWN-DEFECTS.md`／`defect-registry-declared.tsv`／`HANDOFF-NEXT.md`（主控写域）；不动臂、不动冻结语料。
 
-`W152A=DONE wave=#60 baseline=da24cb43d2123612/864300 steps=33→34 tooth=235d76b61cdc46a4,d4317aa7605a31e1 verify_all=970bb48ba8ebd384 gate_x2=PASS pre=34✅/0❌ post_x2=34✅/0❌ marker=2026-09-24T10:43:04 push=32eaaf0..332d503(remote head 332d5032472c899d2e846cad1e53e172e604bdf3,分支 feat-Linux) R_touched=verify-all.sh,build/MilBridge/tools/shell-quote-trap-check.sh,build/MilBridge/tools/prereg-four-requirements-check.sh,docs/WAVE60-PREREGISTRATION.md,samples/WpfTextDemo/ACCEPTANCE-BASELINE.md,docs/CURRENT-STATE.md,build/wave-audit.log,build/MilBridge/W152A-report.md heavy=YES(slot)
+---
+
+## §11 冻后 ×2 ＋ 放行标记
+
+```
+空盘预检  df: /dev/sda2 187G 用 147G 可用 31G (83%)
+post1  13:50:36→14:05:06  slot_rc=0  步骤通过 36 ❌ 失败 0 ｜ 用例通过 875 跳过 2 ｜ 结论：✅ 全部通过 ｜「设备上没有空间」命中=0
+post2  14:05:06→14:19:23  slot_rc=0  步骤通过 36 ❌ 失败 0 ｜ 用例通过 875 跳过 2 ｜ 结论：✅ 全部通过 ｜「设备上没有空间」命中=0
+```
+- **步判词行（37 行 = 36 步 ＋ 结论行）三趟（冻前/post1/post2）逐字一致**；
+  ⚠️ 抽取**先断言行数 == 37**（我在 `#60` 栽过"空集恒相等 ⇒ `diff` 假报 IDENTICAL"，本波把该断言写进流程）。
+- **不参与合格线、但必须点名的仪器漂移**（两趟互不相同）：`FRAMEPRESENCE magenta_frames 38/40`｜
+  `THIRDPARTY frames 43/…`｜`R_GATE mem_mb`（两趟不同值）。
+- **`NOFILE_SWAP` 证据**：两趟 `saved_shim=921ba9c65e9fb3be` 相同、`BASELINESHA=PASS live=4ee96c043b472c11` 相同。
+- **放行标记**：`touch ~/w21-verify/w63-POST.done` ⇒ **真 `stat` mtime = `2026-09-24 14:19:54.616048853 +0800`**、0 B（`#64` 的入口信号）。
+
+## §12 交付：推送／app-local／哨兵（**待追加**）
