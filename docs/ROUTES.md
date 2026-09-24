@@ -257,6 +257,13 @@ wpf-linux 路线图
 │   └─ TASK-0702 [Next] ✅ `R-GATE`：把"连续点击"判据收编进仓并接进 `verify-all`
 │       └─ ⚠️ 要改 `verify-all.sh` ⇒ **必须等冻结之后**
 │
+│   ├─ TASK-0709 [Next] 🔴 **回归判定牙须识别「本波不做回归判定」并把该要求标 `N/A`（可见）** —— 今天它逼每份预登记抄一节四要件；更正确形态 = 认显式声明、标 `N/A`、**与 `PASS` 分开计数**（来源：`#59` 收口时的判据欠账；入口 = `build/MilBridge/tools/prereg-four-requirements-check.sh`，`b436ae561ae1f396`）
+│   ├─ TASK-0710 [Next] 🔴 **关掉 `geom_corpus` 的 `--leg` 旁路** —— 语料锚格只在 `--corpus=` 成立，`--leg=` 打 `NOT_APPLICABLE` 且不传染顶层（旁路可见但未封）；入口 = `build/MilBridge/tools/geom-revert-beat-check.sh`（`ee43a703736489a3`），第 `[32]` 步只许走 `--corpus=`
+│   ├─ TASK-0711 [Next] 🔴 **`run-gate.sh` 的 rows 是追加日志** —— 跑第二次起 `len(rows)>6`，冻结器断言 `==6` 会拦下（`#57` 现场靠人工过滤绕过）；修法 = 每趟换新文件或先截断；入口 = `~/w142a/bin/run-gate.sh`（`run-gate` 属仓外装置，修完须落仓）
+│   ├─ TASK-0712 [Next] 🔴 **`D-G113`「假旋钮」的修法** —— `geom-resend-regression-check.sh` 的 `--fix=`/`--pre=` 被解析却不进 `judge(rows)` ⇒ `rc` 不变、反极性实验得**假「没变化」**；二选一：① 接进判据 ② **删掉两个开关**；入口 = `build/MilBridge/tools/geom-resend-regression-check.sh`（`cd375326b62f7982`）
+│   ├─ TASK-0713 [Next] 🔴 **`shell-quote-trap-check.sh` 不扫 `*/bin/*`** —— 该牙的**声明覆盖面比看起来窄**（样本放 `bin/` 下 ⇒ `scan-empty` 假绿方向）；入口 = `build/MilBridge/tools/shell-quote-trap-check.sh`（在 `fp_inputs` 白名单内 ⇒ 改它要成对记 `inputs_fp`）
+│   └─ TASK-0714 [Next] 🔴 **把「按模式收进程」做成牙** —— `D-G103` 族本会话咬 5 次（`pkill -f` 本体／`pgrep -P $$ -f`／看门狗自伤／数进程自匹配／cmdline 子串自匹配）；判据 = 凡按模式匹配命令行收/数进程，**必须先排除 `$$`/`$PPID`**，能按 PID 就绝不按模式
+│   ├─ TASK-0715 [Next] 🔴 **入口文档刷新（README／README-Window／FORK-AND-PUSH 对齐現读世代）** —— 现状：`README.md`（09-21）／`README-Window.md`（09-20）／`docs/FORK-AND-PUSH.md`（09-20）**停在 `#52` 前后**；`handoff.md`（09-20，`#46`–`#48` 时代）**是 `DEFREG` 的 `HO` 路由键、不许删行** ⇒ 已加**现读指针 banner**（指 `CURRENT-STATE.md:9`／`HANDOFF-NEXT.md`／`ROUTES.md §13`）。落法：**入口件重写**（它们是导航、不是证据）＋ 新建 `docs/README-INDEX.md` 做**「现读 vs 历史」二分**；**历史件（`§15x+`、缺陷册、旧交接正文）一律不动、只加 dated 注**
 ├─ 08xx R8 上游化与发布
 │   ├─ TASK-0801 [MVP] ✅ fork ＋ `feat-Linux` 默认分支 ＋ README/README-Window/PORT-SPEC/ROUTES/FORK-AND-PUSH
 │   └─ TASK-0802 [Next] ✅ 11 件文档已推远端（远端 `a0e783d…` 已核；默认分支仍 `feat-Linux`）
