@@ -39,3 +39,19 @@ f-counterexample-12-of-12	24/27@2026-09-23T17:25:50+08:00	12/12	0.70	0.30	PASS	0
 #    （**禁止**用"对我方有利的那一界"下 `PASS`/`FAIL`）。registered==observed ⇒ 无漂移；effect=0.10 ⇒ ②不成立
 #      ⇒ 本行的**唯一**触发源就是口径之争。
 g-caliber-disagreement	7/28@2026-09-24T09:47:39+08:00+display=:215	7/28	0.42	0.10	NOINFO	3	caliber-disagreement
+# ── 🆕 `TASK-0719` / `D-G121`：新判据 ③「申报上界的自洽性」（本块由波 `#65` 追加）────────────
+#   新增两列（追加在既有 8 列之后）：decl_upper（`%.4f` 文本 或 `-`）、decl_formula（rule-of-three-0hit | cp-1s | -）
+#   ⚠️ 表头声明本两列 ⇒ 必须给 legacy_rows=<N>（冻结旧行行数，现 = 11）：前 N 行 = 旧形态（8 列，**不判**，印 decl_upper_checked=na）；
+#      其后每行 = 新形态（10 列，必须填 decl_upper；留 `-` ⇒ 响亮 NOINFO-DECL-UPPER-MISSING；
+#      退回 8 列 ⇒ **FAIL** ＋ 点名 `decl-column-required-on-new-row`（主控裁定：由 NOINFO 改判 FAIL））。
+#   legacy_rows=11
+d121-zero-k60-pass	0/60@2026-09-24T09:47:39+08:00+display=:215	0/60	0.04	0.0	PASS	0	PASS	0.0487	rule-of-three-0hit
+d121-nonzero-k126-zerohit-formula	1/126@2026-09-22T20:15:00+08:00	1/126	0.03	0.0	FAIL	1	zero-hit-formula-on-nonzero-sample	0.0235	rule-of-three-0hit
+d121-nonzero-k126-correct-pass	1/126@2026-09-22T20:15:00+08:00	1/126	0.03	0.0	PASS	0	PASS	0.0371	cp-1s
+d121-w98a-formula-value-mismatch	0/60@2026-09-24T09:47:39+08:00+display=:215	0/60	0.04	0.0	FAIL	1	decl-formula-value-mismatch	0.0494	rule-of-three-0hit
+d121-declared-cp-but-zerohit-value	1/126@2026-09-22T20:15:00+08:00	1/126	0.03	0.0	FAIL	1	decl-formula-value-mismatch	0.0235	cp-1s
+d121-optimistic-unmatched	1/126@2026-09-22T20:15:00+08:00	1/126	0.03	0.0	FAIL	1	decl-upper-optimistic	0.0300	-
+d121-conservative-unmatched	1/126@2026-09-22T20:15:00+08:00	1/126	0.03	0.0	NOINFO	3	NOINFO-DECL-UPPER-UNMATCHED	0.0500	-
+d121-decl-missing-new-header	24/27@2026-09-23T17:25:50+08:00	23/27	0.70	0.30	NOINFO	3	NOINFO-DECL-UPPER-MISSING	-	-
+d121-nonzero-k120-zerohit-formula	1/120@2026-09-22T20:15:00+08:00	1/120	0.03	0.0	FAIL	1	zero-hit-formula-on-nonzero-sample	0.0247	rule-of-three-0hit
+d121-newrow-regressed-to-oldform	24/27@2026-09-23T17:25:50+08:00	23/27	0.70	0.30	FAIL	1	decl-column-required-on-new-row

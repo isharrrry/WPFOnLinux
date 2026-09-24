@@ -1,11 +1,61 @@
-# BASELINE-HEADER date=2026-09-24T15:xx+08:00 display=:99（verify-all 头标目标显示号；本趟现场判 `X-REUSE=reused`、`X_STATE=available`、`SKIP_GUARD=PASS`）
-#   cpu=4核  run_dir=/home/links-dev/w157a（本波：落地 ①–④ ＋ 收尾链 ⑤–⑫）｜车道 = **W157A**（`#64`：`TASK-0717`「基线率闸」做成仓内牙的唯一执行者）
-#   git_head=(no git —— `$R` 不是 git 仓；推送面 = ~/netTest/GitProj/WPFOnLinux 的 `feat-Linux`）  samples_src=samples/WpfTextDemo  runner=run-wpftextdemo.sh
+# BASELINE-HEADER date=2026-09-24T16:xx+08:00 display=:99（`verify-all` 头标目标显示号）｜车道 = **W153A-RATES2**（`#65`：`D-G125` 静默丢行修法 ＋ `DECL_UPPER` 承重 token ＋ `AMENDMENT-2/3` ＋ `TASK-0718` 两件牙的交接入仓；**唯一 owner**）
+#   cpu=4核  run_dir=/home/links-dev/w153a ｜车道工作目录 `~/w153a/w65rate2/`（仓外预备）｜`$R` 不是 git 仓（推送面 = `~/netTest/GitProj/WPFOnLinux` 的 `feat-Linux`）
 #   ⚠️ 权威件构建配置 = Release（唯一声明 = build/SelfBuiltConfig.props）
-#   判据先行：`~/w157a/criteria.md`（`89ac288b87f13384`，391 行；§1–§12 写定于取任何"修后"读数之前，§13/§14 裁定落地，§15 具名陷阱＋三钟，§16 世界漂移）｜
-#   方法页 `~/w157a/baseline-rate-gate.md`（`c4839dc9e8876bcf`／口径 `57915081ffdbacf8`）｜链报告 `build/MilBridge/W64-report.md`（逐段追加）
+#   判据先行：`~/w153a/w65rates/criteria.md`（`3a1ccf6e40888114`，**链的起点**，14:58）｜`~/w153a/w65rate2/criteria.md`（`a08293721b805036`，§3 ③ 判定表／§11 `AMENDMENT-2/3`／白名单／四不变量）｜`~/w153a/w65rate2/CONSTRUCTION-ORDER.md`（`0fbba59efae0c578`，施工单 ＋ 施工必记）｜`~/w153a/w65rate2/cases.tsv`（`c36a1a5d2d906f22`）｜`~/w153a/w65rate2/cases-grammar.tsv`（`fcde8e09b014175a`）｜`~/w153a/w65rate2/template-amendment.md`（`3dd6db267aebf055`）
+#   ⚠️ `docs/WAVE65-PREREGISTRATION.md` 是**落地读数之后补建**的（如实声明，见该件开头）：它的存在是 `verify-all-step-check.sh` 的要求 ⇒ 判据链以 mtime 为准（见该件 §1）。
 
-# RE-FROZEN #64 —— ✅ **当前冻结基线** —— 内容 = **判据装置批**（**零产品改动**）：把 `D-G118`「基线率闸」做成仓内**牙 ＋ 确定性台账**，并把第 `[37]` 步接进 `verify-all`（**36 → 37 步**）；覆盖面 `159 → 161`。
+# RE-FROZEN #65 —— ✅ **当前冻结基线** —— 内容 = **判据装置批 E**（**零产品改动**）：`D-G125`（静默丢行 ⇒ 假绿）的修法 ＋ `DECL_UPPER` 承重 token ＋ 四条册级不变量 ＋ 3‑9 改判，另交接入仓两件牙（`TASK-0718`）。
+#   ① **`TASK-0719`（`D-G125`／`D-G121` 的承载件）**：`build/MilBridge/tools/baseline-rate-gate.sh` **`31cf77abc6a882e3` → `1bad58c07a8264e6`**（580 行）。
+#      · **`D-G125` 修法**：删掉 `run_cases()` 里 `if len(parts) != len(COLS): continue` 的**静默跳过** ⇒ 改**按行宽分派**（8 列旧形态／10 列新形态）＋ **册级自洽**（行宽既非 8 也非 10 ⇒ **响亮 `NOINFO-DECL-COLUMN-WIDTH`**；前缀/新行一致性 ⇒ `decl-upper-legacy-judged`／`decl-upper-newrow-unjudged`）。
+#      · **`DECL_UPPER=EVALUATED|NOT-EVALUATED`**（**单一承重 token，可 grep**）：在 `F = {}` 下一行初始化 ⇒ **任何早退都恰打一个值、永不为 `-`**；3‑4 自洽处置 `EVALUATED`。**保留** `decl_upper_checked` 七值细分。
+#      · **四条册级不变量**（`FAIL` 具名）：`decl-upper-pairing-violated`（token 与细分原因自相矛盾／白名单外的新原因一律默认 `FAIL`）／`decl-upper-legacy-judged`／`decl-upper-newrow-unjudged`／`decl-upper-notreached-unpaired`（`-` 只许配三条前置 `NOINFO` 码）。**允许集白名单** = {7 值} ∪ {`na`, `-`, `column-width`}。
+#      · **3‑9 改判**：新行退回旧形态 ⇒ **`FAIL/1`** ＋ 点名 `decl-column-required-on-new-row`（细分原因 `column-width`）—— **`cases21` 计数不变（`21/0`），变的是那一行的期望值 ⇒ 加严，不是读数反复**。
+#   ② **`TASK-0718`（W152A 交来的两件，按 sha 逐字节应用）**：`build/MilBridge/tools/shell-quote-trap-check.sh` **`d4317aa7605a31e1` → `39a2e2cdf1948675`**（`--selftest` **41/41**、`ST_ATTEST=PASS`）｜`build/MilBridge/tools/fp-manifest-teeth-check.sh` **新建 `be19edddf7f02797`**（`--selftest` **13/13**）。
+#   ③ **台账**：`build/MilBridge/tools/baseline-rate-cases.tsv` **`8d71171d475a63dc` → `1a2df056f5677344`**（**原 11 行逐字节不动** ＋ 新块（表头声明两列 ＋ `legacy_rows=11`）10 行 ⇒ **21 行**）。
+#   ④ **模板**：`docs/PREREG-TEMPLATE.md` **`17927a59d050fc83` → `300ec21903d54756`**（§3.2 三栏 `p0`／`p0 时间窗`／`p0 来源锚`；17,397 → 18,874 B；`wc -l` 212 → 223）。
+#   ⑤ **接线 ＋ 覆盖面**：`verify-all.sh` 四处声明改 `gen=#65`（**不加步 ⇒ 仍 `37` 步**）｜`build/close-wave.sh` **`168a33c3d4743559` → `9dfc1e43b4d67fbf`**（`fp_inputs()` **+1 行**：`build/MilBridge/tools/fp-manifest-teeth-check.sh`）⇒ **覆盖面 `161 → 162`**。
+#      ⚠️ **`inputs_fp` 两笔（成对、带机械归因）**：`f148203453b092206b6a9f9529821fa58570ba7035fb5253ca4f4e8da6dd77ae`（`#64` 冻后值 ＝ 本波 `prev_infp`）→ **`4c1056ddca8afc700df3f0777a2c134932a5fc2ddcfc7d1192c38940e3c15fd5`**（**after == after_predicted** 已验）。
+#      **交叉表 32 行／16 值**（按"哪些件处于已落地状态"命名）：**全部退回 ⇒ 逐位 == before**；**+1 行归因** = 白名单多一行；**成对同值的机械原因** = `fp-manifest` 那一行**只在 `close-wave` 处于已落地状态时才存在于清单里**。
+#      ⚠️ **`UNWIRED`（如实声明，不许算绿）**：`fp-manifest-teeth-check.sh` **在覆盖面内（第 263 行）但 `verify-all.sh` 里 `grep -c` = 0（未被调用）**；其正常运行读数 = **`FP_MANIFEST_TEETH=NOINFO reason=no-manifest`（`rc=2`）** ⇒ 接线归 `[Next] TASK-0724`。
+#   ⑥ **零产品改动**：`src/**`／`build/shims/**`／native 源**一字节未动** ⇒ 九位**不应有产品位移**；`pf` 是**环成员**（整波重建必变、**同尺寸 6123520 B**）⇒ 机械位移，**不许当漂移/回归判据**。
+#   **九位（Release 权威件）**：`bridge` `4e25e4b27d4d5ae1`（5028208 B）／`pc` `722e0ab8205b7c3f`（3601408 B）／`pf` `59ba7d2997fcdd62`（6123520 B）／`windowsbase` `2e4e46e539a72cd7`／`provider` `1f9511a7ef395bfe`／`win32shim` `d2b76a0a56a41be1`／`wic_shim` `f7b3026c8c019be2`／`hbtextline` `921ba9c65e9fb3be`（293165 B）／`dwf` `ce3469f49efcbcfa`。
+#     · **相对 `#64` 冻结值**：`pf` `02b2792448fbd41d` → `59ba7d2997fcdd62`（**环成员**：**同尺寸 6123520 B** ⇒ 机械位移）；其余**八位逐位未变**（`pc` 仍 `722e0ab8205b7c3f`、`windowsbase` 仍 `2e4e46e539a72cd7`、`win32shim` 仍 `d2b76a0a56a41be1`、`dwf` 仍 `ce3469f49efcbcfa`）。
+#   **`BRIDGE_SRC_FP` = `d697b1e10ff48881`**（上一代 `d697b1e10ff48881`；本波未改桥源 ⇒ 逐位未变）。
+#   **臂日志聚合（两种口径都给）**：`cat` 口径 `2f276db59de241cb`／`find|sort|xargs` 口径 `6e246ef5b87d69ea`（本波**不改** `GEN_KEYS` ⇒ **五臂不重取**）。
+#   **冻前 `verify-all` = `37` 步（`37 ✅ / 0 ❌`、`用例通过 875 跳过 2`）**：见下 §RECORD 的 ⑥ 行。
+#   —— 外挂声明（**两族必须落在最新 `# RE-FROZEN` 块内**）——
+# COLUMN-FLOOR arm=tab-oracle-anchor col=START      judged_min=615 released_min=194
+# COLUMN-FLOOR arm=tab-oracle-anchor col=OVERFLOWED judged_min=421
+# COLUMN-CORPUS file=tests/parity/windows/tab-anchor/out/tab-anchor-oracle.json sha16=0cebc0afd5142fbf
+# ARM-LOG-SHA arm=tab-anchor    sha16=1c43a12dcaa5718a
+# ARM-LOG-SHA arm=tab-zero      sha16=9150c3a26a3cb789
+# ARM-LOG-SHA arm=tab-rtl       sha16=92570318851ca7e8
+# ARM-LOG-SHA arm=tline         sha16=59a203de30d745a8
+# ARM-LOG-SHA arm=textlineproto sha16=4bceceeed570ba70
+#   【① 落地（全部 `temp ＋ rename`；前后 sha **双断言**）】6 件：见 `# RE-FROZEN` 的 ①–⑤。
+#      ⚠️ **合约 ② 违约（如实记，已补救但不豁免）**：**第一轮备份只备 5 件，漏了 `shell-quote-trap-check.sh`**（备份清单写在读落地令**之前**）⇒ 该件在**无备份**状态下被覆盖。**补救**：fork 克隆 `HEAD:` 该件 = `d4317aa7605a31e1`（与覆盖前现读逐位相同）＋ `~/w152a/w65/backup/shell-quote-trap-check.sh.orig` = 同值（两独立来源）⇒ 恢复件可信。⇒ 主控立 **`D-G126`**，**施工必记第 8 条：备份清单必须在读完全部落地目标之后才动手**；并派补救件 `~/w153a/w65rate2/backup_guard.py`（**落地前**断言"每件都有备份 ∧ 备份 sha16 == 覆盖前现读 sha16"，缺一即**拒落**；两极化在**影子树**上跑：正例 拒落 0／反例 A 备份缺失 ⇒ 拒落／反例 B 备份错版本 ⇒ 拒落）。
+#   【② 缺陷与判据（先写）】`D-G125`（静默丢行 ⇒ 假绿）／`D-G121`（公式口径误用 ⇒ 上界低报）／`D-G120`（续行注释吃参数表）—— 三者的判据、反极性、判否条件见判据链四件与 `docs/WAVE65-PREREGISTRATION.md`。
+#   【③ 整波】`close-wave.sh`（槽内）：波前/波后 `inputs_fp` 对账 = `4c1056ddca8afc700df3f0777a2c134932a5fc2ddcfc7d1192c38940e3c15fd5`；九位位移 = **预期只有 `pf`**（环成员；**出现第二处位移 ⇒ 停手报主控**）。
+#   【④ 五臂／重钉】**本波不改 `GEN_KEYS`**（不动 `run.sh`／`HbTextLineParity/Program.cs`／`build/shims/PresentationCore.HbTextLine.cs`）⇒ **五臂不重取**、臂日志 sha 与 `#64` **逐位相同**。
+#   【⑤ 门禁 ×2（槽内、严格串行）】**合格线 = 判词行逐字一致**（`BASELINE` 六条机读行 `result=PASS`、`pc:722e0ab8205b7c3f`／`pf:59ba7d2997fcdd62` 为终态）。
+#   【⑥ 冻前 `verify-all`（槽内）】**`37 ✅ / 0 ❌`**、`rc=0`、`结论：✅ 全部通过`、`用例通过 875 跳过 2`。
+#      ⚠️ **本波首趟 `verify-all`（落地后）曾 36 ✅ / 1 ❌**：失败项 = `PREREG-FOUR-REQ`，**根因 = 我新建的 `docs/WAVE65-PREREGISTRATION.md` 缺「不做回归判定」声明**（该牙判 `missing=7`）⇒ 补 `PREREG-NO-REGRESSION-DECISION:` ＋ 逐字「本波不做任何回归判定」后，本机复核 `PREREG4=NA rc=0`（`na=1` 与 `pass` **分开计数**）。**这是"新预登记件缺 N/A 声明"的现场第一例，不是产品/判据问题** ⇒ 施工必记第 9 条：**建预登记件必须同趟带该声明，并立刻单独跑一次该牙**。
+#      逐步骤核：`VERIFYALL_SELF=PASS names=37 decl=37 gen=#65 prose=OK prereg=PASS` ＋ `FP_INPUTS_HYGIENE=PASS coverage_n=162 artifact_n=0`（**覆盖面 +1 行、`artifact_n` 仍 0**）。
+#   【⑦⑧⑨ 冻后追加（`APPEND_ONLY`）】冻结 `#65` 的 `FREEZE_RC`／冻后两极化（`BASELINE-SHA`／`ARM-LOG-SHA`／`COLUMN-FLOOR` 冻前红 ⇒ 冻后绿）／**冻后 ×2 两趟**（各 `37 ✅ / 0 ❌`）。
+#   【牙与件（现算 sha16）】`~/w153a/w65rate2/criteria.md`（`a08293721b805036`）｜`~/w153a/w65rate2/CONSTRUCTION-ORDER.md`（`0fbba59efae0c578`）｜`~/w153a/w65rate2/REBASE.md`｜`~/w153a/w65rate2/PREGO.md`（`5c6ef78f756c3cae`）｜`build/MilBridge/W65-report.md`（本波报告，含 `UNWIRED` 格与接线决策表）｜`docs/WAVE65-PREREGISTRATION.md`（`40a8f0677ae76056`）。
+#   【本波五条口径句（落册，均来自现场实测）】
+#      ① **凡「看不懂就跳过」的循环，都是在把假绿写进工具** —— 收下的行数与声明的行数必须对账，丢一行就要响（`D-G125`）。
+#      ② **登记一个上界，必须同时登记它的『公式名』与『`k` 是几』**；`k > 0` 时只许用 Clopper–Pearson 单侧上界；申报值／申报公式／样本的 `k` 三者必须机检一致 —— 不一致就是 `FAIL`，不是笔误（`D-G121`）。
+#      ③ **`NOT-EVALUATED` 只有与细分原因合读才有意义**：单独引用 token 视为不完整引用；允许集是**白名单**，新原因一律默认 `FAIL`（`AMENDMENT-3`）。
+#      ④ **替换的边界由内容定，不由索引定；改完必须核对紧邻两行的身份**（`D-G119` ㉒）／**凡『清单/台账』类输入，都要能回答『它是何时、由谁、从什么生成的』**（㉓）。
+#      ⑤ **`\` 续行的参数表中间不许插注释**；凡指纹/清单类管线必须另有一条**独立于该清单**的证据（件数 ＋ 逐行形态断言）—— **「预测值 vs 实测值」同源时，自洽抓不到污染**（`D-G120`）。
+BASELINE tier=default rep=1 config=pc:722e0ab8205b7c3f,bridge:4e25e4b27d4d5ae1,pf:59ba7d2997fcdd62,provider:1f9511a7ef395bfe,win32shim:d2b76a0a56a41be1,wic_shim:f7b3026c8c019be2,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=261 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=4112 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w153a/w65rate2/gate-r2
+BASELINE tier=default rep=2 config=pc:722e0ab8205b7c3f,bridge:4e25e4b27d4d5ae1,pf:59ba7d2997fcdd62,provider:1f9511a7ef395bfe,win32shim:d2b76a0a56a41be1,wic_shim:f7b3026c8c019be2,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=261 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=4112 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w153a/w65rate2/gate-r2
+BASELINE tier=default rep=3 config=pc:722e0ab8205b7c3f,bridge:4e25e4b27d4d5ae1,pf:59ba7d2997fcdd62,provider:1f9511a7ef395bfe,win32shim:d2b76a0a56a41be1,wic_shim:f7b3026c8c019be2,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=261 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=4112 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w153a/w65rate2/gate-r2
+BASELINE tier=env rep=1 config=pc:722e0ab8205b7c3f,bridge:4e25e4b27d4d5ae1,pf:59ba7d2997fcdd62,provider:1f9511a7ef395bfe,win32shim:d2b76a0a56a41be1,wic_shim:f7b3026c8c019be2,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=144 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=2945 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w153a/w65rate2/gate-r2
+BASELINE tier=env rep=2 config=pc:722e0ab8205b7c3f,bridge:4e25e4b27d4d5ae1,pf:59ba7d2997fcdd62,provider:1f9511a7ef395bfe,win32shim:d2b76a0a56a41be1,wic_shim:f7b3026c8c019be2,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=144 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=2945 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w153a/w65rate2/gate-r2
+BASELINE tier=env rep=3 config=pc:722e0ab8205b7c3f,bridge:4e25e4b27d4d5ae1,pf:59ba7d2997fcdd62,provider:1f9511a7ef395bfe,win32shim:d2b76a0a56a41be1,wic_shim:f7b3026c8c019be2,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=144 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=2945 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w153a/w65rate2/gate-r2
+# ⏪ **（历史，已被 `#65` 取代）**# RE-FROZEN #64 —— ✅ **当前冻结基线** —— 内容 = **判据装置批**（**零产品改动**）：把 `D-G118`「基线率闸」做成仓内**牙 ＋ 确定性台账**，并把第 `[37]` 步接进 `verify-all`（**36 → 37 步**）；覆盖面 `159 → 161`。
 #   ① **`D-G118`（基线率闸 · 新牙）**：**新建** `build/MilBridge/tools/baseline-rate-gate.sh` **`31cf77abc6a882e3`**（382 行）。判「**在册速率还能不能用来定 `N`**」—— 逐项印 `registered=<R>/<n>@<时间窗>`／`window=`／`observed=`／`observed_rate=`／`ci_upper=`／`ci_upper_2s=`／`ci_lower_2s=`／`cp_upper=`／`fisher_p=`／`registered_in_observed_ci=`／`gate=`／`effect=`／`required_n=`／`required_n_power=`／`voidpremise=`／`voidpremise_reason=`／`gate_closed=`／`effect_impossible=`／`caliber_disagreement=`／`gate_verdict_1s=`／`gate_verdict_2s=`。**三态 `BASELINERATE=PASS|FAIL|NOINFO`**（`rc` = `0|1|3`）：`PASS` ⟸ 历史速率**落在**新样本 CI 内 ∧ `ci_upper ≥ gate` ∧ `observed ≥ effect`；`FAIL` ⟸ 闸判失败，**其中"历史速率落在新样本 CI 之外"必须点名**（`DRIFT …registered=… ∉ 现取 CI […]`）；`NOINFO` ⟸ 缺时间窗／空样本／`n` 非正／`r` 越界／参数不可解析 ⇒ **响亮失败**（具名 `reason=NOINFO-*`）。**`VOID-PREMISE` 两条并列**（**不取其一**）：① `ci_upper < gate`（先写的闸门被**排除**，不是"没观测到"）② `observed < effect`（要排除的效应量**在现世界不可发生** ⇒ 连重算 `N` 都无意义）。
 #      🔺 **两个口径的角色（写死）**：**主判据 = Wilson 单侧 95%（`ci_upper=`）**；**诊断列 = Wilson 双侧（`ci_upper_2s=`/`ci_lower_2s=`）＋ Clopper–Pearson 单侧（`cp_upper=`）**。**当两个口径在闸比较上结论不同**（`ci_upper_1s < gate ≤ ci_upper_2s`，或反向的边界情形）⇒ 判词**必须** `NOINFO` ＋ 具名 `reason=caliber-disagreement`，**禁止**用"对我方有利的那一界"下 `PASS`/`FAIL` —— **口径之争先于结论，必须显形**（同族：`D-G98` 一格定罪／`D-G118` 拿历史速率凑功效／`D-G116` 把结果侧算进体制）。
 #      **算程自证**：**逐位复现**仓内在册四个 `REQUIRED_N_ALT` 值（`alt_rates=0.1000-vs-0.8890 ⇒ per_arm=7 power=0.8224`；`0.5890-vs-0.8890 ⇒ 37 / 0.8010`；`0.6090-vs-0.8890 ⇒ 41 / 0.8019`；`0.0000-vs-0.0600 ⇒ 131 / 0.8041`）；与独立算程 `~/w157a/bin/baseline-rate-gate.py` **逐位对账**（`observed 0.2500`／`cp_upper 0.4187`／`fisher_p 1.848e-06`／双侧 `[0.1268,0.4336]` 全同）。**纯 `math`/`comb`、无第三方依赖、纯读、零 `dotnet`、无网络、无 `X`；墙钟 3.44 s、RSS 10.7 MB。**

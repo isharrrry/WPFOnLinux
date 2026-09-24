@@ -66,6 +66,22 @@
 #     heredoc 体（`cat <<EOF … `date` … EOF`）在运行时**真的**做命令替换。旧件把它排除在 `rc` 之外
 #     ⇒ 那一档 `rc` 恒 0 = **永远响不了的真洞**。实测真跑：体里 `` `date` `` 直接被替换成日期、
 #     `` `X` `` 打出 `X: 未找到命令`（`--selftest` S10 由「期望 `rc=0`+`DIAG`」**升为**「期望 `rc=1`+点名」）。
+#   ★ `D-G120`（`#65` W152A）**新增第三类**：`kind=CONTINUATION-COMMENT` —— **行尾反斜杠续行里
+#     插进来的 `#` 注释行**。现场（`#64` 落地 `BASELINE-RATE-GATE` 时真咬到，主控已复现）：
+#       `printf '%s\n' A \` ＋ `    # 注释插在续行中间` ＋ `    B \` ＋ `    C`
+#     bash **先把 `\`+换行拼成一个逻辑行、再认注释** ⇒ 拼出来的那一行里的 `#` 起注释 ⇒
+#     **吃掉参数表下半截**；紧随的物理行变成**新命令被执行**（`B C` ⇒ `B: 未找到命令`），
+#     它的 stdout 还会落进 `{ … } | sort | xargs sha256sum` ⇒ `sha256sum` 去 hash 这些"文件名"、
+#     **真名被吞** ⇒ **件数读错（160 vs 161）＋ 指纹凭空多出一个中间值**。
+#     ⚠️ **`rc` 指示不了它**：裸 `bash -c` 那一趟 `rc=127`（`B` 是最后一条命令），
+#        而真现场（`{ … } | … | sha256sum | cut`）`rc=0`（取自最后一段 `cut`）——
+#        **两种读数都对，正因为如此这一族只能按文本形态判**（`--selftest` S35 钉住）。
+#     ★ 判据的**真正**分界不是"文本相邻"，而是"**这个续行真的成立**"：三条真跑读数（P3/P4/P5）：
+#       · **注释行**行尾 `\` ⇒ bash **不**在注释里续行 ⇒ 下一行照常执行 ⇒ **不算续行**；
+#       · 单引号串里的行尾 `\` ⇒ 字面量 ⇒ **不算续行**；
+#       · `\\`（偶数个行尾反斜杠）⇒ **不算续行**。
+#       ⇒ 实现上 = "那个 `\` 是在 **`N` 态（命令上下文）**里被吃到的"；三条阴性探针分别钉住。
+#     ★ 刻意**不判** `.py`（Python 注释在物理行尾就结束，与"注释里不续行"同因）。
 #   刻意 **不判红**（只做诊断，绝不进 `rc`）：
 #     · `kind=DQ-BRACE-BACKTICK`：双引号内 `${ … }` 里的反引号（`"${x:-`cmd`}"`）—— 只报。
 #     · `kind=PY-BACKTICK-FILE`：`.py` 里含反引号的行数（现场 **1481 行 / 60 文件**）——
@@ -133,6 +149,7 @@
 #   ⚠️ `run_step` 绿分支只在行首捞 `^[A-Z][A-Z0-9_]*=(PASS|FAIL|NOINFO)( |$)`（`verify-all.sh:259` 的
 #      "自报口径"那行）⇒ 本件的主判词 `SHELL_QUOTE_TRAP=` 正好被它捞到；**逐条命中行**是
 #      `SHELL_QUOTE_HIT kind=…`（前缀后是空格，**不匹配**那两条 grep）⇒ 不会污染口径行。
+# DG120_PATCH_MARK: `D-G120` CONTINUATION-COMMENT 新类已打入（W152A-W65，波 `#65`）
 set -uo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -164,7 +181,12 @@ CANARY_HDFIRE='19,'
 CANARY_HDN=4             # 必命中的 HEREDOC-BACKTICK 条数（行 19 有 **4** 个反引号，逐反引号计）
 CANARY_HDFIRE_N=1        # 必命中的**行**数（HEREDOC-BACKTICK）
 CANARY_CLEAN_N=5         # 含反引号但必不命中的**行**数：3/4/7/10/14
-CANARY_PROBES=20         # 夹具总行数
+CANARY_PROBES=31         # 夹具总行数（20 → 31：`D-G120` 新类探针 11 行）
+# ★ `D-G120`（`#65` W152A）**新类** `CONTINUATION-COMMENT` 的金丝雀常量（夹具行 24 / 30 必命中；
+#   行 22 / 27 必**不**命中 = 成对阴性探针）。三个类**分别比**：只比两类 ⇒ 第三类的判据偏了也看不出来。
+CANARY_CCFIRE='24,30,'
+CANARY_CCN=2             # 必命中的条数（每行 1 条：col 指向 `#`）
+CANARY_CCFIRE_N=2        # 必命中的**行**数
 
 say() { printf '%s\n' "$*"; }
 
@@ -177,6 +199,8 @@ usage() {
 判据：件集（`*.sh`/`*.py`，减 `upstream/` 与 `obj|bin|.artifacts|__pycache__`）里
       **不许**出现「双引号字符串内的裸反引号」（`echo "…`cmd`…"` ⇒ bash 真的做命令替换）；
       **也不许**出现「**未加引号** heredoc 体里的反引号」（`cat <<EOF … `date` … EOF` ⇒ 同样真的替换）。
+      **也不许**出现「行尾反斜杠续行里插进来的 `#` 注释行」（`D-G120`：`\` 先拼行、再认注释 ⇒
+      注释把续行剩下的参数表整段吃掉，紧随的物理行变成**新命令被执行**）。
       ⚠️ `cat <<'EOF'`（**单引号定界**）的体是字面文本 ⇒ **判绿**，包括它出现在 `"$( … )"` 内部时。
 rc：0 = PASS（0 条陷阱）｜1 = FAIL（逐条点名 file:line:col）｜2 = NOINFO（算不出来 ⇒ **不是绿**）
 环境：QT_ROOT（树根，默认=本脚本上溯三级）｜QT_ANCHORS=off（跳过锚断言，只给自测夹具）
@@ -263,6 +287,7 @@ function popk(   L) {
 }
 function scanline(f, line, ln,   i, n, c, d, p, j, q, rest, k, t, tk) {
     hd_seen = 0                                  # ★ 每行先清（本件血案②：不清 ⇒ heredoc 结束后被反复重开）
+    linecont = 0                                 # ★ `D-G120`：每行先清（"本行以反斜杠续行结尾且该反斜杠在 N 态"）
     if (hd) {                                   # heredoc 体内：不是 shell 代码
         t = line
         if (hd_dash) sub(/^\t+/, "", t)
@@ -324,7 +349,10 @@ function scanline(f, line, ln,   i, n, c, d, p, j, q, rest, k, t, tk) {
             i++; continue
         }
         # ── state N（命令上下文）──
-        if (c == "\\") { i += 2; continue }
+        # ★ `D-G120`：**行尾反斜杠 = 续行**，且**只有 `N` 态才算数**（单引号里是字面量；注释里
+        #   bash 根本不续行；`\\` 也不是续行 —— 三条都有真跑读数 P3/P4/P5，见报告 §2）。
+        #   标记留给**下一物理行**判 `CONTINUATION-COMMENT`（判定点在 `dofile`，不在本函数）。
+        if (c == "\\") { if (i == n) linecont = 1; i += 2; continue }
         if (c == "'") { state = "S"; i++; continue }
         if (c == "\"") { state = "D"; i++; continue }
         # ★ 新：`$(` / `${` 在**命令上下文**里也要压帧（旧件只在 `D` 态里认它们 ⇒ `echo $( … )`
@@ -381,6 +409,8 @@ function scanline(f, line, ln,   i, n, c, d, p, j, q, rest, k, t, tk) {
 function dofile(f, kind,   line, ln, marker) {
     state = "N"; kinds = ""; rets = ""; hd = 0; hd_seen = 0; hd_delim = ""
     hd_quoted = 0; hd_dash = 0; prev_allow = 0; allow = 0
+    # ★ `D-G120`：跨物理行的两个进位（文件之间必须复位，否则上一份的尾巴会污染下一份）
+    prev_cc_bs = 0; prev_cc_state = "N"
     ln = 0
     if (blind) return
     while ((getline line < f) > 0) {
@@ -396,8 +426,19 @@ function dofile(f, kind,   line, ln, marker) {
         marker = (index(line, "shell-quote-trap:allow") > 0)
         allow = (marker || prev_allow) ? 1 : 0
         prev_allow = (marker && line ~ /^[ \t]*#/) ? 1 : 0
+        # ★ `D-G120`（`#65` W152A）**第三类**：上一物理行的**行尾反斜杠续行**成立（上一行结束时
+        #   仍在 `N` 态）且本行匹配 `^[ \t]*#` ⇒ 本行是**被插进续行里的注释** ⇒ 判红。
+        #   ⚠️ 必须**在 scanline 之前**判：此刻 prev_cc_* 还是上一行留下的值（scanline 会清 linecont）。
+        #   ⚠️ `hd` 里不判（heredoc 体不是代码）；`.py` 走上面的分支，根本到不了这里。
+        if (!hd && prev_cc_bs && prev_cc_state == "N" && line ~ /^[ \t]*#/) {
+            cc = index(line, "#")
+            if (allow || prev_allow) emit("ALLOW", "CONTINUATION-COMMENT", f, ln, cc, line)
+            else                     emit("HIT",   "CONTINUATION-COMMENT", f, ln, cc, line)
+        }
         scanline(f, line, ln)
+        prev_cc_bs = linecont
         if (state == "C") state = "N"                                       # ★ 行尾必须复位（本件自己的血案）
+        prev_cc_state = state
         if (hd_seen) hd = 1
     }
     close(f)
@@ -439,6 +480,17 @@ CANARY_Q
 cat <<CANARY_U
 L `must_fire_heredoc_unquoted_1` M `must_fire_heredoc_unquoted_2` N
 CANARY_U
+# == D-G120 continuation-comment probes ==
+# a normal comment line (previous line does NOT end with a backslash) => must NOT fire
+printf '%s\n' CAN_CC_1 \
+    # CAN_CC_COMMENT_1 inside the continuation => MUST fire
+    CAN_CC_2
+s='can_cc_squote\
+# the backslash above is inside single quotes => NOT a continuation => must NOT fire
+'
+printf '%s\n' CAN_CC_3 \
+	# CAN_CC_COMMENT_2 with a leading tab => MUST fire
+	CAN_CC_4
 CANARY
 }
 
@@ -449,7 +501,7 @@ run_awk() {  # run_awk <tmpd> <shlist> <pylist> [<blind>]
 
 # ── 主判据 ─────────────────────────────────────────────────────────────────────
 run_check() {
-    local tmpd rc awke out canline canfire cann hitn hitlines n
+    local tmpd rc awke out canline canfire cann canhd canhdn cancc canccn hitn hitlines n
     local TMPBASE="${TMPDIR:-/tmp}"
 
     TMP_DIR_USED=''
@@ -515,9 +567,13 @@ run_check() {
     cann="$(printf '%s\n' "$canline" | awk -F'\t' '$1=="HIT" && $2=="DQ-BACKTICK"{n++} END{print n+0}')"
     canhd="$(printf '%s\n' "$canline" | awk -F'\t' '$1=="HIT" && $2=="HEREDOC-BACKTICK"{print $4}' | sort -nu | tr '\n' ',')"
     canhdn="$(printf '%s\n' "$canline" | awk -F'\t' '$1=="HIT" && $2=="HEREDOC-BACKTICK"{n++} END{print n+0}')"
+    # ★ `D-G120`：第三类也**单独比**（行号集合 ＋ 条数）—— 只比两类 ⇒ 新类判据偏了也看不出来
+    cancc="$(printf '%s\n' "$canline" | awk -F'\t' '$1=="HIT" && $2=="CONTINUATION-COMMENT"{print $4}' | sort -nu | tr '\n' ',')"
+    canccn="$(printf '%s\n' "$canline" | awk -F'\t' '$1=="HIT" && $2=="CONTINUATION-COMMENT"{n++} END{print n+0}')"
     if [ "$canfire" != "$CANARY_FIRE" ] || [ "$cann" != "$CANARY_N" ] \
-       || [ "$canhd" != "$CANARY_HDFIRE" ] || [ "$canhdn" != "$CANARY_HDN" ]; then
-        say "SHELL_QUOTE_TRAP=NOINFO reason=canary-blind dq_got='$canfire'($cann 条) dq_want='$CANARY_FIRE'($CANARY_N 条) hd_got='$canhd'($canhdn 条) hd_want='$CANARY_HDFIRE'($CANARY_HDN 条)（扫描器本趟没有按已知形状命中 ⇒ 它的绿不算证据）"
+       || [ "$canhd" != "$CANARY_HDFIRE" ] || [ "$canhdn" != "$CANARY_HDN" ] \
+       || [ "$cancc" != "$CANARY_CCFIRE" ] || [ "$canccn" != "$CANARY_CCN" ]; then
+        say "SHELL_QUOTE_TRAP=NOINFO reason=canary-blind dq_got='$canfire'($cann 条) dq_want='$CANARY_FIRE'($CANARY_N 条) hd_got='$canhd'($canhdn 条) hd_want='$CANARY_HDFIRE'($CANARY_HDN 条) cc_got='$cancc'($canccn 条) cc_want='$CANARY_CCFIRE'($CANARY_CCN 条)（扫描器本趟没有按已知形状命中 ⇒ 它的绿不算证据）"
         [ "$KEEP_TMP" = 1 ] || rm -rf "$tmpd"; return 2
     fi
 
@@ -550,19 +606,24 @@ run_check() {
     say "SHELL_QUOTE_SCAN=files=$FILES_N sh=$SH_N py=$PY_N anchors=$ANCHOR_MODE ${stat:-lines=0}"
     # ★ `TASK-0713`／`#60` W152A：**射程行** —— "扫了什么／没扫什么"永远可见（`bin/` 已纳入 ⇒ 不在排除表里）
     say "QUOTE_TRAP_SCOPE root=$ROOT files=$FILES_N sh=$SH_N py=$PY_N included=*.sh,*.py bin=INCLUDED excluded=${EXCL_REPORT:-none} (excluded dirs counted one by one; 'not scanned' must never be silent)"
-    say "SHELL_QUOTE_CANARY=OK probes=$CANARY_PROBES must_fire=$CANARY_FIRE_N must_not_fire=$CANARY_CLEAN_N fired=$CANARY_FIRE hd_fired=$CANARY_HDFIRE($CANARY_HDN 条)"
+    say "SHELL_QUOTE_CANARY=OK probes=$CANARY_PROBES must_fire=$CANARY_FIRE_N must_not_fire=$CANARY_CLEAN_N fired=$CANARY_FIRE hd_fired=$CANARY_HDFIRE($CANARY_HDN 条) cc_fired=$CANARY_CCFIRE($CANARY_CCN 条)"
 
     # ★ `#31` W31F：`reason=` **按类分**（旧件一律 `dq-backtick` ⇒ 若命中的全是无引号 heredoc 体，
     #   那一行会**说谎**）。判定值（PASS/FAIL/NOINFO）与 `rc` 语义零改动。
     hndq="$(printf '%s\n' "$out" | awk -F'\t' '$1=="HIT" && $2=="DQ-BACKTICK"{n++} END{print n+0}')"
     hnhd="$(printf '%s\n' "$out" | awk -F'\t' '$1=="HIT" && $2=="HEREDOC-BACKTICK"{n++} END{print n+0}')"
-    if [ "$hndq" -gt 0 ] && [ "$hnhd" -gt 0 ]; then
-        failreason="dq-backtick+heredoc-backtick"
-    elif [ "$hndq" -gt 0 ]; then
-        failreason="dq-backtick"
-    else
-        failreason="heredoc-backtick"
+    hncc="$(printf '%s\n' "$out" | awk -F'\t' '$1=="HIT" && $2=="CONTINUATION-COMMENT"{n++} END{print n+0}')"
+    # ★ `D-G120`：由**命中类集合**拼 `reason=` —— 既有两类的**三种组合**字符串逐字不变
+    #   （`dq-backtick` / `heredoc-backtick` / `dq-backtick+heredoc-backtick`），新类只做**追加**。
+    failreason=""
+    if [ "$hndq" -gt 0 ]; then failreason="dq-backtick"; fi
+    if [ "$hnhd" -gt 0 ]; then
+        if [ -n "$failreason" ]; then failreason="$failreason+heredoc-backtick"; else failreason="heredoc-backtick"; fi
     fi
+    if [ "$hncc" -gt 0 ]; then
+        if [ -n "$failreason" ]; then failreason="$failreason+continuation-comment"; else failreason="continuation-comment"; fi
+    fi
+    [ -n "$failreason" ] || failreason="unknown-empty-hitn"
 
     if [ "$hitn" -gt 0 ]; then
         printf '%s\n' "$hitlines"
@@ -738,6 +799,43 @@ arr=(1 2)
 if [[ ${#arr[@]} -gt 0 ]]; then :; fi
 echo "leak probe: $(printf '%s' D_G114_NEUTRAL) end"
 FIX
+    # ── `D-G120`（`#65` W152A）新增夹具 5 件（**只增不减**；三条阴性 / 两条阳性成对）───────────
+    # ⚠️ 夹具一律**纯 ASCII**（`col` 按字节算；夹中文会把列号算偏）。
+    # F24：**真现场形状**（`#64` 落地 `BASELINE-RATE-GATE` 时咬到的那一行）：注释插在续行中间。
+    cat > "$fix/sub/F24-continuation-comment.sh" <<'FIX'
+# D-G120: a comment inserted in the middle of a backslash continuation (the real shape)
+printf '%s\n' A \
+    # D_G120_CONTINUATION_COMMENT_INSERTED
+    B \
+    C
+FIX
+    # F24b：**正极性对照**（P2 形状）—— 注释块挪到 `printf` 语句**之前** ⇒ 必须绿
+    cat > "$fix/sub/F24b-comment-before.sh" <<'FIX'
+# D-G120 fix: the comment block moved BEFORE the statement (outside the continuation)
+printf '%s\n' A \
+    B \
+    C
+FIX
+    # F24c：**防假红①**（P4 形状）—— 行尾 `\` 在**单引号串**里 ⇒ 不是续行 ⇒ 那一行 `#` 是字符串内容
+    cat > "$fix/sub/F24c-squote-continuation.sh" <<'FIX'
+s='canary_like_squote\
+# this hash is inside single quotes, NOT a comment
+'
+printf '%s\n' "$s"
+FIX
+    # F24d：**防假红②**（P5 形状）—— `\\`（双反斜杠结尾）不是续行 ⇒ 下一行是**正常注释**
+    cat > "$fix/sub/F24d-double-backslash.sh" <<'FIX'
+echo X \\
+# this is a normal comment line (the backslash above was escaped)
+echo Y
+FIX
+    # F24e：**防假绿②**（P6 形状）—— `$( )` **内部**的续行里插注释 ⇒ 同样是真陷阱（真跑 V=[a]）
+    cat > "$fix/sub/F24e-cmdsub-continuation-comment.sh" <<'FIX'
+v="$(printf '%s' a \
+    # D_G120_CONTINUATION_COMMENT_IN_CMDSUB
+    b)"
+printf '%s\n' "$v"
+FIX
     printf 'x=1\n' > "$fix/build/MilBridge/tools/gate.sh"
     printf 'y=2\n' > "$fix/verify-all.sh"
     # 只看子集：夹具单独成树，用 QT_ANCHORS=off 跑（锚断言另有 S15/S16 两例专测）
@@ -827,6 +925,18 @@ FIX
     onefile S33-brace-leak-must-fire        1 "sub/F23-brace-leak-dq.sh" 'SHELL_QUOTE_HIT kind=DQ-BACKTICK file=sub/F23-brace-leak-dq\.sh line=3 col=19'
     # ★ S34 = 泄漏的**成对阴性对照**：同一段文字换成 `$( )` ⇒ 必须绿
     onefile S34-brace-leak-neutral          0 "sub/F23-leak-neutral.sh" '^SHELL_QUOTE_TRAP=PASS' 'SHELL_QUOTE_HIT'
+
+    # ── `D-G120`（`#65` W152A）新增 6 例（**只增不减**；阳性 3 / 阴性 3，成对）────────────────
+    # ★ S35/S35b = **真现场形状**必红，并**逐字点名** `#` 那一行（`line=3 col=5`）；S35b 钉**条数**
+    onefile S35-continuation-comment        1 "sub/F24-continuation-comment.sh" 'SHELL_QUOTE_HIT kind=CONTINUATION-COMMENT file=sub/F24-continuation-comment\.sh line=3 col=5'
+    onefile S35b-continuation-comment-count 1 "sub/F24-continuation-comment.sh" 'SHELL_QUOTE_TRAP=FAIL reason=continuation-comment traps=1 '
+    # ★ S36 = **反极性对照**：同一段文字，注释块移到语句**之前** ⇒ 必须绿（否则判的就是"文本相邻"）
+    onefile S36-comment-before-statement   0 "sub/F24b-comment-before.sh" '^SHELL_QUOTE_TRAP=PASS' 'SHELL_QUOTE_HIT'
+    # ★ S37/S38 = **防假红**：单引号串里的行尾 `\` ／ `\\`（双反斜杠）都不是续行 ⇒ 必须绿
+    onefile S37-squote-not-continuation    0 "sub/F24c-squote-continuation.sh" '^SHELL_QUOTE_TRAP=PASS' 'SHELL_QUOTE_HIT'
+    onefile S38-double-backslash-not-cont  0 "sub/F24d-double-backslash.sh" '^SHELL_QUOTE_TRAP=PASS' 'SHELL_QUOTE_HIT'
+    # ★ S39 = **防假绿**：`$( )` 内部的同形状**同样是真陷阱** ⇒ 必须红
+    onefile S39-cmdsub-continuation-comment 1 "sub/F24e-cmdsub-continuation-comment.sh" 'SHELL_QUOTE_HIT kind=CONTINUATION-COMMENT file=sub/F24e-cmdsub-continuation-comment\.sh line=2 col=5'
 
     # 三态：取不到件 / 树不存在 / 锚件不在件集
     rm -rf "$sb/emptyroot"; mkdir -p "$sb/emptyroot"

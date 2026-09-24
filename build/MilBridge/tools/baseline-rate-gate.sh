@@ -136,13 +136,18 @@ def emit(state, rc, fields, reason):
               "ci_lower_2s", "cp_upper", "fisher_p", "registered_in_observed_ci",
               "gate", "effect", "required_n", "required_n_power", "voidpremise",
               "voidpremise_reason", "gate_closed", "effect_impossible",
-              "caliber_disagreement", "gate_verdict_1s", "gate_verdict_2s"):
+              "caliber_disagreement", "gate_verdict_1s", "gate_verdict_2s",
+              "DECL_UPPER", "decl_upper_checked", "decl_upper_caliber", "decl_upper_expected",
+              "decl_upper_correct_cp1s", "decl_upper_gap"):
         print("%s=%s" % (k, fields.get(k, "-")))
     print("BASELINERATE_RC=%d" % rc)
     return rc
 
-def evaluate(registered_s, observed_s, gate_s, effect_s, quiet=False):
+def evaluate(registered_s, observed_s, gate_s, effect_s, quiet=False,
+             decl_upper=None, decl_formula="-"):
     F = {}
+    # 🆕 `AMENDMENT-3`：**承重 token**，本行初始化 ⇒ 任何早退都打 `NOT-EVALUATED`
+    F["DECL_UPPER"] = "NOT-EVALUATED"
     # ① 解析注册速率
     reg = parse_registered(registered_s)
     if reg is None:
@@ -155,6 +160,71 @@ def evaluate(registered_s, observed_s, gate_s, effect_s, quiet=False):
         return emit("NOINFO", 3, F, "NOINFO-N-NONPOS registered n=%d 非正" % rn)
     if rr < 0 or rr > rn:
         return emit("NOINFO", 3, F, "NOINFO-R-RANGE registered r=%d 不在 [0,%d]" % (rr, rn))
+    # ③ 🆕 **申报上界的自洽性**（`D-G121` / `TASK-0719`）
+    #    适用域（写死）：`rule-of-three-0hit` = `1-α^(1/n)` **只许用于 `k = 0`**；
+    #                    `cp-1s` = Clopper–Pearson 单侧 95% 上界，**任意 `k ≥ 0`**；`k=0` 时两者**逐位相同**。
+    #    `k` 取 **registered 的分子**（**不是** `observed` 的）。
+    #    比对 = **逐字文本比对**（`%.4f`）⇒ **不设浮点容差、不开可覆盖的 tol 旋钮**；
+    #    3-3 的方向比较**必须按数值**（字典序会给出错结论）。
+    #    3-1/3-2/3-3 ⇒ `FAIL`（具名）；3-5/3-6 ⇒ 响亮 `NOINFO`；`decl_upper is None` ⇒ 3-7 本格不判。
+    if decl_upper is None:
+        F["decl_upper_checked"] = "na"          # 3-7：冻结旧行 ⇒ 本格不判（旧 11 行判词逐字不变）
+    elif decl_upper == "-":
+        F["decl_upper_checked"] = "missing"     # 3-6：表头声明了该列却留 `-`（缺声明 ≠ 通过）
+        return emit("NOINFO", 3, F, "NOINFO-DECL-UPPER-MISSING 表头已声明 decl_upper 列而本行留 `-`"
+                    "（缺声明 ≠ 通过）⇒ reason=NOINFO-DECL-UPPER-MISSING")
+    else:
+        t4 = lambda x: "%.4f" % x
+        F["decl_upper_caliber"] = decl_formula if decl_formula in ("rule-of-three-0hit", "cp-1s") else "-"
+        exp_ro3 = t4(1.0 - (ALPHA ** (1.0 / rn)))
+        exp_cp1s = t4(cp_upper(rr, rn))
+        F["decl_upper_correct_cp1s"] = exp_cp1s
+        if decl_formula not in ("rule-of-three-0hit", "cp-1s", "-"):
+            F["decl_upper_checked"] = "formula-unknown"
+            return emit("NOINFO", 3, F, "NOINFO-DECL-FORMULA-UNKNOWN decl_formula 取值须为 "
+                        "rule-of-three-0hit|cp-1s|-（未知口径**不许**静默当 `-`）: %r"
+                        " ⇒ reason=NOINFO-DECL-FORMULA-UNKNOWN" % decl_formula)
+        try:
+            dv = float(decl_upper)
+        except (TypeError, ValueError):
+            dv = None
+        if dv is None or len(decl_upper.split(".")[-1]) != 4:
+            F["decl_upper_checked"] = "format"
+            return emit("NOINFO", 3, F, "NOINFO-DECL-UPPER-FORMAT decl_upper 形态须为 `%%.4f` 文本或 `-`: %r"
+                        " ⇒ reason=NOINFO-DECL-UPPER-FORMAT" % decl_upper)
+        exp = exp_ro3 if decl_formula == "rule-of-three-0hit" else (exp_cp1s if decl_formula == "cp-1s" else None)
+        F["decl_upper_expected"] = exp if exp else "-"
+        if exp is not None and decl_upper != exp:                        # 3-1
+            F["decl_upper_checked"] = "mismatch"
+            F["decl_upper_gap"] = t4(cp_upper(rr, rn) - dv)
+            return emit("FAIL", 1, F, "DECL-FORMULA-VALUE-MISMATCH 申报公式与申报值不符：decl_formula=%s "
+                        "decl_upper=%s 而该公式在 k=%d/n=%d 上应为 %s ⇒ reason=decl-formula-value-mismatch"
+                        % (decl_formula, decl_upper, rr, rn, exp))
+        if rr > 0 and (decl_formula == "rule-of-three-0hit" or decl_upper == exp_ro3):   # 3-2
+            F["decl_upper_checked"] = "zerohit"
+            F["decl_upper_gap"] = t4(cp_upper(rr, rn) - dv)
+            return emit("FAIL", 1, F, "ZERO-HIT-FORMULA-ON-NONZERO-SAMPLE k=%d>0 却用 k=0 的上界公式"
+                        "（1-α^(1/n)）申报：decl_upper=%s（该式值 %s），正确口径 cp-1s = %s ⇒ 上界被低报 %s"
+                        " ⇒ reason=zero-hit-formula-on-nonzero-sample"
+                        % (rr, decl_upper, exp_ro3, exp_cp1s, F["decl_upper_gap"]))
+        cpv = cp_upper(rr, rn)
+        if dv < cpv - 0.5e-4:                                            # 3-3（数值比较）
+            F["decl_upper_checked"] = "optimistic"
+            F["decl_upper_gap"] = t4(cpv - dv)
+            return emit("FAIL", 1, F, "DECL-UPPER-OPTIMISTIC 申报上界比正确口径更乐观：decl_upper=%s < "
+                        "cp-1s = %s ⇒ 方向危险（上界报低）⇒ reason=decl-upper-optimistic"
+                        % (decl_upper, exp_cp1s))
+        if decl_upper == exp_cp1s:                                       # 3-4 自洽 ⇒ 继续走 ④…⑦
+            F["decl_upper_checked"] = "ok"
+            F["DECL_UPPER"] = "EVALUATED"
+            F["decl_upper_gap"] = t4(cpv - dv)
+        else:                                                            # 3-5 保守但认不出
+            F["decl_upper_checked"] = "unmatched"
+            F["decl_upper_gap"] = t4(cpv - dv)
+            return emit("NOINFO", 3, F, "NOINFO-DECL-UPPER-UNMATCHED 申报上界比正确口径保守但认不出出自哪个"
+                        "式子：decl_upper=%s > cp-1s = %s（既不等于 cp-1s 的打印值 %s，也不等于 k=0 式值 %s）"
+                        "⇒ 既不算绿也不算红 ⇒ reason=NOINFO-DECL-UPPER-UNMATCHED"
+                        % (decl_upper, exp_cp1s, exp_cp1s, exp_ro3))
     # ② 解析现取样本
     obs = parse_rn(observed_s)
     if obs is None:
@@ -242,7 +312,9 @@ def evaluate(registered_s, observed_s, gate_s, effect_s, quiet=False):
     return emit("PASS", 0, F, "PASS 同窗自洽（历史速率落在 CI 内 ∧ 闸未排除 ∧ 效应可发生）")
 
 # ── 台账模式（`--cases`）：逐行跑真判词并与**行内声明的期望**比对 ──────────────
-COLS = ["name", "registered", "observed", "gate", "effect", "want_state", "want_rc", "want_reason_class"]
+COLS_LEGACY = ["name", "registered", "observed", "gate", "effect", "want_state", "want_rc", "want_reason_class"]
+COLS_NEW    = COLS_LEGACY + ["decl_upper", "decl_formula"]   # 新形态 10 列（`D-G121` / `TASK-0719`）
+COLS        = COLS_LEGACY                                    # 兼容别名：旧读者仍按 8 列；内部一律用 COLS_LEGACY/COLS_NEW
 
 def reason_class(reason, state):
     if state == "NOINFO":
@@ -250,6 +322,10 @@ def reason_class(reason, state):
         m = re.match(r"NOINFO-([A-Z-]+)", reason)
         return "NOINFO-" + m.group(1) if m else "NOINFO-?"
     if state == "FAIL":
+        if "decl-column-required-on-new-row" in reason: return "decl-column-required-on-new-row"
+        if "zero-hit-formula-on-nonzero-sample" in reason: return "zero-hit-formula-on-nonzero-sample"
+        if "decl-formula-value-mismatch" in reason: return "decl-formula-value-mismatch"
+        if "decl-upper-optimistic" in reason: return "decl-upper-optimistic"
         if "DRIFT" in reason: return "DRIFT"
         if "VOID-PREMISE" in reason: return "VOID-PREMISE"
         return "FAIL-?"
@@ -257,18 +333,59 @@ def reason_class(reason, state):
 
 def run_cases(path):
     rows = []
+    comments = []        # 🆕 注释行收集（表头声明 / legacy_rows 的册级自洽检查要用）
     with open(path, encoding="utf-8") as fh:
         for ln in fh:
-            ln = ln.rstrip("\n")
-            if not ln.strip() or ln.lstrip().startswith("#"): continue
-            parts = ln.split("\t")
-            if len(parts) != len(COLS): continue
-            rows.append(dict(zip(COLS, parts)))
+            raw = ln.rstrip("\n")
+            if not raw.strip(): continue
+            if raw.lstrip().startswith("#"):                 # 注释行：收起来供**册级自洽检查**用（表头声明 / legacy_rows）
+                comments.append(raw); continue
+            parts = raw.split("\t")
+            if len(parts) not in (8, 10):                    # 🆕 其它宽度 ⇒ **响亮失败**（旧件在此处是静默 `continue`）
+                print("BASELINERATE=NOINFO")
+                print("BASELINERATE_CASES=%d" % len(rows))
+                print("BASELINERATE_REASON=NOINFO-DECL-COLUMN-WIDTH 第 %d 行宽度=%d，既非 8（旧形态）也非 10（新形态）"
+                      " ⇒ 响亮失败（禁静默跳过；`D-G104` 同族）⇒ reason=NOINFO-DECL-COLUMN-WIDTH" % (len(rows) + 1, len(parts)))
+                print("BASELINERATE_RC=3"); return 3
+            if len(parts) == 10:
+                rows.append(dict(zip(COLS_NEW, parts)))
+            else:
+                rows.append(dict(zip(COLS_LEGACY, parts)))
     if not rows:
         print("BASELINERATE=NOINFO"); print("BASELINERATE_CASES=0")
         print("BASELINERATE_REASON=NOINFO-EMPTY-LEDGER 台账无有效行（禁静默判等）")
         print("BASELINERATE_RC=3"); return 3
+
+    # ── 🆕 册级自洽检查（`D-G121` / `TASK-0719`；**先于逐行**，任一不过 ⇒ 整册响亮 NOINFO）──────
+    _ctxt = "\n".join(comments)
+    _declares = ("decl_upper" in _ctxt) and ("decl_formula" in _ctxt)
+    _legacy_m = re.search(r"legacy_rows=(\d+)", _ctxt)
+    _w8 = [i for i, r in enumerate(rows) if len(COLS_LEGACY) == len(r)]
+    _w10 = [i for i, r in enumerate(rows) if len(COLS_NEW) == len(r)]
+    _legacy = None
+    if not _declares:
+        if _w10:   # 表头没声明却有 10 列行 ⇒ 不许偷偷加列
+            _legacy = "NOINFO-DECL-COLUMN-UNDECLARED"
+        else:
+            _legacy = -1            # -1 = 整册旧形态：以下所有行都不判 ③
+    else:
+        if _legacy_m is None:
+            _legacy = "NOINFO-DECL-COLUMN-LEGACY-MISMATCH"   # 声明了新列就必须钉冻结旧行数
+        else:
+            _L = int(_legacy_m.group(1))
+            if _L > len(rows) or any((len(rows[k]) != len(COLS_LEGACY)) for k in range(_L)):
+                _legacy = "NOINFO-DECL-COLUMN-LEGACY-MISMATCH"
+            elif not _w10:
+                _legacy = "NOINFO-DECL-COLUMN-DECLARED-BUT-UNUSED"
+            else:
+                _legacy = _L
+    if isinstance(_legacy, str):
+        print("BASELINERATE=NOINFO"); print("BASELINERATE_CASES=%d" % len(rows))
+        print("BASELINERATE_REASON=%s 册级列结构自洽检查不过（表头声明=%s legacy_rows=%s 宽8=%d 宽10=%d）"
+              " ⇒ reason=%s" % (_legacy, _declares, (_legacy_m.group(1) if _legacy_m else None), len(_w8), len(_w10), _legacy))
+        print("BASELINERATE_RC=3"); return 3
     passed = 0; failed = 0; details = []
+    _meta = []                    # 🆕 逐行 (idx, width, DECL_UPPER, decl_upper_checked)，供册级不变量用
     for r in rows:
         reg = r["registered"] if r["registered"] != "-" else None
         obs = r["observed"] if r["observed"] != "-" else None
@@ -278,21 +395,80 @@ def run_cases(path):
         import io, contextlib
         buf = io.StringIO()
         with contextlib.redirect_stdout(buf):
-            rc = evaluate(reg, obs, g, e, quiet=True)
+            # 🆕 ③ 的入口分派（**列结构规则**属册级，故在此判；判据本体在 `evaluate()`）
+            _w = len(r); _idx = rows.index(r) + 1
+            if _legacy == -1 or (_w == 8 and _legacy is not None and _idx <= _legacy):
+                _du = None                      # 3-7：冻结旧行 ⇒ 本格不判
+            elif _w == 8:
+                rc = 1                          # 3-9：**新行不许退回旧形态** ⇒ FAIL（主控裁定）
+                out_forced = ("BASELINERATE=FAIL\n"
+                              "BASELINERATE_REASON=FAIL DECL-COLUMN-REQUIRED-ON-NEW-ROW 第 %d 行是 8 列（旧形态）"
+                              "而它不在 legacy_rows 前缀内 ⇒ 新行必须用 10 列并填 decl_upper"
+                              " ⇒ reason=decl-column-required-on-new-row\n"
+                              "DECL_UPPER=NOT-EVALUATED\n"
+                              "decl_upper_checked=column-width\n"
+                              "BASELINERATE_RC=3\n") % _idx
+            else:
+                _du = r["decl_upper"]
+            if _w == 8 and (_legacy == -1 or (_legacy is not None and _idx <= _legacy)):
+                with contextlib.redirect_stdout(buf):
+                    rc = evaluate(reg, obs, g, e, quiet=True, decl_upper=None)
+            elif _w == 10:
+                with contextlib.redirect_stdout(buf):
+                    rc = evaluate(reg, obs, g, e, quiet=True, decl_upper=_du, decl_formula=r["decl_formula"])
         out = buf.getvalue()
+        if _w == 8 and not (_legacy == -1 or (_legacy is not None and _idx <= _legacy)):
+            out = out_forced
         st = re.search(r"^BASELINERATE=(\S+)$", out, re.M).group(1)
         rsn = re.search(r"^BASELINERATE_REASON=(.*)$", out, re.M).group(1)
         cls = reason_class(rsn, st)
+        # 🆕 `AMENDMENT-3`：本行必须逐行打印承重 token（单次 grep 可命中）＋细分原因
+        def _g(pat, s, d="-"):
+            m = re.search(pat, s, re.M); return m.group(1) if m else d
+        _du_tok = _g(r"^DECL_UPPER=(\S+)$", out)
+        _du_chk = _g(r"^decl_upper_checked=(\S+)$", out)
         ok = (st == r["want_state"]) and (str(rc) == r["want_rc"])
         if r["want_reason_class"] != "-":
             ok = ok and (cls == r["want_reason_class"])
         passed += 1 if ok else 0; failed += 0 if ok else 1
-        details.append((r["name"], st, rc, cls, r["want_state"], r["want_rc"], r["want_reason_class"], ok, rsn))
-    for (nm, st, rc, cls, ws, wr, wc, ok, rsn) in details:
-        print("CASE %-38s got=%s/%d/%-14s want=%s/%s/%-14s %s" %
-              (nm, st, rc, cls, ws, wr, wc, "OK" if ok else "**MISMATCH**"))
+        _meta.append((_idx, _w, _du_tok, _du_chk, cls))
+        details.append((r["name"], st, rc, cls, r["want_state"], r["want_rc"], r["want_reason_class"], ok, _du_tok, _du_chk, rsn))
+    for (nm, st, rc, cls, ws, wr, wc, ok, _du_tok, _du_chk, rsn) in details:
+        print("CASE %-38s got=%s/%d/%-14s want=%s/%s/%-14s %s DECL_UPPER=%-14s checked=%-16s" %
+              (nm, st, rc, cls, ws, wr, wc, "OK" if ok else "**MISMATCH**", _du_tok, _du_chk))
         if not ok:
             print("     reason=%s" % rsn)
+# ── 🆕 三条**册级不变量**（`AMENDMENT-3` §11.5；主控裁定）：把"良性未评估"与"失败未评估"在册级分开，不必加 token ──
+    #   ① `NOT-EVALUATED` 的行，其 `decl_upper_checked` 必须 ∈ {7 值} ∪ {`na`, `-`}（`ok` ⇒ 自相矛盾）
+    #   ② `legacy_rows` 前缀内的旧形态行 ⇒ `decl_upper_checked` ∈ {`na`, `-`}（出现 7 值之一 ⇒ 旧行被 ③ 判 ⇒ FAIL）
+    #   ③ 前缀**之外**的新形态行**不许**为 `na`（那是"新行没被 ③ 判"）
+    #   ⚠️ 允许集里含 `-`（= 更早的前置检查先 return ⇒ ③ 未走到）—— 该格是**保留冻结 11 行**所必需；
+    #      与裁定原文（{7 值} ∪ {na}）的差异已在 `REBASE.md §⑤c` 具名上报，请裁定。
+    _SEVEN = {"mismatch", "zerohit", "optimistic", "unmatched", "missing", "format", "formula-unknown"}
+    _ALLOWED_NOTEVAL = _SEVEN | {"na", "-", "column-width"}
+    _viol = []
+    _PRECHK = {"NOINFO-NO-WINDOW", "NOINFO-N-NONPOS", "NOINFO-R-RANGE"}   # 仅这三条前置码可配 `-`
+    _lg_mode = isinstance(_legacy, int) and _legacy >= 0     # -1 = 整册旧形态（无新行 ⇒ ②③ 不适用）
+    for (_ix, _wd, _tk, _ck, _cls) in _meta:
+        if _tk == "NOT-EVALUATED" and (_ck not in _ALLOWED_NOTEVAL):
+            _viol.append(("decl-upper-pairing-violated", _ix, "DECL_UPPER=NOT-EVALUATED 而 decl_upper_checked=%s（不在**白名单** {7 值}∪{na,-,column-width} 内 ⇒ 新原因一律默认 FAIL，不许自动接纳）" % _ck))
+        elif _tk not in ("EVALUATED", "NOT-EVALUATED"):
+            _viol.append(("decl-upper-pairing-violated", _ix, "DECL_UPPER=%s 既非 EVALUATED 也非 NOT-EVALUATED（token 必须全函数）" % _tk))
+        if _tk == "EVALUATED" and _ck != "ok":
+            _viol.append(("decl-upper-pairing-violated", _ix, "DECL_UPPER=EVALUATED 而 decl_upper_checked=%s ≠ ok（token 与细分原因自相矛盾）" % _ck))
+        if _ck == "-" and _cls not in _PRECHK:
+            _viol.append(("decl-upper-notreached-unpaired", _ix, "decl_upper_checked=- 却出现在判词类 %s 上（`-` 只许配三条前置 NOINFO 码 ⇒ 否则会掩盖一条本该被评估的路径）" % _cls))
+        if _lg_mode and _legacy > 0 and _ix <= _legacy and _wd == 8 and _ck not in ("na", "-"):
+            _viol.append(("decl-upper-legacy-judged", _ix, "legacy_rows 前缀内的旧形态行 decl_upper_checked=%s（既非 na 也非 -）⇒ 旧行不该被 ③ 判" % _ck))
+        if _lg_mode and _ix > _legacy and _ck == "na":
+            _viol.append(("decl-upper-newrow-unjudged", _ix, "前缀之外的行 decl_upper_checked=na ⇒ 新行未被 ③ 判"))
+    if _viol:
+        _names = sorted({v[0] for v in _viol})
+        print("BASELINERATE=FAIL")
+        print("BASELINERATE_REASON=FAIL %s 册级不变量被违反 %d 处：%s ⇒ reason=%s"
+              % (",".join(_names), len(_viol), "; ".join("第%d行 %s" % (v[1], v[2]) for v in _viol[:4]), _names[0]))
+        print("BASELINERATE_CASES=%d passed=%d failed=%d" % (len(rows), passed, failed + 1))
+        print("BASELINERATE_RC=1"); return 1
     print("BASELINERATE_CASES=%d passed=%d failed=%d" % (len(rows), passed, failed))
     if failed:
         print("BASELINERATE=FAIL"); print("BASELINERATE_RC=1"); return 1
@@ -310,7 +486,7 @@ def selftest():
     cases = os.path.join(sb, "cases.tsv")
     body = "\n".join([
         "# 合成用例（**确定性**；不依赖任何现场腿读数）",
-        "# " + "\t".join(COLS),   # 表头必须是注释（否则会被当成一行用例 —— 本自检第一版就咬到过）
+        "# " + "\t".join(COLS_LEGACY),   # 表头必须是注释；且**刻意只列旧 8 列** ⇒ 该夹具是纯旧形态册（③ 不判，读数不变）
         # ⓐ 同窗自洽 ⇒ PASS（registered 落在 observed CI 内；闸未排除；效应可发生）
         "a-self-consistent\t24/27@2026-09-23T17:25:50+08:00 :221\t23/27\t0.70\t0.30\tPASS\t0\tPASS",
         # ⓑ 换上掉出 CI 的样本 ⇒ FAIL ＋ 点名（历史 24/27=0.889 vs 现取 7/28=0.25）
@@ -343,7 +519,28 @@ def selftest():
     with contextlib.redirect_stdout(buf): rcb = run_cases(bad)
     print("SELFTEST_ANTI_POLARITY bad_ledger_rc=%d (期望 !=0)" % rcb)
     neg = (rcb != 0)
-    ok = (rc == 0) and neg
+    # 🆕 `D-G121` 夹具（**10 列新形态**；表头声明新列 + `legacy_rows` 钉住前面的旧行）
+    dg = os.path.join(sb, "cases-dg121.tsv")
+    with open(dg, "w", encoding="utf-8") as fh:
+        fh.write("\n".join(["# D-G121 夹具（确定性合成）",
+                             "# " + "\t".join(COLS_NEW),
+                             "# legacy_rows=0"] + [
+            "d121-zero-k60-pass	0/60@2026-09-24T09:47:39+08:00+display=:215	0/60	0.04	0.0	PASS	0	PASS	0.0487	rule-of-three-0hit",
+            "d121-nonzero-k126-zerohit-formula	1/126@2026-09-22T20:15:00+08:00	1/126	0.03	0.0	FAIL	1	zero-hit-formula-on-nonzero-sample	0.0235	rule-of-three-0hit",
+            "d121-nonzero-k126-correct-pass	1/126@2026-09-22T20:15:00+08:00	1/126	0.03	0.0	PASS	0	PASS	0.0371	cp-1s",
+            "d121-w98a-formula-value-mismatch	0/60@2026-09-24T09:47:39+08:00+display=:215	0/60	0.04	0.0	FAIL	1	decl-formula-value-mismatch	0.0494	rule-of-three-0hit",
+            "d121-declared-cp-but-zerohit-value	1/126@2026-09-22T20:15:00+08:00	1/126	0.03	0.0	FAIL	1	decl-formula-value-mismatch	0.0235	cp-1s",
+            "d121-optimistic-unmatched	1/126@2026-09-22T20:15:00+08:00	1/126	0.03	0.0	FAIL	1	decl-upper-optimistic	0.0300	-",
+            "d121-conservative-unmatched	1/126@2026-09-22T20:15:00+08:00	1/126	0.03	0.0	NOINFO	3	NOINFO-DECL-UPPER-UNMATCHED	0.0500	-",
+            "d121-decl-missing-new-header	24/27@2026-09-23T17:25:50+08:00	23/27	0.70	0.30	NOINFO	3	NOINFO-DECL-UPPER-MISSING	-	-",
+            "d121-nonzero-k120-zerohit-formula	1/120@2026-09-22T20:15:00+08:00	1/120	0.03	0.0	FAIL	1	zero-hit-formula-on-nonzero-sample	0.0247	rule-of-three-0hit",
+            "d121-newrow-regressed-to-oldform	24/27@2026-09-23T17:25:50+08:00	23/27	0.70	0.30	FAIL	1	decl-column-required-on-new-row",
+        ]) + "\n")
+    import io as _io, contextlib as _c2
+    _b2 = _io.StringIO()
+    with _c2.redirect_stdout(_b2): rc121 = run_cases(dg)
+    print("SELFTEST_DG121_CASES_rc=%d" % rc121)
+    ok = (rc == 0) and neg and (rc121 == 0)
     # 两条反例对照的 required_n（证明"可继续"分支真的给出 N）
     for (label, reg, obs) in [("e-counterexample-22-of-27", "24/27@w", "22/27"),
                               ("f-counterexample-12-of-12", "24/27@w", "12/12")]:
@@ -359,7 +556,7 @@ def main(argv):
     a = list(argv); kv = {}
     i = 0
     while i < len(a):
-        if a[i] in ("--registered", "--observed", "--gate", "--effect", "--cases"):
+        if a[i] in ("--registered", "--observed", "--gate", "--effect", "--cases", "--decl-upper", "--decl-formula"):
             if i+1 >= len(a):
                 print("BASELINERATE=NOINFO"); print("BASELINERATE_REASON=NOINFO-USAGE 选项 %s 缺参数" % a[i])
                 print("BASELINERATE_RC=3"); return 3
@@ -376,7 +573,8 @@ def main(argv):
         print("BASELINERATE=NOINFO")
         print("BASELINERATE_REASON=NOINFO-USAGE 缺必填选项 %s" % " ".join(miss))
         print("BASELINERATE_RC=3"); return 3
-    return evaluate(kv["--registered"], kv["--observed"], kv["--gate"], kv["--effect"])
+    return evaluate(kv["--registered"], kv["--observed"], kv["--gate"], kv["--effect"],
+                    decl_upper=kv.get("--decl-upper"), decl_formula=kv.get("--decl-formula", "-"))
 
 sys.exit(main(sys.argv[1:]))
 PY
