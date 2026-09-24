@@ -261,4 +261,44 @@ post2  14:05:06→14:19:23  slot_rc=0  步骤通过 36 ❌ 失败 0 ｜ 用例�
 - **`NOFILE_SWAP` 证据**：两趟 `saved_shim=921ba9c65e9fb3be` 相同、`BASELINESHA=PASS live=4ee96c043b472c11` 相同。
 - **放行标记**：`touch ~/w21-verify/w63-POST.done` ⇒ **真 `stat` mtime = `2026-09-24 14:19:54.616048853 +0800`**、0 B（`#64` 的入口信号）。
 
-## §12 交付：推送／app-local／哨兵（**待追加**）
+## §12 交付：推送／app-local／哨兵（实测）
+
+### 12.1 推送（逐径 `git add`，**绝不** `git add -A`）
+```
+远端实况（ls-remote；⚠️ 不用陈旧跟踪引用 origin/feat-Linux）：
+  推送前 remote = aba053ac92348d1d27d5058975289a8adb0f7be1 == local ⇒ ✅ 快进（无 --force）
+  aba053a..c5d206f  feat-Linux -> feat-Linux
+  推送后 remote head = c5d206f8aa97435af0b25f584a6d5e7637f229c1（== local HEAD）
+  远端默认分支：ref: refs/heads/feat-Linux	HEAD ⇒ 仍是 feat-Linux（只读它，未改设置）
+porcelain 计数 = 12（全部显式列入白名单）
+```
+白名单 12 件：`verify-all.sh`／`regression-decision.py`／`regression-decision-cases.tsv`／
+`regime-identity-check.sh`（新）／`prereg-four-requirements-check.sh`／`close-wave.sh`／`known-red.json`／
+`docs/WAVE63-PREREGISTRATION.md`（新）／`samples/WpfTextDemo/ACCEPTANCE-BASELINE.md`／`docs/CURRENT-STATE.md`／
+`build/wave-audit.log`／`build/MilBridge/W152A-report.md`。
+**主控四件**（`docs/ROUTES.md`／`samples/WpfFeatureProbe/KNOWN-DEFECTS.md`／
+`build/MilBridge/tools/defect-registry-declared.tsv`／`build/MilBridge/HANDOFF-NEXT.md`）**逐字不在变更集里**（现场 `git show --stat` 核过）。
+
+### 12.2 字节核对（口径：`$R` 磁盘 vs **`HEAD:`** 的 blob）
+```
+BYTECHECK ok=12 mismatch=0
+2819b5990e74cc80 verify-all.sh                      6a0e8ccc0c6cb5d7 regression-decision.py
+de6290cfad8892a1 regression-decision-cases.tsv      97cfab155dfa9bce regime-identity-check.sh
+a40aac9031304a8f prereg-four-requirements-check.sh  9ee0c2488d25f6f6 close-wave.sh
+2209966ee1d2c5cc known-red.json                     f58f6f1921bed5e3 docs/WAVE63-PREREGISTRATION.md
+4ee96c043b472c11 ACCEPTANCE-BASELINE.md             79703ac46431e0b4 docs/CURRENT-STATE.md
+d8760f67f31af65d build/wave-audit.log               8abaafb506b06a78 build/MilBridge/W152A-report.md
+```
+CRLF 口径：`check-attr text eol` 全 `text: unset`（本仓刻意 `* -text`）、零 CRLF 告警。
+
+### 12.3 app-local
+```
+APPSYNC=MISMATCH（MISMATCH=0[STALE=0 NEWER-DIFF=0] MISSING=0 UNEXPECTED=6[DECL-GAP-EQ=6 DECL-GAP-DIFF=0]
+                 DIVERGENT=0 RETIRED=0 AUTH-MISSING=0 BRIDGE-ANCHOR=0 BRIDGE-NOINFO=0）
+```
+⇒ **`STALE=0`／`DIVERGENT=0`**；`UNEXPECTED=6[DECL-GAP-EQ=6]` 与 `#59`–`#62` 的读数**形态逐字相同** ⇒ **继承自上一代、非本波引入**。
+
+### 12.4 两处哨兵（`/tmp/bridge-frozen.flag` ＋ `~/wfp-runs/bridge-frozen.flag`）
+- 逐位复核 close-wave 写下的**九位**：**9/9 相符**。
+- 手工补 `BASELINE=#63 sha16=4ee96c043b472c11 bytes=919687`（两处，`temp ＋ rename`）。
+- 两处 `cmp` = **IDENTICAL** ✓。
