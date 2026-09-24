@@ -263,7 +263,7 @@ wpf-linux 路线图
 │   ├─ TASK-0712 [Next] 🔴 **`D-G113`「假旋钮」的修法** —— `geom-resend-regression-check.sh` 的 `--fix=`/`--pre=` 被解析却不进 `judge(rows)` ⇒ `rc` 不变、反极性实验得**假「没变化」**；二选一：① 接进判据 ② **删掉两个开关**；入口 = `build/MilBridge/tools/geom-resend-regression-check.sh`（`cd375326b62f7982`）
 │   ├─ TASK-0713 [Next] 🔴 **`shell-quote-trap-check.sh` 不扫 `*/bin/*`** —— 该牙的**声明覆盖面比看起来窄**（样本放 `bin/` 下 ⇒ `scan-empty` 假绿方向）；入口 = `build/MilBridge/tools/shell-quote-trap-check.sh`（在 `fp_inputs` 白名单内 ⇒ 改它要成对记 `inputs_fp`）
 │   └─ TASK-0714 [Next] 🔴 **把「按模式收进程」做成牙** —— `D-G103` 族本会话咬 5 次（`pkill -f` 本体／`pgrep -P $$ -f`／看门狗自伤／数进程自匹配／cmdline 子串自匹配）；判据 = 凡按模式匹配命令行收/数进程，**必须先排除 `$$`/`$PPID`**，能按 PID 就绝不按模式
-│   ├─ TASK-0715 [Next] 🔴 **入口文档刷新（README／README-Window／FORK-AND-PUSH 对齐現读世代）** —— 现状：`README.md`（09-21）／`README-Window.md`（09-20）／`docs/FORK-AND-PUSH.md`（09-20）**停在 `#52` 前后**；`handoff.md`（09-20，`#46`–`#48` 时代）**是 `DEFREG` 的 `HO` 路由键、不许删行** ⇒ 已加**现读指针 banner**（指 `CURRENT-STATE.md:9`／`HANDOFF-NEXT.md`／`ROUTES.md §13`）。落法：**入口件重写**（它们是导航、不是证据）＋ 新建 `docs/README-INDEX.md` 做**「现读 vs 历史」二分**；**历史件（`§15x+`、缺陷册、旧交接正文）一律不动、只加 dated 注**
+│   ├─ TASK-0715 [Next] 🟡 **入口文档刷新（对齐现读世代）—— 主力已办（2026-09-24）**：`handoff.md` **5283→333 行**（`HO` 键要求的 88 个编号行逐字保留；替换前用 `DRC_HO` 跑 `DEFREG=PASS` 验过）｜`docs/ROUTES.md` **840→606 行**（`§15b–§15y` 24 段压成「标题＋一行指针」，标题全留）｜`README.md` §0 重写（旧 8 行「已知问题」表删除）＋ §6「Debug」更正为 **Release（`#40` 起）**｜`docs/INDEX.md` 更新 ＋ 新 §5 已删除清单｜删 `docs/` **17 件／9,781 行**（过「远端可取回＋工具未引用」两闸）。**剩**：`FORK-AND-PUSH.md`／`PORT-SPEC.md` 对齐（`README-Window.md` = 上游原文逐字保留 ⇒ 不动）
 ├─ 08xx R8 上游化与发布
 │   ├─ TASK-0801 [MVP] ✅ fork ＋ `feat-Linux` 默认分支 ＋ README/README-Window/PORT-SPEC/ROUTES/FORK-AND-PUSH
 │   └─ TASK-0802 [Next] ✅ 11 件文档已推远端（远端 `a0e783d…` 已核；默认分支仍 `feat-Linux`）
