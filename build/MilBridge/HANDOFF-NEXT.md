@@ -1,11 +1,12 @@
 # HANDOFF-NEXT —— wpf-linux 现场交接（**现读现算**；生成 2026-09-24 00:2x，取代此前所有过期版本）
+> ⚠️ **本件数值随波变动**：下面所有 sha16／字节数／step 数**一律以 §7 现算为准**；本件是**导航**，不是判据。
 
 > ⚠️ 本件的**唯一权威来源是现场**。若本件与现场冲突，**以现场读数为准**，并按 §7 的七条命令重取。
 
 ## §1 世代与冻结（现读）
-- 冻结哨兵：`docs/CURRENT-STATE.md:9` = `BASELINE-FROZEN gen=#56 sha16=8edaf4f8c1e93eb0 file=samples/WpfTextDemo/ACCEPTANCE-BASELINE.md`
+- 冻结哨兵：`docs/CURRENT-STATE.md:9` = `BASELINE-FROZEN gen=#59 sha16=02f80e388d308c4d file=samples/WpfTextDemo/ACCEPTANCE-BASELINE.md`
   （⚠️ **被哈希的件由这行的 `file=` 字段指定**，不是 `CURRENT-STATE.md` 自己 —— 核对时先读 `file=`。）
-- 基线件：`samples/WpfTextDemo/ACCEPTANCE-BASELINE.md` = `8edaf4f8c1e93eb0`／**807,869 B**（`#55` 785,675 → `#56` 807,869）。
+- 基线件：`samples/WpfTextDemo/ACCEPTANCE-BASELINE.md` = `8edaf4f8c1e93eb0`／**846,233 B**（`#55` 785,675 → `#56` 807,869）。
 - 九位（`#56`）：`bridge 4e25e4b27d4d5ae1`｜`pc 722e0ab8205b7c3f`｜`pf b4c81eb3f1376f86`｜`windowsbase 2e4e46e539a72cd7`｜`provider 1f9511a7ef395bfe`｜`win32shim 2067cb1c97728791`｜`wic_shim f7b3026c8c019be2`｜`hbtextline 921ba9c65e9fb3be`｜`dwf ce3469f49efcbcfa`
   （`pf` 是**环成员**：整波重建必变、**同尺寸** ⇒ 不许当漂移/回归判据，`D-G92`。）
 - `inputs_fp`：**`#56` 冻结时刻** = `1a999e79f236303891b06c54ef659fe989262cd841140641a13ad27acf12254e`；⚠️ **写成这份交接件时现场已变为 `ecaf53ddc2b5f508e790d64e2a9c024f1e3e7f70b0c6d4457218c0e71d69bd9b`** —— 因为 `#57` 改动 `src/WpfGfx.Linux.Native/src/{win32_msg.c,win32_core.c}`，而**它们在 `fp_inputs()` 覆盖面内**（`#49` 的 `B4` 纳入）。⇒ **该值随 native 源改动必变，属设计性变更，不是漂移**；取新值请照 §7 第 4 条现算。
@@ -49,6 +50,8 @@
 19. **追加"历史行"的编辑必须用**插入**，不许用"替换前缀＋跳到行尾"**：`verify-all.sh` 的 `VERIFYALL-STEPS-DECL`／口径句是**累积历史**，按行替换会把上一代那行**整行吃掉**（实测一次）；改完必须 `grep -c` 核旧行仍在（本次靠该计数发现并回滚重做）。
 20. **判据的"生效边界"必须可见**：早于生效代的证据件打 **`SKIP` ＋逐件点名 `reason=pre-effective`**，且与 `PASS` **分开计数**（超出射程 ≠ 通过，也 ≠ 违规）。**禁止**用"放低边界/删掉该件"换取好过；`--min-wave` 一类覆盖口只作**参数**。
 18. **"两趟对拍"的合格线 = 判词行逐字一致**；跑次戳（`outdir=`）、临时目录随机后缀、仪器计数漂移（实测 `magenta_frames=38 vs 39`，而 `frames/max_colors/min_colors` 相同）**不算差异，但必须在报告里点名并列出实际数**。阈值：**任一判词行不同，或计数跑出观察到的带（38–39）⇒ 停手**。
+24. **记录模板里的"花括号全大写"会被冻机器当占位符并 `assert` 炸掉**：`w27-freeze.py` 的占位符正则认的是「`{` ＋ 全大写名字 ＋ `}`」，而记录正文里常写 shell 变量（`${VAR}`／`{A,B}` 之类）⇒ **一律写成 `$VAR` 或用尖括号占位**（`<NAME>`），**不要**在模板正文里用花括号包大写词。落地前用机读校验器过一遍（`W62_DRAFT_CHECK` 同款）。
+25. **"恒 0 守卫"是死代码**：实测一处把 `res['hits'] == 0` 写成 **list 比 int**（恒假）⇒ 那格"零命中守卫"**永不生效**，零命中的树被**误判绿**（由树级两极化暴露）。⇒ 凡守卫/断言，必须**用一条已知为真的输入**证明它**真的会亮**；`==`/`if` 两侧类型要**同类**（`len(x) == 0` 而不是 `x == 0`）。
 16. **`python3 - <<EOF`（stdin 脚本）里取脚本自身位置一律不许用 `__file__`**：实测它在 stdin 下恒为 `<stdin>` ⇒ 反推仓根会**静默指到别处**（现场表现为 `NOINFO reason=registry-absent:/home/build/…` —— **不报错、只判错**，在 `verify-all` 里就是一个 ❌）。落法 = 由 bash 侧**显式导出**仓根（如 `GEOMBEAT_REPO`），并加一条自测钉住它。
 17. **改"读数行/报告行"必须断言命中数**：用 `str.replace` 静默 no-op 是最隐蔽的假更新（本会话车道自伤两次：漏写 `land=`、漏更新 `new_findings`）。落法 = 逐字段断言重建，或替换后立刻 `grep -c` 复核。
 14. **「必须成为 `head -1`」的插入，锚必须是**位置**，不能是上一代的文本**：`verify-all.sh` 的 `VERIFYALL-STEPS-DECL` 首行每代都会被上一波在**其之上**再插一行（实测 `#56`→`#57`：1053→1055 行），照抄上一代句子会把新行插到下面、`head -1` 取到旧代号。落法 = 解析首个 `^#\s*VERIFYALL-STEPS-DECL:\s*(\d+)\s+gen=(#\d+)` ＋ **先断言 `DECL 数 == grep -c '^run_step "'`** 再插。
