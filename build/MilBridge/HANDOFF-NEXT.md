@@ -6,11 +6,11 @@
 ## §1 世代与冻结（现读）
 - 冻结哨兵：`docs/CURRENT-STATE.md:9` = `BASELINE-FROZEN gen=#59 sha16=02f80e388d308c4d file=samples/WpfTextDemo/ACCEPTANCE-BASELINE.md`
   （⚠️ **被哈希的件由这行的 `file=` 字段指定**，不是 `CURRENT-STATE.md` 自己 —— 核对时先读 `file=`。）
-- 基线件：`samples/WpfTextDemo/ACCEPTANCE-BASELINE.md` = `8edaf4f8c1e93eb0`／**846,233 B**（`#55` 785,675 → `#56` 807,869）。
+- 基线件：`samples/WpfTextDemo/ACCEPTANCE-BASELINE.md` = `02f80e388d308c4d`／**846,233 B**（`#55` 785,675 → `#56` 807,869）。
 - 九位（`#56`）：`bridge 4e25e4b27d4d5ae1`｜`pc 722e0ab8205b7c3f`｜`pf b4c81eb3f1376f86`｜`windowsbase 2e4e46e539a72cd7`｜`provider 1f9511a7ef395bfe`｜`win32shim 2067cb1c97728791`｜`wic_shim f7b3026c8c019be2`｜`hbtextline 921ba9c65e9fb3be`｜`dwf ce3469f49efcbcfa`
   （`pf` 是**环成员**：整波重建必变、**同尺寸** ⇒ 不许当漂移/回归判据，`D-G92`。）
 - `inputs_fp`：**`#56` 冻结时刻** = `1a999e79f236303891b06c54ef659fe989262cd841140641a13ad27acf12254e`；⚠️ **写成这份交接件时现场已变为 `ecaf53ddc2b5f508e790d64e2a9c024f1e3e7f70b0c6d4457218c0e71d69bd9b`** —— 因为 `#57` 改动 `src/WpfGfx.Linux.Native/src/{win32_msg.c,win32_core.c}`，而**它们在 `fp_inputs()` 覆盖面内**（`#49` 的 `B4` 纳入）。⇒ **该值随 native 源改动必变，属设计性变更，不是漂移**；取新值请照 §7 第 4 条现算。
-- 推送：`feat-Linux` @ **`636a3e730bfd39c67dd011dcfe6441e33a1db08d`**（本地 == 远端）；clone = `~/netTest/GitProj/WPFOnLinux`（**`$R` 本身不是 git 仓**）。
+- 推送：`feat-Linux` @ **`bc0879d30bfd39c67dd011dcfe6441e33a1db08d`**（本地 == 远端）；clone = `~/netTest/GitProj/WPFOnLinux`（**`$R` 本身不是 git 仓**）。
 
 ## §2 在飞（**先读这节再动手**）
 - **`#57` = `TASK-0211`**（三处窄 `TOCTOU`／生命周期缺陷：`win32_msg.c` 的 `PostMessageW`／`PostThreadMessageW` ＋ `wpf_thread_destroy` 的 fd），车道 **W146A** 持链；落地件 `win32_msg.c=4a88fffb1a0cd7f1`／`win32_core.c=e7f6a37a30f5a037`／`libwpfwin32.so=d2b76a0a56a41be1`（导出 547），**已命中 `/tmp` 干跑预测值**；三点反极性（`aeb179a2d3d9ca44`／`d60f056672f7b4d5`／`5d58b2c18791c369`）**各自成对**已取。
