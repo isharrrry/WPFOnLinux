@@ -1,5 +1,5 @@
-# DECL-GEN = (--emit) 2026-09-24 09:30:58 +0800
-# DECL-ANCHORS = KD=ea5c6366f30b3875 CS=68e975a4da28732a HO=a4d8ffcf4c37f6fe AB=02f80e388d308c4d KRJ=b3f264bbf43dbd61 KRF=ab09235afd949bc2 KRP=3c9e3a309b990d31
+# DECL-GEN = (--emit) 2026-09-24 16:18:02 +0800
+# DECL-ANCHORS = KD=088c530942eafa74 CS=8e868e1272cb2b2f HO=a4d8ffcf4c37f6fe AB=6b01358a776dd936 KRJ=2209966ee1d2c5cc KRF=ab09235afd949bc2 KRP=3c9e3a309b990d31
 # grammar: D-[A-Z][0-9]*[a-z]?(-[A-Za-z0-9]+)*
 # fields:  ID<TAB><id><TAB>req=<key,key,...|-><TAB>present=<key,key,...>
 # 词法边界（实测）：D-ZZ9 **不合法**（scope 段只许"1 个大写字母 + 数字量词 + 可选 1 个小写"）
@@ -25,7 +25,7 @@ ID	D-G10	req=KD,CS,HO,AB	present=KD,CS,HO,AB
 ID	D-G100	req=KD,AB	present=KD,AB,KRJ
 ID	D-G101	req=KD,AB	present=KD,AB,KRJ
 ID	D-G102	req=KD	present=KD
-ID	D-G103	req=KD	present=KD
+ID	D-G103	req=KD,AB	present=KD,AB
 ID	D-G104	req=KD	present=KD
 ID	D-G105	req=KD,AB	present=KD,AB
 ID	D-G106	req=KD	present=KD
@@ -36,9 +36,20 @@ ID	D-G11	req=KD,CS,HO,AB	present=KD,CS,HO,AB
 ID	D-G110	req=KD	present=KD
 ID	D-G111	req=KD	present=KD
 ID	D-G112	req=KD,AB	present=KD,AB
-ID	D-G113	req=KD	present=KD
-ID	D-G114	req=KD	present=KD
+ID	D-G113	req=KD,AB	present=KD,AB
+ID	D-G114	req=KD,AB	present=KD,AB
+ID	D-G115	req=KD,AB	present=KD,AB
+ID	D-G116	req=KD,AB	present=KD,AB
+ID	D-G117	req=KD,AB	present=KD,AB
+ID	D-G118	req=KD,AB	present=KD,AB
+ID	D-G119	req=KD,AB	present=KD,AB
 ID	D-G12	req=KD,CS,HO,AB	present=KD,CS,HO,AB
+ID	D-G120	req=KD,AB	present=KD,AB
+ID	D-G121	req=KD	present=KD
+ID	D-G122	req=KD	present=KD
+ID	D-G123	req=KD	present=KD
+ID	D-G124	req=KD	present=KD
+ID	D-G125	req=KD	present=KD
 ID	D-G13	req=KD,CS,HO,AB	present=KD,CS,HO,AB
 ID	D-G14	req=KD,CS,HO,AB	present=KD,CS,HO,AB,KRJ
 ID	D-G15	req=KD,CS,HO,AB	present=KD,CS,HO,AB
