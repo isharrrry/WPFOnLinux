@@ -202,6 +202,33 @@ bash: 行 4: B: 未找到命令          ← 整体 rc=0
 
 ---
 
-## §11 推送／写域
+## §11 推送（逐径 `git add`；**禁 `-A`**）
 
-见 §12（推送读数在下方逐条追加）。**主控写域四件**（`docs/ROUTES.md`／`samples/WpfFeatureProbe/KNOWN-DEFECTS.md`／`build/MilBridge/tools/defect-registry-declared.tsv`／`build/MilBridge/HANDOFF-NEXT.md`）**一件未 add**。**`src/**` 一字未动**（零产品改动）。
+```
+推送前（快进判据用**远程实况**，不用本地猜测）：remote = 3e9d6f96c4c7ced9fdaf84b8dbe69c40d91887ef
+  ⇒ git merge-base --is-ancestor 远程 本地 = 是 ⇒ **可快进、无需 --force**
+push: 3e9d6f9..b505af4  feat-Linux -> feat-Linux
+refspec 陷阱（显式 fetch 到远程跟踪 ref）: 3e9d6f9..b505af4  feat-Linux -> origin/feat-Linux
+  本地 HEAD            = b505af4b247eb91f6057131316322e4223c905a8
+  origin/feat-Linux    = b505af4b247eb91f6057131316322e4223c905a8
+  ls-remote(feat-Linux)= b505af4b247eb91f6057131316322e4223c905a8     ← **三者一致**
+  ls-remote --symref origin HEAD : refs/heads/feat-Linux               ← 仍 `feat-Linux`
+  porcelain（推送后）  = 0
+porcelain（推送前）8 行 == `--cached` 8 件（**逐一相同、无夹带**；未用 `-A`）
+**BYTECHECK ok=8 mismatch=0 nobody=0**（口径 `git cat-file blob origin/feat-Linux:<path>` vs `$R` 磁盘逐件）
+变更集（8 件）：verify-all.sh／build/close-wave.sh／build/MilBridge/tools/baseline-rate-gate.sh（新）／
+  build/MilBridge/tools/baseline-rate-cases.tsv（新）／docs/WAVE64-PREREGISTRATION.md（新）／
+  samples/WpfTextDemo/ACCEPTANCE-BASELINE.md／docs/CURRENT-STATE.md／build/MilBridge/W64-report.md（新）
+```
+
+## §12 写域（**逐件核过**）
+
+- **主控写域四件逐件核「不在变更集」** ✓：`docs/ROUTES.md`／`samples/WpfFeatureProbe/KNOWN-DEFECTS.md`／
+  `build/MilBridge/tools/defect-registry-declared.tsv`／`build/MilBridge/HANDOFF-NEXT.md` —— 本次 `git diff --name-only` 里**一件都没有**。
+- ⚠️ **如实报（交主控）**：这三件在 `$R` **工作树里比远端超前**（主控写域、我**未碰**）：
+  `ROUTES.md` `$R=ee077b07396f764e` vs 远端 `08a90b86a3d8e41e`｜`KNOWN-DEFECTS.md` `$R=088c530942eafa74` vs `ea5c6366f30b3875`｜
+  `declared.tsv` `$R=2b38145ce33d5f1d` vs `350ea07a8e91393c` ⇒ **需主控自行推送**（本车道的 `add` 是逐径的，不会带上它们）。
+- **`src/**` 一字未动**（零产品改动；九位只 `pf` 位移即为机械证）。
+- 本地件：`~/w157a/criteria.md`｜`~/w157a/baseline-rate-gate.md`｜`~/w157a/bin/{baseline-rate-gate.py,w64-attrib.py,w64-gate.sh,w64-post.sh,patch-gens64.py}`｜
+  `~/w157a/logs/{verify-all-w64-1,verify-all-w64-prefreeze,verify-all-w64-post1,verify-all-w64-post2,close-wave-w64,w64-gate}.log`｜
+  `~/w157a/{w64-pre.sha,w64-before.list,w64-after.list,gate-rows.txt,gate-rows-f.txt}`｜`~/w157a/w64-backup/**`。
