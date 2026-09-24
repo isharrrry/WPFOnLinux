@@ -244,10 +244,6 @@ RUN 2  （逐字同上）                                                       
 
 ---
 
-## §9 冻前/冻后（**待追加**）
-
-（跑完后逐段追加：冻前 `verify-all` 读数 → 冻结 `FREEZE_RC` ＋ 四牙 → 冻后 ×2 → 放行标记 → 推送/app-local/哨兵。）
-
 ---
 
 ## §9 冻前 → 冻结 → 冻后（实测，逐条）
@@ -322,13 +318,65 @@ post2  10:27:02→10:42:03  slot_rc=0  步骤通过 34 ❌ 失败 0 ｜ 用例�
 
 ---
 
-## §10 机读摘要（末行）
 
-`W152A=DONE wave=#60 baseline=da24cb43d2123612/864300 steps=33→34 tooth=235d76b61cdc46a4,d4317aa7605a31e1 verify_all=970bb48ba8ebd384 gate_x2=PASS pre=34✅/0❌ post_x2=34✅/0❌ marker=2026-09-24T10:43:04 push=<见推送记录> R_touched=verify-all.sh,build/MilBridge/tools/shell-quote-trap-check.sh,build/MilBridge/tools/prereg-four-requirements-check.sh,docs/WAVE60-PREREGISTRATION.md,samples/WpfTextDemo/ACCEPTANCE-BASELINE.md,docs/CURRENT-STATE.md heavy=YES(slot)`
+---
 
-（占位符 `tooth=` 里的两个 sha16 与 `push=` 由 §9 与推送段现场填。）
+---
 
-**三件的 before → after**：
-`shell-quote-trap-check.sh` `e5d4cf05ef5fc2ea` → `d4317aa7605a31e1`｜
-`prereg-four-requirements-check.sh` `b436ae561ae1f396` → `235d76b61cdc46a4`｜
-`verify-all.sh` `ec29c571be6b19da` → `970bb48ba8ebd384`。
+## §10 ⑧ 推送／app-local／哨兵（实测）
+
+### 10.1 推送（逐径 `git add`，**绝不** `git add -A`）
+
+```
+远端实况（ls-remote；⚠️ **不用**陈旧跟踪引用 origin/feat-Linux —— 它停在 636a3e7）：
+  推送前 remote = 32eaaf06f53c6215ef0bc92c24cb643afaad1667 == local ⇒ ✅ 快进（**无 --force**）
+  推送     32eaaf0..332d503  feat-Linux -> feat-Linux
+  推送后 remote head = 332d5032472c899d2e846cad1e53e172e604bdf3（== local HEAD）
+  远端默认分支：ref: refs/heads/feat-Linux	HEAD  ⇒ **仍是 feat-Linux**（只读它，未改设置）
+commit 变更件数 = 8（porcelain 计数 = 8，全部显式列入白名单）
+```
+
+白名单 8 件：`verify-all.sh`／`build/MilBridge/tools/shell-quote-trap-check.sh`／
+`build/MilBridge/tools/prereg-four-requirements-check.sh`／`docs/WAVE60-PREREGISTRATION.md`（新）／
+`samples/WpfTextDemo/ACCEPTANCE-BASELINE.md`／`docs/CURRENT-STATE.md`／`build/wave-audit.log`／
+`build/MilBridge/W152A-report.md`（新）。
+
+**主控四件**（`docs/ROUTES.md`／`samples/WpfFeatureProbe/KNOWN-DEFECTS.md`／
+`build/MilBridge/tools/defect-registry-declared.tsv`／`build/MilBridge/HANDOFF-NEXT.md`）
+**逐字不在变更集里**（现场 `git show --stat` 核过）。
+
+### 10.2 字节核对（口径：`$R` 磁盘 vs **`HEAD:`** 的 blob）
+
+```
+BYTECHECK ok=8 mismatch=0
+970bb48ba8ebd384  verify-all.sh                         2b9eb8c1426735c2  docs/WAVE60-PREREGISTRATION.md
+d4317aa7605a31e1  …/shell-quote-trap-check.sh           da24cb43d2123612  samples/WpfTextDemo/ACCEPTANCE-BASELINE.md
+235d76b61cdc46a4  …/prereg-four-requirements-check.sh   1ef2cb91160b5d4d  docs/CURRENT-STATE.md
+9fdac186592676bc  build/wave-audit.log                   1dff6ed003d50a4d  build/MilBridge/W152A-report.md
+```
+
+CRLF 口径（`FORK-AND-PUSH.md` §7 教训）：`git check-attr text eol` 全 `text: unset`（本仓刻意 `* -text`）、
+`core.autocrlf=false`、`git add` **零 CRLF 告警**。
+
+### 10.3 app-local
+
+```
+APPSYNC=MISMATCH（MISMATCH=0[STALE=0 NEWER-DIFF=0] MISSING=0 UNEXPECTED=6[DECL-GAP-EQ=6 DECL-GAP-DIFF=0]
+                 DIVERGENT=0 RETIRED=0 AUTH-MISSING=0 BRIDGE-ANCHOR=0 BRIDGE-NOINFO=0）
+```
+
+⇒ **`STALE=0`／`DIVERGENT=0`**；`UNEXPECTED=6[DECL-GAP-EQ=6]` 与 `#59` 的读数**形态逐字相同**
+⇒ **继承自上一代、非本波引入**（`close-wave.sh` `[4/6]` 那句 `APPSYNC 非 PASS` 由此解释）。
+
+### 10.4 两处哨兵（`/tmp/bridge-frozen.flag` ＋ `~/wfp-runs/bridge-frozen.flag`）
+
+- 逐位复核 close-wave 写下的**九位**：**9/9 相符**（`SHA`/`PC`/`PF`/`WB`/`WIN32SHIM`/`HBTL`/`WIC`/`PROVIDER`/`DWF`）。
+- 按 `NOTE=` 的指示**手工补** `BASELINE=#60 sha16=da24cb43d2123612 bytes=864300`（两处，`temp ＋ rename`）。
+- 两处 `cmp` = **IDENTICAL** ✓。
+
+---
+
+## §11 机读摘要（末行）
+
+
+`W152A=DONE wave=#60 baseline=da24cb43d2123612/864300 steps=33→34 tooth=235d76b61cdc46a4,d4317aa7605a31e1 verify_all=970bb48ba8ebd384 gate_x2=PASS pre=34✅/0❌ post_x2=34✅/0❌ marker=2026-09-24T10:43:04 push=32eaaf0..332d503(remote head 332d5032472c899d2e846cad1e53e172e604bdf3,分支 feat-Linux) R_touched=verify-all.sh,build/MilBridge/tools/shell-quote-trap-check.sh,build/MilBridge/tools/prereg-four-requirements-check.sh,docs/WAVE60-PREREGISTRATION.md,samples/WpfTextDemo/ACCEPTANCE-BASELINE.md,docs/CURRENT-STATE.md,build/wave-audit.log,build/MilBridge/W152A-report.md heavy=YES(slot)
