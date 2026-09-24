@@ -16,6 +16,12 @@
 #        （形态与 `D-G42`/`D-G97` 同族：**不许按关键词认对象**。）
 #   `PREREG4=NOINFO`（rc=3） ⟸ **查不动**：文件不存在／不可读／找不到任何「判据」节（非预登记形态）。
 #        ⚠️ `NOINFO` **既不算绿也不算红**。
+#   ★ **`#60` W152A 新增 `PREREG4=NA`（rc=0）** ⟸ **判据节里逐字声明「本波不做任何回归判定」**
+#        ∧ **全文无回归判定证据**（`REGRESSION_DECISION=`／`regression-decision-cases.tsv`）
+#        ⇒ 四要件**对本波 N/A**。**充要两条**，缺声明 ⇒ 走正常路径（该 FAIL 就 FAIL）；
+#        留声明却引用了回归判定证据 ⇒ **仍 FAIL**（声明**不许**当免死金牌）。
+#        `N/A` **与 `PASS` 分开计数**（`na=` 独立一格）＋ 逐件点名 `PREREG4_NA …`。
+#        （来源：`TASK-0709`；`#59` 现场＝被逼着抄一节，而它自己写着"是这一刻不适用的声明"。）
 #
 # 【两极化自测（`--selftest`，自带 fixture，不依赖仓内任何波）】
 #   正极性：完好预登记 ⇒ `PASS rc=0`；补齐一份缺件 ⇒ **回绿**。
@@ -69,6 +75,21 @@ MARK4='Fisher'
 #      **禁止**用它"放低边界换取好过"（handoff 第 20 条原文），也**禁止**据此删件。
 REQ_EFFECTIVE_WAVE=58
 MIN_WAVE="$REQ_EFFECTIVE_WAVE"
+
+# ── ★ `#60` W152A：**批次门禁形态** `--gate`（`verify-all` 第 `[34]` 步用；**逐件形态一字未动**）────
+#   【为什么需要它】`verify-all.sh` 的 `run_step` 把**任何 `rc≠0`** 判 `❌`，而逐件形态下
+#     「波次早于生效边界 ⇒ `SKIP` ⇒ `rc=3`」（W151A 定的读法，**本波逐字保留**）。
+#     于是 `--glob` 扫全量时**永远** `rc=3` ⇒ 那条步**永远红** ⇒ 门禁**接不上**。
+#   【口径】批次形态下，早于生效边界的件**不判**，改为**逐件点名** `PREREG4_OUT-OF-SCOPE` ＋ 计数
+#     `out_of_scope=`（**永远可见，绝不静默**）。批次 `rc` 只由**违规**与**查不动**决定：
+#         fail>0 ⇒ 1 ｜ noinfo>0 ⇒ 3（`NOINFO` **不算绿**，在 `verify-all` 里必须显形为"未通过"）
+#         `na`／`out_of_scope` **不进 `rc`**（它们是"**适用性／射程**"声明，**不是**"我试了算不出来"）
+#   【为什么这不是放宽】射程边界 `REQ_EFFECTIVE_WAVE` 是**版本受控的常量**，而 `<#58` 的件按
+#     `TASK-0705` 的"**只加不改**"**永远**出射程 ⇒ 这个"不判"的集合**永不增长**、**永不包含当前波**；
+#     它与 `NOINFO`（查不动）**不是一回事**。把 `SKIP` 也算进批次 `rc` ⇒ 批次**永不为 0**
+#     ⇒ 门禁永远接不上 ⇒ 只会把人推向"**吞掉 rc**"（**真**假绿，比这个洞更坏）。
+#   【被否决的备选】只判"当波那一份"（射程 → 1 件，明显更弱）。
+GATE_MODE=0
 
 wave_num() {
   # 从 `…/WAVE<NN>-PREREGISTRATION.md` 取 <NN>；取不到 ⇒ 空（非当波件名 ⇒ 不套用守卫）
@@ -127,6 +148,36 @@ check_file() {
     echo "PREREG4_NOTE NOINFO 既不算绿也不算红（找不到「判据」节 ⇒ 本牙判不了）"
     return $RC_NOINFO
   fi
+
+  # ── ★ `#60` W152A／`TASK-0709`：识别「本波不做回归判定」的**显式声明** ⇒ 该要求降级为 `N/A`（**可见**）──
+  #   充要两条（**同时**成立才是 NA）：
+  #     ① **声明**：**判据节内**逐字有「本波 … 不做任何回归判定」（容许中间夹「（`#59`）」这类括注），
+  #        或含机读行 `PREREG-NO-REGRESSION-DECISION:`。
+  #     ② **无证据**：**全文**不含 `REGRESSION_DECISION=`（判定工件机读行），也不含
+  #        `regression-decision-cases.tsv`（＝**真的跑过判定**才会产生的台账）。
+  #   ⚠️ **格式声明不算证据**：`PREREG-REGRESSION-FOUR:` 那一行只是「格式承诺」，不是「做过」的证据 ——
+  #      `docs/WAVE59-PREREGISTRATION.md:47-50` **自己逐字写了**：「**是"这一刻不适用"的声明，
+  #      不是"我已经做过"的声明**。**不许**把本节读成本波做过四要件。」
+  #      ⇒ 若把那一行算成证据，`#59` 仍会被逼着抄四要件 ＝ **正是 `TASK-0709` 要治的病**。
+  #   ⚠️ **声明不是免死金牌**：`声明 ∧ 有证据` ⇒ 四要件**仍必须齐全**，缺一照旧 `FAIL`
+  #      （否则任何波都能用一句声明把整节判据关掉 ＝ **放宽**，本波明令禁止）。
+  #   ⚠️ 三态口径：`N/A` = **「对，但本波不适用」**（`rc=0`）⇒ 必须与 `PASS` **分开计数**（`na=` 独立一格）、
+  #      **逐件点名**；`N/A` **不许**并进 `pass=`。
+  local no_rd_decl=0 rd_evidence=0
+  #   ⚠️ **不许消费管道 rc**：`printf … | grep -q` 正是 `PIPEFAIL-SIGPIPE` 牙点名的形态
+  #      （`HANDOFF-NEXT.md` 第 21 条：该族已咬人三次）⇒ 本处一律改用 `[[ =~ ]]`／`==` 子串匹配。
+  #      `=~` 的 `.` **匹配换行**（实测：多行节文本能跨行命中，语义与原来那两处 `printf … | grep` 一致）。
+  if [[ "$sec" =~ 本波.*不做任何回归判定 ]] \
+     || [[ "$sec" == *'PREREG-NO-REGRESSION-DECISION:'* ]]; then no_rd_decl=1; fi
+  if grep -qF -- 'REGRESSION_DECISION=' "$f" \
+     || grep -qF -- 'regression-decision-cases.tsv' "$f"; then rd_evidence=1; fi
+  if [[ $no_rd_decl -eq 1 && $rd_evidence -eq 0 ]]; then
+    echo "PREREG4=NA"; echo "PREREG4_RC=$RC_PASS"
+    echo "PREREG4_FILE file=$f state=na reason=no-regression-decision-declared requirements=N/A"
+    echo "PREREG4_NA file=$f reason=no-regression-decision-declared（判据节逐字声明「本波不做任何回归判定」∧ 全文无回归判定证据 ⇒ 四要件对本波 N/A；与 PASS 分开计数）"
+    return $RC_PASS
+  fi
+  [[ $no_rd_decl -eq 1 && $rd_evidence -eq 1 ]] && missing+=("declared-no-rd-but-has-evidence(声明了「本波不做任何回归判定」却引用了回归判定证据 ⇒ 声明不许当免死金牌，四要件仍必须齐全)")
 
   # ① 机器声明行，且四键全 =yes
   local decl
@@ -189,6 +240,14 @@ GOOD_SEC='## §3 判据（落地前写死）
 ③ 复现性：旧件也要能复现该红。
 ④ Fisher 精确检验双尾；分母只算真尝试过的趟。
 判词三态：REGRESSION ｜ NOINFO ｜ OK。判据件 = regression-decision.py。
+'
+
+# ★ `#60` W152A：`N/A` 三档反极性用的夹具（**声明 ∧ 无证据** / 删声明 / 留声明+加证据）
+NA_SEC='## §3 判据（落地前写死）
+### 3.1 回归判定（本波不适用）
+⚠️ **本波（`#60`）不做任何回归判定** —— 本波是仪器（装置/判据）波，**没有**任何"两臂对拍得出结论"的主张。
+⇒ 本条按条件句读：它声明的是「**如果**本波在别处声称做过回归判定，**那么**四件必须同时在位」——
+**是"这一刻不适用"的声明，不是"我已经做过"的声明**。
 '
 
 selftest() {
@@ -272,6 +331,53 @@ selftest() {
     fail=$((fail+1)); echo "SELFTEST min-wave-override want=SKIP/rc=3 got_rc=$rc = FAIL"
   fi
 
+  # ── ★ `#60` W152A 新增：`N/A` 三档反极性 ＋ 批次门禁形态（**只增不减**）─────────────────
+  # 共用一个小工具：跑一次、比 rc、比必须/必须不出现的正则
+  try() {  # try <名> <件> <期望rc> <必须出现> [<必须不出现>]
+    local nm="$1" ff="$2" want="$3" must="$4" mustnot="${5:-}" o r
+    o="$(check_file "$ff" 2>&1)"; r=$?
+    tot=$((tot+1))
+    if [[ "$r" -eq "$want" && -n "$(printf '%s\n' "$o" | grep -E "$must" || true)" ]] \
+       && { [[ -z "$mustnot" ]] || [[ -z "$(printf '%s\n' "$o" | grep -E "$mustnot" || true)" ]]; }; then
+      pass=$((pass+1)); echo "SELFTEST $nm want_rc=$want got_rc=$r = OK"
+    else
+      fail=$((fail+1)); echo "SELFTEST $nm want_rc=$want got_rc=$r must='$must' mustnot='$mustnot' = FAIL"
+      printf '%s\n' "$o" | sed 's/^/    /'
+    fi
+  }
+  # ① **不做回归判定 ∧ 显式声明** ⇒ 必须 `NA`（**不许** PASS、**不许** FAIL）
+  printf '%s\n' "$NA_SEC" > "$d/no-rd-declared.md"
+  try "NA-1-declared-no-rd"        "$d/no-rd-declared.md" 0 '^PREREG4=NA$' '^PREREG4=(PASS|FAIL)$'
+  # ② **删掉声明**（其余不动）⇒ 既无声明、又无四要件 ⇒ 必须回到 `FAIL`
+  grep -v '不做任何回归判定' "$d/no-rd-declared.md" > "$d/no-rd-nodecl.md"
+  try "NA-2-decl-removed-fails"    "$d/no-rd-nodecl.md"   1 '^PREREG4=FAIL$' '^PREREG4=NA$'
+  # ③ **留声明 ＋ 加上回归判定引用** ⇒ 仍必须 `FAIL`（声明不许当免死金牌）
+  { cat "$d/no-rd-declared.md"; echo '<!-- REGRESSION_DECISION=REGRESSION -->'; } > "$d/no-rd-decl-evidence.md"
+  try "NA-3-decl-plus-evidence-fails" "$d/no-rd-decl-evidence.md" 1 '^PREREG4=FAIL$' '^PREREG4=NA$'
+  # ④ **`WAVE58` 必须仍 `PASS 4/4`**（W151A 立的口径：第一份合规件不许被降级成 NA／SKIP）
+  cp -p "$d/good.md" "$d/WAVE58-PREREGISTRATION.md"
+  try "NA-4-wave58-stays-pass"     "$d/WAVE58-PREREGISTRATION.md" 0 '^PREREG4=PASS$' '^PREREG4=NA$'
+  # ⑤ **批次门禁形态**：出射程件**不判但点名计数**，批次 `rc` 由 fail/noinfo 决定 ⇒ 这里必须 `rc=0`
+  local gout grc
+  gout="$( bash "$SELF" --gate --glob "$d/WAVE*-PREREGISTRATION.md" 2>&1  )"; grc=$?
+  tot=$((tot+1))
+  if [[ "$grc" -eq 0 ]] && [[ -n "$(printf '%s\n' "$gout" | grep -cE '^PREREG4_OUT-OF-SCOPE ' || true)" ]] \
+     && [[ -n "$(printf '%s\n' "$gout" | grep -E 'out_of_scope=[1-9]' || true)" ]]; then
+    pass=$((pass+1)); echo "SELFTEST NA-5-gate-batch-form rc=0 ＋ 出射程件逐件点名 ＋ out_of_scope 计数 = OK"
+  else
+    fail=$((fail+1)); echo "SELFTEST NA-5-gate-batch-form want_rc=0 with out-of-scope naming = FAIL（rc=$grc）"
+    printf '%s\n' "$gout" | sed 's/^/    /'
+  fi
+  # ⑥ 成对：同一批次里把当波件弄坏 ⇒ 批次必须 `rc=1`（证明 ⑤ 的 `rc=0` 不是恒绿）
+  printf '%s\n' "$NA_SEC" | grep -v '不做任何回归判定' > "$d/WAVE58-PREREGISTRATION.md"
+  gout="$( bash "$SELF" --gate --glob "$d/WAVE*-PREREGISTRATION.md" 2>&1  )"; grc=$?
+  tot=$((tot+1))
+  if [[ "$grc" -eq 1 ]]; then
+    pass=$((pass+1)); echo "SELFTEST NA-6-gate-batch-fails-when-broken rc=1 = OK"
+  else
+    fail=$((fail+1)); echo "SELFTEST NA-6-gate-batch-fails-when-broken want_rc=1 got_rc=$grc = FAIL"
+  fi
+
   rm -rf "$d"
   echo "PREREG4_SELFTEST_ROSTER cases=$tot pass=$pass fail=$fail"
   if [[ $fail -eq 0 ]]; then echo "PREREG4_SELFTEST=PASS total=$tot pass=$pass fail=$fail"; return 0; fi
@@ -285,19 +391,28 @@ main() {
     case "$1" in
       --selftest) selftest; return $? ;;
       --min-wave) MIN_WAVE="${2:-$REQ_EFFECTIVE_WAVE}"; shift 2 ;;
+      --gate) GATE_MODE=1; shift ;;
       --glob) for g in ${2:-}; do files+=("$g"); done; shift 2 ;;
-      -h|--help) echo "用法: bash $SELF <预登记件> [<…>] | --selftest | --glob '<glob>' [--min-wave N]"; return $RC_PASS ;;
+      -h|--help) echo "用法: bash $SELF <预登记件> [<…>] | --selftest | --glob '<glob>' [--min-wave N] [--gate]"; return $RC_PASS ;;
       *) files+=("$1"); shift ;;
     esac
   done
   if [[ ${#files[@]} -eq 0 ]]; then
-    echo "用法: bash $SELF <预登记件> [<…>] | --selftest | --glob '<glob>' [--min-wave N]"
+    echo "用法: bash $SELF <预登记件> [<…>] | --selftest | --glob '<glob>' [--min-wave N] [--gate]"
     echo "PREREG4=NOINFO"; echo "PREREG4_RC=$RC_NOINFO"
     echo "PREREG4_NOTE 没给件 ⇒ NOINFO（既不算绿也不算红）"
     return $RC_NOINFO
   fi
-  local any=0 worst=0 n_pass=0 n_fail=0 n_skip=0 n_noinfo=0
+  local any=0 worst=0 n_pass=0 n_fail=0 n_skip=0 n_noinfo=0 n_na=0 n_oos=0
   for f in "${files[@]}"; do
+    # ★ 批次门禁形态：早于生效边界的件**不判**，但**逐件点名 ＋ 计数**（"没判什么"永远可见）
+    if [[ $GATE_MODE -eq 1 ]]; then
+      local wn0; wn0="$(wave_num "$f")"
+      if [[ -n "$wn0" && "$wn0" -lt "$MIN_WAVE" ]]; then
+        echo "PREREG4_OUT-OF-SCOPE file=$f wave=#${wn0} reason=pre-effective(<#${MIN_WAVE})（超出射程 ⇒ 本趟不判；它**不是**违规、也**不是**通过）"
+        n_oos=$((n_oos+1)); continue
+      fi
+    fi
     local out rc; out="$(check_file "$f" 2>&1)"; rc=$?
     printf '%s\n' "$out"
     # 【`#59` 生效边界修法】四态**分开计数**：`SKIP`（超出射程）**不许**并进 `PASS`、也**不许**并进 `FAIL`
@@ -305,13 +420,22 @@ main() {
       PASS) n_pass=$((n_pass+1)) ;;
       FAIL) n_fail=$((n_fail+1)) ;;
       SKIP) n_skip=$((n_skip+1)) ;;
+      NA)   n_na=$((n_na+1)) ;;            # ★ 显式声明「不做回归判定」⇒ 独立格，**不许**并进 pass
       *)    n_noinfo=$((n_noinfo+1)) ;;
     esac
     [[ $rc -ne 0 ]] && any=1
     [[ $rc -eq 1 ]] && worst=1
   done
-  echo "PREREG4_SUMMARY files=${#files[@]} pass=$n_pass fail=$n_fail skip=$n_skip noinfo=$n_noinfo min_wave=#$MIN_WAVE（**四态分开计数**：`SKIP` 超出射程 ≠ 通过 ≠ 违规）"
+  # ★ `D-G114` 现场物（`#60` W152A 修）：旧行在双引号里写了 "反引号 SKIP 反引号" ⇒ bash **真的**做命令替换
+  #   ⇒ stderr 每趟多一行 `prereg-four-requirements-check.sh: 行 313: SKIP: 未找到命令`、且汇总行里
+  #   "SKIP" 那几个字**消失**（与 quote-trap 牙自己记录的第 ③ 条血案同形）。改用直角引号，语义不变。
+  echo "PREREG4_SUMMARY files=${#files[@]} pass=$n_pass fail=$n_fail na=$n_na skip=$n_skip noinfo=$n_noinfo out_of_scope=$n_oos min_wave=#$MIN_WAVE（**五态分开计数**：PASS／NA／SKIP／NOINFO／OUT-OF-SCOPE 各自独立——NA = 显式声明「本波不做回归判定」⇒ 该要求对本波不适用，**既不是 PASS 也不是违规**；SKIP = 波次早于生效边界；OUT-OF-SCOPE 只在批次门禁形态出现）"
   if [[ $worst -eq 1 ]]; then return $RC_FAIL; fi
+  if [[ $GATE_MODE -eq 1 ]]; then
+    # 批次门禁形态：`na`／`out_of_scope` 是"适用性／射程"声明 ⇒ **不进 rc**；`noinfo` **必须**进（不算绿）
+    if [[ $n_noinfo -gt 0 ]]; then return $RC_NOINFO; fi
+    return $RC_PASS
+  fi
   if [[ $any -eq 1 ]]; then return $RC_NOINFO; fi
   return $RC_PASS
 }

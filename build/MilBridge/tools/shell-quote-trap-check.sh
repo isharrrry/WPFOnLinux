@@ -29,7 +29,15 @@
 # 【扫描定义（必须能被复核，所以逐字写在这里）】
 #   件集 = `find "$ROOT" \( -name '*.sh' -o -name '*.py' \) -type f`
 #          减去 `./upstream/*`（vendored 的 WPF 上游，实测只有 `upstream/wpf/build.sh` 一件）、
-#          减去 `*/obj/*`、`*/bin/*`、`*/.artifacts/*`、`*/__pycache__/*`（构建产物目录）。
+#          减去 `*/obj/*`、`*/.artifacts/*`、`*/__pycache__/*`（构建产物目录）。
+#   ★ **`#60` W152A 改了这一条（`TASK-0713`）**：旧文是「减去 `*/obj/*`、`*/bin/*`、…」——
+#     那一条把 `bin/` 与 `obj/` **并列静默排除**。实测（成对）：**同一颗真陷阱**放 `*/bin/*` ⇒
+#     `PASS traps=0`（**静默出射程**＝**假绿方向**）、挪到 `build/MilBridge/tools/` ⇒ `FAIL traps=2`。
+#     ⇒ 修法 = **`bin/` 纳入扫描**（真判，不再靠"没扫"蒙过去），并把射程**永远打印**：
+#     每次跑印一行 `QUOTE_TRAP_SCOPE … bin=INCLUDED excluded=<类:件数 …>` ⇒ **"没扫什么"不许静默**。
+#     `--selftest` 新增 `S30/S31/S32` 三例钉住这一条。
+#     ⚠️ 今天实测：全树 `*/bin/*` 下的 `*.sh|*.py` = **0 件** ⇒ 本改**读数零位移**（`files=` 不变），
+#        它治的是**将来**有件落进 `bin/` 时"牙看不见"。
 #   ⚠️ 本工程**没有 `git`**（`command -v git` = 空、仓根无 `.git`）⇒ 不存在"`git ls-files` 才叫 tracked"
 #      这种口径。上面这条 `find` 就是**本仓"tracked"的可操作定义**（与 `#29` W29B 给 `fp_inputs()`
 #      加排除时用的那条同形）。**两种件集口径的差别只有 `upstream/` 与产物目录**，逐条写在报告里。
@@ -180,9 +188,21 @@ TXT
 collect_lists() {  # collect_lists <tmpd> ; 输出 FILES_N / SH_N / PY_N
     local tmpd="$1"
     ( cd "$ROOT" && find . \( -name '*.sh' -o -name '*.py' \) -type f \
-        -not -path './upstream/*' -not -path '*/obj/*' -not -path '*/bin/*' \
+        -not -path './upstream/*' -not -path '*/obj/*' \
         -not -path '*/.artifacts/*' -not -path '*/__pycache__/*' -print 2>/dev/null \
       | sed 's|^\./||' | LC_ALL=C sort ) > "$tmpd/all.list"
+    # ── 射程可见（`TASK-0713`／`#60` W152A）：被排除的目录类**逐条计数**，绝不静默 ──────────
+    #   ⚠️ 旧件把 `*/bin/*` 与 `*/obj/*` **并列静默排除**；实测（成对）：**同一颗真陷阱**放 `*/bin/*`
+    #      ⇒ `PASS traps=0`（**静默出射程**＝假绿方向）、挪到 `build/MilBridge/tools/` ⇒ `FAIL traps=2`。
+    #      修法 = **把 `bin/` 纳入扫描**（真判），同时把"没扫什么"**永远打印**。
+    #   ⚠️ `upstream/` **刻意保留排除**（vendored 上游快照，改它无意义；与 `fp_inputs()` 同口径），
+    #      但它**必须被点名计数**。
+    EXCL_REPORT=""
+    for _cat in 'upstream:./upstream/*' 'obj:*/obj/*' '.artifacts:*/.artifacts/*' '__pycache__:*/__pycache__/*'; do
+        _nm="${_cat%%:*}"; _pt="${_cat#*:}"
+        _n=$( ( cd "$ROOT" && find . \( -name '*.sh' -o -name '*.py' \) -type f -path "$_pt" -print 2>/dev/null ) | grep -c . || true )
+        EXCL_REPORT="${EXCL_REPORT}${_nm}:${_n:-0} "
+    done
     : > "$tmpd/sh.list"; : > "$tmpd/py.list"
     while IFS= read -r f; do
         [ -n "$f" ] || continue
@@ -322,7 +342,16 @@ function scanline(f, line, ln,   i, n, c, d, p, j, q, rest, k, t, tk) {
         if (c == "}") { if (topk() == "b") popk(); i++; continue }
         if (c == "#") {
             p = (i > 1) ? substr(line, i - 1, 1) : " "
-            if (i == 1 || p == " " || p == "\t" || p ~ /[;|&(){}<>]/) { state = "C"; return }
+            # ★ `D-G114`（`#60` W152A 修）：**先判帧顶是不是 `b`** —— 是 `b`（＝在 `${ … }` 里）就
+            #   **绝不**当注释。因为 `${#arr[@]}` 里那个 `#` 的前一字符正是 `{`，而 `{` 就在下面那个
+            #   字符类里 ⇒ 旧件把它判成"注释"并 `return` 到行末 ⇒ `${`（`:280` 压 `b`）**永远等不到 `}`**
+            #   （`:301` 只有 `}` 能弹 `b`）⇒ **帧顶永久滞留 `b`** ⇒ 此后**本文件任何**双引号里的裸反引号
+            #   都走 `:291` 的 `emit("DIAG","DQ-BRACE-BACKTICK")` ⇒ **不进 `rc`** ＝ **假绿**。
+            #   实证：`tools/prereg-four-requirements-check.sh:313` 的真陷阱（真跑 stderr 打 `SKIP: 未找到命令`、
+            #   汇总行里 `` `SKIP` `` 那几个字消失）。两极化：同一颗陷阱前面只多一行 `if [[ ${#arr[@]} -gt 0 ]]`
+            #   ⇒ 旧件 `PASS traps=0`、新件 `FAIL traps=2`。全树量化 `traps 0→2`、`diag 73→71`、**零假红**。
+            #   ⚠️ 本改**只修"帧顶错成 `b`"**；"**真的**在 `${ … }` 里"那一档**仍只诊断、不进 `rc`**（语义未动）。
+            if (topk() != "b" && (i == 1 || p == " " || p == "\t" || p ~ /[;|&(){}<>]/)) { state = "C"; return }
             i++; continue
         }
         if (c == "<" && substr(line, i + 1, 1) == "<") {
@@ -519,6 +548,8 @@ run_check() {
                | sort -k1 -nr | head -n "$MAX_DIAG" | cut -f2)"
 
     say "SHELL_QUOTE_SCAN=files=$FILES_N sh=$SH_N py=$PY_N anchors=$ANCHOR_MODE ${stat:-lines=0}"
+    # ★ `TASK-0713`／`#60` W152A：**射程行** —— "扫了什么／没扫什么"永远可见（`bin/` 已纳入 ⇒ 不在排除表里）
+    say "QUOTE_TRAP_SCOPE root=$ROOT files=$FILES_N sh=$SH_N py=$PY_N included=*.sh,*.py bin=INCLUDED excluded=${EXCL_REPORT:-none} (excluded dirs counted one by one; 'not scanned' must never be silent)"
     say "SHELL_QUOTE_CANARY=OK probes=$CANARY_PROBES must_fire=$CANARY_FIRE_N must_not_fire=$CANARY_CLEAN_N fired=$CANARY_FIRE hd_fired=$CANARY_HDFIRE($CANARY_HDN 条)"
 
     # ★ `#31` W31F：`reason=` **按类分**（旧件一律 `dq-backtick` ⇒ 若命中的全是无引号 heredoc 体，
@@ -683,6 +714,30 @@ FIX
 BUILD_BASES="$(printf '%s\n' "$BUILD_LINES" | sed -e "s/[\"']//g" -e 's|.*[/\\]||' | LC_ALL=C sort -u)"
 echo "A `W31F_BLIND_RANGE` B"
 FIX
+    # ── `#60` W152A 新增夹具 4 件（`TASK-0713` 射程 2 件 ＋ `D-G114` 泄漏 2 件）────────────
+    # ⚠️ 夹具一律**纯 ASCII**：`col` 是**按字节**算的（实测 `x：` 三字节 ⇒ col 偏 2）⇒ 夹中文会算不准列号。
+    # F22：真陷阱落在 **`bin/`** 下（`TASK-0713` 的现场形状）—— 旧件把它**静默排除**（`PASS traps=0`）
+    mkdir -p "$fix/bin"
+    cat > "$fix/bin/F22-bin-trap.sh" <<'FIX'
+echo "bin trap: `TASK0713_NOT_A_CMD` here"
+FIX
+    # F22b：`bin/` 下的**干净**件（阴性对照：扫 `bin/` 不许凭空制造红）
+    cat > "$fix/bin/F22b-bin-clean.sh" <<'FIX'
+echo "bin clean: $(printf '%s' ok)"
+FIX
+    # F23：`D-G114` 的**泄漏形状** —— 前面一行 `if [[ ${#arr[@]} -gt 0 ]]`（`${#…}` 把 `b` 帧漏在栈顶），
+    #   后面一行**真的**双引号内裸反引号 ⇒ 旧件 `PASS traps=0`（**假绿**），新件必须红。
+    cat > "$fix/sub/F23-brace-leak-dq.sh" <<'FIX'
+arr=(1 2)
+if [[ ${#arr[@]} -gt 0 ]]; then :; fi
+echo "leak probe: `D_G114_NOT_A_CMD` end"
+FIX
+    # F23b：同一段文字的**中和形态**（裸反引号换成 `$( )`）⇒ 必须绿（成对阴性对照）
+    cat > "$fix/sub/F23-leak-neutral.sh" <<'FIX'
+arr=(1 2)
+if [[ ${#arr[@]} -gt 0 ]]; then :; fi
+echo "leak probe: $(printf '%s' D_G114_NEUTRAL) end"
+FIX
     printf 'x=1\n' > "$fix/build/MilBridge/tools/gate.sh"
     printf 'y=2\n' > "$fix/verify-all.sh"
     # 只看子集：夹具单独成树，用 QT_ANCHORS=off 跑（锚断言另有 S15/S16 两例专测）
@@ -760,6 +815,18 @@ FIX
     # ★ S29 = **盲区回归**：混排引号那一行（旧件在此卡进 `S` 态、其后 201 行全盲）之后
     #   紧邻的陷阱必须仍被抓到（旧件实测：种一条 ⇒ 0 命中）
     onefile S29-blind-range-regress        1 "sub/F21-blind-range-regress.sh" 'SHELL_QUOTE_HIT kind=DQ-BACKTICK file=sub/F21-blind-range-regress\.sh line=2 col=9'
+
+    # ── `#60` W152A 新增 5 例（`TASK-0713` 射程 3 例 ＋ `D-G114` 泄漏 2 例；**只增不减**）────
+    # S30 = `bin/` 下的真陷阱**必须红**（`TASK-0713`；**旧件在这一档 `PASS traps=0` = 假绿**）
+    onefile S30-bin-trap-must-fire          1 "bin/F22-bin-trap.sh"     'SHELL_QUOTE_HIT kind=DQ-BACKTICK file=bin/F22-bin-trap\.sh line=1 col=17'
+    # S31 = 射程**必须可见**：`QUOTE_TRAP_SCOPE` 行必须在，且逐字声明 `bin=INCLUDED`
+    onefile S31-scope-visible               1 "bin/F22-bin-trap.sh"     '^QUOTE_TRAP_SCOPE .*bin=INCLUDED .*excluded='
+    # S32 = 阴性对照：`bin/` 下的**干净**件 ⇒ 不许因为"扫了 bin"就多红
+    onefile S32-bin-clean-no-red            0 "bin/F22b-bin-clean.sh"   '^SHELL_QUOTE_TRAP=PASS' 'SHELL_QUOTE_HIT'
+    # ★ S33 = `D-G114` 泄漏**必须已修**（**旧件这一档 `PASS traps=0` = 假绿**：一行 `${#…}` 把整份文件的判据闭掉）
+    onefile S33-brace-leak-must-fire        1 "sub/F23-brace-leak-dq.sh" 'SHELL_QUOTE_HIT kind=DQ-BACKTICK file=sub/F23-brace-leak-dq\.sh line=3 col=19'
+    # ★ S34 = 泄漏的**成对阴性对照**：同一段文字换成 `$( )` ⇒ 必须绿
+    onefile S34-brace-leak-neutral          0 "sub/F23-leak-neutral.sh" '^SHELL_QUOTE_TRAP=PASS' 'SHELL_QUOTE_HIT'
 
     # 三态：取不到件 / 树不存在 / 锚件不在件集
     rm -rf "$sb/emptyroot"; mkdir -p "$sb/emptyroot"

@@ -32,6 +32,7 @@
 #   **时间预算（实测，不是估计）**：第 11 步 ≈66 s；**第 12 步 `WALL≈394–428 s`、峰值 RSS ≈690 MB**
 #   （干净单跑 394 s / 并发下 428 s）⇒ 整趟 `verify-all` 比 `#23` **长约 7 分钟**。
 #
+#   **`#60` 收官起 = 34 步**（`#60` **加一步**：第 `[34]` 步 `PREREG-FOUR-REQ` —— `TASK-0709` 的牙 `build/MilBridge/tools/prereg-four-requirements-check.sh`，走**批次门禁形态** `--gate`：① 新增 `PREREG4=NA`（判据节逐字声明「本波不做任何回归判定」∧ 全文无回归判定证据 ⇒ 四要件对本波 `N/A`），**与 `PASS` 分开计数**（`na=` 独立一格）；② 早于生效边界的件不判但**逐件点名 ＋ 计数**（`PREREG4_OUT-OF-SCOPE`／`out_of_scope=`）；③ 批次 `rc` 只由 `fail`／`noinfo` 决定。⚠️ 本半步是 `verify-all-step-check.sh:169` 用 `grep -qF` **逐字**找的 ⇒ 一个字符都不能改。）
 #   **`#59` 收官起 = 33 步**（`#59` **加两步**：第 `[32]` 步 `GEOM-BEAT`（`D-G112`／`TASK-0110` 改题后；牙 = `build/MilBridge/tools/geom-revert-beat-check.sh`）＋ 第 `[33]` 步 `GEOM-RESEND`（`TASK-0210` 的确定性回归牙 `build/MilBridge/tools/geom-resend-regression-check.sh`）。⚠️ **这两步的射程 = 冻结语料 `build/MilBridge/geom-corpus/**`**：它们对该语料作**只读复算**，**不跑应用腿、不测当前桥件** ⇒ 「桥件被改回」**不**由这两步咬到（射程边界逐条见 `docs/WAVE59-PREREGISTRATION.md` §5）。⚠️ 这半句是 `verify-all-step-check.sh:169` 用 `grep -qF` **逐字**找的 ⇒ 一个字符都不能改。）
 #   **`#58` 收官起 = 31 步**（`#58` **不动步数**：本波 = **仪器波**（**零产品改动**）—— `TASK-0705`「回归判定四要件」整包落地：① `docs/PREREG-TEMPLATE.md` 六处行锚定插入（`171 → 212`；**已在稿原文一字未动**）② 新牙 `build/MilBridge/tools/prereg-four-requirements-check.sh`（`--selftest` 10/10）③ 牙本体 `regression-decision.py` 修 `F-A`／`F-B`／`F-C` 三处（`--selftest` `22/22 → 26/26`、台账 `7/7` 逐字节不变）。⚠️ `#57` 链已把本文件改到 `0345e750fd182a7c` ⇒ 本波两处插入**全部用位置锚**（`head -1` 语义）)
 #   **`#57` 收官起 = 31 步**（`#57` **不动步数**：本波 = `TASK-0211` 三处窄 `TOCTOU`／生命周期缺陷的产品修法 —— ① `PostMessageW`／② `PostThreadMessageW` 的**唯一一次放锁挪到 `wpf_queue_push` 之后**（`g_wpf.lock` 可重入 ⇒ push `:98` 再取、`:132` 只把深度 2 掉回 1）；③ `wpf_thread_destroy` 的 `wake_read/wake_write` **锁内先置 -1 再 close**。⇒ `win32shim` `2067cb1c97728791` → `d2b76a0a56a41be1`（**327,672 B 不变**；**导出符号 547 不变**）。**不加步** ⇒ `VERIFYALL_SELF` 现场 = `names=31 decl=31`。⚠️ 同理这半句被 `verify-all-step-check.sh` 用 `grep -qF` 逐字找。）
@@ -45,6 +46,7 @@
 #   ⚠️ 本块**故意放在同一个文件里**：跨文件的手工声明在本仓**已经失败过一次**（`docs/CURRENT-STATE.md`
 #      那句"当前期望是 N 步"在 `#26`/`#27` 连加 3 步时毫无反应、全程零红）⇒ 声明必须与本体同趟改、同趟审。
 #   ⚠️ **不许**用 `echo "====="` 当接线锚（它在本文件里有 **4** 处）；锚用 `run_step "DEFECT-REGISTRY" …`。
+# VERIFYALL-STEPS-DECL: 34 gen=#60   ← `#60` **加一步**（33 → 34）：第 `[34]` 步 `PREREG-FOUR-REQ`（`TASK-0709` 的牙 `build/MilBridge/tools/prereg-four-requirements-check.sh`：判**预登记文档**里「回归判定四要件」在不在；**新增 `PREREG4=NA`** —— 判据节**逐字**声明「本波不做任何回归判定」∧ 全文**无回归判定证据**（`REGRESSION_DECISION=`／`regression-decision-cases.tsv`）⇒ 该要求**对本波 `N/A`**，**与 `PASS` 分开计数**（`na=` 独立一格）＋ 逐件点名；**留声明却引用了证据 ⇒ 仍 `FAIL`**（声明不许当免死金牌）；**缺声明 ∧ 无四要件 ⇒ 照旧 `FAIL`**。本步走**批次门禁形态** `--gate`：早于生效边界 `REQ_EFFECTIVE_WAVE=58` 的件**不判**、逐件点名 `PREREG4_OUT-OF-SCOPE` ＋ 计数 `out_of_scope=`（**永不静默**），批次 `rc` 只由**违规**与**查不动**决定（`fail>0 ⇒ 1`／`noinfo>0 ⇒ 3`），`na`／`out_of_scope` 是**适用性/射程**声明、不进 `rc` —— 否则批次永不为 0、门禁永远接不上、只会把人推向「吞掉 rc」（**真**假绿）。**逐件形态的 `SKIP ⇒ rc=3` 一字未动**。本步**纯读、零 `dotnet`、秒级**；不改产品件 ⇒ 九位逐位不动。四处声明（`DECL`／`STEP-NAMES`／口径句／预登记 H1）**同趟**改。**步数：33 → 34**）
 # VERIFYALL-STEPS-DECL: 33 gen=#59   ← `#59` **加两步**（31 → 33）：第 `[32]` 步 `GEOM-BEAT`（`D-G112` 的牙 `build/MilBridge/tools/geom-revert-beat-check.sh`：判「`B2`（frame 回到基准）**之后**出现了 `B3`（几何被推到屏尺寸）」这对**事件**的 `Δ_push`，**承重 = `B3` 的有无**、`Δ_push` **只作诊断列**；三态机读行 `GEOMBEAT=PASS|FAIL|NOINFO`）＋ 第 `[33]` 步 `GEOM-RESEND`（`TASK-0210` 的**确定性**回归牙 `build/MilBridge/tools/geom-resend-regression-check.sh`：**按趟印 `BRIDGE=` 分组**、断言修后臂**每腿** `CFG_HIT=0 ∧ GEOWRITE≥1 ∧ r_ok=1`，修前臂只判「**回升 ＋ 成对**」；三态 `GEOMRESEND=`）。两件**纯读、零 `dotnet`、秒级**（现场实测墙钟 **0.05 s / 0.22 s**、峰值 RSS **12.9 / 17.4 MB**，均无网络、无 `X`）；不改产品件 ⇒ 九位逐位不动。四处声明（`DECL`／`STEP-NAMES`／口径句／预登记 H1）**同趟**改。**步数：31 → 33**）
 # VERIFYALL-STEPS-DECL: 31 gen=#58   ← `#58` **不动步数**（**仪器波 · 零产品改动**：① `docs/PREREG-TEMPLATE.md` 六处行锚定插入（`171 → 212` 行、`+41`/`−0`；D1/D5 两处文字由本波改写）② 新牙 `build/MilBridge/tools/prereg-four-requirements-check.sh`（`57de293df5be263d`，`--selftest` 10/10；**未接线**）③ 牙本体 `regression-decision.py` 三处缺陷修复（`1eda9e3575960cba → 71734fce77842478`：`F-A` ④ 三格前移到判词分支之前／`F-B` 加 `rc=2`＋`REGDEC_REFUSE=repro-inconsistent`（放分母守门之后）／`F-C` 加一行机读并列 `REGDEC_ALPHA`；`--selftest` `22/22 → 26/26`、台账 `7/7` **逐字节不变**）。第 `[29]` 步 `REGRESSION-DECISION` 跑的就是本波修好的那颗牙 ⇒ 冻前该步仍绿；九位**零产品位移**（`pf` 是环成员 `D-G92`）。
 # VERIFYALL-STEPS-DECL: 31 gen=#57   ← `#57` **不动步数**（`TASK-0211`：`D-G109` 残余的三处窄 `TOCTOU`／生命周期缺陷落地 —— 站点 A `PostMessageW`「查表→判死→取 pt→入队」收进**同一个临界区**（删 `:848` 与 `:882` 两次放锁，改为 `wpf_queue_push` 之后放一次；两条早退支各自先放锁）；站点 B `PostThreadMessageW` 同形（删 `:896`，`if (!target)` 展开为先放锁再报 1444）；点位 fd `wpf_thread_destroy` 的 `close(wake_read/wake_write)` 改为**锁内先置 -1 再 close**（修前锁外且不置 -1 ⇒ `wpf_queue_wake` 会写已关闭/已复用的 fd 号）。三处**各自独立成对**反极性：只退 A ⇒ A 回 `BROKEN` 而 B 仍 `HELD`；只退 B 反之；只退 fd ⇒ `FDSTALE` 而 A/B 仍 `HELD`。**修法的前提**（由 `premise.py` 盯住）：本修法**只靠递归锁计数成立**（push `:132` 只把深度 2 掉回 1 ⇒ `wake`/`msgflow` 仍在临界区内）。⇒ `win32shim` `2067cb1c97728791` → `d2b76a0a56a41be1`（**327,672 B 不变**；**导出符号 547 不变**）；`pf` 位随整波重建机械位移（`D-G92`，**同尺寸 6,123,520**）。**不加步**（本波零接线）⇒ `VERIFYALL_SELF` 现场 = `names=31 decl=31`（`gen` 与代号一致）。**步数：31 → 31（不动）**）
@@ -74,7 +76,7 @@
 # VERIFYALL-STEPS-DECL: 18 gen=#30   ← **史实行**（`#30` 收官当时的步数 —— 那一波**一步未加**）
 #   ⚠️ 读者 `decl_line()` 取**第一条**（`sed -n … | head -1`）⇒ **最上面那条才是当前口径**；
 #   下面两条只为「本波从哪一代起、加了几步」留机读痕迹。⚠️ **史实行只许追加、不许改**（纪律 61 同族）。
-# VERIFYALL-STEP-NAMES: 主工程 WpfGfx.Linux | wpf-linux.sln | Commands.Tests | Rendering.Tests | Windowing.Tests | HelloMil.Tests | ManagedLayer.Tests | Presentation.Tests | verify-cmd-layout.py | tline-gate（五臂） | PcLineOracle·Start 列 | FrameProbe-frame | BASELINE-SHA | ARM-LOG-SHA | BUILD-HYGIENE | DEFECT-REGISTRY | VERIFYALL-SELF | FP-INPUTS-HYGIENE | HIDDEN-ONLY | COLUMN-FLOOR | QUOTE-TRAP | PRODUCT-ENTRY | FRAME-PRESENCE | PIPEFAIL-SIGPIPE | THIRD-PARTY | R-GATE（连续交互） | NUL-BYTES | HYGIENE | REGRESSION-DECISION | UIA-DOOR | IME-LANDING | GEOM-BEAT | GEOM-RESEND
+# VERIFYALL-STEP-NAMES: 主工程 WpfGfx.Linux | wpf-linux.sln | Commands.Tests | Rendering.Tests | Windowing.Tests | HelloMil.Tests | ManagedLayer.Tests | Presentation.Tests | verify-cmd-layout.py | tline-gate（五臂） | PcLineOracle·Start 列 | FrameProbe-frame | BASELINE-SHA | ARM-LOG-SHA | BUILD-HYGIENE | DEFECT-REGISTRY | VERIFYALL-SELF | FP-INPUTS-HYGIENE | HIDDEN-ONLY | COLUMN-FLOOR | QUOTE-TRAP | PRODUCT-ENTRY | FRAME-PRESENCE | PIPEFAIL-SIGPIPE | THIRD-PARTY | R-GATE（连续交互） | NUL-BYTES | HYGIENE | REGRESSION-DECISION | UIA-DOOR | IME-LANDING | GEOM-BEAT | GEOM-RESEND | PREREG-FOUR-REQ
 #   **`#28` 收官起 = 17 步**（`#28` 加第 `[11]` 步 `VERIFYALL-SELF`）｜**`#29` 收官起 = 18 步**
 #   （`#29` 加第 `[12]` 步 `FP-INPUTS-HYGIENE`：核对 `fp_inputs()` 的覆盖面里**不许出现产物路径**）｜
 #   **`#30` 收官起 = 18 步**（**仪器加固波、步数一步未加**）｜**`#31` 收官起 = 21 步**（`#31` 加第 `[13]` 步
@@ -1012,6 +1014,15 @@ run_step "GEOM-BEAT" bash build/MilBridge/tools/geom-revert-beat-check.sh --corp
 echo
 echo "[33] 桥侧几何重发的确定性回归（按趟印 BRIDGE= 分组；TASK-0210 的牙；只读、零 dotnet、秒级；#59 加）"
 run_step "GEOM-RESEND" bash build/MilBridge/tools/geom-resend-regression-check.sh --corpus="$GEOM_CORPUS" --verify-arms
+
+# ── `#60` W152A（`TASK-0709`）第 `[34]` 步：预登记四要件（**批次门禁形态**）────────────────────
+#   ⚠️ 本步走 `--gate` 而不是裸 `--glob`：裸 `--glob` 因「早于生效边界的件 ⇒ `SKIP` ⇒ `rc=3`」
+#      **每趟都会多一个 ❌**（`run_step` 把任何 `rc≠0` 判 `❌`）。`--gate` 下那些件**不判但逐件点名**
+#      （`PREREG4_OUT-OF-SCOPE` ＋ `out_of_scope=`），批次 `rc` 只由**违规**与**查不动**决定。
+echo
+echo "[34] 预登记四要件（判据节里四要件在不在；不做回归判定的波按 --gate 标 N/A；只读、零 dotnet、秒级；#60 加）"
+run_step "PREREG-FOUR-REQ" bash build/MilBridge/tools/prereg-four-requirements-check.sh --gate --glob 'docs/WAVE*-PREREGISTRATION.md'
+# W152A-0709-END
 # W151A-0110-END
 # W137A-0708-END
 
