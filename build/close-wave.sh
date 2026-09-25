@@ -242,6 +242,22 @@ fp_inputs() {  # 手写输入指纹（应用器 + port-lib + 本脚本 + 波脚�
       #      ⇒ 改本文件必然再挪一次 `inputs_fp`；这是设计使然，不是副作用）。
       #   ⚠️ 新增的那一行**必须留在 `\` 续行的参数表内** —— 注释只能放在**语句之前**
       #      （插进续行中间会把 `printf` 截断，并把后续行当**命令执行**；本仓现场咬到过）。
+      # 【`#71`（`TASK-0729`）**加二十行**：`build/MilBridge/tests/PtsPagesProbe/` 的**装置四件**
+      #   （`session_inner.sh`／`navclick.py`／`legs-to-env.py`／`shotstat.py`）＋ **`evidence/` 十六件**。
+      #   现场（`TASK-0729` 原话）：`fp_inputs()` 原先只显式收录 `pts-pages-guard.sh`（判据件）与
+      #   `run-pts-pages-legs.sh`（装置入口）**两件** ⇒ 上面那 20 件**全在覆盖面之外** ⇒
+      #   **改了它们（含 `leg_*.env` 证据）本步照样绿** ⇒ 第 `[38]` 步 `PTS-PAGES` 的判据输入
+      #   不受指纹保护（这正是 `D-G122`／`TASK-0729` 的形态：**判据的输入没人看着**）。
+      #   判据照本函数上方那条「**读 ⇒ 进 `fp_inputs()`**」：第 `[38]` 步的判据件
+      #   `pts-pages-guard.sh --legs <目录>` **读**的就是 `evidence/`（装置四件则决定"读出来的读数对不对"）。
+      #   ⚠️ **本行改动必然再挪一次 `inputs_fp`**（本函数自含 `close-wave.sh`，设计使然）。
+      #   ⚠️ **覆盖面变 ⇒ 步本体里那个显式常数必须同趟改**：第 `[42]` 步的 `--expect 172` → **`192`**
+      #      （`verify-all.sh` **不在**覆盖面 ⇒ 该常数与生产路径无关；**漏改 ⇒ `files-n-mismatch delta=-20`**）。
+      #   ⚠️ **流程代价（必须记住）**：`evidence/` 从此进覆盖面 ⇒ **有意重产证据（重跑装置）必须安排在
+      #      `IN_FP_0` 采样之前**，否则本脚本自己的 `[4/6]` 输入稳定性检查会 `exit 5`
+      #      （与 `#29`／`#31` 登记的流程代价同族）。
+      #   ⚠️ **射程**：`build/DirectWrite.Linux/evidence`（13 件）**不在本波射程**；空件
+      #      （`evidence/device/xvfb.log`＝0 B）**合法**（`#70` 的存在性判据只查"存在 ∧ `sha256sum` `stderr` 空"）。
       printf '%s\n' build/MilBridge/tools/tline-gate.sh build/MilBridge/known-red.json \
           build/MilBridge/tools/verify-all-step-check.sh build/MilBridge/tools/fp-inputs-hygiene-check.sh \
           build/MilBridge/tools/column-floor-check.sh build/MilBridge/tools/hidden-only-step.sh \
@@ -279,7 +295,27 @@ fp_inputs() {  # 手写输入指纹（应用器 + port-lib + 本脚本 + 波脚�
           build/MilBridge/tools/repo-alias-check.sh \
           build/MilBridge/repo-alias-allow.tsv \
           build/MilBridge/tools/bak-completeness-step.sh \
-          build/MilBridge/tools/fp-manifest-step.sh
+          build/MilBridge/tools/fp-manifest-step.sh \
+          build/MilBridge/tests/PtsPagesProbe/session_inner.sh \
+          build/MilBridge/tests/PtsPagesProbe/navclick.py \
+          build/MilBridge/tests/PtsPagesProbe/legs-to-env.py \
+          build/MilBridge/tests/PtsPagesProbe/shotstat.py \
+          build/MilBridge/tests/PtsPagesProbe/evidence/app_g1.log \
+          build/MilBridge/tests/PtsPagesProbe/evidence/device.txt \
+          build/MilBridge/tests/PtsPagesProbe/evidence/session.txt \
+          build/MilBridge/tests/PtsPagesProbe/evidence/leg_23.env \
+          build/MilBridge/tests/PtsPagesProbe/evidence/leg_24.env \
+          build/MilBridge/tests/PtsPagesProbe/evidence/arm_A/device.txt \
+          build/MilBridge/tests/PtsPagesProbe/evidence/arm_A/leg_23.env \
+          build/MilBridge/tests/PtsPagesProbe/evidence/arm_A/leg_24.env \
+          build/MilBridge/tests/PtsPagesProbe/evidence/device/xvfb.log \
+          build/MilBridge/tests/PtsPagesProbe/evidence/device/xfwm.log \
+          build/MilBridge/tests/PtsPagesProbe/evidence/five_pre_g1.txt \
+          build/MilBridge/tests/PtsPagesProbe/evidence/five_post_g1.txt \
+          build/MilBridge/tests/PtsPagesProbe/evidence/shots/g1/boot.png \
+          build/MilBridge/tests/PtsPagesProbe/evidence/shots/g1/k23.png \
+          build/MilBridge/tests/PtsPagesProbe/evidence/shots/g1/k24.png \
+          build/MilBridge/tests/PtsPagesProbe/evidence/shots/g1/last.png
     } | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -d' ' -f1
 }
 sha16() { sha256sum "$1" 2>/dev/null | cut -c1-16; }
@@ -306,7 +342,30 @@ say ""; say "──── [0/6] 前置检查"
 #   ⚠️ 残余洞（如实记）：**非祖先**的无关进程只要命令行文本里提到那个名字，仍会被算成"在跑"
 #      （例如并行的另一条只读车道正在 `grep … WpfTextDemo …`）。这不能靠祖先链解决
 #      —— 靠 B 的点名让人一眼看穿；若将来要根治，应改成按**可执行件名**匹配（另一趟的事）。
-APP_PROBE_RE='run-wpftextdemo|run-wpfprobe|WpfTextDemo|WpfFeatureProbe'
+# 【`#71`（`TASK-0727`）**根治上一条**：判据从「**按命令行文本匹配**」改成「**按可执行件名**」。
+#   现场（2026-09-24 波 `#66` `18:42:45`）：一条**推文档的 shell**（`bash -c … python3 - <<'PY' …`，
+#   heredoc 正文里提到 `WpfFeatureProbe`／`WpfTextDemo`）被旧判据判成"有应用/探针在跑" ⇒ **整波被挡一次**
+#   （0 损害，但**假阳挡波**是这一族最贵的形态：挡波的理由与要做的动作**完全相反**）。
+#   修法三条（**判据不放宽**：真有应用在跑**仍然** `exit 3`）：
+#     ① 枚举**只读** `/proc/<pid>`：`exe`（只读符号链接的基名）＋ `cmdline`（NUL 分隔的 `argv`）
+#        —— **不再用** `pgrep -af`（`-f` 比的是**整条命令行文本**，那正是假阳的根因，也是 `D-G103` 家族）；
+#     ② 三个面各判「**这个进程在执行什么**」，不是「这条命令行里出现过什么字」：
+#        面① `exe` 基名 = 应用本体（apphost 被直接执行）；
+#        面② `argv[0]` 是 `dotnet` 族 ∧ **被执行的那一项**（`argv[1]`；`argv[1]=exec` 时取 `argv[2]`）
+#             基名 = 应用程序集；或 `argv[0]` 是 shell ∧ `argv[1]` 基名 = 启动器脚本名；
+#        面③ `exe` 是 `dotnet` 族而 `argv` **判不了**（为空／读不到）⇒ **判不了**。
+#     ③ **判不了就不挡、但绝不冒充绿**：面③ 记 `cap=1`／`undecidable=<n>`，机读行转 `NOINFO`
+#        （依据 = 主控入库的环境读数 `K16`：`["dotnet","WpfFeatureProbe.dll","3"] ⇒ cmdline=[]`）。
+#        风险方向 = **假阴**（真应用在跑却漏检 ⇒ 重建会覆盖被 mmap 的 `.so`）—— **如实登记，不当绿**。
+#   ⚠️ **为什么不再把"波内构建"当占用**：波内构建跑的是 `dotnet …/MSBuild.dll …`（`argv[1]` 是 `MSBuild.dll`）
+#      ⇒ 面② 的结构（判**被执行项**、不判"argv 里出现过路径"）**构造上**不会命中它；旧规则是**子串**
+#      ⇒ 任何提到 `WpfFeatureProbe` 的命令行都命中。
+#   ⚠️ **为什么 `verify-all.sh` 在跑也不算占用**：它不是**应用本体**，旧行为**本来就不挡**它
+#      ⇒ 把它纳入是**行为扩面**，不在本任务口径内（主控 `#71` 裁定）；将来要它须**另开任务、判据先写**。
+APP_EXE_APPS='WpfTextDemo WpfFeatureProbe'
+APP_ASM_APPS='WpfTextDemo.dll WpfFeatureProbe.dll'
+APP_LAUNCHERS='run-wpftextdemo.sh run-wpfprobe.sh run-wpfprobe-1400rate.sh'
+SHELL_BASENAMES=' bash sh dash ksh zsh '
 self_chain_pids() {   # 打 `$$` 及其**全部祖先**的 pid（每行一个；只读 `/proc`）
     local pid=$$ p
     while [ -n "$pid" ] && [ "$pid" != 0 ] && [ "$pid" != 1 ]; do
@@ -316,21 +375,98 @@ self_chain_pids() {   # 打 `$$` 及其**全部祖先**的 pid（每行一个；
         pid="$p"
     done
 }
-app_probe_lines() {   # 打"命中 ∧ **不属于本调用者进程链**"的行（`pid cmdline`；每行一条）
-    local excl line pid
-    excl=" $(self_chain_pids | tr '\n' ' ')"
-    while IFS= read -r line; do
-        pid="${line%% *}"
-        case "$excl" in *" $pid "*) continue ;; esac
-        printf '%s\n' "$line"
-    done < <(pgrep -af -- "$APP_PROBE_RE" 2>/dev/null)
+app_probe_classify() {   # <exe基名> <argv0> <argv1> <argv2> ⇒ 打 `app face=…` / `cap face=…` / `-`
+    # 纯函数（**不读 `/proc`**）⇒ 可被内容锚抽出原文单测：判的只有"可执行件名"三面。
+    local exe="$1" b0="${2##*/}" b1="${3##*/}" b2="${4##*/}" n
+    if [ "$b1" = exec ]; then b1="$b2"; fi        # `dotnet exec <app>.dll`：被执行项在 argv[2]
+    for n in $APP_EXE_APPS; do
+        if [ "$exe" = "$n" ]; then printf 'app face=exe\n'; return 0; fi
+    done
+    for n in $APP_LAUNCHERS; do
+        if [ "$b1" = "$n" ]; then
+            case "$SHELL_BASENAMES" in *" $b0 "*) printf 'app face=launcher\n'; return 0 ;; esac
+        fi
+    done
+    case "$b0" in
+        dotnet|dotnet-*)
+            for n in $APP_ASM_APPS; do
+                if [ "$b1" = "$n" ]; then printf 'app face=argv-asm\n'; return 0; fi
+            done
+            if [ -n "$b1" ]; then printf -- '-\n'; return 0; fi
+            printf 'cap face=argv-undecidable\n'; return 0 ;;
+    esac
+    printf -- '-\n'
 }
-APP_PROBE_HITS="$(app_probe_lines)"
-if [ -n "$APP_PROBE_HITS" ]; then
-    say "  ❌ 有应用/探针在跑 —— 先让它们退出（重建会覆盖被 mmap 的 .so）"
-    printf '%s\n' "$APP_PROBE_HITS" | while IFS= read -r l; do say "       · 命中：$l"; done
-    exit 3
+app_probe_scan() {   # 枚举 `/proc`（**只读**）；命中/判不了的行打 stdout；计数写 census 件
+    local excl pid exe cls d e0 e1 e2
+    local -a av=()
+    excl=" $(self_chain_pids | tr '\n' ' ')"
+    APP_PROBE_EXAMINED=0; APP_PROBE_HITS=0; APP_PROBE_UNDEC=0
+    for d in /proc/[0-9]*; do
+        pid="${d#/proc/}"
+        case "$excl" in *" $pid "*) continue ;; esac   # 排除**本判据自己的整条进程链**（含 `$$` 与 `$PPID`）
+        # ⚠️ 两个路径**写成 `/proc/<pid>/…` 字面量**（不用 `$d/…`）：这样本枚举对
+        #    `build/MilBridge/tools/proc-pattern-guard.sh`（第 `[27]` 步）**可见**，并被它按
+        #    "`/proc` 枚举他人 pid ⇒ 必须能证明排除了自己"逐格判 —— 我实测过：写成 `$d/cmdline`
+        #    时那条牙**看不见**本行（同行内既要有 `/proc` 又要有 `cmdline`）⇒ 那是"靠看不见过关"的
+        #    假绿形态（正是该牙头注释里记的它自己的自伤）。**宁可见而受审，不可隐而免审。**
+        exe="$(readlink "/proc/$pid/exe" 2>/dev/null)"; exe="${exe##*/}"
+        [ -n "$exe" ] || continue    # exe 读不到 ⇒ 内核线程/僵尸：**没有 mmap ⇒ 不可能持有 .so** ⇒ 出射程
+        APP_PROBE_EXAMINED=$((APP_PROBE_EXAMINED+1))
+        av=()
+        mapfile -d '' -t av < "/proc/$pid/cmdline" 2>/dev/null
+        e0="${av[0]:-}"; e1="${av[1]:-}"; e2="${av[2]:-}"
+        cls="$(app_probe_classify "$exe" "$e0" "$e1" "$e2")"
+        case "$cls" in
+            app*) APP_PROBE_HITS=$((APP_PROBE_HITS+1))
+                  printf '%s %s exe=%s argv0=%s argv1=%s\n' "$pid" "$cls" "$exe" "${e0##*/}" "${e1:-<空>}" ;;
+            cap*) APP_PROBE_UNDEC=$((APP_PROBE_UNDEC+1))
+                  printf '%s %s exe=%s argv0=%s argv1=<空或读不到>\n' "$pid" "$cls" "$exe" "${e0##*/}" ;;
+        esac
+    done
+    # ⚠️ **一件一行**（`examined=…\nhits=…\nundecidable=…`）：写成一行三格时，下面的
+    #    `IFS='=' read -r k v` 会把**第一格之后的所有内容**都塞进 `v`（`v="143 hits=0 undecidable=0"`）
+    #    ⇒ 机读行印出 `examined=143 hits=0 undecidable=0 hits=0 undecidable=0` 这样的**畸形读数**
+    #    （本车道现场被自己的 `P2` 腿当场咬到；`D-G120` 家族：**形状看着完好，内容已经错位**）。
+    printf 'examined=%s\nhits=%s\nundecidable=%s\n' "$APP_PROBE_EXAMINED" "$APP_PROBE_HITS" "$APP_PROBE_UNDEC" \
+        > "$OUT/app-probe-census.txt"
+}
+PROBE_CENSUS="$OUT/app-probe-census.txt"
+APP_PROBE_LINES="$(app_probe_scan)"     # ⚠️ 子 shell ⇒ 计数只能经 census 件传出来
+APP_PROBE_EXAMINED=0; APP_PROBE_HITS=0; APP_PROBE_UNDEC=0
+if [ -r "$PROBE_CENSUS" ]; then
+    while IFS='=' read -r k v; do
+        case "$k" in
+            examined)    APP_PROBE_EXAMINED="$v" ;;
+            hits)        APP_PROBE_HITS="$v" ;;
+            undecidable) APP_PROBE_UNDEC="$v" ;;
+        esac
+    done < "$PROBE_CENSUS"
 fi
+# ⚠️ 纪律 5：**零检查也必须报红** —— 枚举没跑出读数 / 一件都没读到 ⇒ `NOINFO`，**不许静默当绿**。
+PROBE_VERDICT="PASS"
+if [ ! -r "$PROBE_CENSUS" ]; then
+    PROBE_VERDICT="NOINFO reason=census-missing(枚举没跑出读数)"
+elif [ "$APP_PROBE_EXAMINED" -eq 0 ]; then
+    PROBE_VERDICT="NOINFO reason=zero-examined(一件都没读到 ⇒ 零检查不许当绿)"
+elif [ "$APP_PROBE_HITS" -gt 0 ]; then
+    PROBE_VERDICT="BLOCK"
+elif [ "$APP_PROBE_UNDEC" -gt 0 ]; then
+    PROBE_VERDICT="NOINFO reason=undecidable-dotnet-argv(面 3 判不了)"
+fi
+say "  APP_PROBE_GUARD=${PROBE_VERDICT} faces=3 face3=cap cap=1 examined=${APP_PROBE_EXAMINED} hits=${APP_PROBE_HITS} undecidable=${APP_PROBE_UNDEC}"
+case "$PROBE_VERDICT" in
+    BLOCK)
+        say "  ❌ 有应用/探针在跑 —— 先让它们退出（重建会覆盖被 mmap 的 .so）"
+        while IFS= read -r l; do [ -n "$l" ] && say "       · 命中：$l"; done <<< "$APP_PROBE_LINES"
+        exit 3 ;;
+    NOINFO*)
+        while IFS= read -r l; do [ -n "$l" ] && say "       · 判不了：$l"; done <<< "$APP_PROBE_LINES"
+        say "     （**刻意的**：判不了就不挡，但**绝不冒充绿** —— 机读行已记 NOINFO；风险方向＝假阴）"
+        say "     （面 3 = dotnet 宿主而 argv 为空/读不到；本绿的覆盖面**只有 2/3 面**）" ;;
+    *)
+        say "     ⚠️ 如实划界：面 3（dotnet 宿主而 argv 判不了）**判不了就不挡** ⇒ 本绿的覆盖面**只有 2/3 面**。" ;;
+esac
 if [ -e /tmp/bridge-republish.lock ]; then say "  ❌ 存在 /tmp/bridge-republish.lock（有人正在重发）"; exit 3; fi
 say "  ✅ 无应用进程、无重发锁"
 IN_FP_0="$(fp_inputs)"; say "  波前输入指纹 = $IN_FP_0"
