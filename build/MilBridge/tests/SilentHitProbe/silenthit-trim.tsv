@@ -1,0 +1,23 @@
+needle	trail_sp	trimmed	tag	surface	provenance
+timeout:	1	yes	-	coreutils timeout(1)	包装器自己写的 stderr（被监视的命令已核心转储）；不是应用说的
+[POSTMSG_DEAD_TARGET]	1	yes	POSTMSG_DEAD_TARGET	win32shim	src/WpfGfx.Linux.Native/src/win32_msg.c 具名台账（条件满足即无条件写）
+[QUEUE_CORRUPT]	1	yes	QUEUE_CORRUPT	win32shim	src/WpfGfx.Linux.Native/src/win32_msg.c 具名台账（唯一调用点 ⇒ 健康跑预期恒 0，退化探测器）
+[WMCHECK_STALE]	1	yes	WMCHECK_STALE	win32shim	src/WpfGfx.Linux.Native/src/win32_x11.c 具名台账（无 WM 且属性残留时才出现）
+[HC-UNHANDLED] #	0	yes	HC-UNHANDLED	HandyControlDemo	应用自报插桩（D-G123 的那一行）；换代后几乎每趟启动都有
+[HCIN]	0	yes	HCIN	HandyControlDemo	应用自报插桩（交互事件 trace）
+Unhandled exception.	0	no	-	dotnet runtime	应用真话：不许剔（剔了就是把红写成绿）
+Stack overflow.	0	no	-	dotnet runtime	应用真话：不许剔；同时是 STACKOVF 判据的读点
+Program terminated with signal	0	no	-	gdb	运行期真话：不许剔；第三支（fate/term）的读点所在件
+[WIN_DIAG]	1	no	WIN_DIAG	win32shim	诊断开关（默认关）；出现即说明是诊断趟 ⇒ 不进分母
+[WMCK_DIAG]	1	no	WMCK_DIAG	win32shim	诊断开关（默认关）
+[WMSIZE_DIAG]	1	no	WMSIZE_DIAG	win32shim	诊断开关（默认关）
+[KEY_DIAG]	1	no	KEY_DIAG	win32shim	诊断开关（默认关）
+[KEYSTATE]	1	no	KEYSTATE	win32shim	诊断开关（默认关）
+[NC_DIAG]	1	no	NC_DIAG	win32shim	诊断开关（默认关）
+[CREATE_DIAG]	1	no	CREATE_DIAG	win32shim	诊断开关（默认关）
+[SHOW_DIAG]	1	no	SHOW_DIAG	win32shim	诊断开关（默认关）
+[WFP_DIAG]	1	no	WFP_DIAG	win32shim	诊断开关（默认关）
+[WINSTATE_DIAG]	1	no	WINSTATE_DIAG	win32shim	诊断开关（默认关）
+[MSGFLOW]	1	no	MSGFLOW	win32shim	诊断开关（默认关）
+[WPF_PTS_ENTRY_COUNT]	0	no	WPF_PTS_ENTRY_COUNT	win32shim	诊断开关（默认关）
+[WPF_POPMODS_RING]	0	no	WPF_POPMODS_RING	win32shim	诊断开关（默认关）

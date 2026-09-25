@@ -258,6 +258,25 @@ fp_inputs() {  # 手写输入指纹（应用器 + port-lib + 本脚本 + 波脚�
       #      （与 `#29`／`#31` 登记的流程代价同族）。
       #   ⚠️ **射程**：`build/DirectWrite.Linux/evidence`（13 件）**不在本波射程**；空件
       #      （`evidence/device/xvfb.log`＝0 B）**合法**（`#70` 的存在性判据只查"存在 ∧ `sha256sum` `stderr` 空"）。
+      # 【`#73`（`TASK-0726`）**加两行**：`build/MilBridge/tests/SilentHitProbe/` 的**产出端**
+      #   `run-silenthit-legs.sh`（「静默 SEGV」那条腿唯一落盘层：起显示、起应用、跑配方、
+      #   收装置、把观测变成机读行）＋ 它的**剔除集** `silenthit-trim.tsv`。
+      #   现场（`TASK-0726` 原话）：判据端 `silent-hit-v2-check.sh` `#68` 已入仓并接线成第 `[39]` 步，
+      #   而**产出端仍在车道目录**（8 份同形副本）⇒ 第 `[39]` 步只能走 `--cases`（确定性台账），
+      #   **没有**任何一个仓内件能把一趟真腿变成 `APP_TEXT_BYTES_TRIMMED`／`SEGV_BRANCH` ⇒
+      #   「判据有了、产出端没有」正是 `D-G122` 族（**判据的输入没人看着**）。
+      #   判据照本函数上方那条「**读 ⇒ 进 `fp_inputs()`**」：`--legs-from` **读**的就是本产出端产的表，
+      #   而剔除集**决定** `APP_TEXT_BYTES_TRIMMED` 这个承重格的**每一个字节**
+      #   （它是剔除集的**唯一来源**：仓内 `find . -name '*trim*'` 现取命中 **0** 件；
+      #    判据端**只消费**产出端自报的两数并与台账 `trimmed` 列交叉核，**不另持一份口径**）⇒
+      #   改它＝改判据输入 ⇒ 不纳入则**零机器红**（与 `ime-landing-check.sh`／`nl-intent-check.sh` 同族）。
+      #   ⚠️ **本行改动必然再挪一次 `inputs_fp`**（本函数自含 `close-wave.sh`，设计使然）。
+      #   ⚠️ **覆盖面变 ⇒ 步本体里那个显式常数必须同趟改**：第 `[42]` 步的 `--expect 192` → **`194`**
+      #      （`verify-all.sh` **不在**覆盖面 ⇒ 该常数与生产路径无关；**漏改 ⇒ `files-n-mismatch delta=-2`**）。
+      #   ⚠️ 新增两行**必须留在 `\` 续行的参数表内** —— 注释只能放在**语句之前**
+      #      （插进续行中间会把 `printf` 截断，并把后续行当**命令执行**；本仓现场咬到过）。
+      #   ⚠️ **射程**：产出端是**重活形态**（起显示＋起应用）⇒ 它**不在门禁里同步跑**；
+      #      本两行进覆盖面只保证「**改了会被看见**」，**不**保证「每一波都真跑过一条腿」。
       printf '%s\n' build/MilBridge/tools/tline-gate.sh build/MilBridge/known-red.json \
           build/MilBridge/tools/verify-all-step-check.sh build/MilBridge/tools/fp-inputs-hygiene-check.sh \
           build/MilBridge/tools/column-floor-check.sh build/MilBridge/tools/hidden-only-step.sh \
@@ -315,7 +334,9 @@ fp_inputs() {  # 手写输入指纹（应用器 + port-lib + 本脚本 + 波脚�
           build/MilBridge/tests/PtsPagesProbe/evidence/shots/g1/boot.png \
           build/MilBridge/tests/PtsPagesProbe/evidence/shots/g1/k23.png \
           build/MilBridge/tests/PtsPagesProbe/evidence/shots/g1/k24.png \
-          build/MilBridge/tests/PtsPagesProbe/evidence/shots/g1/last.png
+          build/MilBridge/tests/PtsPagesProbe/evidence/shots/g1/last.png \
+          build/MilBridge/tests/SilentHitProbe/run-silenthit-legs.sh \
+          build/MilBridge/tests/SilentHitProbe/silenthit-trim.tsv
     } | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -d' ' -f1
 }
 sha16() { sha256sum "$1" 2>/dev/null | cut -c1-16; }
