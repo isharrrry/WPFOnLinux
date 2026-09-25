@@ -1,0 +1,28 @@
+=============== GROUP 1 arm=A clicks=[24,23] 20:42:40 ===============
+shim_sha16=fc60c34d51fd9247 pf_sha16=cbd1884faeb4837e
+five_pre: libwpfwin32.so=fc60c34d51fd9247 wpfgfx_cor3.so=4e25e4b27d4d5ae1 PresentationCore.dll=722e0ab8205b7c3f PresentationFramework.dll=cbd1884faeb4837e WindowsBase.dll=2e4e46e539a72cd7 
+mem_avail_kB_start=8764136
+app_pid=2077839 timeout=200s
+boot_log_bytes=19030
+  boot  FILE=/home/links-dev/w67-work/logs/evidence/shots/g1/boot.png 1280x1024 colors=388 magenta=0 total=1310720
+boot_alive=yes
+--- G1 click 24  20:42:48 ---
+BEFORE item=24 nm=FlowDocument stable=yes rect=28,410,203x27 point=127,423 expect=FlowDocumentDemo try=1
+AFTER  item=24 alive=yes ns=HandyControlDemo.UserControl.FlowDocumentDemo ns_delta=1 try=1 expect_hit=yes
+  FILE=/home/links-dev/w67-work/logs/evidence/shots/g1/k24.png 1280x1024 colors=851 magenta=54454 total=1310720
+CLICK k=24 alive=yes expect=FlowDocumentDemo AE=227286 pts_unavail=1 pts_gap=1 guard=2 fatal=0 unh=0 ns_last=HandyControlDemo.UserControl.FlowDocumentDemo
+PHASE k=24 c1_ep=- c2_pts_gap=568 c3_pts_unavail=569 c4_unrecoverable=- managed_err=err=-10000 native_err=err=-10000
+  c3_text: [PTS-UNAVAILABLE] site=FlowDocumentView.DocumentPage entry=CreateInstalledObjectsInfo err=-10000 action=page-placeholder（已画出页级占位；进程继续）
+--- G1 click 23  20:42:56 ---
+BEFORE item=23 nm=RichTextBox stable=yes rect=28,379,203x27 point=127,392 expect=RichTextBoxDemo try=1
+AFTER  item=23 alive=yes ns=HandyControlDemo.UserControl.RichTextBoxDemo ns_delta=1 try=1 expect_hit=yes
+  FILE=/home/links-dev/w67-work/logs/evidence/shots/g1/k23.png 1280x1024 colors=843 magenta=49864 total=1310720
+CLICK k=23 alive=yes expect=RichTextBoxDemo AE=141435 pts_unavail=2 pts_gap=1 guard=2 fatal=0 unh=0 ns_last=HandyControlDemo.UserControl.RichTextBoxDemo
+PHASE k=23 c1_ep=- c2_pts_gap=568 c3_pts_unavail=569 c4_unrecoverable=- managed_err=err=-10000 native_err=err=-10000
+  c3_text: [PTS-UNAVAILABLE] site=FlowDocumentView.DocumentPage entry=CreateInstalledObjectsInfo err=-10000 action=page-placeholder（已画出页级占位；进程继续）
+alive_after_seq=yes
+APP_RC=143
+rc_reading: SIGTERM(仪器收的)
+log_bytes=117073
+FIVE_STABLE_G1=YES
+ALL_GROUPS_DONE 20:43:04

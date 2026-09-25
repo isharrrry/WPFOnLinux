@@ -1,0 +1,1252 @@
+[HCIN] install pid=2077841
+[HC-UNHANDLED] #1 EntryPointNotFoundException: Unable to find an entry point named 'SHAppBarMessage' in shared library 'shell32.dll'. ｜ 首帧 at HandyControl.Tools.Interop.InteropMethods.SHAppBarMessage(Int32 dwMessage, APPBARDATA& pData)
+[NS] ATTRCOUNT DependencyObject=2 FrameworkElement=4 Control=0 TextBlock=2
+[NS] ASSM depObjAssm=WindowsBase, Version=4.0.0.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35 loc=/home/links-dev/w67-work/app/WindowsBase.dll attrAssm=System.Xaml, Version=4.0.0.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35 nsAssm=WindowsBase, Version=4.0.0.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35 attrCount=2 nameScopeHits= HIT:System.Xaml nonInherit=True
+[NS] CHAIN attrOnDependencyObject=True attrOnRootType=True dpField=True dpNull=False dpOwner=NameScope dpName=NameScope attachableMember=NameScope
+[NS] WINDOW HandyControlDemo.MainWindow scope=NameScope FindName(ControlMain)=ContentControl
+[NS] loaded HandyControlDemo.UserControl.PracticalDemo scope=NameScope isINS=False contentScope=NameScope upHits= UP0=PracticalDemo FindName(PathDemo)=null FindName(PART_EditableTextBox)=null
+[HCIN] dump t1
+[STATE] t1 focus=null TG(off)
+[POP] |[0] HwndSource root=MainWindow wh=768x576 vis=True kids{TG(off)} hwnd=0xa00004 vis=root
+[GEO] ======== begin 1 ========
+[GEO] Button#ButtonMin scr=656,1 wh=45x28 en=False vis=True htv=True
+[GEO] Button#ButtonMax scr=703,1 wh=46x28 en=False vis=True htv=True
+[GEO] Button#ButtonRestore scr=656,1 wh=0x0 en=False vis=False htv=True
+[GEO] Button#ButtonClose scr=751,1 wh=46x28 en=False vis=True htv=True
+[GEO] Button#ButtonIcon scr=1,1 wh=0x0 en=False vis=False htv=True
+[GEO] Button#ButtonConfig scr=617,2 wh=37x27 en=True vis=True htv=True
+[GEO] Button#ButtonShiftOut scr=239,59 wh=27x27 en=True vis=True htv=True
+[GEO] ToggleButton#- scr=268,49 wh=0x0 en=True vis=False htv=True chk=False
+[GEO] Button#- scr=268,49 wh=0x0 en=True vis=False htv=True
+[GEO] Button#- scr=28,59 wh=203x27 en=True vis=True htv=True
+[GEO] Button#ButtonShiftIn scr=1,32 wh=0x0 en=True vis=False htv=True
+[GEO] ======== end ========
+[HCIN] dump t2 TBlk(cs=1 chk=True ges=None b=Active/RS:TemplatedParent en=True vis=True)
+[STATE] t2 focus=null TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=-1/31)
+[POP] |[0] HwndSource root=MainWindow wh=768x576 vis=True kids{TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=-1/31)} hwnd=0xa00004 vis=root
+[GEO] ======== begin 2 ========
+[GEO] Button#ButtonMin scr=656,1 wh=45x28 en=True vis=True htv=True
+[GEO] Button#ButtonMax scr=703,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonRestore scr=656,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonClose scr=751,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonIcon scr=1,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonConfig scr=617,2 wh=37x27 en=True vis=True htv=True
+[GEO] Button#ButtonShiftOut scr=239,59 wh=27x27 en=True vis=True htv=True
+[GEO] ToggleButton#- scr=268,49 wh=0x0 en=True vis=False htv=True chk=False
+[GEO] Button#- scr=268,49 wh=0x0 en=True vis=False htv=True
+[GEO] Button#- scr=28,59 wh=203x27 en=True vis=True htv=True
+[GEO] TabItem#- scr=96,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=173,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=18,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=True
+[GEO] SearchBar#- scr=28,133 wh=176x27 en=True vis=True htv=True len=0 caret=0
+[GEO] Button#ButtonClear scr=28,133 wh=0x0 en=True vis=False htv=True
+[GEO] Button#- scr=187,133 wh=24x27 en=True vis=True htv=True
+[GEO] ToggleButton#ButtonStyleAscending scr=211,133 wh=27x27 en=True vis=True htv=True chk=False
+[GEO] ListBox#ListBoxDemo scr=28,166 wh=203x389 en=True vis=True htv=True n=31 sel=-1
+[GEO]   item[0] ListBoxItem scr=28,166 wh=203x27 vis=True nm=Brush
+[GEO]   item[1] ListBoxItem scr=28,197 wh=203x27 vis=True nm=Button
+[GEO]   item[2] ListBoxItem scr=28,228 wh=203x27 vis=True nm=RepeatButton
+[GEO]   item[3] ListBoxItem scr=28,259 wh=203x27 vis=True nm=ToggleButton
+[GEO]   item[4] ListBoxItem scr=28,290 wh=203x27 vis=True nm=RadioButton
+[GEO]   item[5] ListBoxItem scr=28,321 wh=203x27 vis=True nm=CheckBox
+[GEO]   item[6] ListBoxItem scr=28,352 wh=203x27 vis=True nm=ScrollViewer
+[GEO]   item[7] ListBoxItem scr=28,383 wh=203x27 vis=True nm=Slider
+[GEO]   item[8] ListBoxItem scr=28,414 wh=203x27 vis=True nm=TextBlock
+[GEO]   item[9] ListBoxItem scr=28,445 wh=203x27 vis=True nm=TextBox
+[GEO]   item[10] ListBoxItem scr=28,476 wh=203x27 vis=True nm=ComboBox
+[GEO]   item[11] ListBoxItem scr=28,507 wh=203x27 vis=True nm=PasswordBox
+[GEO]   item[12] ListBoxItem scr=28,538 wh=203x27 vis=True nm=Expander
+[GEO]   item[13] ListBoxItem scr=28,569 wh=203x27 vis=True nm=ProgressBar
+[GEO]   item[14] ListBoxItem scr=28,600 wh=203x27 vis=True nm=Calendar
+[GEO]   item[15] ListBoxItem scr=28,631 wh=203x27 vis=True nm=DatePicker
+[GEO]   item[16] ListBoxItem scr=28,662 wh=203x27 vis=True nm=TabControl
+[GEO]   item[17] ListBoxItem scr=28,693 wh=203x27 vis=True nm=DataGrid
+[GEO]   item[18] ListBoxItem scr=28,724 wh=203x27 vis=True nm=TreeView
+[GEO]   item[19] ListBoxItem scr=28,755 wh=203x27 vis=True nm=ListBox
+[GEO]   item[20] ListBoxItem scr=28,786 wh=203x27 vis=True nm=ListView
+[GEO]   item[21] ListBoxItem scr=28,817 wh=203x27 vis=True nm=GroupBox
+[GEO]   item[22] ListBoxItem scr=28,848 wh=203x27 vis=True nm=Menu
+[GEO]   item[23] ListBoxItem scr=28,879 wh=203x27 vis=True nm=RichTextBox
+[GEO]   item[24] ListBoxItem scr=28,910 wh=203x27 vis=True nm=FlowDocument
+[GEO]   item[25] ListBoxItem scr=28,941 wh=203x27 vis=True nm=ToolBar
+[GEO]   item[26] ListBoxItem scr=28,972 wh=203x27 vis=True nm=Border
+[GEO]   item[27] ListBoxItem scr=28,1003 wh=203x27 vis=True nm=Label
+[GEO]   item[28] ListBoxItem scr=28,1034 wh=203x27 vis=True nm=Frame
+[GEO]   item[29] ListBoxItem scr=28,1065 wh=203x27 vis=True nm=Window
+[GEO]   item[30] ListBoxItem scr=28,1096 wh=203x27 vis=True nm=Geometry
+[GEO] RepeatButton#- scr=232,166 wh=7x0 en=False vis=True htv=True
+[GEO] RepeatButton#- scr=232,338 wh=7x224 en=False vis=True htv=True
+[GEO] Button#ButtonShiftIn scr=1,32 wh=0x0 en=True vis=False htv=True
+[GEO] ======== end ========
+[HCIN] dump t3 TBlk(cs=1 chk=True ges=None b=Active/RS:TemplatedParent en=True vis=True)
+[STATE] t3 focus=null TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=-1/31)
+[POP] |[0] HwndSource root=MainWindow wh=768x576 vis=True kids{TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=-1/31)} hwnd=0xa00004 vis=root
+[GEO] ======== begin 3 ========
+[GEO] Button#ButtonMin scr=656,1 wh=45x28 en=True vis=True htv=True
+[GEO] Button#ButtonMax scr=703,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonRestore scr=656,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonClose scr=751,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonIcon scr=1,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonConfig scr=617,2 wh=37x27 en=True vis=True htv=True
+[GEO] Button#ButtonShiftOut scr=239,59 wh=27x27 en=True vis=True htv=True
+[GEO] ToggleButton#- scr=268,49 wh=0x0 en=True vis=False htv=True chk=False
+[GEO] Button#- scr=268,49 wh=0x0 en=True vis=False htv=True
+[GEO] Button#- scr=28,59 wh=203x27 en=True vis=True htv=True
+[GEO] TabItem#- scr=96,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=173,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=18,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=True
+[GEO] SearchBar#- scr=28,133 wh=176x27 en=True vis=True htv=True len=0 caret=0
+[GEO] Button#ButtonClear scr=28,133 wh=0x0 en=True vis=False htv=True
+[GEO] Button#- scr=187,133 wh=24x27 en=True vis=True htv=True
+[GEO] ToggleButton#ButtonStyleAscending scr=211,133 wh=27x27 en=True vis=True htv=True chk=False
+[GEO] ListBox#ListBoxDemo scr=28,166 wh=203x389 en=True vis=True htv=True n=31 sel=-1
+[GEO]   item[0] ListBoxItem scr=28,166 wh=203x27 vis=True nm=Brush
+[GEO]   item[1] ListBoxItem scr=28,197 wh=203x27 vis=True nm=Button
+[GEO]   item[2] ListBoxItem scr=28,228 wh=203x27 vis=True nm=RepeatButton
+[GEO]   item[3] ListBoxItem scr=28,259 wh=203x27 vis=True nm=ToggleButton
+[GEO]   item[4] ListBoxItem scr=28,290 wh=203x27 vis=True nm=RadioButton
+[GEO]   item[5] ListBoxItem scr=28,321 wh=203x27 vis=True nm=CheckBox
+[GEO]   item[6] ListBoxItem scr=28,352 wh=203x27 vis=True nm=ScrollViewer
+[GEO]   item[7] ListBoxItem scr=28,383 wh=203x27 vis=True nm=Slider
+[GEO]   item[8] ListBoxItem scr=28,414 wh=203x27 vis=True nm=TextBlock
+[GEO]   item[9] ListBoxItem scr=28,445 wh=203x27 vis=True nm=TextBox
+[GEO]   item[10] ListBoxItem scr=28,476 wh=203x27 vis=True nm=ComboBox
+[GEO]   item[11] ListBoxItem scr=28,507 wh=203x27 vis=True nm=PasswordBox
+[GEO]   item[12] ListBoxItem scr=28,538 wh=203x27 vis=True nm=Expander
+[GEO]   item[13] ListBoxItem scr=28,569 wh=203x27 vis=True nm=ProgressBar
+[GEO]   item[14] ListBoxItem scr=28,600 wh=203x27 vis=True nm=Calendar
+[GEO]   item[15] ListBoxItem scr=28,631 wh=203x27 vis=True nm=DatePicker
+[GEO]   item[16] ListBoxItem scr=28,662 wh=203x27 vis=True nm=TabControl
+[GEO]   item[17] ListBoxItem scr=28,693 wh=203x27 vis=True nm=DataGrid
+[GEO]   item[18] ListBoxItem scr=28,724 wh=203x27 vis=True nm=TreeView
+[GEO]   item[19] ListBoxItem scr=28,755 wh=203x27 vis=True nm=ListBox
+[GEO]   item[20] ListBoxItem scr=28,786 wh=203x27 vis=True nm=ListView
+[GEO]   item[21] ListBoxItem scr=28,817 wh=203x27 vis=True nm=GroupBox
+[GEO]   item[22] ListBoxItem scr=28,848 wh=203x27 vis=True nm=Menu
+[GEO]   item[23] ListBoxItem scr=28,879 wh=203x27 vis=True nm=RichTextBox
+[GEO]   item[24] ListBoxItem scr=28,910 wh=203x27 vis=True nm=FlowDocument
+[GEO]   item[25] ListBoxItem scr=28,941 wh=203x27 vis=True nm=ToolBar
+[GEO]   item[26] ListBoxItem scr=28,972 wh=203x27 vis=True nm=Border
+[GEO]   item[27] ListBoxItem scr=28,1003 wh=203x27 vis=True nm=Label
+[GEO]   item[28] ListBoxItem scr=28,1034 wh=203x27 vis=True nm=Frame
+[GEO]   item[29] ListBoxItem scr=28,1065 wh=203x27 vis=True nm=Window
+[GEO]   item[30] ListBoxItem scr=28,1096 wh=203x27 vis=True nm=Geometry
+[GEO] RepeatButton#- scr=232,166 wh=7x0 en=False vis=True htv=True
+[GEO] RepeatButton#- scr=232,338 wh=7x224 en=False vis=True htv=True
+[GEO] Button#ButtonShiftIn scr=1,32 wh=0x0 en=True vis=False htv=True
+[GEO] ======== end ========
+[HCIN] dump t4 TBlk(cs=1 chk=True ges=None b=Active/RS:TemplatedParent en=True vis=True)
+[STATE] t4 focus=null TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=-1/31)
+[POP] |[0] HwndSource root=MainWindow wh=768x576 vis=True kids{TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=-1/31)} hwnd=0xa00004 vis=root
+[GEO] ======== begin 4 ========
+[GEO] Button#ButtonMin scr=656,1 wh=45x28 en=True vis=True htv=True
+[GEO] Button#ButtonMax scr=703,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonRestore scr=656,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonClose scr=751,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonIcon scr=1,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonConfig scr=617,2 wh=37x27 en=True vis=True htv=True
+[GEO] Button#ButtonShiftOut scr=239,59 wh=27x27 en=True vis=True htv=True
+[GEO] ToggleButton#- scr=268,49 wh=0x0 en=True vis=False htv=True chk=False
+[GEO] Button#- scr=268,49 wh=0x0 en=True vis=False htv=True
+[GEO] Button#- scr=28,59 wh=203x27 en=True vis=True htv=True
+[GEO] TabItem#- scr=96,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=173,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=18,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=True
+[GEO] SearchBar#- scr=28,133 wh=176x27 en=True vis=True htv=True len=0 caret=0
+[GEO] Button#ButtonClear scr=28,133 wh=0x0 en=True vis=False htv=True
+[GEO] Button#- scr=187,133 wh=24x27 en=True vis=True htv=True
+[GEO] ToggleButton#ButtonStyleAscending scr=211,133 wh=27x27 en=True vis=True htv=True chk=False
+[GEO] ListBox#ListBoxDemo scr=28,166 wh=203x389 en=True vis=True htv=True n=31 sel=-1
+[GEO]   item[0] ListBoxItem scr=28,166 wh=203x27 vis=True nm=Brush
+[GEO]   item[1] ListBoxItem scr=28,197 wh=203x27 vis=True nm=Button
+[GEO]   item[2] ListBoxItem scr=28,228 wh=203x27 vis=True nm=RepeatButton
+[GEO]   item[3] ListBoxItem scr=28,259 wh=203x27 vis=True nm=ToggleButton
+[GEO]   item[4] ListBoxItem scr=28,290 wh=203x27 vis=True nm=RadioButton
+[GEO]   item[5] ListBoxItem scr=28,321 wh=203x27 vis=True nm=CheckBox
+[GEO]   item[6] ListBoxItem scr=28,352 wh=203x27 vis=True nm=ScrollViewer
+[GEO]   item[7] ListBoxItem scr=28,383 wh=203x27 vis=True nm=Slider
+[GEO]   item[8] ListBoxItem scr=28,414 wh=203x27 vis=True nm=TextBlock
+[GEO]   item[9] ListBoxItem scr=28,445 wh=203x27 vis=True nm=TextBox
+[GEO]   item[10] ListBoxItem scr=28,476 wh=203x27 vis=True nm=ComboBox
+[GEO]   item[11] ListBoxItem scr=28,507 wh=203x27 vis=True nm=PasswordBox
+[GEO]   item[12] ListBoxItem scr=28,538 wh=203x27 vis=True nm=Expander
+[GEO]   item[13] ListBoxItem scr=28,569 wh=203x27 vis=True nm=ProgressBar
+[GEO]   item[14] ListBoxItem scr=28,600 wh=203x27 vis=True nm=Calendar
+[GEO]   item[15] ListBoxItem scr=28,631 wh=203x27 vis=True nm=DatePicker
+[GEO]   item[16] ListBoxItem scr=28,662 wh=203x27 vis=True nm=TabControl
+[GEO]   item[17] ListBoxItem scr=28,693 wh=203x27 vis=True nm=DataGrid
+[GEO]   item[18] ListBoxItem scr=28,724 wh=203x27 vis=True nm=TreeView
+[GEO]   item[19] ListBoxItem scr=28,755 wh=203x27 vis=True nm=ListBox
+[GEO]   item[20] ListBoxItem scr=28,786 wh=203x27 vis=True nm=ListView
+[GEO]   item[21] ListBoxItem scr=28,817 wh=203x27 vis=True nm=GroupBox
+[GEO]   item[22] ListBoxItem scr=28,848 wh=203x27 vis=True nm=Menu
+[GEO]   item[23] ListBoxItem scr=28,879 wh=203x27 vis=True nm=RichTextBox
+[GEO]   item[24] ListBoxItem scr=28,910 wh=203x27 vis=True nm=FlowDocument
+[GEO]   item[25] ListBoxItem scr=28,941 wh=203x27 vis=True nm=ToolBar
+[GEO]   item[26] ListBoxItem scr=28,972 wh=203x27 vis=True nm=Border
+[GEO]   item[27] ListBoxItem scr=28,1003 wh=203x27 vis=True nm=Label
+[GEO]   item[28] ListBoxItem scr=28,1034 wh=203x27 vis=True nm=Frame
+[GEO]   item[29] ListBoxItem scr=28,1065 wh=203x27 vis=True nm=Window
+[GEO]   item[30] ListBoxItem scr=28,1096 wh=203x27 vis=True nm=Geometry
+[GEO] RepeatButton#- scr=232,166 wh=7x0 en=False vis=True htv=True
+[GEO] RepeatButton#- scr=232,338 wh=7x224 en=False vis=True htv=True
+[GEO] Button#ButtonShiftIn scr=1,32 wh=0x0 en=True vis=False htv=True
+[GEO] ======== end ========
+[HCIN] dump t5 TBlk(cs=1 chk=True ges=None b=Active/RS:TemplatedParent en=True vis=True)
+[STATE] t5 focus=null TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=-1/31)
+[POP] |[0] HwndSource root=MainWindow wh=768x576 vis=True kids{TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=-1/31)} hwnd=0xa00004 vis=root
+[GEO] ======== begin 5 ========
+[GEO] Button#ButtonMin scr=656,1 wh=45x28 en=True vis=True htv=True
+[GEO] Button#ButtonMax scr=703,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonRestore scr=656,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonClose scr=751,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonIcon scr=1,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonConfig scr=617,2 wh=37x27 en=True vis=True htv=True
+[GEO] Button#ButtonShiftOut scr=239,59 wh=27x27 en=True vis=True htv=True
+[GEO] ToggleButton#- scr=268,49 wh=0x0 en=True vis=False htv=True chk=False
+[GEO] Button#- scr=268,49 wh=0x0 en=True vis=False htv=True
+[GEO] Button#- scr=28,59 wh=203x27 en=True vis=True htv=True
+[GEO] TabItem#- scr=96,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=173,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=18,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=True
+[GEO] SearchBar#- scr=28,133 wh=176x27 en=True vis=True htv=True len=0 caret=0
+[GEO] Button#ButtonClear scr=28,133 wh=0x0 en=True vis=False htv=True
+[GEO] Button#- scr=187,133 wh=24x27 en=True vis=True htv=True
+[GEO] ToggleButton#ButtonStyleAscending scr=211,133 wh=27x27 en=True vis=True htv=True chk=False
+[GEO] ListBox#ListBoxDemo scr=28,166 wh=203x389 en=True vis=True htv=True n=31 sel=-1
+[GEO]   item[0] ListBoxItem scr=28,166 wh=203x27 vis=True nm=Brush
+[GEO]   item[1] ListBoxItem scr=28,197 wh=203x27 vis=True nm=Button
+[GEO]   item[2] ListBoxItem scr=28,228 wh=203x27 vis=True nm=RepeatButton
+[GEO]   item[3] ListBoxItem scr=28,259 wh=203x27 vis=True nm=ToggleButton
+[GEO]   item[4] ListBoxItem scr=28,290 wh=203x27 vis=True nm=RadioButton
+[GEO]   item[5] ListBoxItem scr=28,321 wh=203x27 vis=True nm=CheckBox
+[GEO]   item[6] ListBoxItem scr=28,352 wh=203x27 vis=True nm=ScrollViewer
+[GEO]   item[7] ListBoxItem scr=28,383 wh=203x27 vis=True nm=Slider
+[GEO]   item[8] ListBoxItem scr=28,414 wh=203x27 vis=True nm=TextBlock
+[GEO]   item[9] ListBoxItem scr=28,445 wh=203x27 vis=True nm=TextBox
+[GEO]   item[10] ListBoxItem scr=28,476 wh=203x27 vis=True nm=ComboBox
+[GEO]   item[11] ListBoxItem scr=28,507 wh=203x27 vis=True nm=PasswordBox
+[GEO]   item[12] ListBoxItem scr=28,538 wh=203x27 vis=True nm=Expander
+[GEO]   item[13] ListBoxItem scr=28,569 wh=203x27 vis=True nm=ProgressBar
+[GEO]   item[14] ListBoxItem scr=28,600 wh=203x27 vis=True nm=Calendar
+[GEO]   item[15] ListBoxItem scr=28,631 wh=203x27 vis=True nm=DatePicker
+[GEO]   item[16] ListBoxItem scr=28,662 wh=203x27 vis=True nm=TabControl
+[GEO]   item[17] ListBoxItem scr=28,693 wh=203x27 vis=True nm=DataGrid
+[GEO]   item[18] ListBoxItem scr=28,724 wh=203x27 vis=True nm=TreeView
+[GEO]   item[19] ListBoxItem scr=28,755 wh=203x27 vis=True nm=ListBox
+[GEO]   item[20] ListBoxItem scr=28,786 wh=203x27 vis=True nm=ListView
+[GEO]   item[21] ListBoxItem scr=28,817 wh=203x27 vis=True nm=GroupBox
+[GEO]   item[22] ListBoxItem scr=28,848 wh=203x27 vis=True nm=Menu
+[GEO]   item[23] ListBoxItem scr=28,879 wh=203x27 vis=True nm=RichTextBox
+[GEO]   item[24] ListBoxItem scr=28,910 wh=203x27 vis=True nm=FlowDocument
+[GEO]   item[25] ListBoxItem scr=28,941 wh=203x27 vis=True nm=ToolBar
+[GEO]   item[26] ListBoxItem scr=28,972 wh=203x27 vis=True nm=Border
+[GEO]   item[27] ListBoxItem scr=28,1003 wh=203x27 vis=True nm=Label
+[GEO]   item[28] ListBoxItem scr=28,1034 wh=203x27 vis=True nm=Frame
+[GEO]   item[29] ListBoxItem scr=28,1065 wh=203x27 vis=True nm=Window
+[GEO]   item[30] ListBoxItem scr=28,1096 wh=203x27 vis=True nm=Geometry
+[GEO] RepeatButton#- scr=232,166 wh=7x0 en=False vis=True htv=True
+[GEO] RepeatButton#- scr=232,338 wh=7x224 en=False vis=True htv=True
+[GEO] Button#ButtonShiftIn scr=1,32 wh=0x0 en=True vis=False htv=True
+[GEO] ======== end ========
+[HCIN] dump t6 TBlk(cs=1 chk=True ges=None b=Active/RS:TemplatedParent en=True vis=True)
+[STATE] t6 focus=null TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=-1/31)
+[POP] |[0] HwndSource root=MainWindow wh=768x576 vis=True kids{TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=-1/31)} hwnd=0xa00004 vis=root
+[GEO] ======== begin 6 ========
+[GEO] Button#ButtonMin scr=656,1 wh=45x28 en=True vis=True htv=True
+[GEO] Button#ButtonMax scr=703,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonRestore scr=656,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonClose scr=751,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonIcon scr=1,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonConfig scr=617,2 wh=37x27 en=True vis=True htv=True
+[GEO] Button#ButtonShiftOut scr=239,59 wh=27x27 en=True vis=True htv=True
+[GEO] ToggleButton#- scr=268,49 wh=0x0 en=True vis=False htv=True chk=False
+[GEO] Button#- scr=268,49 wh=0x0 en=True vis=False htv=True
+[GEO] Button#- scr=28,59 wh=203x27 en=True vis=True htv=True
+[GEO] TabItem#- scr=96,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=173,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=18,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=True
+[GEO] SearchBar#- scr=28,133 wh=176x27 en=True vis=True htv=True len=0 caret=0
+[GEO] Button#ButtonClear scr=28,133 wh=0x0 en=True vis=False htv=True
+[GEO] Button#- scr=187,133 wh=24x27 en=True vis=True htv=True
+[GEO] ToggleButton#ButtonStyleAscending scr=211,133 wh=27x27 en=True vis=True htv=True chk=False
+[GEO] ListBox#ListBoxDemo scr=28,166 wh=203x389 en=True vis=True htv=True n=31 sel=-1
+[GEO]   item[0] ListBoxItem scr=28,166 wh=203x27 vis=True nm=Brush
+[GEO]   item[1] ListBoxItem scr=28,197 wh=203x27 vis=True nm=Button
+[GEO]   item[2] ListBoxItem scr=28,228 wh=203x27 vis=True nm=RepeatButton
+[GEO]   item[3] ListBoxItem scr=28,259 wh=203x27 vis=True nm=ToggleButton
+[GEO]   item[4] ListBoxItem scr=28,290 wh=203x27 vis=True nm=RadioButton
+[GEO]   item[5] ListBoxItem scr=28,321 wh=203x27 vis=True nm=CheckBox
+[GEO]   item[6] ListBoxItem scr=28,352 wh=203x27 vis=True nm=ScrollViewer
+[GEO]   item[7] ListBoxItem scr=28,383 wh=203x27 vis=True nm=Slider
+[GEO]   item[8] ListBoxItem scr=28,414 wh=203x27 vis=True nm=TextBlock
+[GEO]   item[9] ListBoxItem scr=28,445 wh=203x27 vis=True nm=TextBox
+[GEO]   item[10] ListBoxItem scr=28,476 wh=203x27 vis=True nm=ComboBox
+[GEO]   item[11] ListBoxItem scr=28,507 wh=203x27 vis=True nm=PasswordBox
+[GEO]   item[12] ListBoxItem scr=28,538 wh=203x27 vis=True nm=Expander
+[GEO]   item[13] ListBoxItem scr=28,569 wh=203x27 vis=True nm=ProgressBar
+[GEO]   item[14] ListBoxItem scr=28,600 wh=203x27 vis=True nm=Calendar
+[GEO]   item[15] ListBoxItem scr=28,631 wh=203x27 vis=True nm=DatePicker
+[GEO]   item[16] ListBoxItem scr=28,662 wh=203x27 vis=True nm=TabControl
+[GEO]   item[17] ListBoxItem scr=28,693 wh=203x27 vis=True nm=DataGrid
+[GEO]   item[18] ListBoxItem scr=28,724 wh=203x27 vis=True nm=TreeView
+[GEO]   item[19] ListBoxItem scr=28,755 wh=203x27 vis=True nm=ListBox
+[GEO]   item[20] ListBoxItem scr=28,786 wh=203x27 vis=True nm=ListView
+[GEO]   item[21] ListBoxItem scr=28,817 wh=203x27 vis=True nm=GroupBox
+[GEO]   item[22] ListBoxItem scr=28,848 wh=203x27 vis=True nm=Menu
+[GEO]   item[23] ListBoxItem scr=28,879 wh=203x27 vis=True nm=RichTextBox
+[GEO]   item[24] ListBoxItem scr=28,910 wh=203x27 vis=True nm=FlowDocument
+[GEO]   item[25] ListBoxItem scr=28,941 wh=203x27 vis=True nm=ToolBar
+[GEO]   item[26] ListBoxItem scr=28,972 wh=203x27 vis=True nm=Border
+[GEO]   item[27] ListBoxItem scr=28,1003 wh=203x27 vis=True nm=Label
+[GEO]   item[28] ListBoxItem scr=28,1034 wh=203x27 vis=True nm=Frame
+[GEO]   item[29] ListBoxItem scr=28,1065 wh=203x27 vis=True nm=Window
+[GEO]   item[30] ListBoxItem scr=28,1096 wh=203x27 vis=True nm=Geometry
+[GEO] RepeatButton#- scr=232,166 wh=7x0 en=False vis=True htv=True
+[GEO] RepeatButton#- scr=232,338 wh=7x224 en=False vis=True htv=True
+[GEO] Button#ButtonShiftIn scr=1,32 wh=0x0 en=True vis=False htv=True
+[GEO] ======== end ========
+[HCIN] dump t7 TBlk(cs=1 chk=True ges=None b=Active/RS:TemplatedParent en=True vis=True)
+[STATE] t7 focus=null TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=-1/31)
+[POP] |[0] HwndSource root=MainWindow wh=768x576 vis=True kids{TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=-1/31)} hwnd=0xa00004 vis=root
+[GEO] ======== begin 7 ========
+[GEO] Button#ButtonMin scr=656,1 wh=45x28 en=True vis=True htv=True
+[GEO] Button#ButtonMax scr=703,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonRestore scr=656,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonClose scr=751,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonIcon scr=1,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonConfig scr=617,2 wh=37x27 en=True vis=True htv=True
+[GEO] Button#ButtonShiftOut scr=239,59 wh=27x27 en=True vis=True htv=True
+[GEO] ToggleButton#- scr=268,49 wh=0x0 en=True vis=False htv=True chk=False
+[GEO] Button#- scr=268,49 wh=0x0 en=True vis=False htv=True
+[GEO] Button#- scr=28,59 wh=203x27 en=True vis=True htv=True
+[GEO] TabItem#- scr=96,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=173,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=18,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=True
+[GEO] SearchBar#- scr=28,133 wh=176x27 en=True vis=True htv=True len=0 caret=0
+[GEO] Button#ButtonClear scr=28,133 wh=0x0 en=True vis=False htv=True
+[GEO] Button#- scr=187,133 wh=24x27 en=True vis=True htv=True
+[GEO] ToggleButton#ButtonStyleAscending scr=211,133 wh=27x27 en=True vis=True htv=True chk=False
+[GEO] ListBox#ListBoxDemo scr=28,166 wh=203x389 en=True vis=True htv=True n=31 sel=-1
+[GEO]   item[0] ListBoxItem scr=28,-84 wh=203x27 vis=True nm=Brush
+[GEO]   item[1] ListBoxItem scr=28,-53 wh=203x27 vis=True nm=Button
+[GEO]   item[2] ListBoxItem scr=28,-22 wh=203x27 vis=True nm=RepeatButton
+[GEO]   item[3] ListBoxItem scr=28,9 wh=203x27 vis=True nm=ToggleButton
+[GEO]   item[4] ListBoxItem scr=28,40 wh=203x27 vis=True nm=RadioButton
+[GEO]   item[5] ListBoxItem scr=28,71 wh=203x27 vis=True nm=CheckBox
+[GEO]   item[6] ListBoxItem scr=28,102 wh=203x27 vis=True nm=ScrollViewer
+[GEO]   item[7] ListBoxItem scr=28,133 wh=203x27 vis=True nm=Slider
+[GEO]   item[8] ListBoxItem scr=28,164 wh=203x27 vis=True nm=TextBlock
+[GEO]   item[9] ListBoxItem scr=28,195 wh=203x27 vis=True nm=TextBox
+[GEO]   item[10] ListBoxItem scr=28,226 wh=203x27 vis=True nm=ComboBox
+[GEO]   item[11] ListBoxItem scr=28,257 wh=203x27 vis=True nm=PasswordBox
+[GEO]   item[12] ListBoxItem scr=28,288 wh=203x27 vis=True nm=Expander
+[GEO]   item[13] ListBoxItem scr=28,319 wh=203x27 vis=True nm=ProgressBar
+[GEO]   item[14] ListBoxItem scr=28,350 wh=203x27 vis=True nm=Calendar
+[GEO]   item[15] ListBoxItem scr=28,381 wh=203x27 vis=True nm=DatePicker
+[GEO]   item[16] ListBoxItem scr=28,412 wh=203x27 vis=True nm=TabControl
+[GEO]   item[17] ListBoxItem scr=28,443 wh=203x27 vis=True nm=DataGrid
+[GEO]   item[18] ListBoxItem scr=28,474 wh=203x27 vis=True nm=TreeView
+[GEO]   item[19] ListBoxItem scr=28,505 wh=203x27 vis=True nm=ListBox
+[GEO]   item[20] ListBoxItem scr=28,536 wh=203x27 vis=True nm=ListView
+[GEO]   item[21] ListBoxItem scr=28,567 wh=203x27 vis=True nm=GroupBox
+[GEO]   item[22] ListBoxItem scr=28,598 wh=203x27 vis=True nm=Menu
+[GEO]   item[23] ListBoxItem scr=28,629 wh=203x27 vis=True nm=RichTextBox
+[GEO]   item[24] ListBoxItem scr=28,660 wh=203x27 vis=True nm=FlowDocument
+[GEO]   item[25] ListBoxItem scr=28,691 wh=203x27 vis=True nm=ToolBar
+[GEO]   item[26] ListBoxItem scr=28,722 wh=203x27 vis=True nm=Border
+[GEO]   item[27] ListBoxItem scr=28,753 wh=203x27 vis=True nm=Label
+[GEO]   item[28] ListBoxItem scr=28,784 wh=203x27 vis=True nm=Frame
+[GEO]   item[29] ListBoxItem scr=28,815 wh=203x27 vis=True nm=Window
+[GEO]   item[30] ListBoxItem scr=28,846 wh=203x27 vis=True nm=Geometry
+[GEO] RepeatButton#- scr=232,166 wh=7x101 en=False vis=True htv=True
+[GEO] RepeatButton#- scr=232,443 wh=7x123 en=False vis=True htv=True
+[GEO] Button#ButtonShiftIn scr=1,32 wh=0x0 en=True vis=False htv=True
+[GEO] ======== end ========
+[HCIN] dump t8 TBlk(cs=1 chk=True ges=None b=Active/RS:TemplatedParent en=True vis=True)
+[STATE] t8 focus=null TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=-1/31)
+[POP] |[0] HwndSource root=MainWindow wh=768x576 vis=True kids{TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=-1/31)} hwnd=0xa00004 vis=root
+[GEO] ======== begin 8 ========
+[GEO] Button#ButtonMin scr=656,1 wh=45x28 en=True vis=True htv=True
+[GEO] Button#ButtonMax scr=703,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonRestore scr=656,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonClose scr=751,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonIcon scr=1,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonConfig scr=617,2 wh=37x27 en=True vis=True htv=True
+[GEO] Button#ButtonShiftOut scr=239,59 wh=27x27 en=True vis=True htv=True
+[GEO] ToggleButton#- scr=268,49 wh=0x0 en=True vis=False htv=True chk=False
+[GEO] Button#- scr=268,49 wh=0x0 en=True vis=False htv=True
+[GEO] Button#- scr=28,59 wh=203x27 en=True vis=True htv=True
+[GEO] TabItem#- scr=96,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=173,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=18,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=True
+[GEO] SearchBar#- scr=28,133 wh=176x27 en=True vis=True htv=True len=0 caret=0
+[GEO] Button#ButtonClear scr=28,133 wh=0x0 en=True vis=False htv=True
+[GEO] Button#- scr=187,133 wh=24x27 en=True vis=True htv=True
+[GEO] ToggleButton#ButtonStyleAscending scr=211,133 wh=27x27 en=True vis=True htv=True chk=False
+[GEO] ListBox#ListBoxDemo scr=28,166 wh=203x389 en=True vis=True htv=True n=31 sel=-1
+[GEO]   item[0] ListBoxItem scr=28,-334 wh=203x27 vis=True nm=Brush
+[GEO]   item[1] ListBoxItem scr=28,-303 wh=203x27 vis=True nm=Button
+[GEO]   item[2] ListBoxItem scr=28,-272 wh=203x27 vis=True nm=RepeatButton
+[GEO]   item[3] ListBoxItem scr=28,-241 wh=203x27 vis=True nm=ToggleButton
+[GEO]   item[4] ListBoxItem scr=28,-210 wh=203x27 vis=True nm=RadioButton
+[GEO]   item[5] ListBoxItem scr=28,-179 wh=203x27 vis=True nm=CheckBox
+[GEO]   item[6] ListBoxItem scr=28,-148 wh=203x27 vis=True nm=ScrollViewer
+[GEO]   item[7] ListBoxItem scr=28,-117 wh=203x27 vis=True nm=Slider
+[GEO]   item[8] ListBoxItem scr=28,-86 wh=203x27 vis=True nm=TextBlock
+[GEO]   item[9] ListBoxItem scr=28,-55 wh=203x27 vis=True nm=TextBox
+[GEO]   item[10] ListBoxItem scr=28,-24 wh=203x27 vis=True nm=ComboBox
+[GEO]   item[11] ListBoxItem scr=28,7 wh=203x27 vis=True nm=PasswordBox
+[GEO]   item[12] ListBoxItem scr=28,38 wh=203x27 vis=True nm=Expander
+[GEO]   item[13] ListBoxItem scr=28,69 wh=203x27 vis=True nm=ProgressBar
+[GEO]   item[14] ListBoxItem scr=28,100 wh=203x27 vis=True nm=Calendar
+[GEO]   item[15] ListBoxItem scr=28,131 wh=203x27 vis=True nm=DatePicker
+[GEO]   item[16] ListBoxItem scr=28,162 wh=203x27 vis=True nm=TabControl
+[GEO]   item[17] ListBoxItem scr=28,193 wh=203x27 vis=True nm=DataGrid
+[GEO]   item[18] ListBoxItem scr=28,224 wh=203x27 vis=True nm=TreeView
+[GEO]   item[19] ListBoxItem scr=28,255 wh=203x27 vis=True nm=ListBox
+[GEO]   item[20] ListBoxItem scr=28,286 wh=203x27 vis=True nm=ListView
+[GEO]   item[21] ListBoxItem scr=28,317 wh=203x27 vis=True nm=GroupBox
+[GEO]   item[22] ListBoxItem scr=28,348 wh=203x27 vis=True nm=Menu
+[GEO]   item[23] ListBoxItem scr=28,379 wh=203x27 vis=True nm=RichTextBox
+[GEO]   item[24] ListBoxItem scr=28,410 wh=203x27 vis=True nm=FlowDocument
+[GEO]   item[25] ListBoxItem scr=28,441 wh=203x27 vis=True nm=ToolBar
+[GEO]   item[26] ListBoxItem scr=28,472 wh=203x27 vis=True nm=Border
+[GEO]   item[27] ListBoxItem scr=28,503 wh=203x27 vis=True nm=Label
+[GEO]   item[28] ListBoxItem scr=28,534 wh=203x27 vis=True nm=Frame
+[GEO]   item[29] ListBoxItem scr=28,565 wh=203x27 vis=True nm=Window
+[GEO]   item[30] ListBoxItem scr=28,596 wh=203x27 vis=True nm=Geometry
+[GEO] RepeatButton#- scr=232,166 wh=7x202 en=False vis=True htv=True
+[GEO] RepeatButton#- scr=232,549 wh=7x22 en=False vis=True htv=True
+[GEO] Button#ButtonShiftIn scr=1,32 wh=0x0 en=True vis=False htv=True
+[GEO] ======== end ========
+[HCIN] dump t9 TBlk(cs=1 chk=True ges=None b=Active/RS:TemplatedParent en=True vis=True)
+[STATE] t9 focus=null TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=-1/31)
+[POP] |[0] HwndSource root=MainWindow wh=768x576 vis=True kids{TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=-1/31)} hwnd=0xa00004 vis=root
+[GEO] ======== begin 9 ========
+[GEO] Button#ButtonMin scr=656,1 wh=45x28 en=True vis=True htv=True
+[GEO] Button#ButtonMax scr=703,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonRestore scr=656,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonClose scr=751,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonIcon scr=1,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonConfig scr=617,2 wh=37x27 en=True vis=True htv=True
+[GEO] Button#ButtonShiftOut scr=239,59 wh=27x27 en=True vis=True htv=True
+[GEO] ToggleButton#- scr=268,49 wh=0x0 en=True vis=False htv=True chk=False
+[GEO] Button#- scr=268,49 wh=0x0 en=True vis=False htv=True
+[GEO] Button#- scr=28,59 wh=203x27 en=True vis=True htv=True
+[GEO] TabItem#- scr=96,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=173,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=18,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=True
+[GEO] SearchBar#- scr=28,133 wh=176x27 en=True vis=True htv=True len=0 caret=0
+[GEO] Button#ButtonClear scr=28,133 wh=0x0 en=True vis=False htv=True
+[GEO] Button#- scr=187,133 wh=24x27 en=True vis=True htv=True
+[GEO] ToggleButton#ButtonStyleAscending scr=211,133 wh=27x27 en=True vis=True htv=True chk=False
+[GEO] ListBox#ListBoxDemo scr=28,166 wh=203x389 en=True vis=True htv=True n=31 sel=-1
+[GEO]   item[0] ListBoxItem scr=28,-334 wh=203x27 vis=True nm=Brush
+[GEO]   item[1] ListBoxItem scr=28,-303 wh=203x27 vis=True nm=Button
+[GEO]   item[2] ListBoxItem scr=28,-272 wh=203x27 vis=True nm=RepeatButton
+[GEO]   item[3] ListBoxItem scr=28,-241 wh=203x27 vis=True nm=ToggleButton
+[GEO]   item[4] ListBoxItem scr=28,-210 wh=203x27 vis=True nm=RadioButton
+[GEO]   item[5] ListBoxItem scr=28,-179 wh=203x27 vis=True nm=CheckBox
+[GEO]   item[6] ListBoxItem scr=28,-148 wh=203x27 vis=True nm=ScrollViewer
+[GEO]   item[7] ListBoxItem scr=28,-117 wh=203x27 vis=True nm=Slider
+[GEO]   item[8] ListBoxItem scr=28,-86 wh=203x27 vis=True nm=TextBlock
+[GEO]   item[9] ListBoxItem scr=28,-55 wh=203x27 vis=True nm=TextBox
+[GEO]   item[10] ListBoxItem scr=28,-24 wh=203x27 vis=True nm=ComboBox
+[GEO]   item[11] ListBoxItem scr=28,7 wh=203x27 vis=True nm=PasswordBox
+[GEO]   item[12] ListBoxItem scr=28,38 wh=203x27 vis=True nm=Expander
+[GEO]   item[13] ListBoxItem scr=28,69 wh=203x27 vis=True nm=ProgressBar
+[GEO]   item[14] ListBoxItem scr=28,100 wh=203x27 vis=True nm=Calendar
+[GEO]   item[15] ListBoxItem scr=28,131 wh=203x27 vis=True nm=DatePicker
+[GEO]   item[16] ListBoxItem scr=28,162 wh=203x27 vis=True nm=TabControl
+[GEO]   item[17] ListBoxItem scr=28,193 wh=203x27 vis=True nm=DataGrid
+[GEO]   item[18] ListBoxItem scr=28,224 wh=203x27 vis=True nm=TreeView
+[GEO]   item[19] ListBoxItem scr=28,255 wh=203x27 vis=True nm=ListBox
+[GEO]   item[20] ListBoxItem scr=28,286 wh=203x27 vis=True nm=ListView
+[GEO]   item[21] ListBoxItem scr=28,317 wh=203x27 vis=True nm=GroupBox
+[GEO]   item[22] ListBoxItem scr=28,348 wh=203x27 vis=True nm=Menu
+[GEO]   item[23] ListBoxItem scr=28,379 wh=203x27 vis=True nm=RichTextBox
+[GEO]   item[24] ListBoxItem scr=28,410 wh=203x27 vis=True nm=FlowDocument
+[GEO]   item[25] ListBoxItem scr=28,441 wh=203x27 vis=True nm=ToolBar
+[GEO]   item[26] ListBoxItem scr=28,472 wh=203x27 vis=True nm=Border
+[GEO]   item[27] ListBoxItem scr=28,503 wh=203x27 vis=True nm=Label
+[GEO]   item[28] ListBoxItem scr=28,534 wh=203x27 vis=True nm=Frame
+[GEO]   item[29] ListBoxItem scr=28,565 wh=203x27 vis=True nm=Window
+[GEO]   item[30] ListBoxItem scr=28,596 wh=203x27 vis=True nm=Geometry
+[GEO] RepeatButton#- scr=232,166 wh=7x202 en=False vis=True htv=True
+[GEO] RepeatButton#- scr=232,549 wh=7x22 en=False vis=True htv=True
+[GEO] Button#ButtonShiftIn scr=1,32 wh=0x0 en=True vis=False htv=True
+[GEO] ======== end ========
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] mouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none srcIsCombo=False
+[HCIN] GOTFOCUS sender=ListBoxItem new=ListBoxItem old=null focused=ListBoxItem
+[HCIN] GOTFOCUS sender=VirtualizingStackPanel new=ListBoxItem old=null focused=ListBoxItem
+[HCIN] GOTFOCUS sender=ItemsPresenter new=ListBoxItem old=null focused=ListBoxItem
+[HCIN] GOTFOCUS sender=ScrollContentPresenter new=ListBoxItem old=null focused=ListBoxItem
+[HCIN] GOTFOCUS sender=Grid new=ListBoxItem old=null focused=ListBoxItem
+[HCIN] GOTFOCUS sender=ScrollViewer new=ListBoxItem old=null focused=ListBoxItem
+[HCIN] GOTFOCUS sender=ContentPresenter new=ListBoxItem old=null focused=ListBoxItem
+[HCIN] GOTFOCUS sender=SimplePanel new=ListBoxItem old=null focused=ListBoxItem
+[HCIN] GOTFOCUS sender=Border new=ListBoxItem old=null focused=ListBoxItem
+[HCIN] GOTFOCUS sender=ToggleBlock new=ListBoxItem old=null focused=ListBoxItem
+[HCIN] GOTFOCUS sender=Border new=ListBoxItem old=null focused=ListBoxItem
+[HCIN] GOTFOCUS sender=ListBox new=ListBoxItem old=null focused=ListBoxItem
+[HCIN] GOTFOCUS sender=Grid new=ListBoxItem old=null focused=ListBoxItem
+[HCIN] GOTFOCUS sender=ContentPresenter new=ListBoxItem old=null focused=ListBoxItem
+[HCIN] GOTFOCUS sender=Border new=ListBoxItem old=null focused=ListBoxItem
+[HCIN] GOTFOCUS sender=Grid new=ListBoxItem old=null focused=ListBoxItem
+[HCIN] GOTFOCUS sender=TabControl new=ListBoxItem old=null focused=ListBoxItem
+[HCIN] GOTFOCUS sender=DockPanel new=ListBoxItem old=null focused=ListBoxItem
+[HCIN] GOTFOCUS sender=LeftMainContent new=ListBoxItem old=null focused=ListBoxItem
+[HCIN] GOTFOCUS sender=Grid new=ListBoxItem old=null focused=ListBoxItem
+[HCIN] GOTFOCUS sender=MainWindowContent new=ListBoxItem old=null focused=ListBoxItem
+[HCIN] GOTFOCUS sender=ContentPresenter new=ListBoxItem old=null focused=ListBoxItem
+[HCIN] GOTFOCUS sender=ContentControl new=ListBoxItem old=null focused=ListBoxItem
+[HCIN] GOTFOCUS sender=ContentPresenter new=ListBoxItem old=null focused=ListBoxItem
+[HCIN] GOTFOCUS sender=AdornerDecorator new=ListBoxItem old=null focused=ListBoxItem
+[HCIN] GOTFOCUS sender=Grid new=ListBoxItem old=null focused=ListBoxItem
+[HCIN] GOTFOCUS sender=Border new=ListBoxItem old=null focused=ListBoxItem
+[HCIN] GOTFOCUS sender=MainWindow new=ListBoxItem old=null focused=ListBoxItem
+[HCIN] EV LB.SelectionChanged ListBox#ListBoxDemo sel=24/31 added=1
+[HCIN] mouseUp hop=Border src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=ListBox#ListBoxDemo
+[HCIN] mouseUp hop=ListBoxItem src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=ListBox#ListBoxDemo
+[HCIN] mouseUp hop=VirtualizingStackPanel src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=ListBox#ListBoxDemo
+[HCIN] mouseUp hop=ItemsPresenter src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=ListBox#ListBoxDemo
+[HCIN] mouseUp hop=ScrollContentPresenter src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=ListBox#ListBoxDemo
+[HCIN] mouseUp hop=Grid src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=ListBox#ListBoxDemo
+[HCIN] mouseUp hop=ScrollViewer src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=ListBox#ListBoxDemo
+[HCIN] mouseUp hop=ContentPresenter src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=ListBox#ListBoxDemo
+[HCIN] mouseUp hop=SimplePanel src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=ListBox#ListBoxDemo
+[HCIN] mouseUp hop=Border src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=ListBox#ListBoxDemo
+[HCIN] mouseUp hop=ToggleBlock src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=ListBox#ListBoxDemo
+[HCIN] mouseUp hop=Border src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=ListBox#ListBoxDemo
+[HCIN] mouseUp hop=ListBox src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=Grid src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=ContentPresenter src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=Border src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=Grid src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=TabControl src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=DockPanel src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=LeftMainContent src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=Grid src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=MainWindowContent src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=ContentPresenter src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=ContentControl src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=ContentPresenter src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=AdornerDecorator src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=Grid src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=Border src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=MainWindow src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+PTS_GAP entry=CreateInstalledObjectsInfo seq=1 err=-10000 calls=1
+[PTS-UNAVAILABLE] site=FlowDocumentView.DocumentPage entry=CreateInstalledObjectsInfo err=-10000 action=page-placeholder（已画出页级占位；进程继续）
+[NS] loaded HandyControlDemo.UserControl.FlowDocumentDemo scope=NameScope isINS=False contentScope=null upHits= UP0=FlowDocumentDemo FindName(PathDemo)=null FindName(PART_EditableTextBox)=null
+[HC-UNHANDLED] #2 PtsUnavailableException: PTS 能力已在本进程内判定不可用（首次失败见 InnerException）—— 本闩只覆盖这一个具名条件 ｜ 首帧 at MS.Internal.PtsHost.PtsCache.AcquireContextCore(PtsContext ptsContext, TextFormattingMode textFormattingMode)
+[HCIN] dump t10 TBlk(cs=1 chk=True ges=None b=Active/RS:TemplatedParent en=True vis=True)
+[STATE] t10 focus=ListBoxItem TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=24/31)
+[POP] |[0] HwndSource root=MainWindow wh=768x576 vis=True kids{TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=24/31)} hwnd=0xa00004 vis=root
+[GEO] ======== begin 10 ========
+[GEO] Button#ButtonMin scr=656,1 wh=45x28 en=True vis=True htv=True
+[GEO] Button#ButtonMax scr=703,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonRestore scr=656,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonClose scr=751,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonIcon scr=1,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonConfig scr=617,2 wh=37x27 en=True vis=True htv=True
+[GEO] Button#ButtonShiftOut scr=239,59 wh=27x27 en=True vis=True htv=True
+[GEO] ToggleButton#- scr=748,51 wh=27x27 en=True vis=True htv=True chk=False
+[GEO] Button#- scr=274,52 wh=29x25 en=True vis=True htv=True
+[GEO] TabItem#- scr=448,82 wh=165x27 en=True vis=True htv=True hdr=流文档单页视图 sel=False
+[GEO] TabItem#- scr=619,82 wh=165x27 en=True vis=True htv=True hdr=流文档查看器 sel=False
+[GEO] TabItem#- scr=276,82 wh=165x27 en=True vis=True htv=True hdr=流文档滚动视图 sel=True
+[GEO] RepeatButton#- scr=968,146 wh=0x0 en=False vis=False htv=True
+[GEO] RepeatButton#- scr=968,146 wh=0x0 en=False vis=False htv=True
+[GEO] RepeatButton#- scr=747,535 wh=20x20 en=True vis=True htv=True
+[GEO] Slider#- scr=768,536 wh=180x18 en=True vis=True htv=True val=100
+[GEO] RepeatButton#- scr=777,536 wh=18x18 en=True vis=True htv=True
+[GEO] RepeatButton#- scr=815,536 wh=126x18 en=True vis=True htv=True
+[GEO] RepeatButton#- scr=956,535 wh=20x20 en=True vis=True htv=True
+[GEO] Button#- scr=28,59 wh=203x27 en=True vis=True htv=True
+[GEO] TabItem#- scr=96,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=173,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=18,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=True
+[GEO] SearchBar#- scr=28,133 wh=176x27 en=True vis=True htv=True len=0 caret=0
+[GEO] Button#ButtonClear scr=28,133 wh=0x0 en=True vis=False htv=True
+[GEO] Button#- scr=187,133 wh=24x27 en=True vis=True htv=True
+[GEO] ToggleButton#ButtonStyleAscending scr=211,133 wh=27x27 en=True vis=True htv=True chk=False
+[GEO] ListBox#ListBoxDemo scr=28,166 wh=203x389 en=True vis=True htv=True n=31 sel=24
+[GEO]   item[0] ListBoxItem scr=28,-334 wh=203x27 vis=True nm=Brush
+[GEO]   item[1] ListBoxItem scr=28,-303 wh=203x27 vis=True nm=Button
+[GEO]   item[2] ListBoxItem scr=28,-272 wh=203x27 vis=True nm=RepeatButton
+[GEO]   item[3] ListBoxItem scr=28,-241 wh=203x27 vis=True nm=ToggleButton
+[GEO]   item[4] ListBoxItem scr=28,-210 wh=203x27 vis=True nm=RadioButton
+[GEO]   item[5] ListBoxItem scr=28,-179 wh=203x27 vis=True nm=CheckBox
+[GEO]   item[6] ListBoxItem scr=28,-148 wh=203x27 vis=True nm=ScrollViewer
+[GEO]   item[7] ListBoxItem scr=28,-117 wh=203x27 vis=True nm=Slider
+[GEO]   item[8] ListBoxItem scr=28,-86 wh=203x27 vis=True nm=TextBlock
+[GEO]   item[9] ListBoxItem scr=28,-55 wh=203x27 vis=True nm=TextBox
+[GEO]   item[10] ListBoxItem scr=28,-24 wh=203x27 vis=True nm=ComboBox
+[GEO]   item[11] ListBoxItem scr=28,7 wh=203x27 vis=True nm=PasswordBox
+[GEO]   item[12] ListBoxItem scr=28,38 wh=203x27 vis=True nm=Expander
+[GEO]   item[13] ListBoxItem scr=28,69 wh=203x27 vis=True nm=ProgressBar
+[GEO]   item[14] ListBoxItem scr=28,100 wh=203x27 vis=True nm=Calendar
+[GEO]   item[15] ListBoxItem scr=28,131 wh=203x27 vis=True nm=DatePicker
+[GEO]   item[16] ListBoxItem scr=28,162 wh=203x27 vis=True nm=TabControl
+[GEO]   item[17] ListBoxItem scr=28,193 wh=203x27 vis=True nm=DataGrid
+[GEO]   item[18] ListBoxItem scr=28,224 wh=203x27 vis=True nm=TreeView
+[GEO]   item[19] ListBoxItem scr=28,255 wh=203x27 vis=True nm=ListBox
+[GEO]   item[20] ListBoxItem scr=28,286 wh=203x27 vis=True nm=ListView
+[GEO]   item[21] ListBoxItem scr=28,317 wh=203x27 vis=True nm=GroupBox
+[GEO]   item[22] ListBoxItem scr=28,348 wh=203x27 vis=True nm=Menu
+[GEO]   item[23] ListBoxItem scr=28,379 wh=203x27 vis=True nm=RichTextBox
+[GEO]   item[24] ListBoxItem scr=28,410 wh=203x27 vis=True nm=FlowDocument
+[GEO]   item[25] ListBoxItem scr=28,441 wh=203x27 vis=True nm=ToolBar
+[GEO]   item[26] ListBoxItem scr=28,472 wh=203x27 vis=True nm=Border
+[GEO]   item[27] ListBoxItem scr=28,503 wh=203x27 vis=True nm=Label
+[GEO]   item[28] ListBoxItem scr=28,534 wh=203x27 vis=True nm=Frame
+[GEO]   item[29] ListBoxItem scr=28,565 wh=203x27 vis=True nm=Window
+[GEO]   item[30] ListBoxItem scr=28,596 wh=203x27 vis=True nm=Geometry
+[GEO] RepeatButton#- scr=232,166 wh=7x202 en=False vis=True htv=True
+[GEO] RepeatButton#- scr=232,549 wh=7x22 en=False vis=True htv=True
+[GEO] Button#ButtonShiftIn scr=1,32 wh=0x0 en=True vis=False htv=True
+[GEO] ======== end ========
+[HCIN] dump t11 TBlk(cs=1 chk=True ges=None b=Active/RS:TemplatedParent en=True vis=True)
+[STATE] t11 focus=ListBoxItem TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=24/31)
+[POP] |[0] HwndSource root=MainWindow wh=768x576 vis=True kids{TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=24/31)} hwnd=0xa00004 vis=root
+[GEO] ======== begin 11 ========
+[GEO] Button#ButtonMin scr=656,1 wh=45x28 en=True vis=True htv=True
+[GEO] Button#ButtonMax scr=703,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonRestore scr=656,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonClose scr=751,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonIcon scr=1,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonConfig scr=617,2 wh=37x27 en=True vis=True htv=True
+[GEO] Button#ButtonShiftOut scr=239,59 wh=27x27 en=True vis=True htv=True
+[GEO] ToggleButton#- scr=748,51 wh=27x27 en=True vis=True htv=True chk=False
+[GEO] Button#- scr=274,52 wh=29x25 en=True vis=True htv=True
+[GEO] TabItem#- scr=440,82 wh=165x27 en=True vis=True htv=True hdr=流文档单页视图 sel=False
+[GEO] TabItem#- scr=611,82 wh=165x27 en=True vis=True htv=True hdr=流文档查看器 sel=False
+[GEO] TabItem#- scr=268,82 wh=165x27 en=True vis=True htv=True hdr=流文档滚动视图 sel=True
+[GEO] RepeatButton#- scr=960,146 wh=0x0 en=False vis=False htv=True
+[GEO] RepeatButton#- scr=960,146 wh=0x0 en=False vis=False htv=True
+[GEO] RepeatButton#- scr=739,535 wh=20x20 en=True vis=True htv=True
+[GEO] Slider#- scr=760,536 wh=180x18 en=True vis=True htv=True val=100
+[GEO] RepeatButton#- scr=769,536 wh=18x18 en=True vis=True htv=True
+[GEO] RepeatButton#- scr=807,536 wh=126x18 en=True vis=True htv=True
+[GEO] RepeatButton#- scr=948,535 wh=20x20 en=True vis=True htv=True
+[GEO] Button#- scr=28,59 wh=203x27 en=True vis=True htv=True
+[GEO] TabItem#- scr=96,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=173,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=18,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=True
+[GEO] SearchBar#- scr=28,133 wh=176x27 en=True vis=True htv=True len=0 caret=0
+[GEO] Button#ButtonClear scr=28,133 wh=0x0 en=True vis=False htv=True
+[GEO] Button#- scr=187,133 wh=24x27 en=True vis=True htv=True
+[GEO] ToggleButton#ButtonStyleAscending scr=211,133 wh=27x27 en=True vis=True htv=True chk=False
+[GEO] ListBox#ListBoxDemo scr=28,166 wh=203x389 en=True vis=True htv=True n=31 sel=24
+[GEO]   item[0] ListBoxItem scr=28,-334 wh=203x27 vis=True nm=Brush
+[GEO]   item[1] ListBoxItem scr=28,-303 wh=203x27 vis=True nm=Button
+[GEO]   item[2] ListBoxItem scr=28,-272 wh=203x27 vis=True nm=RepeatButton
+[GEO]   item[3] ListBoxItem scr=28,-241 wh=203x27 vis=True nm=ToggleButton
+[GEO]   item[4] ListBoxItem scr=28,-210 wh=203x27 vis=True nm=RadioButton
+[GEO]   item[5] ListBoxItem scr=28,-179 wh=203x27 vis=True nm=CheckBox
+[GEO]   item[6] ListBoxItem scr=28,-148 wh=203x27 vis=True nm=ScrollViewer
+[GEO]   item[7] ListBoxItem scr=28,-117 wh=203x27 vis=True nm=Slider
+[GEO]   item[8] ListBoxItem scr=28,-86 wh=203x27 vis=True nm=TextBlock
+[GEO]   item[9] ListBoxItem scr=28,-55 wh=203x27 vis=True nm=TextBox
+[GEO]   item[10] ListBoxItem scr=28,-24 wh=203x27 vis=True nm=ComboBox
+[GEO]   item[11] ListBoxItem scr=28,7 wh=203x27 vis=True nm=PasswordBox
+[GEO]   item[12] ListBoxItem scr=28,38 wh=203x27 vis=True nm=Expander
+[GEO]   item[13] ListBoxItem scr=28,69 wh=203x27 vis=True nm=ProgressBar
+[GEO]   item[14] ListBoxItem scr=28,100 wh=203x27 vis=True nm=Calendar
+[GEO]   item[15] ListBoxItem scr=28,131 wh=203x27 vis=True nm=DatePicker
+[GEO]   item[16] ListBoxItem scr=28,162 wh=203x27 vis=True nm=TabControl
+[GEO]   item[17] ListBoxItem scr=28,193 wh=203x27 vis=True nm=DataGrid
+[GEO]   item[18] ListBoxItem scr=28,224 wh=203x27 vis=True nm=TreeView
+[GEO]   item[19] ListBoxItem scr=28,255 wh=203x27 vis=True nm=ListBox
+[GEO]   item[20] ListBoxItem scr=28,286 wh=203x27 vis=True nm=ListView
+[GEO]   item[21] ListBoxItem scr=28,317 wh=203x27 vis=True nm=GroupBox
+[GEO]   item[22] ListBoxItem scr=28,348 wh=203x27 vis=True nm=Menu
+[GEO]   item[23] ListBoxItem scr=28,379 wh=203x27 vis=True nm=RichTextBox
+[GEO]   item[24] ListBoxItem scr=28,410 wh=203x27 vis=True nm=FlowDocument
+[GEO]   item[25] ListBoxItem scr=28,441 wh=203x27 vis=True nm=ToolBar
+[GEO]   item[26] ListBoxItem scr=28,472 wh=203x27 vis=True nm=Border
+[GEO]   item[27] ListBoxItem scr=28,503 wh=203x27 vis=True nm=Label
+[GEO]   item[28] ListBoxItem scr=28,534 wh=203x27 vis=True nm=Frame
+[GEO]   item[29] ListBoxItem scr=28,565 wh=203x27 vis=True nm=Window
+[GEO]   item[30] ListBoxItem scr=28,596 wh=203x27 vis=True nm=Geometry
+[GEO] RepeatButton#- scr=232,166 wh=7x202 en=False vis=True htv=True
+[GEO] RepeatButton#- scr=232,549 wh=7x22 en=False vis=True htv=True
+[GEO] Button#ButtonShiftIn scr=1,32 wh=0x0 en=True vis=False htv=True
+[GEO] ======== end ========
+[HCIN] dump t12 TBlk(cs=1 chk=True ges=None b=Active/RS:TemplatedParent en=True vis=True)
+[STATE] t12 focus=ListBoxItem TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=24/31)
+[POP] |[0] HwndSource root=MainWindow wh=768x576 vis=True kids{TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=24/31)} hwnd=0xa00004 vis=root
+[GEO] ======== begin 12 ========
+[GEO] Button#ButtonMin scr=656,1 wh=45x28 en=True vis=True htv=True
+[GEO] Button#ButtonMax scr=703,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonRestore scr=656,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonClose scr=751,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonIcon scr=1,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonConfig scr=617,2 wh=37x27 en=True vis=True htv=True
+[GEO] Button#ButtonShiftOut scr=239,59 wh=27x27 en=True vis=True htv=True
+[GEO] ToggleButton#- scr=748,51 wh=27x27 en=True vis=True htv=True chk=False
+[GEO] Button#- scr=274,52 wh=29x25 en=True vis=True htv=True
+[GEO] TabItem#- scr=440,82 wh=165x27 en=True vis=True htv=True hdr=流文档单页视图 sel=False
+[GEO] TabItem#- scr=611,82 wh=165x27 en=True vis=True htv=True hdr=流文档查看器 sel=False
+[GEO] TabItem#- scr=268,82 wh=165x27 en=True vis=True htv=True hdr=流文档滚动视图 sel=True
+[GEO] RepeatButton#- scr=960,146 wh=0x0 en=False vis=False htv=True
+[GEO] RepeatButton#- scr=960,146 wh=0x0 en=False vis=False htv=True
+[GEO] RepeatButton#- scr=739,535 wh=20x20 en=True vis=True htv=True
+[GEO] Slider#- scr=760,536 wh=180x18 en=True vis=True htv=True val=100
+[GEO] RepeatButton#- scr=769,536 wh=18x18 en=True vis=True htv=True
+[GEO] RepeatButton#- scr=807,536 wh=126x18 en=True vis=True htv=True
+[GEO] RepeatButton#- scr=948,535 wh=20x20 en=True vis=True htv=True
+[GEO] Button#- scr=28,59 wh=203x27 en=True vis=True htv=True
+[GEO] TabItem#- scr=96,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=173,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=18,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=True
+[GEO] SearchBar#- scr=28,133 wh=176x27 en=True vis=True htv=True len=0 caret=0
+[GEO] Button#ButtonClear scr=28,133 wh=0x0 en=True vis=False htv=True
+[GEO] Button#- scr=187,133 wh=24x27 en=True vis=True htv=True
+[GEO] ToggleButton#ButtonStyleAscending scr=211,133 wh=27x27 en=True vis=True htv=True chk=False
+[GEO] ListBox#ListBoxDemo scr=28,166 wh=203x389 en=True vis=True htv=True n=31 sel=24
+[GEO]   item[0] ListBoxItem scr=28,-334 wh=203x27 vis=True nm=Brush
+[GEO]   item[1] ListBoxItem scr=28,-303 wh=203x27 vis=True nm=Button
+[GEO]   item[2] ListBoxItem scr=28,-272 wh=203x27 vis=True nm=RepeatButton
+[GEO]   item[3] ListBoxItem scr=28,-241 wh=203x27 vis=True nm=ToggleButton
+[GEO]   item[4] ListBoxItem scr=28,-210 wh=203x27 vis=True nm=RadioButton
+[GEO]   item[5] ListBoxItem scr=28,-179 wh=203x27 vis=True nm=CheckBox
+[GEO]   item[6] ListBoxItem scr=28,-148 wh=203x27 vis=True nm=ScrollViewer
+[GEO]   item[7] ListBoxItem scr=28,-117 wh=203x27 vis=True nm=Slider
+[GEO]   item[8] ListBoxItem scr=28,-86 wh=203x27 vis=True nm=TextBlock
+[GEO]   item[9] ListBoxItem scr=28,-55 wh=203x27 vis=True nm=TextBox
+[GEO]   item[10] ListBoxItem scr=28,-24 wh=203x27 vis=True nm=ComboBox
+[GEO]   item[11] ListBoxItem scr=28,7 wh=203x27 vis=True nm=PasswordBox
+[GEO]   item[12] ListBoxItem scr=28,38 wh=203x27 vis=True nm=Expander
+[GEO]   item[13] ListBoxItem scr=28,69 wh=203x27 vis=True nm=ProgressBar
+[GEO]   item[14] ListBoxItem scr=28,100 wh=203x27 vis=True nm=Calendar
+[GEO]   item[15] ListBoxItem scr=28,131 wh=203x27 vis=True nm=DatePicker
+[GEO]   item[16] ListBoxItem scr=28,162 wh=203x27 vis=True nm=TabControl
+[GEO]   item[17] ListBoxItem scr=28,193 wh=203x27 vis=True nm=DataGrid
+[GEO]   item[18] ListBoxItem scr=28,224 wh=203x27 vis=True nm=TreeView
+[GEO]   item[19] ListBoxItem scr=28,255 wh=203x27 vis=True nm=ListBox
+[GEO]   item[20] ListBoxItem scr=28,286 wh=203x27 vis=True nm=ListView
+[GEO]   item[21] ListBoxItem scr=28,317 wh=203x27 vis=True nm=GroupBox
+[GEO]   item[22] ListBoxItem scr=28,348 wh=203x27 vis=True nm=Menu
+[GEO]   item[23] ListBoxItem scr=28,379 wh=203x27 vis=True nm=RichTextBox
+[GEO]   item[24] ListBoxItem scr=28,410 wh=203x27 vis=True nm=FlowDocument
+[GEO]   item[25] ListBoxItem scr=28,441 wh=203x27 vis=True nm=ToolBar
+[GEO]   item[26] ListBoxItem scr=28,472 wh=203x27 vis=True nm=Border
+[GEO]   item[27] ListBoxItem scr=28,503 wh=203x27 vis=True nm=Label
+[GEO]   item[28] ListBoxItem scr=28,534 wh=203x27 vis=True nm=Frame
+[GEO]   item[29] ListBoxItem scr=28,565 wh=203x27 vis=True nm=Window
+[GEO]   item[30] ListBoxItem scr=28,596 wh=203x27 vis=True nm=Geometry
+[GEO] RepeatButton#- scr=232,166 wh=7x202 en=False vis=True htv=True
+[GEO] RepeatButton#- scr=232,549 wh=7x22 en=False vis=True htv=True
+[GEO] Button#ButtonShiftIn scr=1,32 wh=0x0 en=True vis=False htv=True
+[GEO] ======== end ========
+[HCIN] dump t13 TBlk(cs=1 chk=True ges=None b=Active/RS:TemplatedParent en=True vis=True)
+[STATE] t13 focus=ListBoxItem TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=24/31)
+[POP] |[0] HwndSource root=MainWindow wh=768x576 vis=True kids{TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=24/31)} hwnd=0xa00004 vis=root
+[GEO] ======== begin 13 ========
+[GEO] Button#ButtonMin scr=656,1 wh=45x28 en=True vis=True htv=True
+[GEO] Button#ButtonMax scr=703,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonRestore scr=656,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonClose scr=751,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonIcon scr=1,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonConfig scr=617,2 wh=37x27 en=True vis=True htv=True
+[GEO] Button#ButtonShiftOut scr=239,59 wh=27x27 en=True vis=True htv=True
+[GEO] ToggleButton#- scr=748,51 wh=27x27 en=True vis=True htv=True chk=False
+[GEO] Button#- scr=274,52 wh=29x25 en=True vis=True htv=True
+[GEO] TabItem#- scr=440,82 wh=165x27 en=True vis=True htv=True hdr=流文档单页视图 sel=False
+[GEO] TabItem#- scr=611,82 wh=165x27 en=True vis=True htv=True hdr=流文档查看器 sel=False
+[GEO] TabItem#- scr=268,82 wh=165x27 en=True vis=True htv=True hdr=流文档滚动视图 sel=True
+[GEO] RepeatButton#- scr=960,146 wh=0x0 en=False vis=False htv=True
+[GEO] RepeatButton#- scr=960,146 wh=0x0 en=False vis=False htv=True
+[GEO] RepeatButton#- scr=739,535 wh=20x20 en=True vis=True htv=True
+[GEO] Slider#- scr=760,536 wh=180x18 en=True vis=True htv=True val=100
+[GEO] RepeatButton#- scr=769,536 wh=18x18 en=True vis=True htv=True
+[GEO] RepeatButton#- scr=807,536 wh=126x18 en=True vis=True htv=True
+[GEO] RepeatButton#- scr=948,535 wh=20x20 en=True vis=True htv=True
+[GEO] Button#- scr=28,59 wh=203x27 en=True vis=True htv=True
+[GEO] TabItem#- scr=96,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=173,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=18,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=True
+[GEO] SearchBar#- scr=28,133 wh=176x27 en=True vis=True htv=True len=0 caret=0
+[GEO] Button#ButtonClear scr=28,133 wh=0x0 en=True vis=False htv=True
+[GEO] Button#- scr=187,133 wh=24x27 en=True vis=True htv=True
+[GEO] ToggleButton#ButtonStyleAscending scr=211,133 wh=27x27 en=True vis=True htv=True chk=False
+[GEO] ListBox#ListBoxDemo scr=28,166 wh=203x389 en=True vis=True htv=True n=31 sel=24
+[GEO]   item[0] ListBoxItem scr=28,-334 wh=203x27 vis=True nm=Brush
+[GEO]   item[1] ListBoxItem scr=28,-303 wh=203x27 vis=True nm=Button
+[GEO]   item[2] ListBoxItem scr=28,-272 wh=203x27 vis=True nm=RepeatButton
+[GEO]   item[3] ListBoxItem scr=28,-241 wh=203x27 vis=True nm=ToggleButton
+[GEO]   item[4] ListBoxItem scr=28,-210 wh=203x27 vis=True nm=RadioButton
+[GEO]   item[5] ListBoxItem scr=28,-179 wh=203x27 vis=True nm=CheckBox
+[GEO]   item[6] ListBoxItem scr=28,-148 wh=203x27 vis=True nm=ScrollViewer
+[GEO]   item[7] ListBoxItem scr=28,-117 wh=203x27 vis=True nm=Slider
+[GEO]   item[8] ListBoxItem scr=28,-86 wh=203x27 vis=True nm=TextBlock
+[GEO]   item[9] ListBoxItem scr=28,-55 wh=203x27 vis=True nm=TextBox
+[GEO]   item[10] ListBoxItem scr=28,-24 wh=203x27 vis=True nm=ComboBox
+[GEO]   item[11] ListBoxItem scr=28,7 wh=203x27 vis=True nm=PasswordBox
+[GEO]   item[12] ListBoxItem scr=28,38 wh=203x27 vis=True nm=Expander
+[GEO]   item[13] ListBoxItem scr=28,69 wh=203x27 vis=True nm=ProgressBar
+[GEO]   item[14] ListBoxItem scr=28,100 wh=203x27 vis=True nm=Calendar
+[GEO]   item[15] ListBoxItem scr=28,131 wh=203x27 vis=True nm=DatePicker
+[GEO]   item[16] ListBoxItem scr=28,162 wh=203x27 vis=True nm=TabControl
+[GEO]   item[17] ListBoxItem scr=28,193 wh=203x27 vis=True nm=DataGrid
+[GEO]   item[18] ListBoxItem scr=28,224 wh=203x27 vis=True nm=TreeView
+[GEO]   item[19] ListBoxItem scr=28,255 wh=203x27 vis=True nm=ListBox
+[GEO]   item[20] ListBoxItem scr=28,286 wh=203x27 vis=True nm=ListView
+[GEO]   item[21] ListBoxItem scr=28,317 wh=203x27 vis=True nm=GroupBox
+[GEO]   item[22] ListBoxItem scr=28,348 wh=203x27 vis=True nm=Menu
+[GEO]   item[23] ListBoxItem scr=28,379 wh=203x27 vis=True nm=RichTextBox
+[GEO]   item[24] ListBoxItem scr=28,410 wh=203x27 vis=True nm=FlowDocument
+[GEO]   item[25] ListBoxItem scr=28,441 wh=203x27 vis=True nm=ToolBar
+[GEO]   item[26] ListBoxItem scr=28,472 wh=203x27 vis=True nm=Border
+[GEO]   item[27] ListBoxItem scr=28,503 wh=203x27 vis=True nm=Label
+[GEO]   item[28] ListBoxItem scr=28,534 wh=203x27 vis=True nm=Frame
+[GEO]   item[29] ListBoxItem scr=28,565 wh=203x27 vis=True nm=Window
+[GEO]   item[30] ListBoxItem scr=28,596 wh=203x27 vis=True nm=Geometry
+[GEO] RepeatButton#- scr=232,166 wh=7x202 en=False vis=True htv=True
+[GEO] RepeatButton#- scr=232,549 wh=7x22 en=False vis=True htv=True
+[GEO] Button#ButtonShiftIn scr=1,32 wh=0x0 en=True vis=False htv=True
+[GEO] ======== end ========
+[HCIN] dump t14 TBlk(cs=1 chk=True ges=None b=Active/RS:TemplatedParent en=True vis=True)
+[STATE] t14 focus=ListBoxItem TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=24/31)
+[POP] |[0] HwndSource root=MainWindow wh=768x576 vis=True kids{TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=24/31)} hwnd=0xa00004 vis=root
+[GEO] ======== begin 14 ========
+[GEO] Button#ButtonMin scr=656,1 wh=45x28 en=True vis=True htv=True
+[GEO] Button#ButtonMax scr=703,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonRestore scr=656,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonClose scr=751,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonIcon scr=1,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonConfig scr=617,2 wh=37x27 en=True vis=True htv=True
+[GEO] Button#ButtonShiftOut scr=239,59 wh=27x27 en=True vis=True htv=True
+[GEO] ToggleButton#- scr=748,51 wh=27x27 en=True vis=True htv=True chk=False
+[GEO] Button#- scr=274,52 wh=29x25 en=True vis=True htv=True
+[GEO] TabItem#- scr=440,82 wh=165x27 en=True vis=True htv=True hdr=流文档单页视图 sel=False
+[GEO] TabItem#- scr=611,82 wh=165x27 en=True vis=True htv=True hdr=流文档查看器 sel=False
+[GEO] TabItem#- scr=268,82 wh=165x27 en=True vis=True htv=True hdr=流文档滚动视图 sel=True
+[GEO] RepeatButton#- scr=960,146 wh=0x0 en=False vis=False htv=True
+[GEO] RepeatButton#- scr=960,146 wh=0x0 en=False vis=False htv=True
+[GEO] RepeatButton#- scr=739,535 wh=20x20 en=True vis=True htv=True
+[GEO] Slider#- scr=760,536 wh=180x18 en=True vis=True htv=True val=100
+[GEO] RepeatButton#- scr=769,536 wh=18x18 en=True vis=True htv=True
+[GEO] RepeatButton#- scr=807,536 wh=126x18 en=True vis=True htv=True
+[GEO] RepeatButton#- scr=948,535 wh=20x20 en=True vis=True htv=True
+[GEO] Button#- scr=28,59 wh=203x27 en=True vis=True htv=True
+[GEO] TabItem#- scr=96,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=173,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=18,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=True
+[GEO] SearchBar#- scr=28,133 wh=176x27 en=True vis=True htv=True len=0 caret=0
+[GEO] Button#ButtonClear scr=28,133 wh=0x0 en=True vis=False htv=True
+[GEO] Button#- scr=187,133 wh=24x27 en=True vis=True htv=True
+[GEO] ToggleButton#ButtonStyleAscending scr=211,133 wh=27x27 en=True vis=True htv=True chk=False
+[GEO] ListBox#ListBoxDemo scr=28,166 wh=203x389 en=True vis=True htv=True n=31 sel=24
+[GEO]   item[0] ListBoxItem scr=28,-334 wh=203x27 vis=True nm=Brush
+[GEO]   item[1] ListBoxItem scr=28,-303 wh=203x27 vis=True nm=Button
+[GEO]   item[2] ListBoxItem scr=28,-272 wh=203x27 vis=True nm=RepeatButton
+[GEO]   item[3] ListBoxItem scr=28,-241 wh=203x27 vis=True nm=ToggleButton
+[GEO]   item[4] ListBoxItem scr=28,-210 wh=203x27 vis=True nm=RadioButton
+[GEO]   item[5] ListBoxItem scr=28,-179 wh=203x27 vis=True nm=CheckBox
+[GEO]   item[6] ListBoxItem scr=28,-148 wh=203x27 vis=True nm=ScrollViewer
+[GEO]   item[7] ListBoxItem scr=28,-117 wh=203x27 vis=True nm=Slider
+[GEO]   item[8] ListBoxItem scr=28,-86 wh=203x27 vis=True nm=TextBlock
+[GEO]   item[9] ListBoxItem scr=28,-55 wh=203x27 vis=True nm=TextBox
+[GEO]   item[10] ListBoxItem scr=28,-24 wh=203x27 vis=True nm=ComboBox
+[GEO]   item[11] ListBoxItem scr=28,7 wh=203x27 vis=True nm=PasswordBox
+[GEO]   item[12] ListBoxItem scr=28,38 wh=203x27 vis=True nm=Expander
+[GEO]   item[13] ListBoxItem scr=28,69 wh=203x27 vis=True nm=ProgressBar
+[GEO]   item[14] ListBoxItem scr=28,100 wh=203x27 vis=True nm=Calendar
+[GEO]   item[15] ListBoxItem scr=28,131 wh=203x27 vis=True nm=DatePicker
+[GEO]   item[16] ListBoxItem scr=28,162 wh=203x27 vis=True nm=TabControl
+[GEO]   item[17] ListBoxItem scr=28,193 wh=203x27 vis=True nm=DataGrid
+[GEO]   item[18] ListBoxItem scr=28,224 wh=203x27 vis=True nm=TreeView
+[GEO]   item[19] ListBoxItem scr=28,255 wh=203x27 vis=True nm=ListBox
+[GEO]   item[20] ListBoxItem scr=28,286 wh=203x27 vis=True nm=ListView
+[GEO]   item[21] ListBoxItem scr=28,317 wh=203x27 vis=True nm=GroupBox
+[GEO]   item[22] ListBoxItem scr=28,348 wh=203x27 vis=True nm=Menu
+[GEO]   item[23] ListBoxItem scr=28,379 wh=203x27 vis=True nm=RichTextBox
+[GEO]   item[24] ListBoxItem scr=28,410 wh=203x27 vis=True nm=FlowDocument
+[GEO]   item[25] ListBoxItem scr=28,441 wh=203x27 vis=True nm=ToolBar
+[GEO]   item[26] ListBoxItem scr=28,472 wh=203x27 vis=True nm=Border
+[GEO]   item[27] ListBoxItem scr=28,503 wh=203x27 vis=True nm=Label
+[GEO]   item[28] ListBoxItem scr=28,534 wh=203x27 vis=True nm=Frame
+[GEO]   item[29] ListBoxItem scr=28,565 wh=203x27 vis=True nm=Window
+[GEO]   item[30] ListBoxItem scr=28,596 wh=203x27 vis=True nm=Geometry
+[GEO] RepeatButton#- scr=232,166 wh=7x202 en=False vis=True htv=True
+[GEO] RepeatButton#- scr=232,549 wh=7x22 en=False vis=True htv=True
+[GEO] Button#ButtonShiftIn scr=1,32 wh=0x0 en=True vis=False htv=True
+[GEO] ======== end ========
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] preMouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none
+[HCIN] mouseDown src=Border#Bd(bg=#FFEEEEEE) < ListBoxItem(bg=#FFEEEEEE) < VirtualizingStackPanel(bg=-) < ItemsPresenter(bg=-) < ScrollContentPresenter#PART_ScrollContentPresenter(bg=-) < Grid#Grid(bg=-) < ScrollViewer(bg=-) < ContentPresenter#ContentPresenterChecked(bg=-) < SimplePanel(bg=-) < Border(bg=-) < ToggleBlock(bg=-) < Border#Bd(bg=#00FFFFFF) <  btn=Left state=Released cap=none srcIsCombo=False
+[HCIN] LOSTFOCUS sender=ListBoxItem new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] LOSTFOCUS sender=VirtualizingStackPanel new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] LOSTFOCUS sender=ItemsPresenter new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] LOSTFOCUS sender=ScrollContentPresenter new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] LOSTFOCUS sender=Grid new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] LOSTFOCUS sender=ScrollViewer new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] LOSTFOCUS sender=ContentPresenter new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] LOSTFOCUS sender=SimplePanel new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] LOSTFOCUS sender=Border new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] LOSTFOCUS sender=ToggleBlock new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] LOSTFOCUS sender=Border new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] LOSTFOCUS sender=ListBox new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] LOSTFOCUS sender=Grid new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] LOSTFOCUS sender=ContentPresenter new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] LOSTFOCUS sender=Border new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] LOSTFOCUS sender=Grid new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] LOSTFOCUS sender=TabControl new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] LOSTFOCUS sender=DockPanel new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] LOSTFOCUS sender=LeftMainContent new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] LOSTFOCUS sender=Grid new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] LOSTFOCUS sender=MainWindowContent new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] LOSTFOCUS sender=ContentPresenter new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] LOSTFOCUS sender=ContentControl new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] LOSTFOCUS sender=ContentPresenter new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] LOSTFOCUS sender=AdornerDecorator new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] LOSTFOCUS sender=Grid new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] LOSTFOCUS sender=Border new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] LOSTFOCUS sender=MainWindow new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] GOTFOCUS sender=ListBoxItem new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] GOTFOCUS sender=VirtualizingStackPanel new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] GOTFOCUS sender=ItemsPresenter new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] GOTFOCUS sender=ScrollContentPresenter new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] GOTFOCUS sender=Grid new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] GOTFOCUS sender=ScrollViewer new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] GOTFOCUS sender=ContentPresenter new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] GOTFOCUS sender=SimplePanel new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] GOTFOCUS sender=Border new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] GOTFOCUS sender=ToggleBlock new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] GOTFOCUS sender=Border new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] GOTFOCUS sender=ListBox new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] GOTFOCUS sender=Grid new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] GOTFOCUS sender=ContentPresenter new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] GOTFOCUS sender=Border new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] GOTFOCUS sender=Grid new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] GOTFOCUS sender=TabControl new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] GOTFOCUS sender=DockPanel new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] GOTFOCUS sender=LeftMainContent new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] GOTFOCUS sender=Grid new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] GOTFOCUS sender=MainWindowContent new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] GOTFOCUS sender=ContentPresenter new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] GOTFOCUS sender=ContentControl new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] GOTFOCUS sender=ContentPresenter new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] GOTFOCUS sender=AdornerDecorator new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] GOTFOCUS sender=Grid new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] GOTFOCUS sender=Border new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] GOTFOCUS sender=MainWindow new=ListBoxItem old=ListBoxItem focused=ListBoxItem
+[HCIN] EV LB.SelectionChanged ListBox#ListBoxDemo sel=23/31 added=1
+[HCIN] mouseUp hop=Border src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=ListBox#ListBoxDemo
+[HCIN] mouseUp hop=ListBoxItem src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=ListBox#ListBoxDemo
+[HCIN] mouseUp hop=VirtualizingStackPanel src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=ListBox#ListBoxDemo
+[HCIN] mouseUp hop=ItemsPresenter src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=ListBox#ListBoxDemo
+[HCIN] mouseUp hop=ScrollContentPresenter src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=ListBox#ListBoxDemo
+[HCIN] mouseUp hop=Grid src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=ListBox#ListBoxDemo
+[HCIN] mouseUp hop=ScrollViewer src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=ListBox#ListBoxDemo
+[HCIN] mouseUp hop=ContentPresenter src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=ListBox#ListBoxDemo
+[HCIN] mouseUp hop=SimplePanel src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=ListBox#ListBoxDemo
+[HCIN] mouseUp hop=Border src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=ListBox#ListBoxDemo
+[HCIN] mouseUp hop=ToggleBlock src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=ListBox#ListBoxDemo
+[HCIN] mouseUp hop=Border src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=ListBox#ListBoxDemo
+[HCIN] mouseUp hop=ListBox src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=Grid src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=ContentPresenter src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=Border src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=Grid src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=TabControl src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=DockPanel src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=LeftMainContent src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=Grid src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=MainWindowContent src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=ContentPresenter src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=ContentControl src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=ContentPresenter src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=AdornerDecorator src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=Grid src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=Border src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[HCIN] mouseUp hop=MainWindow src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
+[PTS-UNAVAILABLE] site=FlowDocumentView.DocumentPage entry=CreateInstalledObjectsInfo err=-10000 action=page-placeholder（已画出页级占位；进程继续）
+[NS] loaded HandyControlDemo.UserControl.RichTextBoxDemo scope=NameScope isINS=False contentScope=null upHits= UP0=RichTextBoxDemo FindName(PathDemo)=null FindName(PART_EditableTextBox)=null
+[HCIN] dump t15 TBlk(cs=1 chk=True ges=None b=Active/RS:TemplatedParent en=True vis=True)
+[STATE] t15 focus=ListBoxItem TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=23/31)
+[POP] |[0] HwndSource root=MainWindow wh=768x576 vis=True kids{TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=23/31)} hwnd=0xa00004 vis=root
+[GEO] ======== begin 15 ========
+[GEO] Button#ButtonMin scr=656,1 wh=45x28 en=True vis=True htv=True
+[GEO] Button#ButtonMax scr=703,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonRestore scr=656,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonClose scr=751,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonIcon scr=1,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonConfig scr=617,2 wh=37x27 en=True vis=True htv=True
+[GEO] Button#ButtonShiftOut scr=239,59 wh=27x27 en=True vis=True htv=True
+[GEO] ToggleButton#- scr=732,107 wh=27x27 en=True vis=True htv=True chk=False
+[GEO] Button#- scr=289,108 wh=29x25 en=True vis=True htv=True
+[GEO] Button#- scr=28,59 wh=203x27 en=True vis=True htv=True
+[GEO] TabItem#- scr=96,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=173,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=18,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=True
+[GEO] SearchBar#- scr=28,133 wh=176x27 en=True vis=True htv=True len=0 caret=0
+[GEO] Button#ButtonClear scr=28,133 wh=0x0 en=True vis=False htv=True
+[GEO] Button#- scr=187,133 wh=24x27 en=True vis=True htv=True
+[GEO] ToggleButton#ButtonStyleAscending scr=211,133 wh=27x27 en=True vis=True htv=True chk=False
+[GEO] ListBox#ListBoxDemo scr=28,166 wh=203x389 en=True vis=True htv=True n=31 sel=23
+[GEO]   item[0] ListBoxItem scr=28,-334 wh=203x27 vis=True nm=Brush
+[GEO]   item[1] ListBoxItem scr=28,-303 wh=203x27 vis=True nm=Button
+[GEO]   item[2] ListBoxItem scr=28,-272 wh=203x27 vis=True nm=RepeatButton
+[GEO]   item[3] ListBoxItem scr=28,-241 wh=203x27 vis=True nm=ToggleButton
+[GEO]   item[4] ListBoxItem scr=28,-210 wh=203x27 vis=True nm=RadioButton
+[GEO]   item[5] ListBoxItem scr=28,-179 wh=203x27 vis=True nm=CheckBox
+[GEO]   item[6] ListBoxItem scr=28,-148 wh=203x27 vis=True nm=ScrollViewer
+[GEO]   item[7] ListBoxItem scr=28,-117 wh=203x27 vis=True nm=Slider
+[GEO]   item[8] ListBoxItem scr=28,-86 wh=203x27 vis=True nm=TextBlock
+[GEO]   item[9] ListBoxItem scr=28,-55 wh=203x27 vis=True nm=TextBox
+[GEO]   item[10] ListBoxItem scr=28,-24 wh=203x27 vis=True nm=ComboBox
+[GEO]   item[11] ListBoxItem scr=28,7 wh=203x27 vis=True nm=PasswordBox
+[GEO]   item[12] ListBoxItem scr=28,38 wh=203x27 vis=True nm=Expander
+[GEO]   item[13] ListBoxItem scr=28,69 wh=203x27 vis=True nm=ProgressBar
+[GEO]   item[14] ListBoxItem scr=28,100 wh=203x27 vis=True nm=Calendar
+[GEO]   item[15] ListBoxItem scr=28,131 wh=203x27 vis=True nm=DatePicker
+[GEO]   item[16] ListBoxItem scr=28,162 wh=203x27 vis=True nm=TabControl
+[GEO]   item[17] ListBoxItem scr=28,193 wh=203x27 vis=True nm=DataGrid
+[GEO]   item[18] ListBoxItem scr=28,224 wh=203x27 vis=True nm=TreeView
+[GEO]   item[19] ListBoxItem scr=28,255 wh=203x27 vis=True nm=ListBox
+[GEO]   item[20] ListBoxItem scr=28,286 wh=203x27 vis=True nm=ListView
+[GEO]   item[21] ListBoxItem scr=28,317 wh=203x27 vis=True nm=GroupBox
+[GEO]   item[22] ListBoxItem scr=28,348 wh=203x27 vis=True nm=Menu
+[GEO]   item[23] ListBoxItem scr=28,379 wh=203x27 vis=True nm=RichTextBox
+[GEO]   item[24] ListBoxItem scr=28,410 wh=203x27 vis=True nm=FlowDocument
+[GEO]   item[25] ListBoxItem scr=28,441 wh=203x27 vis=True nm=ToolBar
+[GEO]   item[26] ListBoxItem scr=28,472 wh=203x27 vis=True nm=Border
+[GEO]   item[27] ListBoxItem scr=28,503 wh=203x27 vis=True nm=Label
+[GEO]   item[28] ListBoxItem scr=28,534 wh=203x27 vis=True nm=Frame
+[GEO]   item[29] ListBoxItem scr=28,565 wh=203x27 vis=True nm=Window
+[GEO]   item[30] ListBoxItem scr=28,596 wh=203x27 vis=True nm=Geometry
+[GEO] RepeatButton#- scr=232,166 wh=7x202 en=False vis=True htv=True
+[GEO] RepeatButton#- scr=232,549 wh=7x22 en=False vis=True htv=True
+[GEO] Button#ButtonShiftIn scr=1,32 wh=0x0 en=True vis=False htv=True
+[GEO] ======== end ========
+[HCIN] dump t16 TBlk(cs=1 chk=True ges=None b=Active/RS:TemplatedParent en=True vis=True)
+[STATE] t16 focus=ListBoxItem TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=23/31)
+[POP] |[0] HwndSource root=MainWindow wh=768x576 vis=True kids{TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=23/31)} hwnd=0xa00004 vis=root
+[GEO] ======== begin 16 ========
+[GEO] Button#ButtonMin scr=656,1 wh=45x28 en=True vis=True htv=True
+[GEO] Button#ButtonMax scr=703,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonRestore scr=656,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonClose scr=751,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonIcon scr=1,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonConfig scr=617,2 wh=37x27 en=True vis=True htv=True
+[GEO] Button#ButtonShiftOut scr=239,59 wh=27x27 en=True vis=True htv=True
+[GEO] ToggleButton#- scr=732,107 wh=27x27 en=True vis=True htv=True chk=False
+[GEO] Button#- scr=289,108 wh=29x25 en=True vis=True htv=True
+[GEO] Button#- scr=28,59 wh=203x27 en=True vis=True htv=True
+[GEO] TabItem#- scr=96,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=173,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=18,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=True
+[GEO] SearchBar#- scr=28,133 wh=176x27 en=True vis=True htv=True len=0 caret=0
+[GEO] Button#ButtonClear scr=28,133 wh=0x0 en=True vis=False htv=True
+[GEO] Button#- scr=187,133 wh=24x27 en=True vis=True htv=True
+[GEO] ToggleButton#ButtonStyleAscending scr=211,133 wh=27x27 en=True vis=True htv=True chk=False
+[GEO] ListBox#ListBoxDemo scr=28,166 wh=203x389 en=True vis=True htv=True n=31 sel=23
+[GEO]   item[0] ListBoxItem scr=28,-334 wh=203x27 vis=True nm=Brush
+[GEO]   item[1] ListBoxItem scr=28,-303 wh=203x27 vis=True nm=Button
+[GEO]   item[2] ListBoxItem scr=28,-272 wh=203x27 vis=True nm=RepeatButton
+[GEO]   item[3] ListBoxItem scr=28,-241 wh=203x27 vis=True nm=ToggleButton
+[GEO]   item[4] ListBoxItem scr=28,-210 wh=203x27 vis=True nm=RadioButton
+[GEO]   item[5] ListBoxItem scr=28,-179 wh=203x27 vis=True nm=CheckBox
+[GEO]   item[6] ListBoxItem scr=28,-148 wh=203x27 vis=True nm=ScrollViewer
+[GEO]   item[7] ListBoxItem scr=28,-117 wh=203x27 vis=True nm=Slider
+[GEO]   item[8] ListBoxItem scr=28,-86 wh=203x27 vis=True nm=TextBlock
+[GEO]   item[9] ListBoxItem scr=28,-55 wh=203x27 vis=True nm=TextBox
+[GEO]   item[10] ListBoxItem scr=28,-24 wh=203x27 vis=True nm=ComboBox
+[GEO]   item[11] ListBoxItem scr=28,7 wh=203x27 vis=True nm=PasswordBox
+[GEO]   item[12] ListBoxItem scr=28,38 wh=203x27 vis=True nm=Expander
+[GEO]   item[13] ListBoxItem scr=28,69 wh=203x27 vis=True nm=ProgressBar
+[GEO]   item[14] ListBoxItem scr=28,100 wh=203x27 vis=True nm=Calendar
+[GEO]   item[15] ListBoxItem scr=28,131 wh=203x27 vis=True nm=DatePicker
+[GEO]   item[16] ListBoxItem scr=28,162 wh=203x27 vis=True nm=TabControl
+[GEO]   item[17] ListBoxItem scr=28,193 wh=203x27 vis=True nm=DataGrid
+[GEO]   item[18] ListBoxItem scr=28,224 wh=203x27 vis=True nm=TreeView
+[GEO]   item[19] ListBoxItem scr=28,255 wh=203x27 vis=True nm=ListBox
+[GEO]   item[20] ListBoxItem scr=28,286 wh=203x27 vis=True nm=ListView
+[GEO]   item[21] ListBoxItem scr=28,317 wh=203x27 vis=True nm=GroupBox
+[GEO]   item[22] ListBoxItem scr=28,348 wh=203x27 vis=True nm=Menu
+[GEO]   item[23] ListBoxItem scr=28,379 wh=203x27 vis=True nm=RichTextBox
+[GEO]   item[24] ListBoxItem scr=28,410 wh=203x27 vis=True nm=FlowDocument
+[GEO]   item[25] ListBoxItem scr=28,441 wh=203x27 vis=True nm=ToolBar
+[GEO]   item[26] ListBoxItem scr=28,472 wh=203x27 vis=True nm=Border
+[GEO]   item[27] ListBoxItem scr=28,503 wh=203x27 vis=True nm=Label
+[GEO]   item[28] ListBoxItem scr=28,534 wh=203x27 vis=True nm=Frame
+[GEO]   item[29] ListBoxItem scr=28,565 wh=203x27 vis=True nm=Window
+[GEO]   item[30] ListBoxItem scr=28,596 wh=203x27 vis=True nm=Geometry
+[GEO] RepeatButton#- scr=232,166 wh=7x202 en=False vis=True htv=True
+[GEO] RepeatButton#- scr=232,549 wh=7x22 en=False vis=True htv=True
+[GEO] Button#ButtonShiftIn scr=1,32 wh=0x0 en=True vis=False htv=True
+[GEO] ======== end ========
+[HCIN] dump t17 TBlk(cs=1 chk=True ges=None b=Active/RS:TemplatedParent en=True vis=True)
+[STATE] t17 focus=ListBoxItem TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=23/31)
+[POP] |[0] HwndSource root=MainWindow wh=768x576 vis=True kids{TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=23/31)} hwnd=0xa00004 vis=root
+[GEO] ======== begin 17 ========
+[GEO] Button#ButtonMin scr=656,1 wh=45x28 en=True vis=True htv=True
+[GEO] Button#ButtonMax scr=703,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonRestore scr=656,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonClose scr=751,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonIcon scr=1,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonConfig scr=617,2 wh=37x27 en=True vis=True htv=True
+[GEO] Button#ButtonShiftOut scr=239,59 wh=27x27 en=True vis=True htv=True
+[GEO] ToggleButton#- scr=732,107 wh=27x27 en=True vis=True htv=True chk=False
+[GEO] Button#- scr=289,108 wh=29x25 en=True vis=True htv=True
+[GEO] Button#- scr=28,59 wh=203x27 en=True vis=True htv=True
+[GEO] TabItem#- scr=96,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=173,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=18,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=True
+[GEO] SearchBar#- scr=28,133 wh=176x27 en=True vis=True htv=True len=0 caret=0
+[GEO] Button#ButtonClear scr=28,133 wh=0x0 en=True vis=False htv=True
+[GEO] Button#- scr=187,133 wh=24x27 en=True vis=True htv=True
+[GEO] ToggleButton#ButtonStyleAscending scr=211,133 wh=27x27 en=True vis=True htv=True chk=False
+[GEO] ListBox#ListBoxDemo scr=28,166 wh=203x389 en=True vis=True htv=True n=31 sel=23
+[GEO]   item[0] ListBoxItem scr=28,-334 wh=203x27 vis=True nm=Brush
+[GEO]   item[1] ListBoxItem scr=28,-303 wh=203x27 vis=True nm=Button
+[GEO]   item[2] ListBoxItem scr=28,-272 wh=203x27 vis=True nm=RepeatButton
+[GEO]   item[3] ListBoxItem scr=28,-241 wh=203x27 vis=True nm=ToggleButton
+[GEO]   item[4] ListBoxItem scr=28,-210 wh=203x27 vis=True nm=RadioButton
+[GEO]   item[5] ListBoxItem scr=28,-179 wh=203x27 vis=True nm=CheckBox
+[GEO]   item[6] ListBoxItem scr=28,-148 wh=203x27 vis=True nm=ScrollViewer
+[GEO]   item[7] ListBoxItem scr=28,-117 wh=203x27 vis=True nm=Slider
+[GEO]   item[8] ListBoxItem scr=28,-86 wh=203x27 vis=True nm=TextBlock
+[GEO]   item[9] ListBoxItem scr=28,-55 wh=203x27 vis=True nm=TextBox
+[GEO]   item[10] ListBoxItem scr=28,-24 wh=203x27 vis=True nm=ComboBox
+[GEO]   item[11] ListBoxItem scr=28,7 wh=203x27 vis=True nm=PasswordBox
+[GEO]   item[12] ListBoxItem scr=28,38 wh=203x27 vis=True nm=Expander
+[GEO]   item[13] ListBoxItem scr=28,69 wh=203x27 vis=True nm=ProgressBar
+[GEO]   item[14] ListBoxItem scr=28,100 wh=203x27 vis=True nm=Calendar
+[GEO]   item[15] ListBoxItem scr=28,131 wh=203x27 vis=True nm=DatePicker
+[GEO]   item[16] ListBoxItem scr=28,162 wh=203x27 vis=True nm=TabControl
+[GEO]   item[17] ListBoxItem scr=28,193 wh=203x27 vis=True nm=DataGrid
+[GEO]   item[18] ListBoxItem scr=28,224 wh=203x27 vis=True nm=TreeView
+[GEO]   item[19] ListBoxItem scr=28,255 wh=203x27 vis=True nm=ListBox
+[GEO]   item[20] ListBoxItem scr=28,286 wh=203x27 vis=True nm=ListView
+[GEO]   item[21] ListBoxItem scr=28,317 wh=203x27 vis=True nm=GroupBox
+[GEO]   item[22] ListBoxItem scr=28,348 wh=203x27 vis=True nm=Menu
+[GEO]   item[23] ListBoxItem scr=28,379 wh=203x27 vis=True nm=RichTextBox
+[GEO]   item[24] ListBoxItem scr=28,410 wh=203x27 vis=True nm=FlowDocument
+[GEO]   item[25] ListBoxItem scr=28,441 wh=203x27 vis=True nm=ToolBar
+[GEO]   item[26] ListBoxItem scr=28,472 wh=203x27 vis=True nm=Border
+[GEO]   item[27] ListBoxItem scr=28,503 wh=203x27 vis=True nm=Label
+[GEO]   item[28] ListBoxItem scr=28,534 wh=203x27 vis=True nm=Frame
+[GEO]   item[29] ListBoxItem scr=28,565 wh=203x27 vis=True nm=Window
+[GEO]   item[30] ListBoxItem scr=28,596 wh=203x27 vis=True nm=Geometry
+[GEO] RepeatButton#- scr=232,166 wh=7x202 en=False vis=True htv=True
+[GEO] RepeatButton#- scr=232,549 wh=7x22 en=False vis=True htv=True
+[GEO] Button#ButtonShiftIn scr=1,32 wh=0x0 en=True vis=False htv=True
+[GEO] ======== end ========
+[HCIN] dump t18 TBlk(cs=1 chk=True ges=None b=Active/RS:TemplatedParent en=True vis=True)
+[STATE] t18 focus=ListBoxItem TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=23/31)
+[POP] |[0] HwndSource root=MainWindow wh=768x576 vis=True kids{TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=23/31)} hwnd=0xa00004 vis=root
+[GEO] ======== begin 18 ========
+[GEO] Button#ButtonMin scr=656,1 wh=45x28 en=True vis=True htv=True
+[GEO] Button#ButtonMax scr=703,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonRestore scr=656,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonClose scr=751,1 wh=46x28 en=True vis=True htv=True
+[GEO] Button#ButtonIcon scr=1,1 wh=0x0 en=True vis=False htv=True
+[GEO] Button#ButtonConfig scr=617,2 wh=37x27 en=True vis=True htv=True
+[GEO] Button#ButtonShiftOut scr=239,59 wh=27x27 en=True vis=True htv=True
+[GEO] ToggleButton#- scr=732,107 wh=27x27 en=True vis=True htv=True chk=False
+[GEO] Button#- scr=289,108 wh=29x25 en=True vis=True htv=True
+[GEO] Button#- scr=28,59 wh=203x27 en=True vis=True htv=True
+[GEO] TabItem#- scr=96,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=173,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
+[GEO] TabItem#- scr=18,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=True
+[GEO] SearchBar#- scr=28,133 wh=176x27 en=True vis=True htv=True len=0 caret=0
+[GEO] Button#ButtonClear scr=28,133 wh=0x0 en=True vis=False htv=True
+[GEO] Button#- scr=187,133 wh=24x27 en=True vis=True htv=True
+[GEO] ToggleButton#ButtonStyleAscending scr=211,133 wh=27x27 en=True vis=True htv=True chk=False
+[GEO] ListBox#ListBoxDemo scr=28,166 wh=203x389 en=True vis=True htv=True n=31 sel=23
+[GEO]   item[0] ListBoxItem scr=28,-334 wh=203x27 vis=True nm=Brush
+[GEO]   item[1] ListBoxItem scr=28,-303 wh=203x27 vis=True nm=Button
+[GEO]   item[2] ListBoxItem scr=28,-272 wh=203x27 vis=True nm=RepeatButton
+[GEO]   item[3] ListBoxItem scr=28,-241 wh=203x27 vis=True nm=ToggleButton
+[GEO]   item[4] ListBoxItem scr=28,-210 wh=203x27 vis=True nm=RadioButton
+[GEO]   item[5] ListBoxItem scr=28,-179 wh=203x27 vis=True nm=CheckBox
+[GEO]   item[6] ListBoxItem scr=28,-148 wh=203x27 vis=True nm=ScrollViewer
+[GEO]   item[7] ListBoxItem scr=28,-117 wh=203x27 vis=True nm=Slider
+[GEO]   item[8] ListBoxItem scr=28,-86 wh=203x27 vis=True nm=TextBlock
+[GEO]   item[9] ListBoxItem scr=28,-55 wh=203x27 vis=True nm=TextBox
+[GEO]   item[10] ListBoxItem scr=28,-24 wh=203x27 vis=True nm=ComboBox
+[GEO]   item[11] ListBoxItem scr=28,7 wh=203x27 vis=True nm=PasswordBox
+[GEO]   item[12] ListBoxItem scr=28,38 wh=203x27 vis=True nm=Expander
+[GEO]   item[13] ListBoxItem scr=28,69 wh=203x27 vis=True nm=ProgressBar
+[GEO]   item[14] ListBoxItem scr=28,100 wh=203x27 vis=True nm=Calendar
+[GEO]   item[15] ListBoxItem scr=28,131 wh=203x27 vis=True nm=DatePicker
+[GEO]   item[16] ListBoxItem scr=28,162 wh=203x27 vis=True nm=TabControl
+[GEO]   item[17] ListBoxItem scr=28,193 wh=203x27 vis=True nm=DataGrid
+[GEO]   item[18] ListBoxItem scr=28,224 wh=203x27 vis=True nm=TreeView
+[GEO]   item[19] ListBoxItem scr=28,255 wh=203x27 vis=True nm=ListBox
+[GEO]   item[20] ListBoxItem scr=28,286 wh=203x27 vis=True nm=ListView
+[GEO]   item[21] ListBoxItem scr=28,317 wh=203x27 vis=True nm=GroupBox
+[GEO]   item[22] ListBoxItem scr=28,348 wh=203x27 vis=True nm=Menu
+[GEO]   item[23] ListBoxItem scr=28,379 wh=203x27 vis=True nm=RichTextBox
+[GEO]   item[24] ListBoxItem scr=28,410 wh=203x27 vis=True nm=FlowDocument
+[GEO]   item[25] ListBoxItem scr=28,441 wh=203x27 vis=True nm=ToolBar
+[GEO]   item[26] ListBoxItem scr=28,472 wh=203x27 vis=True nm=Border
+[GEO]   item[27] ListBoxItem scr=28,503 wh=203x27 vis=True nm=Label
+[GEO]   item[28] ListBoxItem scr=28,534 wh=203x27 vis=True nm=Frame
+[GEO]   item[29] ListBoxItem scr=28,565 wh=203x27 vis=True nm=Window
+[GEO]   item[30] ListBoxItem scr=28,596 wh=203x27 vis=True nm=Geometry
+[GEO] RepeatButton#- scr=232,166 wh=7x202 en=False vis=True htv=True
+[GEO] RepeatButton#- scr=232,549 wh=7x22 en=False vis=True htv=True
+[GEO] Button#ButtonShiftIn scr=1,32 wh=0x0 en=True vis=False htv=True
+[GEO] ======== end ========

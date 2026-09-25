@@ -267,6 +267,8 @@ fp_inputs() {  # 手写输入指纹（应用器 + port-lib + 本脚本 + 波脚�
           build/MilBridge/tools/proc-pattern-guard.sh \
           build/MilBridge/tools/baseline-rate-gate.sh \
           build/MilBridge/tools/baseline-rate-cases.tsv \
+          build/MilBridge/tools/pts-pages-guard.sh \
+          build/MilBridge/tests/PtsPagesProbe/run-pts-pages-legs.sh \
           build/MilBridge/tools/regime-identity-check.sh \
           build/MilBridge/tools/fp-manifest-teeth-check.sh \
           build/MilBridge/tools/regression-decision-cases.tsv \

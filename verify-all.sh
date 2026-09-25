@@ -35,6 +35,7 @@
 #   **`#61` 收官起 = 34 步**（`#61` **不动步数**（34 → 34）：本波 = **判据接线/射程波**（**零产品改动**）—— 三处**旋钮/旁路/写点**接死：① `D-G113`「假旋钮」⇒ **connect**（`build/MilBridge/tools/geom-resend-regression-check.sh`：`--fix=`/`--pre=` 必须**真的**从 `main` 传进 `judge()`，修前两开关只改 `NOTE` 打印；相等 ⇒ 拒载）② `TASK-0710` `--leg=` 旁路 ⇒ **judge**（`geom-revert-beat-check.sh`：派生语料**真判**，`--leg` 档打 `NOT_APPLICABLE` 且**不传染**）③ `TASK-0711` **方案 A**（`tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpftextdemo.sh`：**仓内 runner 首写点截断**，仓外 belt `~/w142a/bin/run-gate.sh` **不落仓**）。**都不加步** ⇒ `VERIFYALL_SELF` 现场 = `names=34 decl=34`（`gen` 与代号一致）。**步数：34 → 34（不动）**）
 #   **`#66` 收官起 = 37 步**（`#66` **不动步数**（37 → 37）：本波 = `TASK-0720` 落仓 —— `P01`「111 条」口径更正（旧数已证 `TOOL-UNSOUND`）／`P02` 11 条 `#if NEVER` 死声明名单落册／`P03`＋`P03X` 批 2a 三条 `LsErr` 诚实失败（导出 `547 → 550`）＋ **自检牙齿修订**（`D-G128` 实例①：`P03` 与 `P03X` **必须同趟**，分开落会留假牙）／`P04` 新建 `build/MilBridge/tools/nl-intent-check.sh`（`Nl*` 有意降级声明牙）／`P05` `close-wave.sh` 白名单 **+1 行**。**不加步** ⇒ 步名清单与步数口径句一律不动；**`inputs_fp` 必移**（覆盖面 162 → 163）。⚠️ `nl-intent-check.sh` **在覆盖面内但未被 `verify-all` 调用**（`UNWIRED`）⇒ **不许算绿**（接线归 `[Next] TASK-0724`）。）
 #   **`#65` 收官起 = 37 步**（`#65` **不动步数**（37 → 37）：本波 = **判据装置批 E · 零产品改动** —— `D-G125`（静默丢行 ⇒ 假绿）的修法 ＋ `DECL_UPPER=EVALUATED|NOT-EVALUATED` 承重 token ＋ 四条册级不变量 ＋ 3‑9 改判；另**接入仓**两件牙（`TASK-0718`：`shell-quote-trap-check.sh` 换件、`fp-manifest-teeth-check.sh` 新建）。**不加步** ⇒ 步名清单不动；**`inputs_fp` 必移** `f1482034…`（161 件）→ **`4c1056dd…`**（162 件，白名单 +1 行）。⚠️ `fp-manifest-teeth-check.sh` **在覆盖面内但未被调用**（`UNWIRED`，`rc=2 NOINFO` ⇒ 不许算绿；接线归 `[Next] TASK-0724`）。
+#   **`#67` 收官起 = 38 步**（`#67` **加一步**（37 → 38）：本波 = `TASK-0721`（把 `D-G122` 的牙 `PTS-PAGES` 接进门禁 —— **落地前预置**形态）：第 `[38]` 步 `PTS-PAGES` 判「`#50` 的 `A1`＋`A2`＋`A3` 那套『**页级可见降级（洋红占位）＋ 具名行 ＋ 进程不死**』的止损**还在不在**」—— 判据件 `build/MilBridge/tools/pts-pages-guard.sh`（三态 `PTS_GUARD=PASS|FAIL|NOINFO`）、装置 `build/MilBridge/tests/PtsPagesProbe/run-pts-pages-legs.sh`。**门禁里只跑判据那一半**（`--legs`，纯读 < 1 s），重活（起 X ＋ 冷启 ＋ 真实点击）由**波内前置**落到约定证据目录（`PTS_EVIDENCE_DIR` 可覆盖）⇒ 判据与重活解耦；证据缺席 ⇒ **响亮 `NOINFO`**（**不是绿**）。门槛先写死：两腿 `alive=yes` ∧ `app_rc ∉ {134,139}` ∧ 洋红 `≥ 20000` ∧ 具名行 `err≠0` ∧ `PTS_GAP ≥ 1`；`NOINFO` 在门禁里同样是 ❌，且**判序有红先红**。另 `fp_inputs()` 显式清单加**两行**（覆盖面 **162 → 164**）。**步数：37 → 38**）
 #   **`#64` 收官起 = 37 步**（`#64` **加一步**（36 → 37）：本波 = `TASK-0717`（把 W157A 的「基线率闸」做成仓内牙）—— 第 `[37]` 步 `BASELINE-RATE-GATE`（`build/MilBridge/tools/baseline-rate-gate.sh`，`--cases` 形态）：判「**在册速率还能不能用来定 `N`**」。三态 `BASELINERATE=PASS|FAIL|NOINFO`；`FAIL` **必须点名「历史速率落在新样本 CI 之外」**；`VOID-PREMISE` **两条并列**（① `ci_upper < gate` ② `observed < effect`）；**缺时间窗／空样本／`n` 非正 ⇒ 响亮 `NOINFO`**。🆕 **口径之争先于结论**：Wilson **单侧**为主判据（`ci_upper=`）、**双侧**只作诊断（`ci_upper_2s=`），两者在**闸比较**上结论不同 ⇒ `NOINFO` ＋ 具名 `reason=caliber-disagreement`，**禁止**用「对我方有利的那一界」下 `PASS`/`FAIL`。牙＋台账两件同时进 `fp_inputs()`（先例：回归判定牙与它的台账**成对**在名单里）⇒ `files 159 → 161`。**本步是确定性合成用例 ⇒ 即使现世界红率已漂到 25%，本步仍恒绿**（判据步不许随被测世界漂移而红/绿）。⚠️ 本半句是 `verify-all-step-check.sh` 用 `grep -qF` **逐字**找的 ⇒ 一个字符都不能改。）
 #   **`#63` 收官起 = 36 步**（`#63` **加一步**：第 `[36]` 步 `REGIME-IDENTITY` —— `D-G116` 的牙 `build/MilBridge/tools/regime-identity-check.sh`：判「**对照臂与被试臂同体制**」（体制四列逐项相同）＋「**判红 = 四件合取**」；**结果侧只作诊断、不进 `rc`** —— 口径句：**把结果算进体制，等于用『保护可比性』的名义否掉可比性**。`--selftest` **12 例**（同体制 `PASS`／换体制 `FAIL`＋点名＋标不可比／单格判红 `FAIL`／缺列与空台账**响亮 `NOINFO`**）。⚠️ 本半步是 `verify-all-step-check.sh` 用 `grep -qF` **逐字**找的 ⇒ 一个字符都不能改。）
 #   **`#62` 收官起 = 35 步**（`#62` **加一步**（34 → 35）：本波 = `TASK-0714`（把「按模式匹配命令行收/数进程」做成牙 ＋ **同趟修 6 处真站点**）＋ `TASK-0715`（`docs/FORK-AND-PUSH.md`／`docs/PORT-SPEC.md` 对齐现读世代）。牙**进树后会被自己扫到** ⇒ `files 161 → 162`；四处声明**同趟**。⚠️ 「无法复现的历史读数」已在记录里写明成因。⚠️ 这半句是 `verify-all-step-check.sh:169` 用 `grep -qF` **逐字**找的 ⇒ 一个字符都不能改。）
@@ -52,6 +53,7 @@
 #   ⚠️ 本块**故意放在同一个文件里**：跨文件的手工声明在本仓**已经失败过一次**（`docs/CURRENT-STATE.md`
 #      那句"当前期望是 N 步"在 `#26`/`#27` 连加 3 步时毫无反应、全程零红）⇒ 声明必须与本体同趟改、同趟审。
 #   ⚠️ **不许**用 `echo "====="` 当接线锚（它在本文件里有 **4** 处）；锚用 `run_step "DEFECT-REGISTRY" …`。
+# VERIFYALL-STEPS-DECL: 38 gen=#67   ← `#67` **加一步**（37 → 38）：本波 = `TASK-0721`（把 `D-G122` 的牙 `PTS-PAGES` 接进门禁 —— **落地前预置**形态）：第 `[38]` 步 `PTS-PAGES`（判据件 `build/MilBridge/tools/pts-pages-guard.sh`，装置 `build/MilBridge/tests/PtsPagesProbe/run-pts-pages-legs.sh`）：判「`#50` 的 `A1`＋`A2`＋`A3` 把『切富文本 23／流文档 24 必死 `rc=134`』降级成『页级可见降级（洋红占位）＋ 具名行 ＋ 进程不死』—— **这个止损还在不在**」：三态机读行 `PTS_GUARD=PASS|FAIL|NOINFO`；承重格 `G1/G2` 两腿 `alive=yes`、`G3` 两腿 `app_rc ∉ {134,139}`、`G4/G5` 两腿洋红 `≥ 20000`（阈值先写死；观测下界 49,864 ⇒ 余量 2.49×）、`G8/G9` 托管侧具名行 `[PTS-UNAVAILABLE] … err≠0` 在位、`G10` native `PTS_GAP entry=` ≥ 1；`G6/G7`（点错对象）与 `G11/G12`（装置没起来／件跑动中被换）**走 `NOINFO` 不当红**，`D1–D6` 只诊断不进 `rc`；**判序：有红先红**（`NOINFO` 比 `FAIL` 弱，先用弱结论会把真红洗成『算不出』），而 `NOINFO` 在门禁里**同样是 ❌**。🆕 **本步只跑判据那一半**（`--legs <已落盘证据目录>`，纯读、零 `dotnet`、< 1 s）—— **重活（起私有 X ＋ 应用冷启 ＋ 真实点击；A 臂 2 腿 ≈ 45 s）不在门禁里同步跑**，由**波内前置**产出并落在约定路径（`PTS_EVIDENCE_DIR` 覆盖，默认 `build/MilBridge/tests/PtsPagesProbe/evidence`）⇒ 判据与重活**解耦**（这正是本牙把『判据／装置』分成两件的原因）；证据目录缺席／不满 2 腿 ⇒ **响亮 `NOINFO`**，**禁静默判绿**。⚠️ **同趟落「判据反转」文本**（`TASK-0302` 真实现落地后绿条件改为 `洋红=0 ∧ 无具名行 ∧ native_gap=0`）—— **反转必须成对**（绿条件与红条件同趟改，否则两个时代的绿会混在一起）。⚠️ 射程（如实划界）：本步**只**保证『止损还在』，**不**保证『该被真实现』（真缺口是 `TASK-0302`）；抓不到『下游真缺口被顺手 stub』。**纯读、零 `dotnet`**；不改产品件 ⇒ 九位逐位不动。四处声明（`DECL`／`STEP-NAMES`／口径句／预登记 H1）**同趟**改；另**两行**入 `fp_inputs()` 显式清单（**覆盖面 162 → 164**）。**步数：37 → 38**）
 # VERIFYALL-STEPS-DECL: 37 gen=#66   ← `#66` **不动步数**（37 → 37）：本波 = `TASK-0720` 落仓 —— `P01`「111 条」口径更正（旧数已证 `TOOL-UNSOUND`）／`P02` 11 条 `#if NEVER` 死声明名单落册／`P03`＋`P03X` 批 2a 三条 `LsErr` 诚实失败（导出 `547 → 550`）＋ **自检牙齿修订**（`D-G128` 实例①：`P03` 与 `P03X` **必须同趟**，分开落会留假牙）／`P04` 新建 `build/MilBridge/tools/nl-intent-check.sh`（`Nl*` 有意降级声明牙）／`P05` `close-wave.sh` 白名单 **+1 行**。**不加步** ⇒ 步名清单与步数口径句一律不动；**`inputs_fp` 必移**（覆盖面 162 → 163）。⚠️ `nl-intent-check.sh` **在覆盖面内但未被 `verify-all` 调用**（`UNWIRED`）⇒ **不许算绿**（接线归 `[Next] TASK-0724`）。
 # VERIFYALL-STEPS-DECL: 37 gen=#65   ← `#65` **不动步数**（37 → 37）：本波 = **判据装置批 E · 零产品改动**（`D-G125` 静态丢行的修法 ＋ `DECL_UPPER` 承重 token ＋ `AMENDMENT-2/3` ＋ 四条册级不变量 ＋ 3‑9 改判；另**接入仓**两件牙 `TASK-0718`）。**不加步** ⇒ **步名清单（`VERIFYALL-STEP-NAMES`）与步数口径句一律不动**。**`inputs_fp` 必移**：`f1482034…`（161 件）→ **`4c1056dd…`**（162 件，白名单 +1 行 `build/MilBridge/tools/fp-manifest-teeth-check.sh`）；**逐件归因成对**（5 个 file-line：`shell-quote-trap` 换内容／`fp-manifest` 新建并入名单／`close-wave.sh` 自改／`baseline-rate-gate.sh` 与 `baseline-rate-cases.tsv` 被改），**32 行交叉表**：全部退回 ⇒ 逐位 == `f1482034…`。⚠️ **`UNWIRED`**：`fp-manifest-teeth-check.sh` 在覆盖面内但**未被 `verify-all` 调用**（`grep -c` = 0），其正常运行 = `NOINFO reason=no-manifest`（`rc=2`）⇒ **不许算绿**（接线归 `[Next] TASK-0724`）。
 # VERIFYALL-STEPS-DECL: 37 gen=#64   ← `#64` **加一步**（36 → 37）：第 `[37]` 步 `BASELINE-RATE-GATE`（`D-G118` 的牙 `build/MilBridge/tools/baseline-rate-gate.sh`：判「**在册速率还能不能用来定 `N`**」—— 逐项印 `registered=<R>/<n>@<时间窗>`／`observed=`／`fisher_p=`／`ci_upper=`／`gate=`／`effect=`／`required_n=`；三态 `BASELINERATE=PASS|FAIL|NOINFO`：`FAIL` **必须点名「历史速率落在新样本 CI 之外」**；`VOID-PREMISE` **两条并列**（① `ci_upper < gate` ② `observed < effect` ⇒ 该效应在现世界不可发生）；**缺时间窗／空样本／`n` 非正／`r` 越界 ⇒ 响亮 `NOINFO`**（纪律 27：解析任一侧为空必须响亮失败，禁静默判等）；🆕 **口径之争先于结论**：Wilson 单侧为主判据（`ci_upper=`）、双侧只作诊断（`ci_upper_2s=`），两者在**闸比较**上结论不同 ⇒ `NOINFO` ＋ 具名 `reason=caliber-disagreement`，**禁**挑有利的界。台账 `build/MilBridge/tools/baseline-rate-cases.tsv`（**11 行确定性合成用例**，不依赖现场腿读数 ⇒ **本步不会随被测世界漂移而红/绿**）。本步**纯读、零 `dotnet`、秒级**；不改产品件 ⇒ 九位逐位不动。四处声明（`DECL`／`STEP-NAMES`／口径句／预登记 H1）**同趟**改。**步数：36 → 37**）
@@ -88,7 +90,7 @@
 # VERIFYALL-STEPS-DECL: 18 gen=#30   ← **史实行**（`#30` 收官当时的步数 —— 那一波**一步未加**）
 #   ⚠️ 读者 `decl_line()` 取**第一条**（`sed -n … | head -1`）⇒ **最上面那条才是当前口径**；
 #   下面两条只为「本波从哪一代起、加了几步」留机读痕迹。⚠️ **史实行只许追加、不许改**（纪律 61 同族）。
-# VERIFYALL-STEP-NAMES: 主工程 WpfGfx.Linux | wpf-linux.sln | Commands.Tests | Rendering.Tests | Windowing.Tests | HelloMil.Tests | ManagedLayer.Tests | Presentation.Tests | verify-cmd-layout.py | tline-gate（五臂） | PcLineOracle·Start 列 | FrameProbe-frame | BASELINE-SHA | ARM-LOG-SHA | BUILD-HYGIENE | DEFECT-REGISTRY | VERIFYALL-SELF | FP-INPUTS-HYGIENE | HIDDEN-ONLY | COLUMN-FLOOR | QUOTE-TRAP | PRODUCT-ENTRY | FRAME-PRESENCE | PIPEFAIL-SIGPIPE | THIRD-PARTY | R-GATE（连续交互） | NUL-BYTES | HYGIENE | REGRESSION-DECISION | UIA-DOOR | IME-LANDING | GEOM-BEAT | GEOM-RESEND | PREREG-FOUR-REQ | PROC-PATTERN-GUARD | REGIME-IDENTITY | BASELINE-RATE-GATE
+# VERIFYALL-STEP-NAMES: 主工程 WpfGfx.Linux | wpf-linux.sln | Commands.Tests | Rendering.Tests | Windowing.Tests | HelloMil.Tests | ManagedLayer.Tests | Presentation.Tests | verify-cmd-layout.py | tline-gate（五臂） | PcLineOracle·Start 列 | FrameProbe-frame | BASELINE-SHA | ARM-LOG-SHA | BUILD-HYGIENE | DEFECT-REGISTRY | VERIFYALL-SELF | FP-INPUTS-HYGIENE | HIDDEN-ONLY | COLUMN-FLOOR | QUOTE-TRAP | PRODUCT-ENTRY | FRAME-PRESENCE | PIPEFAIL-SIGPIPE | THIRD-PARTY | R-GATE（连续交互） | NUL-BYTES | HYGIENE | REGRESSION-DECISION | UIA-DOOR | IME-LANDING | GEOM-BEAT | GEOM-RESEND | PREREG-FOUR-REQ | PROC-PATTERN-GUARD | REGIME-IDENTITY | BASELINE-RATE-GATE | PTS-PAGES
 #   **`#28` 收官起 = 17 步**（`#28` 加第 `[11]` 步 `VERIFYALL-SELF`）｜**`#29` 收官起 = 18 步**
 #   （`#29` 加第 `[12]` 步 `FP-INPUTS-HYGIENE`：核对 `fp_inputs()` 的覆盖面里**不许出现产物路径**）｜
 #   **`#30` 收官起 = 18 步**（**仪器加固波、步数一步未加**）｜**`#31` 收官起 = 21 步**（`#31` 加第 `[13]` 步
@@ -604,6 +606,13 @@ echo "[4] 在册红门禁（五臂：tline + 三支 tab oracle + textlineproto�
 #   可用 `WPF_GEOM_CORPUS=<目录>` 覆盖（临时验证用）—— 与 `ARM_LOGS` 同一套机制。
 GEOM_CORPUS="${WPF_GEOM_CORPUS:-build/MilBridge/geom-corpus}"
 ARM_LOGS="${WPF_TLINE_ARM_LOGS:-build/MilBridge/arm-logs}"
+# ── 【`#67` W160A（`TASK-0721`）第 `[38]` 步的**证据目录**（"落地前预置"的落点）】──────────────
+#   判据支（`--legs`）是**纯读**：它判的是**已落盘**的腿证据。重活（起私有 X ＋ 应用冷启 ＋ 真实点击）
+#   **不在门禁里同步跑** —— 它要抢重活槽（前序那批 `waited=1144s`），放同步步就是"每趟 `verify-all`
+#   排一个 19 分钟的队"。⇒ 由**波内前置**产出，落在下面这个约定路径。
+#   ⚠️ 与 `WPF_GEOM_CORPUS`／`WPF_TLINE_ARM_LOGS` **同一套覆盖机制**（临时验证用）：
+#      设 `PTS_EVIDENCE_DIR=<目录>` 即可把本步指向别处（本车道两极化腿用 `WPF_*` 同款惯例）。
+PTS_EVIDENCE_DIR="${PTS_EVIDENCE_DIR:-build/MilBridge/tests/PtsPagesProbe/evidence}"
 run_step "tline-gate（五臂）" bash build/MilBridge/tools/tline-gate.sh --logdir "$ARM_LOGS"
 
 # ---------------------------------------------------------
@@ -1060,6 +1069,40 @@ echo
 echo "[37] 基线率闸（在册速率带时间窗否 / 同窗现取基线率 / 闸是否被排除；确定性两极化；只读、零 dotnet、秒级；#64 加）"
 run_step "BASELINE-RATE-GATE" bash build/MilBridge/tools/baseline-rate-gate.sh --cases build/MilBridge/tools/baseline-rate-cases.tsv
 # W157A-0717-END
+# ── `#67` W160A（`TASK-0721`／`D-G122`）第 `[38]` 步：`PTS` 两页（23／24）的**页级降级必须还在** ──────
+#   【它挡的是什么】`#50` 的 `A1`＋`A2`＋`A3` 把「切富文本 23／流文档 24 必死 `rc=134`」降级成
+#     「页级**可见**降级（洋红占位）＋ 具名行 ＋ 进程不死」—— **而这两页当时不在任何在跑门禁里**
+#     （现场机械核：`grep -rn 'FlowDocument|RichTextBox|TASK-0007' verify-all.sh build/integration-wave.sh`
+#      = **0 命中**、`known-red.json` 5 条无一相关）⇒ 那套止损**不可回归**：将来谁"顺手"把 A2/A3
+#     改回／删掉，**没有任何自动读数会响**。口径句 `D-G122`：**凡以「止损/降级」形态落地的修法，
+#     必须同时落地一条能把它咬回来的牙 —— 否则它是不可回归的**。
+#   【本步判什么】判据的**唯一实现**在 `build/MilBridge/tools/pts-pages-guard.sh`（承重 `G1`–`G10`、
+#     装置自证 `G11/G12` 走 `NOINFO`、`D1–D6` 只诊断）—— 本行**不重复任何判据**，只做三件事：
+#     ① 报「证据目录在哪、有几条腿」（**把「预置」这件事印在屏上**：跑腿不是本步做的）；
+#     ② 报「本趟这棵树上，跑腿装置在不在」（**接线缺口必须可见** —— 装置若还没落仓，
+#        本步会 `NOINFO` 而屏上只有一个"证据目录不存在"，**分不清是没跑腿还是没装置**）；
+#     ③ 把牙的三态 `rc` 如实转成本步的 `rc`（**`NOINFO` 在门禁里同样是 ❌**）。
+#   【射程（如实划界）】只保证「止损还在」，**不**保证「该被真实现」（真缺口 `TASK-0302`）；
+#     抓不到「下游真缺口被顺手 stub」。**反转文本**在 `~/w156a/w67guard/criteria-flip.md`
+#     （本波只引用、不改写）。
+echo
+echo "[38] PTS 两页（23/24）的页级降级必须还在（D-G122 的牙；判据支纯读、零 dotnet、秒级；#67 加）"
+echo "      · 证据目录（**预置**：本步不跑腿）：$PTS_EVIDENCE_DIR"
+echo "      · 装置（跑腿那一半，由波内前置执行）：build/MilBridge/tests/PtsPagesProbe/run-pts-pages-legs.sh"
+if [ -x build/MilBridge/tests/PtsPagesProbe/run-pts-pages-legs.sh ]; then
+  echo "      · 装置在位：build/MilBridge/tests/PtsPagesProbe/run-pts-pages-legs.sh"
+else
+  echo "      · ⚠️ 装置**不在位**（build/MilBridge/tests/PtsPagesProbe/run-pts-pages-legs.sh）"
+  echo "        ⇒ 这也解释了「证据目录不存在」：本趟**没人跑得了腿**（接线缺口，不是产品红）"
+fi
+if [ -d "$PTS_EVIDENCE_DIR" ]; then
+  n_leg="$(find "$PTS_EVIDENCE_DIR" -maxdepth 2 -type f -name 'leg_*.env' 2>/dev/null | LC_ALL=C sort | wc -l | tr -d " ")"
+  echo "      · 证据落地：leg_*.env = ${n_leg:-0} 件（判据要 2 条：k=23 与 k=24）"
+else
+  echo "      · 证据落地：**目录不存在** ⇒ 牙会响亮 NOINFO（**这不是绿**，也不是产品红）"
+fi
+run_step "PTS-PAGES" bash build/MilBridge/tools/pts-pages-guard.sh --legs "$PTS_EVIDENCE_DIR"
+# W160A-0721-END
 # W154A-0714-END
 # W151A-0110-END
 # W137A-0708-END
