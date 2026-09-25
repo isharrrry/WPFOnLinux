@@ -1,12 +1,69 @@
-# BASELINE-HEADER date=2026-09-25T17:xx+08:00 display=:23x（`verify-all` 头标目标显示号）｜车道 = **W167A-W69LAND**（`#69`：`TASK-0725` 落仓 —— 把两条**会红的牙**接进仓并接线：① `D-G126` 前半句（落地前备份完备性断言）② `D-G127`（`$R` 内 inode 共享且孪生在仓外 ＝ 写穿）；**owner = 本车道**）
-#   cpu=4核  run_dir=/home/links-dev/w167a/w69 ｜车道工作目录 `~/w167a/`（`criteria.md`／`land/`＝落仓暂存／`w69/`＝链条与冻结）｜`$R` **不是** git 仓（推送面 = Gitee `WPFOnLinux` 的 `feat-Linux`）
+# BASELINE-HEADER date=2026-09-25T19:xx+08:00 display=:23x（`verify-all` 头标目标显示号）｜车道 = **W168A-W70LAND**（`#70`：「清单/指纹**要有牙**」—— `TASK-0724` 把 `#65` 落仓却**从未被调用**的指纹清单牙接进门禁；`TASK-0728` **折叠进既有第 `[12]` 步**）
+#   cpu=4核  run_dir=/home/links-dev/w168a/w70 ｜车道工作目录 `~/w168a/`（`criteria.md`／`stage/`＝落地暂存／`w70/`＝链条与冻结）｜`$R` **不是** git 仓
 #   ⚠️ 权威件构建配置 = Release（唯一声明 = build/SelfBuiltConfig.props）
-#   ⚠️ 判据先行：`~/w167a/w69/criteria.md`（`79149f711e8c0ac0`）｜放行件 `~/w129a/dispatch-W69-landing.md`（主控批准，附 5 条硬条件）
-#   ⚠️ `docs/WAVE69-PREREGISTRATION.md`（`24daa7c260aa32c6`）与**落地同趟**产出（标题行含 `#69` 是第 `[11]` 步的硬要求）。
-#   ⚠️「本波不做任何回归判定」**机读行** `PREREG-NO-REGRESSION-DECISION: yes` **落在 §2 判据节内**（纪律 45，`#69` 起生效）—— 落地后现跑 `PREREG4=NA rc=0`。
-#   ⚠️ **射程边界（如实，不许读成绿）**：① `BAK-COMPLETENESS` 跑的是**牙的自测** ⇒ 只证「装置还活着 ∧ 五条负腿真会红」，**不**证「本次落地的每件都真被查过」（真用法是落地前 `--plan` 驱动，**不在门禁**）；② `REPO-ALIAS` **只覆盖 inode 共享**（同内容真拷贝不报＝正确行为）。
+#   ⚠️ 判据先行：`~/w168a/w70/criteria.md`（`e5e2b0d0ac9b7cd4`）｜放行件 `~/w129a/dispatch` ＋ 主控六条附加硬条件（同批批复：`0728` 折叠实现、参考件不落仓）
+#   ⚠️ `docs/WAVE70-PREREGISTRATION.md`（`47ca5a9993771386`）与**落地同趟**产出（标题行含 `#70` 是第 `[36]` 步的硬要求）。
+#   ⚠️「本波不做任何回归判定」**机读行** `PREREG-NO-REGRESSION-DECISION: yes` **落在 §2 判据节内**（纪律 45）—— 落地后 `prereg-four-requirements-check.sh` 判 **`PREREG4=NA`（rc=0）**，与 `pass=` **分开计数**。
+#   ⚠️ **射程边界（如实，不许读成绿）**：① 本步只判「**清单/指纹有牙**」：清单逐行形状 ＋ 件数对账 ＋ 每行真存在 ＋ `sha256sum` `stderr` 空；**不判**「清单**内容正确**」（判不了"该收的没收"＝覆盖面缺项）。② `--expect` 是**手写常数**：能抓"漏改"（`files-n-mismatch`，方向安全），抓不到"覆盖面与常数被同趟改成同一个错值"。③ 名字表经 `sha256sum` shim 收集 ⇒ 若将来把哈希工具改名，shim 收不到 ⇒ 名字表变短 ⇒ **红**（方向安全，但原因会被误读）。④ 牙的 `MANIFEST-SHAPE` 在生产路径下**很难被触发**（`xargs sha256sum` 对存在的件只吐合法形状行）—— 今天真正的活齿是**件数牙**与**存在性/`stderr`**。
 
-# RE-FROZEN #69 —— ✅ **当前冻结基线** —— 内容 = **`TASK-0725` 落仓**：把 `D-G126` 前半句与 `D-G127` 两条**会红的牙**接进 `verify-all` 第 `[40]`／`[41]` 步 ＋ 四处声明 ＋ `fp_inputs()` 四行。**本波零产品位移**（不改任何产品件；九位里只有环成员 `pf` 变）。
+# RE-FROZEN #70 —— ✅ **当前冻结基线** —— 内容 = **`TASK-0724` ＋ `TASK-0728` 落仓**（「清单/指纹要有牙」）：把 `#65` 落仓、却**从未被任何一步调用**的指纹清单牙 `build/MilBridge/tools/fp-manifest-teeth-check.sh` **接进门禁**（新步 `[42]`），并把「`fp_inputs()` 白名单**每一行都真存在**」做成**硬判据**（**折叠进既有第 `[12]` 步**，不另开步）。**本波零产品位移**（不改任何产品件；九位里只有环成员 `pf` 变）。
+#   ① **新步 `[42] FP-MANIFEST-TEETH`**（`verify-all.sh` **`cc675e85d1b42c62` → `93ae21cdaf712567`**，141,337 → 147,267 B）：`run_step "FP-MANIFEST-TEETH" bash build/MilBridge/tools/fp-manifest-step.sh --expect 172` —— 驱动件以**内容锚**（`sed -n '/^fp_inputs()/,/^}/p'`）抽出 `close-wave.sh` 的 `fp_inputs()` **函数体原文**并**原样执行**，用 `PATH` 前置的同名 `sha256sum` shim 收 **`xargs` 真正交给 `sha256sum` 的那张名字表**（`xargs` 是 `exec`、看不见 shell 函数 ⇒ 只能从 `PATH` 拦），再以**生产同形**命令 `LC_ALL=C xargs sha256sum` 产出**活清单**交给牙；四条守卫（抽得出／**拦截不扰动**（拦截指纹==无拦截指纹）／名字表非空／`stderr` 空 ∧ 清单行数==名字数）任一不过 ⇒ **一律非零**（宁可不判、不许假绿）；牙**自带 `--selftest` 13/13** 也同趟跑（证"装置还活着"）。
+#   ② **`TASK-0728` 折叠进第 `[12]` 步**（`FP-INPUTS-HYGIENE`；**不另开步**）：`build/MilBridge/tools/fp-inputs-hygiene-check.sh` **`68ef01bfb9c6a8ee` → `5b0b0f4898865e04`** —— 同趟加上**集合完整性**两条硬判据：**逐行 `-e ∧ -f`** ∧ **`sha256sum` 的 `stderr` 必须为空**；触发时**逐条点名**（`FP_INPUTS_HYGIENE_MISSING=FAIL kind=MISSING|NOT-REGULAR path=…`）**并把旧口径本会给出的那个形状完好的 64-hex 假指纹当场印出来**（`would_be_fp=`）。**为什么折叠、不落参考件**：本件已握有**被 `cmp` 机器证过完备**的权威成员表（`sha256sum` 的 `argv`），另起一件就必须**再抽一次覆盖面** ⇒ 正是本仓明令「**同一份逻辑存在两处必然分叉**」；且参考件 `~/w164a/w70/fp-inputs-existence-check.sh`（`906153a9db4f9164`，**实测未截断**）自带两条继承缺陷（车道名环境变量 `W164A_R`；临时件落**共享 `/tmp` 固定名**）⇒ **记为"已被取代、不落仓"**。`--selftest` 由 **16 例**加到 **18 例**（新增 `S10` 缺件必红 ＋ `S11` 只去掉那一行 ⇒ 回绿，成对）。
+#   ③ **四处声明同趟**：`# VERIFYALL-STEPS-DECL: 42 gen=#70`（**插在现行第一行 DECL 之前** —— `decl_line()` 是 `sed … | head -1`，`D-G131`）／`# VERIFYALL-STEP-NAMES: … | FP-MANIFEST-TEETH`／头注释口径句 `**\`#70\` 收官起 = 42 步**`／本文件（新建，标题含 `#70`）。
+#   ④ **两份新件**：`build/MilBridge/tools/fp-manifest-step.sh`（**新建** `db4a2d9856534aba`，纯读、零 `dotnet`、单趟 ≈0.4 s）／`docs/WAVE70-PREREGISTRATION.md`（**新建** `47ca5a9993771386`）。
+#   ⑤ **覆盖面 `fp_inputs()` +1 行**（**第五手**：`#66` → 163、`#67` → 165、`#68` → 167、`#69` → 171）：`build/close-wave.sh` **`3b891df8317b1f7c` → `6297e03253232b39`**（白名单尾追加 `build/MilBridge/tools/fp-manifest-step.sh`）⇒ `coverage_n` **171 → 172**。**逐件归因**：唯一新件就是那行驱动件；`verify-all.sh` **不在**覆盖面（现场 `hit=0`）⇒ 常数 `--expect` 与生产路径**无关**。
+#   ⑥ **`--expect 172` 的维护契约**：该常数**手写在步本体里**，与覆盖面**同趟**改；**漏改 ⇒ 第 `[42]` 步红 `files-n-mismatch delta=±k`**（方向安全）。**为什么不用 `tee`/`--paths`**：那要动 `close-wave.sh` 的 `fp_inputs()` 本体（`tee` 一个清单文件）⇒ 多一处写点、且把"清单来源"与"被审对象"绑死；`--expect` 是牙头**推荐**的、**与生产路径无关**的唯一来源。
+#   **九位（Release 权威件）**：`bridge` `4e25e4b27d4d5ae1`（5028208 B）／`pc` `722e0ab8205b7c3f`／`pf` `bea7e47e42fd4e01`（6123520 B）／`windowsbase` `2e4e46e539a72cd7`／`provider` `1f9511a7ef395bfe`／`win32shim` `fc60c34d51fd9247`／`wic_shim` `f7b3026c8c019be2`／`hbtextline` `921ba9c65e9fb3be`／`dwf` `ce3469f49efcbcfa`。
+#     · **相对 `#69` 冻结值**：`pf` `4143bf4f50a7eba1` → `bea7e47e42fd4e01`（**环成员**，`D-G92`：整波重建必变、同尺寸）；其余八位**逐位未变**。
+#   **`BRIDGE_SRC_FP` = `d697b1e10ff48881`**（上一代 `d697b1e10ff48881`；本波未改桥源 ⇒ 逐位未变）。
+#   ⚠️ **九位只许从最新冻结块的九位行或 `BASELINE tier=` 机读行取**（`D-G119` 实例㉕）。
+# COLUMN-FLOOR arm=tab-oracle-anchor col=START      judged_min=615 released_min=194
+# COLUMN-FLOOR arm=tab-oracle-anchor col=OVERFLOWED judged_min=421
+# COLUMN-CORPUS file=tests/parity/windows/tab-anchor/out/tab-anchor-oracle.json sha16=0cebc0afd5142fbf
+# ARM-LOG-SHA arm=tab-anchor    sha16=1c43a12dcaa5718a
+# ARM-LOG-SHA arm=tab-zero      sha16=9150c3a26a3cb789
+# ARM-LOG-SHA arm=tab-rtl       sha16=92570318851ca7e8
+# ARM-LOG-SHA arm=tline         sha16=59a203de30d745a8
+# ARM-LOG-SHA arm=textlineproto sha16=4bceceeed570ba70
+#   【① 落仓（**owner = 本车道**；写前逐件 `stat -c %h==1` 断言、先备份、temp＋`mv` 原子替换、写后现算 sha16）】4 件：
+#      `verify-all.sh`（`cc675e85d1b42c62` → `93ae21cdaf712567`，141,337 → 147,267 B）／`build/close-wave.sh`（`3b891df8317b1f7c` → `6297e03253232b39`）／
+#      `build/MilBridge/tools/fp-inputs-hygiene-check.sh`（`68ef01bfb9c6a8ee` → `5b0b0f4898865e04`；折叠 `TASK-0728`）／
+#      `build/MilBridge/tools/fp-manifest-step.sh`（**新建** `db4a2d9856534aba`）／`docs/WAVE70-PREREGISTRATION.md`（**新建** `47ca5a9993771386`）。
+#      **未碰** `KNOWN-DEFECTS.md`／`ROUTES.md`／`HANDOFF-NEXT.md`／`FORK-AND-PUSH.md`／`defect-registry-declared.tsv`（主控五件）与任何产品件。
+#      备份 = `~/w168a/w70/backup/{verify-all.sh,close-wave.sh,fp-inputs-hygiene-check.sh}`（`cp -p` 真拷贝，非硬链接；逐件 `%h==1` 已断言）。
+#   【② 判据与两极化（**落地前/落地后在真树与沙箱副本上全部真跑**，非重活）】**16/16 腿全绿**（`~/w168a/w70/logs/polarity-70.log`）：
+#      ① 声明链：`VERIFYALL_SELF=PASS names=42 decl=42 gen=#70 dup=0 order=OK prose=OK prereg=PASS`；
+#      ② 真不变量：**首行 `DECL` = 42 == 现取 `grep -c '^run_step "'` = 42**（⚠️ `DECL` 行数 = 38 ≠ 42，**没写那条假断言** —— 纪律 46）；
+#      ③ `[42]` 正极 `rc=0`／`FP_MANIFEST_TEETH=PASS reason=ok files_n=172 files_n_uniq=172 blank_n=0 shape_bad=0`／驱动 `names_n=172 manifest_n=172 expect=172 sha256sum_stderr_bytes=0`；
+#      ④ `[42]` **反极 A（只换被判件）**：续行参数表中间插一行 `#` 注释（`D-G120` 真咬形态）⇒ `rc=1`／`files-n-mismatch files_n=141 expect=172 delta=-31`／**当场印出形状完好的假指纹**；
+#      ⑤ `[42]` **反极 A′（只换被判件，异物灌进管线）**：断开续行并插 `printf '%s\n' BASELINERATE=NOINFO` ⇒ `rc=1`／`sha256sum-stderr-nonempty stderr_bytes=60`／`manifest_n=141 ≠ names_n=142`；
+#      ⑥ `[42]` **反极 B（只换声明常数）**：`--expect 173` ⇒ `rc=1`／`files-n-mismatch files_n=172 expect=173 delta=-1`；
+#      ⑦ `[42]` **反极 C**：`--close-wave` 指向不存在的件 ⇒ `NOINFO reason=close-wave-missing rc=2`；覆盖面为空 ⇒ `NOINFO reason=manifest-empty rc=2`（**两档都不算绿**）；
+#      ⑧ `[12]` 正极 `FP_INPUTS_HYGIENE=PASS reason=clean coverage_n=172 artifact_n=0 missing_n=0 stderr_bytes=0`、`rc=0`；
+#      ⑨ `[12]` **反极（沙箱副本，真树白名单一字未改）**：某行指向不存在的件 ⇒ `rc=1`／`reason=coverage-member-missing missing_n=1`／**逐条点名** `FP_INPUTS_HYGIENE_MISSING=FAIL kind=MISSING path=build/MilBridge/GONE-70.cs`／**并印出旧口径的假指纹** `would_be_fp=0e8254f8cf842836`（**恰等于当时树上的 `inputs_fp`** ⇒ 旧口径会拿它当绿）；
+#      ⑩ 成对回绿：只把那一行去掉 ⇒ `rc=0`／`missing_n=0 stderr_bytes=0`；
+#      ⑪ 牙自测：`fp-manifest-teeth-check.sh --selftest` **13/13**、`fp-inputs-hygiene-check.sh --selftest` **18/18**（含新 `S10`/`S11` 成对腿与 `SB-no-tmp-leak`）；
+#      ⑫ 预登记：`prereg-four-requirements-check.sh` 单件与批次门禁形态**都**判 `PREREG4=NA rc=0`（`fail=0`）。
+#   【③ 重锚（基点现取）】落仓第一步现取：`verify-all.sh cc675e85d1b42c62`（首行 DECL `41 gen=#69` ∧ `^run_step "` = 41 ⟹ **真不变量成立**）；
+#      `build/close-wave.sh 3b891df8317b1f7c`；`FPHYG_COVERAGE_N=171`；落仓后现取 `coverage_n=172` ∧ `inputs_fp=0e8254f8cf842836396a8dcdc7568bfaad59fdbaaf0ee358f682d5e3cda7edd2`。
+#   【④ 整波】`close-wave.sh --skip-verify-all`（槽内，`rc` 见 `~/w168a/w70/logs/w70-wave-*.log`）。
+#   【⑤ 门禁 ×2 ＋ 冻前 `verify-all`】**三趟各** `步骤通过 42 ❌ 失败 0` ∧ `结论：✅ 全部通过` ∧ `用例通过 875 跳过 2`；
+#      应用级门禁两趟判词行逐字相同（`GATE_LINES_IDENTICAL`）＋ 6 条 `BASELINE … result=PASS` 行（`rows` 口径）见下。
+#   【⑥ 覆盖面位移**逐件归因**】`171 → 172`：**唯一**新增行 = `build/MilBridge/tools/fp-manifest-step.sh`。
+#      `inputs_fp` **变**（`9ccc8f33404c0ee7ebcf2353a042498197a40505b5be87f621499c822ec6d4be` → `0e8254f8cf842836396a8dcdc7568bfaad59fdbaaf0ee358f682d5e3cda7edd2`）的成因两处、都已归因：① 白名单 `+1` 行；② 覆盖面成员 `close-wave.sh` 与 `fp-inputs-hygiene-check.sh` **本波被改**（两者都在白名单内 ⇒ **设计性**，不是隐形位移）。
+#      `[42]` 步自印的 `would_be_fp` 与现场 `inputs_fp` **逐位相同** ⇒ **本步审的那份清单就是生产输入集**（交叉证）。
+#   【⑦ 零产品改动】**`src/**`／`build/shims/**`／native 源一字节未动** ⇒ 九位**不应有产品位移**；`pf` 是**环成员**（整波重建必变、**同尺寸 6123520 B**）⇒ 机械位移，**不许当漂移/回归判据**。
+#      **停条件**：出现**第二处**位移（或 `pf` 没动）⇒ **停手报主控**。
+#   【⑧ 两处自伤（如实留档）】① **拼接漏换行**：给 `verify-all.sh` 插 `[12]` 步说明注释时，`NOTE12 + anchor` 少了分隔 `\n` ⇒ **把接线的 `run_step "FP-INPUTS-HYGIENE" …` 行吞进了注释**；**当场被步数不变量抓住**（`grep -c '^run_step "'` 从 42 掉到 41）⇒ 补 `\n` 修复。教训并入：拼接类操作必须**断言分隔符**，不只断言命中数（`D-G120` 同族）。
+#      ② **双引号里的反引号**：`fp-inputs-hygiene-check.sh` 的 FAIL 词句里写了 `` `sha256sum` ``／`` `D-G120` `` ⇒ bash **真做了命令替换**（现场 `D-G120: 未找到命令`、诊断文字被吃掉）。**这与 `#69` 被 `[21] QUOTE-TRAP` 抓到的形态同族**；本波我自查修掉（`traps=0`），未等门禁来抓。
+#   【⑨ 推送／app-local／哨兵】逐径 `git add`（**绝不** `-A`／不从 `git status` 生成清单）；**必须排除主控五件**；`BYTECHECK ok=<N> mismatch=0`（逐件比 `$R` vs 克隆的 `HEAD:` blob）；app-local 报 `STALE=0`／`DIVERGENT=0`；两处哨兵（`/tmp/bridge-frozen.flag` ＋ `~/wfp-runs/bridge-frozen.flag`）补 `BASELINE=#70` 与 `BASELINE_SHA16=<新值>` 并 `cmp` **IDENTICAL**。
+BASELINE tier=default rep=1 config=pc:722e0ab8205b7c3f,bridge:4e25e4b27d4d5ae1,pf:bea7e47e42fd4e01,provider:1f9511a7ef395bfe,win32shim:fc60c34d51fd9247,wic_shim:f7b3026c8c019be2,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=261 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=4112 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w168a/w70/gate/gate-r2
+BASELINE tier=default rep=2 config=pc:722e0ab8205b7c3f,bridge:4e25e4b27d4d5ae1,pf:bea7e47e42fd4e01,provider:1f9511a7ef395bfe,win32shim:fc60c34d51fd9247,wic_shim:f7b3026c8c019be2,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=261 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=4112 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w168a/w70/gate/gate-r2
+BASELINE tier=default rep=3 config=pc:722e0ab8205b7c3f,bridge:4e25e4b27d4d5ae1,pf:bea7e47e42fd4e01,provider:1f9511a7ef395bfe,win32shim:fc60c34d51fd9247,wic_shim:f7b3026c8c019be2,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=261 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=4112 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w168a/w70/gate/gate-r2
+BASELINE tier=env rep=1 config=pc:722e0ab8205b7c3f,bridge:4e25e4b27d4d5ae1,pf:bea7e47e42fd4e01,provider:1f9511a7ef395bfe,win32shim:fc60c34d51fd9247,wic_shim:f7b3026c8c019be2,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=144 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=2945 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w168a/w70/gate/gate-r2
+BASELINE tier=env rep=2 config=pc:722e0ab8205b7c3f,bridge:4e25e4b27d4d5ae1,pf:bea7e47e42fd4e01,provider:1f9511a7ef395bfe,win32shim:fc60c34d51fd9247,wic_shim:f7b3026c8c019be2,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=144 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=2945 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w168a/w70/gate/gate-r2
+BASELINE tier=env rep=3 config=pc:722e0ab8205b7c3f,bridge:4e25e4b27d4d5ae1,pf:bea7e47e42fd4e01,provider:1f9511a7ef395bfe,win32shim:fc60c34d51fd9247,wic_shim:f7b3026c8c019be2,hbtextline_shim:921ba9c65e9fb3be(stale:no) result=PASS exit=143 drawn=144 notdrawn=0 frames_good=14 frames_total=14 frames_blank=0 capture=ok scroll=ok shot_dims=938x938 colors=2945 cross_ae=0 max_concurrent_apps=1 leftover_after=0 rundir=/home/links-dev/w168a/w70/gate/gate-r2
+# ⏪ **（历史，已被 `#70` 取代）**# RE-FROZEN #69 —— ✅ **当前冻结基线** —— 内容 = **`TASK-0725` 落仓**：把 `D-G126` 前半句与 `D-G127` 两条**会红的牙**接进 `verify-all` 第 `[40]`／`[41]` 步 ＋ 四处声明 ＋ `fp_inputs()` 四行。**本波零产品位移**（不改任何产品件；九位里只有环成员 `pf` 变）。
 #   ① **新步 `[40] BAK-COMPLETENESS`**：`run_step "BAK-COMPLETENESS" bash build/MilBridge/tools/bak-completeness-step.sh` —— 驱动件同时做两件事：跑 `D-G126` 牙的 `--selftest`（8 腿：正例 ＋ 反例A 备份缺失／反例B 备份错版本／**反例C 备份是硬链接**／零检查空 plan 必须红）**＋** 求值本波 `producer=UNWIRED-IN-STEP` 声明的**可跑谓词**（`n_wired = grep -E '^[[:space:]]*run_step .*backup-completeness-gate\.sh.*--plan' verify-all.sh` ⇒ **`n_wired==0` 才绿**；产出端一旦被接线 ⇒ **当场翻红**）⇒ `D-G132`（声明没有机读读者）**本波就地供给**。三态 `BAK_COMPLETENESS=PASS|FAIL|NOINFO`（`NOINFO` 不算绿）。
 #   ② **新步 `[41] REPO-ALIAS`**：`run_step "REPO-ALIAS" bash build/MilBridge/tools/repo-alias-check.sh --allow build/MilBridge/repo-alias-allow.tsv` —— 判「`$R` 内 `%h>1` 的件在**仓外**有没有同 inode 孪生」。🔴 **口径句：允许清单是声明式豁免，不是把牙关掉** —— 白名单**只降 `aliased_out` 一项**、四项计数照打；**未被覆盖的孪生照旧 `FAIL reason=out-of-repo-alias`**；**当前件数 > 上限 ⇒ `FAIL reason=allowed-tree-grown`**（树长大也红）；唯一一种「有孪生还给绿」= 全部覆盖 ∧ 各有界（`reason=known-alias-trees`）。三态 `ALIAS=PASS|FAIL|NOINFO`；**零检查必红**；**扫不完 ⇒ `NOINFO`**（绝不把「没扫完」当「没孪生」）。
 #   ③ **四处声明同趟**：`# VERIFYALL-STEPS-DECL: 41 gen=#69`（**插在现行第一行 DECL 之前** —— `decl_line()` 是 `sed … | head -1`，`D-G131`）＋ 头注释口径句 ``**`#69` 收官起 = 41 步**`` ＋ `VERIFYALL-STEP-NAMES` 行尾 `| BAK-COMPLETENESS | REPO-ALIAS` ＋ 预登记 H1。**步数 39 → 41**（`NSTEP=41`）。
