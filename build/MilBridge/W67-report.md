@@ -3,7 +3,7 @@
 > 车道 **W160A-W67ARM**（本波 **唯一 owner**）｜工作目录 `~/w160a/`
 > 权威树 `R=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux`（**本波按放行件授权写入**）
 > 放行件：`~/w129a/dispatch-W67-landing.md`（`556faa5c67b1d837`）｜判据先行：`~/w160a/criteria.md`（`157d595fb78fad4c`）
-> 报告时刻：2026-09-25T10:10:50
+> 报告时刻：2026-09-25T10:12:35
 
 ---
 
@@ -73,9 +73,9 @@
 ### 1.7 收尾链
 
 - **`~/w21-verify/w67-POST.done`**：`size=0 ｜ mtime=2026-09-25 10:10:38.456694792 +0800 ｜ mode=644（真 stat 见 ~/w160a/logs/53-post-done.txt）`
-- **推送**：`<未取>`
-- **app-local**：`<未取>`
-- **两处哨兵**：`/tmp/bridge-frozen.flag` ＋ `~/wfp-runs/bridge-frozen.flag` ⇒ 补 **`BASELINE=#67`** ＋ **`BASELINE_SHA16=3137b1d5728eeb97`**，`cmp` = **<未取>**
+- **推送**：`OLD_HEAD `261b3a09bb9f5e5d5f08b355f2296d41d80c85ac` → **NEW_HEAD `a137cb7da63238d734a67256b37582d6fe9c2d13`**；`ls-remote origin feat-Linux` = 同值（**一致=yes**）｜`porcelain=0`｜`symref=origin/main`｜**`BYTECHECK ok=28 mismatch=0`**（含 `run-pts-pages-legs.sh` 与证据 16 件，**逐件 `HEAD:` 字节核**）｜staged == 白名单 == status == **28**｜远端 `git@gitee.com:the50w/WPFOnLinux.git`（**未改任何远端配置**）`
+- **app-local**：``sync-applocal.sh --mkdir` ⇒ `SYNC-APPLOCAL=PASS items=5 ok=4 synced=1 drift=0`（`pf 29ad6d7cf3246938 → cbd1884faeb4837e`）｜`check-applocal-sync.sh` ⇒ **判词行 `APPSYNC=MISMATCH`**（**照实报，不粉饰**），**硬判据达标**：`MISMATCH=0[STALE=0 NEWER-DIFF=0] MISSING=0 DIVERGENT=0 RETIRED=0`；`UNEXPECTED=6[DECL-GAP-EQ=6]` ＝**已声明的传递依赖副本缺口**（按 `#66` 裁定**告警不是失败**）`
+- **两处哨兵**：`/tmp/bridge-frozen.flag` ＋ `~/wfp-runs/bridge-frozen.flag` ⇒ 补 **`BASELINE=#67`** ＋ **`BASELINE_SHA16=3137b1d5728eeb97`**，`cmp` = ****IDENTICAL**（两处各 377 B、sha16 均 `184b2e059601520e`）｜补写键名 = **`BASELINE=#67`** ＋ **`BASELINE_SHA16=3137b1d5728eeb97`**（**未用 `sha256=`**）**
   ⚠️ **键名逐字说明**：本文件既有约定是**裸键**，其中 **`SHA=` 是桥（`wpfgfx_cor3.so`）的值**，与 **`BASELINE_SHA16=`（基线件 `ACCEPTANCE-BASELINE.md` 的 16 位截断）** 是**两个不同的主体** —— 不许读成同一个量。
 
 ---
