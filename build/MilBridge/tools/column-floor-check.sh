@@ -151,10 +151,49 @@ mkdir -p "$OUTDIR" || { echo "NOINFO 造不出输出目录 $OUTDIR" >&2; exit 2;
 say() { [ "$QUIET" -eq 1 ] || printf '%s\n' "$*"; }
 sha16() { sha256sum "$1" 2>/dev/null | cut -c1-16; }
 
-# 最新冻结块 = 第一条 `^# RE-FROZEN ` 起、到下一条含 `RE-FROZEN #` 的行为止
-#   （历史块写作 `# ⏪ **（历史…）**# RE-FROZEN #23` ⇒ 行首锚**不会**误收它们）
-extract_newest_block() {
-  awk 'BEGIN{seen=0;p=0} /RE-FROZEN #/{ if(seen==1) exit; if(/^# RE-FROZEN /){seen=1;p=1} } p' "$1"
+# 最新冻结块 = 第一条 `^# RE-FROZEN ` 起、到下一条**块头行**为止（`TASK-0731`／`D-G119` 实例㉘）。
+#   **出口条件也必须在行首**：旧写法用无锚 `/RE-FROZEN #/` ⇒ **块内正文**只要提到该字样
+#   （例如注释里引 `` `# RE-FROZEN #NN` ``）就**提前截断**，把紧随其后的 `# COLUMN-FLOOR`／
+#   `# COLUMN-CORPUS`／`# ARM-LOG-SHA`／`BASELINE tier=` 行全排除 ⇒ `COLUMN_FLOOR=NOINFO`（**病因错**）。
+#   出口锚 = `^# (RE-FROZEN #|⏪ )`：
+#     · `^# RE-FROZEN #` = 下一条**未降级**块头；
+#     · `^# ⏪ ` = **降级**历史块头 `# ⏪ **（历史，已被 `#NN` 取代）**# RE-FROZEN #NN`
+#       （现取：文件里 `^# ⏪ ` 共 45 行，**全部**是降级块头）—— **不能只写 `^# RE-FROZEN `**，
+#       否则降级头不被认作边界、抽块会**跑到 EOF**（本机实测 57 行 → 3573 行）。
+#   ⚠️ 本机 `awk` = **mawk**（非 gawk）⇒ 模式里不用多字节字符类；`⏪` 按字节字面量匹配。
+#   ⚠️ **入口语义一字未改**：仍只认**未降级**的 `^# RE-FROZEN `（降级头不被当"最新块"）。
+#   ⚠️ **`TASK-0731` 附加不变量：出口锚的"域"必须自证**。锚是一份**形态白名单** ⇒ 将来出现
+#      **第三种装饰**（例如 `# ⏩ …# RE-FROZEN #NN`）就会不匹配 ⇒ 重演"静默抽到 EOF"这个病。
+#      故两条**响亮**守卫（都在 `run_check` 第 ② 段，先于取块）：
+#        ① `block_span()` 的**终止行 = 0** 表示"向后没有块头" ⇒ `NOINFO reason=block-end-not-found`
+#           （**绝不把 EOF 当块尾** —— `#67` 现场正是"块被截断后仍给出形状完好的读数"）；
+#        ② `hdr_form_counts()` 用**两种机制**数块头：A = 本锚；B = **剥掉 Markdown 行内代码跨度**
+#           后匹配 `^# .*# RE-FROZEN #<N>`（与装饰无关 ⇒ 换个符号也照样数得到）⇒ 两数不等
+#           ⇒ `NOINFO reason=block-header-form-mismatch`，**不许静默继续**。
+block_span() { # $1=基线件；stdout=`<起始行> <终止行>`（终止行 0 = 没找到下一条块头）
+  awk 'BEGIN{p=0;s=0;e=0}
+       { if(p && /^# (RE-FROZEN #|⏪ )/){e=NR; exit} if(!p && /^# RE-FROZEN /){p=1;s=NR} }
+       END{ if(s>0) print s, (e>0 ? e : 0) }' "$1"
+}
+hdr_form_counts() { # $1=基线件；stdout=`<机制A> <机制B>`（块头形态自证；B 与装饰符号无关）
+  local a b
+  a="$(grep -cE '^# (RE-FROZEN #|⏪ )' "$1" 2>/dev/null || true)"
+  b="$(python3 - "$1" <<'PYEOF' 2>/dev/null
+import re,sys
+n=0
+for l in open(sys.argv[1],encoding="utf-8",errors="replace").read().split("\n"):
+    if re.match(r'^# (?:RE-FROZEN #\d+|.*# RE-FROZEN #\d+)', re.sub(r'`[^`]*`','',l)): n+=1
+print(n)
+PYEOF
+)"
+  printf '%s %s\n' "${a:-0}" "${b:-0}"
+}
+extract_newest_block() { # $1=基线件；**没找到块尾时返回空**（调用方须先 `block_span` 判 `终止行==0`）
+  local sp s e
+  sp="$(block_span "$1")"; [ -n "$sp" ] || return 0
+  s="${sp%% *}"; e="${sp##* }"
+  [ "$e" -gt 0 ] || return 0
+  awk -v s="$s" -v e="$e" 'NR>=s && NR<e' "$1"
 }
 
 # 语料复算（**唯一实现**，正常跑与 `--selftest` 共用 —— `#28`/`#29` 各有一条血案是"复制函数体导致分叉"）
@@ -222,6 +261,23 @@ PYEOF
   fi
 
   # ② 冻结块声明
+  #   ⚠️ `TASK-0731`：取块前先过两道**响亮**守卫 —— 块尾必须落在**行首锚**上（走到 EOF ⇒ `NOINFO`，
+  #      **绝不把 EOF 当块尾**）；出口锚的**域**必须与"与装饰无关的第二种数法"一致（不等 ⇒ `NOINFO`）。
+  local _hf _ha _hb _sp _st
+  _hf="$(hdr_form_counts "$base")"; _ha="${_hf%% *}"; _hb="${_hf##* }"
+  _sp="$(block_span "$base")"
+  if [ -z "$_sp" ]; then
+    echo "COLUMN_FLOOR=NOINFO reason=baseline-has-no-RE-FROZEN-block base=$(sha16 "$base")"; return 2
+  fi
+  _st="${_sp##* }"
+  if [ "$_st" -le 0 ]; then
+    echo "COLUMN_FLOOR=NOINFO reason=block-end-not-found start=${_sp%% *} hdr_forms=awk$_ha/md$_hb form_mismatch=$([ "$_ha" = "$_hb" ] && echo no || echo yes) base=$(sha16 "$base")（向后找不到下一条块头 ⇒ 绝不把 EOF 当块尾）"
+    return 2
+  fi
+  if [ "$_ha" != "$_hb" ]; then
+    echo "COLUMN_FLOOR=NOINFO reason=block-header-form-mismatch hdr_forms=awk$_ha/md$_hb form_mismatch=yes base=$(sha16 "$base")（出口锚未覆盖全部块头形态 ⇒ 不许静默继续）"
+    return 2
+  fi
   blk="$(extract_newest_block "$base")"
   if [ -z "$blk" ]; then
     echo "COLUMN_FLOOR=NOINFO reason=baseline-has-no-RE-FROZEN-block base=$(sha16 "$base")"; return 2
@@ -466,7 +522,7 @@ fi
 #   会派生**真件的副本**、还会按"现件"算期望 ⇒ 本件在窗口内一变，"夹具/期望/判定"三者就可能跨版本。
 #   口径：**开头记 sha16、结尾再算一次**；不等 ⇒ `ST_ATTEST=NOINFO` 并点名（含 sha0/sha1 与内层 rc），
 #   统一 **rc=2**（`NOINFO` 码，不与 `FAIL` 混）。只加在 `--selftest` 路径；**生产路径一字未动**；
-#   不删例、不放宽任何期望（成对读数见 `$HOME/w33b-report.md`）。
+#   不删例、不放宽任何期望（成对读数见车道 W33B 的报告件 `w33b-report.md`）。
 if [ -z "${ST_ATTEST_INNER:-}" ]; then
   ST_SELF="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SOURCE[0]}")"
   ST0="$(sha256sum "$ST_SELF" | cut -c1-16)"
@@ -776,6 +832,128 @@ if grep -q 'NOTDECLARED' "$T/last.out"; then
   np=$((np+1)); printf 'SELFTEST case=%-26s expect=%-7s got=%-7s => yes\n' "G3b-ARMLOG-NOTDECLARED-INK" "NOTDECLARED" "NOTDECLARED"
 else
   nf=$((nf+1)); printf 'SELFTEST case=%-26s expect=%-7s got=%-7s => no\n' "G3b-ARMLOG-NOTDECLARED-INK" "NOTDECLARED" "（缺行时未印残留告示）"
+fi
+
+# ═════════════════════════════════════════════════════════════════════════════
+# 【`TASK-0731` 新增四腿（(a)(b)(c)(e)）】本段**只加例、不改任何既有例**（例数只增不减）。
+#   底座全部是现场件现算的忠实复制品（`$BASE`／`$T/base-bare.md` 派生物）——**一个写死值都没有**。
+# ── (a) 块内**非行首**提到该字样（`#67` 现场形态）⇒ **不得**提前截断 ──────────────
+python3 - "$T/base-withdecl.md" "$T/base-mention.md" <<'PYEOF'
+import sys
+src=open(sys.argv[1],encoding="utf-8").read().split("\n")
+out=[];done=False
+for l in src:
+    out.append(l)
+    if not done and l.startswith('# RE-FROZEN '):
+        out.append('#   \u26a0\ufe0f 块内正文**非行首**提到 `# RE-FROZEN #67` 字样 —— 出口锚必须在行首，'
+                   '否则抽取器在此提前截断（`TASK-0731` 用例 (a)）。')
+        done=True
+assert done, 'fixture 里找不到 `^# RE-FROZEN ` 头'
+open(sys.argv[2],"w",encoding="utf-8").write("\n".join(out))
+PYEOF
+_span="$(block_span "$T/base-mention.md")"; _s="${_span%% *}"; _e="${_span##* }"
+extract_newest_block "$T/base-mention.md" > "$T/blk.new.txt"
+awk 'BEGIN{seen=0;p=0} /RE-FROZEN #/{ if(seen==1) exit; if(/^# RE-FROZEN /){seen=1;p=1} } p' \
+    "$T/base-mention.md" > "$T/blk.old.txt"
+_n_new="$(wc -l < "$T/blk.new.txt")"; _n_old="$(wc -l < "$T/blk.old.txt")"
+_cf_new="$(grep -c '^# COLUMN-FLOOR ' "$T/blk.new.txt" || true)"
+_cf_old="$(grep -c '^# COLUMN-FLOOR ' "$T/blk.old.txt" || true)"
+if [ "$_n_new" -eq "$((_e - _s))" ] && [ "$_cf_new" -ge 1 ] && [ "$_n_old" -lt "$_n_new" ] && [ "$_cf_old" -eq 0 ]; then
+  np=$((np+1)); printf 'SELFTEST case=%-26s expect=%-7s got=%-7s => yes\n' "C0731a-MENTION-MIDBODY" "full-block" \
+    "new=${_n_new}L(CF=${_cf_new}) old=${_n_old}L(CF=${_cf_old})"
+else
+  nf=$((nf+1)); printf 'SELFTEST case=%-26s expect=%-7s got=%-7s => no\n' "C0731a-MENTION-MIDBODY" "full-block" \
+    "new=${_n_new}L(CF=${_cf_new}) old=${_n_old}L(CF=${_cf_old}) span=${_s}..${_e}"
+fi
+# ── (b) 正常档 ⇒ 取到**正确块**（块首/块尾/行数三样）＋ 真件上**零判定面位移** ────────
+_hf="$(hdr_form_counts "$BASE")"; _ha="${_hf%% *}"; _hb="${_hf##* }"
+_span="$(block_span "$BASE")"; _s="${_span%% *}"; _e="${_span##* }"
+extract_newest_block "$BASE" > "$T/blk.b.new.txt"
+awk 'BEGIN{seen=0;p=0} /RE-FROZEN #/{ if(seen==1) exit; if(/^# RE-FROZEN /){seen=1;p=1} } p' \
+    "$BASE" > "$T/blk.b.old.txt"
+_n_new="$(wc -l < "$T/blk.b.new.txt")"; _n_old="$(wc -l < "$T/blk.old.txt" 2>/dev/null || echo 0)"
+_h1="$(head -1 "$T/blk.b.new.txt")"; _tl="$(tail -1 "$T/blk.b.new.txt")"
+_same=no; cmp -s "$T/blk.b.new.txt" "$T/blk.b.old.txt" && _same=yes
+case "$_h1" in '# RE-FROZEN '*) _hok=yes ;; *) _hok=no ;; esac
+case "$_tl" in 'BASELINE tier='*) _tok=yes ;; *) _tok=no ;; esac
+if [ "$_n_new" -eq "$((_e - _s))" ] && [ "$_ha" = "$_hb" ] && [ "$_same" = yes ] \
+   && [ "$_hok" = yes ] && [ "$_tok" = yes ]; then
+  np=$((np+1)); printf 'SELFTEST case=%-26s expect=%-7s got=%-7s => yes\n' "C0731b-NORMAL-BLOCK" "exact-block" \
+    "L=${_n_new}(=${_e}-${_s}) hdr_forms=${_ha}/${_hb} old==new"
+else
+  nf=$((nf+1)); printf 'SELFTEST case=%-26s expect=%-7s got=%-7s => no\n' "C0731b-NORMAL-BLOCK" "exact-block" \
+    "L=${_n_new}(span ${_s}..${_e}) hdr_forms=${_ha}/${_hb} old==new=${_same} hdr=${_hok} tail=${_tok}"
+fi
+# ── (c) **无块** ⇒ `NOINFO`（不是 `PASS`）────────────────────────────────────────
+grep -v '^# RE-FROZEN ' "$T/base-bare.md" > "$T/base-noRE.md"
+run_and_chk "C0731c-NO-BLOCK" NOINFO 2 "$T/reg.json" "$T/base-noRE.md" "$T/corpus.json"
+# ── (e) 下一块块头换成**第三种装饰** ⇒ 必须 `block-end-not-found`（不是 `PASS`）──────
+#   ⚠️ 装饰符号**不在脚本里写死**（不写字面量、不用 \\u 转义）：按"`# ` ＋ 一个非空白记号 ＋ ` **（历史`"
+#      的**形状**找降级块头，再把那个记号换成 ASCII 的第三种形态 ⇒ 与"锚的域"无关地构造第三种形态。
+python3 - "$T/base-withdecl.md" "$T/base-thirdform.md" <<'PYEOF'
+import re,sys
+src=open(sys.argv[1],encoding="utf-8").read().split("\n")
+pat=re.compile(r'^# \S+ \*\*（历史')
+n=0
+for i,l in enumerate(src):
+    if pat.match(l):
+        src[i]=re.sub(r'^# \S+ ', '# >>> ', l, count=1); n+=1; break
+assert n==1, 'fixture 里找不到降级块头（形状：`# <记号> **（历史…）**# RE-FROZEN #N`）'
+open(sys.argv[2],"w",encoding="utf-8").write("\n".join(src))
+PYEOF
+if [ ! -s "$T/base-thirdform.md" ]; then
+  nf=$((nf+1)); printf 'SELFTEST case=%-26s expect=%-7s got=%-7s => no（fixture 没造出来 ⇒ 本档不可信）\n' "C0731e-THIRD-FORM-NEXT-HDR" "NOINFO" "no-fixture"
+else
+  run_and_chk "C0731e-THIRD-FORM-NEXT-HDR" NOINFO 2 "$T/reg.json" "$T/base-thirdform.md" "$T/corpus.json"
+fi
+#   ⚠️ **"NOINFO rc=2" 不够**：`baseline-missing` 也会给 `NOINFO rc=2` ⇒ 必须**点名病因**（失败模式可见化）。
+#   ⚠️ **两条响亮守卫哪一条先响、取决于"后面还有没有可识别的块头"** —— 现场如实报，不预设：
+#      本档（只把**下一块**块头换成第三种形态）后面**还有** 50 条降级头 ⇒ 块尾找得到（但**块是错的**）
+#      ⇒ 应当是 `block-header-form-mismatch`；**没有**块头的形态（下一档）才是 `block-end-not-found`。
+if grep -qE 'reason=block-(header-form-mismatch|end-not-found)' "$T/last.out" \
+   && grep -q 'form_mismatch=yes' "$T/last.out" && ! grep -q '^COLUMN_FLOOR=PASS' "$T/last.out"; then
+  np=$((np+1)); printf 'SELFTEST case=%-26s expect=%-7s got=%-7s => yes\n' "C0731f-LOUD-NOT-SILENT" "named-reason" "block-* 原因 ＋ form_mismatch=yes"
+else
+  nf=$((nf+1)); printf 'SELFTEST case=%-26s expect=%-7s got=%-7s => no\n' "C0731f-LOUD-NOT-SILENT" "named-reason" \
+    "$(grep -m1 '^COLUMN_FLOOR=' "$T/last.out" | cut -c1-70)"
+fi
+# ── (g) **除当前块外所有块头**都换第三种形态 ⇒ 向后**没有**可识别的块头 ⇒ `block-end-not-found` ──
+#   ⚠️ 只换"降级头"**不够**：本基线里另存 **5 条从未降级的远古头**（`^# RE-FROZEN #18/#17/#16/#15/#14`）
+#      ⇒ 出口锚会在它们那里收住（块变**过长**）⇒ 先响的是**另一种**守卫 `block-header-form-mismatch`。
+#      本档把**除当前块头以外**的每一条块头都改成第三种形态 ⇒ 才真正走到"没有块尾"这一支。
+python3 - "$T/base-withdecl.md" "$T/base-allthird.md" <<'PYEOF'
+import re,sys
+src=open(sys.argv[1],encoding="utf-8").read().split("\n")
+hd=re.compile(r'^(# RE-FROZEN #\d+|# \S+ \*\*（历史)')
+first_done=False; n=0
+for i,l in enumerate(src):
+    if not hd.match(l): continue
+    if l.startswith('# RE-FROZEN #') and not first_done:
+        first_done=True; continue          # 当前块（未降级的第一条）**保持原样**
+    m=re.match(r'^# RE-FROZEN #(\d+)', l)
+    src[i] = ('# >>> RE-FROZEN #%s '%m.group(1) + l[m.end()+1:]) if m else re.sub(r'^# \S+ ', '# >>> ', l, count=1)
+    n+=1
+assert first_done and n>0, 'fixture 变换失败（first_done=%s n=%d）'%(first_done,n)
+open(sys.argv[2],"w",encoding="utf-8").write("\n".join(src))
+PYEOF
+if [ ! -s "$T/base-allthird.md" ]; then
+  nf=$((nf+1)); printf 'SELFTEST case=%-26s expect=%-7s got=%-7s => no（fixture 没造出来）\n' "C0731g-ENDFAIL-INK" "block-end-not-found" "no-fixture"
+else
+  run_and_chk "C0731g-ENDFAIL-INK" NOINFO 2 "$T/reg.json" "$T/base-allthird.md" "$T/corpus.json"
+  if grep -q 'reason=block-end-not-found' "$T/last.out" && grep -q 'form_mismatch=yes' "$T/last.out"; then
+    np=$((np+1)); printf 'SELFTEST case=%-26s expect=%-7s got=%-7s => yes（同趟第二断言）\n' "C0731g-ENDFAIL-INK" "block-end-not-found" "reason ＋ form_mismatch=yes"
+  else
+    nf=$((nf+1)); printf 'SELFTEST case=%-26s expect=%-7s got=%-7s => no\n' "C0731g-ENDFAIL-INK" "block-end-not-found" \
+      "$(grep -m1 '^COLUMN_FLOOR=' "$T/last.out" | cut -c1-70)"
+  fi
+fi
+# ── (h) **出口锚的域**与装饰无关（机制 B 数得到第三种形态）⇒ 失配**必须可见且两侧非零** ──
+#   ⚠️ `0/0`（fixture 缺、python 报错被吞）是**假绿** ⇒ 两侧都要求 `>0`。
+_hf="$(hdr_form_counts "$T/base-thirdform.md")"; _ha="${_hf%% *}"; _hb="${_hf##* }"
+if [ "${_ha:-0}" -gt 0 ] && [ "${_hb:-0}" -gt 0 ] && [ "$_ha" != "$_hb" ]; then
+  np=$((np+1)); printf 'SELFTEST case=%-26s expect=%-7s got=%-7s => yes\n' "C0731h-HDRFORM-MISMATCH" "awk!=md>0" "hdr_forms=$_ha/$_hb"
+else
+  nf=$((nf+1)); printf 'SELFTEST case=%-26s expect=%-7s got=%-7s => no\n' "C0731h-HDRFORM-MISMATCH" "awk!=md>0" "hdr_forms=$_ha/$_hb"
 fi
 
 printf 'SELFTEST=%s cases=%d pass=%d fail=%d\n' "$([ $nf -eq 0 ] && echo PASS || echo FAIL)" "$((np+nf))" "$np" "$nf"
