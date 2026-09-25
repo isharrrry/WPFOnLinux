@@ -272,7 +272,9 @@ fp_inputs() {  # 手写输入指纹（应用器 + port-lib + 本脚本 + 波脚�
           build/MilBridge/tools/regime-identity-check.sh \
           build/MilBridge/tools/fp-manifest-teeth-check.sh \
           build/MilBridge/tools/regression-decision-cases.tsv \
-          build/MilBridge/tools/nl-intent-check.sh
+          build/MilBridge/tools/nl-intent-check.sh \
+          build/MilBridge/tools/silent-hit-v2-check.sh \
+          build/MilBridge/tools/silent-hit-v2-cases.tsv
     } | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -d' ' -f1
 }
 sha16() { sha256sum "$1" 2>/dev/null | cut -c1-16; }

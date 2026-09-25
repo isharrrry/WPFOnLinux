@@ -1,0 +1,13 @@
+tag	role	gen	trimmed	stackovf	segv_branch	undeclared	phase	expect	provenance
+POSCTL-SYN-RC139	POSCTL	synth	0	0	rc139	0	nav	HIT	合成仪器级阳性对照（第一支∧第三支；证明判据**可被触发**）
+POSCTL-SYN-STOPSIG11	POSCTL	synth	0	0	stop-signo11	0	nav	HIT	合成仪器级阳性对照（第四支，抗收尾截断）
+REALHIT-W071	REALHIT	~/w128a/frozen/W071	0	0	term	0	nav	HIT	**在册历史真命中**（app.both=0 B；第三支 term；W155A 重放表）
+REALHIT-W077	REALHIT	~/w128a/frozen/W077	0	0	stop-signo11	0	nav	HIT	**在册历史真命中**（0 B；gdb stop signo=11）
+REALHIT-L1B024	REALHIT	~/w98a/run/L1B024	0	0	rc139	0	nav	HIT	**在册历史真命中**（43 B 全是 timeout: 行 ⇒ 两口径同值）
+REALHIT-W8AA-04	REALHIT	~/wc08/run/W8AA-04	0	0	stop-signo11	0	nav	HIT	**在册历史真命中**（0 B）
+LIVENEG-P1-01	LIVENEG	cur(g5-off)	0	0		0	alive-after-recipe	NOT-HIT	现件代**活腿**：v1 读 484（结构性不可达）／v2 读 0（可达）；第三支不成立 ⇒ **不是命中**（D-G123 假阴性的镜像）
+LIVENEG-P2-01	LIVENEG	cur(wo-off-1)	3317	0		0	alive-after-recipe	NOT-HIT	现件代**诊断趟**（DIAGT=28）；该腿不进命中率分母
+GATE-UNDECL	SYNTH	synth	0	0	rc139	3	nav	NOINFO	完备性闸：出现**未声明**的具名插桩行 ⇒ NOINFO（D-G123 当初漏掉的那一格）
+GATE-TEARDOWN	SYNTH	synth	0	0	term	0	teardown	NOINFO	收进程期死亡不计命中
+NOTHIT-TRIMMED-POS	SYNTH	synth	43	0	rc139	0	nav	NOT-HIT	第一支不成立（剔除后仍有 43 B）
+NOTHIT-STACKOVF	SYNTH	synth	0	1	rc139	0	nav	NOT-HIT	134 族（STACKOVF=1）不许混进静默 SEGV
