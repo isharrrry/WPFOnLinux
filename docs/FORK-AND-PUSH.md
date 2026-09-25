@@ -1,6 +1,7 @@
 # FORK-AND-PUSH —— 从 fork 上游到把本仓工作推上 `feat-Linux` 并设为默认分支
 
 > **状态：已办（2026-09-20 首发；此后每波增量推送）** —— fork、分支、默认分支三件都已落地（现场读数见 §0 表）：`origin = git@github.com:isharrrry/WPFOnLinux.git`、分支 `feat-Linux`、**它已是该 fork 的默认分支**（`git ls-remote --symref origin HEAD` ⇒ `ref: refs/heads/feat-Linux`）。上游 README 已保留为 `README-Window.md`，本仓 `README.md` 是门面。
+> ⏪ **远端说明（2026-09-25 主控补注）**：本件正文里的 `git@github.com:<你的账号>/wpf.git` 是**当初的通用写法**（占位账号）；**当前推送远端已改为镜像 `git@gitee.com:the50w/WPFOnLinux.git`**（用户为提升国内推送速度改的），`upstream` 仍指 `https://github.com/dotnet/wpf.git`。⇒ **判据不变**：快进与核字节一律用 `git ls-remote origin feat-Linux` ＋ `HEAD:` 逐件 blob 比对，**与具体远端无关**。
 > **本件现在的用途**：① §3.1 记录**现行"每波怎么推"**（这才是每天要用的部分）；② §1／§2／§4 保留**首发当时的完整命令**（历史原文，供别人重建一份 fork 时照做）；③ §6 三笔待还账。
 > **现读入口**（以现场为准）：`docs/CURRENT-STATE.md:9`（世代＋冻结）｜`build/MilBridge/HANDOFF-NEXT.md`（现场交接）｜[`ROUTES.md`](ROUTES.md) §13（任务树）。
 > 规范见 [`PORT-SPEC.md`](PORT-SPEC.md)。**每一步都给了验证命令**（照本仓习惯：结论要能复算）。
