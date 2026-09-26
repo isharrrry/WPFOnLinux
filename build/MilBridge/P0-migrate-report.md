@@ -226,6 +226,14 @@ build/PresentationCore.Linux:
 
 ⇒ **保留根 `NuGet.config` 会让 `N` 的还原与 `#76` 不可比** ⇒ 移出它才是"恢复冻结形状"。**restore 本身未跑** ⇒ "会不会真的解析出不同包"仍属 `NOINFO`。
 
+### §5.3 维护风险：这改动会不会随上游合并回来？
+
+| 被移出的东西 | 会不会"复活" | 复活时会不会**响亮报警** |
+|---|---|---|
+| 根 `Directory.Build.props`／`Directory.Build.targets` | **会** —— 它们与上游 `dotnet/wpf` 的**逐字节相同**（`3a43d0988773baec`／`ca39bd05621a5838`），且仍在 `origin/feat-Linux` 里；任何一次从 `upstream/wpf/` 或 `dotnet/wpf` 拉回的合并／检出都会把它们当"上游新增"**原样带回** ⇒ `MSB4236` 立刻复发 | 🔴 **没有独立的牙看住"根上不得出现这两个文件名"**。不过它不是静默：这两件一回来，**求值当场就红**（构建期即失败）。⇒ **建议（未接线，`NOINFO`）**：把这条做成会红的牙；落点都在 `fp_inputs()` 覆盖面里 ⇒ 必须排在某趟波的 `IN_FP_0` 采样**之前**并同趟记 `inputs_fp` 位移。**本件没做**（不在 `t1` inScope，且会动 `inputs_fp`）。 |
+| 19 条去重路径（含那 92 个 csproj） | **会** —— 同样全部 git-tracked、同样在远端 | ✅ **`[9] BUILD-HYGIENE` 本身就是牙齿且已接线**：`cand` 有下界（`CAND_MIN=88`）＋ `--selftest` 有 `CONSTANT-DRIFT` 自查 ⇒ 那 92 个 csproj 一旦回来就 `cand=180` **立刻红**（本件正是这样发现它的）。⇒ **复发会响亮报警，不会静默**。 |
+| 代价（如实） | 去重后 `N` 里**不再包含**"在仓内即可构建 Windows 侧 dotnet/wpf"的能力（那需要 `eng/` ＋ `Microsoft.DotNet.Arcade.Sdk`） | R8 判据②（若做上游化，必须给出"脚本/锚点全绿 ＋ 波重建 `rc=0` ＋ 门禁 ×2"的成对读数）**未跑** ⇒ `NOINFO`。 |
+
 ---
 
 ## §6 `O` 里未入库的车道产物 → `N`（逐件 before/after）
@@ -388,8 +396,24 @@ readlink -f /home/links-dev/netTest/wpf-linux-20260906/wpf-linux            # ==
 
 ---
 
-## §14 提交与工作树
+## §14 提交与工作树（机上现取）
 
-见下节「机上现取」区块（commit sha／`git status --porcelain`）。**不推送**（推送留给 `#77`，届时是快进）。
+```
+主提交（结构性去重 ＋ #76 冻结态搬入）：
+    git rev-parse HEAD            = 7027be06e7fddb793ea22411c1f0645626474a73      （sha16 7027be06e7fddb79）
+    git diff-tree --name-status HEAD | 分类计数  = 7348 D ／ 6 A ／ 4 M （7358 件）
+      D（7348）= 19 条去重路径的 7346 件 ＋ 根 Directory.Build.props ＋ Directory.Build.targets
+      A（6）   = P0-migrate-report.md ／ W136A-report.md ／ W143A-report.md ／ W148A-report.md ／
+                 gen/tline-ledger-lines-20260924-0021.txt ／ build/.applocal-selftest.log
+      M（4）   = README.md ／ docs/ROUTES.md ／ docs/FORK-AND-PUSH.md ／ build/wave-audit.log
+    git status --porcelain | wc -l = 0            ← 工作树 == HEAD，下一位写者可直接开工
+本报告收口提交：把上面这两行与自指 sha16 写进本件（见 `git log -1`）。
+```
 
-<!-- SHA16 PLACEHOLDER -->
+* **推送**：**不推**（推送留给 `#77`，届时是快进）。
+* **`.git/info/exclude`（本地、不入库、可逆）**：加了 2 项 —— `.agent-teams/`（AgentTeams 的团队状态目录，**在本件开工之前就已是工作树里唯一未跟踪项**）与 `multi.txt`（0 字节、仓内零读者、`O` 也从未入库；理由见 §10-4）。删掉那 3 行即恢复原状。
+* **回滚整笔**：`git revert --no-commit 7027be06…`（或 `git reset --hard <迁移前 HEAD> 1fe6cec5ee49504fe682cdfdb40a2d1a1ffae737`，再按需从 `~/w-p0mig/quarantine-dedupe/` 取物理副本）。
+* **自指 sha16 口径**（与 `W114A-report.md` 同族）：`grep -v '^<!-- SHA16' <本件> | sha256sum | cut -c1-16`。**整份** `sha256sum` 的 sha16 在任务回报里给出（自指式文件无法在自身内写出整份哈希）。
+
+<!-- SHA16 = afc220d5391d4a8d -->
+
