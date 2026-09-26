@@ -56,10 +56,12 @@ ROSTER = [  # (相对路径, 行号, 变量名, 消费点后缀 or None)
 
 # ══ 档 ③：同名产物多「权威」路径（规约权威, 副本）—— 判定见 §F6：**规约 = 工程的产出目录** ══
 NINEAUTH = [
+  # `t17`/F6 现场：同名产物**两条都自称权威** ⇒ 副本必须与权威相等
   ("build/DirectWrite.Linux/Provider/bin/Release/DirectWrite.Linux.Provider.dll",
    "build/PresentationCore.Linux/bin/Release/DirectWrite.Linux.Provider.dll"),
-  ("build/WindowsBase.Linux/bin/Release/WindowsBase.dll",
-   "build/WindowsBase.Linux/bin/Debug/WindowsBase.dll"),
+  # ⚠️ `#78` 更正（**自己咬出的错设计**）：先前把 `WindowsBase` 的 **Release vs Debug** 当成"两条权威"——
+  #   它们是**不同构建配置**、本就不该相等（整波只重建 Release ⇒ 该对照必然分叉 ⇒ 假红）。
+  #   真·"同一件的两条路径"清单待 `t19` 的"在册九位对拍"补：只许**同配置**的路径成对。
 ]
 
 def sha16(p):
