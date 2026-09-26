@@ -1,0 +1,19 @@
+kind	file	max_hits	why
+comment	build/MilBridge/tools/geom-resend-regression-check.sh	1	用法示例里的历史车道语料路径（W134A 的 `--corpus="$HOME/w134a/run"`）——是**引用**（"这条牙当年是在那份语料上成对的"），不是默认路径；删了会丢失可复算出处
+comment	build/MilBridge/tools/geom-revert-beat-check.sh	2	用法示例里的历史车道语料路径（同上，`--corpus` 与 `--leg` 两条示例）——**引用**不是默认路径
+comment	build/MilBridge/tools/hygiene-tooth.sh	1	件头的仓外装置根说明（`$HOME/w63a/bin` 等）——那是**登记表的出处说明**，不是任何默认路径
+comment	build/MilBridge/tools/pipefail-sigpipe-check.sh	1	件头里的实测现场出处（`$HOME/w33a-run/exp3.sh`，每档 300 次的那次实测）——**现场证据引用**
+comment	build/MilBridge/tools/tline-gate.sh	1	件头里的实测证据出处（`$HOME/w29a-run/proto.py` 与真 `tab-anchor.log`）——**现场证据引用**
+comment	build/MilBridge/tools/wm-awaited.sh	1	件头里的**判据原文出处**（`/home/links-dev/w102a/criteria.md` §1）——按字面判红会**逼人删掉判据出处**，那比缺口更坏（`TASK-0737` 裁定原话）
+comment	build/MilBridge/tests/PtsPagesProbe/navclick.py	1	模块 docstring 里的**重写理由与现场出处**（W86A 第一趟实测日志路径）——**现场证据引用**；本件按 `D-G137` 口径句（"默认路径只许仓内或调用者可覆盖"）**没有**任何默认路径
+data	build/MilBridge/tools/hygiene-tooth.sh	7	登记表 B/G/H 的**数据**（`HYG_EXT_ROOTS_ML`／`HYG_TWINS_ML`／`HYG_FIXTURE_ROOTS_ML`）：仓外装置根、孪生件、外部夹具根——这些**按设计就必须指向仓外车道**（它们量的就是"仓外孪生与跨区同 inode"），且件头逐字写着「**默认只报不判**」（仓外状态不是仓的性质）⇒ 改不得，只能声明
+# ═══════════════════════════════════════════════════════════════════════════════
+# 【`# RETIRED` 记录】＝**已退役夹具的出处**（`#75` 主控裁定：本波把三处**真默认值**改掉之后，
+#   其中一处连带**丢掉 3 条夹具** ⇒ `[19]` 的射程缩减；出处必须记下来，将来谁重建了那个产物，
+#   射程即可恢复）。形状（**本件由牙校验，形状不合法 ⇒ 必红**）：
+#   `# RETIRED<TAB>kind<TAB>file<TAB>what<TAB>where<TAB>who<TAB>when<TAB>restore`
+# ⚠️ 这些行以 `#` 起头 ⇒ **不进豁免计数／不参与"件数上限"那一支**；它们是**记录**，不是豁免。
+# ═══════════════════════════════════════════════════════════════════════════════
+# RETIRED	code	build/MilBridge/tools/hidden-only-step.sh	`HIDDEN_ONLY_OLDPC` 的兜底夹具＝`D-T5-R` 修前的 `PresentationCore.dll` 快照（4,197,376 B）；`--selftest` 的 S12/S13/S14 三条靠它判「旧产物 ⇒ 期望 rc=1」	仓外车道备份目录 `$HOME/w25a-backups/PresentationCore.dll`（mtime 现取 2026-09-17 10:35:02 +0800）	车道 W25A	2026-09-17 10:35（**备份件 mtime 现取**；造件时刻未取到）	把该 `pc` 产物放进**仓内**（或让调用者用 `HIDDEN_ONLY_OLDPC` 指过去）⇒ S12/S13/S14 复位、`skip` 回 0、判词行尾的 `range-reduced` 后缀**自动消失**
+# RETIRED	code	build/MilBridge/tools/geom-revert-beat-check.sh	`GEOMBEAT_LIVE_DIR` 的兜底＝`--live-selftest` 的**取证沙箱**目录（`genbeat.c`／`xobs` 台账／`xvfb.log` 落在那里）	仓外车道目录 `$HOME/w149a/live-<HHMMSS>`	车道 W149A	未取到（不许臆造）	**无需恢复**：改后 `mktemp -d` 语义等价、调用者仍可用 `GEOMBEAT_LIVE_DIR` 覆盖；且该档**不在门禁**（门禁读数零变化）
+# RETIRED	code	build/MilBridge/tests/W81AWindowProbe/run-w81a-legs.sh	`W81A_OUT` 的兜底＝腿驱动把产物与日志写进去的目录	仓外车道目录 `$HOME/w81a/out`	车道 W81A	未取到（不许臆造）	**无需恢复**：改后为 `$HOME/.cache/wpf-linux/w81a-out`，`W81A_OUT` 仍可覆盖；该件**不在门禁**（读数零变化）

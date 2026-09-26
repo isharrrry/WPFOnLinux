@@ -21,7 +21,7 @@
 #   【纪律】每条重活（`dotnet build` / 应用）**各自**包进 `~/heavy-slot.sh`
 #     （`--min-avail 1500 --max-hold 200` ＋ 内层 `timeout`），**不并跑**；
 #     `HEAVYSLOT=MAXHOLD_KILL` / `NOINFO low-memory` 那两行 ⇒ 本趟**不是读数**（本脚本按 NOINFO 处理）；
-#     Xvfb **记自己的 PID 收尾**，绝不 `pkill -f`；产物与日志一律落 `$W81A_OUT`（默认 `$HOME/w81a/out`）。
+#     Xvfb **记自己的 PID 收尾**，绝不 `pkill -f`；产物与日志一律落 `$W81A_OUT`（默认 `$HOME/.cache/wpf-linux/w81a-out`）。
 #
 #   用法：
 #     bash build/MilBridge/tests/W81AWindowProbe/run-w81a-legs.sh                # 两条腿
@@ -56,7 +56,9 @@ while [ "$#" -gt 0 ]; do
 done
 case "$LEG" in pmax|a0|both) ;; *) echo "❌ --leg 只认 pmax|a0|both（收到 '$LEG'）" >&2; exit 2 ;; esac
 
-OUT="${W81A_OUT:-$HOME/w81a/out}"
+# 【`TASK-0737`／`D-G137` 修法：默认路径去车道名】原默认值写死本件出生车道下的
+#   `out/`（跨车道写入）；改为**仓外通用缓存目录**，`W81A_OUT` 仍可覆盖。
+OUT="${W81A_OUT:-$HOME/.cache/wpf-linux/w81a-out}"
 mkdir -p "$OUT"
 SHA16() { sha256sum "$1" 2>/dev/null | cut -c1-16; }
 

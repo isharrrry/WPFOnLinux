@@ -357,6 +357,11 @@ fp_inputs() {  # 手写输入指纹（应用器 + port-lib + 本脚本 + 波脚�
           build/MilBridge/tests/PtsPagesProbe/evidence/shots/g1/k24.png \
           build/MilBridge/tests/PtsPagesProbe/evidence/shots/g1/last.png \
           build/MilBridge/tests/SilentHitProbe/run-silenthit-legs.sh \
+          build/MilBridge/tools/selfdescription-wiring-check.sh \
+          build/MilBridge/tools/lane-path-check.sh \
+          build/MilBridge/lane-path-provenance.tsv \
+          build/MilBridge/tools/rows-identity-check.sh \
+          build/MilBridge/tools/xvfb-census-check.sh \
           build/MilBridge/tests/SilentHitProbe/silenthit-trim.tsv
     } | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -d' ' -f1
 }

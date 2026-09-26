@@ -4,6 +4,7 @@
 #           → PC 侧行对拍（`TextLine.Start` 列）→ **帧列（`FrameProbe`，帧原点机制）**。
 #
 # ⚠️ **步数口径（引用前必读；三个数不能互相引用）**：
+#   **`#75` 收官起 = 46 步**（`#75` **加四步**：四件装置/判据卫生合波 —— `TASK-0736` 件头自述 vs 接线牙／`TASK-0737` 落地件不许带车道路径牙（＋同趟修三处真默认值）／`TASK-0738` 比较域区分读数与标签牙／`TASK-0739` 自起显示位按 PID 收 ＋ 普查牙。四处声明同趟改；覆盖面 +5 件、`--expect` 同趟改 202；**零产品改动**。⚠️ 本半句是 `verify-all-step-check.sh:169` 用 `grep -qF` **逐字**找的 ⇒ 一个字符都不能改。**步数：42 → 46**）
 #   `#15` = **9 步** / 869 通过 ｜ `#16`–`#20` = **10 步** / 871 通过 ｜ `#21`–`#23` = **11 步** ｜ `#24` = **12 步** ｜ **`#24` 收官起 = 13 步**（收官时加第 `[7]` 步 `BASELINE-SHA`）。
 #   第 10 步 = 在册红门禁（五臂）；第 11 步 = `PcLineOracle·Start 列`（`#21` 加）；第 12 步 = `FrameProbe-frame`（`#24` 加）；**第 13 步 = `BASELINE-SHA`**（`#24` 收官加）。
 #
@@ -60,6 +61,7 @@
 #   ⚠️ 本块**故意放在同一个文件里**：跨文件的手工声明在本仓**已经失败过一次**（`docs/CURRENT-STATE.md`
 #      那句"当前期望是 N 步"在 `#26`/`#27` 连加 3 步时毫无反应、全程零红）⇒ 声明必须与本体同趟改、同趟审。
 #   ⚠️ **不许**用 `echo "====="` 当接线锚（它在本文件里有 **4** 处）；锚用 `run_step "DEFECT-REGISTRY" …`。
+# VERIFYALL-STEPS-DECL: 46 gen=#75   ← `#75` **加四步**（42 → 46）：「**四件装置/判据卫生**」合波（`TASK-0736` ＋ `TASK-0737` ＋ `TASK-0738` ＋ `TASK-0739`，**仪器波 · 零产品改动**）：`[+] SELFDESC-WIRING`（**件头自述 vs 接线**：自述"未接线"而 `^run_step` 命中该件 ⇒ 必红；反向（自述"已接线"而零命中）⇒ 也必红；`--selftest` 8/8）／`[+] LANE-PATH`（**落地件不许出现车道路径**：`kind=code` 必红且**永不许豁免**；`comment`/`data` 走声明式出处清单 `build/MilBridge/lane-path-provenance.tsv` ＋ **每类件数上限**（现读 > 上限 ⇒ 红）；`--selftest` 13/13）／`[+] ROWS-IDENTITY`（**比较域必须区分读数与标签**：只标签差异 ⇒ `PASS` ＋**必印** `LABEL_ONLY_DIFF fields=…`；读数真差异 ⇒ `FAIL`；语料＝`samples/WpfTextDemo/ACCEPTANCE-BASELINE.md` **最新冻结块**现取；`--selftest` 12/12）／`[+] X-CENSUS`（**长跑自起显示位收尾收净并自查**：以 `[0]` 段落的**自含链前基线**比对 `ps` ＋ `/tmp/.X11-unix/`，差异**点名 PID**；"死 socket" 与"活泄漏"**分开判**；`--selftest` 12/12）。四处声明（`DECL`／`STEP-NAMES`／口径句／预登记 H1）**同趟**改。覆盖面 **+5 件** ⇒ 第 `[+]` 步 `FP-MANIFEST-TEETH` 的 `--expect` 同趟改 **202**。**步数：42 → 46**
 # VERIFYALL-STEPS-DECL: 42 gen=#74   ← `#74` **不动步数**（42 → 42）：本波 = 「**装置自清理 ＋ `NA` 判据收紧**」（`TASK-0733` ＋ `TASK-0734` ＋ `TASK-0735`，**仪器波 · 零产品改动**）：`TASK-0733` 给 `build/MilBridge/tools/r-gate-step.sh` 加**两条会红的**机器判据 —— ① **临时件自清理**：默认档一律 `mktemp -d` ＋ `trap … EXIT` 回收（旧版默认 `OUT="${R_GATE_OUT:-/tmp/r-gate-step-$$}"` **永不清理** ⇒ 现场 `/tmp/r-gate-step-*` **66 件 / 6.8 GB** ⇒ 宿主 `ENOSPC` **反手击停正在跑的波 `#68`**，两段日志 0 B ＋ 40 s 内 `rc=1` 差点被读成"判据红"）＋ **janitor 按 TTL 只清同前缀旧件**（本趟目录／新鲜件／非前缀件／符号链接**永不入清空集**，且 `readlink -f` 须直接位于 `OUT_ROOT` 之下防逃逸）＋ `--keep` 的**唯一效果**（不被删 ∧ **必上屏** `R_GATE_OUT_KEPT=`，**不改 `rc`、不改判据**）＋ **所有权**（`R_GATE_OUT` 由调用者给出 ⇒ `ownership=external`，**既不删也不入清空集**）；② **磁盘余量闸**：长跑前**现取** `df -Pk` **第 4 列**，闸 `OUT_ROOT`／仓根／**调用者给的 `OUT` 那一侧**取**更小者**，低于阈值（默认 5 GB）⇒ `DISK_HEADROOM=FAIL` ＋ **`rc=2`** ＋ 判 `NOINFO reason=disk-headroom`（**不冒充产品红**）；取不到数 ⇒ `NOINFO`（**永不放行**）。`TASK-0734` 把 `build/MilBridge/tools/prereg-four-requirements-check.sh` 的 `NA` 从「**整节正则／令牌出现即算**」（判据节里一句**散文"提及"**就能打开「跳过回归判定四要件」这道门 ＝ **假 N/A**）收紧为**两形态**（都**只在判据节内**）：① **行首锚定声明句**（剥装饰后须以 `本波` 起头且**同一行**含那句话）② **机读行** `PREREG-NO-REGRESSION-DECISION:` 且值**非空 ∧ 非否定令牌**（`none`／`no`／`false`／`0`／`n/a`／`na`／`null`／`-`）；只提及 ⇒ 打 `PREREG4_NOTE mention-only` 并**走正常路径**（该 `FAIL` 就 `FAIL`）；**「声明 ∧ 引用判定工件」仍 `FAIL`（不放宽）**。`TASK-0735` 加**可见性**：`NA` 由**软形态**（锚定句）授予 ⇒ **必须**上屏 `PREREG4_NA_FORM form=anchor-sentence residual=self-negation-not-checked`（**不进计数、不改 `rc`**）；**机读行**（硬形态）⇒ **不得**出现 `residual=`。**同趟显式扩面（主控 `2026-09-26` 裁定，`TASK-0729` 同族）**：`build/close-wave.sh` 的 `fp_inputs()` 白名单 **+3 行**（`prereg-four-requirements-check.sh`／`pc-line-step.sh`／`frame-step.sh` —— 三件**都在门禁里承重**却**不在覆盖面**，依据成文惯例「**读 ⇒ 进 `fp_inputs()`**」）⇒ 覆盖面 **194 → 197**，并**同趟**把第 `[42]` 步 `FP-MANIFEST-TEETH` 的 `--expect 194` 改成 **`197`**（**声明常数**；漏改 ⇒ `FAIL reason=files-n-mismatch delta=-3`，**方向安全**）；收口判据＝复跑普查得「**未被覆盖面保护的接线件 = 0**」。**不加步** ⇒ `STEP-NAMES` 一字不改（仅追加本行与口径句）。**`inputs_fp` 必移**（三件新入名单 ＋ 两件改内容，**全在名单内**）。⚠️ 两极化**全部真跑**（`TASK-0733` 清零正极／残留反极／余量反极＋正极／桩 `df` 不可解析 ⇒ `NOINFO`／`--keep` 保留 `KEPT` 行；`TASK-0734` 仅提及 ⇒ `FAIL missing=8`／锚定句 ⇒ `NA rc=0`／机读行 `yes` ⇒ `NA rc=0` 且**不带** `residual=`／值 `none`·空值·句中令牌 ⇒ `FAIL`／声明＋证据 ⇒ **仍 `FAIL`**；`TASK-0735` 软⇒有该行、硬⇒无该行），并对仓内**全部** `docs/WAVE*-PREREGISTRATION.md` 做**射程扫描**（**无一件 `NA→FAIL`**）。**步数：42 → 42（不动）**
 # VERIFYALL-STEPS-DECL: 42 gen=#73   ← `#73` **不动步数**（42 → 42）：本波 = `TASK-0726`「把**静默 SEGV** 那条腿的**产出端**收进仓 ＋ 收编同形副本」（**仪器波 · 零产品改动**）：第 `[39]` 步 `SILENT-HIT-V2` 在 `#68` 落仓的只是**判据端**（纯读、吃台账），**产出端一直在车道目录**（8 份同形副本）⇒ 本波把它做成仓内**唯一**产出端 `build/MilBridge/tests/SilentHitProbe/run-silenthit-legs.sh`（重活那一半：起显示、起应用、跑 9 击配方、收装置、把观测变成机读行；**自断言目标环境变量已收到**；**单变量构造**两臂只差一件；**禁**硬链接并逐件断言 `%h==1`）＋ 同目录 `silenthit-trim.tsv`（剔除集**唯一来源**：行首锚定逐字 needle ＋ `trail_sp` 重建尾部空格 ＋ 已声明 tag 集；判据端**只消费**产出端自报的 `APP_TEXT_BYTES_TRIMMED` 并与台账 `trimmed` 列交叉核 ⇒ **不另持一份剔除口径**）。两极化 4 腿**真跑**（R1 真静默 SEGV ⇒ `rc139`＋红签名／R2 重放历史真现场 ⇒ `stop-signo11`＋红签名／C1 真进程不崩 ⇒ 不打红／C2 **真 WPF 应用活腿** ⇒ `alive-after-recipe` 不打红）。**不加步** ⇒ `STEP-NAMES` 一字不改（仅追加本行与口径句）。覆盖面 **192 → 194**（白名单 **+2 行**）⇒ 同趟把第 `[42]` 步 `FP-MANIFEST-TEETH` 的 `--expect 192` 改成 **`194`**；**`inputs_fp` 必移**。⚠️ **`UNWIRED`**：产出端**在仓内但未被任何一步调用**（判据口径限定到代码形状 `grep -cE '^[[:space:]]*run_step .*silenthit' verify-all.sh` = 0；全文命中只作旁证）⇒ **不许把第 `[39]` 步的 `--cases PASS` 读成「现件代已复现／已清零」**。**步数：42 → 42（不动）**
 # VERIFYALL-STEPS-DECL: 42 gen=#72   ← `#72` **不动步数**（42 → 42）：本波 = 「**冻结器与抽取器锚在语义上**」（`TASK-0730` ＋ `TASK-0731`，**零产品改动**）：`TASK-0730` 让**仓外**冻结器 `~/w21-verify/w27-freeze.py` **自动核每个 `prev_*`** 与基线件 `^# RE-FROZEN #<prev>` 块（九位行／`BRIDGE_SRC_FP` 行／`inputs_fp` 行）逐位一致，**不符即拒冻**（非零退出 ∧ **基线件零字节改动**，核验插在**任何写盘之前**），同趟把 `B.pre-freeze.<gen>.bak` 做进冻结器本身；`TASK-0731` 把 `build/MilBridge/tools/column-floor-check.sh` 的「找块」抽取器 `extract_newest_block()` 的**退出条件锚到行首**（旧写法用**无锚**的「`RE-FROZEN` ＋ 井号」当退出条件 ⇒ 块内正文只要提到该字样就**提前截断**，把紧随其后的 `# COLUMN-FLOOR`／`# COLUMN-CORPUS`／`# ARM-LOG-SHA` 声明行全排除 ⇒ `COLUMN_FLOOR=NOINFO`（**病因错**）），并新增两条**响亮**守卫（块尾找不到 ⇒ `NOINFO reason=block-end-not-found`；出口锚的**域**由两种机制现取自证 ⇒ `NOINFO reason=block-header-form-mismatch`）。**不加步** ⇒ `STEP-NAMES` 一字不改。**`inputs_fp` 必移**（`column-floor-check.sh` 在覆盖面内）但**覆盖面行数不变**（192 → 192）⇒ 第 `[42]` 步的 `--expect 192` **不动**。**步数：42 → 42（不动）**
@@ -104,7 +106,7 @@
 # VERIFYALL-STEPS-DECL: 18 gen=#30   ← **史实行**（`#30` 收官当时的步数 —— 那一波**一步未加**）
 #   ⚠️ 读者 `decl_line()` 取**第一条**（`sed -n … | head -1`）⇒ **最上面那条才是当前口径**；
 #   下面两条只为「本波从哪一代起、加了几步」留机读痕迹。⚠️ **史实行只许追加、不许改**（纪律 61 同族）。
-# VERIFYALL-STEP-NAMES: 主工程 WpfGfx.Linux | wpf-linux.sln | Commands.Tests | Rendering.Tests | Windowing.Tests | HelloMil.Tests | ManagedLayer.Tests | Presentation.Tests | verify-cmd-layout.py | tline-gate（五臂） | PcLineOracle·Start 列 | FrameProbe-frame | BASELINE-SHA | ARM-LOG-SHA | BUILD-HYGIENE | DEFECT-REGISTRY | VERIFYALL-SELF | FP-INPUTS-HYGIENE | HIDDEN-ONLY | COLUMN-FLOOR | QUOTE-TRAP | PRODUCT-ENTRY | FRAME-PRESENCE | PIPEFAIL-SIGPIPE | THIRD-PARTY | R-GATE（连续交互） | NUL-BYTES | HYGIENE | REGRESSION-DECISION | UIA-DOOR | IME-LANDING | GEOM-BEAT | GEOM-RESEND | PREREG-FOUR-REQ | PROC-PATTERN-GUARD | REGIME-IDENTITY | BASELINE-RATE-GATE | PTS-PAGES | SILENT-HIT-V2 | BAK-COMPLETENESS | REPO-ALIAS | FP-MANIFEST-TEETH
+# VERIFYALL-STEP-NAMES: 主工程 WpfGfx.Linux | wpf-linux.sln | Commands.Tests | Rendering.Tests | Windowing.Tests | HelloMil.Tests | ManagedLayer.Tests | Presentation.Tests | verify-cmd-layout.py | tline-gate（五臂） | PcLineOracle·Start 列 | FrameProbe-frame | BASELINE-SHA | ARM-LOG-SHA | BUILD-HYGIENE | DEFECT-REGISTRY | VERIFYALL-SELF | FP-INPUTS-HYGIENE | HIDDEN-ONLY | COLUMN-FLOOR | QUOTE-TRAP | PRODUCT-ENTRY | FRAME-PRESENCE | PIPEFAIL-SIGPIPE | THIRD-PARTY | R-GATE（连续交互） | NUL-BYTES | HYGIENE | REGRESSION-DECISION | UIA-DOOR | IME-LANDING | GEOM-BEAT | GEOM-RESEND | PREREG-FOUR-REQ | PROC-PATTERN-GUARD | REGIME-IDENTITY | BASELINE-RATE-GATE | PTS-PAGES | SILENT-HIT-V2 | BAK-COMPLETENESS | REPO-ALIAS | FP-MANIFEST-TEETH | SELFDESC-WIRING | LANE-PATH | ROWS-IDENTITY | X-CENSUS
 #   **`#28` 收官起 = 17 步**（`#28` 加第 `[11]` 步 `VERIFYALL-SELF`）｜**`#29` 收官起 = 18 步**
 #   （`#29` 加第 `[12]` 步 `FP-INPUTS-HYGIENE`：核对 `fp_inputs()` 的覆盖面里**不许出现产物路径**）｜
 #   **`#30` 收官起 = 18 步**（**仪器加固波、步数一步未加**）｜**`#31` 收官起 = 21 步**（`#31` 加第 `[13]` 步
@@ -187,6 +189,22 @@ set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT"
+
+# ── 【`#75` `TASK-0739`／`D-G139` 修法①：**本趟自起的显示位，退出即按 PID 收**（只加不删）】──
+#   现场：本脚本 `[0]` 段自起 `Xvfb` 后**从不回收**（`ppid=1` 孤儿）⇒ 跨波慢性泄漏（`#73` 前
+#   主控按 PID 清掉 5 个累积孤儿，最老 13h14m）。
+#   ⚠️ **只收本趟自己起的那个 PID**（`XVFB_OWN_PID` 为空 ⇒ 一个都不杀）：
+#      · 复用别人几何相符的显示（`X-REUSE=reused`，`D-G59` 的**故意行为**）⇒ 变量为空 ⇒ **不杀**；
+#      · `--no-x` ⇒ 变量为空 ⇒ **不杀**。
+#   ⚠️ 收进程**只按 PID**（**禁** `pkill`／`pgrep -f`：本仓 `D-G103` 有自匹配误杀事故）。
+XVFB_OWN_PID=""
+x_reap_own_display() {
+  if [ -n "${XVFB_OWN_PID:-}" ]; then
+    kill "$XVFB_OWN_PID" 2>/dev/null || true
+    XVFB_OWN_PID=""
+  fi
+}
+trap x_reap_own_display EXIT
 
 # ── 2026-09-11 主控补：本脚本**自己把 SDK 补进 PATH**，并在开跑前断言 dotnet 可用 ──
 # 【为什么】它历史上被 `setsid bash -c './verify-all.sh …'` 以"没有 dotnet 的 PATH"启动过 ⇒
@@ -436,6 +454,15 @@ _disp_geom() {                   # _disp_geom <号> ⇒ 打该显示的 `WxH`（
   DISPLAY=:$1 xdpyinfo 2>/dev/null \
     | sed -n 's/^[[:space:]]*dimensions:[[:space:]]*\([0-9][0-9]*x[0-9][0-9]*\).*/\1/p' | head -1
 }
+# ── 【`#75` `TASK-0739` 修法②：**链前基线**（本趟任何显示位被起**之前**取）】──────────
+#   口径：`D-G139` 要求"链结束后 `ps` 与 `/tmp/.X11-unix/` 必须回到**链前基线**，差异点名 PID"
+#   ⇒ 这里落一份**自含**快照（不依赖任何外部文件），末尾由第 `[X-CENSUS]` 步比对。
+#   `D-G140` 口径：该步**每次运行重扫**，输出带 `X_CENSUS_AT=` 与 `X_CENSUS_SRC=`。
+X_CENSUS_BASE="$(mktemp /tmp/w75-xcensus.XXXXXX)"
+bash "$ROOT/build/MilBridge/tools/xvfb-census-check.sh" --snapshot "$X_CENSUS_BASE" \
+  || echo "  ⚠️ X_CENSUS_BASE=NOINFO（快照没落成 ⇒ 末尾那一步会响亮 NOINFO，不当绿）"
+export X_CENSUS_BASE
+export X_CENSUS_OWN_PIDS=""
 echo "[0] Xvfb（目标 :$DISPLAY_NUM）"
 if [ $USE_X -eq 0 ]; then
   echo "  --no-x：跳过 Xvfb"
@@ -487,6 +514,7 @@ else
       [ "$_n" -gt $((DISPLAY_NUM + 20)) ] && break
     done
     Xvfb :$_n -screen 0 ${XREQ_GEOM}x24 > /tmp/xvfb-$_n.log 2>&1 &
+    XVFB_OWN_PID=$!   # 【`#75` `TASK-0739`】本趟自起 ⇒ 退出时按 PID 收
     for _ in $(seq 1 40); do
       sleep 0.25
       DISPLAY=:$_n xdpyinfo > /dev/null 2>&1 && break
@@ -501,6 +529,7 @@ else
     fi
   fi
   if [ -n "$chosen" ]; then
+    export X_CENSUS_OWN_PIDS="${XVFB_OWN_PID:-}"   # 【`#75` `TASK-0739`】豁免名单（空=一个都不豁免）
     export DISPLAY="$chosen"
     echo "  DISPLAY=$DISPLAY（已用 xdpyinfo 验证可连）"
   fi
@@ -1137,7 +1166,11 @@ run_step "REPO-ALIAS" bash build/MilBridge/tools/repo-alias-check.sh --allow bui
 #   ∧ `sha256sum` `stderr` 空。它**不**判「清单**内容正确**」—— 判不了"该收的没收"（覆盖面缺项）。
 echo
 echo "[42] 指纹清单的牙（清单逐行形状 ＋ 件数对账；D-G120②；NOINFO 不算绿；#70 加）"
-run_step "FP-MANIFEST-TEETH" bash build/MilBridge/tools/fp-manifest-step.sh --expect 197
+run_step "FP-MANIFEST-TEETH" bash build/MilBridge/tools/fp-manifest-step.sh --expect 202
+run_step "SELFDESC-WIRING" bash build/MilBridge/tools/selfdescription-wiring-check.sh
+run_step "LANE-PATH" bash build/MilBridge/tools/lane-path-check.sh
+run_step "ROWS-IDENTITY" bash build/MilBridge/tools/rows-identity-check.sh
+run_step "X-CENSUS" bash build/MilBridge/tools/xvfb-census-check.sh --baseline "${X_CENSUS_BASE:-/dev/null}"
 # W168A-0724-END
 # W160A-0721-END
 # W154A-0714-END

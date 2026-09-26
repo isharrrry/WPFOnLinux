@@ -90,7 +90,12 @@ done
 
 # ── 真装置自测：私有 :227 ＋ 自写极小 X 客户端（**无 dotnet**；跑不成 ⇒ 记 NOINFO 并点名）────
 if [ "$MODE" = live ]; then
-  SANDBOX="${GEOMBEAT_LIVE_DIR:-$HOME/w149a/live-$(date +%H%M%S)}"
+  # 【`TASK-0737`／`D-G137` 修法：默认路径去车道名】原默认值写死本件出生车道下的
+  #   `live-HHMMSS/`（跨车道写入）；改为 `mktemp -d`（**仓外通用路径**，调用者仍可用
+  #   `GEOMBEAT_LIVE_DIR` 覆盖）——本档**只**在 `--live-selftest` 下走，**不在门禁里**。
+  #   ⚠️ **故意不加 `trap` 删除沙箱**：本档产物（`genbeat.c`／台账／`xvfb.log`）是**取证物**，
+  #   删了就没了；`/tmp` 由系统回收（`D-G133` 管的是"撑住满盘"，本档不落仓内）。
+  SANDBOX="${GEOMBEAT_LIVE_DIR:-$(mktemp -d "${TMPDIR:-/tmp}/geombeat-live-XXXXXX")}"
   SRC="$SANDBOX/genbeat.c"; BIN="$SANDBOX/genbeat"
   XOBS="${W149A_XOBS:-$HOME/wc03/bin/xobs}"
   mkdir -p "$SANDBOX" || { echo "GEOMBEAT=NOINFO reason=sandbox-unwritable"; exit 2; }
@@ -155,7 +160,12 @@ CEOF
       echo "NOTE 清理本车道 :227 的陈旧 socket/lock（前一趟 SIGKILL 的遗留；已确认无活主）"
       rm -f /tmp/.X11-unix/X227 /tmp/.X227-lock 2>/dev/null
     fi
-    Xvfb :227 -screen 0 1280x1024x24 >"$SANDBOX/xvfb.log" 2>&1 &
+  # 【`#75` `TASK-0739` 修法①：本件起的 `Xvfb :227` **原无回收**（`ppid=1` 孤儿）】
+#   ⚠️ **只收本趟自己起的那个 PID**（为空 ⇒ 一个都不杀；`:227` 被别人占用的分支**永不走这里**）。
+XVFB_OWN_PID=""
+trap 'if [ -n "${XVFB_OWN_PID:-}" ]; then kill "$XVFB_OWN_PID" 2>/dev/null || true; XVFB_OWN_PID=""; fi' EXIT
+  Xvfb :227 -screen 0 1280x1024x24 >"$SANDBOX/xvfb.log" 2>&1 &
+  XVFB_OWN_PID=$!   # 【`#75`】本趟自起 ⇒ 退出即按 PID 收
     XVFB_PID=$!
     for _ in $(seq 1 20); do DISPLAY=:227 xdpyinfo >/dev/null 2>&1 && break; sleep 0.5; done
   fi

@@ -77,7 +77,12 @@ judge_dir() {   # $1=帧目录 → 打印三态 + 读数
 
 # ── 自测：判据必须**能红能绿**（合成帧，不依赖任何应用）──────────────────────
 if [ "$MODE" = "selftest" ]; then
-  T="$(mktemp -d)"; trap 'rm -rf "$T"' EXIT
+  T="$(mktemp -d)"
+  # 【`#75` `TASK-0739` 修法①：**本趟自起的显示位退出即按 PID 收**（并进**既有** trap）】
+  #   ⚠️ **不新安第二条 `trap … EXIT`** —— 那会**吃掉**上面这条 `rm -rf "$T"`。
+  #   （`#75` 第一版用 `trap -p`＋`sed` 动态串接 ⇒ 引号打架、既有 trap 失效，被三极化腿 C 抓到。）
+  XVFB_OWN_PID=""
+  trap 'rm -rf "$T"; if [ -n "${XVFB_OWN_PID:-}" ]; then kill "$XVFB_OWN_PID" 2>/dev/null || true; XVFB_OWN_PID=""; fi' EXIT
   mkdir -p "$T/blank" "$T/content" "$T/magenta" "$T/magenta_only_blank"
   convert -size 320x240 xc:'#202020' "$T/blank/f1.png"
   cp "$T/blank/f1.png" "$T/blank/f2.png"
@@ -131,7 +136,14 @@ mkdir -p "$OUT"; rm -f "$OUT"/f*.png
 DISPLAY_NUM="${WPTD_DISPLAY:-:97}"
 if ! xdpyinfo -display "$DISPLAY_NUM" >/dev/null 2>&1; then
   echo "[前置] $DISPLAY_NUM 上没有 X server ⇒ 起一个 Xvfb"
+  # 【`#75` `TASK-0739` 修法①（**生产分支**）：本分支原**没有** `EXIT` trap（既有那条 `rm -rf "$T"`
+  #   只在 `--selftest` 分支里）⇒ 第一版把收尾并进 selftest 的 trap ⇒ **生产路径漏接**
+  #   （`D-G130` 同族："只在排练模式被调"）⇒ 被 gate1 的 `X_CENSUS_LEAK pid=3329426 display=:97` 抓到。
+  #   本分支**没有**别的 `EXIT` trap ⇒ 直接安一条（只收本趟自己起的 PID；为空 ⇒ 一个都不杀）。
+  XVFB_OWN_PID=""
+  trap 'if [ -n "${XVFB_OWN_PID:-}" ]; then kill "$XVFB_OWN_PID" 2>/dev/null || true; XVFB_OWN_PID=""; fi' EXIT
   Xvfb "$DISPLAY_NUM" -screen 0 1280x1024x24 >"$OUT/xvfb.log" 2>&1 &
+  XVFB_OWN_PID=$!   # 【`#75`】本趟自起 ⇒ 退出即按 PID 收
   for _ in $(seq 1 10); do sleep 1; xdpyinfo -display "$DISPLAY_NUM" >/dev/null 2>&1 && break; done
 fi
 xdpyinfo -display "$DISPLAY_NUM" >/dev/null 2>&1 || { echo "FRAMEPRESENCE=NOINFO reason=X不可用"; exit 2; }

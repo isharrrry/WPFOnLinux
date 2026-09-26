@@ -217,7 +217,24 @@ if [ "${1:-}" = '--selftest' ]; then
         printf 'ST_ATTEST=PASS self=%s sha16=%s（自测期间本件未变 ⇒ 读数可归因）\n' "$ST_SELF" "$ST0"
         exit "$ST_RC"
     fi
-    OLDPC="${HIDDEN_ONLY_OLDPC:-$HOME/w25a-backups/PresentationCore.dll}"
+    # 【`TASK-0737`／`D-G137` 修法：**默认路径不许指向车道目录**】
+    #   原默认值写死本件出生那条车道的备份目录（`HIDDEN_ONLY_OLDPC` 的兜底）⇒ 落仓后每次
+    #   `--selftest` 都去**一条已失效车道**的目录里取夹具（跨车道读 ⇒ 证据与读数脱钩）。
+    #   改为**只认调用者显式给的** `HIDDEN_ONLY_OLDPC`；未给 ⇒ `:352` 的 `! -f` 分支照旧
+    #   逐例打「未取到」并计入 `skip=`。
+    #   ⚠️ 历史夹具（那次 `D-T5-R` 修前的 `pc`）**不再写进件内**：它是**取证物**，出处记在
+    #   `build/MilBridge/lane-path-provenance.tsv` 的 `# RETIRED` 记录里（声明的**唯一**去处），
+    #   件内不留陈旧指针；谁重建了那个产物 ⇒ 射程即可恢复。
+    OLDPC="${HIDDEN_ONLY_OLDPC:-}"
+    # 【`#75` 主控裁定（必须**显式可见**）：射程缩减不许被读成"全射程通过"】
+    #   `SKIP_*` 家族对 X 相关跳过已有"这不是绿"的先例 ⇒ 这里同办：判词行尾**必须**带上
+    #   `range-reduced reason=…`。三态语义（**不许恒挂**）：
+    #     · `OLDPC` 为空（**落仓后的常态**）⇒ `reason=oldpc-not-in-repo`（夹具在仓外车道，已移出）；
+    #     · `OLDPC` 非空但不在盘上（**调用者给了错路径**）⇒ `reason=oldpc-not-on-disk`（另一种病，分开报）；
+    #     · 在盘上 ⇒ **无该后缀**（射程完整）。
+    OLDPC_NOTE=""
+    if [ -z "$OLDPC" ]; then OLDPC_NOTE=" range-reduced reason=oldpc-not-in-repo"
+    elif [ ! -f "$OLDPC" ]; then OLDPC_NOTE=" range-reduced reason=oldpc-not-on-disk path=$OLDPC"; fi
     T="$(mktemp -d)"; trap 'rm -rf "$T"' EXIT
     np=0; nf=0; nsk=0
 
@@ -411,7 +428,7 @@ SPECEOF
             "$(env HIDDEN_ONLY_LOGDIR="$T/log-S14b" HIDDEN_ONLY_ROOT="$ROOT" HIDDEN_ONLY_PROBE="$STUB" HIDDEN_ONLY_DLL="$OUT/PresentationCore.Tests.dll" STUB_MODE=mechzero bash "$T/relaxed.sh" >/dev/null 2>&1; echo $?)"
     fi
 
-    echo "HIDDEN_ONLY_SELFTEST=$([ "$nf" -eq 0 ] && echo PASS || echo FAIL) cases=$((np+nf)) pass=$np fail=$nf skip=$nsk"
+    echo "HIDDEN_ONLY_SELFTEST=$([ "$nf" -eq 0 ] && echo PASS || echo FAIL) cases=$((np+nf)) pass=$np fail=$nf skip=$nsk${OLDPC_NOTE:-}"
     [ "$nf" -eq 0 ] && exit 0 || exit 1
 fi
 
