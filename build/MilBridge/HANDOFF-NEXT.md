@@ -28,6 +28,13 @@
 3. 未绿 `[MVP]`：`TASK-0007`（富文本 23／流文档 24 `rc=134`，真因 `TASK-0302`）｜`TASK-0201`（静默 `rc=139`，上界已收到 4.87%）｜`TASK-0302`（PTS／原生 LineServices 缺口 **可操作 88／实现口径 97**，现读 `工具口径 100`）。
 4. `TASK-0111` = ✅ **归档为「不可判 ＋ 已知无产品价值」**（号不撤）：① 该红已被 `#54`/`TASK-0210` 修掉（现行桥 `4e25e4b27d4d5ae1` 上 `0/12` 红 vs 旧件 `12/12`）⇒ **产品价值 = 0**；② `A` 臂红率**随时间漂移**（`12/12 = 100%` → `7/28 = 25.0%`）⇒ `P1` 被排除 ⇒ **整批 `VOID-PREMISE`、40 腿不跑**；`N1` 作为修法**撤回**。判据件：`~/w156a/{criteria.md,leg-plan.md,AMENDMENT-1.md,AMENDMENT-2.md,WAVE-PREREG-0111.md}`｜装置 `~/w155a/device/wpfhintsgate.so 3c2a36580a7806f6`。
 
+### §4-追（`t17` dated 更正，2026-09-26；**§1–§3 原文保留**）
+- **`#77` 冻结块九位行的 `provider` 是上一代值**（`1f9511a7ef395bfe`），同块位移行与全部 `BASELINE tier=` 机读行写现值 `4041df9a704abfed` ⇒ **同块自相矛盾**；根因＝记录模板写死字面量 ∧ 冻结器三道核不含 `provider`（`D-G149`）。**不改冻结块**；处置见 `docs/WAVE77-PREREGISTRATION.md §8.3`。
+- **`provider` 的规约权威 = `build/DirectWrite.Linux/Provider/bin/<CFG>/…`**（工程产出目录；冻结器 `NINE` 与 `applocal-expect.py` 都用它）；`build/PresentationCore.Linux/bin/<CFG>/…` 是**副本**，须与之相等（`D-G150`，牙 = `WFREEZE_NINEAUTH`）。⚠️ 副本刷成权威后，**在册九位的 `provider` 与现场不再相同**（`4041df9a704abfed` → `609192a419d125f2`，冻结点之后的重建位移）。
+- **`#77` 的 5 处 `dirname` 层数回归已修**（`D-G149` 同批账；牙 = `WFREEZE_ROOTDEFAULT`，接在 `close-wave.sh [5c/6]`）；覆盖面 **211 → 212**、`inputs_fp = 99db4fb592aba8f7dc53263d9914fa7c47c3f542207c35736ade1cddc08b6709`。
+- **`~/w153a/bin/infp.sh`** 已按契约改为**可覆盖默认值**（原硬编码旧路径；`t7` 撤链接后它会静默失能成 `NOINFO`）。
+- **`TASK-0745` 的活件状态**：主控已把 `E1+E2` 从活冻结器回退（现读 `6bf3c5c77eee8dd8`，`grep -c check_record_forms` = 0）；返工设计见 `build/MilBridge/P0-w77-repair-report.md §F7`。
+
 ## §4 近期新登记（要看细节读登记册）
 - **`D-G115`（判据装置缺陷 · 判词方向）**：`regression-decision.py` 的 `subkind=rate-aggravated` 及判词**不判方向**（`p ≤ alpha ∧ 旧件也红` 就印"本波把速率**显著加重**"）⇒ 在**下行腿/必要性**设计里打印**反结论**（现场：`--old 24/27 --new 0/40` 印"显著加重"，事实是**降到 0**）。**已修**（`#63`）：加 `REGDEC_DIRECTION=` ＋ 下行改 `rate-mitigated`，**上行口径逐字保留**。口径句：**"判词带方向断言 ⇒ 判据必须真的判方向；双尾显著 ≠ 上行显著。"**
 - **`D-G116`（臂与腿的有效性）· 7 实例**：① 对照臂改体制（`drop`/`noop` 让 WM 失明 ⇒ 加装饰 ⇒ `m_ok=0`）② **单格判红**（退化/死腿也报 `r_ok2=0`）⇒ **判红 = 四件合取** `START_MAX=0 ∧ m_ok=1 ∧ r_ok2=0 ∧ APP_ALIVE=yes` ③ 腿基线跨腿串味（`xfwm4` 记忆 ⇒ 需 `wmstate` 复位）④ 把"被干涉项的在场"当入分母条件 ⇒ 干涉臂无分母（改用 `TARGET_ATTEMPT_IN_BEAT` ＋ 各臂忠实性断言）⑤ 族识别谓词错（**按 `type` 不按 `prop`**）⑥ "条件同一性"须含 **X 会话寿命/WM 冷热态与时间稳定性** ⑦ **把结果算进体制 ⇒ 用"保护可比性"的名义否掉可比性**。**牙已落地**（`#63`：`regime-identity-check.sh`，**体制列 = 输入侧四列**，结果侧只作诊断、不进 `rc`）。

@@ -371,6 +371,7 @@ build/MilBridge/tools/parser-guard-check.sh \
 build/MilBridge/tools/parser-guard-decl.txt \
 build/MilBridge/tools/proto-attribution-check.sh \
 build/MilBridge/tools/proto-attribution-cases.tsv \
+build/MilBridge/tools/wave-freeze-consistency-check.py \
 tests/WpfGfx.Linux.Tests/Commands.Tests/tools/verify-cmd-layout.py
     } | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -d' ' -f1
 }
@@ -632,6 +633,12 @@ fi
 say ""; say "──── [5b/6] 在册数防漂移（D-G70；三态 PTSGAP=PASS|FAIL|NOINFO，**NOINFO 不算绿**）"
 # 波 `#77`：**显式传 `R=`** —— 在册数必须读**本树**，不许靠牙的默认值（`t4` 现场：旧默认写死旧树）。
 run "[5b/6] pts-gap-count-check.sh" env R="$ROOT" bash build/MilBridge/tools/pts-gap-count-check.sh
+
+# ── 【`t17` 追加·`#77` 复验的账】：**冻结期的三档一致性牙**（派生式解析到仓根／预登记↔`GENS` 逐字段／同名产物多权威相等）
+#   为什么挂这里：三件都是"**只在冻结那一刻才需要说话**"的东西（`t6` 抓到 `#77` 的 5 处 `dirname` 层数回归＋预登记与 `GENS` 分叉＋`provider` 两条权威路径分叉）；
+#   `PASS=0`／`FAIL=1`／`NOINFO=3`，**`NOINFO` 不算绿**；本步红 ⇒ `run()` 当场 `exit` ⇒ 汇总与两哨兵都不落。
+say ""; say "──── [5c/6] 冻结期一致性（三档：ROOTDEFAULT／DECL／NINEAUTH）"
+run "[5c/6] wave-freeze-consistency-check.py" python3 build/MilBridge/tools/wave-freeze-consistency-check.py --root "$ROOT"
 
 # ── 6) 汇总 ───────────────────────────────────────────────────────────────────
 say ""; say "──── [6/6] 汇总（**八位 + 第九位 + 桥指纹**，逐字复制进下一版基线表头）"

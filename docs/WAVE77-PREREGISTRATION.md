@@ -161,3 +161,78 @@
 7. `t1` 的两笔提交（`7027be06…` ＋ `fd9a9a18…`）**随本波推送带走**。
 8. 主控同趟追加：仓根 `Directory.Build.props`/`.targets` 缺席牙（**折叠进 `[9]`，不动步数**）。
 9. 新发现 `BOUNDARY_DECL` 分类器缺陷（修）＋ **九位路径承载体**（不修、按归因声明）。
+
+### 7.7 冻结器配置的**机读声明行**（`t17` 追加；`wave-freeze-consistency-check.py` 档②的读者）
+
+本行必须与 `GENS['#77']` **逐字段相等**（`allow_changed` 集合、`pf_required` 布尔）。
+
+```
+WFREEZE-DECL: gen=#77 allow_changed=pc,pf,windowsbase,provider,dwf pf_required=False
+```
+
+---
+
+## §8 `t17` 修复记账（2026-09-26；**原文一字未动保留，本节为 dated 追加**）
+
+> 来源：`t6` 独立复验（`build/MilBridge/V77-verify-report.md`）判 `failed` —— 主链读数全过，但两条验收 FAIL、七句现场被推翻/打折扣。
+> 本节逐条关账；**冻结块本身（`samples/WpfTextDemo/ACCEPTANCE-BASELINE.md`）一个字都没改**（本仓：冻结件不可加时效注）。
+
+### 8.1 F1 —— **`#77` 引入的真回归：5 件 `dirname` 层数少一层**（已修 ＋ 已做成常态牙）
+**现象**：`#77` 的 21 件重指向里有 5 件的派生式解析到 **`<仓>/build`** 而不是仓根；用改前的旧值拼则存在 ⇒ **真回归**。
+**修法（逐件 before → after sha16；真跑，不是看源码）**：
+
+| 件 | 行 | before | after |
+|---|---|---|---|
+| `build/DirectWrite.Linux/wic-shim/frames-gen.py` | 33 | `0b114c92b0d24a59` | `87d8cd0dfcf3a665` |
+| `build/MilBridge/tools/analyze-layout-b34.py` | 12 | `010fd091effc89d9` | `c783ff683ebaea2e` |
+| `build/MilBridge/tools/extract-layout-b34.py` | 13 | `ea66f3f260b90cdc` | `59b563eb57b62cee` |
+| `build/MilBridge/tools/t1c-inputtrace-verify.py` | 32 | `0d3542bb0233f261` | `5cec72436bfb0ac8` |
+| `build/MilBridge/tests/W81AWindowProbe/w81a-a0-analyze.py` | 28 | `86923276bf646553` | `317da8dc21cedf5e` |
+
+**证明方式（真跑）**：把 **22 条替换表达式**逐条在**真实自指路径**下求值（`.py` 注入 `__file__`、`.sh` 注入 `${BASH_SOURCE[0]}` 后交 `bash`），断言「解析结果 == 仓根物理路径」；对 5 个声明了**消费点**的件再加断言「结果 + 后缀**存在**」。
+- 修前：`REPOINT_ROSTER exprs=22 ok=17 bad=5 consume=5 consume_ok=5`（rc=1）
+- 修后：`REPOINT_ROSTER exprs=22 ok=22 bad=0 consume=5 consume_ok=5`（rc=0）
+- 原始读数：`~/w186a/w77rep/logs/f1-before.txt`／`f1-after.txt`；驱动器 `~/w186a/w77rep/bin/repoint_roster_eval.py`。
+
+**射程缺口处置（二选一，本波选「纳入门禁」）**：这 5 件**既不在 `verify-all` 接线、也不在 `fp_inputs()` 覆盖面** ⇒ 原门禁**看不见**。本波**不**停在"具名声明为离线仪器"，而是**把这三件（含本档）做成真牙**：
+新件 `build/MilBridge/tools/wave-freeze-consistency-check.py` 档① `WFREEZE_ROOTDEFAULT`（roster 22 条，逐条真跑）＋ 接进 `build/close-wave.sh` 的 **`[5c/6]`**（冻前，`FAIL` ⇒ `run()` 当场 `exit` ⇒ 汇总与两哨兵都不落）＋ 纳入 `fp_inputs()` 覆盖面（**211 → 212**，`[42] --expect` **同趟**改）。
+**代价（如实）**：覆盖面 ＋1 ⇒ `inputs_fp` 位移为 `99db4fb592aba8f7dc53263d9914fa7c47c3f542207c35736ade1cddc08b6709`；且本牙**只覆盖 roster 里的 22 条**——新出现的"从自指路径推仓根"的件**不在射程**，除非同时进 roster（**这条边界写在这里，不许被读成"全仓派生式都被看住了"**）。
+
+### 8.2 F2 —— 受版控**派生件**入笔（16 件；根因不是 churn）
+`#77` 推送后 `porcelain` 现取 15 件（`t6` 跑完第三趟后 16 件）。**根因**：这些件 **HEAD 内容里带的是旧路径**（最后提交 9/20、9/22、P0），整波重建把它们写成新路径 ⇒ **每跑一次整波必脏**。
+本波按径 `git add` 入笔并逐件点名（**不许**用 `git restore` 丢件来凑 `porcelain=0`）：`build/*/SR.g.cs`×8／`build/*/ARTIFACT-SRC-FP.txt`×3／`build/WindowsBase.Linux/PORT-CHANGES.md`／`build/.applocal-selftest.log`／`build/wave-audit.log`／`tests/parity/linux/parity-results.json`。
+**声明**：全部是**构建/日志派生物、非逻辑变更**。
+**待办（长期归属，主控定）**：`tracked 派生件`要么加进 `.gitignore` 并 `git rm --cached`，要么在生成器里**去掉绝对路径**（现在是"路径承载体" ⇒ 跨树/跨跑必变）。
+
+### 8.3 F3 —— 冻结块九位行的 `provider` 是**上一代值**（**只记不改**）
+`#77` 冻结块的**九位行**写 `provider` `1f9511a7ef395bfe`（＝`#76` 值），而同块**位移行**与**全部** `BASELINE tier=` 机读行写现值 `4041df9a704abfed` ⇒ 同块两个授权来源互相矛盾。
+**根因（可复算）**：记录模板 `~/w185a/w77/w77freeze/w77-record.txt:29` 把 `provider`（与 `wic_shim`）写成了**字面量**（同行其它位是占位符）；`wic_shim` 恰好没动才没露馅。且冻结器**三道核全盲**：`_PREV_SRC` 7 键（`prev_bsfp/prev_dwf/prev_infp/prev_pc/prev_pf/prev_wb/prev_wsh`）与 `_TIER_MAP` 5 位**都不含 `provider`**。
+**处置**：**不改冻结块**（冻结件不可加时效注）；本更正落在本件 ＋ `docs/ROUTES.md §15ae` ＋ `build/MilBridge/HANDOFF-NEXT.md §4`。
+**待办（给主控的冻结器补丁设计，`~/w21-verify/**` 是主控写域，本波不碰）**：
+1. `_PREV_SRC` 增两键：`'prev_provider': ('九位行:provider', '`provider` `([0-9a-f]{16})`', True)`、`'prev_wic': ('九位行:wic_shim', '`wic_shim` `([0-9a-f]{16})`', True)`；`_TIER_MAP` 增 `'prev_provider': 'provider'`、`'prev_wic': 'wic_shim'`；
+2. `GENS[gen]` 相应增 `prev_provider`／`prev_wic`（否则 `skipped=` 会**响亮**点名，不静默）；
+3. **记录模板禁用字面量**：渲染前断言「本代块里每一个九位值都等于 `now[...]`」（可现场复算）——即把"模板里写死"这件事本身做成会红的判据。
+
+### 8.4 F4 —— 「两趟 post **唯一**原始差异是 `wall_s`」不成立（更正为 24 行标签类）
+现取：两趟 `post1`／`post2` 各 129 行判词域，**归一化后差异 0 行**；**归一化前原始差异 24 行**，逐类点名：① 路径类（`/home/links-dev/*`、`/tmp/*`）；② 跑次戳/时间戳；③ 环境余量（`avail_kb`／`mem_mb`）；④ 耗时（`wall_s`／`held`）。
+⇒ 按 `D-G138` 口径更正为：**「读数域差异 0；标签/环境类差异 24 行」**——"判词行逐字相同"这句**成立**，错的只是**"唯一"这个量词**。
+
+### 8.5 F5 —— 预登记文本与 `GENS` 配置不一致（已加**机读声明行**＋牙）
+FROZEN ⑩/⑥ 写 `allow_changed={'pf'}` ＋ `pf_required=True`；`GENS['#77']` 实为 `allow_changed={pc,pf,windowsbase,provider,dwf}` ＋ `pf_required=False`（**本节 §7.7 已落实为机读行**）：
+```
+WFREEZE-DECL: gen=#77 allow_changed=pc,pf,windowsbase,provider,dwf pf_required=False
+```
+⇒ 由 `wave-freeze-consistency-check.py` **档② `WFREEZE_DECL`** 读回并与冻结器 `GENS`（AST 只读抽取）**逐字段比较**，不符 ⇒ `FAIL` 并点名字段；取不到任一侧 ⇒ `NOINFO`（**不算绿**）。现读：`WFREEZE_DECL=PASS gen=#77 allow_changed_decl=dwf,pc,pf,provider,windowsbase allow_changed_gens=dwf,pc,pf,provider,windowsbase pf_required_decl=False pf_required_gens=False`。
+
+### 8.6 F6 —— `app-local` 的两条「权威」路径之间**没有牙**（新登记 + 规约判定 + 牙）
+**现场**：`DirectWrite.Linux.Provider.dll` 有两个都自称权威的路径；`t6` 重建了后者 ⇒ 前者立刻陈旧，`app-local` 当场 `STALE=52 / UNEXPECTED-DIFF=6 / DIVERGENT=1`，**而九位/哨兵走前者** ⇒ 谁重建其一都会让两侧分叉（`D-G130` 族：判据输入取自瞬时派生状态），且 `verify-all` 里**根本没有** app-local 这一步（无 `run_step`）⇒ 门禁看不见。
+**规约权威判定 = `build/DirectWrite.Linux/Provider/bin/<CFG>/DirectWrite.Linux.Provider.dll`（后者）**，三条依据：① 它是**该工程自己的产出目录**；② **冻结器的 `NINE`** 用它（`w27-freeze.py` 现读）；③ `applocal-expect.py`／`check-applocal-sync.sh` 的 `ITEMS` 用它。⇒ 前者是**副本**，必须与权威相等。
+**处置**：把副本刷成权威（`4041df9a704abfed` → `609192a419d125f2`；旧件留档 `~/w186a/w77rep/backup/f6/`），并落牙 **档③ `WFREEZE_NINEAUTH`**（声明对：provider 两条 ＋ `WindowsBase` 的 Release/Debug 两条）⇒ 分叉即 `FAIL` 并逐条点名两条路径与各自 sha16。**不许**只写"下趟整波自愈"。
+**⚠️ 随之发生的九位位移（如实）**：权威 `provider` 由 `4041df9a704abfed` 变为 `609192a419d125f2` ⇒ **在册九位的 `provider` 与现场不再相同**（冻结点之后的重建位移；非本修复的语义变化）。
+
+### 8.7 F7 —— `TASK-0745` 的**语义返工设计 ＋ 两极化证据**（只交设计与证据；不碰 `~/w21-verify/**`）
+见 `build/MilBridge/P0-w77-repair-report.md` §F7（含「现行器为何 `bad=7`」的逐键分解、正确期望语义、以及"有位移的真实世代必须 `bad=[]`"的两极化读数）。
+
+### 8.8 保留集件与覆盖面（同趟）
+`~/w153a/bin/infp.sh:18` 原**硬编码**旧路径；`t7` 于 `22:12:07` 撤除旧路径符号链接后它返 `NOINFO reason=extract-empty`（**唯一**读者就是这一行）。本波按契约「保留集件只许加覆盖点」改为**可覆盖** `R="${INFP_R:-/home/links-dev/netTest/GitProj/WPFOnLinux}"`（**判据/管线/输出形态一字节未改**；等价性：撤链接前同一时刻官方工具与 `~/w-infp-at.sh $N` 同值 `b67560f2…`／`211`）。
+覆盖面 **211 → 212**（＋本波新牙），`[42] --expect` 同趟改；现读 `fp=99db4fb592aba8f7dc53263d9914fa7c47c3f542207c35736ade1cddc08b6709`／`list=212`（`infp.sh` 与 `~/w-infp-at.sh` **同值**）。

@@ -5,7 +5,7 @@
 #   只覆盖 src 时 `state=ok` 是**必要不充分**（源没变、peer 变了 ⇒ 产物照样变）。
 # 排除：build/WindowsBase.Linux/{bin,obj}/**、.artifacts/**、本文件自己
 # 重算比对：python3 build/artifact-src-fp.py --check（缺本文件 / 缺被引产物 / 旧格式 ⇒ noinfo，**不报绿**）
-fp=0cf7e7daa70eb8a9
+fp=d8e289bb176fed09
 n=327
 peer_fp=2a2ed993f748365d
 peer_n=2
@@ -20,7 +20,7 @@ file=c96e768c84026759  build/WindowsBase.Linux/DispatcherSynchronizationContext.
 file=9854366f0ef5d747  build/WindowsBase.Linux/EffectiveValueEntry.Linux.cs
 file=0ab3046ec34ac844  build/WindowsBase.Linux/HwndWrapper.Linux.cs
 file=d0a35feec973655e  build/WindowsBase.Linux/Invariant.Linux.cs
-file=d217d689516922f4  build/WindowsBase.Linux/SR.g.cs
+file=69a3eb85b65e3dea  build/WindowsBase.Linux/SR.g.cs
 file=77568d3be60cdf67  build/WindowsBase.Linux/SecurityHelper.Linux.cs
 file=92c2ab584b4e48a0  build/WindowsBase.Linux/TextServicesLoader.Linux.cs
 file=05314aa6f39446a1  build/WindowsBase.Linux/reapply-patches.py

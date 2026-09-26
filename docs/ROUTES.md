@@ -721,6 +721,21 @@ wpf-linux 路线图
 - **`#69`** ＝ `TASK-0725`（两把「会红的牙」接进仓并接线）｜**`#70`** ＝ `TASK-0724`＋`TASK-0728`（清单/指纹要有牙）｜**`#71`** ＝ `TASK-0729`＋`TASK-0727`（覆盖面与前置检查）｜**`#72`** ＝ `TASK-0730`＋`TASK-0731`（冻结器/抽取器）｜**`#73`** ＝ `TASK-0726`（产出端入仓）｜**`#74`** ＝ `TASK-0733`＋`TASK-0734`＋`TASK-0735`｜**`#75`** ＝ `TASK-0736`。
 - **一条变更集只许一次冻结**；基点（`verify-all.sh`／`build/close-wave.sh`／覆盖面／`inputs_fp`／世代）**一律落仓那刻现取**；**新波预登记一律走机读行形态**（纪律 45）。
 
+## §15ae 波 `#77` 的**修复记账**（`t17`，2026-09-26；`t6` 独立复验判 `failed` 后逐条关账）
+
+> 复验报告：`build/MilBridge/V77-verify-report.md`（主链读数全过；两条验收 FAIL ＋ 七句现场被推翻/打折扣）。
+> 本节**不改冻结块**（`samples/WpfTextDemo/ACCEPTANCE-BASELINE.md` 一字未动），只落 dated 更正与新登记。
+
+- **F1（真回归，已修）**：`#77` 的 21 件重指向里 **5 件 `dirname` 层数少一层** ⇒ 解析到 `<仓>/build` 而非仓根、**消费点拼出的路径不存在**（旧值拼则存在）。逐件修好（before→after：`frames-gen.py` `0b114c92b0d24a59`→`87d8cd0dfcf3a665`／`analyze-layout-b34.py` `010fd091effc89d9`→`c783ff683ebaea2e`／`extract-layout-b34.py` `ea66f3f260b90cdc`→`59b563eb57b62cee`／`t1c-inputtrace-verify.py` `0d3542bb0233f261`→`5cec72436bfb0ac8`／`w81a-a0-analyze.py` `86923276bf646553`→`317da8dc21cedf5e`）。
+  **证明 = 真跑**：22 条替换表达式在**真实自指路径**下逐条求值 ⇒ 修前 `ok=17 bad=5`／修后 `ok=22 bad=0`（`consume_ok=5/5`）。
+  **射程缺口处置**：这 5 件原**既不在接线也不在覆盖面** ⇒ 新牙 `build/MilBridge/tools/wave-freeze-consistency-check.py` **档① `WFREEZE_ROOTDEFAULT`**（roster 22 条逐条真跑）接进 `build/close-wave.sh` **`[5c/6]`**（冻前；红 ⇒ 汇总与两哨兵都不落）＋ 纳入覆盖面（**211→212**，`--expect` 同趟）。**边界**：只覆盖 roster 的 22 条，新出现的自指派生式**不在射程**。
+- **F2（派生件入笔）**：`#77` 推送后 `porcelain` 现取 15→16 件；**根因是它们 HEAD 内容里带旧路径**（最后提交 9/20、9/22、P0）⇒ **每跑一次整波必脏**。本波按径入笔、逐件点名、声明「构建/日志派生物、非逻辑变更」。**待办**：tracked 派生件的长期归属（加 `.gitignore` ＋ `git rm --cached`，或生成器里去掉绝对路径）。
+- 🆕 **`D-G149`（新登记 · 冻结记录的自相矛盾）**：`#77` 冻结块的**九位行把 `provider` 写成上一代值** `1f9511a7ef395bfe`，而同块**位移行**与**全部** `BASELINE tier=` 机读行写现值 `4041df9a704abfed` ⇒ 同块两个授权来源互相矛盾。根因：记录模板把 `provider`／`wic_shim` 写成**字面量**，且冻结器 `_PREV_SRC`（7 键）／`_TIER_MAP`（5 位）**都不含 provider** ⇒ **三道核全盲**（`t6` 用活件函数跑的 A2 臂：真块里把 provider 写误／写对，结论**逐字不变**）。**处置**：不改冻结块，落 dated 更正 ＋ 把「`provider` 必须进核的键表」列成待办（含补丁设计，见 `docs/WAVE77-PREREGISTRATION.md §8.3`）。**口径句**：**"记录模板里任何**九位值**都不许写字面量：写死的值一旦被重建改变，块内两个授权来源就会互相矛盾，而三道核都看不见。"**
+- 🆕 **`D-G150`（新登记 · 判据输入取自瞬时派生状态）**：同名产物**两条都自称权威**的路径之间**没有牙钉住相等** —— `DirectWrite.Linux.Provider.dll` 的 `build/DirectWrite.Linux/Provider/bin/<CFG>/…`（工程产出目录；**冻结器 `NINE`** 与 `applocal-expect.py` 都用它）与 `build/PresentationCore.Linux/bin/<CFG>/…`（副本）。谁重建其一都会让另一侧陈旧（`t6` 那趟实测 `STALE=52 / UNEXPECTED-DIFF=6 / DIVERGENT=1`），而 **`verify-all` 里没有 app-local 这一步** ⇒ 门禁看不见。**规约权威 = 工程产出目录那条**（三条依据见预登记 §8.6）。**处置**：副本刷成权威 ＋ 新牙**档③ `WFREEZE_NINEAUTH`**（分叉即红并逐条点名）。**口径句**：**"同名产物凡有多条自称权威的路径，必须有一条牙钉住它们相等；否则判据的输出永远取决于『谁最后重建了哪一条』。"**
+- 🆕 **`D-G151`（新登记 · 保留集件因路径退役而静默失能）**：`~/w153a/bin/infp.sh:18` 硬编码旧路径，`t7` 撤链接后它返 `NOINFO reason=extract-empty`（**该行是唯一读者**）。按契约「保留集件只许加覆盖点」改为可覆盖默认值（判据/管线/输出形态未改）⇒ 现读与 `~/w-infp-at.sh` **逐位同值**。**口径句**：**"凡退役一条被保留集件硬编码依赖的路径，必须同趟列出其**读者名单**并逐件处置（可覆盖默认值／等价替代件），否则工具会**静默失能**成一个 `NOINFO`。"**
+- **F4/F5/F6 的更正**：①「两趟 post 唯一原始差异是 `wall_s`」→ **读数域差异 0；标签/环境类差异 24 行**（路径／跑次戳／环境余量／耗时，逐类点名）；② 预登记 FROZEN ⑩/⑥ 的 `allow_changed={'pf'}` ＋ `pf_required=True` 与 `GENS['#77']` 实配不一致 ⇒ 已落**机读声明行** `WFREEZE-DECL:` ＋ 牙**档②**逐字段核；③ `app-local` 的 `STALE=0 ∧ DIVERGENT=0` 是**点读数**（本波内部两次就不同）⇒ 见 `D-G150`。
+- **F7**：`TASK-0745` 的 `E1+E2` 已由主控从活冻结器**回退**（`f9fb7bcac0353a61` → `6bf3c5c77eee8dd8`；现读 `grep -c check_record_forms` = **0**）；**语义返工设计与两极化证据**见 `build/MilBridge/P0-w77-repair-report.md §F7`（主控拿到后**由主控落**）。
+
 ## §15ad 波 `#77` 落地（**仪器波**；车道 `W180A` 包 ＋ 主控同趟追加）
 
 - **`#77` ＝五件**：`TASK-0740`（新牙 `wiring-coverage-check.sh`，新步 `WIRING-COVERAGE`）｜`TASK-0742`（新牙 `parser-guard-check.sh` ＋ 唯一机读声明 `parser-guard-decl.txt`，新步 `PARSER-GUARD`）｜`TASK-0744`（新牙 `proto-attribution-check.sh` ＋ 语料 `proto-attribution-cases.tsv`，新步 `PROTO-ATTR`）｜`TASK-0745`（**补丁形态**）｜**主控同趟追加**：仓根 `Directory.Build.props`/`.targets` 缺席牙（折叠进既有 `[9] BUILD-HYGIENE`，**不动步数**，理由：本波契约把步数钉在 `50`）。

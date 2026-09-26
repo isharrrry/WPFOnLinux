@@ -25,7 +25,7 @@ import subprocess
 import sys
 import glob
 
-_ROOT77 = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))   # 波 `#77` 旧路径重指向：由仓根现推
+_ROOT77 = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))   # 波 `#77` 旧路径重指向：由仓根现推
 SHIM = os.path.join(_ROOT77, "src/WpfGfx.Linux.Native/bin/libwpfwin32.so")
 
 # `W78A-report.md` §2.2 的 27 条静态闭包（**逐字抄自该报告的分组**）

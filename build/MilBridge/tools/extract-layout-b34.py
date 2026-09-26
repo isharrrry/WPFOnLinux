@@ -10,7 +10,7 @@ import json
 import sys
 import os
 
-ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))   # 波 `#77` 旧路径重指向：由仓根现推
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))   # 波 `#77` 旧路径重指向：由仓根现推
 SRC = sys.argv[1] if len(sys.argv) > 1 else ROOT + "/tests/parity/windows/layout-b34/windows-results.json"
 DST = sys.argv[2] if len(sys.argv) > 2 else ROOT + "/build/MilBridge/gen/layout-b34-compact.json"
 

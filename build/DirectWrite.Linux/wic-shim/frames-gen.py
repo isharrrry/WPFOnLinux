@@ -30,7 +30,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.environ.get("WICFRAMES_DIR") or os.path.join(os.path.dirname(HERE), "wicframes-out")
 FIX = os.path.join(OUT, "fix")
 TRUTH = os.path.join(OUT, "truth")
-REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))   # 波 `#77` 旧路径重指向：由仓根现推
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))   # 波 `#77` 旧路径重指向：由仓根现推
 
 
 # ─────────────────────────── 自己的 GIF 编码器（LZW：CLEAR + 字面码） ───────────────────────────

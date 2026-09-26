@@ -9,7 +9,7 @@ import os
 import sys
 from collections import Counter, defaultdict
 
-ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))   # 波 `#77` 旧路径重指向：由仓根现推
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))   # 波 `#77` 旧路径重指向：由仓根现推
 SRC = sys.argv[1] if len(sys.argv) > 1 else ROOT + "/build/MilBridge/gen/layout-b34-compact.json"
 DST = ROOT + "/build/MilBridge/gen/layout-b34-accounting.txt"
 

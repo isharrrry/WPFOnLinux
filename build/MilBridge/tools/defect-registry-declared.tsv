@@ -1,4 +1,4 @@
-# DECL-GEN = (--emit) 2026-09-26 21:18:19 +0800
+# DECL-GEN = (--emit) 2026-09-26 22:17:06 +0800
 # DECL-ANCHORS = KD=80170ab55b983751 CS=250129ce7f626457 HO=a4d8ffcf4c37f6fe AB=e3ebc811641bd467 KRJ=2209966ee1d2c5cc KRF=ab09235afd949bc2 KRP=3c9e3a309b990d31
 # grammar: D-[A-Z][0-9]*[a-z]?(-[A-Za-z0-9]+)*
 # fields:  ID<TAB><id><TAB>req=<key,key,...|-><TAB>present=<key,key,...>

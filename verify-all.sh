@@ -1170,7 +1170,7 @@ run_step "REPO-ALIAS" bash build/MilBridge/tools/repo-alias-check.sh --allow bui
 #   ∧ `sha256sum` `stderr` 空。它**不**判「清单**内容正确**」—— 判不了"该收的没收"（覆盖面缺项）。
 echo
 echo "[42] 指纹清单的牙（清单逐行形状 ＋ 件数对账；D-G120②；NOINFO 不算绿；#70 加）"
-run_step "FP-MANIFEST-TEETH" bash build/MilBridge/tools/fp-manifest-step.sh --expect 211
+run_step "FP-MANIFEST-TEETH" bash build/MilBridge/tools/fp-manifest-step.sh --expect 212
 run_step "SELFDESC-WIRING" bash build/MilBridge/tools/selfdescription-wiring-check.sh
 run_step "LANE-PATH" bash build/MilBridge/tools/lane-path-check.sh
 run_step "ROWS-IDENTITY" bash build/MilBridge/tools/rows-identity-check.sh

@@ -5,20 +5,20 @@
 #   只覆盖 src 时 `state=ok` 是**必要不充分**（源没变、peer 变了 ⇒ 产物照样变）。
 # 排除：build/PresentationCore.Linux/{bin,obj}/**、.artifacts/**、本文件自己
 # 重算比对：python3 build/artifact-src-fp.py --check（缺本文件 / 缺被引产物 / 旧格式 ⇒ noinfo，**不报绿**）
-fp=3ae4746cd655023b
+fp=2f3e458da268e872
 n=1374
-peer_fp=e442fdc0c64f3379
+peer_fp=326bdda8bed36d0f
 peer_n=8
 tool_sha256=e856e2e65e6c59cadd8e68b6a39c00b483992f9fdd459fb94c8b0221f8e597fd
 # 被引产物（sha256 前 16 + 仓库相对路径；**产物字节**，不是源）
-peer=1f9511a7ef395bfe  build/DirectWrite.Linux/Provider/bin/Debug/DirectWrite.Linux.Provider.dll
+peer=4041df9a704abfed  build/DirectWrite.Linux/Provider/bin/Debug/DirectWrite.Linux.Provider.dll
 peer=24e819debc1e5b13  build/DirectWriteForwarder.Linux/bin/Debug/DirectWriteForwarder.dll
 peer=4499439dff4b1e54  build/System.Windows.Extensions.Linux/bin/Debug/System.Windows.Extensions.dll
 peer=c264f0ec86fad755  build/System.Windows.Input.Manipulations.Linux/bin/Debug/System.Windows.Input.Manipulations.dll
 peer=856b84d2af114acb  build/System.Xaml.Linux/bin/Debug/System.Xaml.dll
 peer=76c3e977594876c9  build/UIAutomationProvider.Linux/bin/Debug/UIAutomationProvider.dll
 peer=2654da315acd2046  build/UIAutomationTypes.Linux/bin/Debug/UIAutomationTypes.dll
-peer=2e4e46e539a72cd7  build/WindowsBase.Linux/bin/Debug/WindowsBase.dll
+peer=07c89f1872c1a3c1  build/WindowsBase.Linux/bin/Debug/WindowsBase.dll
 # 逐文件（**源侧**）：sha256 前 16 + 仓库相对路径；只列**本仓自有输入**（`upstream/**` 不列，用 --list 看全量）
 file=d2e034e81ce265bc  build/MilBridge/src/MilBridge.Resolver/MilCoreDllImportResolver.cs
 file=19a42240f59af073  build/PresentationCore.Linux/FamilyCollection.Linux.cs
@@ -31,7 +31,7 @@ file=3a079a8f23dbdc02  build/PresentationCore.Linux/InputProviderSite.Linux.cs
 file=d816fd8379184813  build/PresentationCore.Linux/MimeTypeMapper.Linux.cs
 file=917d807f43777c49  build/PresentationCore.Linux/MouseDevice.Linux.cs
 file=91077d36783d221c  build/PresentationCore.Linux/OleServicesContext.Linux.cs
-file=66cc785da6da9f87  build/PresentationCore.Linux/SR.g.cs
+file=b5956a39d8341671  build/PresentationCore.Linux/SR.g.cs
 file=04b64eaaf77572ee  build/PresentationCore.Linux/SecurityHelper.Linux.cs
 file=5f729e403fc6c7b1  build/PresentationCore.Linux/SimpleTextLine.Linux.cs
 file=fd57318ade379427  build/PresentationCore.Linux/StylusLogic.Linux.cs

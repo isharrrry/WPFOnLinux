@@ -27,7 +27,7 @@
 
 | 原始 Include | 解析路径 |
 |---|---|
-| `System\Windows\Markup\SequencePartEditor.cs` | `/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/upstream/wpf/src/Microsoft.DotNet.Wpf/src/WindowsBase/System/Windows/Markup/SequencePartEditor.cs` |
-| `System\Windows\Markup\StreamPartReader.cs` | `/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/upstream/wpf/src/Microsoft.DotNet.Wpf/src/WindowsBase/System/Windows/Markup/StreamPartReader.cs` |
-| `System\Windows\Markup\XmlPartReader.cs` | `/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/upstream/wpf/src/Microsoft.DotNet.Wpf/src/WindowsBase/System/Windows/Markup/XmlPartReader.cs` |
+| `System\Windows\Markup\SequencePartEditor.cs` | `/home/links-dev/netTest/GitProj/WPFOnLinux/upstream/wpf/src/Microsoft.DotNet.Wpf/src/WindowsBase/System/Windows/Markup/SequencePartEditor.cs` |
+| `System\Windows\Markup\StreamPartReader.cs` | `/home/links-dev/netTest/GitProj/WPFOnLinux/upstream/wpf/src/Microsoft.DotNet.Wpf/src/WindowsBase/System/Windows/Markup/StreamPartReader.cs` |
+| `System\Windows\Markup\XmlPartReader.cs` | `/home/links-dev/netTest/GitProj/WPFOnLinux/upstream/wpf/src/Microsoft.DotNet.Wpf/src/WindowsBase/System/Windows/Markup/XmlPartReader.cs` |
 

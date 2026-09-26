@@ -5,27 +5,27 @@
 #   只覆盖 src 时 `state=ok` 是**必要不充分**（源没变、peer 变了 ⇒ 产物照样变）。
 # 排除：build/PresentationFramework.Linux/{bin,obj}/**、.artifacts/**、本文件自己
 # 重算比对：python3 build/artifact-src-fp.py --check（缺本文件 / 缺被引产物 / 旧格式 ⇒ noinfo，**不报绿**）
-fp=01a078bf78c6ed18
+fp=c16574e77ad38fb2
 n=1363
-peer_fp=0e31c2dc0c4e31c4
+peer_fp=1b55e710252e4317
 peer_n=9
 tool_sha256=e856e2e65e6c59cadd8e68b6a39c00b483992f9fdd459fb94c8b0221f8e597fd
 # 被引产物（sha256 前 16 + 仓库相对路径；**产物字节**，不是源）
 peer=09484aaa846c6956  build/CycleStub.PresentationUI.Linux/bin/Debug/PresentationUI.dll
-peer=722e0ab8205b7c3f  build/PresentationCore.Linux/bin/Debug/PresentationCore.dll
+peer=53fd7fffcdb30243  build/PresentationCore.Linux/bin/Debug/PresentationCore.dll
 peer=33b372daa826733e  build/ReachFramework.Linux/bin/Debug/ReachFramework.dll
 peer=5ccc76227e5e520d  build/System.Printing.Linux/bin/Debug/System.Printing.dll
 peer=4499439dff4b1e54  build/System.Windows.Extensions.Linux/bin/Debug/System.Windows.Extensions.dll
 peer=856b84d2af114acb  build/System.Xaml.Linux/bin/Debug/System.Xaml.dll
 peer=76c3e977594876c9  build/UIAutomationProvider.Linux/bin/Debug/UIAutomationProvider.dll
 peer=2654da315acd2046  build/UIAutomationTypes.Linux/bin/Debug/UIAutomationTypes.dll
-peer=2e4e46e539a72cd7  build/WindowsBase.Linux/bin/Debug/WindowsBase.dll
+peer=07c89f1872c1a3c1  build/WindowsBase.Linux/bin/Debug/WindowsBase.dll
 # 逐文件（**源侧**）：sha256 前 16 + 仓库相对路径；只列**本仓自有输入**（`upstream/**` 不列，用 --list 看全量）
 file=6d508ccc41d0e07b  build/PresentationFramework.Linux/DeferredTextReference.Linux.cs
 file=ecb0263b200c18dc  build/PresentationFramework.Linux/FlowDocumentView.Linux.cs
 file=3af06981155e89aa  build/PresentationFramework.Linux/FrameworkElement.Linux.cs
 file=627c8d23aa7ef233  build/PresentationFramework.Linux/PtsCache.Linux.cs
-file=7f27cbcfa50ca41f  build/PresentationFramework.Linux/SR.g.cs
+file=adcee3eede63574c  build/PresentationFramework.Linux/SR.g.cs
 file=e62edb1f82ba753a  build/PresentationFramework.Linux/SystemResources.Linux.cs
 file=6067276d0fc3a8da  build/PresentationFramework.Linux/TextBlock.Linux.cs
 file=6d769e8508f42b40  build/PresentationFramework.Linux/TextBox.Linux.cs
