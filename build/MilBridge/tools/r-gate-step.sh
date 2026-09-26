@@ -75,6 +75,100 @@ done
 field() { awk -v k="$1" '{for(i=1;i<=NF;i++){n=index($i,"="); if(n>1 && substr($i,1,n-1)==k){print substr($i,n+1); exit}}}'; }
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# 【`TASK-0733`／`D-G133` 加】临时件卫生（**残留有界**）＋ 磁盘余量闸
+#   事故（现场）：本件旧版 `OUT="${R_GATE_OUT:-/tmp/r-gate-step-$$}"` 的默认目录**每次运行留
+#   ≈106 MB 且永不清理** ⇒ 三天 66 件 = 6.8 GB ⇒ 宿主机 `ENOSPC`（剩 79 MB）击停了正在跑的
+#   波 `#68` 链（两阶段日志 0 字节、40 s 内退出）。⇒ 本块给这条路径加**两条会红的**机器判据。
+#
+#   【判据的输入来源（纪律 36：**取数前声明来源、现取不缓存**）】
+#     · 余量 = **现取** `df -Pk <路径>` 的**第 4 列**（`Available`，单位 1 KB）÷ `1048576` = GB；
+#       `<路径>` = 待写目录的**最近存在祖先**（此刻本趟 OUT 还不存在）。不读台账、不复用上次列印。
+#       取不到数 / 第 4 列不是十进制整数 ⇒ `DISK_HEADROOM=NOINFO` ＋ **rc=2**（**响亮失败，永不放行**）。
+#     · 残留 = **现取** `$R_GATE_OUT_ROOT/r-gate-step*` ⇒ **只取目录**、**排除符号链接**、
+#       `readlink -f` 必须**直接**位于 `OUT_ROOT` 之下（防逃逸）；只清 mtime 早于 `R_GATE_OUT_TTL_MIN`
+#       （默认 180 min）的。**本趟目录显式排除**（`janitor <cur>`）⇒ **在跑的趟永不进清空集**
+#       （机制：装置持续往 `$OUT` 追加写 ⇒ 在跑的趟 mtime 必新鲜）。
+#   【`--keep` 的逐字语义（**不许当"保留证据"的借口**）】
+#     `--keep` 的**唯一效果** = 本趟证据目录**不被 `EXIT` trap 删除**；它**不改判据、不改 rc、不改判序**，
+#     且**必须**上屏 `R_GATE_OUT_KEPT=<path>`（**永不静默**）。⇒ 用 `--keep` 留下的残留**不是无界的**：
+#     下一次默认档运行仍按 TTL 清它。**「留证据给人看」≠「允许无限堆积」。**
+#   【所有权】`R_GATE_OUT` **由调用者显式给出** ⇒ `ownership=external`：本件**既不删它、也不入清空集**
+#     （清掉调用者的目录 = 另一类事故）。所有权只在 stdout 可见。
+# ═══════════════════════════════════════════════════════════════════════════════
+DISK_MIN_GB="${R_GATE_MIN_DISK_GB:-5}"        # 余量下界（GB）——可覆盖；口径见上「输入来源」
+OUT_TTL_MIN="${R_GATE_OUT_TTL_MIN:-180}"      # 同前缀残留最长存活（分钟）
+OUT_ROOT="${R_GATE_OUT_ROOT:-${TMPDIR:-/tmp}}"
+OUT_PREFIX="r-gate-step"
+CLEANUP_DIR=""                                # 非空 ⇒ `EXIT` trap 收它（**只有自己造的目录**进这里）
+
+nearest_exist() {  # 最近存在祖先（`df` 只认存在的路径）
+  local p="$1"
+  while [ ! -e "$p" ] && [ "$p" != "/" ]; do p="$(dirname -- "$p")"; done
+  printf '%s' "$p"
+}
+
+disk_headroom() {  # disk_headroom <path>…：任一不足即 FAIL；取不到数即 NOINFO（**都不放行**）
+  local p r raw fs avail_kb worst=0 worst_p="" n=0 first=1
+  for p in "$@"; do
+    r="$(nearest_exist "$p")"; n=$((n + 1))
+    raw="$(df -Pk -- "$r" 2>/dev/null | awk 'NR==2{print $1" "$4; exit}')"
+    fs="${raw%% *}"; avail_kb="${raw##* }"
+    [ "$raw" = "$avail_kb" ] && { fs=""; avail_kb=""; }
+    case "${avail_kb:-}" in
+      ''|*[!0-9]*)
+        echo "DISK_HEADROOM=NOINFO reason=df-unparsable path=$r raw=${avail_kb:-<空>} src=df-Pk-col4"
+        echo "R_GATE=NOINFO reason=disk-headroom-unreadable path=$r"
+        return 2 ;;
+    esac
+    echo "DISK_HEADROOM_PATH=path=$r avail_kb=$avail_kb avail_gb=$(( avail_kb / 1048576 )) fs=${fs:-<空>} min_gb=$DISK_MIN_GB"
+    if [ "$first" = 1 ] || [ "$avail_kb" -lt "$worst" ]; then worst="$avail_kb"; worst_p="$r"; first=0; fi
+  done
+  if [ $(( worst / 1048576 )) -lt "$DISK_MIN_GB" ]; then
+    echo "DISK_HEADROOM=FAIL avail_gb=$(( worst / 1048576 )) avail_kb=$worst min_gb=$DISK_MIN_GB worst_path=$worst_p paths=$n src=df-Pk-col4"
+    echo "R_GATE=NOINFO reason=disk-headroom avail_gb=$(( worst / 1048576 )) min_gb=$DISK_MIN_GB worst_path=$worst_p"
+    return 2
+  fi
+  echo "DISK_HEADROOM=PASS avail_gb=$(( worst / 1048576 )) avail_kb=$worst min_gb=$DISK_MIN_GB worst_path=$worst_p paths=$n src=df-Pk-col4"
+  return 0
+}
+
+janitor() {  # janitor <本趟目录|空>：清**同前缀旧件**；本趟目录/非前缀/符号链接**永不入清空集**
+  local cur="$1" d b mt now sz rroot removed=0 kept=0 freed=0
+  now="$(date +%s)"
+  if [ ! -d "$OUT_ROOT" ]; then echo "R_GATE_JANITOR=SKIP reason=root-absent root=$OUT_ROOT"; return 0; fi
+  rroot="$(readlink -f -- "$OUT_ROOT")"
+  for d in "$OUT_ROOT/$OUT_PREFIX"*; do
+    [ -d "$d" ] || continue
+    if [ -L "$d" ]; then kept=$((kept + 1)); continue; fi          # 符号链接：不跟随、不清
+    b="$(basename -- "$d")"
+    case "$b" in "$OUT_PREFIX"*) ;; *) kept=$((kept + 1)); continue ;; esac
+    case "$(readlink -f -- "$d")" in "$rroot"/*) ;; *) echo "R_GATE_JANITOR=SKIP reason=escape dir=$d"; continue ;; esac
+    if [ -n "$cur" ] && [ "$(readlink -f -- "$d")" = "$(readlink -f -- "$cur")" ]; then kept=$((kept + 1)); continue; fi
+    mt="$(stat -c %Y -- "$d" 2>/dev/null || echo 0)"
+    case "$mt" in ''|*[!0-9]*) kept=$((kept + 1)); continue ;; esac
+    if [ $(( (now - mt) / 60 )) -ge "$OUT_TTL_MIN" ]; then
+      sz="$(du -sk -- "$d" 2>/dev/null | awk '{print $1; exit}')"
+      case "${sz:-}" in ''|*[!0-9]*) sz=0 ;; esac
+      if rm -rf -- "$d"; then removed=$((removed + 1)); freed=$((freed + sz)); fi
+    else
+      kept=$((kept + 1))
+    fi
+  done
+  echo "R_GATE_JANITOR=removed=$removed kept=$kept freed_kb=$freed ttl_min=$OUT_TTL_MIN root=$OUT_ROOT"
+  return 0
+}
+
+cleanup_out() { [ -n "$CLEANUP_DIR" ] && [ -d "$CLEANUP_DIR" ] && rm -rf -- "$CLEANUP_DIR" 2>/dev/null; return 0; }
+
+out_fate() {  # 本趟证据目录的**去向**（**永不可省略**：删没删必须可见）
+  if [ -n "$CLEANUP_DIR" ]; then
+    echo "R_GATE_OUT fate=cleaned-on-exit path=$OUT ownership=$OUT_OWNERSHIP（默认档不留残留；要留证据请加 --keep）"
+  else
+    echo "R_GATE_OUT fate=kept path=$OUT ownership=$OUT_OWNERSHIP keep=$KEEP"
+  fi
+}
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # 判据本体（**纯文本**：只读 evidence.txt 与 app.log ⇒ 可在无 X、无 dotnet 的机器上自测）
 #   judge_dir <目录> ⇒ 印逐格口径行 ＋ 机读行；返回 rc 0/1/2
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -525,6 +619,71 @@ if [ "$SELFTEST" = 1 ]; then
       printf '%s\n' "$out" | grep -aE '^R_GATE=|∟.*RED' | head -4 | sed 's/^/        | /'
     fi
   }
+  # ── 【`TASK-0733` 加】**本块自己的两极化夹具**（前提自持：只用自建临时件；零 X、零 dotnet）──
+  shk() {  # shk <例名> <期望rc> <期望子串> <命令…>：断**值**与 **rc** 两件
+    local nm="$1" want="$2" pat="$3"; shift 3
+    local out rc got
+    out="$("$@" 2>&1)"; rc=$?
+    got="$(awk '/^(DISK_HEADROOM|R_GATE_JANITOR|JAN_POLARITY)=/{print; exit}' <<< "$out")"
+    if [ "$rc" = "$want" ] && grep -qF -- "$pat" <<< "$out"; then
+      np=$((np + 1)); printf '  %-30s => yes  rc=%s  %s\n' "$nm" "$rc" "$got"
+    else
+      nf=$((nf + 1)); printf '  %-30s => NO   want rc=%s/%s got rc=%s\n' "$nm" "$want" "$pat" "$rc"
+      printf '%s\n' "$out" | sed -n '1,4p' | sed 's/^/        | /'
+    fi
+  }
+  dh_min() {   # 覆盖余量下界（**只为自测**；子 shell 内生效，不回写）
+    local m="$1"; shift
+    DISK_MIN_GB="$m"; disk_headroom "$@"
+  }
+  dh_path() {  # 覆盖 PATH（**只为自测**：喂桩 `df`）
+    local p="$1"; shift
+    local o="$PATH"; PATH="$p:$o"; disk_headroom "$@"; local r=$?
+    PATH="$o"; return "$r"
+  }
+  mk_df_stub() {  # mk_df_stub <dir> <第2行第4列取值|EMPTY>
+    local d="$1" v="$2"
+    mkdir -p "$d"
+    { echo '#!/bin/sh'
+      echo 'echo "Filesystem 1024-blocks Used Available Capacity Mounted"'
+      [ "$v" = EMPTY ] || printf 'echo "/dev/x 100 50 %s 50pct /"\n' "$v"
+    } > "$d/df"
+    chmod +x "$d/df"
+  }
+  jan_case_pos() {  # 正极：同前缀**旧件必删**；新鲜件/本趟件**必留**；计数器非零
+    local root="$T/jpos" old new cur out jrc ok=1
+    rm -rf "$root"; mkdir -p "$root"
+    old="$root/${OUT_PREFIX}.OLD"; new="$root/${OUT_PREFIX}.NEW"; cur="$root/${OUT_PREFIX}.CUR"
+    mkdir -p "$old" "$new" "$cur"
+    touch -d '3 days ago' "$old"; touch -d '1 minute ago' "$new"
+    out="$( OUT_ROOT="$root"; OUT_TTL_MIN=180; janitor "$cur" 2>&1 )"; jrc=$?
+    [ -d "$old" ] && ok=0
+    [ -d "$new" ] || ok=0
+    [ -d "$cur" ] || ok=0
+    [ "$jrc" = 0 ] || ok=0
+    printf '%s\n' "$out"
+    printf 'JAN_POLARITY=old_gone=%s new_kept=%s cur_kept=%s jan_rc=%s\n' \
+      "$([ -d "$old" ] && echo no || echo yes)" "$([ -d "$new" ] && echo yes || echo no)" \
+      "$([ -d "$cur" ] && echo yes || echo no)" "$jrc"
+    [ "$ok" = 1 ]
+  }
+  jan_case_neg() {  # 反极：**非**前缀旧件必留；同前缀**符号链接**与其目标必留
+    local root="$T/jneg" outl="$T/joutside" out jrc ok=1
+    rm -rf "$root" "$outl"; mkdir -p "$root" "$outl"
+    mkdir -p "$root/other-xyz"; touch -d '3 days ago' "$root/other-xyz"
+    mkdir -p "$outl/target"; ln -s "$outl/target" "$root/${OUT_PREFIX}.LNK"
+    out="$( OUT_ROOT="$root"; OUT_TTL_MIN=180; janitor "" 2>&1 )"; jrc=$?
+    [ -d "$root/other-xyz" ] || ok=0
+    [ -L "$root/${OUT_PREFIX}.LNK" ] || ok=0
+    [ -d "$outl/target" ] || ok=0
+    [ "$jrc" = 0 ] || ok=0
+    printf '%s\n' "$out"
+    printf 'JAN_POLARITY=nonprefix_kept=%s symlink_kept=%s target_kept=%s jan_rc=%s\n' \
+      "$([ -d "$root/other-xyz" ] && echo yes || echo no)" \
+      "$([ -L "$root/${OUT_PREFIX}.LNK" ] && echo yes || echo no)" \
+      "$([ -d "$outl/target" ] && echo yes || echo no)" "$jrc"
+    [ "$ok" = 1 ]
+  }
   echo "== R-GATE 判据件的 --selftest（**零 X、零 dotnet**；合成证据；前提自持）=="
   chk "S1 正极性（全绿）"       0 "R_GATE=PASS"                 good
   chk "S2 c01 点 item1 无反应"  1 "c01("                        no-lst-selection
@@ -547,6 +706,14 @@ if [ "$SELFTEST" = 1 ]; then
   chk "S17 装置自报 NOINFO"     2 "R_GATE=NOINFO"               device-noinfo
   chk "S17b combo 坐标缺席（前缀陷阱）" 2 "pos-missing"          pos-combo-missing
   chk "S18 窗口内点击没收到"    1 "click-not-received"          click-not-received
+  # 【`TASK-0733` 加】本波两条新闸的两极化（**每条都真造夹具、真判**；`NOINFO` 不算绿）
+  shk "S19 余量闸正极(min=0)"   0 "DISK_HEADROOM=PASS"           dh_min 0 "$T"
+  shk "S20 余量闸反极(min=999999)" 2 "DISK_HEADROOM=FAIL"        dh_min 999999 "$T"
+  mk_df_stub "$T/dfe" EMPTY;  mk_df_stub "$T/dfg" abc
+  shk "S21 df 第2行缺席"        2 "reason=df-unparsable"          dh_path "$T/dfe" "$T"
+  shk "S21b df 第4列非整数"     2 "reason=df-unparsable"          dh_path "$T/dfg" "$T"
+  shk "S22 janitor 正极"        0 "removed=1"                     jan_case_pos
+  shk "S23 janitor 反极"        0 "JAN_POLARITY=nonprefix_kept=yes" jan_case_neg
   echo "R_GATE_SELFTEST=$([ "$nf" -eq 0 ] && echo PASS || echo FAIL) cases=$((np + nf)) pass=$np fail=$nf crit_total=$CRIT_TOTAL"
   [ "$nf" -eq 0 ] && exit 0 || exit 1
 fi
@@ -560,19 +727,52 @@ if [ -n "$JUDGE_DIR" ]; then
 fi
 
 [ -f "$DEVICE" ] || { echo "R_GATE=NOINFO reason=device-absent path=$DEVICE"; exit 2; }
-OUT="${R_GATE_OUT:-/tmp/r-gate-step-$$}"
+# ── 【`TASK-0733` 加】输出目录：先定**所有权**，再谈清不清（旧版在这里每趟留 ≈106 MB）──────
+trap cleanup_out EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+if [ -n "${R_GATE_OUT:-}" ]; then
+  OUT="$R_GATE_OUT"; OUT_OWNERSHIP=external      # 调用者的目录 ⇒ 本件不删、不入清空集
+else
+  OUT=""; OUT_OWNERSHIP=owned                    # 自己造 ⇒ 跑完即收
+fi
+
+# ①【余量闸】**在任何长跑之前、在任何写盘之前**（`OUT_ROOT` ＋ 仓根 ＋ **调用者给的 OUT 那一侧**，取更小者）
+#    ⚠️ 第三个路径（`${OUT:+"$OUT"}`）是**修正**：只闸 `OUT_ROOT` 会漏掉"调用者把 OUT 指到另一个小容量
+#       文件系统"这一形态（自测 `S10` 钉住）。
+disk_headroom "$OUT_ROOT" "$ROOT" ${OUT:+"$OUT"}; DR_RC=$?
+[ "$DR_RC" = 0 ] || exit "$DR_RC"                # 2 ⇒ 非零退出 ＋ 机读判词行；**永不静默放行**
+
+# ②【残留有界】清同前缀旧件（本趟目录显式排除；此刻还没有本趟目录）
+janitor "$OUT"
+
+# ③【建目录】默认档 = 自己造（`mktemp -d` 防撞）
+if [ "$OUT_OWNERSHIP" = owned ]; then
+  OUT="$(mktemp -d "${OUT_ROOT%/}/${OUT_PREFIX}.XXXXXXXX")" \
+    || { echo "R_GATE=NOINFO reason=out-dir-unwritable root=$OUT_ROOT"; exit 2; }
+fi
 # ⚠️ 必须先建目录：下面那句 `> "$OUT/device.out"` 的**重定向先于**装置执行（装置内部的 `mkdir -p` 来不及）
 #    ⇒ 不建的话 `bash: … 没有那个文件或目录` ⇒ rc≠0 ⇒ 被读成"装置异常"（本件第一版实测踩到）。
 mkdir -p "$OUT" || { echo "R_GATE=NOINFO reason=out-dir-unwritable out=$OUT"; exit 2; }
+echo "R_GATE_OUT ownership=$OUT_OWNERSHIP keep=$KEEP path=$OUT ttl_min=$OUT_TTL_MIN min_disk_gb=$DISK_MIN_GB"
+if [ "$OUT_OWNERSHIP" = owned ] && [ "$KEEP" != 1 ]; then CLEANUP_DIR="$OUT"; fi
+if [ "$KEEP" = 1 ]; then
+  echo "R_GATE_OUT_KEPT=$OUT（--keep ⇒ 本趟目录不被删；**下次默认档**仍按 TTL=${OUT_TTL_MIN}min 清 ⇒ 残留有界）"
+fi
 echo "R_GATE 仪器 装置=$DEVICE｜证据目录=$OUT｜口径：判据格 $CRIT_TOTAL 格／必须真点击 $EXPECT_CLICKS_MUST 下"
 if ! timeout "${R_GATE_DEVICE_TIMEOUT:-240}" bash "$DEVICE" --out "$OUT" ${R_GATE_DEVICE_ARGS:-} > "$OUT/device.out" 2>&1; then
   echo "R_GATE=NOINFO reason=device-exit detail=装置 rc≠0 或被 timeout 杀（见 $OUT/device.out）"
   tail -6 "$OUT/device.out" | sed 's/^/      | /'
+  out_fate
   exit 2
 fi
 sed -n '1,12p' "$OUT/device.out" | sed 's/^/      · /'
 judge_dir "$OUT" device
 rc=$?
-echo "R_GATE 证据目录（复核用）：$OUT（evidence.txt ＋ app.log）"
-[ "$KEEP" = 1 ] || :
+if [ -n "$CLEANUP_DIR" ]; then
+  echo "R_GATE 证据目录：本趟证据**跑完即收**（默认档不留残留；要留证据请加 --keep）"
+else
+  echo "R_GATE 证据目录（复核用）：$OUT（evidence.txt ＋ app.log）"
+fi
+out_fate
 exit $rc

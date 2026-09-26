@@ -116,6 +116,63 @@ extract_section() {
   ' "$1"
 }
 
+# ── ★ `TASK-0734`／`D-G134`：`NA` 必须由**声明形态**触发（旧版是**整节正则 ∨ 令牌出现即算**
+#   ⇒ 判据节里一句**散文"提及"**就能把「跳过回归判定四要件」这道门打开 = **假 N/A**）。
+#   形态①（**行首锚定声明句**）：把该行**行首装饰**剥掉后必须以 `本波` 起头，且**同一行**含那句话。
+#     ⇒ `⚠️ **本波（`#60`）不做任何回归判定** —— …` ✓ ／ `本节只是**讨论**了「本波不做任何回归判定」这句话…` **✗**
+#   形态②（**机读行**）：行首**可带下列装饰**（**可接受装饰形态清单，逐项列全**）——
+#     ① 行首/行尾**空白** ② `<!--` ③ **成对的行内代码定界符**（整行形如
+#     `` `PREREG-NO-REGRESSION-DECISION: <值>` ``）④ 以上③②的**组合**（`` `<!-- PREREG-…: <值> -->` ``）——
+#     之后出现 `PREREG-NO-REGRESSION-DECISION:`，且**值**（`:` 之后、去尾部 `-->`）**非空**
+#     ∧ **不在否定令牌集**（`none`／`no`／`false`／`0`／`n/a`／`na`／`null`／`-`）⇒ 「写了令牌但值是 `none`」
+#     **不算**声明（**值盲匹配**是同族缺陷：`WAVE63` 那行逐字写的就是 `none`）。
+#     ⚠️ **`#74` W172A（`w74b`）补的正是这份"形态清单"的缺口**：**行内代码包裹**原先**不在**清单里
+#     ⇒ 历史件 `docs/WAVE72-PREREGISTRATION.md:20`（整行**就是**那条机读行、只是被反引号包起来）
+#     被判成"**仅提及**" ⇒ `NA → FAIL` ⇒ `verify-all` 第 `[34]` 步 `--gate` 批次 `rc=1`（本波冻不了）。
+#     ⚠️ **只认成对包裹**（首尾**同时**是反引号）：**只一端**有反引号 ⇒ **不剥、不算声明**（自测 `NA-17` 钉住）；
+#     包裹内的**值检查照旧**（`` `PREREG-…: none` `` 仍 `FAIL`，自测 `NA-18` 钉住）⇒ **不构成"提及即算"**。
+#   ⚠️ **残余洞（如实登记）**：**行首即声明句、随后自我否定**的构造仍会被形态① 认作声明。
+#      不加否定词黑名单的理由：那会误杀真声明（历史件的声明行多为长句），收益不抵风险；由主控裁定是否要更硬口径。
+#   ⚠️ 本块**不消费管道 rc**（`PIPEFAIL-SIGPIPE` 牙那一族）：一律 `case`／`<<<` here-string，**无** `printf|grep -q`。
+#   ★ **软／硬分档可见**（主控 `#73`/`#74` 裁定）：`form=anchor-sentence` 是**软形态**（散文声明句 ⇒ 上面的残余洞**在它身上**）
+#     ⇒ 必须上屏 `residual=self-negation-not-checked`；**机读行**（`form=machine-line(…)`）是**硬形态**、**不得**出现该令牌。
+#     该令牌**不进任何计数、不改 `rc`**（与 `form=` 同族：只是"凭什么判 N/A"的可见性）。
+NA_PHRASE='不做任何回归判定'
+NA_NEG_VALUES='none|no|false|0|n/a|na|null|-'
+na_lstrip_decoration() { LC_ALL=C sed -E 's/^([[:space:]>#*|!-]|⚠️|★|⇒|§|：|[0-9]|\.)+//' ; }
+na_decl_forms() {  # 读**判据节**文本（stdin）⇒ 每个"声明形态"命中印一行：`sentence` 或 `machine:<值>`
+  local ln s2 v
+  while IFS= read -r ln; do
+    s2="$(na_lstrip_decoration <<< "$ln")"
+    case "$s2" in
+      本波*"$NA_PHRASE"*) printf 'sentence\n' ;;      # 形态①（`^` 锚定 ⇒ 句中提及不算）
+    esac
+    case "$ln" in
+      *'PREREG-NO-REGRESSION-DECISION:'*)
+        v="$ln"
+        v="${v#"${v%%[![:space:]]*}"}"                # 去行首空白（参数展开，不用管道）
+        v="${v%"${v##*[![:space:]]}"}"                # 去行尾空白（形态①的一部分）
+        case "$v" in '<!--'*) v="${v#<!--}" ;; esac
+        #   ★ `#74` W172A（`w74b`）：**行内代码包裹**也是可接受装饰形态之一 —— **只认成对包裹**
+        #     （首尾同时是反引号）；**只一端有 ⇒ 不剥、不算声明**。散文那一支与值检查一字未动。
+        case "$v" in '`'*'`') v="${v#\`}"; v="${v%\`}" ;; esac
+        v="$(na_lstrip_decoration <<< "$v")"
+        case "$v" in
+          'PREREG-NO-REGRESSION-DECISION:'*)
+            v="${v#PREREG-NO-REGRESSION-DECISION:}"; v="${v%%-->*}"
+            v="${v#"${v%%[![:space:]]*}"}"; v="${v%"${v##*[![:space:]]}"}"
+            v="$(tr 'A-Z' 'a-z' <<< "$v")"
+            if [ -n "$v" ]; then
+              case "|$NA_NEG_VALUES|" in
+                *"|$v|"*) : ;;                        # 否定令牌 ⇒ **不算**声明
+                *) printf 'machine:%s\n' "$v" ;;
+              esac
+            fi ;;
+        esac ;;
+    esac
+  done
+}
+
 check_file() {
   local f="$1"
   local -a missing=()
@@ -151,8 +208,11 @@ check_file() {
 
   # ── ★ `#60` W152A／`TASK-0709`：识别「本波不做回归判定」的**显式声明** ⇒ 该要求降级为 `N/A`（**可见**）──
   #   充要两条（**同时**成立才是 NA）：
-  #     ① **声明**：**判据节内**逐字有「本波 … 不做任何回归判定」（容许中间夹「（`#59`）」这类括注），
-  #        或含机读行 `PREREG-NO-REGRESSION-DECISION:`。
+  #     ① **声明**（★ `TASK-0734`／`D-G134` **收紧为「声明形态」**）：**判据节内**满足下列**任一形态**才作数 ——
+  #        · **行首锚定声明句**：剥掉行首装饰后**以 `本波` 起头**且**同一行**含「不做任何回归判定」；
+  #      · **机读行** `PREREG-NO-REGRESSION-DECISION:`（行首可带空白／`<!--`／**成对的行内代码定界符**
+  #        —— 清单见 `na_decl_forms()` 上方），且值**非空**、**非否定令牌**（`none`／空值不算）。
+  #        ⚠️ **散文「提及」不算**（旧版整节正则 ∨ 令牌出现即算 ⇒ 假 N/A）；只提及会印 `PREREG4_NOTE mention-only`。
   #     ② **无证据**：**全文**不含 `REGRESSION_DECISION=`（判定工件机读行），也不含
   #        `regression-decision-cases.tsv`（＝**真的跑过判定**才会产生的台账）。
   #   ⚠️ **格式声明不算证据**：`PREREG-REGRESSION-FOUR:` 那一行只是「格式承诺」，不是「做过」的证据 ——
@@ -163,18 +223,33 @@ check_file() {
   #      （否则任何波都能用一句声明把整节判据关掉 ＝ **放宽**，本波明令禁止）。
   #   ⚠️ 三态口径：`N/A` = **「对，但本波不适用」**（`rc=0`）⇒ 必须与 `PASS` **分开计数**（`na=` 独立一格）、
   #      **逐件点名**；`N/A` **不许**并进 `pass=`。
-  local no_rd_decl=0 rd_evidence=0
+  local no_rd_decl=0 rd_evidence=0 na_form="" na_seen=""
   #   ⚠️ **不许消费管道 rc**：`printf … | grep -q` 正是 `PIPEFAIL-SIGPIPE` 牙点名的形态
   #      （`HANDOFF-NEXT.md` 第 21 条：该族已咬人三次）⇒ 本处一律改用 `[[ =~ ]]`／`==` 子串匹配。
   #      `=~` 的 `.` **匹配换行**（实测：多行节文本能跨行命中，语义与原来那两处 `printf … | grep` 一致）。
-  if [[ "$sec" =~ 本波.*不做任何回归判定 ]] \
-     || [[ "$sec" == *'PREREG-NO-REGRESSION-DECISION:'* ]]; then no_rd_decl=1; fi
+  na_seen="$(na_decl_forms <<< "$sec")"
+  case "$na_seen" in *'sentence'*) no_rd_decl=1; na_form='anchor-sentence' ;; esac
+  if [[ $no_rd_decl -eq 0 && "$na_seen" == *'machine:'* ]]; then
+    no_rd_decl=1
+    na_form="machine-line($(sed -n 's/^machine://p' <<< "$na_seen" | head -1))"
+  fi
+  if [[ $no_rd_decl -eq 0 ]]; then
+    # 「**只提及**」——**让它可见**（`D-G134` 的形态）：判据节里出现过那句话/令牌，但**没有任何声明形态**
+    if grep -qF -- "$NA_PHRASE" <<< "$sec" || grep -qF -- 'PREREG-NO-REGRESSION-DECISION:' <<< "$sec"; then
+      echo "PREREG4_NOTE mention-only file=$f detail=判据节里**出现过**那句话/令牌，但**没有任何声明形态**（行首锚定句 ∨ 机读行非否定值）⇒ **不判 N/A**（D-G134：提及 ≠ 声明）"
+    fi
+  fi
   if grep -qF -- 'REGRESSION_DECISION=' "$f" \
      || grep -qF -- 'regression-decision-cases.tsv' "$f"; then rd_evidence=1; fi
   if [[ $no_rd_decl -eq 1 && $rd_evidence -eq 0 ]]; then
     echo "PREREG4=NA"; echo "PREREG4_RC=$RC_PASS"
     echo "PREREG4_FILE file=$f state=na reason=no-regression-decision-declared requirements=N/A"
-    echo "PREREG4_NA file=$f reason=no-regression-decision-declared（判据节逐字声明「本波不做任何回归判定」∧ 全文无回归判定证据 ⇒ 四要件对本波 N/A；与 PASS 分开计数）"
+    echo "PREREG4_NA file=$f reason=no-regression-decision-declared（判据节逐字声明「本波不做任何回归判定」∧ 全文无回归判定证据 ⇒ 四要件对本波 N/A；与 PASS 分开计数） form=$na_form"
+  if [[ "$na_form" == 'anchor-sentence' ]]; then
+    echo "PREREG4_NA_FORM form=anchor-sentence residual=self-negation-not-checked file=$f（TASK-0734：**软形态**——N/A 由**散文声明句**授予，已知残余洞=行首即声明句、随后自我否定的构造**仍算**声明；只报不改 rc）"
+  else
+    echo "PREREG4_NA_FORM form=$na_form file=$f（TASK-0734：**机读行形态**（硬）⇒ **不得**带残余洞令牌；只报不改 rc）"
+  fi
     return $RC_PASS
   fi
   [[ $no_rd_decl -eq 1 && $rd_evidence -eq 1 ]] && missing+=("declared-no-rd-but-has-evidence(声明了「本波不做任何回归判定」却引用了回归判定证据 ⇒ 声明不许当免死金牌，四要件仍必须齐全)")
@@ -376,6 +451,77 @@ selftest() {
     pass=$((pass+1)); echo "SELFTEST NA-6-gate-batch-fails-when-broken rc=1 = OK"
   else
     fail=$((fail+1)); echo "SELFTEST NA-6-gate-batch-fails-when-broken want_rc=1 got_rc=$grc = FAIL"
+  fi
+
+  # ── ★ `TASK-0734`／`D-G134` 新增：`NA` 的**声明形态**三极化（**只增不减**；上面 `NA-1`…`NA-6` 一字未动）──
+  #   ① **仅提及**（四要件一件没有）⇒ **必须不再 `NA`**
+  printf '## §3 判据（落地前写死）\n\n本节只是**讨论**了「本波不做任何回归判定」这句话该不该写在这里，**没有**采纳任何东西。\n' > "$d/mention-only.md"
+  try "NA-7-mention-only-must-fail" "$d/mention-only.md" 1 '^PREREG4=FAIL$' '^PREREG4=NA$'
+  #   ① b **句中提及令牌**（不是行首机读行）⇒ 同样不许 `NA`
+  printf '## §3 判据（落地前写死）\n\n本节的写法参照（或机读行 PREREG-NO-REGRESSION-DECISION: xxx 的）历史惯例，**不采纳**。\n' > "$d/mention-token.md"
+  try "NA-8-mention-token-midline-must-fail" "$d/mention-token.md" 1 '^PREREG4=FAIL$' '^PREREG4=NA$'
+  #   ② **行首锚定声明句**：历史**九形态**逐种各造一份 ⇒ 每种都必须 `NA`
+  local -a shapes=( '## §3 判据|### §9 本波不做任何回归判定' '## §3 判据|### 9. 本波不做任何回归判定'
+                    '## §3 判据|### 9.9 本波不做任何回归判定' '## §3 判据|**本波不做任何回归判定**'
+                    '## §3 判据|- 本波不做任何回归判定' '## §3 判据|> **本波不做任何回归判定**'
+                    '## §3 判据|⇒ **本波不做任何回归判定**' '## §3 判据|| 本波不做任何回归判定'
+                    '## §3 判据|⚠️ **本波（`#99`）不做任何回归判定**' )
+  local sh_ok=0 sh_bad="" ent hd bd
+  for ent in "${shapes[@]}"; do
+    hd="${ent%%|*}"; bd="${ent#*|}"
+    printf '%s\n%s\n' "$hd" "$bd" > "$d/shape.md"
+    out="$(check_file "$d/shape.md" 2>&1)"; rc=$?
+    if [[ $rc -eq 0 && "$out" == *'PREREG4=NA'* ]]; then sh_ok=$((sh_ok+1)); else sh_bad="$sh_bad[${bd:0:18}]"; fi
+  done
+  tot=$((tot+1))
+  if [[ $sh_ok -eq ${#shapes[@]} ]]; then
+    pass=$((pass+1)); echo "SELFTEST NA-9-anchored-shapes($sh_ok/${#shapes[@]}) 九种行首形态都判 NA = OK"
+  else
+    fail=$((fail+1)); echo "SELFTEST NA-9-anchored-shapes 只有 $sh_ok/${#shapes[@]} 判 NA；未过=$sh_bad = FAIL"
+  fi
+  #   ② b **节边界（既有语义，本波未改）**：与判据标题**同级**的标题会**终止** `extract_section`
+  #       ⇒ 写在那之后的声明句**在节外**、不算 ⇒ 必须 `FAIL`（**这一格把边界变成可判读数**，防将来静默变化）
+  printf '## §3 判据（落地前写死）\n\n本文没有声明。\n\n## §9 本波不做任何回归判定\n' > "$d/samelevel.md"
+  try "NA-9b-same-level-heading-ends-section" "$d/samelevel.md" 1 '^PREREG4=FAIL$' '^PREREG4=NA$'
+  #   ② c **机读行**（正值）⇒ `NA`
+  printf '## §3 判据（落地前写死）\n\nPREREG-NO-REGRESSION-DECISION: yes\n' > "$d/mach-yes.md"
+  try "NA-10-machine-line-yes" "$d/mach-yes.md" 0 '^PREREG4=NA$' '^PREREG4=(PASS|FAIL)$'
+  #   ③ **值盲令牌修正**：值 `none` ／ **空值** ⇒ **不算**声明 ⇒ 回去 `FAIL`
+  printf '## §3 判据（落地前写死）\n\n<!-- PREREG-NO-REGRESSION-DECISION: none -->\n' > "$d/mach-none.md"
+  try "NA-11-machine-line-none-is-not-decl" "$d/mach-none.md" 1 '^PREREG4=FAIL$' '^PREREG4=NA$'
+  printf '## §3 判据（落地前写死）\n\nPREREG-NO-REGRESSION-DECISION:\n' > "$d/mach-empty.md"
+  try "NA-12-machine-line-empty-is-not-decl" "$d/mach-empty.md" 1 '^PREREG4=FAIL$' '^PREREG4=NA$'
+  #   ③ b **声明 ∧ 证据**（机读行正值那一支）⇒ 仍 `FAIL` 且点名 `declared-no-rd-but-has-evidence`
+  { printf '## §3 判据（落地前写死）\n\nPREREG-NO-REGRESSION-DECISION: yes\n'; echo '<!-- REGRESSION_DECISION=REGRESSION -->'; } > "$d/mach-plus-evidence.md"
+  try "NA-13-machine-decl-plus-evidence-fails" "$d/mach-plus-evidence.md" 1 'declared-no-rd-but-has-evidence' '^PREREG4=NA$'
+
+  #   ③ c ★ `#74` W172A（`w74b`）：**成对行内代码包裹**的机读行 ⇒ **是声明** ⇒ `NA`
+  #      （现场＝`docs/WAVE72-PREREGISTRATION.md:20`；漏剥这对反引号 ⇒ 历史件 `NA→FAIL` ⇒ `[34]` 步批次红）
+  printf '## §3 判据（落地前写死）\n\n`PREREG-NO-REGRESSION-DECISION: yes`\n' > "$d/mach-backtick.md"
+  try "NA-15-backtick-paired-machine-line-is-decl" "$d/mach-backtick.md" 0 '^PREREG4=NA$' '^PREREG4=(PASS|FAIL)$'
+  #   ③ d **反极 1**：反引号包的是**句中提及**（令牌不在行首）⇒ **仍必须 `FAIL`**
+  printf '## §3 判据（落地前写死）\n\n参见 `PREREG-NO-REGRESSION-DECISION: yes` 的历史写法，本节不采纳。\n' > "$d/mach-backtick-mention.md"
+  try "NA-16-backtick-wrapped-mention-still-fails" "$d/mach-backtick-mention.md" 1 '^PREREG4=FAIL$' '^PREREG4=NA$'
+  #   ③ e **反极 2（"成对"这一条本身）**：**只一端**有反引号 ⇒ 不剥 ⇒ **`FAIL`**
+  printf '## §3 判据（落地前写死）\n\n`PREREG-NO-REGRESSION-DECISION: yes\n' > "$d/mach-backtick-oneend.md"
+  try "NA-17-backtick-one-end-only-is-not-decl" "$d/mach-backtick-oneend.md" 1 '^PREREG4=FAIL$' '^PREREG4=NA$'
+  #   ③ f **反极 3（值检查不被包裹绕过）**：`` `PREREG-…: none` `` ⇒ **`FAIL`**
+  printf '## §3 判据（落地前写死）\n\n`PREREG-NO-REGRESSION-DECISION: none`\n' > "$d/mach-backtick-none.md"
+  try "NA-18-backtick-wrapped-none-still-fails" "$d/mach-backtick-none.md" 1 '^PREREG4=FAIL$' '^PREREG4=NA$'
+
+  #   ④ **软／硬分档可见性**（主控裁定）：锚定句（软）⇒ `residual=self-negation-not-checked` **必在**；机读行（硬）⇒ **必不出现**
+  printf '## §3 判据（落地前写死）\n\n⚠️ **本波（`#99`）不做任何回归判定** —— 仪器波。\n' > "$d/soft-form.md"
+  local soft_out hard_out s_ok=0 h_ok=0
+  soft_out="$(check_file "$d/soft-form.md" 2>&1)"
+  hard_out="$(check_file "$d/mach-yes.md" 2>&1)"
+  [[ "$soft_out" == *'PREREG4_NA_FORM form=anchor-sentence residual=self-negation-not-checked'* ]] && s_ok=1
+  if [[ "$hard_out" == *'PREREG4_NA_FORM'* && "$hard_out" != *'residual=self-negation-not-checked'* ]]; then h_ok=1; fi
+  tot=$((tot+1))
+  if [[ $s_ok -eq 1 && $h_ok -eq 1 ]]; then
+    pass=$((pass+1)); echo "SELFTEST NA-14-soft-vs-hard-form-marking 软=带 residual 令牌 ∧ 硬=不带 = OK"
+  else
+    fail=$((fail+1)); echo "SELFTEST NA-14-soft-vs-hard-form-marking 软令牌在=$s_ok 硬令牌失=$h_ok = FAIL"
+    printf '%s\n' "$soft_out" "$hard_out" | sed 's/^/    /'
   fi
 
   rm -rf "$d"

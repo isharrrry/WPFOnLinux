@@ -277,6 +277,24 @@ fp_inputs() {  # 手写输入指纹（应用器 + port-lib + 本脚本 + 波脚�
       #      （插进续行中间会把 `printf` 截断，并把后续行当**命令执行**；本仓现场咬到过）。
       #   ⚠️ **射程**：产出端是**重活形态**（起显示＋起应用）⇒ 它**不在门禁里同步跑**；
       #      本两行进覆盖面只保证「**改了会被看见**」，**不**保证「每一波都真跑过一条腿」。
+      # 【`#74` W172A（`TASK-0733`／`0734`／`0735`）**加三行 —— 显式扩面（主控 `2026-09-26` 裁定 (B)）**：
+      #   现场（本车道**现取**普查）：把 `verify-all.sh` **全部 `42` 条** `run_step` 行里引用的**仓内件**
+      #   抽成集合（`grep '^run_step "' … | grep -oE '(build|src|samples|docs)/…\.(sh|py|tsv|json|txt)' | sort -u`），
+      #   与**覆盖面活清单**（`fp-manifest-step.sh --expect 194` 现跑，`names_n=194`）取差集
+      #   ⇒ **恰好三件未被保护**，且**三件都在门禁里承重**：
+      #     · `build/MilBridge/tools/prereg-four-requirements-check.sh`（第 `[34]` 步 `PREREG-FOUR-REQ`，`--gate`）
+      #     · `build/MilBridge/tools/pc-line-step.sh`（`PcLineOracle·Start` 列；件头自称"冻树牙齿"）
+      #     · `build/MilBridge/tools/frame-step.sh`（`FrameProbe-frame`；件头自称"冻树牙齿"）
+      #   判据照本函数上方那条「**读 ⇒ 进 `fp_inputs()`**」：三件的读者都是**生产门禁的一步**
+      #   ⇒ 改它们 ＝ 改 `PASS` 的定义；不纳入则**零机器红**
+      #   （与 `ime-landing-check.sh`／`nl-intent-check.sh`／`TASK-0729` 那 20 件同族：**判据的输入没人看着**）。
+      #   ⚠️ **这是显式扩面（主控批准），不是顺手加的行** —— 原派单只点名了其中一件。
+      #   ⚠️ 收口判据 ＝ **复跑同一次普查**得「**未被覆盖面保护的接线件 = 0**」
+      #      （命令逐字写在 `docs/WAVE74-PREREGISTRATION.md` §1.3，将来任何冻结都可复跑）。
+      #   ⚠️ **覆盖面变 ⇒ 步本体里那个显式常数必须同趟改**：第 `[42]` 步 `--expect 194` → **`197`**
+      #      （`verify-all.sh` **不在**覆盖面 ⇒ 该常数与生产路径无关；**漏改 ⇒ `files-n-mismatch delta=-3`**）。
+      #   ⚠️ 新增三行**必须留在 `\` 续行的参数表内** —— 注释只能放在**语句之前**
+      #      （插进续行中间会把 `printf` 截断，并把后续行当**命令执行**；本仓现场咬到过）。
       printf '%s\n' build/MilBridge/tools/tline-gate.sh build/MilBridge/known-red.json \
           build/MilBridge/tools/verify-all-step-check.sh build/MilBridge/tools/fp-inputs-hygiene-check.sh \
           build/MilBridge/tools/column-floor-check.sh build/MilBridge/tools/hidden-only-step.sh \
@@ -315,6 +333,9 @@ fp_inputs() {  # 手写输入指纹（应用器 + port-lib + 本脚本 + 波脚�
           build/MilBridge/repo-alias-allow.tsv \
           build/MilBridge/tools/bak-completeness-step.sh \
           build/MilBridge/tools/fp-manifest-step.sh \
+          build/MilBridge/tools/prereg-four-requirements-check.sh \
+          build/MilBridge/tools/pc-line-step.sh \
+          build/MilBridge/tools/frame-step.sh \
           build/MilBridge/tests/PtsPagesProbe/session_inner.sh \
           build/MilBridge/tests/PtsPagesProbe/navclick.py \
           build/MilBridge/tests/PtsPagesProbe/legs-to-env.py \
