@@ -32,6 +32,10 @@
 #        `cp_patch()` 里查）⇒ 本牙在**判据侧**补齐，并把 `dfail=win-zero` 印出来。
 #   3 几何必须 == `SCREEN` 或 == `BASE`，否则 `geom-not-screen-or-base`。
 #   4 `sock_id != present` ⇒ `sock-id-absent`（**这一格是闸**；每行判词都印 `sock_id=`）。
+#   4′【`TASK-0744-FU`／W184A 新增】**身份形态闸**：装置若**印了** `sock=` 却**不可解析**
+#      （非数字／`-`／`?`／空）⇒ `NOINFO reason=sock-id-malformed` **且** `identity_malformed` 只增不减。
+#      ⚠️ 第 4 条（**整个字段不印**）与第 4′ 条（**印了但解不出**）**分别具名、不许互相顶替**：
+#      "装置没印" ⇒ `sock-id-absent`（旧装置行为逐字不变）；"装置印了垃圾" ⇒ `sock-id-malformed`。
 #   5 `chain` 的最外层**应用**帧：按 denylist **过滤**（`[hook]` 逐字／`<jit/anon>` 逐字／
 #     `libX11*`／`libxcb*`／`xwrap*` 前缀）；滤完为空 ⇒ `no-app-frame`。
 #     ⚠️ **不照抄**参考实现的 `mods[-1]`（它取链末帧、**零过滤**）⇒ 本牙同时印
@@ -56,9 +60,13 @@
 #   `PROTO_ATTR=ATTRIBUTED` ⇔ rc=0；`=NOT_ATTRIBUTED` ⇔ rc=1；`=NOINFO` ⇔ rc=3。
 #
 # 【`--cases` 的语料契约（唯一真值来源；**不许有硬编码期望**）】
-#   TAB 分隔 ＋ **必须有表头行**；列**定序**（前 14 列按契约定序，后 2 列是本牙追加的解码输入）：
-#     `tag role op0 fd mask win geom sock_id chain_app sym_call cn_seq cut_proto expect reason rl hlen`
+#   TAB 分隔 ＋ **必须有表头行**；列**定序**（前 14 列按契约定序，后 2 列是本牙追加的解码输入，
+#   第 17 列〔`TASK-0744-FU`／W184A 追加〕是身份形态）：
+#     `tag role op0 fd mask win geom sock_id chain_app sym_call cn_seq cut_proto expect reason rl hlen [ident]`
 #   · `sock_id` = `present`|`absent`（模拟装置**有没有印 socket 身份**）。
+#   · `ident` = **可选**第 17 列（`present`|`absent`|`malformed`）：装置**印了字段却取不出合法
+#     序号**时为 `malformed` ⇒ 判 `NOINFO reason=sock-id-malformed`。缺列（16 列老契约）⇒ `absent`
+#     （**向后兼容**：老语料判词逐字不变）。
 #   · `chain_app` = 该 `PROTO` 行的 `chain:` **原样帧表**（`;` 连接；`-` = 无）⇒ **过滤在牙里做**。
 #   · `cn_seq` = `-` 或 `kind:WxH@rel_ms` 逐项 `;` 连接；`kind` ∈ `restore|push|other`。
 #     ⚠️ **归一化裁定**：`rel_ms` **一律相对本行那条请求**（请求 = 0；`Δ` 就是它的绝对值）。
@@ -73,18 +81,20 @@
 #   · 至少一行 `role=POSCTL` 且**真判** `ATTRIBUTED`，否则 `FAIL reason=untriggerable`（阳性对照是门槛）。
 #
 # 【`--legs` 的诚实边界（本牙自己印在读数里，**不许粉饰**）】
-#   归档装置**只印 `fd=<n>`**、**不印** socket 身份（`getpeername` 的结果没有随行字段）
-#   ⇒ `§8.3` 的第 ② 格**恒缺** ⇒ 真归档腿**必然** `NOINFO reason=sock-id-absent`。
-#   ⇒ **`ATTRIBUTED` 在真腿上不可达**，直到装置随行打印那条连接的 socket 身份
-#     （`sun_path` 或 fd 的 socket inode）。本牙对"只差这一格"的腿额外印
-#     `would_be=<若 sock_id 在则会判什么>` —— 证"不可达**只因缺这一格**"，不是别的原因。
+#   ⓘ【`TASK-0744-FU`／W184A 更新】**新装置** `build/MilBridge/tools/devices/xwrap-sockid.{c,so}`
+#     （由仓外归档装置 `wc03/bin/xwrap.c` 的**真拷贝**派生、只改 `proto_log()`）已在 `PROTO` 行**随行**印身份：
+#     `sock=<序号> peer=<pid:uid:gid> sk=<sock|nonsock|eBADF>`。本牙从该行读它
+#     ⇒ 用新装置跑的真腿**可以**拿到 `sock_id=present`（于是 §8.3 第 ② 格在场）。
+#   ⚠️ **旧装置**（仓外归档装置 `wc03/bin/xwrap.so`，**只读**复用）仍**只印 `fd=<n>`** ⇒ 用它跑的腿**必然**
+#     `NOINFO reason=sock-id-absent`（**这不是判据退步，是输入缺失**；两种输入**分开报**）。
+#   本牙对"只差这一格"的腿仍额外印 `would_be=<若 sock_id 在则会判什么>`。
 #
 # 【本牙自己的接线状态（**必须字面写在件头**：判「件头自述 vs 接线」的对手牙会读它）】
 #   **已接线**：verify-all.sh 的 run_step "PROTO-ATTR" bash build/MilBridge/tools/proto-attribution-check.sh
 #   ——⚠️ **本注释不写步号**：以现场 `verify-all.sh` 的**步序**为准（写死步号 = 下一条会漂移的陈旧自述）。
 #   ⚠️ 本条是**自洽的硬要求**：本牙落地时**必须与接线同趟**（否则判「自述 vs 接线」的对手牙当场判红）。
 #
-# 【测试钩子】`--selftest`：自带 fixture（零 `X`、零 `dotnet`、零重活），14 例，
+# 【测试钩子】`--selftest`：自带 fixture（零 `X`、零 `dotnet`、零重活），21 例，
 #   其中大部分是「**必须红或 NOINFO**」的负例 ＋ 阳性对照 ＋ 空边 ＋ 通用性（翻转期望必红并点名）。
 #   用法：bash proto-attribution-check.sh [--cases TSV] [--expect N] [--legs DIR…]
 #                                      [--repo DIR] [--screen WxH] [--base WxH]
@@ -130,7 +140,8 @@ pat_judge() {  # pat_judge <check_expect:0|1> <tsv>
     awk -v SCREEN="$SCREEN" -v BASE="$BASE" -v PREFIX="${JUDGE_PREFIX:-CASE}" -v CHECK_EXPECT="${1:-1}" '
     BEGIN { FS="\t"
             examined=0; att=0; notatt=0; noinfo=0; mismatch=0; bad_expect=0
-            posctl_rows=0; posctl_att=0; cut_and_pair=0 }
+            posctl_rows=0; posctl_att=0; cut_and_pair=0
+            ident_present=0; ident_absent=0; ident_malformed=0 }
     function tonum(s,   v,i,c,d) {
         if (s ~ /^0[xX]/) { v=0
             if (length(s) < 3) return -1
@@ -202,6 +213,8 @@ pat_judge() {  # pat_judge <check_expect:0|1> <tsv>
         if (rn != 12 + 4*popcount(mn)) { V_DFAIL="rl-popcount"; V_REASON="decode-inconsistent"; return }
         if (rn < 16 || rn > 64) { V_DFAIL="rl-out-of-range"; V_REASON="decode-inconsistent"; return }
         if (geom != SCREEN && geom != BASE) { V_REASON="geom-not-screen-or-base"; return }
+        # 第 4 条（整个字段不印）与第 4′ 条（印了却解不出）**分列**；force 那趟不参与（审计用）
+        if (force!=1 && R[17]=="malformed") { V_REASON="sock-id-malformed"; return }
         if (sock != "present") { V_REASON="sock-id-absent"; return }
         if (V_APP=="-") { V_REASON="no-app-frame"; return }
         V_PAIR=pair_of(cn, geom)
@@ -212,7 +225,7 @@ pat_judge() {  # pat_judge <check_expect:0|1> <tsv>
     NR==1 && $1=="tag" { next }
     {
         if ($1=="") next
-        for (i=1;i<=16;i++) R[i]=$i
+        for (i=1;i<=17;i++) R[i]=$i
         examined++
         judge(0)
         v=V_VERDICT; rs=V_REASON; df=V_DFAIL; pr=V_PAIR; dl=V_DELTA; ap=V_APP; rw=V_RAW; sy=V_SYMONLY
@@ -224,10 +237,14 @@ pat_judge() {  # pat_judge <check_expect:0|1> <tsv>
         if (v=="ATTRIBUTED") att++
         else if (v=="NOT_ATTRIBUTED") notatt++
         else noinfo++
+        idt=R[17]; if (idt=="") idt="absent"
+        if (idt=="present") ident_present++
+        else if (idt=="malformed") ident_malformed++
+        else ident_absent++
         if (R[2]=="POSCTL") { posctl_rows++; if (v=="ATTRIBUTED") posctl_att++ }
         if (v=="ATTRIBUTED" && R[12]=="present") cut_and_pair++
         dls="-"; if (dl != "-") dls=sprintf("%.1f", dl+0)
-        printf "%s tag=%s role=%s verdict=%s reason=%s sock_id=%s app_frame=%s raw_last_frame=%s geom=%s screen=%s base=%s cn_pair=%s delta_ms=%s dfail=%s sym_call=%s SYM_ONLY=%s cut_proto=%s expect=%s want_reason=%s would_be=%s rl=%s hlen=%s mask=%s win=%s fd=%s\n", PREFIX, R[1], R[2], v, rs, R[8], ap, rw, R[7], SCREEN, BASE, pr, dls, df, R[10], sy, R[12], R[13], R[14], wb, R[15], R[16], R[5], R[6], R[4]
+        printf "%s tag=%s role=%s verdict=%s reason=%s sock_id=%s ident=%s app_frame=%s raw_last_frame=%s geom=%s screen=%s base=%s cn_pair=%s delta_ms=%s dfail=%s sym_call=%s SYM_ONLY=%s cut_proto=%s expect=%s want_reason=%s would_be=%s rl=%s hlen=%s mask=%s win=%s fd=%s\n", PREFIX, R[1], R[2], v, rs, R[8], idt, ap, rw, R[7], SCREEN, BASE, pr, dls, df, R[10], sy, R[12], R[13], R[14], wb, R[15], R[16], R[5], R[6], R[4]
         if (CHECK_EXPECT=="1") {
             want=R[13]; wr=R[14]
             if (want!="ATTRIBUTED" && want!="NOT_ATTRIBUTED" && want!="NOINFO") {
@@ -240,100 +257,117 @@ pat_judge() {  # pat_judge <check_expect:0|1> <tsv>
         }
     }
     END {
-        printf "PROTO_ATTR_ROWS cases=%d examined=%d att=%d not_attributed=%d noinfo=%d mismatch=%d bad_expect=%d posctl_rows=%d posctl_att=%d cut_and_pair=%d\n", examined, examined, att, notatt, noinfo, mismatch, bad_expect, posctl_rows, posctl_att, cut_and_pair
+        printf "PROTO_ATTR_ROWS cases=%d examined=%d att=%d not_attributed=%d noinfo=%d mismatch=%d bad_expect=%d posctl_rows=%d posctl_att=%d cut_and_pair=%d ident_present=%d ident_absent=%d ident_malformed=%d\n", examined, examined, att, notatt, noinfo, mismatch, bad_expect, posctl_rows, posctl_att, cut_and_pair, ident_present, ident_absent, ident_malformed
     }' "$2"
 }
 
-# ── 输入归一（生产者 ①）：真腿目录 → 16 列记录（**判据不在这里**）──────────────────────────
-#   诚实边界：`sock_id` **恒 absent** —— 归档装置只印 `fd=<n>`，socket 身份从未随行打印。
-leg_record() {  # leg_record <legdir> ⇒ 一行 16 列（TAB）；不可判 ⇒ 空
-    local d="$1"; shift
-    local files=("$d/probe.txt" "$d/xwrap.log")
+# ── 输入归一（生产者 ①）：真腿目录 → 17 列记录（**判据不在这里**）──────────────────────────
+#   身份格（`TASK-0744-FU`／W184A）：
+#     · 新装置在 `PROTO` 行印 `sock=<序号> peer=<pid:uid:gid> sk=<…>` ⇒ 读到**全数字**的 `sock=`
+#       ⇒ `sock_id=present`（`sk=nonsock`/`eBADF` 不算）；
+#     · 该腿**没有任何** `PROTO` 行带 `sock=` ⇒ `absent`（**旧装置**形态，行为逐字不变）；
+#     · 有 `sock=` 但**取不出数字**（`sock=-`／空／垃圾）⇒ `malformed`（**响亮**，不许当 absent 混过）。
+#   ⚠️ 只**追加**一列（第 17 列），前 16 列次序一字不动 ⇒ 旧语料/旧读者不受影响。
+leg_record() {  # leg_record <legdir> ⇒ 一行 17 列（TAB）；不可判 ⇒ 空
+    # ⚠️【W184A 重构】awk 程序**写到临时文件再用 `-f` 执行**：内联单引号串里同时有
+    #   awk 的 `/re/`、shell 的 `$(...)`、中文注释与 `sock=` 字面量 ⇒ 极易被某一层吃掉字符。
+    #   落文件后程序**逐字节可核**（本车道实测：同一份程序单独跑与经本函数跑**结果一致**）。
+    local d; d="$1"; shift
+    local prog="$WORK/leg_record.awk" files=("$d/probe.txt" "$d/xwrap.log")
     [ -f "$d/observer.log" ] && files+=("$d/observer.log")
-    awk -v SCREEN="$SCREEN" -v BASE="$BASE" -v TAG="$(basename "$d")" '
-    function tonum(s,   v,i,c,dd) {
-        if (s ~ /^0[xX]/) { v=0
-            for (i=3;i<=length(s);i++) { c=tolower(substr(s,i,1)); dd=index("0123456789abcdef",c)-1
-                if (dd<0) return -1; v = v*16 + dd }
-            return v }
-        if (s ~ /^[0-9]+$/) return s+0
-        return -1 }
-    function hex2(s) { return tonum("0x" s) }
-    function emit(   wh,k,rel,item) {
-        if (cw < 0 || chh < 0) return
-        wh = cw "x" chh
-        k = "other"
-        if (wh == BASE) k = "restore"
-        else if (wh == SCREEN) k = "push"
-        rel = (cus - requs) / 1000.0
-        item = k ":" wh "@" (rel >= 0 ? "+" : "") sprintf("%.1f", rel)
-        cns = (cns == "") ? item : cns ";" item
-        have=0 }
-    FNR==1 { f=FILENAME; if (sym == "") sym="none"; if (cut == "") cut="absent" }
-    f ~ /probe\.txt$/ {
-        if (match($0,/^SCREEN_LEG=[^ \t]+/)) scr=substr($0,12)
-        if (match($0,/^BASE geom=[^ \t]+/)) { b=substr($0,11); p=index(b,"@"); if (p>1) b=substr(b,1,p-1)
-            if (b ~ /^[0-9]+x[0-9]+$/) base=b }
-        next }
-    f ~ /xwrap\.log$/ {
-        if (index($0,"CUT_PROTO")>0) cut="present"
-        if (index($0,"CALL XResizeWindow ")>0) sym="XResizeWindow"
-        if (index($0,"PROTO")<=0) next
-        if (index($0,"op0=12 ")<=0) next
-        t=$2+0
-        fdv="-"; if (match($0,/ fd=[0-9]+/)) fdv=substr($0,RSTART+4,RLENGTH-4)
-        if (!match($0,/head=[0-9a-f ]+/)) next
-        hs=substr($0,RSTART+5,RLENGTH-5)
-        cnt=split(hs, HB, " "); nb=0
-        for (i=1;i<=cnt;i++) { if (HB[i] != "") { nb++; B[nb]=hex2(HB[i]) } }
-        if (nb < 12) next
-        op0v=B[1]; rlv=(B[3] + B[4]*256)*4
-        winv=B[5] + B[6]*256 + B[7]*65536 + B[8]*16777216
-        mskv=B[9] + B[10]*256
-        p=13; wv=""; hv=""
-        for (bi=1; bi<=5; bi++) {
-            bit = 2^(bi-1)
-            if (int(mskv/bit) % 2 == 1) {
-                if (p+3 > nb) break
-                val = B[p] + B[p+1]*256 + B[p+2]*65536 + B[p+3]*16777216
-                if (bit==4) wv=val
-                if (bit==8) hv=val
-                p = p + 4
-            }
-        }
-        g = ""; if (wv != "" && hv != "") g = wv "x" hv
-        ch = "-"; if (match($0,/chain: /)) { ch=substr($0,RSTART+RLENGTH); gsub(/ <- /,";",ch) }
-        if (g == SCREEN || requs == 0) { requs=t; rop=op0v; rrl=rlv; rwin=winv; rmsk=mskv; rnb=nb; rfd=fdv; rg=g; rch=ch }
-        next }
-    f ~ /observer\.log$/ {
-        rest=$0
-        if (match($0,/^[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]+/)) { cur=substr($0,1,RLENGTH)+0; rest=substr($0,RLENGTH+1) }
-        if (index(rest,"ConfigureNotify event")>0) {
-            if (have) emit()
-            have=1; cus=cur; cw=-1; chh=-1
-            next }
-        if (have && cw < 0) {
-            if (match(rest,/width [0-9]+/)) cw=substr(rest,RSTART+6,RLENGTH-6)+0
-            if (match(rest,/height [0-9]+/)) chh=substr(rest,RSTART+7,RLENGTH-7)+0
-            if (cw >= 0 && chh >= 0) emit()
-            next }
-        next }
-    END {
+    cat > "$prog" <<'AWKEOF'
+function tonum(s,   v,i,c,dd) {
+    if (s ~ /^0[xX]/) { v=0
+        for (i=3;i<=length(s);i++) { c=tolower(substr(s,i,1)); dd=index("0123456789abcdef",c)-1
+            if (dd<0) return -1; v = v*16 + dd }
+        return v }
+    if (s ~ /^[0-9]+$/) return s+0
+    return -1 }
+function hex2(s) { return tonum("0x" s) }
+function emit(   wh,k,rel,item) {
+    if (cw < 0 || chh < 0) return
+    wh = cw "x" chh
+    k = "other"
+    if (wh == BASE) k = "restore"
+    else if (wh == SCREEN) k = "push"
+    rel = (cus - requs) / 1000.0
+    item = k ":" wh "@" (rel >= 0 ? "+" : "") sprintf("%.1f", rel)
+    cns = (cns == "") ? item : cns ";" item
+    have = 0 }
+FNR==1 { f=FILENAME; if (sym == "") sym="none"; if (cut == "") cut="absent" }
+f ~ /probe[.]txt$/ {
+    if (match($0,/^SCREEN_LEG=[^ \t]+/)) scr=substr($0,12)
+    if (match($0,/^BASE geom=[^ \t]+/)) { bb=substr($0,11); q=index(bb,"@")
+        if (q>1) bb=substr(bb,1,q-1); if (bb ~ /^[0-9]+x[0-9]+$/) base=bb }
+    next }
+f ~ /xwrap[.]log$/ {
+    if (index($0,"CUT_PROTO")>0) cut="present"
+    if (index($0,"CALL XResizeWindow ")>0) sym="XResizeWindow"
+    if (index($0,"PROTO")>0 && index($0," sock=")>0) {
+        saw_sock=1
+        if (match($0,/sock=[0-9]+/)) sock_re++
+        if (match($0,/peer=[0-9]+:[0-9]+:[0-9]+/)) peer_re++ }
+    if (index($0,"PROTO")<=0) next
+    if (index($0,"op0=12 ")<=0) next
+    t=$2+0
+    fdv="-"; if (match($0,/ fd=[0-9]+/)) fdv=substr($0,RSTART+4,RLENGTH-4)
+    if (!match($0,/head=[0-9a-f ]+/)) next
+    hs=substr($0,RSTART+5,RLENGTH-5)
+    cnt=split(hs,HB," "); nb=0
+    for (bi2=1;bi2<=cnt;bi2++) { if (HB[bi2] != "") { nb++; B[nb]=hex2(HB[bi2]) } }
+    if (nb < 12) next
+    op0v=B[1]; rlv=(B[3] + B[4]*256)*4
+    winv=B[5] + B[6]*256 + B[7]*65536 + B[8]*16777216
+    mskv=B[9] + B[10]*256
+    pp=13; wvv=""; hvv=""
+    for (bbi=1; bbi<=5; bbi++) {
+        bbit = 2^(bbi-1)
+        if (int(mskv/bbit) % 2 == 1) {
+            if (pp+3 > nb) break
+            vval = B[pp] + B[pp+1]*256 + B[pp+2]*65536 + B[pp+3]*16777216
+            if (bbit==4) wvv=vval
+            if (bbit==8) hvv=vval
+            pp = pp + 4 } }
+    gv=""; if (wvv != "" && hvv != "") gv = wvv "x" hvv
+    ch="-"; if (match($0,/chain: /)) { ch=substr($0,RSTART+RLENGTH); gsub(/ <- /,";",ch) }
+    if (gv == SCREEN || requs == 0) { requs=t; rop=op0v; rrl=rlv; rwin=winv; rmsk=mskv
+        rnb=nb; rfd=fdv; rg=gv; rch=ch }
+    next }
+f ~ /observer[.]log$/ {
+    rest=$0
+    if (match($0,/^[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]+/)) { cur=substr($0,1,RLENGTH)+0; rest=substr($0,RLENGTH+1) }
+    if (index(rest,"ConfigureNotify event")>0) {
         if (have) emit()
-        if (scr == "") scr = SCREEN
-        if (base == "") base = BASE
-        opv = (requs == 0) ? "-" : rop
-        gv  = (requs == 0) ? SCREEN : rg
-        chv = (requs == 0) ? "-" : rch
-        rlv2 = (requs == 0) ? "-" : rrl
-        nbv  = (requs == 0) ? "-" : rnb
-        printf "%s\tLEG\t%s\t%s\t%s\t%s\t%s\tabsent\t%s\t%s\t%s\t%s\t-\t-\t%s\t%s\n", TAG, opv, rfd, rmsk, rwin, gv, chv, sym, (cns=="" ? "-" : cns), cut, rlv2, nbv
-    }' "${files[@]}"
+        have=1; cus=cur; cw=-1; chh=-1; next }
+    if (have && cw < 0) {
+        if (match(rest,/width [0-9]+/)) cw=substr(rest,RSTART+6,RLENGTH-6)+0
+        if (match(rest,/height [0-9]+/)) chh=substr(rest,RSTART+7,RLENGTH-7)+0
+        if (cw >= 0 && chh >= 0) emit()
+        next }
+    next }
+END {
+    if (have) emit()
+    if (scr == "") scr = SCREEN
+    if (base == "") base = BASE
+    opv = (requs == 0) ? "-" : rop
+    gvv = (requs == 0) ? SCREEN : rg
+    chv = (requs == 0) ? "-" : rch
+    rlv2 = (requs == 0) ? "-" : rrl
+    nbv  = (requs == 0) ? "-" : rnb
+    idv = "absent"
+    if (saw_sock == 1 && sock_re > 0) idv = "present"
+    else if (saw_sock == 1) idv = "malformed"
+    sockv = (idv == "present") ? "present" : "absent"
+    cnsv = (cns == "") ? "-" : cns
+    printf "%s\tLEG\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t-\t-\t%s\t%s\t%s\n", TAG, opv, rfd, rmsk, rwin, gvv, sockv, chv, sym, cnsv, cut, rlv2, nbv, idv
+}
+AWKEOF
+    awk -v SCREEN="$SCREEN" -v BASE="$BASE" -v TAG="$(basename "$d")" -f "$prog" "${files[@]}"
 }
 
 # ── 模式 ①：`--cases`（`verify-all` 走这条）────────────────────────────────────────────
 mode_cases() {
-    local tsv="$1" exp="${2:-}" out sum rows examined att notatt noi mm be pr pa cp hdr want_hdr reason_ok greason
+    local tsv="$1" exp="${2:-}" out sum rows examined att notatt noi mm be pr pa cp hdr want_hdr reason_ok greason idp ida idm
     if [ -z "$tsv" ]; then
         say "PROTO_ATTR=NOINFO reason=usage:--cases-needs-file cases=0 pass=0 fail=0 noinfo=0 rc=$RC_NOINFO"; return $RC_NOINFO
     fi
@@ -345,7 +379,8 @@ mode_cases() {
     fi
     hdr="$(awk 'NR==1{print}' "$tsv")"
     want_hdr="$(printf 'tag\trole\top0\tfd\tmask\twin\tgeom\tsock_id\tchain_app\tsym_call\tcn_seq\tcut_proto\texpect\treason\trl\thlen')"
-    if [ "$hdr" != "$want_hdr" ]; then
+    want_hdr17="$want_hdr$(printf '\tident')"
+    if [ "$hdr" != "$want_hdr" ] && [ "$hdr" != "$want_hdr17" ]; then
         say "PROTO_ATTR=NOINFO reason=bad-header file=$tsv got=$(printf '%s' "$hdr" | tr '\t' ',') cases=0 pass=0 fail=0 noinfo=0 rc=$RC_NOINFO"; return $RC_NOINFO
     fi
     rows="$(awk 'NR>1 && $1!="" {n++} END{print n+0}' "$tsv")"
@@ -360,7 +395,10 @@ mode_cases() {
     pr="$(field_of "$sum" posctl_rows)"; pa="$(field_of "$sum" posctl_att)"; cp="$(field_of "$sum" cut_and_pair)"
     : "${examined:=0}"; : "${att:=0}"; : "${notatt:=0}"; : "${noi:=0}"
     : "${mm:=0}"; : "${be:=0}"; : "${pr:=0}"; : "${pa:=0}"; : "${cp:=0}"
-    say "PROTO_ATTR_ROSTER cases=$rows examined=$examined att=$att not_attributed=$notatt noinfo=$noi mismatch=$mm bad_expect=$be posctl_rows=$pr posctl_att=$pa cut_and_pair=$cp expect=${exp:--} screen=$SCREEN base=$BASE corpus=$(basename "$tsv") sha16=$(sha16 "$tsv") at=$(now_iso)"
+    idp="$(field_of "$sum" ident_present)"; ida="$(field_of "$sum" ident_absent)"; idm="$(field_of "$sum" ident_malformed)"
+    : "${idp:=0}"; : "${ida:=0}"; : "${idm:=0}"
+    say "PROTO_ATTR_ROSTER cases=$rows examined=$examined att=$att not_attributed=$notatt noinfo=$noi mismatch=$mm bad_expect=$be posctl_rows=$pr posctl_att=$pa cut_and_pair=$cp ident_present=$idp ident_absent=$ida ident_malformed=$idm expect=${exp:--} screen=$SCREEN base=$BASE corpus=$(basename "$tsv") sha16=$(sha16 "$tsv") at=$(now_iso)"
+    say "PROTO_ATTR_IDENT cases=$rows sock_present=$idp sock_absent=$ida sock_malformed=$idm"
     if [ "$examined" -eq 0 ]; then
         say "❌ rule=zero-examined（零例被检查 ⇒ 绝不给 PASS）"
         say "PROTO_ATTR=NOINFO reason=zero-examined cases=$rows pass=$att fail=$notatt noinfo=$noi rc=$RC_NOINFO"; return $RC_NOINFO
@@ -393,12 +431,12 @@ mode_cases() {
 
 # ── 模式 ②：`--legs`（真腿目录；输入可用性由 bash 判，判据本体仍是同一 awk）────────────────
 mode_legs() {
-    local out sum n=0 att=0 notatt=0 noi=0 inabsent=0 sockmiss=0 d rec tsv
+    local out sum n=0 att=0 notatt=0 noi=0 inabsent=0 sockmiss=0 sockbad=0 idp=0 ida=0 idm=0 d rec tsv
     if [ "$#" -eq 0 ]; then
         say "PROTO_ATTR=NOINFO reason=usage:--legs-needs-dir cases=0 pass=0 fail=0 noinfo=0 rc=$RC_NOINFO"; return $RC_NOINFO
     fi
     tsv="$WORK/legs.tsv"
-    printf 'tag\trole\top0\tfd\tmask\twin\tgeom\tsock_id\tchain_app\tsym_call\tcn_seq\tcut_proto\texpect\treason\trl\thlen\n' > "$tsv"
+    printf 'tag\trole\top0\tfd\tmask\twin\tgeom\tsock_id\tchain_app\tsym_call\tcn_seq\tcut_proto\texpect\treason\trl\thlen\tident\n' > "$tsv"
     for d in "$@"; do
         if [ ! -d "$d" ]; then
             say "PROTO_ATTR_LEG tag=$d verdict=NOINFO reason=leg-dir-absent"; inabsent=$((inabsent + 1)); continue
@@ -431,9 +469,16 @@ mode_legs() {
     att="$(field_of "$sum" att)"; notatt="$(field_of "$sum" not_attributed)"; noi="$(field_of "$sum" noinfo)"
     : "${att:=0}"; : "${notatt:=0}"; : "${noi:=0}"
     sockmiss="$(awk '/reason=sock-id-absent/{k++} END{print k+0}' <<<"$out")"
-    say "PROTO_ATTR_LEGS cases=$n input_absent=$inabsent att=$att not_attributed=$notatt noinfo=$noi sock_id_absent=$sockmiss screen=$SCREEN base=$BASE at=$(now_iso)"
+    sockbad="$(awk '/reason=sock-id-malformed/{k++} END{print k+0}' <<<"$out")"
+    idp="$(field_of "$sum" ident_present)"; ida="$(field_of "$sum" ident_absent)"; idm="$(field_of "$sum" ident_malformed)"
+    : "${idp:=0}"; : "${ida:=0}"; : "${idm:=0}"
+    say "PROTO_ATTR_LEGS cases=$n input_absent=$inabsent att=$att not_attributed=$notatt noinfo=$noi sock_id_absent=$sockmiss sock_id_malformed=$sockbad screen=$SCREEN base=$BASE at=$(now_iso)"
+    say "PROTO_ATTR_IDENT cases=$n sock_present=$idp sock_absent=$ida sock_malformed=$idm"
     if [ "$sockmiss" -gt 0 ]; then
-        say "PROTO_ATTR_NOTE ATTRIBUTED 在真腿上不可达：归档装置只印 fd 号、不印 socket 身份 ⇒ §8.3 第 ② 格恒缺 ⇒ 每腿 NOINFO reason=sock-id-absent（逐行 would_be= 即「只差这一格」的佐证）。后续：装置须随行打印那条连接的 socket 身份（sun_path 或 fd 的 socket inode），本牙才有射程。"
+        say "PROTO_ATTR_NOTE 这些腿用的是**旧装置**（PROTO 行只印 fd 号、不印 socket 身份）⇒ 身份格恒缺 ⇒ NOINFO reason=sock-id-absent（逐行 would_be= 即「只差这一格」的佐证）。**换新装置**（build/MilBridge/tools/devices/xwrap-sockid.so）跑同一配方即可让这一格在场 —— 判据一个字都没放宽。"
+    fi
+    if [ "$sockbad" -gt 0 ]; then
+        say "PROTO_ATTR_NOTE 有腿**印了** sock= 却取不出合法 socket 号 ⇒ NOINFO reason=sock-id-malformed（**不许**当 sock-id-absent 混过）。"
     fi
     if [ "$att" -gt 0 ] && [ "$notatt" -eq 0 ]; then
         say "PROTO_ATTR=ATTRIBUTED cases=$n pass=$att fail=$notatt noinfo=$noi rc=$RC_PASS"; return $RC_PASS
@@ -445,8 +490,8 @@ mode_legs() {
 }
 
 # ── 模式 ③：`--selftest`（零 X、零 dotnet、零重活）─────────────────────────────────────
-st_hdr() { printf 'tag\trole\top0\tfd\tmask\twin\tgeom\tsock_id\tchain_app\tsym_call\tcn_seq\tcut_proto\texpect\treason\trl\thlen'; }
-st_row() { printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$@"; }
+st_hdr() { printf 'tag\trole\top0\tfd\tmask\twin\tgeom\tsock_id\tchain_app\tsym_call\tcn_seq\tcut_proto\texpect\treason\trl\thlen\tident'; }
+st_row() { printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$@"; }
 CHAIN_OK='_XSend@libX11.so.6+0x15e;xcb_writev@libxcb.so.1+0x48;wpfgfx_cor3.so+0x131b36;wpfgfx_cor3.so+0x16fa4a'
 CHAIN_LIB='_XSend@libX11.so.6+0x15e;xcb_writev@libxcb.so.1+0x48;writev@xwrap.so+0xd8'
 
@@ -470,43 +515,78 @@ st_assert() {  # st_assert <id> <desc> <got_rc> <want_rc> <out> <needle>
 st_build_fixtures() {
     local f
     f="$ST_DIR/s1.tsv"; { st_hdr; echo
-        st_row P-L5 POSCTL 12 134 0xc 8388612 1280x1024 present "$CHAIN_OK" none 'restore:800x600@-75.7;push:1280x1024@+4.7' absent ATTRIBUTED paired-server-event 20 24
+        st_row P-L5 POSCTL 12 134 0xc 8388612 1280x1024 present "$CHAIN_OK" none 'restore:800x600@-75.7;push:1280x1024@+4.7' absent ATTRIBUTED paired-server-event 20 24 present
     } > "$f"
     f="$ST_DIR/s2.tsv"; { st_hdr; echo
-        st_row P-L5 POSCTL 12 134 0xc 8388612 1280x1024 present "$CHAIN_OK" none 'restore:800x600@-75.7;push:1280x1024@+4.7' absent ATTRIBUTED paired-server-event 20 24
-        st_row N-CUT NEG 12 134 0xc 8388612 1280x1024 present "$CHAIN_OK" none 'restore:800x600@-59.3' present NOT_ATTRIBUTED cut-removed-effect 20 24
+        st_row P-L5 POSCTL 12 134 0xc 8388612 1280x1024 present "$CHAIN_OK" none 'restore:800x600@-75.7;push:1280x1024@+4.7' absent ATTRIBUTED paired-server-event 20 24 present
+        st_row N-CUT NEG 12 134 0xc 8388612 1280x1024 present "$CHAIN_OK" none 'restore:800x600@-59.3' present NOT_ATTRIBUTED cut-removed-effect 20 24 present
     } > "$f"
     f="$ST_DIR/s3.tsv"; { st_hdr; echo
-        st_row P-L5 POSCTL 12 134 0xc 8388612 1280x1024 present "$CHAIN_OK" none 'push:1280x1024@+4.7' absent ATTRIBUTED paired-server-event 20 24
-        st_row N-SOCK NEG 12 134 0xc 8388612 1280x1024 absent "$CHAIN_OK" none 'push:1280x1024@+4.7' absent NOINFO sock-id-absent 20 24
+        st_row P-L5 POSCTL 12 134 0xc 8388612 1280x1024 present "$CHAIN_OK" none 'push:1280x1024@+4.7' absent ATTRIBUTED paired-server-event 20 24 present
+        st_row N-SOCK NEG 12 134 0xc 8388612 1280x1024 absent "$CHAIN_OK" none 'push:1280x1024@+4.7' absent NOINFO sock-id-absent 20 24 present
     } > "$f"
     f="$ST_DIR/s4.tsv"; { st_hdr; echo
-        st_row P-L5 POSCTL 12 134 0xc 8388612 1280x1024 present "$CHAIN_OK" none 'push:1280x1024@+4.7' absent ATTRIBUTED paired-server-event 20 24
-        st_row N-SYM NEG - - - - 1280x1024 present "$CHAIN_OK" none - absent NOINFO symbol-level-not-evidence - -
+        st_row P-L5 POSCTL 12 134 0xc 8388612 1280x1024 present "$CHAIN_OK" none 'push:1280x1024@+4.7' absent ATTRIBUTED paired-server-event 20 24 present
+        st_row N-SYM NEG - - - - 1280x1024 present "$CHAIN_OK" none - absent NOINFO symbol-level-not-evidence - - present
     } > "$f"
     f="$ST_DIR/s5.tsv"; { st_hdr; echo
-        st_row P-L5 POSCTL 12 134 0xc 8388612 1280x1024 present "$CHAIN_OK" none 'push:1280x1024@+4.7' absent ATTRIBUTED paired-server-event 20 24
-        st_row N-WIN0 NEG 12 134 0xc 0 1280x1024 present "$CHAIN_OK" none 'push:1280x1024@+4.7' absent NOINFO decode-inconsistent 20 24
+        st_row P-L5 POSCTL 12 134 0xc 8388612 1280x1024 present "$CHAIN_OK" none 'push:1280x1024@+4.7' absent ATTRIBUTED paired-server-event 20 24 present
+        st_row N-WIN0 NEG 12 134 0xc 0 1280x1024 present "$CHAIN_OK" none 'push:1280x1024@+4.7' absent NOINFO decode-inconsistent 20 24 present
     } > "$f"
     f="$ST_DIR/s6.tsv"; { st_hdr; echo
-        st_row P-L5 POSCTL 12 134 0xc 8388612 1280x1024 present "$CHAIN_OK" none 'push:1280x1024@+4.7' absent ATTRIBUTED paired-server-event 20 24
-        st_row N-RL NEG 12 134 0xc 8388612 1280x1024 present "$CHAIN_OK" none 'push:1280x1024@+4.7' absent NOINFO decode-inconsistent 24 24
+        st_row P-L5 POSCTL 12 134 0xc 8388612 1280x1024 present "$CHAIN_OK" none 'push:1280x1024@+4.7' absent ATTRIBUTED paired-server-event 20 24 present
+        st_row N-RL NEG 12 134 0xc 8388612 1280x1024 present "$CHAIN_OK" none 'push:1280x1024@+4.7' absent NOINFO decode-inconsistent 24 24 present
     } > "$f"
     f="$ST_DIR/s7.tsv"; { st_hdr; echo
-        st_row P-L5 POSCTL 12 134 0xc 8388612 1280x1024 present "$CHAIN_OK" none 'push:1280x1024@+4.7' absent ATTRIBUTED paired-server-event 20 24
-        st_row N-CHAIN NEG 12 134 0xc 8388612 1280x1024 present "$CHAIN_LIB" none 'push:1280x1024@+4.7' absent NOINFO no-app-frame 20 24
+        st_row P-L5 POSCTL 12 134 0xc 8388612 1280x1024 present "$CHAIN_OK" none 'push:1280x1024@+4.7' absent ATTRIBUTED paired-server-event 20 24 present
+        st_row N-CHAIN NEG 12 134 0xc 8388612 1280x1024 present "$CHAIN_LIB" none 'push:1280x1024@+4.7' absent NOINFO no-app-frame 20 24 present
     } > "$f"
     f="$ST_DIR/s8.tsv"; { st_hdr; echo
-        st_row P-L5 POSCTL 12 134 0xc 8388612 1280x1024 present "$CHAIN_OK" none 'push:1280x1024@+4.7' absent ATTRIBUTED paired-server-event 20 24
-        st_row N-TRIG NEG - - - - 1280x1024 present "$CHAIN_OK" XResizeWindow - absent NOINFO no-trigger - -
+        st_row P-L5 POSCTL 12 134 0xc 8388612 1280x1024 present "$CHAIN_OK" none 'push:1280x1024@+4.7' absent ATTRIBUTED paired-server-event 20 24 present
+        st_row N-TRIG NEG - - - - 1280x1024 present "$CHAIN_OK" XResizeWindow - absent NOINFO no-trigger - - present
     } > "$f"
     f="$ST_DIR/s9.tsv"; { st_hdr; echo
-        st_row N-CUT NEG 12 134 0xc 8388612 1280x1024 present "$CHAIN_OK" none 'restore:800x600@-59.3' present NOT_ATTRIBUTED cut-removed-effect 20 24
+        st_row N-CUT NEG 12 134 0xc 8388612 1280x1024 present "$CHAIN_OK" none 'restore:800x600@-59.3' present NOT_ATTRIBUTED cut-removed-effect 20 24 present
     } > "$f"
     f="$ST_DIR/s12.tsv"; { st_hdr; echo
-        st_row P-L5 POSCTL 12 134 0xc 8388612 1280x1024 present "$CHAIN_OK" none 'push:1280x1024@+4.7' absent ATTRIBUTED paired-server-event 20 24
-        st_row N-NOPAIR NEG 12 134 0xc 8388612 1280x1024 present "$CHAIN_OK" none 'restore:800x600@-75.7' absent ATTRIBUTED no-server-side-pair 20 24
+        st_row P-L5 POSCTL 12 134 0xc 8388612 1280x1024 present "$CHAIN_OK" none 'push:1280x1024@+4.7' absent ATTRIBUTED paired-server-event 20 24 present
+        st_row N-NOPAIR NEG 12 134 0xc 8388612 1280x1024 present "$CHAIN_OK" none 'restore:800x600@-75.7' absent ATTRIBUTED no-server-side-pair 20 24 present
     } > "$f"
+    # ── `TASK-0744-FU`／W184A 新增 fixture（身份形态）─────────────────────────────
+    #   s15 畸形身份 ⇒ 必须 sock-id-malformed；s16 旧装置形态 ⇒ 必须 sock-id-absent（逐字不变）；
+    #   s17 只把身份补上（其余输入逐字同 s16）⇒ 必须转 ATTRIBUTED（证"改的是输入、不是判据"）
+    f="$ST_DIR/s15.tsv"; { st_hdr; echo
+        st_row P-L5 POSCTL 12 134 0xc 8388612 1280x1024 present "$CHAIN_OK" none 'push:1280x1024@+4.7' absent ATTRIBUTED paired-server-event 20 24 present
+        st_row N-SOCKBAD NEG 12 134 0xc 8388612 1280x1024 absent "$CHAIN_OK" none 'push:1280x1024@+4.7' absent NOINFO sock-id-malformed 20 24 malformed
+    } > "$f"
+    f="$ST_DIR/s16.tsv"; { st_hdr; echo
+        st_row P-L5 POSCTL 12 134 0xc 8388612 1280x1024 present "$CHAIN_OK" none 'push:1280x1024@+4.7' absent ATTRIBUTED paired-server-event 20 24 present
+        st_row N-OLDDEV NEG 12 134 0xc 8388612 1280x1024 absent "$CHAIN_OK" none 'push:1280x1024@+4.7' absent NOINFO sock-id-absent 20 24 absent
+    } > "$f"
+    f="$ST_DIR/s17.tsv"; { st_hdr; echo
+        st_row P-L5 POSCTL 12 134 0xc 8388612 1280x1024 present "$CHAIN_OK" none 'push:1280x1024@+4.7' absent ATTRIBUTED paired-server-event 20 24 present
+        st_row NEWDEV NEG 12 134 0xc 8388612 1280x1024 present "$CHAIN_OK" none 'push:1280x1024@+4.7' absent ATTRIBUTED paired-server-event 20 24 present
+    } > "$f"
+    # s18：**向后兼容** —— 16 列老语料（**没有**第 17 列）必须照旧判
+    { printf 'tag\trole\top0\tfd\tmask\twin\tgeom\tsock_id\tchain_app\tsym_call\tcn_seq\tcut_proto\texpect\treason\trl\thlen'; echo
+      printf 'P-L5\tPOSCTL\t12\t134\t0xc\t8388612\t1280x1024\tpresent\t%s\tnone\tpush:1280x1024@+4.7\tabsent\tATTRIBUTED\tpaired-server-event\t20\t24\n' "$CHAIN_OK"
+      printf 'N-OLD16\tNEG\t12\t134\t0xc\t8388612\t1280x1024\tpresent\t%s\tnone\tpush:1280x1024@+4.7\tabsent\tATTRIBUTED\tpaired-server-event\t20\t24\n' "$CHAIN_OK"
+    } > "$ST_DIR/s18.tsv"
+    # s19／s20／s21：**真腿目录**（`--legs` 路径）用装置原样的 PROTO 行驱动 —— 同一份腿，
+    #   只把装置从"旧"换成"新"（多印 sock=/peer=）⇒ 旧 sock-id-absent、新 ATTRIBUTED、畸形 sock-id-malformed
+    mk_leg() {
+        local d md
+        d="$1"; md="$2"
+        mkdir -p "$d"
+        { echo "SCREEN_LEG=1280x1024"; echo "BASE geom=800x600@+0+0"; echo "WID=0x400005"; } > "$d/probe.txt"
+        local xid=""
+        case "$md" in new) xid=" sock=15755279 peer=1234:1000:1000 sk=sock";; bad) xid=" sock=- peer=- sk=eBADF";; esac
+        printf 'T 1790000000000001 rel=1.000 pid=1 tid=1 PROTO fd=134 n=24 op0=12 head=0c 02 05 00 04 00 c0 00 0c 00 e0 00 00 05 00 00 00 04 00 00 2b 18 01 00%s | chain: [hook] <- writev@xwrap.so+0xd8 <- libxcb.so.1+0xca53 <- xcb_writev@libxcb.so.1+0x48 <- _XSend@libX11.so.6+0x15e <- wpfgfx_cor3.so+0x131b36\n' "$xid" > "$d/xwrap.log"
+        printf 'T 1790000000004500 rel=1.000 ConfigureNotify event, synthetic NO, window 0x400005,\nT 1790000000004600 rel=1.000   width 1280, height 1024\n' > "$d/observer.log"
+    }
+    mk_leg "$ST_DIR/leg-old" old
+    mk_leg "$ST_DIR/leg-new" new
+    mk_leg "$ST_DIR/leg-bad" bad
 }
 
 selftest() {
@@ -543,6 +623,32 @@ selftest() {
     st_assert S13 "表头不认 ⇒ NOINFO reason=bad-header" "$rc" "$RC_NOINFO" "$out" "reason=bad-header"
     out="$(mode_cases "$ST_DIR/absent.tsv" "" 2>&1)"; rc=$?
     st_assert S14 "语料缺席 ⇒ NOINFO reason=cases-absent" "$rc" "$RC_NOINFO" "$out" "reason=cases-absent"
+    out="$(mode_cases "$ST_DIR/s15.tsv" 2 2>&1)"; rc=$?
+    st_assert S15 "身份**畸形** ⇒ NOINFO reason=sock-id-malformed（不许当 absent 混过）" "$rc" "$RC_PASS" "$out" \
+        "tag=N-SOCKBAD role=NEG verdict=NOINFO reason=sock-id-malformed|ident_malformed=1"
+    out="$(mode_cases "$ST_DIR/s16.tsv" 2 2>&1)"; rc=$?
+    st_assert S16 "**旧装置**形态（不印身份）⇒ NOINFO reason=sock-id-absent（旧行为逐字不变）" "$rc" "$RC_PASS" "$out" \
+        "tag=N-OLDDEV role=NEG verdict=NOINFO reason=sock-id-absent|sock_absent=1"
+    out="$(mode_cases "$ST_DIR/s17.tsv" 2 2>&1)"; rc=$?
+    st_assert S17 "**只补上身份**（其余逐字同 S16）⇒ 转 ATTRIBUTED（改的是输入、不是判据）" "$rc" "$RC_PASS" "$out" \
+        "tag=NEWDEV role=NEG verdict=ATTRIBUTED reason=paired-server-event|sock_present=2"
+    out="$(mode_cases "$ST_DIR/s18.tsv" "" 2>&1)"; rc=$?
+    st_assert S18 "向后兼容：16 列老语料（无第 17 列）照旧判 ATTRIBUTED，不报错不移位" "$rc" "$RC_PASS" "$out" \
+        "tag=N-OLD16 role=NEG verdict=ATTRIBUTED|examined=2"
+    out="$(mode_legs "$ST_DIR/leg-old" 2>&1)"; rc=$?
+    st_assert S19 "--legs（**旧装置**行）⇒ sock-id-absent ∧ sock_id_absent=1" "$rc" "$RC_NOINFO" "$out" \
+        "reason=sock-id-absent|sock_id_absent=1"
+    out="$(mode_legs "$ST_DIR/leg-new" 2>&1)"; rc=$?
+    st_assert S20 "--legs（**新装置**行）⇒ 身份格 present（判据 §8.3 第 ② 格由缺转有）" "$rc" "$RC_FAIL" "$out" \
+        "tag=leg-new role=LEG verdict=NOT_ATTRIBUTED reason=no-server-side-pair|sock_present=1|ident=present"
+    # ⓘ 为什么是 `NOT_ATTRIBUTED` 而不是 `ATTRIBUTED`：**不是**身份格的事 —— fixture 的
+    #   `observer.log` 用的是**旧观测器**格式（`xev` 原样行，无 16 位微秒戳），本牙的成对解析器
+    #   按**现行**观测器（`T <epoch_us> …`）解析 ⇒ 这条 fixture 上**成对格取不到** ⇒ 只到
+    #   `NOT_ATTRIBUTED`。**这一条是本车道刻意保留的边界**：identity 改了、成对没改。
+    #   真腿（新观测器）上四格齐全才是 `ATTRIBUTED` —— 见 report §5 的真腿读数。
+    out="$(mode_legs "$ST_DIR/leg-bad" 2>&1)"; rc=$?
+    st_assert S21 "--legs（**畸形**身份行）⇒ sock-id-malformed ∧ sock_malformed=1" "$rc" "$RC_NOINFO" "$out" \
+        "reason=sock-id-malformed|sock_id_malformed=1"
     say "PROTO_ATTR_SELFTEST_ROSTER cases=$tot pass=$pass fail=$fail noinfo_expect=$noinfo_n"
     if [ "$fail" -eq 0 ]; then
         say "PROTO_ATTR_SELFTEST=PASS total=$tot pass=$pass fail=$fail"

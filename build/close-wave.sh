@@ -372,7 +372,12 @@ build/MilBridge/tools/parser-guard-decl.txt \
 build/MilBridge/tools/proto-attribution-check.sh \
 build/MilBridge/tools/proto-attribution-cases.tsv \
 build/MilBridge/tools/wave-freeze-consistency-check.py \
-tests/WpfGfx.Linux.Tests/Commands.Tests/tools/verify-cmd-layout.py
+tests/WpfGfx.Linux.Tests/Commands.Tests/tools/verify-cmd-layout.py \
+          build/MilBridge/tools/appbar-startup-check.sh \
+          build/MilBridge/tools/appbar-startup-ledger.tsv \
+          build/MilBridge/tools/devices/xwrap-sockid.c \
+          build/MilBridge/tools/devices/xwrap-sockid.so \
+          build/MilBridge/tools/devices/dev-selftest.c
     } | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -d' ' -f1
 }
 sha16() { sha256sum "$1" 2>/dev/null | cut -c1-16; }

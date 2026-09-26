@@ -1978,7 +1978,33 @@ BOOL GetMonitorInfoW(HMONITOR mon, WPF_MONITORINFOEX *info)
     }
     info->rcMonitor.left = 0; info->rcMonitor.top = 0;
     info->rcMonitor.right = sw; info->rcMonitor.bottom = sh;
-    info->rcWork = info->rcMonitor;
+    /* ── 【`D-G147` · 修法 B】`rcWork` **不再**恒等于 `rcMonitor` ────────────────
+       Win32 语义：`rcMonitor` = 整块显示器；`rcWork` = 桌面可用区（排除任务栏/停靠区）。
+       修前是 `info->rcWork = info->rcMonitor;` ⇒ 凡按工作区布局的消费者
+       （`SystemParameters.WorkArea`、`Window.WorkAreaBoundsForNearestMonitor`
+       = `upstream …/Window.cs:7385-7401` 的 `rcWork`）在此桥上拿到整块显示器
+       ⇒ 最大化/贴边/钳制会压到面板之下。
+       现在工作区取自 `wpf_x11_workarea()`（`_NET_WORKAREA` 当前桌面格）；
+       没有 WM 或属性缺失/畸形 ⇒ **显式声明的**回退 == 显示器（"无 WM 会加装饰"的现场
+       本来就装得下），并且**逐趟上屏**（`wpf_x11_workarea_declare`）——
+       ⚠️ "回退"与"静默恒等"的差别**只**在这一行声明上（`criteria.md` §2③）。 */
+    {
+        int wx = 0, wy = 0, ww = 0, wh = 0;
+        wpf_x11_workarea(&wx, &wy, &ww, &wh);
+        if (ww > 0 && wh > 0) {
+            info->rcWork.left = wx; info->rcWork.top = wy;
+            info->rcWork.right = wx + ww; info->rcWork.bottom = wy + wh;
+        } else {
+            info->rcWork = info->rcMonitor;          // 无 X：与 rcMonitor 同（并由 declare 声明）
+        }
+        wpf_x11_workarea_declare("GetMonitorInfo", &info->rcMonitor, 1,
+                                 info->rcWork.left, info->rcWork.top,
+                                 info->rcWork.right, info->rcWork.bottom);
+    }
+    /* `MONITORINFOF_PRIMARY`：本平台 `MonitorFromWindow/Point/Rect` 恒返回同一个句柄
+       且 `EnumDisplayMonitors` 恒报 1 个显示器（`win32_core.c`）⇒ 这**唯一**一个显示器
+       就是主显示器 ⇒ `dwFlags = 1` 正确。将来真做多显示器枚举时，本字段必须按"是否主屏"
+       逐台计算（判据见 `criteria.md` §3 射程，本条不在本修法射程内）。 */
     info->dwFlags = 1;   // MONITORINFOF_PRIMARY
     // szDevice **只在调用方声明了 MONITORINFOEX 时才写**（否则就是上面那条越界）。
     if (cb >= need_ex) {

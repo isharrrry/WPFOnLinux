@@ -135,6 +135,14 @@ static Atom a_utf8_string = 0;
 //   _NET_WORKAREA：WM 报的"可用区"（有面板/任务栏时 < 屏幕）——顶层窗尺寸钳制的上限来源。
 //   其余三个是随本次一起补的标准提示（见 wpf_x11_apply_wm_hints 的注释）。
 static Atom a_net_workarea = 0;
+/* 【`D-G147` · 修法 A】`_NET_CURRENT_DESKTOP`：`_NET_WORKAREA` 是 **4×N**（N=桌面数）
+   ⇒ 必须按当前桌面选格，否则多桌面现场读到的是"第 0 个桌面"的工作区。 */
+static Atom a_net_current_desktop = 0;
+/* `wpf_x11_workarea` 记下的"本次来源"，由 `GetMonitorInfoW`／`SPI_GETWORKAREA` 共用
+   （修前这两个出口各自从屏幕尺寸取值 ⇒ 与工作区是两个来源）。 */
+static const char *g_wpf_workarea_src = "none";
+static int g_wpf_workarea_prop_present = 0;
+static int g_wpf_workarea_prop_n = 0;
 static Atom a_net_wm_window_type = 0;
 static Atom a_net_wm_window_type_normal = 0;
 static Atom a_net_wm_pid = 0;
@@ -186,6 +194,7 @@ int wpf_x11_ensure(void)
     a_utf8_string = XInternAtom(d, "UTF8_STRING", False);
     // 【波 58】工作区与标准提示用的原子（都在同一次 ensure 里 intern，之后每窗口复用）
     a_net_workarea = XInternAtom(d, "_NET_WORKAREA", False);
+    a_net_current_desktop = XInternAtom(d, "_NET_CURRENT_DESKTOP", False);   // 【D-G147】选格用
     a_net_wm_window_type = XInternAtom(d, "_NET_WM_WINDOW_TYPE", False);
     a_net_wm_window_type_normal = XInternAtom(d, "_NET_WM_WINDOW_TYPE_NORMAL", False);
     a_net_wm_pid = XInternAtom(d, "_NET_WM_PID", False);
@@ -1610,31 +1619,110 @@ void wpf_x11_workarea(int *x, int *y, int *w, int *h)
     if (y) *y = 0;
     if (w) *w = 0;
     if (h) *h = 0;
-    if (!wpf_x11_ensure()) return;          // 无 X：全 0 = "不知道"
+    /* ── 【`D-G147` · 修法 A】来源必须在**返回之前**记下来，供 `GetMonitorInfoW` 与
+       `SPI_GETWORKAREA` 用 —— 修前这两个出口**各自**从 `DisplayWidth/Height` 取值，
+       与工作区是**两个来源** ⇒ 面板/任务栏在场时报的是整块显示器（缺陷本体）。 */
+    g_wpf_workarea_src = "none";
+    g_wpf_workarea_prop_present = 0;
+    g_wpf_workarea_prop_n = 0;
+    if (!wpf_x11_ensure()) {
+        g_wpf_workarea_src = "no-x";        // 调用方各自兜底（并各自声明）
+        return;
+    }
 
     int sx = 0, sy = 0, sw = 0, sh = 0;
+    int present = 0, an = 0, cur = 0, have_cur = 0;
     XLOCK();
-    sw = DisplayWidth(g_wpf.dpy, g_wpf.screen);
-    sh = DisplayHeight(g_wpf.dpy, g_wpf.screen);
+    int dw = DisplayWidth(g_wpf.dpy, g_wpf.screen);
+    int dh = DisplayHeight(g_wpf.dpy, g_wpf.screen);
     Atom type = 0;
     int fmt = 0;
     unsigned long n = 0, left = 0;
     unsigned char *data = NULL;
+    /* 看点 1：先把**整个**属性读回来（旧版只读 4 格 ⇒ `n` 恒被截成 4，
+       "多桌面"与"畸形"两件事都看不见 ⇒ 判据无法取证）。 */
     if (a_net_workarea &&
-        XGetWindowProperty(g_wpf.dpy, g_wpf.root, a_net_workarea, 0, 4, False, XA_CARDINAL,
+        XGetWindowProperty(g_wpf.dpy, g_wpf.root, a_net_workarea, 0, 64, False, XA_CARDINAL,
                            &type, &fmt, &n, &left, &data) == Success &&
-        data && n >= 4 && fmt == 32) {
-        long *v = (long *)data;
-        if (v[2] > 0 && v[3] > 0) { sx = (int)v[0]; sy = (int)v[1]; sw = (int)v[2]; sh = (int)v[3]; }
+        data && fmt == 32) {
+        present = 1;
+        an = (int)n;
+        /* 看点 2：`_NET_CURRENT_DESKTOP` 选格（属性是 4×N；取错桌面 ⇒ 多桌面现场取到别人的工作区）。 */
+        if (a_net_current_desktop) {
+            Atom ct = 0; int cf = 0; unsigned long cn = 0, cl = 0; unsigned char *cd = NULL;
+            if (XGetWindowProperty(g_wpf.dpy, g_wpf.root, a_net_current_desktop, 0, 1, False,
+                                   XA_CARDINAL, &ct, &cf, &cn, &cl, &cd) == Success &&
+                cd && cf == 32 && cn >= 1) { cur = (int)*(long *)cd; have_cur = 1; }
+            if (cd) XFree(cd);
+        }
+        if (n >= 4 && fmt == 32) {
+            long *v = (long *)data;
+            long vx = 0, vy = 0, vw = 0, vh = 0;
+            if (have_cur && cur >= 0 && ((unsigned long)cur * 4 + 3) < n) {
+                vx = v[cur * 4 + 0]; vy = v[cur * 4 + 1]; vw = v[cur * 4 + 2]; vh = v[cur * 4 + 3];
+            } else {
+                vx = v[0]; vy = v[1]; vw = v[2]; vh = v[3];
+            }
+            if (vw > 0 && vh > 0) {
+                sx = (int)vx; sy = (int)vy; sw = (int)vw; sh = (int)vh;
+                g_wpf_workarea_src = "net-workarea";
+            } else {
+                g_wpf_workarea_src = "fallback-malformed";   // 值是垃圾（宽/高 <= 0）⇒ 不当成合法工作区
+            }
+        } else {
+            g_wpf_workarea_src = "fallback-malformed";       // n<4 / format!=32 ⇒ 不当成合法工作区
+        }
+    } else {
+        g_wpf_workarea_src = "fallback-screen";              // 无 WM / WM 不报 ⇒ **显式声明的**回退
     }
     if (data) XFree(data);
     XUNLOCK();
 
-    if (sw <= 0 || sh <= 0) { sw = 1280; sh = 1024; }   // 与 GetSystemMetrics 的兜底口径一致
+    g_wpf_workarea_prop_present = present;
+    g_wpf_workarea_prop_n = an;
+    if (!(sw > 0 && sh > 0)) {                                // 回退支（含畸形）
+        if (dw > 0 && dh > 0) { sx = 0; sy = 0; sw = dw; sh = dh; }
+        else { sx = 0; sy = 0; sw = 1280; sh = 1024; }        // 与 GetSystemMetrics 的兜底口径一致
+    }
     if (x) *x = sx;
     if (y) *y = sy;
     if (w) *w = sw;
     if (h) *h = sh;
+}
+
+/* ── 【`D-G147` · 修法 A】工作区**来源**的查询口（声明载体）───────────────────────
+   为什么要有这个口：修前 `GetMonitorInfoW` 与 `SPI_GETWORKAREA` 各自从屏幕尺寸算，
+   "工作区 == 显示器"这件事**没有任何**可观察记录 ⇒ 判据只能靠推断。
+   现在每次取工作区都记下来源（`net-workarea`／`fallback-screen`／`fallback-malformed`／
+   `no-x`），并可由 `wpf_x11_workarea_declare()` **逐趟上屏**。
+   ⚠️ 这是**纯查询**，不改任何几何 ⇒ 零射程（不碰 `pc`/`pf`/`hbtextline`）。 */
+const char *wpf_x11_workarea_src(void) { return g_wpf_workarea_src; }
+int wpf_x11_workarea_prop(int *n_out) { if (n_out) *n_out = g_wpf_workarea_prop_n; return g_wpf_workarea_prop_present; }
+
+/* 把"这一次工作区是从哪来的"打一行到 stderr —— **不许静默恒等**的唯一兑现方式。
+   开关：`WPF_LINUX_G147_DECL=1`（默认**开**：这是判据的取证口，不是调试噪音；
+   若判定为噪音可用 `=0` 关掉，但**关掉即失去声明** ⇒ 判据按 criteria.md §2③ 判 `FAIL`）。 */
+void wpf_x11_workarea_declare(const char *who, const WPF_RECT *mon, int mon_present,
+                              int l, int t, int r, int b)
+{
+    static int on = -1;
+    if (on < 0) { const char *e = getenv("WPF_LINUX_G147_DECL"); on = (!e || !*e || strcmp(e, "0") != 0) ? 1 : 0; }
+    if (!on) return;
+    /* 节流：同一 `who` 只在**内容变化**时上屏（`SystemParameters.WorkArea` 每进程只问一次，
+       但窗口过程可能每帧问 ⇒ 不做节流会淹掉日志）。被抑制的次数**照样上屏**（"报 0 ≠ 不存在"）。 */
+    static char last[8][512]; static int nlast = 0; static unsigned long suppressed = 0;
+    char cur[512];   /* 必须装得下整行（2048 太长但 512 足够；见 W182A 实测：192 会撕掉换行）*/
+    snprintf(cur, sizeof cur, "%s mon=%d,%d,%d,%d work=%d,%d,%d,%d prop_present=%d prop_n=%d",
+             who ? who : "?", mon ? mon->left : 0, mon ? mon->top : 0,
+             mon ? mon->right : 0, mon ? mon->bottom : 0, l, t, r, b,
+             g_wpf_workarea_prop_present, g_wpf_workarea_prop_n);
+    for (int i = 0; i < nlast; i++) if (!strcmp(last[i], cur)) { suppressed++; return; }
+    if (nlast < 8) snprintf(last[nlast++], sizeof last[0], "%s", cur);
+    fprintf(stderr, "[G147_WORKAREA] source=%s %s", g_wpf_workarea_src, cur);
+    if (suppressed) fprintf(stderr, " suppressed_since_last=%lu", suppressed);
+    fputs("\n", stderr);
+    suppressed = 0;
+    (void)mon_present;
 }
 
 // ── 客户区尺寸上限 = 工作区 − 装饰余量 ─────────────────────────────────────────

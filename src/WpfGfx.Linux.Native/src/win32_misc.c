@@ -647,14 +647,23 @@ static void put_i32(void *data, int32_t v) { if (data) *(int32_t *)data = v; }
 static void put_u32(void *data, uint32_t v) { if (data) *(uint32_t *)data = v; }
 static void put_bool(void *data, int v) { put_i32(data, v ? 1 : 0); }
 
+/* ── 【`D-G147` · 修法 B】`SPI_GETWORKAREA` **不再**自己从屏幕尺寸算 ───────────────
+   修前：本函数与 `GetMonitorInfoW` 各自 `DisplayWidth/Height` ⇒ 两个出口两个来源，
+   而"工作区 != 显示器"的信息（`_NET_WORKAREA`）在两侧都被丢掉。
+   现在：唯一来源 = `wpf_x11_workarea()`（`_NET_WORKAREA` 当前桌面格），回退显式声明。
+   ⇒ 托管侧 `SystemParameters.WorkArea`／`WorkAreaInternal`
+   （`upstream …/SystemParameters.cs:339-353` = `SPI_GETWORKAREA`）与
+   `Window.WorkAreaBoundsForNearestMonitor`（`GetMonitorInfo(rcWork)`）**逐值一致**。 */
 static void fill_work_area(WPF_RECT *rc)
 {
-    int sw = 1280, sh = 1024;
-    if (wpf_x11_ensure()) {
-        sw = DisplayWidth(g_wpf.dpy, g_wpf.screen);
-        sh = DisplayHeight(g_wpf.dpy, g_wpf.screen);
+    int wx = 0, wy = 0, ww = 0, wh = 0;
+    wpf_x11_workarea(&wx, &wy, &ww, &wh);
+    if (!(ww > 0 && wh > 0)) {                 // 无 X：与 GetSystemMetrics 的兜底口径一致
+        wx = 0; wy = 0; ww = 1280; wh = 1024;
     }
-    rc->left = 0; rc->top = 0; rc->right = sw; rc->bottom = sh;
+    rc->left = wx; rc->top = wy; rc->right = wx + ww; rc->bottom = wy + wh;
+    wpf_x11_workarea_declare("SPI_GETWORKAREA", NULL, 0,
+                             rc->left, rc->top, rc->right, rc->bottom);
 }
 
 // 结构化 action 的写入长度夹取：`cbSize` 不足 → 不写、返回失败（Win32 语义）。

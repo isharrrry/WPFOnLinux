@@ -202,7 +202,7 @@ namespace MilBridge.ProductEntryArm
 
     internal static class Program
     {
-        private const string Root = "/home/links-dev/netTest/wpf-linux-20260906/wpf-linux";
+        private const string Root = "/home/links-dev/netTest/GitProj/WPFOnLinux";
         private const string FallbackEnvVar = "WPF_LINUX_TEXTLINE_FALLBACK";
         private const string CorpusRel = "/build/MilBridge/gen/layout-b34-compact.json";
         private const string InputsRel = "/build/MilBridge/tests/ProductEntryArm/inputs.json";

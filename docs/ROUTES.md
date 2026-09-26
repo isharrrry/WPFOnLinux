@@ -721,6 +721,19 @@ wpf-linux 路线图
 - **`#69`** ＝ `TASK-0725`（两把「会红的牙」接进仓并接线）｜**`#70`** ＝ `TASK-0724`＋`TASK-0728`（清单/指纹要有牙）｜**`#71`** ＝ `TASK-0729`＋`TASK-0727`（覆盖面与前置检查）｜**`#72`** ＝ `TASK-0730`＋`TASK-0731`（冻结器/抽取器）｜**`#73`** ＝ `TASK-0726`（产出端入仓）｜**`#74`** ＝ `TASK-0733`＋`TASK-0734`＋`TASK-0735`｜**`#75`** ＝ `TASK-0736`。
 - **一条变更集只许一次冻结**；基点（`verify-all.sh`／`build/close-wave.sh`／覆盖面／`inputs_fp`／世代）**一律落仓那刻现取**；**新波预登记一律走机读行形态**（纪律 45）。
 
+## §15af 波 `#78` 的**未闭项入册**（`t8`，2026-09-26；**逐条写清入口与判据，不许静默**）
+
+> 判据/证据出处：`build/MilBridge/P0-w78-report.md`（`c3db01a1e61b4934`）§2／§3／§4／§6。与 `t19`（包件源旧路径牙／roster 扩面／在册九位对拍／登记≠入册／两处硬化）**不重号**：本节管「根级条目」与「接线闭合性」，`t19` 管「旧路径一族」与「登记↔入册」。
+
+- `TASK-0750` [Next] 🔴 **根级条目白名单牙**（取代 `[9]` 的窄形态 `rootprops=`）—— 入口：新牙 `build/MilBridge/tools/root-entries-allowlist-check.sh`；判据：声明**根级允许清单**（从 `#76` 冻结树根条目现取 ＋ 移植面 ＋ fork 治理件）⇒ 断言「`git ls-files` 根级条目 ⊆ 清单」**∧**「工作树根级条目 ⊆ 清单」，超限**逐条点名**并印**判定路径与来源**（`git ls-files` vs `test -e`）；接线在 `IN_FP_0` 之前；两极化：放回 `.editorconfig`／`Directory.Build.props`／`NuGet.config` 任一 ⇒ 必红。设计逐条见 `P0-w78-report.md` §4-1。
+- `TASK-0751` [Next] 🔴 **接线闭合性 ＋ 真判词牙**（两方向）—— 入口：新牙 `build/MilBridge/tools/wiring-closure-check.sh`；判据 **A**「交付的牙集合 ⊆ `run_step` 接线集合」（未接线 ⇒ 红并点名）＋ **B**「每个 `^run_step` 的牙必须给**真判词**」（`NOINFO reason=usage…`／`cases=0`／`no-cases`／`no-manifest` 这类"接上了但没判"⇒ 红并点名该步；**合法 `NOINFO` 放行**并逐条公布黑白名单，反向验证"合法 `NOINFO` 不误报"）。与 `TASK-0740`（接线件 ⊆ 覆盖面）**互补、互不代偿**。设计见 `P0-w78-report.md` §4-2。
+- `TASK-0752` [Next] 🟡 **`−242` 两极化**（`TASK-0747` 的判决性成对读数）**在本波未真跑** ⇒ 具名结构性理由：车道腿跑器 `~/w181a/w7x/bin/leg.sh` 的臂映射 `absent → $R/src/WpfGfx.Linux.Native/bin/libwpfwin32.so`（**活树**）且 `$R` 指向**已退役的旧路径** ⇒ ① 它已解析不到；② 即便重指向，其 `absent` 臂现在指向**已装符号**的 `.so` ⇒ **臂语义已反转**。⇒ 需先修臂映射（活树＝`ret0`；`absent` 须指向**本波新造的未装符号件**，本波已产出 `sha16 8857b251e74851d2`／`shappbar=0`／`symbols_n=553`），再各跑 `DIAG=0/1` 两档。**已有在册读数**（车道 12 腿，`build/MilBridge/tools/appbar-startup-ledger.tsv`）：`absent` 字节 **242 B**／`ret0` **0 B** ⇒ 差**恰 242**；diag 档 `3808 → 3629`（差 179 ＝ 242 − 63，`[APPBAR_DIAG]` 行 63 B）。
+- `TASK-0753` [Next] 🟡 **`D-G147` 的成对读数重取**（工作区事实来源 ↔ `ABM_GETTASKBARPOS` 消费者对账）—— 本波只落四源载荷（anchors 逐处 `hits=1`），未重跑成对臂。
+- `TASK-0754` [Next] 🟡 **显示号租借的两极化 ＋ `X-CENSUS` 链前基线** —— 「起过 ⇒ 收尾后该号无进程」／「没起过 ⇒ 一个都不杀」两臂未真跑；链前基线未取（`X_CENSUS=NOINFO`）。
+- `TASK-0755` [Next] 🟡 **`0744-FU` 真腿** —— 装置三件＋FU 牙已落（`PROTO_ATTR_GATE=PASS examined=18 posctl=2/2`），但**真腿**的 `sock=` 随行打印与「符号级 hook 恒瞎」复证未跑。
+- **已登记的三条**（本波现场）：`D-G149`（冻结记录内 `provider` 陈旧 ↔ 模板写死字面量 ∧ 三道核全盲）｜`D-G150`（同名产物多「权威」路径无牙钉住相等）｜`D-G151`（保留集件因路径退役而静默失能）；**另 `D-G152`（主控引入、车道修复）**：「**路径既能当默认值、也能当守卫值；重指向前必须先看它在该件里的角色。**」
+- **本波修好的四处仪器缺陷（同趟，判据已复跑绿）**：`QUOTE-TRAP`（`display-lease-gate.sh:205/214`）｜`PIPEFAIL-SIGPIPE`（`display-lease.sh:463` here-string／`verify-all.sh:423` `grep -m 12`）｜`PROC-PATTERN-GUARD`（`display-lease.sh:51` 描述串改写）｜`PRODUCT-ENTRY`（**装置配置/装置源** `ProductEntryArm/{inputs.json,Program.cs}` 带旧路径 ⇒ 旧路径一族的**第三个成员**）⇒ 现读全绿（读数逐条在 `P0-w78-report.md` §2）。
+
 ## §15ae 波 `#77` 的**修复记账**（`t17`，2026-09-26；`t6` 独立复验判 `failed` 后逐条关账）
 
 > 复验报告：`build/MilBridge/V77-verify-report.md`（主链读数全过；两条验收 FAIL ＋ 七句现场被推翻/打折扣）。

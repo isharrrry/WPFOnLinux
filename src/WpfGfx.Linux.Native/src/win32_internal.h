@@ -605,6 +605,15 @@ void     wpf_x11_set_title(HWND hwnd, const char *title);
 // 【分工】屏幕/工作区**读数**与 X 提示的**写**在 win32_x11.c（唯一碰 Xlib 的地方）；
 //   "钳哪些窗口、钳到多少"的**策略**在 win32_core.c（clamp_toplevel_extent）。
 void     wpf_x11_workarea(int *x, int *y, int *w, int *h);      // _NET_WORKAREA，缺 ⇒ 屏幕
+/* ── 【`D-G147`】工作区的**来源**与声明口（修法 A）─────────────────────────────
+   修前"工作区 == 显示器"是**静默恒等**（`win32_core.c` 的 `GetMonitorInfoW` 直接
+   `info->rcWork = info->rcMonitor;`），判据无从取证。现在来源可查、可逐趟上屏。
+   `== "net-workarea"` ⇒ 取自 root 的 `_NET_WORKAREA`；`fallback-screen` ⇒ 无 WM/属性缺；
+   `fallback-malformed` ⇒ 属性在但畸形（`n<4`／`format!=32`／宽高<=0）；`no-x` ⇒ 无 X。 */
+const char *wpf_x11_workarea_src(void);
+int         wpf_x11_workarea_prop(int *n_out);   // 返回 prop_present
+void        wpf_x11_workarea_declare(const char *who, const WPF_RECT *mon, int mon_present,
+                                      int l, int t, int r, int b);
 void     wpf_x11_client_size_limit(int *max_w, int *max_h);     // 工作区 − 装饰余量；0,0 = 不限制
 void     wpf_x11_screen_size(int *sw, int *sh);                 // 屏幕（不是工作区）
 void     wpf_x11_apply_wm_hints(HWND hwnd, const char *cls,

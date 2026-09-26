@@ -4,6 +4,7 @@
 #           → PC 侧行对拍（`TextLine.Start` 列）→ **帧列（`FrameProbe`，帧原点机制）**。
 #
 # ⚠️ **步数口径（引用前必读；三个数不能互相引用）**：
+#   **`#78` 收官起 = 51 步**（`#78` **加一步**（50 → 51）：第 `[51]` 步 `APPBAR-STARTUP` ＝ `TASK-0747`（`D-G124` `F-A` 最小修法）—— 给 shell32 面补一处 `SHAppBarMessage` 导出；本牙＝活体符号面 ∧ 录下的腿表，两臂合取、分开计数。同趟：覆盖面 **212 → 213**（本波 3 件）＋ `[42] --expect` 同趟改。**步数：50 → 51**）
 #   **`#77` 收官起 = 50 步**（`#77` **加三步**（47 → 50）：三颗判据牙同趟接线 —— `WIRING-COVERAGE`（`TASK-0740`）／`PARSER-GUARD`（`TASK-0742`）／`PROTO-ATTR`（`TASK-0744`）；覆盖面 **205 → 211**、`--expect` 同趟改。**仪器波 · 零产品改动**。**步数：47 → 50**）
 #   **`#76` 收官起 = 47 步**（`#76` **加一步**（46 → 47）：第 `[47]` 步 `BOUNDARY-DECL` ＝ `TASK-0732`「把『未接线／已弃用』这类**边界声明**做成**有机读读者**」—— 声明**从预登记语料读回**（牙里零硬编码），谓词的域是**件路径身份**而非拼写，三态齐全，**覆盖闭包**把「没有谓词的声明」逐条点名成红；同趟 `close-wave.sh` 覆盖面 **+3**、`[42] --expect` 同趟改。**步数：46 → 47**）
 #   **`#75` 收官起 = 46 步**（`#75` **加四步**：四件装置/判据卫生合波 —— `TASK-0736` 件头自述 vs 接线牙／`TASK-0737` 落地件不许带车道路径牙（＋同趟修三处真默认值）／`TASK-0738` 比较域区分读数与标签牙／`TASK-0739` 自起显示位按 PID 收 ＋ 普查牙。四处声明同趟改；覆盖面 +5 件、`--expect` 同趟改 202；**零产品改动**。⚠️ 本半句是 `verify-all-step-check.sh:169` 用 `grep -qF` **逐字**找的 ⇒ 一个字符都不能改。**步数：42 → 46**）
@@ -63,6 +64,7 @@
 #   ⚠️ 本块**故意放在同一个文件里**：跨文件的手工声明在本仓**已经失败过一次**（`docs/CURRENT-STATE.md`
 #      那句"当前期望是 N 步"在 `#26`/`#27` 连加 3 步时毫无反应、全程零红）⇒ 声明必须与本体同趟改、同趟审。
 #   ⚠️ **不许**用 `echo "====="` 当接线锚（它在本文件里有 **4** 处）；锚用 `run_step "DEFECT-REGISTRY" …`。
+# VERIFYALL-STEPS-DECL: 51 gen=#78   ← `TASK-0747`（`D-G124` `F-A`）**加一步**（50 → 51）：第 `[51]` 步 `APPBAR-STARTUP`（补一处 `SHAppBarMessage` 导出 ⇒ 启动期不再抛 `EntryPointNotFoundException`；本牙 = 活体符号面 ∧ 录下的腿表，两臂合取、分开计数）
 # VERIFYALL-STEPS-DECL: 50 gen=#77   ← `#77` **加三步**（47 → 50）：① 第 `[+]` 步 `WIRING-COVERAGE`（`TASK-0740`：接线件集合 ⊆ `fp_inputs()` 覆盖面，**每次现扫**、缺一件即红点名）② 第 `[+]` 步 `PARSER-GUARD`（`TASK-0742`/`D-G143`：解析器不许把『解析不出』静默中性化 ＋ 继承环境必须校验并逐字打印）③ 第 `[+]` 步 `PROTO-ATTR`（`TASK-0744`/`D-G144`：协议级归因牙，三态 `ATTRIBUTED`/`NOT_ATTRIBUTED`/`NOINFO`）。同趟：覆盖面 **205 → 211**（本波 5 件 ＋ `TASK-0740` 收编的 1 件）＋ 第 `[42]` 步 `--expect 205 → 211` ＋ 四处声明。**步数：47 → 50**）
 # VERIFYALL-STEPS-DECL: 47 gen=#76   ← `#76` **加一步**（46 → 47）：第 `[47]` 步 `BOUNDARY-DECL`（`TASK-0732`：把"未接线／已弃用"边界声明做成**有机读读者** —— 牙从 `docs/WAVE*-PREREGISTRATION.md` **读回**声明与谓词参数，按**件路径身份**（`run_step` argv 归一 ＋ 包装件传递闭包）在真树上求值；域**不是**拼写；三态 `PASS`/`FAIL`/`NOINFO`；覆盖闭包把"没有谓词的声明"点名成红。**只有本件加步**；`TASK-0720` 的牙走 `close-wave.sh` **冻前**（不加步）、`TASK-0721` 纯文档面（不加步不加件）、`TASK-0741` 改判据件自身（不加步）。**步数：46 → 47**）
 # VERIFYALL-STEPS-DECL: 46 gen=#75   ← `#75` **加四步**（42 → 46）：「**四件装置/判据卫生**」合波（`TASK-0736` ＋ `TASK-0737` ＋ `TASK-0738` ＋ `TASK-0739`，**仪器波 · 零产品改动**）：`[+] SELFDESC-WIRING`（**件头自述 vs 接线**：自述"未接线"而 `^run_step` 命中该件 ⇒ 必红；反向（自述"已接线"而零命中）⇒ 也必红；`--selftest` 8/8）／`[+] LANE-PATH`（**落地件不许出现车道路径**：`kind=code` 必红且**永不许豁免**；`comment`/`data` 走声明式出处清单 `build/MilBridge/lane-path-provenance.tsv` ＋ **每类件数上限**（现读 > 上限 ⇒ 红）；`--selftest` 13/13）／`[+] ROWS-IDENTITY`（**比较域必须区分读数与标签**：只标签差异 ⇒ `PASS` ＋**必印** `LABEL_ONLY_DIFF fields=…`；读数真差异 ⇒ `FAIL`；语料＝`samples/WpfTextDemo/ACCEPTANCE-BASELINE.md` **最新冻结块**现取；`--selftest` 12/12）／`[+] X-CENSUS`（**长跑自起显示位收尾收净并自查**：以 `[0]` 段落的**自含链前基线**比对 `ps` ＋ `/tmp/.X11-unix/`，差异**点名 PID**；"死 socket" 与"活泄漏"**分开判**；`--selftest` 12/12）。四处声明（`DECL`／`STEP-NAMES`／口径句／预登记 H1）**同趟**改。覆盖面 **+5 件** ⇒ 第 `[+]` 步 `FP-MANIFEST-TEETH` 的 `--expect` 同趟改 **202**。**步数：42 → 46**
@@ -110,7 +112,7 @@
 # VERIFYALL-STEPS-DECL: 18 gen=#30   ← **史实行**（`#30` 收官当时的步数 —— 那一波**一步未加**）
 #   ⚠️ 读者 `decl_line()` 取**第一条**（`sed -n … | head -1`）⇒ **最上面那条才是当前口径**；
 #   下面两条只为「本波从哪一代起、加了几步」留机读痕迹。⚠️ **史实行只许追加、不许改**（纪律 61 同族）。
-# VERIFYALL-STEP-NAMES: 主工程 WpfGfx.Linux | wpf-linux.sln | Commands.Tests | Rendering.Tests | Windowing.Tests | HelloMil.Tests | ManagedLayer.Tests | Presentation.Tests | verify-cmd-layout.py | tline-gate（五臂） | PcLineOracle·Start 列 | FrameProbe-frame | BASELINE-SHA | ARM-LOG-SHA | BUILD-HYGIENE | DEFECT-REGISTRY | VERIFYALL-SELF | FP-INPUTS-HYGIENE | HIDDEN-ONLY | COLUMN-FLOOR | QUOTE-TRAP | PRODUCT-ENTRY | FRAME-PRESENCE | PIPEFAIL-SIGPIPE | THIRD-PARTY | R-GATE（连续交互） | NUL-BYTES | HYGIENE | REGRESSION-DECISION | UIA-DOOR | IME-LANDING | GEOM-BEAT | GEOM-RESEND | PREREG-FOUR-REQ | PROC-PATTERN-GUARD | REGIME-IDENTITY | BASELINE-RATE-GATE | PTS-PAGES | SILENT-HIT-V2 | BAK-COMPLETENESS | REPO-ALIAS | FP-MANIFEST-TEETH | SELFDESC-WIRING | LANE-PATH | ROWS-IDENTITY | X-CENSUS | BOUNDARY-DECL | WIRING-COVERAGE | PARSER-GUARD | PROTO-ATTR
+# VERIFYALL-STEP-NAMES: 主工程 WpfGfx.Linux | wpf-linux.sln | Commands.Tests | Rendering.Tests | Windowing.Tests | HelloMil.Tests | ManagedLayer.Tests | Presentation.Tests | verify-cmd-layout.py | tline-gate（五臂） | PcLineOracle·Start 列 | FrameProbe-frame | BASELINE-SHA | ARM-LOG-SHA | BUILD-HYGIENE | DEFECT-REGISTRY | VERIFYALL-SELF | FP-INPUTS-HYGIENE | HIDDEN-ONLY | COLUMN-FLOOR | QUOTE-TRAP | PRODUCT-ENTRY | FRAME-PRESENCE | PIPEFAIL-SIGPIPE | THIRD-PARTY | R-GATE（连续交互） | NUL-BYTES | HYGIENE | REGRESSION-DECISION | UIA-DOOR | IME-LANDING | GEOM-BEAT | GEOM-RESEND | PREREG-FOUR-REQ | PROC-PATTERN-GUARD | REGIME-IDENTITY | BASELINE-RATE-GATE | PTS-PAGES | SILENT-HIT-V2 | BAK-COMPLETENESS | REPO-ALIAS | FP-MANIFEST-TEETH | SELFDESC-WIRING | LANE-PATH | ROWS-IDENTITY | X-CENSUS | BOUNDARY-DECL | WIRING-COVERAGE | PARSER-GUARD | PROTO-ATTR | APPBAR-STARTUP
 #   **`#28` 收官起 = 17 步**（`#28` 加第 `[11]` 步 `VERIFYALL-SELF`）｜**`#29` 收官起 = 18 步**
 #   （`#29` 加第 `[12]` 步 `FP-INPUTS-HYGIENE`：核对 `fp_inputs()` 的覆盖面里**不许出现产物路径**）｜
 #   **`#30` 收官起 = 18 步**（**仪器加固波、步数一步未加**）｜**`#31` 收官起 = 21 步**（`#31` 加第 `[13]` 步
@@ -418,7 +420,7 @@ run_step() {
     #   而本项目各步的失败**是用 `KEY=FAIL` / `KEY=NOINFO` 自报的**
     #   （`FRAME_STEP=FAIL …`、`PCLINE_START_STEP=FAIL …`、`TLINE_GATE=FAIL/NOINFO …` —— **都不含 `Failed`**）
     #   ⇒ 失败时屏上只有 `❌ (rc=1)`，细节全在被拷走的日志里 ⇒ 补这条。**只加不删**（旧 pattern 原样保留）。
-    grep -E "error [A-Z]+[0-9]+|Failed!|Failed [A-Za-z]|[A-Z][A-Z0-9_]*=(FAIL|NOINFO)" "$log" | head -12 | sed 's/^/      /'
+    grep -m 12 -E "error [A-Z]+[0-9]+|Failed!|Failed [A-Za-z]|[A-Z][A-Z0-9_]*=(FAIL|NOINFO)" "$log" | sed 's/^/      /'
     # ── 【`#26` W26B 落地 · **零命中兜底**（只加不删）】──────────────────────────────
     #   上面那条宽 grep **一条都没命中**时，屏上除 `❌ (rc=N)` 一个字都没有 —— 而"**死在打印结论
     #   之前**"的步恰恰是这个形态（`rc=127` 命令没找到、`rc=137` 被杀、`set -u` 崩、参数缺失早退）。
@@ -1170,7 +1172,7 @@ run_step "REPO-ALIAS" bash build/MilBridge/tools/repo-alias-check.sh --allow bui
 #   ∧ `sha256sum` `stderr` 空。它**不**判「清单**内容正确**」—— 判不了"该收的没收"（覆盖面缺项）。
 echo
 echo "[42] 指纹清单的牙（清单逐行形状 ＋ 件数对账；D-G120②；NOINFO 不算绿；#70 加）"
-run_step "FP-MANIFEST-TEETH" bash build/MilBridge/tools/fp-manifest-step.sh --expect 212
+run_step "FP-MANIFEST-TEETH" bash build/MilBridge/tools/fp-manifest-step.sh --expect 217
 run_step "SELFDESC-WIRING" bash build/MilBridge/tools/selfdescription-wiring-check.sh
 run_step "LANE-PATH" bash build/MilBridge/tools/lane-path-check.sh
 run_step "ROWS-IDENTITY" bash build/MilBridge/tools/rows-identity-check.sh
@@ -1179,6 +1181,7 @@ run_step "BOUNDARY-DECL" bash build/MilBridge/tools/boundary-decl-check.sh
 run_step "WIRING-COVERAGE" bash build/MilBridge/tools/wiring-coverage-check.sh
 run_step "PARSER-GUARD" bash build/MilBridge/tools/parser-guard-check.sh
 run_step "PROTO-ATTR" bash build/MilBridge/tools/proto-attribution-check.sh --cases build/MilBridge/tools/proto-attribution-cases.tsv --expect 18
+run_step "APPBAR-STARTUP" bash build/MilBridge/tools/appbar-startup-check.sh --all --symbols src/WpfGfx.Linux.Native/bin/libwpfwin32.so --legs build/MilBridge/tools/appbar-startup-ledger.tsv --expect-legs 6
 # W168A-0724-END
 # W160A-0721-END
 # W154A-0714-END
