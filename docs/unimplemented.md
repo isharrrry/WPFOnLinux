@@ -550,11 +550,9 @@ Linux 上没有 WIC，且本实现的命令流是纯字节流，进程地址在�
   `LoQueryLineCpPpoint`/`LoCreateBreaks`/`LoCreateParaBreakingSession`/`LoAcquirePenaltyModule`/
   `CreateTextAnalysisSink`/`GetScriptAnalysisList`/… 逐条见 `build/MilBridge/T1-report.md`）
 
-**`PresentationNative` 全体**：128 个活名字 → 30 存在 / **97 缺失**（= 93 条文本布局引擎族 + 4 条 Win32 直通包装）。
+**`PresentationNative` 全体**：147 个声明名 → 47 存在 / **100 缺失**（= 66 `Fs*` + 19 `Lo*` + 6 `Nl*` + 4 文本分析 + 5 `*Wrapper`；**2026-09-26 W174A 现算**，命令见 §）。⚠️ 旧数「128 活名字／30 存在／97 缺失」**用的是另一套口径**（且与本节下方的 110 分解互不自洽）⇒ 已作废。
 
-⚠️ **工具口径「110」要更正**：110 = 94（LS/FS/NL 族）+ 4（Win32 包装）
-+ 11（`Pts.cs` 里 `#if NEVER` 的**死声明**，工具不求值预处理）+ 1（`FindWindowExWrapper` 误报，Unicode 探测序）
-− 1（`LoGetEscString` 已实现）。另注：`src/WpfGfx.Linux.Native/bin/exports.txt` 相对 `.so` **已过期**（缺 `LoGetEscString`），
+⚠️ **工具口径「110」要更正**：原文那条分解式 `94 + 4 + 11 + 1 − 1` **算出来是 109，不是 110**（自相矛盾）⇒ 该行整条作废。**现行口径**（2026-09-26 W174A 现算，命令见 §）：工具报缺 **100**（其中 `#if NEVER` 死声明 **11**、工具误报 **1** ⇒ **可操作 88**）；「110／111」**今天一条命令也复现不出来**（见 `~/w174a/dispute-111.md`）。另注：`src/WpfGfx.Linux.Native/bin/exports.txt` 相对 `.so` **已过期**（缺 `LoGetEscString`），
 重跑 `build-shim.sh --symbols` 前不要用它算缺口。
 
 ⚠️ **这些符号没有上游 C++ 实现（主控独立复验）**：`grep -rl` 五个代表符号
