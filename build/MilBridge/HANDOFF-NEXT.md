@@ -12,7 +12,7 @@
 - `inputs_fp`（`#76` 落地后，**覆盖面 205 件**）：`bb54413c8a3f0474a3d04e41dc08ec29fb993f7ea7a8ab689ae29f372904eb9a`
   （`#62` 后 = `1ffd13f7c927dea71fd5dca866f7c6f81e8efce9939c22c85d55c0a35fb20f96`／158 件；`#61` 后 = `a00bf53a64c47531963b0f82aae689fe4cee1363c7b9e670799566cb7963c668`／157 件。**改动覆盖面内任一件必移**，属设计性变更。）
 - **步数**：`verify-all.sh` = **47 步**（`#76` 加 `[47] BOUNDARY-DECL`＝`TASK-0732`；首行 `DECL` 声明的步数 == 现取 `run_step` 数，**`DECL` 行数 ≠ 步数**，纪律 46）；覆盖面 **205 件**（`[42] --expect 205`）。
-- 推送：`feat-Linux` @ **`（**本波推送前**：以 §7-6 现取为准）`**（现取见 §7-6；clone = `~/netTest/GitProj/WPFOnLinux`，`origin`=gitee、`upstream`=dotnet/wpf）。
+- 推送：`feat-Linux` @ **`5d45064ab4b5e2003fe509753d3d0689a78eff1e`**（**本波两笔**：波件 `9cea5cc4786b8cc3abdc9f9f281aba113c042e82` ＋ **主控登记批** `5d45064ab4b5e2003fe509753d3d0689a78eff1e`；clone = `~/netTest/GitProj/WPFOnLinux`，`origin`=gitee、`upstream`=dotnet/wpf；**本行与其后提交若不一致，以 §7-6 现取为准**）。
 - 放行标记：`~/w21-verify/w*-POST.done` 现取 21 件：w56-POST.done／w57-POST.done／w58-POST.done／w59-POST.done／w60-POST.done／w61-POST.done／w62-POST.done／w63-POST.done／w64-POST.done／w65-POST.done／w66-POST.done／w67-POST.done／w68-POST.done／w69-POST.done／w70-POST.done／w71-POST.done／w72-POST.done／w73-POST.done／w74-POST.done／w75-POST.done／w76-POST.done（真时刻一律 `stat` 取）。
 
 ## §2 在飞（**先读这节再动手**）
