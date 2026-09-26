@@ -4,26 +4,26 @@
 > ⚠️ **不引行号**（纪律 31）：本仓有若干件**每代重写**、且同一句会**多处出现**（如基线件的「九位」行现盘在 `:14` 与 `:77`，历史块共 7 处）⇒ **一律引内容锚**。
 
 ## §1 世代与冻结（现读）
-- 冻结哨兵：`docs/CURRENT-STATE.md:9` = `BASELINE-FROZEN gen=#63 sha16=4ee96c043b472c11 file=samples/WpfTextDemo/ACCEPTANCE-BASELINE.md`
+- 冻结哨兵：`docs/CURRENT-STATE.md:9` = `BASELINE-FROZEN gen=#76 sha16=954df351a119d36f file=samples/WpfTextDemo/ACCEPTANCE-BASELINE.md`（现取；⚠️ **被哈希的件由这行的 `file=` 字段指定**，不是 `CURRENT-STATE.md` 自己。）
   （⚠️ **被哈希的件由这行的 `file=` 字段指定**，不是 `CURRENT-STATE.md` 自己。）
-- 基线件：`samples/WpfTextDemo/ACCEPTANCE-BASELINE.md` = `4ee96c043b472c11`／**919,687 B**（`#62` = `845219762aa61fb8`／903,901 B；`#61` = `e4b3d8e460896bf1`／880,779 B；`#60` = `da24cb43d2123612`／864,300 B）。
-- 九位（`#63` 冻结值；取法见 §7-2）：`bridge 4e25e4b27d4d5ae1`｜`pc 722e0ab8205b7c3f`｜**`pf 9bf76afe89944ccc`**｜`windowsbase 2e4e46e539a72cd7`｜`provider 1f9511a7ef395bfe`｜`win32shim d2b76a0a56a41be1`｜`wic_shim f7b3026c8c019be2`｜`hbtextline 921ba9c65e9fb3be`｜`dwf ce3469f49efcbcfa`
+- 基线件：`samples/WpfTextDemo/ACCEPTANCE-BASELINE.md` = `954df351a119d36f`／**1,114,881 B**（世代链：`#73` `f747350edf97a74a` → `#74` `8b303228ff088349` → `#75` `3b9e463e70220e11` → **`#76` `954df351a119d36f`**；现取）。
+- 九位（`#76` 冻结值；取法见 §7-2）：`bridge 4e25e4b27d4d5ae1`｜`pc 722e0ab8205b7c3f`｜`pf 963c59991fd1f709`｜`windowsbase 2e4e46e539a72cd7`｜`provider 1f9511a7ef395bfe`｜`win32shim fc60c34d51fd9247`｜`wic f7b3026c8c019be2`｜`hbtextline 921ba9c65e9fb3be`｜`dwf ce3469f49efcbcfa`。（`pf` 是**环成员**：整波重建必变 ⇒ 不许当漂移/回归判据，`D-G92`。本波**只 `pf` 动**。）
   （`pf` 是**环成员**：整波重建必变、**同尺寸 6,123,520 B** ⇒ 不许当漂移/回归判据，`D-G92`。）
-- `inputs_fp`（`#63` 落地后，**覆盖面 159 件**）：`7836c5fa17cd454893f9a4101fe2210181217f035c306122cbbed259293a772f`
+- `inputs_fp`（`#76` 落地后，**覆盖面 205 件**）：`bb54413c8a3f0474a3d04e41dc08ec29fb993f7ea7a8ab689ae29f372904eb9a`
   （`#62` 后 = `1ffd13f7c927dea71fd5dca866f7c6f81e8efce9939c22c85d55c0a35fb20f96`／158 件；`#61` 后 = `a00bf53a64c47531963b0f82aae689fe4cee1363c7b9e670799566cb7963c668`／157 件。**改动覆盖面内任一件必移**，属设计性变更。）
-- **步数**：`verify-all.sh` = **36 步**（`#60` 加 `[34] PREREG-FOUR-REQ`、`#62` 加 `[35] PROC-PATTERN-GUARD`、`#63` 加 `[36] REGIME-IDENTITY`；`#61` 不动步数）。
-- 推送：`feat-Linux` @ **`3e9d6f96c4c7ced9fdaf84b8dbe69c40d91887ef`**（本地 == 远端，`porcelain=0`）；clone = `~/netTest/GitProj/WPFOnLinux`（**`$R` 本身不是 git 仓**）。
-- 放行标记：`~/w21-verify/w{59,60,61,62,63}-POST.done` **全在**（真时刻一律用 `stat` 取；`w63` = `2026-09-24 14:19:54.616048853`）。
+- **步数**：`verify-all.sh` = **47 步**（`#76` 加 `[47] BOUNDARY-DECL`＝`TASK-0732`；首行 `DECL` 声明的步数 == 现取 `run_step` 数，**`DECL` 行数 ≠ 步数**，纪律 46）；覆盖面 **205 件**（`[42] --expect 205`）。
+- 推送：`feat-Linux` @ **`（**本波推送前**：以 §7-6 现取为准）`**（现取见 §7-6；clone = `~/netTest/GitProj/WPFOnLinux`，`origin`=gitee、`upstream`=dotnet/wpf）。
+- 放行标记：`~/w21-verify/w*-POST.done` 现取 21 件：w56-POST.done／w57-POST.done／w58-POST.done／w59-POST.done／w60-POST.done／w61-POST.done／w62-POST.done／w63-POST.done／w64-POST.done／w65-POST.done／w66-POST.done／w67-POST.done／w68-POST.done／w69-POST.done／w70-POST.done／w71-POST.done／w72-POST.done／w73-POST.done／w74-POST.done／w75-POST.done／w76-POST.done（真时刻一律 `stat` 取）。
 
 ## §2 在飞（**先读这节再动手**）
-- **当前无在飞链**（`#63` 全链已收官、已推送、已放行；槽 `FREE`、无 `verify-all`/`close-wave`/`dotnet` 构建）。
+- **在飞**：`#76` 全链已收官（`#76` 冻结；冻后 `verify-all` ×2 各 `47 ✅ / ❌ 0`；`w76-POST.done` 已落）；**随后本波推送／app-local／两哨兵由主控收口**。无其它链在跑（槽 `FREE` 时方可起新重活）。
 - **下一波 `#64`＝`TASK-0717`**（把「基线率闸」做成牙）：入口 = 新件 `build/MilBridge/tools/baseline-rate-gate.sh`；规格输入 = `~/w157a/baseline-rate-gate.md`（`c4839dc9e8876bcf`／口径 `57915081ffdbacf8`）＋ `~/w157a/bin/baseline-rate-gate.py`（`0dac2ea941b56f4f`，**无第三方依赖**，已逐位复现仓内四个 `REQUIRED_N_ALT`）。
-- **候选车道（都已收官、待命）**：W152A（`#60`／`#63` 仪器与判据件）｜W153A（`#61`）｜W154A（`#62` 装置牙）｜W155A／W156A（`TASK-0111` 装置与预登记）｜W157A（`TASK-0111` 判别批 ＋ 基线率闸方法页）。
+- **待命车道（都已交付包、等落地窗口）**：W180A（`#77`：`0740`＋`0742`＋`0744`＋`0745`）｜W181A（`0747`：`SHAppBarMessage` 返 0）｜W182A（`D-G147` 工作区语义）｜W183A（`TASK-0739`③ 显示号租借）｜W184A（`0744-FU`：装置附 socket 身份）。
 
 ## §3 队列（一条改动 → 一次冻结）
-1. **`#64`** `TASK-0717`（基线率闸牙）：两极化两例（同窗自洽 ⇒ `PASS`；换掉出 CI 的样本 ⇒ `FAIL`）＋ **空样本／缺时间窗 ⇒ 响亮失败**；是否纳 `fp_inputs()` **落地前报主控**（纳则再挪一次指纹）。
-2. 未闭 `[Next]`：**仅 `TASK-0717`**（`#64`）。`TASK-0709`–`TASK-0716` **已全部 ✅ 闭**（`#60`/`#61`/`#62`/`#63`）。
-3. 未绿 `[MVP]`：`TASK-0007`（富文本 23／流文档 24 `rc=134`，真因 `TASK-0302`）｜`TASK-0201`（静默 `rc=139`，上界已收到 3.55%）｜`TASK-0302`（PTS／LineServices **可操作 88／实现口径 97**，月级长线；旧「111 条缺口」已证 `TOOL-UNSOUND`）。
+1. **`#77`** `TASK-0740`＋`0742`＋`0744`＋`0745`（W180A 包已复核 12/12）：步数 `47→50`／覆盖面 `205→211`／`--expect` **同趟现取**；随后 **`0747`**（W181A，`wsh` 必动 ⇒ 冻结闸 `allow_changed` 要含它）；再 **`#78`**＝`D-G147`＋显示号租借＋`0744-FU`（串行落地、数字现取）。
+2. 未闭 `[Next]`（现取）：`TASK-0740`｜`0742`｜`0744`｜`0745`｜`0747`（五条包已就绪、等落地窗口）；`TASK-0720`／`0721`／`0732`／`0741`／`0746` **本批已翻 ✅**；`TASK-0709`–`0719`／`0722`–`0739`／`0743` 早已 ✅。
+3. 未绿 `[MVP]`：`TASK-0007`（富文本 23／流文档 24 `rc=134`，真因 `TASK-0302`）｜`TASK-0201`（静默 `rc=139`，上界已收到 4.87%）｜`TASK-0302`（PTS／原生 LineServices 缺口 **88 可操作／97 实现口径**，现读 `工具口径 100`）。
 4. `TASK-0111` = ✅ **归档为「不可判 ＋ 已知无产品价值」**（号不撤）：① 该红已被 `#54`/`TASK-0210` 修掉（现行桥 `4e25e4b27d4d5ae1` 上 `0/12` 红 vs 旧件 `12/12`）⇒ **产品价值 = 0**；② `A` 臂红率**随时间漂移**（`12/12 = 100%` → `7/28 = 25.0%`）⇒ `P1` 被排除 ⇒ **整批 `VOID-PREMISE`、40 腿不跑**；`N1` 作为修法**撤回**。判据件：`~/w156a/{criteria.md,leg-plan.md,AMENDMENT-1.md,AMENDMENT-2.md,WAVE-PREREG-0111.md}`｜装置 `~/w155a/device/wpfhintsgate.so 3c2a36580a7806f6`。
 
 ## §4 近期新登记（要看细节读登记册）
@@ -83,6 +83,7 @@
 44. **件头自述涉及"装在哪、被谁调用"时必须与代码形状一致，且必须由牙读出来**：凡件头写"未接线／不进 `verify-all`"的件，若 `grep '^run_step "'` **命中该件** ⇒ 必红；反向（自述"已接线"而零命中）⇒ 也必红。（现场：`prereg-four-requirements-check.sh` 件头自称"未接线"而它早已是第 `[34]` 步 ⇒ `D-G136`。）
 45. **`NA`／"本波不适用"类声明一律走机读行形态**：新波预登记必须写 `PREREG-NO-REGRESSION-DECISION: <非空且非否定令牌>`（**判据节内**）；"行首锚定声明句"这一形态**只留给历史件**（其残余洞＝行首即声明句、随后自我否定仍算声明，已登记 `D-G135`）。（现场：`#60` 起的整节正则 ⇒ **提到即算**，主控复现"只提及、四要件全缺"也判 `NA rc=0`。）
 46. **凡断言两条计数相等，先证明它们在现场真的相等**：把"应该是"当"就是"写进断言，等于给落地器埋一道**永远拒跑**的门。（现场：主控要求 `#75` 断言"`DECL` 数 == `run_step` 数"，而现场 **35 vs 39**（有 4 个"不动步数"的波没加 `DECL` 行）⇒ 照字面写落地器永远拒跑；**真不变量＝首行 `DECL` 声明的步数 == 现取 `run_step` 数**，且**插入前**首行 `DECL` 的 `gen=` 必是**上一波**，不得与 `--wave-gen` 比。）
+47. **落地/推送脚本的"派生路径"必须在**参数解析之后**由**同一个 `R`** 现推，并**逐条断言落在 `$R` 之下（两道闸）**：①**字面前缀**闸 `case "$X" in "$R"/*) 拒跑`；②`readlink -f` **解析后**前缀闸（防"`$R` 下的符号链接指到仓外"）。**排练必须两极化证明这两道闸真会红**：**E1（正极）** 异树 `--repo` ⇒ 落地成功且**源树零写入**（`find $R -newermt` 前后对账 ＋ 逐件 `sha` 比对）；**E2（反极）** 派生路径为**指向 `$R` 的符号链接** ⇒ **点名拒跑 ＋ 写入件数 0**。（现场：`2026-09-26` 波 `#76` 窗口内，一条预备车道在沙箱排练 `--apply`，脚本把 `VA/CW/FPMS` **绑在参数解析之前**（用默认 `R`）⇒ **真 `$R` 被写两件**（`verify-all.sh`／`build/close-wave.sh`，窗口 ≈1 分钟，两件 `%h==1` 未写穿，当场还原并逐位复核），并**连带作废**同窗口内正在跑的整趟波读数 —— `close-wave.sh` **正是当时在跑的脚本**。⇒ `D-G130` 实例 ④。）
 
 ## §6 未结清的账（主控侧）
 - **我（主控）的推送账**：`docs/ROUTES.md`／`samples/WpfFeatureProbe/KNOWN-DEFECTS.md`／`build/MilBridge/tools/defect-registry-declared.tsv`／`build/MilBridge/HANDOFF-NEXT.md`／`README.md` 已于 **`f158988cf770`** 推上远端（逐件 `HEAD:` 核对 **5/5 MATCH**，`porcelain=0`）。它们**都不在 `fp_inputs()`**（改它们不动指纹），但**每次改完都要重发 `declared.tsv`**（`DEFREG` 判"route 文件里的编号是否都已声明"，改了却漏发 ⇒ `DEFREG=FAIL reason=undeclared-id-in-route`）。
@@ -99,9 +100,9 @@ sed -n '9p' $R/docs/CURRENT-STATE.md
 for f in build/MilBridge/.artifacts/publish/MilBridge.Linux/release_linux-x64/wpfgfx_cor3.so build/PresentationCore.Linux/bin/Release/PresentationCore.dll build/PresentationFramework.Linux/bin/Release/PresentationFramework.dll src/WpfGfx.Linux.Native/bin/libwpfwin32.so build/PresentationCore.Linux/bin/Release/DirectWrite.Linux.Provider.dll build/DirectWrite.Linux/wic-shim/libwpfwic.so build/shims/PresentationCore.HbTextLine.cs build/WindowsBase.Linux/bin/Debug/WindowsBase.dll build/DirectWriteForwarder.Linux/bin/Release/DirectWriteForwarder.dll; do sha256sum $R/$f | cut -c1-16; done
 # 3) 登记册自洽
 bash $R/build/MilBridge/tools/defect-registry-check.sh | tail -3
-# 4) 输入指纹（覆盖面 159 件）—— 用已校准的复算器（**只借不改**）
-bash ~/w153a/bin/infp.sh fp        # 期望 7836c5fa…
-bash ~/w153a/bin/infp.sh list | wc -l   # 期望 159
+# 4) 输入指纹（覆盖面 205 件）—— 用已校准的复算器（**只借不改**）
+bash ~/w153a/bin/infp.sh fp        # 期望 bb54413c…（#76 冻结值；每波现取）
+bash ~/w153a/bin/infp.sh list | wc -l   # 期望 205
 # 5) 步数与自检 / 放行标记与记录件
 grep -c '^run_step "' $R/verify-all.sh; bash $R/build/MilBridge/tools/verify-all-step-check.sh | grep VERIFYALL_SELF
 ls -l ~/w21-verify/w6*-POST.done ~/w21-verify/w6*-record.txt 2>/dev/null
