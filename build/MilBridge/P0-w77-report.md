@@ -140,6 +140,36 @@
 
 见 `~/w185a/w77/logs/`（`integration-wave.log`／`w77-*.log`）与本节末**现取**读数：
 
-```
-（本节由收尾链写入：wave／gateapp ×2／gate1/2/pre/post1/2／冻结／推送／app-local／两哨兵）
-```
+### 7.1 链（**逐格现取**；日志 `~/w185a/w77/logs/`）
+| 阶段 | 读数 |
+|---|---|
+| 整波 `integration-wave`（槽内，`WAVE_OWNER=waveman`） | **第一次**（移出 `.editorconfig` **之前**）`集成波结束：失败步骤 10`｜**第二次** `失败步骤 0`，`HEAVYSLOT=RELEASED rc=0 held=185s` |
+| 应用门禁 ×2（`run-wpftextdemo.sh`，`:236`） | 各 `rows=6/6 全 PASS=6`｜`WPTD_SUMMARY=PASS tiers_passed=2/2`｜`WPTD_GATE=PASS acceptance=2/2 line_advance=PASS`｜`WPTD_BRIDGE_SRC_STALE=no basis=pub=d697b1e10ff48881 now=d697b1e10ff48881 so_file_match=yes`｜**`GATE_LINES_IDENTICAL=yes`** |
+| `gate1`／`gate2`／`pre`（冻前） | 各 **`步骤通过 50 ❌ 失败 0`** ∧ `结论：✅ 全部通过`（`rc=0`；`用例通过 875 跳过 2`） |
+| **冻结** | `FREEZE_RC=0`；`⟦PREVCHECK⟧ gen=#77`｜**`PREVCHECK=PASS gen=#77 keys=7 checked=7 skipped=0 base=954df351a119d36f`**｜`冻前声明类红项 = []`｜`本波位移 = ['pc','pf','windowsbase','provider','dwf']`（在声明允许集合内）｜冻前备份 `~/w185a/w77/w77freeze/w77freeze/B.pre-freeze.#77.bak`（`954df351a119d36f`，`nlink=1`，逐字节 == 写前现场基线）｜`BASELINESHA=PASS live=e3ebc811641bd467`｜`BASELINEGEN=PASS`｜`BASELINE_BYTES=1138219`｜`ARMLOG_SHA=PASS required=5 declared=5 pass=5`｜`COLUMN_FLOOR=PASS` |
+| `post1`／`post2`（冻后） | 各 **`50 ✅ / 0 ❌`** ∧ `结论：✅ 全部通过`；判词行归一化后**逐字相同**，唯一原始差异 = `wall_s=4.16` vs `4.27`（**仪器计时计数漂移**，纪律 18 要求点名并列出实际数 ⇒ `LABEL_ONLY_DIFF`，非读数差异） |
+| 冻后 `[9]`／`[10]` | `BASELINESHA=PASS live=e3ebc811641bd467 decl=e3ebc811641bd467`｜`DEFREG=PASS declared=182 route_ids=182`（`DECLDRIFT=0`）｜`BHYGIENE_IMPORT=PASS … rootprops=PASS rootprops_exists=0 rootprops_tracked=0 rootprops_git=present`｜`VERIFYALL_SELF=PASS names=50 decl=50 gen=#77`｜`FP_INPUTS_HYGIENE=PASS coverage_n=211 artifact_n=0 missing_n=0 stderr_bytes=0`｜`FP_MANIFEST_TEETH=PASS files_n=211 declared_expect=211`｜`WIRING_COVERAGE=PASS missing_n=0`｜`PARSER_GUARD=PASS`｜`BOUNDARY_DECL=PASS records=2 pass=2 fail=0` |
+
+### 7.2 推送（**先判快进**）
+`ls-remote` 现取 `REMOTE=1fe6cec5ee49504fe682cdfdb40a2d1a1ffae737` ⇒ `merge-base --is-ancestor` **`FF=yes`** ⇒ 逐径 `git add`（**禁 `-A`**；`staged_n=38`；`KNOWN-DEFECTS.md`／`FORK-AND-PUSH.md` **未被暂存**，已断言）⇒ 提交 **`0666559105bc6590ab06875de98cccc8f9286f87`** ⇒ `git push origin HEAD:feat-Linux` ⇒ `1fe6cec..0666559`。
+**远端核对**：`REMOTE == LOCAL == 0666559105bc6590ab06875de98cccc8f9286f87`（`PUSH_MATCH=yes`）｜**逐件 `HEAD:` 与工作树 blob 对拍 `BYTECHECK ok=37 mismatch=0`** ＋ `.editorconfig` 为**删除**（`git cat-file -e HEAD:.editorconfig` ⇒ `Not a valid object name`，工作树亦无）。
+**`t1` 的两笔逐笔核到远端**：`7027be06e7fddb793ea22411c1f0645626474a73` ∧ `fd9a9a1886d25575ae625d44741d45620d554185` **均为** `HEAD` 祖先（`merge-base --is-ancestor` ⇒ `ANCESTOR ok`，且远端 HEAD 已含它们）。
+**如实披露**：推送后 `git status --porcelain` = **15**，全是**构建产物/日志**（`build/*/SR.g.cs`／`ARTIFACT-SRC-FP.txt`／`PORT-CHANGES.md`／`build/.applocal-selftest.log`／`build/wave-audit.log`／`tests/parity/linux/parity-results.json`）—— 按 `#76` 的先例（其提交只含波自身件）**不入本笔**；**这不影响本地一致性**（`inputs_fp`／九位／各牙都读本地）。
+
+### 7.3 app-local
+现取 `APPSYNC=MISMATCH（MISMATCH=0[STALE=0 NEWER-DIFF=0] MISSING=0 UNEXPECTED=6[DECL-GAP-EQ=6 DECL-GAP-DIFF=0] DIVERGENT=0 RETIRED=0 AUTH-MISSING=0 BRIDGE-ANCHOR=0 BRIDGE-NOINFO=0）` ⇒ **合格线 `STALE=0 ∧ DIVERGENT=0` 达成**。
+⚠️ **本波同趟补了一处**：`build/DirectWrite.Linux/FallbackCriteria/bin/Debug/WpfGfx.Linux.dll` 原为 `05433f1ee7e4092b`（**mtime `2026-09-23 17:45`** ⇒ **本波之前就陈旧**、非本波产物），在本波重建权威后成为 `UNEXPECTED-DIFF` ⇒ 按"权威 ⇒ 副本"方向同步为 `eea496218b496844`（**旧件留档** `~/w185a/w77/backup2/applocal/WpfGfx.Linux.dll.old`）。**如实**：`UNEXPECTED=6[DECL-GAP-EQ=6]` 是**登记在册的告警类**（未声明的传递依赖副本，但 **sha == 权威**），工具原文即写明 `APPSYNC` 是**告警不是硬闸** ⇒ 与 `STALE`／`DIVERGENT` 分开计数、**不冒充绿**。
+
+### 7.4 两哨兵 ＋ 放行记录
+`/tmp/bridge-frozen.flag` 与 `~/wfp-runs/bridge-frozen.flag`：`BASELINE=#77`｜`BASELINE_SHA16=e3ebc811641bd467`｜九位逐格（`SHA`／`FP=d697b1e10ff48881`／`PC`／`PF`／`WB`／`WIN32SHIM`／`HBTL`／`WIC`／`PROVIDER`／`DWF`）⇒ **`cmp` ⇒ `SENTINELS-IDENTICAL`**。
+`~/w21-verify/w77-POST.done`（`0 B`，`stat` 现取）｜`~/w21-verify/w77-record.txt`（`25,192 B`，sha16 **`cafdc5381bfff1a6`**，= 写进基线的那一整块）｜`~/w185a/w77/w77freeze/{w77-record.txt,w77-pre.sha}`｜冻结器版本档 `~/w21-verify/versions/w27-freeze.py.{w77-1707dd98434273e9,w77b-83b45abedff33c4e,w77c-f57132d96da3f5d6}`。
+
+### 7.5 `TASK-0745` 补丁的 before/after（**主控要求的三样**）
+1. **冻结器 `w27-freeze.py`**：`1707dd98434273e9`（本波开工现值）→ 只加 `GENS['#77']` → `83b45abedff33c4e` → 补 `allow_changed` 实测五格 → `f57132d96da3f5d6` → **`pf_required=False`（照 `#31` 的按代开关；`set(changed) ⊆ allow_changed` 断言保留）** → **`6bf3c5c77eee8dd8`**。版本档逐档留存（见 7.4）。**`TASK-0745` 的补丁逻辑一字节未落**。
+2. **`A1–A4` 两极化逐条原文**（跑的就是补丁文件里的 `check_record_forms` 源码；`~/w185a/w77/bin/rehearse745_e12.py`）：
+   - `A1` 正极（7 形态齐）⇒ `bad=0 checked=7 skipped=0`
+   - `A2` 反极（**复现 `#73` 位移句**）⇒ `bad=1` 且**点名** `HITS!=1 key=prev_infp src=块内 \`inputs_fp\` = 行 hits=0`
+   - `A3` 反极（形态出现两次）⇒ `bad=1`（`hits=2`）
+   - `A4` 反极（九位行整条缺席）⇒ `bad=6`
+   - 顺序闸 `render < check < backup < writeB` ⇒ `yes`；`REHEARSE745_E12=PASS arms=5 pass=5 fail=0`
+3. **逐字声明**：`W180A` 包里的原 `0745` 补丁（`~/w180a/w77/out/patched-w27-freeze.recordform.py`，`ccd2c363a24fcfef`，基准 `1e2460c1d27e756c`）**已被取代（superseded）**，取代原因 = **其锚点被 `#77` 期的冻结器变更作废**。
