@@ -65,4 +65,16 @@
 4. 顺手把**三件"在门禁里承重却没人看着"**的接线件收进覆盖面，并把收口判据定成**"未保护件 = 0"**（可复跑）。
 5. 冻结时被上一代记录件的一条**缺形态**挡下 ⇒ **拒冻、基线零字节改动**；换源核过之后才冻 —— **守卫按它该有的样子工作了**。
 
+## §7 冻后链（全绿；本节为**推送后追补**，与小节同批的第二笔提交一并推送）
+
+| 阶段 | 读数 |
+|---|---|
+| 冻后 `verify-all` ×2 | **各 `步骤通过 42 ❌ 失败 0` ∧ `结论：✅ 全部通过`**｜`BASELINESHA=PASS live=8b303228ff088349 decl=8b303228ff088349`｜`[12] coverage_n=197`｜`[42] declared_expect=197`｜两趟判词行（归一化 `wall_s=`）**逐字相同 ⇒ `GATE_LINES_IDENTICAL=yes`**｜`DEFREG=PASS declared=181 route_ids=181`（主控重发的 `tsv`）｜**无 `DECLDRIFT` 红** |
+| `w74-POST.done` | 真 `stat`：`size=0 mtime=2026-09-26 10:45:58` |
+| 逐径推送 | `c4789d68…` → **`66a7cd8702c7f54ba118ba783f9669c442de429a`**；`staged == 白名单`（8 件）∧ **主控五件不在白名单**；远端 == 本地；**`BYTECHECK ok=8 mismatch=0`**；`porcelain=0` |
+| app-local | `check-applocal-sync` ⇒ **`STALE=0 ∧ DIVERGENT=0`** 达标（`APPSYNC=MISMATCH` 为**在册**告警，非本波引入） |
+| 两哨兵 | `/tmp/bridge-frozen.flag` ＋ `~/wfp-runs/bridge-frozen.flag` 补 `BASELINE=#74` ／ `BASELINE_SHA16=8b303228ff088349` ⇒ **`cmp = IDENTICAL`** |
+| `D-G139` 显示位/进程卫生 | 链期自起三个 `Xvfb` **按 PID** 收净：`1917743`(`:99`)／`2266371`(`:236`)／`2779085`(`:97`)；收后 **`ps -eo args | grep '^Xvfb :'` 命中 0** ∧ **`/tmp/.X11-unix` = `X0 X1 X10 X239`** ⇒ **与链前基线逐项相同（`D-G139=PASS`）**；存活复核用 **`ps -o pid= -p <PIDs>`（不带 `-e`）** |
+| 覆盖面漂移复核 | 主控批次落的六件（`KNOWN-DEFECTS.md`／`ROUTES.md`／`README.md`／`HANDOFF-NEXT.md`／`docs/unimplemented.md`／`defect-registry-declared.tsv`）**逐件不在覆盖面内**（现取 `grep -c <name> manifest.txt` 全 **0**）∧ 现算 `would_be_fp=ddf3cd2b0cef2dce` **仍等于**冻结块声明值 ⇒ **无漂移** |
+
 LANE=W172A TASK=0733+0734+0735 R_TOUCHED=build/MilBridge/tools/r-gate-step.sh,build/MilBridge/tools/prereg-four-requirements-check.sh,build/close-wave.sh,verify-all.sh,docs/WAVE74-PREREGISTRATION.md,samples/WpfTextDemo/ACCEPTANCE-BASELINE.md,docs/CURRENT-STATE.md,build/MilBridge/W74-report.md DONE=yes NOINFO=6
