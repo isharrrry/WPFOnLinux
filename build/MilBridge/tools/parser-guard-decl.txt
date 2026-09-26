@@ -1,0 +1,72 @@
+# PARSER-GUARD-DECL v1 —— `TASK-0742`（`D-G143`）的**唯一机读声明**（牙里零硬编码）
+#
+# 【本件是什么】`build/MilBridge/tools/parser-guard-check.sh` 的**唯一**参数名集／形态正则／
+#   扫描根／射程表／豁免来源。牙不内嵌任何参数名、形态、豁免或射程结论 —— 全部从本件读回
+#   （`D-G132`：声明必须有谓词；本件每条记录都有**机读读者**）。
+#
+# 【记录形态（TAB 分隔；`#` 起头为注／表头；空行忽略）】
+#   PARAM<TAB>name<TAB>kind<TAB>ere<TAB>why        kind ∈ display|geometry|uint|enum（`ere` 是白名单）
+#   SHAPE<TAB>family<TAB>ere<TAB>why                family ∈ env|parser（**只列危害形态**）
+#   SCANROOT<TAB>relpath<TAB>why
+#   射程表<TAB>site<TAB>verdict<TAB>why             verdict ∈ HARMFUL|BENIGN（**逐处裁定**）
+#   EXEMPT<TAB>family<TAB>site<TAB>max_hits<TAB>why 豁免（`max_hits` 是**上限**；`why` 必须非空）
+#
+# 【危害形态的口径（`D-G143` 的要害；**逐字**）】
+#   "解析不出 ⇒ 静默中性化"**本身不是缺陷**。缺陷是**中性值与合法读数不可区分**：
+#     · 返回 `(0, 0)`／`0`／`-1` 而当**几何/坐标/尺寸**用 ⇒ **`HARMFUL`**（0 与 -1 都是合法几何值，
+#       调用者**无从分辨**"量到 0"与"没量到"）—— 仓外原始案发地正是这个形态（一个**总是**返回
+#       `(0, 0)` 的 `wh()`，使整条谓词恒零、正极性永远不成立、整条路被读成"没有该现象"）。
+#     · 返回 `None`／`''`／`'?'`／调用者显式传入的默认值之类**哨兵**，且下游**按哨兵判** ⇒ `BENIGN`。
+#   `env` 面：`VAR="${ENV:-default}"` 的值若**只被"用即校验"**（拿去做一次会**响亮失败**的操作）
+#   ⇒ `BENIGN`；若被当作**读数**参与比较而**无格式白名单** ⇒ `HARMFUL`。
+#
+# 【本波做过的一次**形态收窄**（如实登记，因为它决定射程）】
+#   初版 `parser` 形态里含一条很宽的 `or 0\)`。**现读实测：它在现仓上命中 4 处，全部是
+#   表格单元格的默认值**（把一个可选列缺省成 0），**不是**解析失败回退 ⇒ 那 4 处会被误判红
+#   ⇒ **泛红的判据会被读成"世界如此"**。故本波**删掉该形态**，只留"解析失败即回退成中性
+#   **数值/坐标**"的形态。收窄后现读 `sites_parser=0`（见射程表后的结论）。
+#   ⇒ 判据的形态集**故意保守**：宁可漏掉"表格默认值"这类边缘形态，也不产出假红。
+#
+# 【射程（显式范围决定，逐条可复算）】
+#   ① **仓内**文件 —— `$R` 之外的车道件不在射程（车道目录会被回收，且仓内牙守不住它们）。
+#   ② `parser` 面扫描集 = **被 `verify-all.sh` 的 `run_step` 引用的仓内 `*.sh`／`*.py`** ∪ `SCANROOT`。
+#      **不泛扫全仓**（泛扫会把"取数即返回哨兵"的帮助函数一律判红）。
+#   ③ `env` 面扫描集 = `SCANROOT` 目录下的 `*.sh`。
+#   ④ 判"是不是危害形态"**只看形状**（上面口径），**不看文件名**。
+#
+# ── 判据参数（`env` 面的名字集；`ere` 是格式白名单）────────────────────────────────────
+PARAM	DISPLAY_NUM	display	^:[0-9]+$	X 显示号；`Xvfb`／`xdpyinfo -display` 只认 `:<digits>`
+PARAM	WPTD_DISPLAY	display	^:[0-9]+$	同上（装置族用的环境变量名）
+PARAM	SCREEN	geometry	^[0-9]+x[0-9]+$	几何读数；合法形态 `<W>x<H>`（**不带** `@+x+y` 后缀）
+PARAM	BASE	geometry	^[0-9]+x[0-9]+$	基准几何；同上
+#
+# ── 危害形态（`family`) ─────────────────────────────────────────────────────────────
+SHAPE	env	\$\{(DISPLAY_NUM|WPTD_DISPLAY|SCREEN|BASE|GEOMBEAT_LIVE_DIR|BASELINESHA_DECL):-	继承环境取默认值；值**是否被校验**由射程表逐处裁
+SHAPE	parser	if m else \(0, ?0\)	解析不中即给中性**坐标** (0,0)：0 是合法几何值 ⇒ **不可区分**
+SHAPE	parser	m\.group\([0-9]+\) if m else \(0, ?0\)	同上（单行形态）
+SHAPE	parser	m\.group\([0-9]+\) if m else -1	用 -1 当中性"尺寸/计数"：与合法负值不可分
+SHAPE	parser	return \(0, ?0\)	裸返回中性坐标 ⇒ 调用者无从分辨"量到 0"与"没量到"
+SHAPE	parser	if m is None:[[:space:]]*return 0	早退分支返回**数值 0**（不是哨兵）
+SHAPE	parser	if not m:[[:space:]]*return 0	同上
+#
+# ── 扫描根 ────────────────────────────────────────────────────────────────────────
+SCANROOT	build/MilBridge/tools	仓内判据件目录（`verify-all.sh` 的 run_step 绝大多数指向这里）
+SELF-EXCLUDE	本件在 `SCANROOT` 之下 ⇒ **自扫会命中本件夹具里的「形态字面量」**（假红）；故排除**自身这一件**，并**必须逐字上屏**（可见，不静默）。缺本条 ⇒ 牙判 `rule=self-exclude-undeclared`。
+#
+# ── 射程表：现读现场**逐处裁定**（本表**必须**与本件形态的现扫结果**精确一致**）──────────────
+#   `env` 面现读 4 处（复算：本件形态 env 的 ere 对 `SCANROOT` 下 `*.sh` 现扫）：
+射程表	build/MilBridge/tools/frame-presence-check.sh:136	BENIGN	`DISPLAY_NUM="${WPTD_DISPLAY:-:97}"`：该值**不被当读数比较**，只作**目标选择**，且 `:137/:149` 立刻用 `xdpyinfo -display` **用即校验**（不可用 ⇒ `FRAMEPRESENCE=NOINFO reason=X不可用` ＋ `exit 2`，**响亮**）⇒ 不构成 `D-G143` 的假负（假负的定义＝**静默**中性化）。**残余（如实）**：无**格式**白名单 ⇒ `WPTD_DISPLAY=0` 会走到 `Xvfb 0`（＝`:0`）⇒ 属 **X-CENSUS／`D-G139` 族**（越界起显示位），**不是**解析器中性化；越出本波射程，已单列。
+射程表	build/MilBridge/tools/t1c-census.sh:45	BENIGN	同上形态；且 `:188` 以 `xdpyinfo` **用即校验**、`:200` 已**逐字打印** `DISPLAY=$DISPLAY_NUM` ⇒ "必须校验并逐字打印"这条**它满足打印那一半**，校验由可用性检查承担。该件**不是** `run_step` 件（不在生产门禁里）。
+射程表	build/MilBridge/tools/geom-revert-beat-check.sh:98	BENIGN	`GEOMBEAT_LIVE_DIR` 是**目录名**，不是判据参数（不在 `PARAM` 名字集里）⇒ 形状命中、语义不同。
+射程表	build/MilBridge/tools/baseline-sha-check.sh:62	BENIGN	`BASELINESHA_DECL` 是**标签/出处说明**（`${BASELINESHA_DECL:-none}`），不参与任何比较。
+#
+#   `parser` 面**现读 0 处** —— 上面的 6 条窄形态对"`run_step` 引用的仓内件 ∪ `SCANROOT`"
+#   （现读 `files_parser=58`）**零命中**。⇒ **如实结论**：仓内**没有** `D-G143` 的危害形态实例。
+#   仓外真现场（`D-G143` 的原始案发地）**不在射程**：它是一件**位于 `$R` 之外**的车道取数器
+#   （射程①），且它的归档读数已被"同件同参重算"证伪（归档 `EVT_PUSH_BACK=0`／重算 `1`）。
+#   ⇒ 本波**不**声称"该缺陷已在仓外被修"；只声称"仓内无此形态 ＋ 形态本身有牙（见动态面）"。
+#
+# ── 豁免（现读 0 条）──────────────────────────────────────────────────────────────
+#   现读 0 条豁免：`env` 面 4 处全裁定 `BENIGN`，`parser` 面 0 处 ⇒ 不需要任何豁免。
+#   下面的注释行是"**豁免机制在位**"的证据，**不是**"有豁免"的证据：
+#   EXEMPT<TAB>family<TAB>site<TAB>max_hits<TAB>why

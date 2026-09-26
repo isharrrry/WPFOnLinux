@@ -365,7 +365,13 @@ fp_inputs() {  # 手写输入指纹（应用器 + port-lib + 本脚本 + 波脚�
           build/MilBridge/tests/SilentHitProbe/silenthit-trim.tsv \
           build/MilBridge/tools/pts-gap-count-check.sh \
           src/WpfGfx.Linux.Native/tools/pts-gap-decl.txt \
-          build/MilBridge/tools/boundary-decl-check.sh
+          build/MilBridge/tools/boundary-decl-check.sh \
+build/MilBridge/tools/wiring-coverage-check.sh \
+build/MilBridge/tools/parser-guard-check.sh \
+build/MilBridge/tools/parser-guard-decl.txt \
+build/MilBridge/tools/proto-attribution-check.sh \
+build/MilBridge/tools/proto-attribution-cases.tsv \
+tests/WpfGfx.Linux.Tests/Commands.Tests/tools/verify-cmd-layout.py
     } | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -d' ' -f1
 }
 sha16() { sha256sum "$1" 2>/dev/null | cut -c1-16; }
@@ -624,7 +630,8 @@ fi
 #   （但改了**数**本步每次冻结都当场可见）。
 # 【成本】纯读、零 `dotnet`、< 3 s；不写 `$R`。
 say ""; say "──── [5b/6] 在册数防漂移（D-G70；三态 PTSGAP=PASS|FAIL|NOINFO，**NOINFO 不算绿**）"
-run "[5b/6] pts-gap-count-check.sh" bash build/MilBridge/tools/pts-gap-count-check.sh
+# 波 `#77`：**显式传 `R=`** —— 在册数必须读**本树**，不许靠牙的默认值（`t4` 现场：旧默认写死旧树）。
+run "[5b/6] pts-gap-count-check.sh" env R="$ROOT" bash build/MilBridge/tools/pts-gap-count-check.sh
 
 # ── 6) 汇总 ───────────────────────────────────────────────────────────────────
 say ""; say "──── [6/6] 汇总（**八位 + 第九位 + 桥指纹**，逐字复制进下一版基线表头）"

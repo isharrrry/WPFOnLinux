@@ -16,7 +16,7 @@
 # 用法：  run-wpfprobe-mutation.sh [超时秒数=45]
 set -u
 
-REPO=${REPO:-/home/links-dev/netTest/wpf-linux-20260906/wpf-linux}
+REPO=${REPO:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)}   # 波 `#77` 旧路径重指向：由仓根现推
 TIMEOUT=${1:-45}
 RUNNER="$REPO/tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpfprobe.sh"
 SRC="$REPO/samples/WpfFeatureProbe/FeatureBlocks.cs"

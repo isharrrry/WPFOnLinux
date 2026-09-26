@@ -568,6 +568,46 @@ run_check() {
   fi
 
   [ $((disappeared + dup + unlisted + file_absent + undeclared + witness_bad + class_conflict)) -eq 0 ] || { state=FAIL; reason=drift; }
+  # ══ ⑧ 【波 `#77` 新增档】仓根**不许**出现 `Directory.Build.props` / `Directory.Build.targets` ══
+  # 【它防什么】`t1`（P0 迁移）实测：这两件与**上游逐字节相同**且**仍在远端** ⇒ 任何一次上游
+  #   合并/同步都会把它们**原样带回工作树**，届时移植工程求值立刻
+  #   `error MSB4236: 找不到 SDK "Arcade.Wpf.Sdk"`（现场：`samples/HelloMil/HelloMil.csproj`
+  #   在 `N` 上原样求值即死、在去重前的旧树上正常）。**症状要跑到构建才看得见**，
+  #   而本条要的是「**被加回来的那一刻就响**」。
+  # 【射程（逐字，免得被读宽）】本档**只**判仓根这两个**确切名字**；`t1` 结构性去重移出的
+  #   19 条路径由 `[9]` 原有的 `CAND_MIN=88` ＋ 常量漂移闸看着（`cand` 一涨过阈值即红）
+  #   ⇒ 本档补的是**唯一还是裸的那两件**，**不重复**那一半。
+  # 【两条判定来源（**都不许省**）】① `test -e`（工作树上有没有那份文件）；
+  #   ② `git ls-files --error-unmatch`（**被跟踪** ⇒ 即便此刻被删，上游合并也会把它带回）。
+  #   ⇒ **只判①对"被加回来"零射程的一半**（已跟踪但从工作树删掉时①看不见）⇒ 两条同时绿才算绿。
+  # 【如实边界】②只在 `$ROOT` **本身是 git 仓根**时才算得出（镜像/桩树里 `git` 会指到别的仓或
+  #   根本没有仓）⇒ 那时印 `git=NA` 并**不计入 `PASS`**（`D-G29`：算不出来不许冒充判定）；
+  #   自测 `case Z3` 用**真 `git init` 的镜像**证明②的牙真的会红（不是死代码）。
+  local rp_exists=0 rp_tracked=0 rp_git=absent rp_state=NA rp_path='' rp_tl=''
+  if command -v git >/dev/null 2>&1; then
+    rp_tl="$(git -C "$ROOT" rev-parse --show-toplevel 2>/dev/null || true)"
+    if [ -n "$rp_tl" ] && [ "$rp_tl" = "$(readlink -f -- "$ROOT" 2>/dev/null)" ]; then
+      rp_git=present; rp_state=PASS
+    elif [ -n "$rp_tl" ]; then
+      rp_git=NA   # $ROOT 只是某个仓的子目录 ⇒ 跟踪那一半说的不是本树
+    fi
+  fi
+  for rp_path in 'Directory.Build.props' 'Directory.Build.targets'; do
+    if [ -e "$ROOT/$rp_path" ]; then
+      echo "BHYGIENE_DRIFT=FAIL kind=ROOT-PROPS-PRESENT path=$rp_path src=test-e（仓根真有这一份 ⇒ 移植工程求值会 error MSB4236；上游逐字节相同、一次合并就带回来）"
+      rp_exists=$((rp_exists + 1))
+    fi
+    if [ "$rp_git" = present ] && git -C "$ROOT" ls-files --error-unmatch -- "$rp_path" >/dev/null 2>&1; then
+      echo "BHYGIENE_DRIFT=FAIL kind=ROOT-PROPS-TRACKED path=$rp_path src=git-ls-files（**被 git 跟踪** ⇒ 即便此刻工作树没有，任何一次上游合并/同步都会把它**原样带回**）"
+      rp_tracked=$((rp_tracked + 1))
+    fi
+  done
+  if [ $((rp_exists + rp_tracked)) -gt 0 ]; then
+    rp_state=FAIL
+    [ "$reason" = ok ] && reason=root-props
+    state=FAIL
+  fi
+  echo "BHYGIENE_ROOTPROPS=$rp_state exists=$rp_exists tracked=$rp_tracked git=$rp_git src=test-e,git-ls-files paths=Directory.Build.props,Directory.Build.targets root=$ROOT"
 
   # 口径①②③④ **分别**上屏（**不许**并成一个数）；新增项**只加不删**
   echo "BHYGIENE_USERS_FILES=$n_files"
@@ -586,7 +626,7 @@ run_check() {
       echo "BHYGIENE_COVERAGE=UNCOMPUTABLE sln=$([ -f "$SLN" ] && echo present || echo missing) corpus=$(printf '%s\n' "$CORPUS" | grep -c .)（**新谓词的数据源取不到 ⇒ 那些行只能 NOINFO**）"
     fi
   fi
-  echo "BHYGIENE_IMPORT=$state reason=$reason files=$n_files lines=$n_lines list=$n_list mention_files=$n_ment_f mention_lines=$n_ment_l disappeared=$disappeared dup=$dup unlisted=$unlisted file_absent=$file_absent expect_n=$EXPECT_N props=$(sha16 "$PROPS") undeclared=$undeclared witness_expired=$witness_bad class_conflict=$class_conflict cand=$n_cand cand_min=$CAND_MIN notneeded=$nnn suspended=$nsus roster=$(sha16 "$ROSTER")"
+  echo "BHYGIENE_IMPORT=$state reason=$reason files=$n_files lines=$n_lines list=$n_list mention_files=$n_ment_f mention_lines=$n_ment_l disappeared=$disappeared dup=$dup unlisted=$unlisted file_absent=$file_absent expect_n=$EXPECT_N props=$(sha16 "$PROPS") undeclared=$undeclared witness_expired=$witness_bad class_conflict=$class_conflict cand=$n_cand cand_min=$CAND_MIN notneeded=$nnn suspended=$nsus roster=$(sha16 "$ROSTER") rootprops=$rp_state rootprops_exists=$rp_exists rootprops_tracked=$rp_tracked rootprops_git=$rp_git"
 
   [ "$state" = PASS ] && return 0
   return 1
@@ -889,6 +929,34 @@ if [ "${1:-}" = '--selftest' ]; then
   find "$T/Y" \( -name '*.sh' -o -name '*.py' \) -delete
   rm -f "$T/Y/$SLN_REL"
   CHK_MUST='kind=WITNESS-UNCOMPUTABLE'; chk Y NOINFO "$T/Y"
+
+
+  # ══ 波 `#77` 新档（仓根 `Directory.Build.props`/`.targets`）的两极化 ══
+  # case Z1：**必须红** —— 把上游那份**原样放回**镜像仓根（`test -e` 那一半）
+  mirror "$T/Z1"; printf '<Project>\n</Project>\n' > "$T/Z1/Directory.Build.props"
+  CHK_MUST='kind=ROOT-PROPS-PRESENT path=Directory.Build.props src=test-e'; chk Z1 FAIL "$T/Z1"
+
+  # case Z2：**必须红** —— 另一件（`.targets`）同形；两件名字**都不许漏**
+  mirror "$T/Z2"; printf '<Project>\n</Project>\n' > "$T/Z2/Directory.Build.targets"
+  CHK_MUST='kind=ROOT-PROPS-PRESENT path=Directory.Build.targets src=test-e'; chk Z2 FAIL "$T/Z2"
+
+  # case Z3：**必须红（`git ls-files` 那一半的牙）** —— 真 `git init` ＋ `git add` ＋ 再 `rm`
+  #   ⇒ 工作树里**没有**那份文件（`test -e` 绿），但它**被跟踪** ⇒ 上游合并会把它带回 ⇒ 必红。
+  #   ⚠️ 这一例就是"只判文件不存在"与"同时判来源"的**分水岭**（没有它，②是死代码，纪律 47）。
+  mirror "$T/Z3"
+  if command -v git >/dev/null 2>&1; then
+    git -C "$T/Z3" init -q >/dev/null 2>&1 && \
+      { printf '<Project>\n</Project>\n' > "$T/Z3/Directory.Build.props"
+        git -C "$T/Z3" add -- Directory.Build.props >/dev/null 2>&1
+        rm -f "$T/Z3/Directory.Build.props"; }
+    CHK_MUST='kind=ROOT-PROPS-TRACKED path=Directory.Build.props src=git-ls-files'; chk Z3 FAIL "$T/Z3"
+  else
+    echo "SELFTEST case=Z3 expect=FAIL got=SKIP concl_lines=0 noise=0 must=n/a rc=0 => yes（本机无 git ⇒ 该例**没跑**，如实记，不当绿）"
+  fi
+
+  # case Z4：**正极** —— `git init` 过、但**零跟踪**的镜像 ⇒ 本档不红（且 `git=present`）
+  mirror "$T/Z4"; git -C "$T/Z4" init -q >/dev/null 2>&1
+  CHK_MUST='BHYGIENE_ROOTPROPS=PASS exists=0 tracked=0 git=present'; chk Z4 PASS "$T/Z4"
 
   echo "BHYGIENE_SELFTEST=$([ "$nf" -eq 0 ] && echo PASS || echo FAIL) cases=$((np + nf)) pass=$np fail=$nf"
   [ "$nf" -eq 0 ] && exit 0 || exit 1

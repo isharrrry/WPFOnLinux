@@ -71,7 +71,7 @@
 # ══════════════════════════════════════════════════════════════════════════════════
 set -uo pipefail
 
-R=${R:-/home/links-dev/netTest/wpf-linux-20260906/wpf-linux}
+R=${R:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)}   # 波 `#77` 旧路径重指向：由仓根现推
 N=src/WpfGfx.Linux.Native
 DECL=${DECL:-$N/tools/pts-gap-decl.txt}
 SITES=${SITES:-$R}                                   # 复述位的**根**
@@ -144,7 +144,9 @@ SO16=$(sha256sum "$N/bin/libwpfwin32.so" 2>/dev/null | cut -c1-16)
 EXPORTS=$(wc -l < "$N/bin/exports.txt" | tr -d ' ')
 W66=$(sha256sum "$SITES/docs/WAVE66-PREREGISTRATION.md" 2>/dev/null | cut -c1-16)
 
-LIVE="tool=$TOOL dead=$DEAD artifact=$ARTI ops=$OPS impl=$IMPL so16=$SO16 exports=$EXPORTS"
+# 波 `#77`（`t4` 现场要求）：读数行**带 `root=`** —— 自证这一次打在**哪个树**上
+#   （旧版硬编码旧树路径 ⇒ 从 `$N` 跑时读的是**旧树**，而旧树一回收就 `NOINFO reason=R-absent`）。
+LIVE="tool=$TOOL dead=$DEAD artifact=$ARTI ops=$OPS impl=$IMPL so16=$SO16 exports=$EXPORTS root=$R"
 [ "$SELFTEST" -eq 1 ] || { echo "LIVE  $LIVE"; echo "W66PRE16 live=${W66:-未取到}"; }
 
 # ══ ②③⑤ 自测（合成夹具，7 腿，5 腿断言必须红）════════════════════════════════════

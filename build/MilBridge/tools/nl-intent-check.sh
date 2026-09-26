@@ -55,14 +55,13 @@ set -u
 # `$R` 的默认值：**先证明路径是对的**（本仓 `D-G119 ⑫` 同族：`[ -d ]` 不等于"这是仓库根"）
 #   —— 判据 = 那个根下面**真的有** shim。猜错根 ⇒ 极 1 会静默变成"找不到 .so"。
 if [ -z "${R:-}" ]; then
-    for cand in "$(cd "$(dirname "$0")/../.." 2>/dev/null && pwd)" \
-                "/home/links-dev/netTest/wpf-linux-20260906/wpf-linux"; do
+    for cand in "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." 2>/dev/null && pwd)"; do
         if [ -n "$cand" ] && [ -f "$cand/src/WpfGfx.Linux.Native/bin/libwpfwin32.so" ]; then
             R="$cand"; break
         fi
     done
 fi
-R="${R:-/home/links-dev/netTest/wpf-linux-20260906/wpf-linux}"
+R="${R:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)}"   # 波 `#77` 旧路径重指向：由仓根现推
 HERE="$(cd "$(dirname "$0")" && pwd)"
 SO="$R/src/WpfGfx.Linux.Native/bin/libwpfwin32.so"
 HC_XAML="${HC_XAML:-/home/links-dev/hc-linux/src/Shared/HandyControlDemo_Shared/UserControl/Styles/FlowDocumentDemo.xaml}"

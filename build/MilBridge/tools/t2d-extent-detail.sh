@@ -10,7 +10,7 @@
 #    这正是脚本"能把该形态抓出来"的证明。
 #  ⚠️ 不跑应用、不起 Xvfb、不重建 PC；`-m:1`、**无 --no-build**。
 set -uo pipefail
-ROOT=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux
+ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)"   # 波 `#77` 旧路径重指向：由仓根现推
 export PATH="$HOME/.dotnet:$PATH"
 SHIM="${1:-$ROOT/build/shims/PresentationCore.HbTextLine.cs}"
 [ -f "$SHIM" ] || { echo "[失败] 找不到 shim：$SHIM"; exit 3; }

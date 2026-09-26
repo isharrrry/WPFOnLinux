@@ -52,7 +52,7 @@ if [ "$MODE" = help ]; then
   sed -n '2,40p' "$0"; exit 0
 fi
 if [ -z "$REPO" ]; then
-  REPO="${PROCGUARD_REPO:-${R:-/home/links-dev/netTest/wpf-linux-20260906/wpf-linux}}"
+  REPO="${PROCGUARD_REPO:-${R:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)}}"   # 波 `#77` 旧路径重指向：由仓根现推
 fi
 # ⚠️ 本件自己的路径：**不用 `__file__`**（`#57` 现场教训：`python3 - <<EOF`（stdin）里
 #   `__file__` 恒为 `<stdin>`，反推仓根会**静默指到别处**）⇒ 由 bash 侧显式导出。

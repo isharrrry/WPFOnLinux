@@ -20,7 +20,7 @@
 # ─────────────────────────────────────────────────────────────────────────────
 set -uo pipefail
 
-REPO="${PTS_GUARD_REPO:-/home/links-dev/netTest/wpf-linux-20260906/wpf-linux}"
+REPO="${PTS_GUARD_REPO:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." && pwd)}"   # 波 `#77` 旧路径重指向：由仓根现推
 # ⚠️【落仓参数化（纪律 34）】原值指向**仓外共享应用安装**（~/hc-linux/...）
 #   ⇒ 跑腿会把权威五件**写进那个共享安装**（副作用）。现在默认 = **仓外私有暂存**，
 #     由 ~/w160a/stage-app.sh 装配（照 RGateClickProbe 的形制）。

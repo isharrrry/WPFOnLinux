@@ -4,26 +4,28 @@
 > ⚠️ **不引行号**（纪律 31）：本仓有若干件**每代重写**、且同一句会**多处出现**（如基线件的「九位」行现盘在 `:14` 与 `:77`，历史块共 7 处）⇒ **一律引内容锚**。
 
 ## §1 世代与冻结（现读）
-- 冻结哨兵：`docs/CURRENT-STATE.md:9` = `BASELINE-FROZEN gen=#76 sha16=954df351a119d36f file=samples/WpfTextDemo/ACCEPTANCE-BASELINE.md`（现取；⚠️ **被哈希的件由这行的 `file=` 字段指定**，不是 `CURRENT-STATE.md` 自己。）
+- 冻结哨兵：`docs/CURRENT-STATE.md:9` = `BASELINE-FROZEN gen=#77 sha16=e3ebc811641bd467 file=samples/WpfTextDemo/ACCEPTANCE-BASELINE.md`（现取；⚠️ **被哈希的件由这行的 `file=` 字段指定**，不是 `CURRENT-STATE.md` 自己。）
   （⚠️ **被哈希的件由这行的 `file=` 字段指定**，不是 `CURRENT-STATE.md` 自己。）
-- 基线件：`samples/WpfTextDemo/ACCEPTANCE-BASELINE.md` = `954df351a119d36f`／**1,114,881 B**（世代链：`#73` `f747350edf97a74a` → `#74` `8b303228ff088349` → `#75` `3b9e463e70220e11` → **`#76` `954df351a119d36f`**；现取）。
-- 九位（`#76` 冻结值；取法见 §7-2）：`bridge 4e25e4b27d4d5ae1`｜`pc 722e0ab8205b7c3f`｜`pf 963c59991fd1f709`｜`windowsbase 2e4e46e539a72cd7`｜`provider 1f9511a7ef395bfe`｜`win32shim fc60c34d51fd9247`｜`wic f7b3026c8c019be2`｜`hbtextline 921ba9c65e9fb3be`｜`dwf ce3469f49efcbcfa`。（`pf` 是**环成员**：整波重建必变 ⇒ 不许当漂移/回归判据，`D-G92`。本波**只 `pf` 动**。）
+- 基线件：`samples/WpfTextDemo/ACCEPTANCE-BASELINE.md` = `e3ebc811641bd467`／**1,138,219 B**（世代链：`#73` `f747350edf97a74a` → `#74` `8b303228ff088349` → `#75` `3b9e463e70220e11` → `#76` `954df351a119d36f` → **`#77` `e3ebc811641bd467`**；现取）。
+- 九位（`#77` 冻结值；取法见 §7-2）：`bridge 4e25e4b27d4d5ae1`｜`pc 53fd7fffcdb30243`｜`pf 4fcd2ca021c39064`｜`windowsbase 07c89f1872c1a3c1`｜`provider 4041df9a704abfed`｜`win32shim fc60c34d51fd9247`｜`wic f7b3026c8c019be2`｜`hbtextline 921ba9c65e9fb3be`｜`dwf b07f801556e1a511`。
+  ⚠️ **`#77` 五位位移（`pc`／`pf`／`windowsbase`／`provider`／`dwf`）＝ 路径承载体**：`#76` 的九位是**从旧树 `O` 拷进 `N` 的**，`#77` 是 `N` 内**第一次真重建** ⇒ 托管件 DEBUG 目录里嵌的 `*.pdb` **绝对路径**变成 `N` 的路径；**字节大小与 `#76` 冻结值逐位相同**（`3601408`／`6123520`／`1111552`／`104448`／`39936`）⇒ **非产品回归**。`bridge`／`win32shim`／`wic_shim` 是原生/发布件、本波未重建 ⇒ 逐位未变（反证）。口径句：**"托管程序集的哈希是路径承载体；凡跨树位置比较产物哈希，先问『它是在哪个树里产出的』。"**
+  （`pf` 仍是**环成员**：整波重建必变、**同尺寸 6,123,520 B** ⇒ 不许当漂移/回归判据，`D-G92`。）
   （`pf` 是**环成员**：整波重建必变、**同尺寸 6,123,520 B** ⇒ 不许当漂移/回归判据，`D-G92`。）
-- `inputs_fp`（`#76` 落地后，**覆盖面 205 件**）：`bb54413c8a3f0474a3d04e41dc08ec29fb993f7ea7a8ab689ae29f372904eb9a`
+- `inputs_fp`（`#77` 落地后，**覆盖面 211 件**）：`b67560f2ff28932b69cf198aa68ed91ca66f582180d27d4af929deca54dd540c`
   （`#62` 后 = `1ffd13f7c927dea71fd5dca866f7c6f81e8efce9939c22c85d55c0a35fb20f96`／158 件；`#61` 后 = `a00bf53a64c47531963b0f82aae689fe4cee1363c7b9e670799566cb7963c668`／157 件。**改动覆盖面内任一件必移**，属设计性变更。）
-- **步数**：`verify-all.sh` = **47 步**（`#76` 加 `[47] BOUNDARY-DECL`＝`TASK-0732`；首行 `DECL` 声明的步数 == 现取 `run_step` 数，**`DECL` 行数 ≠ 步数**，纪律 46）；覆盖面 **205 件**（`[42] --expect 205`）。
-- 推送：`feat-Linux` @ **`5d45064ab4b5e2003fe509753d3d0689a78eff1e`**（**本波两笔**：波件 `9cea5cc4786b8cc3abdc9f9f281aba113c042e82` ＋ **主控登记批** `5d45064ab4b5e2003fe509753d3d0689a78eff1e`；clone = `~/netTest/GitProj/WPFOnLinux`，`origin`=gitee、`upstream`=dotnet/wpf；**本行与其后提交若不一致，以 §7-6 现取为准**）。
+- **步数**：`verify-all.sh` = **50 步**（`#77` 加 `[48] WIRING-COVERAGE`／`[49] PARSER-GUARD`／`[50] PROTO-ATTR`；首行 `DECL` 声明的步数 == 现取 `run_step` 数，**`DECL` 行数 ≠ 步数**，纪律 46）；覆盖面 **211 件**（`[42] --expect 211`）。
+- 推送（`#77` 冻结时点，**推送前**现取）：`feat-Linux` 本地 HEAD = `fd9a9a1886d25575ae625d44741d45620d554185`（`t1` 两笔：`7027be06e7fddb793ea22411c1f0645626474a73` ＋ `fd9a9a1886d25575ae625d44741d45620d554185`，**随本波推送带走**）；上一波远端值 = `5d45064ab4b5e2003fe509753d3d0689a78eff1e`（**本波两笔**：波件 `9cea5cc4786b8cc3abdc9f9f281aba113c042e82` ＋ **主控登记批** `5d45064ab4b5e2003fe509753d3d0689a78eff1e`；clone = `~/netTest/GitProj/WPFOnLinux`，`origin`=gitee、`upstream`=dotnet/wpf；**本行与其后提交若不一致，以 §7-6 现取为准**）。
 - 放行标记：`~/w21-verify/w*-POST.done` 现取 21 件：w56-POST.done／w57-POST.done／w58-POST.done／w59-POST.done／w60-POST.done／w61-POST.done／w62-POST.done／w63-POST.done／w64-POST.done／w65-POST.done／w66-POST.done／w67-POST.done／w68-POST.done／w69-POST.done／w70-POST.done／w71-POST.done／w72-POST.done／w73-POST.done／w74-POST.done／w75-POST.done／w76-POST.done（真时刻一律 `stat` 取）。
 
 ## §2 在飞（**先读这节再动手**）
-- **在飞**：`#76` 全链已收官（`#76` 冻结；冻后 `verify-all` ×2 各 `47 ✅ / ❌ 0`；`w76-POST.done` 已落）；**随后本波推送／app-local／两哨兵由主控收口**。无其它链在跑（槽 `FREE` 时方可起新重活）。
+- **在飞**：**`#77`**（仪器波；五件 ＝ `TASK-0740`＋`0742`＋`0744`＋`0745` ＋ 主控同趟追加的「仓根 `Directory.Build.props`/`.targets` 缺席牙」＋ **21 件旧路径重指向**）—— `verify-all.sh` **50 步**／覆盖面 **211 件**；冻结／推送／哨兵读数见本节现取（本件是**导航**，不是判据）。无其它链在跑（槽 `FREE` 时方可起新重活）。
 - **下一波 `#64`＝`TASK-0717`**（把「基线率闸」做成牙）：入口 = 新件 `build/MilBridge/tools/baseline-rate-gate.sh`；规格输入 = `~/w157a/baseline-rate-gate.md`（`c4839dc9e8876bcf`／口径 `57915081ffdbacf8`）＋ `~/w157a/bin/baseline-rate-gate.py`（`0dac2ea941b56f4f`，**无第三方依赖**，已逐位复现仓内四个 `REQUIRED_N_ALT`）。
 - **待命车道（都已交付包、等落地窗口）**：W180A（`#77`：`0740`＋`0742`＋`0744`＋`0745`）｜W181A（`0747`：`SHAppBarMessage` 返 0）｜W182A（`D-G147` 工作区语义）｜W183A（`TASK-0739`③ 显示号租借）｜W184A（`0744-FU`：装置附 socket 身份）。
 
 ## §3 队列（一条改动 → 一次冻结）
-1. **`#77`** `TASK-0740`＋`0742`＋`0744`＋`0745`（W180A 包已复核 12/12）：步数 `47→50`／覆盖面 `205→211`／`--expect` **同趟现取**；随后 **`0747`**（W181A，`wsh` 必动 ⇒ 冻结闸 `allow_changed` 要含它）；再 **`#78`**＝`D-G147`＋显示号租借＋`0744-FU`（串行落地、数字现取）。
-2. 未闭 `[Next]`（现取）：`TASK-0740`｜`0742`｜`0744`｜`0745`｜`0747`（五条包已就绪、等落地窗口）；`TASK-0720`／`0721`／`0732`／`0741`／`0746` **本批已翻 ✅**；`TASK-0709`–`0719`／`0722`–`0739`／`0743` 早已 ✅。
-3. 未绿 `[MVP]`：`TASK-0007`（富文本 23／流文档 24 `rc=134`，真因 `TASK-0302`）｜`TASK-0201`（静默 `rc=139`，上界已收到 4.87%）｜`TASK-0302`（PTS／原生 LineServices 缺口 **88 可操作／97 实现口径**，现读 `工具口径 100`）。
+1. **`#77` 已落地**：`TASK-0740`＋`0742`＋`0744`＋`0745`（W180A 包）＋ 主控同趟追加（仓根 props 牙，**折叠进 `[9]`、不动步数**）＋ **21 件旧路径重指向**：步数 `47→50`／覆盖面 `205→211`／`--expect` **同趟现取**。随后 **`0747`**（W181A，`wsh` 必动 ⇒ 冻结闸 `allow_changed` 要含它）；再 **`#78`**＝`D-G147`＋显示号租借＋`0744-FU`（串行落地、数字现取）。
+2. 未闭 `[Next]`（现取）：`TASK-0747`（W181A 包已就绪、等落地窗口；`0740`／`0742`／`0744`／`0745` 已由 `#77` 办）；`TASK-0720`／`0721`／`0732`／`0741`／`0746` **本批已翻 ✅**；`TASK-0709`–`0719`／`0722`–`0739`／`0743` 早已 ✅。
+3. 未绿 `[MVP]`：`TASK-0007`（富文本 23／流文档 24 `rc=134`，真因 `TASK-0302`）｜`TASK-0201`（静默 `rc=139`，上界已收到 4.87%）｜`TASK-0302`（PTS／原生 LineServices 缺口 **可操作 88／实现口径 97**，现读 `工具口径 100`）。
 4. `TASK-0111` = ✅ **归档为「不可判 ＋ 已知无产品价值」**（号不撤）：① 该红已被 `#54`/`TASK-0210` 修掉（现行桥 `4e25e4b27d4d5ae1` 上 `0/12` 红 vs 旧件 `12/12`）⇒ **产品价值 = 0**；② `A` 臂红率**随时间漂移**（`12/12 = 100%` → `7/28 = 25.0%`）⇒ `P1` 被排除 ⇒ **整批 `VOID-PREMISE`、40 腿不跑**；`N1` 作为修法**撤回**。判据件：`~/w156a/{criteria.md,leg-plan.md,AMENDMENT-1.md,AMENDMENT-2.md,WAVE-PREREG-0111.md}`｜装置 `~/w155a/device/wpfhintsgate.so 3c2a36580a7806f6`。
 
 ## §4 近期新登记（要看细节读登记册）
@@ -93,7 +95,7 @@
 
 ## §7 七条命令重建存活态（**先跑这七条，再动手**）
 ```bash
-R=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux
+R=/home/links-dev/netTest/GitProj/WPFOnLinux
 # 1) 冻结世代与基线件
 sed -n '9p' $R/docs/CURRENT-STATE.md
 # 2) 九位（与 §1 逐位比对；pf 是环成员、只作现场值）

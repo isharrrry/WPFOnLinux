@@ -45,7 +45,10 @@ PLAN.tsv 每行：<relpath>\t<mod|new>[\t<备注>]
 USAGE
 }
 
-GATE_REPO="${WPF_BCG_REPO:-${W163A_R:-/home/links-dev/netTest/wpf-linux-20260906/wpf-linux}}"
+# 波 `#77` 旧路径重指向：仓根**现推**（`verify-all.sh:192`／`close-wave.sh:31` 同法）
+BCG_DEFROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)"
+export WPF_BCG_DEFROOT="$BCG_DEFROOT"
+GATE_REPO="${WPF_BCG_REPO:-${W163A_R:-$BCG_DEFROOT}}"
 GATE_BK="${WPF_BCG_BACKUP_ROOT:-${W163A_BACKUP_ROOT:-$HOME/.cache/wpf-linux/backup/pre-land}}"
 PLAN=""
 MODE="check"
@@ -243,7 +246,7 @@ def selftest():
 
     before_repo_sb = snap(repo)          # 沙箱"权威树"起点
     before_repo_sha = {k: sha16(os.path.join(repo, k)) for k in before_repo_sb}
-    R_REAL = os.environ.get('WPF_BCG_REPO') or os.environ.get('W163A_R', '/home/links-dev/netTest/wpf-linux-20260906/wpf-linux')
+    R_REAL = os.environ.get('WPF_BCG_REPO') or os.environ.get('W163A_R') or os.environ.get('WPF_BCG_DEFROOT') or REPO
     before_R = snap(R_REAL) if os.path.isdir(R_REAL) else {}
 
     results = []

@@ -19,7 +19,7 @@
 # ============================================================================
 set -uo pipefail
 
-ROOT=/home/links-dev/netTest/wpf-linux-20260906/wpf-linux
+ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)"   # 波 `#77` 旧路径重指向：由仓根现推
 export PATH="$HOME/.dotnet:$PATH"
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
 

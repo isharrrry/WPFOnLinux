@@ -52,7 +52,7 @@ USAGE
 }
 
 # ---- 默认值 ----------------------------------------------------------------
-ALIAS_ROOT="${W163A_R:-/home/links-dev/netTest/wpf-linux-20260906/wpf-linux}"
+ALIAS_ROOT="${W163A_R:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)}"   # 波 `#77` 旧路径重指向：由仓根现推
 ALIAS_ROOTS=""
 # 默认 16 的来历（本机现算，见 report.md §3）：`--maxdepth 12` 会让 **332 件**找不到
 # 仓外孪生（它们在本仓 `upstream/wpf/src/...` 深处，相对根深度 14–16）⇒ **静默假阴性**；

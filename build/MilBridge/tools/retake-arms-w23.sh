@@ -3,7 +3,7 @@
 # 依据：`build/MilBridge/arm-logs/README.md` 的"新世代怎么重绿"。
 set -uo pipefail
 
-ROOT="/home/links-dev/netTest/wpf-linux-20260906/wpf-linux"
+ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)"   # 波 `#77` 旧路径重指向：由仓根现推
 # ★ `#39` 阶段 2/3：本脚本读的权威件路径跟随**唯一声明**。
 . "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/../../../build/selfbuilt-config.sh"
 cd "$ROOT" || exit 2

@@ -28,7 +28,7 @@ APP_DIR=${1:?用法: $0 <运行目录> [N] [default|env] [样例名]}
 N=${2:-12}
 TIER=${3:-default}
 SAMPLE=${4:-WpfFeatureProbe}
-REPO=${REPO:-/home/links-dev/netTest/wpf-linux-20260906/wpf-linux}
+REPO=${REPO:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)}   # 波 `#77` 旧路径重指向：由仓根现推
 DISPLAY_NUM=${WFP1400_DISPLAY:-:97}
 # 样例参数：探测样例默认只起一块（快）；观测到 1400 的是 WpfTextDemo，则用默认档无参启动（与门禁一致）
 if [ "$SAMPLE" = "WpfFeatureProbe" ]; then ARGS=${WFP1400_ARGS---only=popup}; else ARGS=${WFP1400_ARGS-}; fi
