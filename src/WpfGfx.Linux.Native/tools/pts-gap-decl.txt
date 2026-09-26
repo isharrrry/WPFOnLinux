@@ -1,0 +1,34 @@
+# ══════════════════════════════════════════════════════════════════════════════════
+# `D-G70`「在册数」的**唯一机读声明行**（`TASK-0720` 残项；波 `#76` 落仓）
+#
+# 【这是什么】这不是"把现算值抄一份"—— 它是一条**声明**：先由**独立方法**把数定下来
+#   （车道 W174A 的只读盘点，`bash ~/w174a/recount-0720.sh` ⇒ `RECOMPUTE=PASS`，
+#    与主控 `#76` 批次里那 8 处正文替换**互相独立**），再由牙 `pts-gap-count-check.sh`
+#   在**每一次冻结前**现算并**逐字段对账**（`!=` 即红，零余量）。
+#   ⇒ 声明与现算**必须来自两条不同的路径**，否则这条牙就退化成"自己跟自己比"（恒真）。
+#
+# 【字段定义】
+#   tool     = `python3 src/WpfGfx.Linux.Native/tools/check-shim-coverage.py --tier all`
+#              报的 `[PresentationNative_cor3.dll]` 缺口条数（**工具原始口径，不扣减**）
+#   dead     = 工具口径里属于 `Pts.cs` `#if NEVER` 死声明的条数（工具不求值预处理）
+#   artifact = 工具**误报**条数（`*Wrapper` 尾名 ∧ 其 EntryPoint 逐字已在 exports.txt）
+#   ops      = `tool − dead − artifact`  ⇒ **可操作缺口**
+#   impl     = `ops + stubs`（`win32_pts.c` 里 `return wpf_pts_gap("…")` 的条数 ⇒ 已导出但恒 `-10000`）
+#              ⇒ **实现口径**
+#   so16     = `src/WpfGfx.Linux.Native/bin/libwpfwin32.so` 的 sha16（**内容锚 ①**）
+#   exports  = `src/WpfGfx.Linux.Native/bin/exports.txt` 的行数（**内容锚 ②**）
+#   w66pre16 = `docs/WAVE66-PREREGISTRATION.md` 的 sha16（**内容锚 ③ · 冻证据钉**）
+#              —— 该件的 `:24` 是 `C1` 判据，它要求 `win32_classification.c:52` **保留「可操作 91」**；
+#                 本波第 9 处替换**必然**违反它，处置＝「**冻证据一字不动**」（历史件原文保留），
+#                 取代声明写进本波预登记与 `D-G70`。本钉把那句话变成**机器断言**。
+#
+# 【为什么旧数写在正文里也没救】`#66` 在**同一波里**既更正数、又落了 `P03`（新增 3 条 `LsErr`
+#   诚实失败导出 ⇒ `exports 547→550`）⇒ 那 3 个 `Lo*` 名字当场离开缺口名单 ⇒ 更正**那一刻**
+#   写下的 `103／91` 就已经是 `100／88`。今天没有任何在跑读数会响（四个候选牙在
+#   `verify-all.sh`／`integration-wave.sh`／`known-red.json` 里全 0 命中）⇒ 本件就是那道闸。
+#
+# 【落仓那刻必须重取】下面这行是**声明值**；`landing.sh` 会现取 `so16`／`exports`／`w66pre16`
+#   并**断言相等**（不等即 `rc=9` 停手 = 基底漂移），再把 `tool/dead/artifact/ops/impl`
+#   交给牙**现算对账**（不等即牙红 —— 那才是"数漂了"，与基底漂移是两回事，分开报）。
+# ══════════════════════════════════════════════════════════════════════════════════
+# PTSGAP-DECL: tool=100 dead=11 artifact=1 ops=88 impl=97 so16=fc60c34d51fd9247 exports=550 w66pre16=bf6b683d94549087

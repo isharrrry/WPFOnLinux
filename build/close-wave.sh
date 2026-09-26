@@ -362,7 +362,10 @@ fp_inputs() {  # 手写输入指纹（应用器 + port-lib + 本脚本 + 波脚�
           build/MilBridge/lane-path-provenance.tsv \
           build/MilBridge/tools/rows-identity-check.sh \
           build/MilBridge/tools/xvfb-census-check.sh \
-          build/MilBridge/tests/SilentHitProbe/silenthit-trim.tsv
+          build/MilBridge/tests/SilentHitProbe/silenthit-trim.tsv \
+          build/MilBridge/tools/pts-gap-count-check.sh \
+          src/WpfGfx.Linux.Native/tools/pts-gap-decl.txt \
+          build/MilBridge/tools/boundary-decl-check.sh
     } | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -d' ' -f1
 }
 sha16() { sha256sum "$1" 2>/dev/null | cut -c1-16; }
@@ -600,6 +603,28 @@ if [ "$SKIP_VERIFY" = 1 ]; then
 else
     run "[5/6] verify-all.sh" bash verify-all.sh
 fi
+
+
+# ── 5b) 在册数防漂移（`D-G70`／`TASK-0720` 残项；**`#76` 新增**）────────────────────
+# 【判什么】`D-G70` 的「在册数」（PTS 缺口：工具口径／**可操作**／实现口径）此前是一条
+#   **零守卫的裸文本** —— `#66` 在**同一波里**既把它更正成 `103／91／97`、又落了 `P03`
+#   （`win32_pts.c` 新增 3 条 `LsErr` 诚实失败导出 ⇒ `exports 547→550`）⇒ 那 3 个 `Lo*`
+#   名字当场**离开缺口名单** ⇒ **更正它的那一刻它就已经过期**（真值 `100／88／97`），
+#   而当时**没有任何在跑读数会响**（四个候选牙在 `verify-all.sh`／`integration-wave.sh`／
+#   `known-red.json` 里**全 0 命中**）。车道路线图把它记成「在册数纠正」，但**纠正过的数
+#   照样会漂** ⇒ 本步把它变成**每次冻结前现算 ＋ 逐字段对账**。
+# 【放哪儿／为什么】主控 `2026-09-26` 裁定：**接线走 `close-wave.sh` 冻前，不加
+#   `verify-all` 步**（理由：**冻结那一刻才是这个数说话的地方**）。本步落在 `[5/6]` 与
+#   `[6/6]` **之间** ⇒ ① 此时 `[2/6]` 已重建 shim、`[4/6]` 已过身份自检、`[5/6]` 已过全量回归
+#   ⇒ 读的是**最终态**；② 本步红 ⇒ `run()` 当场 `exit` ⇒ **`[6/6] 汇总` 与两哨兵都不会落**
+#   ⇒ 「在册数是假的」这件事**不可能被写成一份形状完好的收波记录**。
+# 【它不判什么（如实划界）】只判「**在册数与其 6 处正文复述位一致**」，
+#   **不判**「88／97 这个数在语义上对不对」（那是 `D-G70` 的取证部分）；
+#   复述位所在的**文档件**不在 `fp_inputs()` 覆盖面内 ⇒ 改文档**不**移动 `inputs_fp`
+#   （但改了**数**本步每次冻结都当场可见）。
+# 【成本】纯读、零 `dotnet`、< 3 s；不写 `$R`。
+say ""; say "──── [5b/6] 在册数防漂移（D-G70；三态 PTSGAP=PASS|FAIL|NOINFO，**NOINFO 不算绿**）"
+run "[5b/6] pts-gap-count-check.sh" bash build/MilBridge/tools/pts-gap-count-check.sh
 
 # ── 6) 汇总 ───────────────────────────────────────────────────────────────────
 say ""; say "──── [6/6] 汇总（**八位 + 第九位 + 桥指纹**，逐字复制进下一版基线表头）"

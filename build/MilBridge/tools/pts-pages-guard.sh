@@ -34,6 +34,14 @@
 #   ⚠️ **判序：有红先红**（`NOINFO` 比 `FAIL` 弱，先用弱结论会把真红洗成"算不出"）；
 #      无红但有"判不了" ⇒ `NOINFO`。**`NOINFO` 在门禁里同样是 ❌**。
 #
+# 【方向口径（`D-G142`／`TASK-0741`）】**口径文本必须在判据件自身**，不许只活在别处的历史 `DECL` 行里：
+#   · 洋红（`magenta`）= `0` ⇒ **页级占位缺席**（该页没画出来 ⇒ **未修方向**）；
+#   · 洋红 ≥ `20000` ⇒ **占位已画出**（**修复方向**）；
+#   · 红条件（方向的**反面**，逐字）：`magenta=0 ∧ 无具名行 ∧ native_gap=0`；**反转必须成对**。
+#   · 下面这一行是**唯一机读声明行**；判词行**行尾**带 `direction=` 标记（**前缀语义一字不改**）；
+#     本行缺失／与编译常量不符 ⇒ `PTS_DIRECTION=FAIL` ＋ 本步**当场红**（**不许静默绿**）。
+# PTS-DIRECTION: absent="magenta=0" present-floor=20000 red-when="magenta=0 AND no-named-line AND native_gap=0" source=TASK-0741
+
 # 【反例牙】**本脚本的绿必须能被两极化证伪**，配方（三臂 × 5 腿）见
 #   `~/w156a/w67guard/polarity-recipe.md`：
 #     ① `A`（现权威五件）⇒ 必 `PASS`  ② `B`（修前成对件 `shim 3e4390c9ec07f621` ＋
@@ -55,13 +63,39 @@ MAGENTA_FLOOR="${PTS_GUARD_MAGENTA_FLOOR:-20000}"
 # ── 小工具 ───────────────────────────────────────────────────────────────────
 field() { printf '%s' "$1" | grep -o -m1 "[[:space:]]$2=[^[:space:]]*" | head -1 | sed "s/^[[:space:]]$2=//"; }
 
+# ── 方向口径闸（`TASK-0741`：口径**自证**；坏 ⇒ 响亮）────────────────────────
+DIR_TOKEN=""; DIR_RC=0
+direction_gate() {   # ⚠️ **绝不可用命令替换调用**（子壳里赋的 DIR_TOKEN 会丢）⇒ 直接调用后读 DIR_RC/DIR_TOKEN
+  local line fl
+  line="$(grep -m1 -E '^#[[:space:]]*PTS-DIRECTION:' "$0" 2>/dev/null || true)"
+  DIR_TOKEN="in-file"; DIR_RC=0
+  if [ -z "$line" ]; then
+    DIR_TOKEN="missing"; DIR_RC=1
+    echo "PTS_DIRECTION=FAIL reason=directive-absent expected=in-file-self-declared"
+    echo "  ∟ \`D-G142\`：方向口径单点存在于别处 ⇒ 本件不自证 ⇒ **不许静默绿**"
+    return 1
+  fi
+  fl="$(printf '%s' "$line" | sed -n 's/.*present-floor=\([0-9][0-9]*\).*/\1/p')"
+  if [ -z "$fl" ] || [ "$fl" != "$MAGENTA_FLOOR" ]; then
+    DIR_TOKEN="floor-mismatch"; DIR_RC=1
+    echo "PTS_DIRECTION=FAIL reason=floor-mismatch directive=${fl:-none} compiled=$MAGENTA_FLOOR"
+    return 1
+  fi
+  return 0
+}
+
 # ── 判读一份证据目录 ─────────────────────────────────────────────────────────
 judge_legs() {
   local dir="$1"
   local fails=() cannot=() diags=()
   local k alive rc mag colors ns msite merr nerr ngap ae seq logb
+  direction_gate || true
+  if [ "$DIR_RC" -ne 0 ]; then
+    echo "PTS_GUARD=FAIL legs=0/2 fails=direction($DIR_TOKEN) cannot=- diag=- direction=$DIR_TOKEN"
+    return 1
+  fi
 
-  [ -d "$dir" ] || { echo "PTS_GUARD=NOINFO reason=legs-dir-absent dir=$dir"; return 2; }
+  [ -d "$dir" ] || { echo "PTS_GUARD=NOINFO reason=legs-dir-absent dir=$dir direction=$DIR_TOKEN"; return 2; }
 
   # ── 装置自证（缺失 ⇒ NOINFO，不是红）────────────────────────────────────────
   local dev="$dir/device.txt"
@@ -69,7 +103,7 @@ judge_legs() {
   if [ -f "$dev" ]; then xup="$(grep -o -m1 'X_UP=[a-z]*' "$dev" | head -1 | cut -d= -f2)"; fi
   [ -n "${xup:-}" ] || xup="-"
   if [ "$xup" != "yes" ]; then
-    echo "PTS_GUARD=NOINFO reason=device-x-not-up x_up=$xup detail=<缺 device.txt 或 X_UP≠yes ⇒ 本趟读数无效>"
+    echo "PTS_GUARD=NOINFO reason=device-x-not-up x_up=$xup direction=$DIR_TOKEN detail=<缺 device.txt 或 X_UP≠yes ⇒ 本趟读数无效>"
     return 2
   fi
 
@@ -145,12 +179,13 @@ judge_legs() {
   else
     v="PASS"
   fi
-  printf 'PTS_GUARD=%s legs=%s/%s fails=%s cannot=%s diag=%s\n' \
+  printf 'PTS_GUARD=%s legs=%s/%s fails=%s cannot=%s diag=%s direction=%s\n' \
     "$v" "$(ls "$dir"/leg_*.env 2>/dev/null | wc -l)" \
     "$((seen24 + seen23))" \
     "$( [ "${#fails[@]}" -gt 0 ] && printf '%s' "$(IFS=,; echo "${fails[*]}")" || printf '-')" \
     "$( [ "${#cannot[@]}" -gt 0 ] && printf '%s' "$(IFS=,; echo "${cannot[*]}")" || printf '-')" \
-    "$( [ "${#diags[@]}" -gt 0 ] && printf '%s' "$(IFS=,; echo "${diags[*]}")" || printf '-')"
+    "$( [ "${#diags[@]}" -gt 0 ] && printf '%s' "$(IFS=,; echo "${diags[*]}")" || printf '-')" \
+    "$DIR_TOKEN"
   case "$v" in
     PASS)   return 0 ;;
     FAIL)   return 1 ;;
@@ -176,6 +211,7 @@ selftest() {
     else nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "$nm" "$got" "$want"; fi; }
 
   out() { printf '%s\n' "$1" | grep -o -m1 '^PTS_GUARD=[A-Z]*' | cut -d= -f2; }
+  outdir() { printf '%s\n' "$1" | grep -o -m1 'direction=[a-z-]*' | cut -d= -f2; }
 
   # ① 全好 ⇒ PASS
   good c1;                              chk PASS "$(out "$(judge_legs "$T/c1")")" "全好(54454/49864)"
@@ -213,6 +249,26 @@ selftest() {
   good c12; rm -f "$T/c12/leg_24.env";  mk c12 24 no 139 0 1 HandyControlDemo.UserControl.FlowDocumentDemo -10000 0 -10000 yes yes
                                         chk FAIL "$(out "$(judge_legs "$T/c12")")" "app_rc=139"
 
+  # ⑬ 方向口径**在位** ⇒ 判词行尾带 `direction=in-file`（`TASK-0741`）
+  good c13; chk in-file "$(outdir "$(judge_legs "$T/c13")")" "方向口径在位"
+  # ⑭ **反极**：沙箱把件内那一行删掉 ⇒ `PTS_DIRECTION=FAIL` ＋ 判词**必红** ＋ rc≠0
+  #    （口径只活在别处 ＝ `D-G142` 的现场形态；**不许静默绿**）
+  _sb="$T/guard-nodirective.sh"
+  grep -v -E '^#[[:space:]]*PTS-DIRECTION:' "$0" > "$_sb"
+  mkdir -p "$T/c14"
+  _sbo="$(bash "$_sb" --legs "$T/c14" 2>&1)"; _sbrc=$?
+  chk FAIL "$(out "$_sbo")" "删句 ⇒ 判词必红"
+  chk missing "$(outdir "$_sbo")" "删句 ⇒ direction 标记=missing"
+  if grep -qF 'PTS_DIRECTION=FAIL' <<< "$_sbo"; then
+    npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "删句 ⇒ PTS_DIRECTION=FAIL" "yes"
+  else
+    nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 PTS_DIRECTION=FAIL\n' "删句 ⇒ PTS_DIRECTION=FAIL" "no"
+  fi
+  if [ "$_sbrc" -ne 0 ]; then
+    npass=$((npass+1)); printf '  %-34s => rc=%-3s ok\n' "删句 ⇒ rc≠0" "$_sbrc"
+  else
+    nfail=$((nfail+1)); printf '  %-34s => rc=%-3s ✗ 期望非零\n' "删句 ⇒ rc≠0" "$_sbrc"
+  fi
   rm -rf "$T"
   printf 'PTS_GUARD_SELFTEST=%s pass=%d fail=%d\n' "$([ "$nfail" = 0 ] && echo PASS || echo FAIL)" "$npass" "$nfail"
   [ "$nfail" = 0 ]
