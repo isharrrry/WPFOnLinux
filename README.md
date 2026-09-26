@@ -177,7 +177,7 @@ GDI+ 的**图像编解码族**只做到"应用能起来"；`ntdll` 面只有 `Rt
 
 | 路径 | 是什么 |
 |---|---|
-| `upstream/wpf/` | 上游 `dotnet/wpf` 快照（**只读**；基点 commit `1cfc37f708f9`）。<br>⚠️ **账一（已知重复，暂按"保持现状"处理）**：fork 根目录里还有 dotnet/wpf **自带**的那棵树，两者内容重叠约 110 MB；**本仓构建只读 `upstream/wpf/**`，根目录那份不使用**（`.csproj` 与应用器锚点都按 `upstream/wpf/...` 写死）。何时合并见 [`docs/ROUTES.md`](docs/ROUTES.md) 路线 R8。 |
+| `upstream/wpf/` | 上游 `dotnet/wpf` 快照（**只读**；基点 commit `1cfc37f708f9`）。<br>🔴 **账一已结（2026-09-26 · P0 迁移）**：fork 根目录里那棵 dotnet/wpf **自带**的重复树，原先按「暂按保持现状」处置、并断言「**根目录那份不使用**」—— **那句已被证伪**，两条**独立机制**（现取）：① 它的根 `Directory.Build.props` 会被 MSBuild **自动导入**（`eng/WpfArcadeSdk/Sdk/Sdk.props:5` ⇒ `Sdk="Microsoft.DotNet.Arcade.Sdk"`）⇒ `samples/HelloMil/HelloMil.csproj` **求值即** `error MSB4236`（同一命令在无那棵树的树上给出正常 JSON）；② 它的 **92 个 csproj** 会进 `build-hygiene-import-check.sh` 的候选集 ⇒ `verify-all.sh` 第 `[9]` 步 `cand=88→180`、`undeclared=0→92`、`reason=drift`。⇒ 该重复树**已结构性移出**（19 条路径／7346 件／125,377,211 B；逐件清单口径见报告 §5），移出后 `[9]` 回到 `BHYGIENE_IMPORT=PASS reason=ok cand=88 undeclared=0`。**本仓构建仍只读 `upstream/wpf/**`** —— 且它现在是**唯一**被读的那一份：`build/port-lib.py` 的 `upstream_nowarn()` 上界就是 `upstream/wpf`；`build/MilBridge/tools/applier-audit.py` 把 `src/Microsoft.DotNet.Wpf/` 这一拼写**显式重定向**到 `upstream/wpf/`。全文／复算命令／回滚路径见 `build/MilBridge/P0-migrate-report.md`。 |
 | `build/port-lib.py` | 移植生成器（重写 `*.Linux.csproj`） |
 | `build/integration-wave.sh` | 移植 + 构建的唯一入口 |
 | `build/*.Linux/` | 各 Linux 工程的骨架与生成物 |

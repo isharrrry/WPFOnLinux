@@ -1,0 +1,68 @@
+=== 自检 A：错 sha（.so + 托管 .dll，都在启动宿主目录里）必须 MISMATCH 且 exit≠0 ===
+SELFTEST_A=PASS（两类错件都被报红，exit=1）
+    CROSS-CONFIG  /tmp/tmp.nbAFjutfNR/bad/P/bin/Debug/libwpfwic.so                             ACTUAL 2f0123e76b8d348e（副本配置=Debug ≠ 声明配置=Release ⇒ **只增加可见性**：本份照样走下面的判据，`STALE`/`NEWER-DIFF` 一条都不会因此豁免）
+    STALE         /tmp/tmp.nbAFjutfNR/bad/P/bin/Debug/libwpfwic.so                             EXPECT f7b3026c8c019be2  ACTUAL 2f0123e76b8d348e（副本早 212178775 秒 ⇒ 必须刷新）
+=== 自检 B：正确副本必须全 OK 且 exit=0 ===
+SELFTEST_B=PASS（exit=0，全绿：.so + .dll + 产出目录那份，且都有声明式来源）
+=== 自检 C（真实场景复演）：同配置两份副本一新一旧 ⇒ 必须 DIVERGENT 且 exit≠0 ===
+SELFTEST_C=PASS（旧 provider dll 被跨副本判定抓出）
+    UNEXPECTED-DIFF /tmp/tmp.nbAFjutfNR/probe/ProbeB/bin/Release/DirectWrite.Linux.Provider.dll cdf9acfd3b6e065f（**不在声明图里** 且 **sha ≠ 权威 1f9511a7ef395bfe** ⇒ **硬失败**：内容不同的未声明副本；权威算不出时也落这一类）
+    DIVERGENT     DirectWrite.Linux.Provider.dll [Release] 有 2 种 sha：
+        /tmp/tmp.nbAFjutfNR/probe/ProbeB/bin/Release/DirectWrite.Linux.Provider.dll cdf9acfd3b6e065f  2026-09-26 16:30:47
+=== 自检 D（D-G62）：跨配置副本必须**具名 CROSS-CONFIG** 且**照样判红**；同配置陈旧副本 CROSS-CONFIG=0 ===
+SELFTEST_D=PASS（(a) 跨配置目录（Debug）里的陈旧副本 ⇒ CROSS-CONFIG=1 **且仍 STALE**、exit=1；(b) 同一份挪进声明配置（Release）目录 ⇒ CROSS-CONFIG=0 **仍 STALE**、exit=1 ⇒ 跨配置不放行）
+    CROSS-CONFIG  /tmp/tmp.nbAFjutfNR/d/AppX/bin/Debug/DirectWrite.Linux.Provider.dll          ACTUAL cdf9acfd3b6e065f（副本配置=Debug ≠ 声明配置=Release ⇒ **只增加可见性**：本份照样走下面的判据，`STALE`/`NEWER-DIFF` 一条都不会因此豁免）
+    STALE         /tmp/tmp.nbAFjutfNR/d/AppX/bin/Debug/DirectWrite.Linux.Provider.dll          EXPECT 1f9511a7ef395bfe  ACTUAL cdf9acfd3b6e065f（副本早 211979649 秒 ⇒ 必须刷新）
+=== 自检 E：权威件换 sha ⇒ 必须报红；还原 ⇒ 必须回绿（两极化）===
+SELFTEST_E=PASS（权威同 sha ⇒ exit=0 绿；权威换 sha ⇒ exit=1 红；两趟 AUTH-MISSING=0 ⇒ 沙箱八件权威俱全，目录随 SELFBUILT_CONFIG=Release）
+    CROSS-CONFIG  /tmp/tmp.nbAFjutfNR/hostE/App/bin/Debug/DirectWrite.Linux.Provider.dll       ACTUAL 1f9511a7ef395bfe（副本配置=Debug ≠ 声明配置=Release ⇒ **只增加可见性**：本份照样走下面的判据，`STALE`/`NEWER-DIFF` 一条都不会因此豁免）
+    STALE         /tmp/tmp.nbAFjutfNR/hostE/App/bin/Debug/DirectWrite.Linux.Provider.dll       EXPECT 0b47e3a70e889112  ACTUAL 1f9511a7ef395bfe（副本早 1 秒 ⇒ 必须刷新）
+=== 自检 F：循环桩里的同名件不得判成不一致 ===
+SELFTEST_F=PASS（桩件被 SKIP(stub) 打出来但不判不一致，exit=0）
+    SKIP(stub)    /tmp/tmp.nbAFjutfNR/stub/CycleStub.Foo.Linux/bin/Debug/DirectWrite.Linux.Provider.dll a11937f356a9b0ba（循环桩工程，5120 B；权威 103936 B ⇒ 同名≠同类）
+=== 自检 G：obj 不判定，但 stale 的 bin 副本必须仍被判红 ===
+SELFTEST_G=PASS（obj 只 SKIP；bin 的落后副本仍报红、exit=1）
+    CROSS-CONFIG  /tmp/tmp.nbAFjutfNR/og/prov/bin/Debug/DirectWrite.Linux.Provider.dll         ACTUAL 1f9511a7ef395bfe（副本配置=Debug ≠ 声明配置=Release ⇒ **只增加可见性**：本份照样走下面的判据，`STALE`/`NEWER-DIFF` 一条都不会因此豁免）
+    SKIP(obj)     /tmp/tmp.nbAFjutfNR/og/Probe/obj/Debug/DirectWrite.Linux.Provider.dll        cdf9acfd3b6e065f（中间件，不是加载源；与权威不同）
+=== 自检 H：库输出目录不判定 / 同一份副本在宿主目录里必须被判定 ===
+SELFTEST_H=PASS（库输出 1 份 LIB-COPY 不判；宿主里那份被判定、exit=1）
+    LIB-COPY      /tmp/tmp.nbAFjutfNR/h/Nope/bin/Debug/DirectWrite.Linux.Provider.dll          cdf9acfd3b6e065f（库输出目录无 runtimeconfig.json ⇒ 不是启动宿主 ⇒ 与权威不同，但不是加载源）
+=== 自检 I：小写 release/ 目录进入分组（-ipath 翻正的牙）===
+SELFTEST_I=PASS（小写 release/ 的落单副本被抓出，exit=1）
+    UNEXPECTED-DIFF /tmp/tmp.nbAFjutfNR/lc/ProbeB/bin/release/DirectWrite.Linux.Provider.dll   cdf9acfd3b6e065f（**不在声明图里** 且 **sha ≠ 权威 1f9511a7ef395bfe** ⇒ **硬失败**：内容不同的未声明副本；权威算不出时也落这一类）
+    DIVERGENT     DirectWrite.Linux.Provider.dll [Release] 有 2 种 sha：
+        /tmp/tmp.nbAFjutfNR/lc/ProbeB/bin/release/DirectWrite.Linux.Provider.dll   cdf9acfd3b6e065f  2026-09-26 16:31:03
+=== 自检 J：HintPath 解析源目录必须判定（无 HintPath 时仍是 LIB-COPY）===
+SELFTEST_J=PASS（有 HintPath ⇒ 判定并报红 exit=1；无 HintPath ⇒ LIB-COPY 不判 exit=0）
+    CROSS-CONFIG  /tmp/tmp.nbAFjutfNR/j/refbin/bin/Debug/DirectWrite.Linux.Provider.dll        ACTUAL cdf9acfd3b6e065f（副本配置=Debug ≠ 声明配置=Release ⇒ **只增加可见性**：本份照样走下面的判据，`STALE`/`NEWER-DIFF` 一条都不会因此豁免）
+=== 自检 K：期望集合的基数不变性 + 删一份必须 MISSING 红 + 还原回绿 ===
+SELFTEST_K=PASS（期望基数 删前=10 / 删后=10 **不变**；删⇒MISSING 红 exit=1；整份还原⇒绿 exit=0）
+    MISSING       /tmp/tmp.nbAFjutfNR/K/app/bin/Debug/DirectWrite.Linux.Provider.dll           ← 期望来源：../../../../../tmp/tmp.nbAFjutfNR/K/app/App.csproj 的 <Reference Include="DirectWrite.Linux.Provider">
+=== 自检 L：期望之外多一份 ⇒ UNEXPECTED（红）===
+SELFTEST_L=PASS（多余副本被报 UNEXPECTED 且计红 exit=1）
+    UNEXPECTED-EQ /tmp/tmp.nbAFjutfNR/K/app/bin/Debug/WpfGfx.Linux.dll                         05433f1ee7e4092b（**不在声明图里**，但 **sha == 权威 05433f1ee7e4092b** ⇒ 未声明的传递依赖副本；**不是陈旧件，也不许当绿**）
+=== 自检 L v2（D-A1 加固）：多余副本但 **sha==权威** ⇒ UNEXPECTED-EQ（DECL-GAP-EQ）+ 仍然红 ===
+SELFTEST_L2=PASS（内容==权威的未声明副本被**具名**报出且仍然红 exit=1 —— 不许洗绿）
+    UNEXPECTED-EQ /tmp/tmp.nbAFjutfNR/K/app/bin/Debug/WpfGfx.Linux.dll                         05433f1ee7e4092b（**不在声明图里**，但 **sha == 权威 05433f1ee7e4092b** ⇒ 未声明的传递依赖副本；**不是陈旧件，也不许当绿**）
+计数：OK=2  MISMATCH=0（STALE=0  NEWER-DIFF=0）  MISSING=0  UNEXPECTED=1[DECL-GAP-EQ=1 DECL-GAP-DIFF=0]  DIVERGENT=0  CROSS-CONFIG=3  LIB-COPY=0  SKIP(obj)=0  SKIP(stub)=0  SKIP(ref)=0  RETIRED=0  AUTH-MISSING=0  BRIDGE-ANCHOR=0  BRIDGE-NOINFO=0
+=== 自检 N（D-A1 加固）：同一位置换成 **sha≠权威** ⇒ UNEXPECTED-DIFF（DECL-GAP-DIFF）+ 硬红 ===
+SELFTEST_N=PASS（内容≠权威的未声明副本走 DIFF 类、硬失败 exit=1）
+    UNEXPECTED-DIFF /tmp/tmp.nbAFjutfNR/K/app/bin/Debug/WpfGfx.Linux.dll                       26dd0ab972574ee9（**不在声明图里** 且 **sha ≠ 权威 05433f1ee7e4092b** ⇒ **硬失败**：内容不同的未声明副本；权威算不出时也落这一类）
+计数：OK=2  MISMATCH=0（STALE=0  NEWER-DIFF=0）  MISSING=0  UNEXPECTED=1[DECL-GAP-EQ=0 DECL-GAP-DIFF=1]  DIVERGENT=0  CROSS-CONFIG=3  LIB-COPY=0  SKIP(obj)=0  SKIP(stub)=0  SKIP(ref)=0  RETIRED=0  AUTH-MISSING=0  BRIDGE-ANCHOR=0  BRIDGE-NOINFO=0
+=== 自检 M：输出里必须显式声明看不见的拷贝点 ===
+SELFTEST_M=PASS（summary + 写点清单 + 删除不会被报出三件都在）
+    ⚠️ **本校验器看不见的拷贝点：写点 13 处 / 只读 82 处** —— 写点会创建或删除副本，但**不在**期望模型里
+=== 自检 M2：枚举器的截断与扫描范围边界必须自称 ===
+SELFTEST_M2=PASS（同一棵树（snapPre==snapPost==expM2）：invisible_capped=27 ⇒ 截断自称**且数字相符**；invisible_ext_write=5 ⇒ 补扫自称且逐条印）
+       ⚠️ 上面只读清单**不完整**：每文件只印 3 条 ⇒ 另有 **27 条只读点未印**（计数是全量）
+       ⚠️ 而且主扫**只扫 `build/**/*.sh`** ⇒ 另有补扫的写点 **5 处**（`build/` 之外的 .sh ＋ 任何 MSBuild `<Copy>`；主扫已报过的不重复）
+=== 自检 O（D-G8）：权威件整份不见 ⇒ 必须 rc≠0（修复前这里印 PASS）===
+SELFTEST_O=PASS（权威俱全 exit=0 绿；移走一份权威 exit=1 红[AUTH-MISSING=1]；cp -p 还原 exit=0 绿；判定计数器两趟逐字相同 ⇒ 红只来自该新信号）
+    AUTH-MISSING  ReachFramework.dll                                                           ⚠ 权威件缺失：/tmp/tmp.nbAFjutfNR/authO/build/ReachFramework.Linux/bin/Release/ReachFramework.dll ⇒ **本件每一份副本都没有可比的真值**（`D-G8`：以前这行只告警、rc 被丢弃 ⇒ 仍可印 PASS）
+计数：OK=2  MISMATCH=0（STALE=0  NEWER-DIFF=0）  MISSING=0  UNEXPECTED=0[DECL-GAP-EQ=0 DECL-GAP-DIFF=0]  DIVERGENT=0  CROSS-CONFIG=2  LIB-COPY=0  SKIP(obj)=0  SKIP(stub)=0  SKIP(ref)=0  RETIRED=0  AUTH-MISSING=1  BRIDGE-ANCHOR=0  BRIDGE-NOINFO=0
+=== 自检 P（D-A2-r）：桥副本 vs 发布记录 BRIDGE_SO_SHA256 ⇒ 一起换旧必须红、NOINFO 不许当绿 ===
+SELFTEST_P=PASS（锚一致 exit=0 绿｜两份一起换旧 exit=1 红[BRIDGE-ANCHOR=2]｜只还原一份 exit=1 红[=1]｜整份还原 exit=0 绿｜记录删锚行 exit=1 红[BRIDGE-NOINFO=1]；判定计数器三趟逐字相同 ⇒ 红**只**来自 ⑦）
+    ANCHOR-DIFF   build/MilBridge/.artifacts/publish/MilBridge.Linux/release_linux-x64/wpfgfx_cor3.so RECORD 4e25e4b27d4d5ae1  ACTUAL e1c1401e4972019c（诊断：副本不早于记录 1 秒 —— **只看 sha ⇒ 红**；"记录过期"与"件被换"都红、本判据不给成因）
+    ANCHOR-DIFF   build/MilBridge/.artifacts/bin/MilBridge.Linux/release_linux-x64/native/wpfgfx_cor3.so RECORD 4e25e4b27d4d5ae1  ACTUAL e1c1401e4972019c（诊断：副本不早于记录 1 秒 —— **只看 sha ⇒ 红**；"记录过期"与"件被换"都红、本判据不给成因）
+计数：OK=6  MISMATCH=0（STALE=0  NEWER-DIFF=0）  MISSING=0  UNEXPECTED=0[DECL-GAP-EQ=0 DECL-GAP-DIFF=0]  DIVERGENT=0  CROSS-CONFIG=0  LIB-COPY=0  SKIP(obj)=0  SKIP(stub)=0  SKIP(ref)=0  RETIRED=0  AUTH-MISSING=0  BRIDGE-ANCHOR=2  BRIDGE-NOINFO=0
+SELFTEST=PASS
