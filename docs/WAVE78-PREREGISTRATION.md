@@ -54,3 +54,14 @@ WFREEZE-DECL: gen=#78 allow_changed=pf,win32shim,provider pf_required=False
 ### 5.2 四要件逐条落位（判定器口径）
 ① **断言**（§1.1 四件，可判否）｜② **判据**（§1.2：四包 `criteria.md` ＋ 三态 `PASS/FAIL/NOINFO`，`NOINFO` 不算绿）｜③ **输入来源**（§1.3，纪律 36）｜④ **回归判定**（§5.1 ⇒ `NA`：非 `PASS` 亦非违规）。
 **三态词表**：`REGRESSION`／`NOINFO`（皆见本节）；判据件路径 `build/MilBridge/tools/regression-decision.py`（**本波不调用它** —— 不适用）。
+
+
+### §2-追 dated 更正（**2026-09-27 主控落册**；上面那行机读声明**一字未动**）
+
+上面 §2 的机读声明行写的是 `allow_changed=pf,win32shim,provider`（**3 键**）—— 那是**落地前的预想**。
+**实际冻结**时 `GENS['#78'].allow_changed` 是 **6 键**：`pc,pf,provider,win32shim,windowsbase,dwf`（`~/w21-verify/w27-freeze.py` 的 `GENS['#78']` 条目现读）。
+
+**逐键归因（为什么预想少了三键）**：`pc`／`windowsbase`／`dwf` 是 `D-G92` 同族的**路径承载体** —— `#76` 的九位是**从旧树 `O` 拷进 `N` 的**，而 `#78` 是 `N` 内的**真重建**，托管件里嵌的 `*.pdb` **绝对路径**随之改变（**字节大小逐位相同**）；这三位的位移**只在整波跑出来之后才可观测**，属"预想阶段拿不到的量"。
+⇒ **权威声明是 `GENS['#78']`（6 键）**，本预登记那一行只作**预想**留存；`GENS` **不收回、不追改**（它反映的是真实位移）。
+
+**同类口径（`t19` 现场顶出的牙）**：`build/MilBridge/tools/wave-freeze-consistency-check.py` 档② 只核**最新声明世代**（按 `gen` 数字取最大）⇒ 本行的 3↔6 落差在 `#79` 预登记落仓后**不再被该档核到**（现读该档为 `WFREEZE_DECL=NOINFO reason=gens-has-no-entry gen=#79`）。**这条"只核最新代"是牙的射程上限**，已作为发现登记（历史世代的"预登记↔实际位移"落差从此不可见）；本更正行即为此留下**可读的**账。

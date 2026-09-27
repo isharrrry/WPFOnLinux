@@ -366,6 +366,14 @@ fp_inputs() {  # 手写输入指纹（应用器 + port-lib + 本脚本 + 波脚�
           build/MilBridge/tools/pts-gap-count-check.sh \
           src/WpfGfx.Linux.Native/tools/pts-gap-decl.txt \
           build/MilBridge/tools/boundary-decl-check.sh \
+          build/MilBridge/tools/root-entries-allowlist-check.sh \
+          build/MilBridge/tools/wiring-closure-check.sh \
+          build/MilBridge/tools/pkg-src-retiredpath-check.sh \
+          build/MilBridge/tools/report-id-domain-check.sh \
+          build/MilBridge/retired-path-provenance.tsv \
+          build/MilBridge/book-entry-required.tsv \
+          build/MilBridge/wfreeze-root-sites.tsv \
+          build/MilBridge/blockvalues-shift.tsv \
 build/MilBridge/tools/wiring-coverage-check.sh \
 build/MilBridge/tools/parser-guard-check.sh \
 build/MilBridge/tools/parser-guard-decl.txt \
@@ -643,7 +651,10 @@ run "[5b/6] pts-gap-count-check.sh" env R="$ROOT" bash build/MilBridge/tools/pts
 #   为什么挂这里：三件都是"**只在冻结那一刻才需要说话**"的东西（`t6` 抓到 `#77` 的 5 处 `dirname` 层数回归＋预登记与 `GENS` 分叉＋`provider` 两条权威路径分叉）；
 #   `PASS=0`／`FAIL=1`／`NOINFO=3`，**`NOINFO` 不算绿**；本步红 ⇒ `run()` 当场 `exit` ⇒ 汇总与两哨兵都不落。
 say ""; say "──── [5c/6] 冻结期一致性（三档：ROOTDEFAULT／DECL／NINEAUTH）"
-run "[5c/6] wave-freeze-consistency-check.py" python3 build/MilBridge/tools/wave-freeze-consistency-check.py --root "$ROOT"
+# ── 【`t34` 追加】**记录模板面接进生产路径**：`--template auto` ⇒ 由**冻结器 `GENS`** 现取本代记录模板
+#   （仓内**不写死**任何世代/车道路径 —— `lane-path-check.sh` 会判红）；取不到 ⇒ 牙自报 `template-auto-undecidable`
+#   并**计入总体状态**（`NOINFO` 不算绿）⇒ 「下一代不可能再写死」从此在**生产路径上真判**（`t26` F1 的洞）。
+run "[5c/6] wave-freeze-consistency-check.py" python3 build/MilBridge/tools/wave-freeze-consistency-check.py --root "$ROOT" --template auto
 
 # ── 6) 汇总 ───────────────────────────────────────────────────────────────────
 say ""; say "──── [6/6] 汇总（**八位 + 第九位 + 桥指纹**，逐字复制进下一版基线表头）"

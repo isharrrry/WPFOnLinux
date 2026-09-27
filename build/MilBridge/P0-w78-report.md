@@ -141,3 +141,237 @@ PORCELAIN=0 ｜ SENTINELS-IDENTICAL
 ## §7.10 §6 的一条更正（现取推翻）
 §6 写「`X-CENSUS` 在本波链前基线**未取**」——**已过时**：冻后两趟现取 `X_CENSUS=PASS leaks=0 new_orphan_sock=0 base_live=0 now_live=1 base_socks=2 now_socks=3`，`X_CENSUS_SNAPSHOT=PASS path=/tmp/w75-xcensus.mcYHsf lines=3 at=2026-09-27T11:23:49` ⇒ 基线**已取且在册**。
 
+
+---
+
+# §8 **dated 更正**（2026-09-27，waveman／t21）：§1 表内 provider 归因**不成立**
+**原文（保留，一字不改）**：见 §1 表格「`#77` 的 `provider` 位移延续 …（`4041df9a704abfed` → `609192a419d125f2`）」。
+**更正（现取可复算）**：① 现树权威件 `build/DirectWrite.Linux/Provider/bin/Release/DirectWrite.Linux.Provider.dll` ＝ **`a00895e8158189b9`**；② `find build -name 'DirectWrite.Linux.Provider.dll'` 现取 **58 份**副本、其中 **45 份**同此值，**`609192a419d125f2` 命中 0**；③ 同块 **6 条** `BASELINE tier=` 行与**两哨兵**均写 `a00895e8158189b9`。
+⇒ **同块内两种载体矛盾**：九位行（`ACCEPTANCE-BASELINE.md:66`）写 `609192a419d125f2`（**陈旧手写值**）。
+**`609192a419d125f2` 的定性（主控更正，现取复核）**：**不是"上一代值"** —— `#77` 块九位行那一格是 **`1f9511a7ef395bfe`**；它是**模板写死那一刻的现取值**（`t17` 的 F6 之后），`#78` 波 `00:36` 重建后才变 `a00895e8158189b9`。
+**根因**：`GENS` 核验键表**不含 `provider`** ⇒ 冻结器从未核过这位（`D-G149` 同族）。
+**复现**：`sha256sum <provider> | cut -c1-16`｜`find build -name 'DirectWrite.Linux.Provider.dll' | xargs sha256sum | cut -c1-16,60- | sort | uniq -c | sort -rn`｜`grep -m1 -oE '`provider` `[0-9a-f]{16}`' samples/WpfTextDemo/ACCEPTANCE-BASELINE.md`｜`grep -m1 '^PROVIDER=' /tmp/bridge-frozen.flag`
+**边界**：不影响其余任何 `#78` 读数；**`#78` 块按主控裁定不改**。
+
+# §9 `#78` 在册未闭的**四组成对读数**（t21 真跑：实际命令＋臂来源件与 sha16＋原始读数行）
+## 9.1 `TASK-0752` `−242` 三臂两极化（`~/w79c/ledger-0752.tsv` `sha16 2c07698fb60947de`）
+**原位缺陷**：`~/w181a/w7x/bin/leg.sh`（`sha16 8a7229b963b9370d`）的 `absent` 臂指向**活树已装符号件**（`e8127a3d7128d417`／`shappbar=1`）＝**语义反转**。**修正处**：`~/w79c/bin/leg79c.sh`（只改 3 行：根 `W`／`absent`／`ret0`，另加 `baseold`），**原件未动**。
+**实际命令**：`bash ~/w79c/bin/leg79c.sh <tag> <arm> 30 <DIAG>`（`WDISP=:232`，自起自收 Xvfb，只按 PID）。
+| 趟 | 臂件 sha16 | sym/shappbar | DIAG | APP_TEXT_BYTES | EPNF | APPBAR_DIAG_N |
+|---|---|---|---|---|---|---|
+| `C79-baseold-diag0/1` | `fc60c34d51fd9247` | 550/0 | 0/1 | **242 / 3808** | 1 | 0 |
+| `C79-absent-diag0/1` | **`8857b251e74851d2`** | **553/0** | 0/1 | **357 / 3923** | 1 | 0 |
+| `C79-ret0-diag0/1` | `efb087b5c7c33eb2` | 551/1 | 0/1 | **0 / 3629** | 0 | 0/1 |
+**结论**：在册值逐位复现（旧件 242／3808；`ret0` 0／3629）⇒ 装置未变；判据要求的**新 absent 件**＝**357／3923**；与旧件恒差 **+115**（件身份：553 vs 550 symbols）⇒ 非树/判据漂移。`ret0` 臂 3808−3629＝**179＝242−63** ✔。判别力：EPNF 1/0、APPBAR_DIAG_N 0/1。
+**与 `verifier` 的反事实件不矛盾**（等长改名件 357B/1 行、落仓件 115B/0 行、原始件 242B/1 行 ⇒ 差恰 +242）：件不同源 ⇒ 差值不同（+115 vs +242）；**只引用不复跑**。
+
+## 9.2 `TASK-0753` `D-G147` 工作区事实来源 ↔ `ABM_GETTASKBARPOS` 消费者
+**实际命令**：`bash ~/w182a/legs.sh <so> <tag> <out> 20`（自起 `Xvfb :238`；三腿 absent／set(0,0,1280,968)／malformed(n=2)；holder 按 PID 收）
+**正向腿（现树权威件 `e8127a3d7128d417`）**：
+```
+LEG=absent    G147=PASS source=fallback-screen    reason=fallback-declared                    rcWork_eq_rcMonitor=1 prop_present=0 prop_n=0
+LEG=set       G147=PASS source=net-workarea       reason=rcWork==_NET_WORKAREA(declared=net-workarea) rcWork_eq_rcMonitor=0 prop_present=1 prop_n=4
+LEG=malformed G147=PASS source=fallback-malformed reason=fallback-declared                    rcWork_eq_rcMonitor=1 prop_present=0 prop_n=2
+（每腿 XPROP_BEFORE==XPROP_AFTER 同值 ⇒ 属性全程在场）
+```
+**反向腿（修前件 `fc60c34d51fd9247`）**：见下（`~/w79c/logs/0753b.log`）
+  XPROP_BEFORE=_NET_WORKAREA:  not found.
+  XPROP_AFTER=_NET_WORKAREA:  not found.
+  G147=FAIL source=(none) reason=no-declared-source(silent-identity) rcWork_eq_rcMonitor=1 prop_present=0 prop_n=0
+  LEG=absent rc=1
+  XPROP_BEFORE=_NET_WORKAREA(CARDINAL) = 0, 0, 1280, 968
+  XPROP_AFTER=_NET_WORKAREA(CARDINAL) = 0, 0, 1280, 968
+  G147=FAIL source=(none) reason=rcWork!=_NET_WORKAREA rcWork_eq_rcMonitor=1 prop_present=1 prop_n=4
+  LEG=set rc=1
+  XPROP_BEFORE=_NET_WORKAREA(CARDINAL) = 0, 0
+  XPROP_AFTER=_NET_WORKAREA(CARDINAL) = 0, 0
+  G147=FAIL source=(none) reason=no-declared-source(silent-identity) rcWork_eq_rcMonitor=1 prop_present=0 prop_n=2
+  LEG=malformed rc=1
+
+## 9.3 `TASK-0754` 显示号租借两极化 ＋ `X-CENSUS`
+**实际命令**：`bash build/MilBridge/tools/display-lease-gate.sh`（`at=2026-09-27T12:16:06+08:00`）
+```
+DISPLAY_LEASE_GATE=PASS static=3/3 dynamic=11/11 examined=14 dev_sha16=b12fc3c0fd3d352f
+  D4a-external-occupant-refused OK ｜ DISPLAY_LEASE=FAIL reason=occupied-without-lease display=:239 occupants=2 race=post-claim
+  D4b-live-lease-named          OK ｜ DISPLAY_LEASE=FAIL reason=held-by-live-pid display=:239 holder_pid=… holder_lane=otherlane
+  D5-socket-slot-refused        OK ｜ FIXTURE_TEARDOWN socket=/tmp/.X11-unix/X236 present=no
+  FIXTURE_TEARDOWN sleep_pid=… x_pid=… sleep_live=0 x_live=0   ⇒ 「起过 ⇒ 收尾后无进程」✔；「没起过 ⇒ 一个都不杀」由 static 3/3 覆盖
+```
+**`X-CENSUS`**：冻后两趟现取 `X_CENSUS=PASS leaks=0 new_orphan_sock=0 base_live=0 now_live=1 base_socks=2 now_socks=3` ＋ `X_CENSUS_SNAPSHOT=PASS path=/tmp/w75-xcensus.mcYHsf at=2026-09-27T11:23:49`；**链前基线仍缺 ⇒ `NOINFO reason=pre-chain-baseline-absent`**（要变可判＝`verify-all` 链首补一次快照）。
+**⚠️ 同趟现取的仪器缺陷（具名）**：`display-lease.sh:413` stderr 现 `local: 只能在函数中使用`；`reason=pool-exhausted` 用于"整池在白名单外"（更准确应为 `pool-out-of-whitelist`）⇒ 两条归 `t24`／下一趟。
+
+## 9.4 `TASK-0755` `0744-FU` 真腿（`sock=` 随行 ＋ 「符号级 hook 恒瞎」复证）
+**实际命令**：`bash build/MilBridge/tools/proto-attribution-check.sh --cases build/MilBridge/tools/proto-attribution-cases.tsv --expect 18`（`at=2026-09-27T12:16:06+08:00`）
+```
+PROTO_ATTR_GATE=PASS examined=18 mismatch=0 bad_expect=0 posctl=2/2 cut_and_pair=1
+N-NOPAIR  NEG  NOT_ATTRIBUTED reason=no-server-side-pair sock_id=present ident=absent sym_call=none SYM_ONLY=never-sufficient
+N-CUTNORQ NEG  NOINFO         reason=cut-without-request sock_id=present ident=absent sym_call=XResizeWindow
+E-CUTPAIR EDGE ATTRIBUTED     reason=paired-server-event   sock_id=present ident=absent cn_pair=push:1280x1024@+4.7
+```
+⇒ **`sock=` 随行打印在位**（逐行 `sock_id=present`）；**「符号级 hook 恒瞎」复证**＝`SYM_ONLY=never-sufficient` ∧ `sym_call=none` 而判定仍 `NOT_ATTRIBUTED reason=no-server-side-pair` ✔；`posctl=2/2`。
+
+## 9.5 台账落仓的**硬约束（未执行，具名原因）**
+`appbar-startup-ledger.tsv` 现取 **6 腿**，而 `verify-all.sh:1188` 写死 **`--expect-legs 6`** ⇒ 加行即破声明常数（`delta=+N`）。按硬规则 ④（该两处不该由我动）**未加行**，三臂读数落在 §9.1；**下一步最小可执行动作**＝同趟改 `verify-all.sh:1188` `--expect-legs 6→12`（或替换原 6 腿）＋ 台账同步。
+
+# §10 两趟差异的**机器分类（两域分列）** ＋ `ENV-CLASS` 清单 ＋ 分类器判别力
+**抽取域**：域① = `^ *· 自报口径 ` 行；域② = 判词行（`步骤通过`／`结论：`）。语料＝冻后两趟 `110835`／`112348`。
+**规则**：归一化时间戳 ＋ **只归一化白名单键（`outdir|dir|log|path|file|worst_path|SNAPSHOT`）且值以 `/` 开头**的路径；再比 → 相等＝**标签/环境类**，否则＝**读数类**。（原规则曾含 `(…)=[^ |]*`＋`-<6位数字>` ⇒ 可能吃掉 `avail_gb=97` 类数值字段，**已收紧**；收紧后复算域① 仍 **LABEL=5／READING=4**。）
+```
+域①（91 vs 91）：原始差异 18 行＝9 对 ＝ 标签类 5 对 ＋ 读数类 4 对
+  标签类：TLINE_GATE／COLUMN_FLOOR_SELFREPORT／FRAMEPRESENCE／THIRDPARTY_BUILD／THIRDPARTY_IMAGE
+  读数类：THIRDPARTY frames=42↔43｜DISK_HEADROOM avail_gb=97↔96・avail_kb=101822300↔100996644｜R_GATE mem_mb=5778↔5492｜ALIAS wall_s=5.46↔5.61
+域②（2 vs 2）：归一化后 **零差异**
+```
+**`ENV-CLASS` 具名清单**（`~/w79c/envclass-and-classifier.md` `sha16 8a6a43c5b182e643`）：上 4 对逐条注"环境/负载驱动／**不参与任何判据**（两趟皆 `51 ❌ 0`）"。
+**合格线**：「**除本清单逐条列出的环境类读数外，读数类差异必须为 0**」；清单之外出现读数类差异 ⇒ **红**（点名字段与两侧值）。
+**判别力（自造腿，真跑）**：正极性 `judged_min=615→616` ⇒ `READING=1` 点名 `GATE_COLUMN`；负极性 `outdir=…-111025→…-999999` ⇒ `LABEL=1`。
+**两域结论不同不是矛盾；没写域才是缺陷。**
+
+---
+
+## §11 `#78` 块 `provider` 错值：**dated 更正**（`t25`；本节为**纯追加**，§1–§10 原文一字未动）
+
+> **本节为什么存在**：`build/MilBridge/V78-verify-report.md`（`t9`／`verifier`，整份 `01a5ca4a716d5921`）的 finding #1 与**主控现取**两条独立通道同结论：`#78` 冻结块九位行的 `provider` 与**同块** `BASELINE tier=` 机读行、与**现取值**都不一致（`D-G149` 在 `#78` 的**第二代复发**）。
+> **本节落地主控裁定的三格**：**块不改**（§11.1）＋ **dated 更正**（§11.2／§11.3）＋ **下一代写对**（§11.4，模板占位符化）＋ **加牙**（`WFREEZE_BLOCKVALUES` 档④）。
+> **追加时刻 = `2026-09-27T13:3x+08:00`**（车道 `scribe`／`t25`；本节所有读数**逐条现场现算**，各自标时刻）。
+> **纯追加机器证**：改前快照（`948b1f495e6701e1`／228 行）与本件前缀 `cmp` **逐字节相同**，`diff` **只出 `228a229,…`**（**只有追加命令，零删零改**）。
+
+### §11.1 裁定：`#78` 块**一字节不改** —— 现取 ＋ **四条引用链**（读数时刻 `2026-09-27T13:2x–13:3x+08:00`）
+
+| # | 引用链 | 现取读数（逐条都有机器读者） |
+|---|---|---|
+| 0 | **件本体** | `samples/WpfTextDemo/ACCEPTANCE-BASELINE.md` ＝ **`d60b414d5e99cf72`**（全 sha256 `d60b414d5e99cf727f775f5b97678ffee961a0e9317864758644ccc4d371febb`；1,166,396 B／4,459 行） |
+| 1 | **冻结日志** | `~/w185a/w77/logs/w78-freeze.log`（`e50eed332d54b3b9`／33 行）`:25` 「基线已重冻为 `#78`；整份 sha16 = `d60b414d5e99cf72`」／`:26` `BASELINESHA=PASS live=d60b414d5e99cf72 decl=d60b414d5e99cf72`／`:30` 「机器行 `gen=#78 sha16=d60b414d5e99cf72` 已对上，核对器 `rc=0`」 |
+| 2 | **两趟冻后日志（×2 轮，共 4 份）** | `w78-post1-20260927-095551.log`（`93e2200bd902cc23`／mtime `09-27 10:10:21`）｜`w78-post2-20260927-101021.log`（`674c9d7cce5ec87c`／`10:25:07`）｜`w78-post1-20260927-110835.log`（`8ffb2876d3ff55a2`／`11:23:48`）｜`w78-post2-20260927-112348.log`（`7c221cab09a91283`／`11:38:21`）—— **四份逐份** `:51` `BASELINESHA=PASS live=d60b414d5e99cf72 decl=d60b414d5e99cf72`（另 `:88`／`:89` `COLUMN_FLOOR=… base=d60b414d5e99cf72 corpus=0cebc0afd5142fbf`） |
+| 3 | **在册哨兵行** | `docs/CURRENT-STATE.md:9` ＝ `> BASELINE-FROZEN gen=#78 sha16=d60b414d5e99cf72 file=samples/WpfTextDemo/ACCEPTANCE-BASELINE.md`（现取） |
+| 4 | **两份哨兵** | `/tmp/bridge-frozen.flag` ＝ `~/wfp-runs/bridge-frozen.flag`（各 279 B，`cmp` ⇒ **IDENTICAL**；`sha16 7f8e50a9efc1fddf`×2）：`BASELINE=#78`／`BASELINE_SHA16=d60b414d5e99cf72` |
+
+⇒ **就地改写那一格会同时打断 1／2／3／4 四条引用链**，而「**一份变更集只许一次冻结**」是硬纪律；
+⇒ 且**那条错值本身是证据**（它是「**模板写死字面量 ⇒ 跨代必陈旧 ∧ 三道核全瞎**」这条缺陷的**原件**）；
+⇒ **正确形态 = dated 更正（原文保留）＋ 下一代写对（占位符化）＋ 加牙使它不可能再犯**。
+⇒ **逐字写明（不许含糊）**：**`#79` 冻结之前，远端在册件里确实带着这条已知错的 `provider`** —— 已登记 **`D-G166`** ＋ 本条 dated 更正；位移声明件 `build/MilBridge/blockvalues-shift.tsv:14`（`registered=D-G166`，逐条上屏、**声明不等于放行**）。
+
+### §11.2 `provider` 的**三代**口径（防止把"写死那一刻的现取值"说成"上一代值"）
+
+| 处 | 值（现取） | 它**是**什么 |
+|---|---|---|
+| `#77` 块九位行（基线件 `:99`） | `1f9511a7ef395bfe` | 那一代的真值（＝ `#76` 块的值 ⇒ 对 `#77` 而言**确实是"上一代值"**） |
+| **`#78` 块九位行**（基线件 `:66`） | **`609192a419d125f2`** | **模板 `~/w186a/w78/w78freeze/w78-record.txt:67` 写死那一刻的现取值**（`t17` 的 F6「副本刷成权威」**之后**）—— **既不是** `#77` 块里的值（那格是 `1f9511a7ef395bfe`）、**也不是**本代现取值 |
+| 同块 `BASELINE tier=` 机读行（**6 条**）× 盘上两条权威路径 × 两哨兵 | `a00895e8158189b9` | `#78` 整波重建后的**本代真值** |
+| `wic_shim` 三处（`#76`／`#77`／`#78` 块） | `f7b3026c8c019be2`（逐位相同） | **同一族的哑弹**：那个字面量**今天恰好写对** ⇒ **不许只修 `provider` 一格** |
+
+⇒ **`609192a419d125f2` 不许说成「上一代值」**（主控更正，逐字采纳）：它**从未是任何一代的"上一代块值"**，它是**字面量写死那一刻的现取值**；`#78` 整波重建 `provider` 之后它**静默过期**。
+⇒ 该值在现树 `*.dll`／`*.so` **有界全量扫描命中 0**（读数见 `D-G166` 段；本条**只引用不重算**）。
+
+### §11.3 根因与处置（现取；`D-G166`／`D-G149` 第二代）
+
+- **根因（现取）**：模板 `~/w186a/w78/w78freeze/w78-record.txt`（**`e7abc00e76f08338`**／75 行，**只读引用、一字未改**）九位行里 `provider`／`wic_shim` 是**硬编码字面量**，同行其余七位是占位符；改前的 `~/w21-verify/w27-freeze.py`（`fe479b88a852e482`）`fmt` 字典**没有这两个键** ⇒ `fill()` **只抓「用了没定义的占位符」**，**结构上抓不到「写死了本应现取的值」**；`_PREV_SRC` 的 7 键与 `_TIER_MAP` 的 5 位都不含这两个键 ⇒ **三道核全盲**。
+- **处置形态（主控逐字裁定）**：**不改冻结块** ＋ **dated 更正（本节）** ＋ **下一代写对（§11.4）** ＋ **加牙**（`build/MilBridge/tools/wave-freeze-consistency-check.py` 第四档 `WFREEZE_BLOCKVALUES`：九位行 ∧ `BASELINE tier=` 行 ∧ **现取** 三方对拍 ＋ 模板裸 hex 白名单）。
+
+### §11.4 **下一代写对**：记录模板占位符化（仓外件；**主控已采纳为 canonical**）
+
+- **件**：`~/w186a/w79/w79freeze/w79-record.txt` ＝ sha16 **`52571ef51842467d`**／75 行／27,021 B／`%h=1`（现取）。主控已把 `GENS['#79']` 的模板路径**重指到它**（冻结器 `56f17ff47d3c04c3` → **`b3115b9680b0039f`**，主控现取；本件**未动**任何冻结器）。
+- **派生方式（纪律 17：逐处断言 `HITS==1`）**：由 `#78` 模板逐条替换 ——
+  ① `` `provider` `609192a419d125f2` `` → `` `provider` `{PRV}` ``（`HITS=1`）；
+  ② `` `wic_shim` `f7b3026c8c019be2` `` → `` `wic_shim` `{WIC}` ``（`HITS=1`）；
+  ③ 第 68 行（相对位移句）追加 **`` `provider` `{PRV_PREV}` → `{PRV}`／`wic_shim` `{WIC_PREV}` → `{WIC}` ``**，并注明「**`#79` 起由 `fmt` 键现取** —— 此前是写死的字面量，见 `D-G166`／`D-G149` 第二代」（`HITS=1`）。
+- **静态核对（现取）**：活冻结器 `~/w21-verify/w27-freeze.py`（**`b7912a4a75d36c18`**）`fmt` 字典 **31 键**；模板占位符 **39 处／25 个去重**，**未定义 = 0**；四键 `PRV`／`WIC`／`PRV_PREV`／`WIC_PREV` **逐键在位**（冻结器 `:1617-1618`，值取自其已现算的 `now` 字典，**不是外部输入**）。
+- **`fill()` 冒烟（复刻其正则 ＋ 两条 `assert`）**：**PASS**（全部占位符可填、无残留）；把 `{PRV}` 故意拼错成 `{PRV2}` ⇒ **当场红**（`assert` 命中）⇒ **该检查有检测力**。
+- **`#78` 那份模板只读未变**：`e7abc00e76f08338`（现取，与开工读数逐位相同）。
+
+### §11.5 模板**裸 16 位 hex 扫描**：逐条点名（只允许**显式声明的常数字段**）
+
+- 命令：`grep -aoE '[0-9a-f]{16}' ~/w186a/w79/w79freeze/w79-record.txt` ⇒ **9 行**。
+- ⭐ **九位行（模板 `:67`／基线件 `:66`）已不在命中集里** —— 这是占位符化生效的机器证（见 §11.6 的 L1）。
+
+| 行（模板） | 字段 | 值 | 判定 | 依据（现取） |
+|---|---|---|---|---|
+| 15 | ⑦ 构建路径缺陷（散文） | `b5f138f8fefcf4b2`／`e8127a3d7128d417` | **常量**（历史读数） | 记录的是**过去动作**的读数（`landing.sh` 旧构建 vs `build-shim.sh` 重建） |
+| 16 | ⑧ `DEFREG` 口径 | `f17c41239ffa1408` | **常量**（历史读数） | 「重生成与在册件逐字节相同」那一笔的读数 |
+| 17 | ⑨ 冻结器版本链 | `389c2c0b196808ed`／`ea2a08bcc7fa98cf`／`680a4f1320d7ba90`／`88df9632e9f22d85` | **常量**（**版本档名**） | 四值**逐个**在 `~/w21-verify/versions/` 命中 **1** 个归档件（`w27-freeze.py.w78-rootfix-…`／`…w78b-previnfp-…`／`…w78c-infp-…`／`…w78d-allowchanged-…`） |
+| 61 | `# COLUMN-CORPUS … sha16=` | `0cebc0afd5142fbf` | **常量 ＋ 有活牙** | `column-floor-check.sh` 档③ 要求 == 语料件现值；**现取** `COLUMN_FLOOR=PASS … corpus=0cebc0afd5142fbf` |
+| 62–66 | `# ARM-LOG-SHA arm=<5 臂> sha16=` | 5 值（`1c43a12dcaa5718a`／`9150c3a26a3cb789`／`92570318851ca7e8`／`59a203de30d745a8`／`4bceceeed570ba70`） | **常量 ＋ 有活牙** | 档⑤ **现取** `COLUMN_FLOOR_ARMLOG=PASS n_decl=5 n_ok=5 bad=无`（逐臂 `decl==reg`） |
+
+**五世代证据（现取）**：基线件 `#74`–`#78` 各代块里这 6 行的值**逐位相同** ⇒ 判「常量」有实测依据（不是推定）。
+
+### §11.6 反极性腿：**把裸 hex 塞回 ⇒ 必红**（真跑；牙本体只读、**未改动**）
+
+命令：`python3 build/MilBridge/tools/wave-freeze-consistency-check.py --root <仓根> --template <件>`
+
+| 腿 | 被检件 | 读数 |
+|---|---|---|
+| **L1 交付件** | `w79-record.txt`（`52571ef51842467d`） | `WFREEZE_TEMPLATE=FAIL hits=9`，**点名行 = 15／16／17／61／62／63／64／65／66（无 67）** |
+| **L2 反极** | 把 `{PRV}` **塞回裸 hex** 的副本 | `hits=**11**` ⇒ **多出的正是第 67 行与第 68 行**（`WFREEZE_TEMPLATE_HIT … line=67 …`）⇒ **必红并点名** |
+| **L2b 反极** | 把 `{WIC}` **塞回裸 hex** 的副本 | 同上 `hits=11`（含第 67／68 行） |
+
+**变体 B（`# ALLOWED-HEX` 行首前缀）机制可用、但代价致命（实测，本件**不采用**）**：给那 9 行加前缀 ⇒ `WFREEZE_TEMPLATE=**PASS** hits=0`，**但**两个**活消费点**的行锚同时归零：`^# COLUMN-CORPUS ` **1 → 0**、`^# ARM-LOG-SHA ` **5 → 0** ⇒ 会当场打断 `build/MilBridge/tools/column-floor-check.sh:290`／`:400` 的抽取（`COLUMN_FLOOR` 的档③/⑤ 退化成 `NOTDECLARED`／`NOINFO`）。
+⇒ **出路两条（待主控裁；两者都不在本件写域）**：**(甲)** 给这 6 个每代测量值在冻结器 `fmt` 里加键（则 `hits` 9 → 3）；**(乙)** 把牙的白名单语义从「行首前缀」改成「**独立声明件/尾注**」。
+
+### §11.7 主控两处口径错的**点名更正**
+
+1. **同块 `BASELINE tier=` 行是 `6` 条，不是 `7` 条**（主控早期读数为 7；`t19` 已更正，本件独立复算一致）。
+   - **抽取域（纪律：数"有几条"必须用判据自己的抽取域）**：`#78` 块 = 基线件**行 7–79**（`:80` 起是带「已被 `#78` 取代」的 `#77` 块）⇒ `sed -n '7,79p' … | grep -c '^BASELINE tier='` = **6**（`tier=default` × `rep=1/2/3` ＋ `tier=env` × `rep=1/2/3`，逐条已现指行号 74–79）。
+   - **对照口径（同一命令打到全文件）**：`grep -c '^BASELINE tier=' samples/WpfTextDemo/ACCEPTANCE-BASELINE.md` = **348**（**全世代累计**，不是本块）⇒ 该数**不许**当"本块有几条"。
+   - **错因（逐字）**：把 `PREVCHECK=PASS keys=7`（**`prev` 键表大小**）串成了"块内机读行条数" ⇒ **凡"有几条/几个"，必须用判据自己的抽取域现取去数，不许把另一处的同名数字串过来**。
+   - ⚠️ **同一错误在仓内还有一处残留**：`build/MilBridge/tools/wave-freeze-consistency-check.py:24` 的注释仍写「同块 **7 条** `BASELINE tier=` 机读行」，与现取 **6** 不符（该件**不在本件写域**，逐字报请主控／`t27` 处置）。
+2. **`609192a419d125f2` 不许说成「上一代值」** —— 见 §11.2 的三代对照：`#77` 块 `1f9511a7ef395bfe` ≠ 该值 ≠ 本代现值 `a00895e8158189b9`。
+
+### §11.8 供主控**转抄** `docs/ROUTES.md` `#79` 段的文本（**本件不落该件**）
+
+```markdown
+- 🆕 **`#79` 的 `provider` 处置（`t25`；`D-G166`／`D-G149` 第二代）**：`#78` 冻结块九位行的 `provider = 609192a419d125f2` 是**记录模板写死那一刻的现取值**（`t17` 的 F6 之后），**既不是 `#77` 块里的值**（那格 `1f9511a7ef395bfe`）、**也不是本代现取值**（`a00895e8158189b9`）；该值在现树 `*.dll`／`*.so` 有界扫描**命中 0**。⇒ **`#79` 冻结之前，远端在册件里带着这条已知错的 `provider`**（已登记 `D-G166` ＋ dated 更正）。
+- **块不改（一字节不改，`sha16=d60b414d5e99cf72`）**：它被**冻结日志**（`BASELINESHA=PASS live==decl`）、**冻后日志 ×2 轮共 4 份**、`docs/CURRENT-STATE.md:9`、**两份哨兵**（`cmp IDENTICAL`）同时引用 ⇒ 就地改写**同时打断四条引用链**；该错值**本身是证据**（「写死字面量 ⇒ 跨代必陈旧 ∧ 三道核全瞎」的原件）。**处置 = dated 更正（原文保留）＋ 下一代写对 ＋ 加牙**（牙 = `WFREEZE_BLOCKVALUES` 档④）。
+- **下一代写对**：canonical 记录模板 `~/w186a/w79/w79freeze/w79-record.txt`（`52571ef51842467d`，主控已重指 `GENS['#79']`）：九位行 `provider`／`wic_shim` 改用 `{PRV}`／`{WIC}`，相对位移句用 `{PRV_PREV}`／`{WIC_PREV}`；`fmt` 31 键 / 用到 25 个 / 缺 0；`#78` 那份模板**只读未变**（`e7abc00e76f08338`）。
+- **两项待裁**：模板裸 hex 扫描 **9 行**，逐条判为**显式声明的常数字段**（`#74`–`#78` 五世代逐位相同；其中 6 行有活牙 `COLUMN_FLOOR` 档③/⑤ 守着）；但两处**活消费者**把它们锁死成"行首 `# …`"形态 ⇒ `# ALLOWED-HEX` 行首前缀白名单**不可用**（实测 `^# COLUMN-CORPUS` 1→0、`^# ARM-LOG-SHA` 5→0）。⇒ (甲) 给 6 个每代测量值加 `fmt` 键；(乙) 改白名单语义。
+```
+
+### §11.9 `artifact + field + sha16`（本件读数总表）
+
+| artifact | field | 值／sha16（现取） |
+|---|---|---|
+| `samples/WpfTextDemo/ACCEPTANCE-BASELINE.md` | 全件 sha16／bytes／lines | **`d60b414d5e99cf72`**／1,166,396 B／4,459 行 |
+| 同上 `:66`（`#78` 块九位行） | `provider`（`wic_shim`） | `609192a419d125f2`（`f7b3026c8c019be2`）＝**未改** |
+| 同上 `#78` 块内 `BASELINE tier=` | 条数 | **6**（全件口径 **348**） |
+| `~/w186a/w79/w79freeze/w79-record.txt` | sha16／lines／bytes／`%h` | **`52571ef51842467d`**／75／27,021 B／1 |
+| `~/w186a/w78/w78freeze/w78-record.txt` | sha16（**只读未变**） | `e7abc00e76f08338` |
+| `~/w21-verify/w27-freeze.py` | sha16（活件） | `b7912a4a75d36c18` |
+| `~/w21-verify/versions/w27-freeze.py.w79-land-…` | sha16（链首） | `fe479b88a852e482` |
+| `~/wcaptain-0745/fmt-ext/w27-freeze.fmt-ext.py` | sha16（链中） | `3f1260bbc9213002` |
+| `build/MilBridge/tools/wave-freeze-consistency-check.py` | 模板面（L1／L2／L2b） | `FAIL hits=9`／`FAIL hits=11`／`FAIL hits=11` |
+| 两份哨兵 | sha16／`cmp` | `7f8e50a9efc1fddf`×2／**IDENTICAL** |
+| 冻后日志 ×4 | sha16 | `93e2200bd902cc23`／`674c9d7cce5ec87c`／`8ffb2876d3ff55a2`／`7c221cab09a91283` |
+| **本件**（`build/MilBridge/P0-w78-report.md`） | 改前／改后 sha16 | `948b1f495e6701e1` → **见本波落仓读数（报告外）** |
+
+**冻结器链（只读引用，**未改动**）**：`fe479b88a852e482`（`#78` 落地前的活件，归档于 `~/w21-verify/versions/w27-freeze.py.w79-land-fe479b88a852e482`）→ `3f1260bbc9213002`（`fmt` 扩展产物 `~/wcaptain-0745/fmt-ext/w27-freeze.fmt-ext.py`）→ **`b7912a4a75d36c18`**（现装活件）；主控排练读数 **`REHEARSE_BLOCKVALUES=PASS arms=13 pass=13`**（主控现取，本条只引用）。
+
+### §11.10 边界 / `NOINFO`（如实划界）
+
+1. **未重跑**配对实验与 `*.dll`／`*.so` 有界扫描（重活）⇒ 那两格是**引用**（出处 `D-G166` 段与 `P0-w77-report.md`），不是本件现取。
+2. **未改**任何冻结器／牙／route 件／基线件／`ROUTES.md`／缺陷册（全在 `outOfScope`）⇒ 本件对现场的**唯一改动**就是本节这段追加。
+3. `COLUMN_FLOOR` 那一趟是我以**只读**方式现跑的（`rc=0`），**不是** `verify-all` 全跑 ⇒ 不声称"本波门禁全绿"。
+4. 变体 B 的代价我只实测了**行锚归零**这一条（`column-floor-check.sh` 的两处正则）；"它还会连带影响哪些读者"**未逐处枚举** ⇒ `NOINFO`。
+
+### §11.11 落仓读数与**读取时刻**（本节为 `t25` 的第二次追加；对**原始**快照仍只出 `228a229,…` 一条追加命令）
+
+- **读数时刻（`date -Is` 现取）**：§11.1 的四条引用链取于 **`2026-09-27T13:2x+08:00`**；§11.5／§11.6／§11.7 的扫描与两极化腿取于 **`13:2x–13:31`**；契约 verify 三条取于 **`2026-09-27T13:31:31+08:00`**；**本件落仓时刻**（`stat -c %y`）= **`2026-09-27T13:31:22.834536287+08:00`**。
+- **本件落仓读数**：改前 `948b1f495e6701e1`（228 行／34,236 B）→ 改后 **`06adff725662c495`**（352 行／50,803 B）；`%h=1`；⚠️ **改后 sha16 属自指 ⇒ 报告内不给**（照 `WC01`／`WC02` 先例）；`head -n -2` 口径 = `1f180fa8d243e3ae`。同目录 `.tmp` 兄弟件现取**不存在**。
+- **纯追加机器证（对原始快照）**：前缀 `cmp` **逐字节相同**；`diff` 输出 **只有 `228a229,352`**（**零删、零改**）⇒ `t21` 的 §1–§10、含其 `provider` dated 更正，**原文一字未动**。
+- **契约 verify 三条（逐字读数）**：
+  ① `bash -c 'sha256sum samples/WpfTextDemo/ACCEPTANCE-BASELINE.md | cut -c1-16'` ⇒ **`d60b414d5e99cf72`**（＝改前值 ⇒ **块一字节未改**）；
+  ② `bash -c 'grep -c "^BASELINE tier=" samples/WpfTextDemo/ACCEPTANCE-BASELINE.md'` ⇒ **`348`**（**全世代累计口径**；**本代 `#78` 块内 = `6`**，见 §11.7）；
+  ③ `bash -c 'grep -aoE "[0-9a-f]{16}" ~/w186a/w79/w79freeze/w79-record.txt'` ⇒ **12 个值／9 行**（逐条点名见 §11.5；**九位行不在其中**）。
+- **顺带机器证（只读、非门禁全跑）**：`REPORTID=PASS files=177 ids=1840 declared=202`（本段用到的编号**全部已在册**）｜`COLUMN_FLOOR=PASS … base=d60b414d5e99cf72 corpus=0cebc0afd5142fbf rc=0` ＋ `COLUMN_FLOOR_ARMLOG=PASS n_decl=5 n_ok=5 bad=无`。
+
+### §11.12 §11.11 一处**口径更正**（`t25` 第三次追加；照「加注不覆盖」体例，§11.11 原文一字未删）
+
+- §11.11 写的「改后 **`06adff725662c495`**（352 行／50,803 B）」是**第一次追加（§11.1–§11.10）之后**的状态，**不是**本件终态 —— 因为 §11.11 **本身**又是一次追加 ⇒ **自指**。
+- **本件终态（以件外现取为准，`2026-09-27T13:31:48+08:00`）**：`build/MilBridge/P0-w78-report.md` ＝ **`53e4fe86e307bba0`**／**487 行**／**69,245 B**／`%h=1`；`head -n -2` 口径 = 以件外现取为准。
+- **两次追加都对**同一个原始快照出**同一条**追加命令形态：对 `948b1f495e6701e1`（228 行）的 `diff` ＝ **只有 `228a229,487`**（**零删、零改**）⇒ `t21` 的 §1–§10（含其 `provider` dated 更正）**逐字节原样**。
+
+### §11.13 自伤与修复（`t25` 第四次追加；**如实留档**）
+
+- **自伤**：我把 §11.1–§11.10 的追加件**累加式复用** —— 第二、三次追加时用的**还是同一份源件**（它已被前一次追加进件里）⇒ 现盘件一度出现 **§11.1–§11.10 ×3、§11.11 ×2**（`wc -l` = **628**／**88,541 B**），比应然多出 **259 行**。
+- **为什么没被"纯追加"证据拦住**：三次都只验了"**前缀逐字节相同**" ⇒ **纯追加成立、内容却重复** —— 那条断言**只管前缀、不管重复**（本仓「守卫只写一半比没有更危险」同形）。
+- **修复（`temp + rename`）**：以**原始快照**（`948b1f495e6701e1`／228 行 ＝ `t21` 末态；`cmp` 实测现盘件前 228 行与它逐字节相同）为基，**一次性**写入干净追加件（`~/w25a/append-P0-w78.md`，`2772be93b21a416f`／141 行）⇒ 终态**每节恰一次**（机器证：`grep -c '^### §11\.'` 逐节 = **1**）。
+- **终态读数**：见本波报告（**自指 ⇒ 件内不写**）；对原始快照的 `diff` ＝ **只有 `228a229,<末行>`**（**零删、零改**）。
+- **教训（逐字，供后续波复用）**：**累加式追加的源件必须先断言"源件里该节恰 1 次"，追加后还要数"节出现次数"** —— 只验前缀相同**结构上抓不到重复**。

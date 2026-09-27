@@ -119,6 +119,35 @@ extract_script_tokens() {  # <file> ⇒ 非注释行里的路径形态脚本令�
     | grep -oE '(^|[^A-Za-z0-9_$./+-])([A-Za-z0-9_./+-]+\.(sh|py))' 2>/dev/null | cut -c2- || true
 }
 
+code_lines_only() {  # <file> ⇒ **只留"可能是命令起点"的行**（`t38` 追加；剥注释／heredoc 体／多行引号块／续行）
+  # 【为什么必须有它（`t38` 现场，红②）】
+  #   `build/close-wave.sh` 的 `fp_inputs()` **printf 参数表**是**续行**（每行以 `\` 收尾）⇒ 行首裸路径被
+  #   形态②当成"直调" ⇒ 把 `run-silenthit-legs.sh` 拉进闭包 ⇒ 声明 `W68-UNWIRED-PRODUCER`（期望
+  #   `unwired-in-step`）**假红**；`wiring-closure-check.sh` 的 `cat <<'ROSTER'` 体同形。
+  # 【机械依据（**只会剥掉"不可能是命令起点"的行 ⇒ 不会漏判**）】
+  #   ① **续行不可能是命令起点**：上一行以 `\` 收尾 ⇒ 本行是上一条命令的**参数**（shell 语法保证）；
+  #   ② heredoc 体与多行单引号块内是**字符串**，不是命令；③ 注释行同理。
+  #   ⇒ 两个形态本体**一字未动**（本函数只做前置过滤）。
+  awk '
+    BEGIN { hd=""; inml=0; prev=0 }
+    {
+      line=$0
+      sub(/[[:space:]]+$/, "", line)
+      if (hd != "") { if (line == hd) hd=""; next }
+      if (inml == 1) { if (index(line, "\047") > 0) inml=0; next }
+      if (line ~ /^[[:space:]]*#/) { prev=0; next }
+      if (prev == 1) { prev = (line ~ /\\$/) ? 1 : 0; next }
+      if (match(line, /<<-?[[:space:]]*[\047"]?[A-Za-z_][A-Za-z0-9_]*/)) {
+        s2 = substr(line, RSTART, RLENGTH); gsub(/^<<-?[[:space:]]*/, "", s2); gsub(/^[\047"]/, "", s2)
+        hd = s2; prev = (line ~ /\\$/) ? 1 : 0; print line; next
+      }
+      t2 = line
+      if (line ~ /^[[:space:]]*[A-Za-z_][A-Za-z0-9_]*=/ && (gsub(/\047/, "", t2) % 2) == 1) { inml=1; prev=0; next }
+      prev = (line ~ /\\$/) ? 1 : 0
+      print line
+    }' "$1"
+}
+
 invoked_tokens_in() {  # <file> ⇒ 该文件里**以命令形态被调用**的脚本令牌
   # 「命令形态」＝ ① 解释器位于命令位（行首／`;`／`&`／`|`／`(` 之后）的那一行上出现的令牌；
   #              ② 行首即路径形态脚本令牌（可执行脚本直调）。
@@ -130,9 +159,14 @@ invoked_tokens_in() {  # <file> ⇒ 该文件里**以命令形态被调用**的�
   #   `W68-UNWIRED-PRODUCER`（期望 `unwired-in-step`）**假红**。本条**与件头自身的契约**
   #   （"提到路径不算调用（白名单/字符串/注释里的路径一律不算）"）一致 —— 反引号＝内联代码/散文，
   #   不是命令位 ⇒ 形态②不再吃 `[\`(]*` 前缀。**射程只在这一处**：真·直调（行首即裸路径）照旧命中。
+  # 🔁【`t38` 追加（**加注不覆盖**：上面 `#77` 的原文一字未动）】上面那句契约
+  #   （「白名单/字符串/注释里的路径一律**不算**」）此前**只落了一半**：只去掉了"行首反引号"那种散文入口，
+  #   而**第二跳**（`close-wave.sh` 的白名单/printf 参数表、`wiring-closure-check.sh` 的 heredoc roster）
+  #   仍被形态②吃下 ⇒ `W68-UNWIRED-PRODUCER` 假红。本趟把**前置过滤**接上：先经 `code_lines_only`，
+  #   两个形态本体一字未动。
   local f="$1"
-  { grep -E "(^|[;&|(])[[:space:]]*(bash|sh|python3|python|source|exec|\.)[[:space:]]+" "$f" 2>/dev/null
-    grep -E "^[[:space:]]*[A-Za-z0-9_./+-]+\.(sh|py)" "$f" 2>/dev/null
+  { code_lines_only "$f" | grep -E "(^|[;&|(])[[:space:]]*(bash|sh|python3|python|source|exec|\.)[[:space:]]+"
+    code_lines_only "$f" | grep -E "^[[:space:]]*[A-Za-z0-9_./+-]+\.(sh|py)"
   } | grep -oE '(^|[^A-Za-z0-9_$./+-])([A-Za-z0-9_./+-]+\.(sh|py))' 2>/dev/null | cut -c2- || true
 }
 
@@ -201,6 +235,21 @@ W
   printf '#!/usr/bin/env bash\nbash build/probe/run-maker.sh "$@"\n' > "$r/build/tools/wrap.sh"
   printf 'run_step "WRAPPED" bash build/tools/wrap.sh --pair\n' >> "$r/verify-all.sh"
   run_leg neg-wrapper 1 'route=transitive' "$r" "$d/home3"
+  # L3b（`t38` 新增 · 红②的两极化腿②）：**只在注释／heredoc 体／续行数据里提到** target
+  #   ⇒ 闭包**不该**把它算成 wired ⇒ `route=none` 且 record PASS（腿① 是 L3 `neg-wrapper`：**代码位**调用 ⇒ route=transitive ＋ FAIL）
+  r="$d/L3b"; mk "$r"; mk_lanes "$d/home3b"
+  cat > "$r/build/tools/wrapdata.sh" <<'WD'
+#!/usr/bin/env bash
+# 提及（注释）：build/probe/run-maker.sh 不该被算成调用
+: <<'DATA'
+build/probe/run-maker.sh
+DATA
+FILES='build/probe/run-maker.sh \
+       build/probe/run-maker.sh'
+true
+WD
+  printf 'run_step "WRAPPED-DATA" bash build/tools/wrapdata.sh\n' >> "$r/verify-all.sh"
+  run_leg pos-data-mention 0 'route=none' "$r" "$d/home3b"
   # L4 反② target 不存在 ⇒ NOINFO（防恒挂）
   r="$d/L4"; mk "$r"; mk_lanes "$d/home4"
   sed -i 's#target=build/probe/run-maker.sh expect=unwired-in-step#target=build/nope/run-maker.sh expect=unwired-in-step#' "$r/docs/WAVE42-PREREGISTRATION.md"

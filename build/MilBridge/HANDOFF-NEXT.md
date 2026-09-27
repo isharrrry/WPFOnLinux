@@ -120,3 +120,22 @@ git -C ~/netTest/GitProj/WPFOnLinux log --oneline -3; git -C ~/netTest/GitProj/W
 # 7) 重活槽与内存
 flock -n ~/heavy.lock -c 'echo SLOT=FREE' || echo SLOT=HELD; free -m | awk 'NR==2{print "avail="$7"MB"}'
 ```
+
+## §8 方法射程边界（**`t29` 补**；与 `docs/ROUTES.md`／缺陷册**同一术语、同一结论**）
+
+- **射程边界（术语逐字）**：`-getProperty:`／`-getItem:Compile` 这类 **MSBuild 求值级**探针**结构上**覆盖不到**编译器级**输入。现场 ＝ 仓根 `.editorconfig`（`76,255 B`／sha16 `bf84100e2afbd3d2`），内含 `dotnet_diagnostic.<RULE>.severity = error` 一类规则（本件现取 **131** 行；在册文本写 **129** ⇒ 两数口径不同，本行**并列记**、不擅改历史文本）。
+- **配对实验（唯一变量＝分析器策略）**：`dotnet build src/WpfGfx.Linux/WpfGfx.Linux.csproj -c Release -m:1 --nologo -v q` **加** `-p:EnableNETAnalyzers=false` ⇒ **0 个错误**；**不加** ⇒ **162 条 `error`**（出处 `build/MilBridge/P0-w77-report.md` §4b）。⇒ 策略的唯一来源是那份 `.editorconfig`，而它**不在 MSBuild 的属性/项模型里**。
+- **等价成立的口径（不许过读）**：`t1` 的 88/88「求值级等价」（`-getProperty` 27 项 ＋ `-getItem:Compile`）证的是**两树在 MSBuild 求值模型上等价**，**不是**「有效构建输入逐位等价」；`.editorconfig` 属**编译器级**输入 ⇒ **在射程之外**。
+- ⚠️ **这是方法的射程边界，不是执行失误**：换任何执行者、任何一趟，求值级探针**都看不见它**（那两个抽取域里根本没有这份文件）；把「求值面等价」写成「有效构建输入等价」是**对结果的过读**，而**方法本身**没有覆盖该输入的**结构**。
+- **处置（已落，主控追认）**：`.editorconfig` 已 `git rm` —— 现取：仓根**无**该件、`git cat-file -e HEAD:.editorconfig` ⇒ `Not a valid object name`；原件 ＋ 回退指令存 `~/w-p0mig/quarantine-editorconfig/`（`cp -p` 回仓根 ＋ `git add` 即可逐字节回滚）；移出后整波 `失败步骤 0`。
+- **如实划界（`NOINFO`）**：① 只证了**这一件**是本次 10 处失败的成因（配对实验），**不断言**不存在第二件「根级上游件」；② 移出的**只是分析器严重度**（`EnforceCodeStyleInBuild=false` 现读）⇒ **代码风格约束确已消失**，属**有意、逐字声明**的取舍。
+- **同族口径（本节另一处，逐字）**：**"托管程序集的哈希是路径承载体；凡跨树位置比较产物哈希，先问『它是在哪个树里产出的』。"**（`#77` 五位位移 ＝ 路径承载体，**不是产品回归**；缺陷册已立**同条目**，**条目号＝待配号**。）
+- **出处**：`build/MilBridge/P0-w77-report.md`（§4b／§4c／§4d）｜`build/MilBridge/V77b-rootprops-tooth-verify.md`（§5／§6-F6）｜`docs/WAVE77-PREREGISTRATION.md`（§(b)）。
+
+## 【2026-09-27 · `t21`（waveman）】`#78` 四组成对读数已真跑 ⇒ 见 `P0-w78-report.md` §8–§10
+- `TASK-0752`：三臂两极化（`fc60c34d51fd9247` 242/3808 ／ **新件 `8857b251e74851d2`** 357/3923 ／ `efb087b5c7c33eb2` 0/3629）＋ `DIAG=0/1` 两档；**原位跑器 `~/w181a/w7x/bin/leg.sh` 的 `absent` 臂语义反转**（指向活树已装符号件）已在副本修正，原件未动。
+- `TASK-0753`：`D-G147` 成对（正向三腿 `G147=PASS`：`fallback-screen`／`net-workarea`／`fallback-malformed`；反向三腿 `G147=FAIL reason=no-declared-source(silent-identity)`／`rcWork!=_NET_WORKAREA`）。
+- `TASK-0754`：`DISPLAY_LEASE_GATE=PASS static=3/3 dynamic=11/11 examined=14`；`X-CENSUS` **链前基线缺 ⇒ `NOINFO reason=pre-chain-baseline-absent`**；另报两处仪器口径缺口（`display-lease.sh:413` `local` 在函数外；`pool-exhausted` 应为 `pool-out-of-whitelist`）。
+- `TASK-0755`：`PROTO_ATTR_GATE=PASS examined=18 posctl=2/2`；`sock_id=present` 逐行在位；「符号级 hook 恒瞎」复证＝`SYM_ONLY=never-sufficient` ∧ `sym_call=none`。
+- 两趟差异机器分类（两域分列）＋ `ENV-CLASS` 合格线见 §10。
+- 台账 `appbar-startup-ledger.tsv` **未加行**（`verify-all.sh:1188 --expect-legs 6` 与行数耦合；加行须同趟改常数）。
