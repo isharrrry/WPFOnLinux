@@ -139,3 +139,10 @@ flock -n ~/heavy.lock -c 'echo SLOT=FREE' || echo SLOT=HELD; free -m | awk 'NR==
 - `TASK-0755`：`PROTO_ATTR_GATE=PASS examined=18 posctl=2/2`；`sock_id=present` 逐行在位；「符号级 hook 恒瞎」复证＝`SYM_ONLY=never-sufficient` ∧ `sym_call=none`。
 - 两趟差异机器分类（两域分列）＋ `ENV-CLASS` 合格线见 §10。
 - 台账 `appbar-startup-ledger.tsv` **未加行**（`verify-all.sh:1188 --expect-legs 6` 与行数耦合；加行须同趟改常数）。
+
+---
+### 【dated 更正 · 2026-09-28T01:59:07+08:00（t36）】三处更正 ＋ `X-CENSUS` 手写判词关账（`D-G168`）
+**① 落仓 sha16 已失效（原文一字不删）**：本文曾称 `948b1f495e6701e1`／34236 B／228 行 —— **现取**（2026-09-28T01:59:07+08:00）＝ **`7131ffad2ebac068`／64963 B／432 行**（因 `t25` 在该件上追加所致）。凡引用本报告 sha16 处，一律以**带读取时刻的现读**为准。
+**② §8 的「根因＝`GENS` 键表不含 `provider`」与现件不符**：该缺口**已由 `TASK-0745`／`D-G166` 落地补上** —— `w27-freeze.py` 的 `_FORM_NINE` **含 `provider`**（逐键 vs 现取值对拍；`prev_*` 取**哨兵**而非九位行）；`#79` 冻结时 `BLOCKVALUE=PASS keys=9` 即其现场。
+**③ `+115` 归因误导（逐字节证）**：`absent` 与 `baseold` 的输出差**不是**"件身份"不可归因 —— 差恰是一行 `[G147_WORKAREA]`（**114 B，含 LF**）；且 `absent` 比 `baseold` **多 3 个 `wpf_x11_workarea_*` 符号**（553 vs 550）⇒ **单变量对只有 `baseold↔ret0`**（同为无/有该三符号之外的差异面），其余配对都是**多变量**，不得当作单变量证据。
+**④ `X-CENSUS` 那句 `pre-chain-baseline-absent` 是手写判词**：(a) 与同两趟日志里自引的 **`X_CENSUS=PASS leaks=0 new_orphan_sock=0 base_live=0 now_live=1 base_socks=2 now_socks=3`** 矛盾；(b) 该 reason **不在器具词表**（`xvfb-census-check.sh` 只有 `baseline-absent`／`baseline-format-unknown`／`orphan-socket-residue`／`ps-empty-or-unreadable`／`snapshot-unwritable`／`snapshot-with-ps-file`／`sock-dir-absent`）⇒ **不是器具产出**；登记 **`D-G168`「判词必须来自器具的词表；手写 `reason=` 即假账」**；(c) 处方「链首补快照」**早已实现**（`verify-all.sh:468-473`）。**真缺口（具名）**：**跨整条 `close-wave` 链无基线** —— `grep -c snapshot build/close-wave.sh` = **0**（读取时刻 2026-09-28T01:59:07+08:00）。

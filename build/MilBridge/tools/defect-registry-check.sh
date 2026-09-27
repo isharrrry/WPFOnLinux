@@ -232,15 +232,24 @@ run_check() {
   echo "DEFREG_ROUTES=KD=${KEY_SHA[KD]} CS=${KEY_SHA[CS]} HO=${KEY_SHA[HO]} AB=${KEY_SHA[AB]}"
   echo "DEFREG_EXTRA=KRJ=${KEY_SHA[KRJ]} KRF=${KEY_SHA[KRF]} KRP=${KEY_SHA[KRP]}"
   local anchors; anchors="$(grep -m1 '^# DECL-ANCHORS = ' "$DECL" 2>/dev/null | sed 's/^# DECL-ANCHORS = //')"
-  local drift='?'
+  # 【`D-G172`（`t40` 落）：漂移读数**具名到键**】─────────────────────────────────────────
+  #   改前只给一个**计数**（`DEFREG_DECLDRIFT=N`）⇒「哪一件漂了」得靠人再逐键比，反极性腿
+  #   只能断言"变了 1"、断言不出"**是 `AB` 那一键**"。
+  #   现补：计数行尾带 `keys=`（零漂移给 `-`）＋ 一条**机读差集键行** `DEFREG_DECLDRIFT_KEYS=`。
+  #   ⚠️ 两行都**只诊断、不判红**（与 `:190` 的 `present=`／`DEFREG_DECLMETA` 同档，理由见该处注释：
+  #      声明件是"必须与现场同步的快照"，漂移不改变 `DEFREG` 的三态判据）。
+  #   ⚠️ 键名只许来自 `ALLKEYS`（同一条取数支路 ⇒ 不设第二个实现）。
+  local drift='?' dkeys='?'
   if [ -n "$anchors" ]; then
-    drift=0
+    drift=0; dkeys=''
     for k in $ALLKEYS; do
       local want; want="$(printf '%s' "$anchors" | sed -n "s/.*$k=\([0-9a-f]\{16\}\).*/\1/p")"
-      [ -n "$want" ] && [ "$want" != "${KEY_SHA["$k"]}" ] && drift=$((drift+1))
+      [ -n "$want" ] && [ "$want" != "${KEY_SHA["$k"]}" ] && { drift=$((drift+1)); dkeys="$dkeys${dkeys:+,}$k"; }
     done
+    [ -z "$dkeys" ] && dkeys='-'
   fi
-  echo "DEFREG_DECLDRIFT=$drift changed-route-files-since-DECL-GEN"
+  echo "DEFREG_DECLDRIFT=$drift changed-route-files-since-DECL-GEN keys=$dkeys"
+  printf 'DEFREG_DECLDRIFT_KEYS=%s  # 机读差集键行（零漂移给 -；`?` = 声明件里读不到锚行）\n' "$dkeys"
   [ -n "$outside" ] && echo "DEFREG_UNREG=n=$(printf '%s' "$outside" | wc -w) ids=$(printf '%s' "$outside" | sed 's/^ //')"
 
   # 判定顺序是**判据的一部分**（不许依赖它"恰好"命中哪一条）：

@@ -26,7 +26,7 @@ REL="samples/WpfTextDemo/ACCEPTANCE-BASELINE.md"
 
 run_check() {   # $1=BASE $2=STATE
   local base="$1" state="$2" live decl dgen dsha dfile fgen
-  BASELINESHA=NOINFO; BASELINEGEN=NOINFO; BASELINESHA_LIVE=''; BASELINESHA_DECL=''
+  BASELINESHA=NOINFO; BASELINEGEN=NOINFO; CSDECL=NOINFO; BASELINESHA_LIVE=''; BASELINESHA_DECL=''
   if [ ! -f "$base" ]; then echo 'BASELINESHA=NOINFO reason=baseline-missing'; return 1; fi
   if [ ! -f "$state" ]; then echo 'BASELINESHA=NOINFO reason=state-missing'; return 1; fi
 
@@ -76,7 +76,58 @@ run_check() {   # $1=BASE $2=STATE
     echo 'BASELINEDUP=PASS n=0'
   fi
 
-  if [ "$BASELINESHA" = PASS ] && [ "$BASELINEGEN" = PASS ] && [ "$BASELINEDUP" = PASS ]; then return 0; fi
+  # ── 【`D-G173` 半②（`t40` 落）：**唯一权威声明点必须有牙**】────────────────────────────────
+  #   ⏪ 【`t40` 的落仓口径 · 位置说明（**只加注不覆盖**，且**刻意放在本行号锚之下**）】─────────────
+  #     · 文件头 `# rc：` 那句原文「只有**两项**全 PASS 才 `rc=0`」**一字未动**：其后的 `BASELINEDUP`
+  #       与本牙 `CSDECL` 相继加入 ⇒ **实为四项全 PASS**（`BASELINESHA`／`BASELINEGEN`／`BASELINEDUP`／`CSDECL`）。
+  #     · 判据表第 4 条（与头注三档并列）：`docs/CURRENT-STATE.md` 的**唯一权威声明点必须有牙** ——
+  #       `BASELINE-FROZEN` 形态**只许出现一次**（＝机器行本身）∧「唯一权威」那句散文**不许**再带
+  #       字面号值（`#NN` 世代值 / `D-*` 编号）；两条否定式的逐字来源见 `build/MilBridge/P0-w78-report.md:428`
+  #       （`CURRENT-STATE.md` 的运行期读者只有本件那个 `-m1` 与 `defect-registry-check.sh` 的 route 键 `CS`
+  #       ⇒ 散文里的号值**没有读者**）。
+  #     ⚠️ **为什么这段注释不写在文件头**（本件现场，具名）：`build/MilBridge/tools/parser-guard-check.sh`
+  #       的**射程表是按 `文件:行号` 锚**的（`decl_range_verdict`），本牙在 `:62` 有一处既有环境取数现场
+  #       （`BASELINESHA_DECL` 的缺省展开；**此处刻意不写它的字面形态** —— 那条 ERE 连**注释里**的出现
+  #        都算一处现场）；我第一版把 9 行加注写在文件头 ⇒ 该现场被顶到 `:70` ⇒ 射程表失配 ⇒
+  #       `PARSER_GUARD=FAIL rule=unnamed-site`。⇒ **加注下移到行号锚之下**（零位移）即复原（成对读数见
+  #       `build/MilBridge/P0-w79-anchors-repin.md`）。这是"行号锚脆弱"的同族现场（本仓已判"内容锚优于行号锚"）。
+  #   现场（改前，逐字）：`docs/CURRENT-STATE.md:8` 的「唯一权威 = …」那一句里写着**世代值**
+  #   （`#44`），而该页的**运行期读者**只有两处 —— 本件 `:36` 的 `grep -m1 '^[> ]*BASELINE-FROZEN '`
+  #   （**只认第一处匹配**）与 `defect-registry-check.sh` 把它当 route 键 `CS` 全文扫 `D-*`。
+  #   ⇒ 那个值**没有读者**、任何一代都不会更新它，也没有任何一步会因为它而红
+  #   （同一句自己就立着规矩：「本页别处与其它任何文档一律不许再写值」）。
+  #   两条否定式（改写 `:8` 那类散文时必须同时成立；逐字来源 `build/MilBridge/P0-w78-report.md:428`）：
+  #     ① 不许出现 `BASELINE-FROZEN` 形态的文本（否则 `-m1` 会抓到它、**绕过机器行** ⇒ 静默改判）；
+  #     ② 不许出现任何字面号值（`D-G<数字>` ⇒ `DEFREG=FAIL reason=undeclared-id-in-route`；`#NN` 世代值 ⇒ 无读者）。
+  #   ⚠️ 为什么必须**新加**一条牙：`-m1` 只认第一处 ⇒ **第二处** `BASELINE-FROZEN` 行（哪怕值当下全对）
+  #      在改前**三档全绿**（`BASELINESHA`／`BASELINEGEN`／`BASELINEDUP`）⇒ 这是一条**假绿通道**
+  #      （`t40` 第三条反极性腿就在副本树上量这一格：不加新牙 ⇒ PASS；加 ⇒ FAIL）。
+  CSDECL=PASS
+  local nbf authln authline authno
+  nbf="$(grep -cE '^[> ]*BASELINE-FROZEN ' "$state" || true)"
+  authln="$(awk '/唯一权威/{print NR; exit}' "$state")"
+  if [ "${nbf:-0}" -ge 2 ]; then
+    CSDECL=FAIL
+    printf 'CSDECL=FAIL reason=duplicate-decl-line n=%s（`%s` 里 `BASELINE-FROZEN` 形态出现 %s 次 ⇒ 声明点不止一处；`-m1` 只认第一处 ⇒ 第二处无声）:\n%s\n' \
+      "$nbf" "$STATE" "$nbf" "$(grep -nE '^[> ]*BASELINE-FROZEN ' "$state")"
+  elif [ -z "$authln" ]; then
+    CSDECL=NOINFO
+    echo "CSDECL=NOINFO reason=auth-line-absent（$STATE 里没有「唯一权威」那一句 ⇒ 本否定式无对象，**不算绿**）"
+  else
+    authline="$(sed -n "${authln}p" "$state")"
+    authno="$(grep -oE 'D-[A-Z][0-9]+|#[0-9]+' <<< "$authline" | tr '\n' ' ' || true)"
+    case "$authline" in
+      *BASELINE-FROZEN*) CSDECL=FAIL
+        echo "CSDECL=FAIL reason=auth-line-has-machine-form line=$authln（机器形态只许出现在机器行里）" ;;
+      *) if [ -n "${authno// /}" ]; then
+           CSDECL=FAIL
+           echo "CSDECL=FAIL reason=auth-line-carries-literal-value line=$authln tokens=$authno（该处只许指向机器行，不许再写值）"
+         fi ;;
+    esac
+  fi
+  [ "$CSDECL" = PASS ] && echo "CSDECL=PASS n_decl_lines=$nbf auth_line=$authln（声明点只有机器行一处；散文行不带号值/世代值）"
+
+  if [ "$BASELINESHA" = PASS ] && [ "$BASELINEGEN" = PASS ] && [ "$BASELINEDUP" = PASS ] && [ "$CSDECL" = PASS ]; then return 0; fi
   return 1
 }
 
@@ -136,6 +187,10 @@ if [ "${1:-}" = '--selftest' ]; then
     if [ "$2" = 'GENFAIL' ]; then [ "$ggen" = FAIL ] && ok='yes'; got="gen:$ggen"; fi
     local gdup; gdup="$(printf '%s' "$out" | sed -n 's/^BASELINEDUP=\([A-Z]*\).*/\1/p' | head -1)"
     if [ "$2" = 'DUPFAIL' ]; then [ "$gdup" = FAIL ] && ok='yes'; got="dup:$gdup"; fi
+    # 【`t40`／`D-G173`：新牙 `CSDECL` 必须**被自测看着**（纪律 68：自测没看着的牙，坏了也没人看见）】
+    local gcs; gcs="$(printf '%s' "$out" | sed -n 's/^CSDECL=\([A-Z]*\).*/\1/p' | head -1)"
+    if [ "$2" = 'CSDECLFAIL' ]; then [ "$gcs" = FAIL ] && ok='yes'; got="csdecl:$gcs"; fi
+    if [ "$2" = 'PASS' ] && [ "$gcs" != PASS ]; then ok='no'; got="$got+csdecl:$gcs"; fi
     if [ "$ok" = yes ]; then np=$((np+1)); else nf=$((nf+1)); fi
     printf 'SELFTEST case=%s expect=%s got=%s rc=%s => %s\n' "$1" "$2" "$got" "$rc" "$ok"
   }
@@ -185,6 +240,23 @@ if [ "${1:-}" = '--selftest' ]; then
   mk F; scrub "$T/F/state.md"; decl_line "$GEN" "$LIVE" >> "$T/F/state.md"
      printf '> 该文件重冻时整份 sha = `deadbeefdeadbeef`\n' >> "$T/F/state.md"
      chk F DUPFAIL F
+  # ── 【`t40`／`D-G173` 三条反极性腿（永久化；两条否定式的逐字来源 `P0-w78-report.md:428`）】──
+  #   腿 G：**第二处** `> BASELINE-FROZEN …`，值取**当下正确值**（`D-G173` 的假绿通道：`-m1` 只认
+  #          第一处 ⇒ 改前 `BASELINESHA`／`BASELINEGEN`／`BASELINEDUP` 三档**全绿**、不声不响）
+  #          ⇒ **新牙必须 FAIL**。
+  mk G; scrub "$T/G/state.md"; decl_line "$GEN" "$LIVE" >> "$T/G/state.md"
+     decl_line "$GEN" "$LIVE" >> "$T/G/state.md"
+     chk G CSDECLFAIL G
+  #   腿 H：权威散文行塞**世代值**（`:8` 改前的原形态 `#44`）⇒ 必须 FAIL。
+  mk H; scrub "$T/H/state.md"; decl_line "$GEN" "$LIVE" >> "$T/H/state.md"
+     awk '/唯一权威/{print "> **唯一权威** = 略（现在 **`#44`**）"; next} {print}' "$T/H/state.md" > "$T/H/state.md.new" \
+       && mv "$T/H/state.md.new" "$T/H/state.md"
+     chk H CSDECLFAIL H
+  #   腿 I：权威散文行塞**字面 `D-*` 编号** ⇒ 必须 FAIL。
+  mk I; scrub "$T/I/state.md"; decl_line "$GEN" "$LIVE" >> "$T/I/state.md"
+     awk '/唯一权威/{print "> **唯一权威** = 见 `D-G999` 的示意"; next} {print}' "$T/I/state.md" > "$T/I/state.md.new" \
+       && mv "$T/I/state.md.new" "$T/I/state.md"
+     chk I CSDECLFAIL I
 
   echo "BSC_SELFTEST=$([ "$nf" -eq 0 ] && echo PASS || echo FAIL) cases=$((np+nf)) pass=$np fail=$nf"
   [ "$nf" -eq 0 ] && exit 0 || exit 1

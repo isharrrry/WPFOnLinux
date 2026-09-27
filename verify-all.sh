@@ -851,6 +851,21 @@ echo
 echo "[10] 缺陷编号对账（声明 ⇔ 四个 route 件；双向点名；NOINFO 不许当绿；#27 加）"
 run_step "DEFECT-REGISTRY" bash build/MilBridge/tools/defect-registry-check.sh
 
+# ── 【`D-G172` 半②（`t40` 落）：**让"声明锚漂移"真的进冻后日志**（只加不删）】────────────────
+#   改前：`DEFREG_DECLDRIFT=…` 由牙打印，但上面那条显示窗只收三类形态 ——
+#     `^KEY=(PASS|FAIL|NOINFO|NA|SKIP|REPORT)` ／ `^KEY_(SUMMARY|COUNTS|SCOPE) `；
+#   而它逐字是 `DEFREG_DECLDRIFT=3 changed-route-files-since-DECL-GEN` ⇒ **一条都不匹配**
+#   ⇒ 既不上屏、**也不进 post 日志**（实测 `#78`／`#79` 各两趟 post：`grep -c DEFREG_DECLDRIFT` = 0）。
+#   ⇒ 本处把这两行**原样**打进 stdout（**同一条牙、同一实现**；不另写第二实现）。
+#   ⚠️ 取不到就写 `NOINFO`（口径：**任何字段都不许为空**，`D-G161`／`t42` 同族）。
+#   ⚠️ 用 here-string（`<<<`）不用 `printf|grep -m1`（后者 `grep` 命中即退出 ⇒ SIGPIPE ⇒
+#      `PIPEFAIL_SIGPIPE` 那族；修法与 `t38` 同法）。
+_declout="$(bash build/MilBridge/tools/defect-registry-check.sh 2>&1 || true)"
+_dline="$(grep -m1 '^DEFREG_DECLDRIFT=' <<< "$_declout" || true)"
+_kline="$(grep -m1 '^DEFREG_DECLDRIFT_KEYS=' <<< "$_declout" || true)"
+if [ -n "$_dline" ]; then echo "      · 自报口径 $_dline"; else echo '      · 自报口径 DEFREG_DECLDRIFT=NOINFO reason=line-absent'; fi
+if [ -n "$_kline" ]; then echo "      · 自报口径 $_kline"; else echo '      · 自报口径 DEFREG_DECLDRIFT_KEYS=NOINFO reason=line-absent'; fi
+
 # ---------------------------------------------------------
 # [11] 门禁自检（步名/步数/口径句 ⇔ 现场）—— `#28` 新增；步数 **16 → 17，口径已变**
 # ---------------------------------------------------------

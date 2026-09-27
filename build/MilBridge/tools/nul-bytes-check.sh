@@ -103,7 +103,15 @@ NULB_BINEXTS_ML='.png .jpg .jpeg .gif .webp .bmp .ico .tif .tiff .ttf .otf .woff
                  .dat .db .sqlite .exe .pdb .class .jar .wasm .xwd .wav .mp3 .mp4 .webm'
 NULB_NAMES='.gitignore .gitattributes Makefile SHA256SUMS .wave-done'
 NULB_GLOBS='*.bak-*'
-NULB_SKIPDIRS='upstream .git node_modules .artifacts obj bin __pycache__ .vs TestResults'
+# ⚠️【`D-G174`／`t43`】`.agent-teams` **必须**在这里（与 `.git` **同类**：**本地工具状态，不是仓内容**）。
+#   现场：它是**仓内路径、但非仓内容** —— `.git/info/exclude:8` 排除它、`git ls-files | grep -c agent-teams` **= 0**；
+#   而它**按文件系统遍历会被扫到**（`.agent-teams/wpf-linux-route-completion/team.json`，随每次任务产出增长）
+#   ⇒ 受判读数 `NULBYTES bytes=` **随协调活动漂移**（三读：`289,497,447 → 289,504,145 → 289,587,690`）。
+#   🔴 **口径句（收进 `D-G174` 登记）**：**「凡『仓内路径』与『仓内容』不是一回事的地方，判据面必须先按
+#      `git ls-files`（或显式 `skipdirs`）划界。」**
+#   影响面如实：`hits=0` 判词**不受影响**（`bytes`／`files` 是计数、不进阈值）⇒ 无假红／假绿；
+#   代价是**两趟差异域的「读数类」项出现非产品来源**，且该目录若真出现 NUL 会被当成仓内缺陷点名。
+NULB_SKIPDIRS='upstream .git node_modules .artifacts obj bin __pycache__ .vs TestResults .agent-teams'
 # 压成单行（bash 把换行当分隔符；压平后传 argv 更稳、打印也更整齐）
 NULB_EXTS="$(printf '%s' "$NULB_EXTS_ML" | tr -s '[:space:]' ' ')"
 NULB_BINEXTS="$(printf '%s' "$NULB_BINEXTS_ML" | tr -s '[:space:]' ' ')"
@@ -569,7 +577,7 @@ run_selftest() {
   }
   # 注入物：`line1\nline2\nline3<0x00>tail\n` ⇒ 首个 NUL 在**偏移 17**、第 **3** 行（手算，独立于扫描器）
   inj() { printf 'line1\nline2\nline3\0tail\n' > "$1"; }
-  local T1="$SB/clean" T2="$SB/inj" T3="$SB/other" T4="$SB/objin" T5="$SB/empty" T6="$SB/big"
+  local T1="$SB/clean" T2="$SB/inj" T3="$SB/other" T4="$SB/objin" T5="$SB/empty" T6="$SB/big" T7="$SB/agt"
   mk_tree "$T1"; mk_tree "$T2"; mk_tree "$T3"; mk_tree "$T4"
   mkdir -p "$T5" "$T6"
   python3 - "$T6/big.txt" <<'PYBIG'
@@ -644,6 +652,50 @@ PYBIG
   inj "$T3/a.zzz"
   run_case S14-unknown-ext 0 "$T3" NULB_ANCHORS=off NULB_MIN_FILES=0
   has 'NULBYTES_DIAG kind=otherext-nul path=a.zzz'; assert 'S14 未认领扩展名的 NUL 进了 DIAG（可见）' "$HAS"
+
+  # ── S17/S18/S19（`D-G174`／`t43`）：`.agent-teams/` ＝「**仓内路径、但非仓内容**」的划界腿 ──────────
+  #   S17 正极：`.agent-teams/**` 里塞一个 NUL ⇒ **不进判据面**（PASS），且 `--list` 面里**也**不该再出现它
+  #            （"判定面"与"逐一清单"两处必须同口径；只改一处会造出"看不见的红/绿"）。
+  #   S18 反证：**改前形态的副本**（把 `.agent-teams` 从 `NULB_SKIPDIRS` 里去掉，只改沙箱副本）⇒ **必红并点名**
+  #            —— 这一条证明 S17 不是"腿空着也能过"。
+  #   S19 反极性：扫描面**内**的件（`docs/*.md` 形态）塞 NUL ⇒ **照旧判红并点名**（**不许把牙改松**）。
+  mkdir -p "$T7/.agent-teams/wpf-linux-route-completion" "$T7/docs"
+  #   ⚠️ 夹具**必须**留一件在扫描面内（本件把"覆盖面为空/一个字节都没读"判 `NOINFO`）：
+  #      否则"把 `.agent-teams` 排除掉"会把扫描面清成 0 件 ⇒ 拿到 `NOINFO`、而 `NOINFO` **不是绿**。
+  #      （`t43` 首版就栽在这里：S17 期望 rc=0、实得 rc=2 —— 是**腿的夹具**错，不是牙错。）
+  printf 'alpha\n' > "$T7/a.c"
+  inj "$T7/.agent-teams/wpf-linux-route-completion/team.json"
+  run_case S17-agent-teams-skipdir 0 "$T7" NULB_ANCHORS=off NULB_MIN_FILES=0
+  has 'NULBYTES=PASS'; assert 'S17 `.agent-teams/**` 里的 NUL 不进判据面（PASS）' "$HAS"
+  RC_FLAGS=--list run_case S17b-list-no-agent-teams 0 "$T7" NULB_ANCHORS=off NULB_MIN_FILES=0
+  #   ⚠️ 判据必须**分档**：`--list` 里出现 `.agent-teams` 的**合法**两处是**牙自己的口径行**
+  #      （`NULBYTES_SCOPE_SKIPDIRS …` 与 `NULBYTES_SKIPDIRNAME .agent-teams:1 …` —— 那是**可见性**）；
+  #      真正的判据是「**扫描面条目**里不许再有它」，所以这里只对**非 `NULBYTES_` 前缀**的行计数。
+  local surf_hits
+  surf_hits="$(printf '%s\n' "$CUR_OUT" | grep '\.agent-teams' | grep -vE '^NULBYTES_SCOPE_|^NULBYTES_SKIPDIR' | wc -l | tr -d ' ')"
+  if [ "${surf_hits:-x}" = 0 ]; then assert 'S17b `--list` 的**扫描面条目**里不再出现 `.agent-teams`（口径行仍会提到它）' 1
+  else assert 'S17b `--list` 的**扫描面条目**里不再出现 `.agent-teams`（口径行仍会提到它）' 0; printf 'S17b diag surf_hits=%s\n' "$surf_hits"; fi
+  has 'NULBYTES_SKIPDIRNAME .agent-teams:1'; assert 'S17c 它被**归类计数**（`SKIPDIRNAME` 里可见 ⇒ 不是"看不见"）' "$HAS"
+  sed "s/^NULB_SKIPDIRS='\(.*\) \.agent-teams'$/NULB_SKIPDIRS='\1'/" "$SELF" > "$SB/nulb-prechange.sh"
+  local pre_out pre_rc
+  pre_out="$(env NULB_TMPDIR="$SB/tmp" NULB_ANCHORS=off NULB_MIN_FILES=0 \
+             bash "$SB/nulb-prechange.sh" --root "$T7" 2>&1)"; pre_rc=$?
+  # ⏪ 【`t40` 修 `t43` 的潜伏红（`PIPEFAIL_SIGPIPE` · `nul-bytes-check.sh:683`）】
+  #   改前逐字：`if [ "$pre_rc" = 1 ] && printf '%s\n' "$pre_out" | grep -qF 'NULBYTES_HIT path=…team.json'; then`
+  #   形态：`printf` 对**多行串**逐行 `write()`，而 `grep -q` 命中即退出并关读端 ⇒ 下一次 `write()` 吃
+  #   EPIPE→SIGPIPE ⇒ `set -o pipefail` 下整条管线 141 ⇒ **伪红/伪绿两向都可能**（`D-G39` 族）。
+  #   修法（与 `t38` 同形）：改 **here-string**（无管道 ⇒ 无 SIGPIPE）。**判据、期望、用例一条未动。**
+  if [ "$pre_rc" = 1 ] && grep -qF 'NULBYTES_HIT path=.agent-teams/wpf-linux-route-completion/team.json' <<< "$pre_out"; then
+    assert 'S18 改前形态（skipdirs 无 .agent-teams）⇒ 必红并点名该件' 1
+  else
+    assert 'S18 改前形态（skipdirs 无 .agent-teams）⇒ 必红并点名该件' 0
+    printf 'S18 diag rc=%s\n' "$pre_rc"; printf '%s\n' "$pre_out" | grep -E 'NULBYTES' | head -3 | sed 's/^/      | /'
+  fi
+  inj "$T7/docs/CURRENT-STATE.md"
+  run_case S19-inscan-nul-still-red 1 "$T7" NULB_ANCHORS=off NULB_MIN_FILES=0
+  has 'NULBYTES_HIT path=docs/CURRENT-STATE.md offset=17 line=3 n=1'
+  assert 'S19 扫描面内的件塞 NUL ⇒ 照旧判红并点名（牙没被改松）' "$HAS"
+  printf 'ok\n' > "$T7/docs/CURRENT-STATE.md"
 
   # S15 生产路径（**真树**）：不许 NOINFO，状态与 rc 自洽，金丝雀 ok
   run_case S15-live-tree LIVE "$REAL_ROOT" NULB_ANCHORS=strict
