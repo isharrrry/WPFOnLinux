@@ -32,3 +32,5 @@
 2. **四面声明与接线必须同趟全落**：漏一处 ⇒ `VERIFYALL_SELF` 报 `FAIL`/`NOINFO`（步名多重集／步数／口径句分叉）。
 3. **覆盖面与 `--expect` 必须同趟**：漏改 ⇒ `FP_MANIFEST_TEETH=FAIL reason=files-n-mismatch`（方向安全）。
 4. **承重件写入纪律**：写前 `stat -c %h`＝1、`cp -p` 备份在任何写之前、`temp+rename`、逐处 before/after 逐字；**不许** `git add/commit/push`。
+
+⏪ **dated 追加 · `W4b` 合波（`t48`，读时 2026-09-28T17:48:18.824+0800）**：三件新牙同趟接线 —— `HANDOFF-MV`（`build/MilBridge/tools/handoff-machine-values-check.sh`）／`PUSH-MARKER`（`build/MilBridge/tools/push-marker-check.sh`，写入端 `push-marker-write.sh` 由集成腿驱动）／`PROVIDER-REPRO`（`build/MilBridge/tools/provider-repro-check.sh`）。**同趟**：覆盖面 **229 → 233**（`fp_inputs()` +4 行：三件新件 ＋ 写入端，全**件路径身份**）＋ `[42] --expect 229 → 233` ＋ **四处声明**（首行 `# VERIFYALL-STEPS-DECL: 61 gen=#81`／头注释口径句 `**`#81` 收官起 = 61 步**`／`# VERIFYALL-STEP-NAMES:` 58 → 61 项／本件）⇒ 步数 **58 → 61**（三条共用**一次**加步窗口：各成一步）。另：三颗 `W4a` 牙的件头「不接线／归 W4」陈旧自述按 dated 追加更正为「已接线」（**原句一字未删**）⇒ 其件内容位移 ⇒ `inputs_fp` 必移，**覆盖面件数不变**（两值见 `build/MilBridge/P1-w4b-report.md`）。

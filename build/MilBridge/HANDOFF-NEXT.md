@@ -445,3 +445,63 @@ flock -n ~/heavy.lock -c 'echo SLOT=FREE' || echo SLOT=HELD; free -m | awk 'NR==
 ⏪ **三牙真跑（现取，`ts=2026-09-28T17:35:41.782+0800`）**：`SSC=PASS lines=13 keys=13 cmp=IDENTICAL`（`rc=0`）｜`WPW=DRYRUN lines=13 keys=13`（`rc=0`）｜`TSORDER=PASS files=1 stamped_lines=9 stamps=10 self=1 quoted=9`（`rc=0`）⇒ **三腿都不是「空腿/usage 腿」**（`WIRING_CLOSURE` 的 B 方向 `black_lines=16`／`mentions=565`，`fails=0`）。
 ⏪ **两牙与红线（现取，`ts=2026-09-28T17:35:41.782+0800`）**：`DEFREG=PASS declared=218 route_ids=218`｜`REPORTID=PASS files=208 ids=2088 declared=218`｜两枚生产哨兵各 `6cb3f97388c3c4dc`（**本波未写哨兵、未冻结、未推送**）。
 ⏪ **`NOINFO`（具名，既不算绿也不算红）**：① **未跑整趟 `verify-all`**（一跑就构建 ⇒ `provider` 位位移，`B-18` 在册现象）⇒ 步表整体的端到端绿**未验**｜② 冻结/推送面（`POST.done`／哨兵推送／`WFREEZE-DECL:`）**未动**，归后续波｜③ **三颗牙的件头仍写「不接线」**（`t23`／`t24`／`t27` 原话）⇒ 现状已成**陈旧自述**：本牙的字样表（`未接线`／`不进 verify-all`／`已接线`）**均不命中** ⇒ 实测 `SELFDESC_WIRING=PASS fails=0`，**但语义上要改**；改件头**不在本波写域**（队长明令「牙本体一字不改」）⇒ 建议 `W4b` 或后续波收口。
+
+### ⏪ **dated · 机器值契约 9 格转「现取形态」（`B-11` 的牙面；`t48`／W4b，读时 2026-09-28T17:48:18.824+0800）**
+
+⏪ **本块为什么存在**：`HANDOFF-NEXT.md` 的「机器值『现取生成契约』」（`t10`／W1）那张 **9 格表**是**手抄现跑**、此后每代必陈旧，而**仓内零读者**。本块把 9 格**就地转「以现取为准 ＋ `ts=`」形态**（第 `24` 条口径）：**表格原文一字未删**，取值以本块逐格更正为准；新牙 `build/MilBridge/tools/handoff-machine-values-check.sh` **逐格现跑该格命令**并与本块给的值对拍（不等 ⇒ `HANDOFF_MV=FAIL` 逐格点名）。
+
+⏪ **机器值契约更正 · cell=#1**：以现取为准；`ts=2026-09-28T17:48:18.824+0800` 时 现值 ＝ `d74397deebb5ac6884793c72f24ba82d35744b7b0aed574abccc202728249a81`（命令：`bash ~/w153a/bin/infp.sh fp`）
+⏪ **机器值契约更正 · cell=#2**：以现取为准；`ts=2026-09-28T17:48:18.824+0800` 时 现值 ＝ `233`（命令：`bash ~/w153a/bin/infp.sh list | wc -l`）
+⏪ **机器值契约更正 · cell=#3**：以现取为准；`ts=2026-09-28T17:48:18.824+0800` 时 现值 ＝ `> BASELINE-FROZEN gen=#80 sha16=b96d4312565a3c49 file=samples/WpfTextDemo/ACCEPTANCE-BASELINE.md`（命令：`sed -n '9p' docs/CURRENT-STATE.md`）
+⏪ **机器值契约更正 · cell=#4**：以现取为准；`ts=2026-09-28T17:48:18.824+0800` 时 现值 ＝ `DEFREG=PASS declared=218 route_ids=218（每个声明编号在其 req 的每个 route 文件里都在；无未声明编号）`（命令：`bash build/MilBridge/tools/defect-registry-check.sh | tail -1`）
+⏪ **机器值契约更正 · cell=#5**：以现取为准；`ts=2026-09-28T17:48:18.824+0800` 时 现值 ＝ `61`（命令：`grep -c '^run_step "' verify-all.sh`）
+⏪ **机器值契约更正 · cell=#6**：以现取为准；`ts=2026-09-28T17:48:18.824+0800` 时 现值 ＝ `w*-POST.done=25／*record*=49`（命令：`printf 'w*-POST.done=%s／*record*=%s' "$(ls -1 ~/w21-verify/w*-POST.done 2>/dev/null | wc -l)" "$(ls -1 ~/w21-verify/*record* 2>/dev/null | wc -l)"`）（**口径**：行内 `w6*` glob 只覆盖 10 枚 ⇒ 本格改用**全量**计数命令（`w*-POST.done` ＋ `*record*`）。）
+⏪ **机器值契约更正 · cell=#7**：以现取为准；`ts=2026-09-28T17:48:18.824+0800` 时 现值 ＝ `1d136ca`（命令：`git log --oneline -1 | cut -c1-7`）（**口径**：远端面 `git ls-remote` **需网络** ⇒ 不入门禁牙；本格只对拍**本地 `HEAD`** 短号，远端事实仍按本区第 `19` 条口径「只许 `ls-remote` 现取」由人工/波内取。）
+⏪ **机器值契约更正 · cell=#8**：以现取为准；`ts=2026-09-28T17:48:18.824+0800` 时 现值 ＝ `11`（命令：`git status --porcelain | wc -l`）（**口径（写死）**：本格的「现取值」列是**多值散文**（有无链在跑 ＋ `porcelain` 组合）⇒ 本牙只对拍它的**可机读半边**（树内脏件行数）；「有无链在跑」在仓内**无权威机读读者** ⇒ 另记 `NOINFO(reason=在跑状态无仓内权威读者)`。）
+⏪ **机器值契约更正 · cell=#9**：以现取为准；`ts=2026-09-28T17:48:18.824+0800` 时 现值 ＝ `f951e80b55e85782`（命令：`sed -n '104,115p' build/MilBridge/tools/wave-freeze-consistency-check.py | sha256sum | cut -c1-16`）（**口径（写死）**：本格的「现取值」列是**一组九值** ⇒ 本牙按**权威路径表**这一半对拍（`wave-freeze-consistency-check.py:104-115` 的内容 sha16）；九值本身须在**重建波**现取（会动九位）⇒ 另记 `NOINFO(reason=九值需重建波现取)`。）
+
+⏪ **机器值契约更正 · cell=#8（取代上文同格那条）**：以现取为准；`ts=2026-09-28T17:48:34.644+0800` 时 现值 ＝ `11`（命令：`git status --porcelain | grep -v 'build/MilBridge/HANDOFF-NEXT.md' | wc -l`）（**口径（写死，取代上文#8口径）**：本格改判「树内脏件行数」且**排除本件自身**（`grep -v` 掉 `build/MilBridge/HANDOFF-NEXT.md`）—— 上文那条命令把**本件自己**算进去了 ⇒ 它会随本件每次追加而变（**自指**，`t42`／`t44` 同族）⇒ 本行取代之；「有无链在跑」仍**无仓内权威机读读者** ⇒ 记 `NOINFO(reason=在跑状态无仓内权威读者)`。）
+
+### ⏪ **dated · 机器值 9 格「现取形态」终值（取代上文各格更正；`t48`／W4b，读时 2026-09-28T17:49:01.698+0800）**
+
+⏪ **读法**：本牙 `build/MilBridge/tools/handoff-machine-values-check.sh` 的取值优先级 ＝ **最后一条 `机器值契约更正 · cell=#N` 为准**（只增不改 ⇒ 追加行取代旧行）；下表是**交付态**的 9 格真值（全部由同行命令现跑取得）。**表格原文与上文各更正行一字未删**。
+
+⏪ **机器值契约更正 · cell=#1**：以现取为准；`ts=2026-09-28T17:49:01.698+0800` 时 现值 ＝ `c525f7df9fd47bf53d4708e70e3a4c138e3fb8fb29b4da4a09db0437ec177cef`（命令：`bash ~/w153a/bin/infp.sh fp`）
+⏪ **机器值契约更正 · cell=#2**：以现取为准；`ts=2026-09-28T17:49:01.698+0800` 时 现值 ＝ `233`（命令：`bash ~/w153a/bin/infp.sh list | wc -l`）
+⏪ **机器值契约更正 · cell=#3**：以现取为准；`ts=2026-09-28T17:49:01.698+0800` 时 现值 ＝ `> BASELINE-FROZEN gen=#80 sha16=b96d4312565a3c49 file=samples/WpfTextDemo/ACCEPTANCE-BASELINE.md`（命令：`sed -n '9p' docs/CURRENT-STATE.md`）
+⏪ **机器值契约更正 · cell=#4**：以现取为准；`ts=2026-09-28T17:49:01.698+0800` 时 现值 ＝ `DEFREG=PASS declared=218 route_ids=218（每个声明编号在其 req 的每个 route 文件里都在；无未声明编号）`（命令：`bash build/MilBridge/tools/defect-registry-check.sh | tail -1`）
+⏪ **机器值契约更正 · cell=#5**：以现取为准；`ts=2026-09-28T17:49:01.698+0800` 时 现值 ＝ `61`（命令：`grep -c '^run_step "' verify-all.sh`）
+⏪ **机器值契约更正 · cell=#6**：以现取为准；`ts=2026-09-28T17:49:01.698+0800` 时 现值 ＝ `w*-POST.done=25／*record*=49`（命令：`printf 'w*-POST.done=%s／*record*=%s' "$(ls -1 ~/w21-verify/w*-POST.done 2>/dev/null | wc -l)" "$(ls -1 ~/w21-verify/*record* 2>/dev/null | wc -l)"`）（**口径**：改用**全量**计数命令；行内 `w6*` glob 只覆盖 10 枚。）
+⏪ **机器值契约更正 · cell=#7**：以现取为准；`ts=2026-09-28T17:49:01.698+0800` 时 现值 ＝ `1d136ca`（命令：`git log --oneline -1 | cut -c1-7`）（**口径**：远端面 `git ls-remote` **需网络** ⇒ 不入门禁牙；本格只对拍**本地 `HEAD`** 短号。）
+⏪ **机器值契约更正 · cell=#8**：以现取为准；`ts=2026-09-28T17:49:01.698+0800` 时 现值 ＝ `11`（命令：`git status --porcelain | grep -v 'build/MilBridge/HANDOFF-NEXT.md' | wc -l`）（**口径**：排除本件自身 ⇒ **自指免疫**；「有无链在跑」无仓内权威机读读者 ⇒ `NOINFO(reason=在跑状态无仓内权威读者)`。）
+⏪ **机器值契约更正 · cell=#9**：以现取为准；`ts=2026-09-28T17:49:01.698+0800` 时 现值 ＝ `f951e80b55e85782`（命令：`sed -n '104,115p' build/MilBridge/tools/wave-freeze-consistency-check.py | sha256sum | cut -c1-16`）（**口径**：本格按**权威路径表**这一半对拍（`wave-freeze-consistency-check.py:104-115` 内容 sha16）；九值本身须**重建波**现取 ⇒ `NOINFO(reason=九值需重建波现取)`。）
+
+
+### ⏪ **dated 接线账 · W4b 合波（`B-11`／`B-15`／`B-18` 三牙 ＋ 四处声明 ＋ 覆盖面 229 → 233 ＋ 步数 58 → 61）（`t48`，读时 2026-09-28T17:49:49.316+0800）**
+
+⏪ **编号现取**：本区**编号块**最后一条 ＝ **第 `25` 条**（`t47` 落，块头现取 `:422`，仅本次有效）⇒ 本条 ＝ **第 `26` 条**（**账条**：W4b 合波接线）。
+⏪ **三条牙同趟接线（现取，`ts=2026-09-28T17:49:49.316+0800`）**：`verify-all.sh`（仓根）**`324af17e7318a4a0` → `742175bffd5a175d`**（`1312 → 1321` 行）；新增 `HANDOFF-MV`（`build/MilBridge/tools/handoff-machine-values-check.sh` `4e289b3d30bee315`）／`PUSH-MARKER`（`push-marker-check.sh` `6294d59bd248c7bb`，写入端 `push-marker-write.sh` `2f9b07b3f5094444` 由**集成腿**驱动、**不为步**）／`PROVIDER-REPRO`（`provider-repro-check.sh` `8b9662e5c01c377d`）；`^run_step "` **58 → 61**（三条**各成一步**，共用一次加步窗口）。
+⏪ **四处声明同趟（现取，`ts=2026-09-28T17:49:49.316+0800`）**：① 首行 `# VERIFYALL-STEPS-DECL: 61 gen=#81`（动态锚＝文件里第一行 `# VERIFYALL-STEPS-DECL`）｜② 头注释口径句 `**`#81` 收官起 = 61 步**`｜③ `# VERIFYALL-STEP-NAMES:` **58 → 61 项**｜④ 预登记 `docs/WAVE81-PREREGISTRATION.md`（`c95deaaa1b906a72`，dated 追加）。**既有史实行只追加、未改**。
+⏪ **覆盖面 ＋ `--expect`（现取，`ts=2026-09-28T17:49:49.316+0800`）**：`build/close-wave.sh` **`be7a581b5f88621d` → `69c39feabe148c62`**（白名单 **+4 行＝件路径身份**：三件新件 ＋ 写入端）⇒ 覆盖面 **`229 → 233`**；第 `[42]` 步 `--expect` **`229 → 233`**（现取 `:1197 → :1199`）。
+⏪ **三颗 `W4a` 牙件头陈旧自述收口（现取，`ts=2026-09-28T17:49:49.316+0800`）**：`sentinel-spec-check.sh`（`063cfab87fc40876`）／`wave-push.sh`（`c2cff1b3d4e4ebcd`）／`timestamp-order-check.sh`（`5c0320c779e71fc8`）三处按 **dated 追加**写成「**已接线**：`verify-all.sh` 步名 … ＋ 覆盖面已计入（现取件数 **233**）」，**写在首个 `^set -` 行之前**（`header_of()` 的截断点，`HEAD_MAX=60`）、**原句一字未删**；字样表里 `未接线`／`不进 verify-all` **一律不出现** ⇒ `w=1 ∧ hit=1 ⇒ PASS`。
+⏪ **`SELFDESC-WIRING` 成对读数（现取，`ts=2026-09-28T17:49:49.316+0800`）**：写前 `examined=68 wired=47 unwired=21 undeclared=53 selfdesc_notwired=3 selfdesc_wired=12 fails=0` ⇒ 写后 **`examined=72 wired=50 unwired=22 undeclared=51 selfdesc_notwired=3 selfdesc_wired=18 fails=0`**（`SELFDESC_WIRING=PASS`）。**预测 vs 实测如实记**：我预告 `selfdesc_wired 12→15`／`undeclared 53→50`；实测 **18／51** —— 差额 ＝ 新增四件里三件（`handoff-machine-values-check.sh`／`push-marker-check.sh`／`provider-repro-check.sh`）件头写了 `已接线`（+3）、`push-marker-write.sh` 写的是「未被 `run_step` 直接调用」（不命中任何字样 ⇒ `undeclared` +1）⇒ `12+6=18` ∧ `53-3+1=51` **逐格对得上**。三牙逐件行现取各一条 `SELFDESC_FILE file=… header=selfdesc-wired run_step=hit verdict=PASS rule=-`（写前**根本不出现**）。
+⏪ **三颗牙的成对腿（原样输出已随交件；`ts=2026-09-28T17:49:49.316+0800`）**：`HANDOFF_MV=PASS cells=9 equal=9`（反极夹具改最后一次更正一位 ⇒ `HANDOFF_MV=FAIL` ＋ `HANDOFF_MV_HIT cell=#2 … in-repo=234 live=233`）｜`PUSHMARKER=PASS mode=integration fields=3 antipole-empty-value=red antipole-missing-field=red`（反极两腿：空值 ⇒ `rule=empty-value`、缺行 ⇒ `rule=missing-field`，均点名）｜`PROVIDER_REPRODUCIBLE=no a_sha16=24e4e0a731dbed40 b_sha16=7e8a217b4165a6b9`（**上屏、不判红**；自造夹具两极 `PROVIDER_REPRO_SELFTEST=PASS cases=2`）。
+⏪ **`inputs_fp`（现取，`ts=2026-09-28T17:49:49.316+0800`）**：入口 **`b6baab2649d104e9…`／`229`** ⇒ 交付态 **`c525f7df9fd47bf5…`／`233`**；**逐件归因** ＝ 名单面 **+4 件**（`handoff-machine-values-check.sh`／`push-marker-write.sh`／`push-marker-check.sh`／`provider-repro-check.sh`）＋ 内容面 **7 件**（三颗 `W4a` 牙件头更正 ＋ 四件新件本体）＋ `close-wave.sh` **自身**。
+⏪ **本笔自伤五条（如实记，全部零损伤、均已修）**：① 新件 `push-marker-check.sh` 件头两行被我误写成 `//`（非 `#`）⇒ bash 把 `//`／`~/w14a` 当命令执行（stderr 可见）⇒ 已改 `#`；② B-11 牙的 `split_row` **没把转义竖线哨兵还原** ⇒ 命令被拼错（`live` 成垃圾）⇒ 已还原；③ `corr_of` 原先**取第一条**更正 ⇒ 追加的更正行无法取代旧行 ⇒ 已改为**最后一条为准**（只增不改的自然语义）；④ cell=#8 的命令**把本件自己算进去** ⇒ 我自己的追加会改它的值（**自指**，`t42`／`t44` 同族）⇒ 已换成 `grep -v` 排除本件并逐字记口径；⑤ 写入端件头写了 `已接线` 而它**不是步**（`run_step=miss`）⇒ `SELFDESC-WIRING` 当场 `rule=reverse` 红（`fails=1`）⇒ 已改为「未被 `run_step` 直接调用（生产端）」。另：`WIRING_CLOSURE` 首跑 3 条命中（两件新牙的 `reason=usage:unknown-arg` 落在黑名单族 `usage(:.*)?` ＋ 写入端 `undeclared-jaw`）⇒ 改名 `arg-not-accepted` ＋ 去掉写入端 `--selftest` 钩子后 `fails=0`。
+⏪ **`NOINFO`（具名）**：① **B-18 真腿**（连跑两次真实 `dotnet build`）**归重活波** ⇒ 本波只落牙与口径（`reason=真腿归重活波`）｜② **仓外历史标记**（`~/w14a` 现取 10 枚、**缺行 6 处／空值 0 处**）**不入门禁**（非本波写域）⇒ 判据端真腿另排｜③ **未跑整趟 `verify-all`**（会构建 ⇒ `provider` 位位移，正是 `B-18` 现象）｜④ cell=#8 的「有无链在跑」**无仓内权威机读读者**｜⑤ cell=#9 的**九值本身**须重建波现取。
+
+### ⏪ **dated · 机器值 9 格「现取形态」交付态终值（取代上文各格更正；`t48`／W4b，读时 2026-09-28T17:51:30.670+0800）**
+
+⏪ **读法（写死）**：取值优先级 ＝ **最后一条 `机器值契约更正 · cell=#N` 为准**；本块是**交付态**的九格真值（同行命令现跑取得）。**表原文与上文各更正行一字未删**。
+
+⏪ **机器值契约更正 · cell=#1**：以现取为准；`ts=2026-09-28T17:51:30.670+0800` 时 现值 ＝ `cf1db0977551a6d7213c0293a4cbf8545a025184caf14f1d5a6823f41de6ba7d`（命令：`bash ~/w153a/bin/infp.sh fp`）
+⏪ **机器值契约更正 · cell=#2**：以现取为准；`ts=2026-09-28T17:51:30.670+0800` 时 现值 ＝ `233`（命令：`bash ~/w153a/bin/infp.sh list | wc -l`）
+⏪ **机器值契约更正 · cell=#3**：以现取为准；`ts=2026-09-28T17:51:30.670+0800` 时 现值 ＝ `> BASELINE-FROZEN gen=#80 sha16=b96d4312565a3c49 file=samples/WpfTextDemo/ACCEPTANCE-BASELINE.md`（命令：`sed -n '9p' docs/CURRENT-STATE.md`）
+⏪ **机器值契约更正 · cell=#4**：以现取为准；`ts=2026-09-28T17:51:30.670+0800` 时 现值 ＝ `DEFREG=PASS declared=218 route_ids=218（每个声明编号在其 req 的每个 route 文件里都在；无未声明编号）`（命令：`bash build/MilBridge/tools/defect-registry-check.sh | tail -1`）
+⏪ **机器值契约更正 · cell=#5**：以现取为准；`ts=2026-09-28T17:51:30.670+0800` 时 现值 ＝ `61`（命令：`grep -c '^run_step "' verify-all.sh`）
+⏪ **机器值契约更正 · cell=#6**：以现取为准；`ts=2026-09-28T17:51:30.670+0800` 时 现值 ＝ `w*-POST.done=25／*record*=49`（命令：`printf 'w*-POST.done=%s／*record*=%s' "$(ls -1 ~/w21-verify/w*-POST.done 2>/dev/null | wc -l)" "$(ls -1 ~/w21-verify/*record* 2>/dev/null | wc -l)"`）
+⏪ **机器值契约更正 · cell=#7**：以现取为准；`ts=2026-09-28T17:51:30.670+0800` 时 现值 ＝ `1d136ca`（命令：`git log --oneline -1 | cut -c1-7`）
+⏪ **机器值契约更正 · cell=#8**：以现取为准；`ts=2026-09-28T17:51:30.670+0800` 时 现值 ＝ `11`（命令：`git status --porcelain | grep -v 'build/MilBridge/HANDOFF-NEXT.md' | wc -l`）
+⏪ **机器值契约更正 · cell=#9**：以现取为准；`ts=2026-09-28T17:51:30.670+0800` 时 现值 ＝ `f951e80b55e85782`（命令：`sed -n '104,115p' build/MilBridge/tools/wave-freeze-consistency-check.py | sha256sum | cut -c1-16`）
+
+⏪ **机器值契约更正 · cell=#8（取代上文同格各条）**：以现取为准；`ts=2026-09-28T17:53:15.136+0800` 时 现值 ＝ `11`（命令：`git status --porcelain | grep -v 'build/MilBridge/HANDOFF-NEXT.md' | grep -v 'build/MilBridge/P1-w4b-report.md' | wc -l`）（**口径（写死，取代上文#8各口径）**：本格判「**本波两个自写件之外**的树内脏件行数」—— 排除 `build/MilBridge/HANDOFF-NEXT.md`（本件）与 `build/MilBridge/P1-w4b-report.md`（本波交件载体），两者都会**随本波每次追加而动**（自指）⇒ 排除后该值在交付态**稳定**，且仍能看见**别的车道冒出的新脏件**；「有无链在跑」仍**无仓内权威机读读者** ⇒ `NOINFO(reason=在跑状态无仓内权威读者)`。）

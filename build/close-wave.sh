@@ -388,7 +388,11 @@ tests/WpfGfx.Linux.Tests/Commands.Tests/tools/verify-cmd-layout.py \
           build/MilBridge/tools/devices/dev-selftest.c \
             build/MilBridge/tools/sentinel-spec-check.sh \
             build/MilBridge/tools/wave-push.sh \
-            build/MilBridge/tools/timestamp-order-check.sh
+            build/MilBridge/tools/timestamp-order-check.sh \
+            build/MilBridge/tools/handoff-machine-values-check.sh \
+            build/MilBridge/tools/push-marker-write.sh \
+            build/MilBridge/tools/push-marker-check.sh \
+            build/MilBridge/tools/provider-repro-check.sh
     } | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -d' ' -f1
 }
 sha16() { sha256sum "$1" 2>/dev/null | cut -c1-16; }
