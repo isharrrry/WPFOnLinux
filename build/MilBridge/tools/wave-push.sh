@@ -73,13 +73,49 @@ case "$MODE" in
     [ "$rc" -eq 0 ] || { echo "WPW=FAIL reason=value-unavailable（见 none(...)）" >&2; exit 1; }
     echo "WPW=DRYRUN lines=13 keys=13" >&2 ;;
   --write|'')
-    T="$(mktemp)"; trap 'rm -f "${T:-}"' EXIT
+    T="$(mktemp)"; trap 'rm -f "${T:-}" "${T:-}".bakA "${T:-}".bakB "${T:-}".errA "${T:-}".errB "${T:-}".derr' EXIT
     emit > "$T"
     if [ "$(wc -l < "$T")" -ne 13 ]; then echo "WPW=FAIL reason=lines!=13 got=$(wc -l < "$T")" >&2; exit 1; fi
     if grep -q 'none(' "$T"; then echo "WPW=FAIL reason=value-unavailable（哨兵**不许**落 none(...)）" >&2; exit 1; fi
-    install -m 644 "$T" "$S_A"
-    mkdir -p "$(dirname "$S_B")"; install -m 644 "$T" "$S_B"
-    if cmp -s "$S_A" "$S_B"; then echo "WPW=PASS sentinels=2 cmp=IDENTICAL lines=13 keys=13 a=$S_A b=$S_B"; exit 0
-    else echo "WPW=FAIL reason=sentinels-differ a=$S_A b=$S_B" >&2; exit 1; fi ;;
+    # ⏪ dated 加固（`t29`，读时 2026-09-28T16:28:37.377+0800；`t22` §V2）：① **写前目录闸**（两枚父目录缺 ⇒ 先建；建不动／不可写／
+    #   目标不是普通件 ⇒ **明确拒跑并点名**，**禁止隐式部分写**）；② 任一 `install` 失败 ⇒ **判词第一行点名真因**
+    #   （哪一枚／哪一步／哪条命令／`stderr` 首行）＋ **回滚**，保证两枚都不留半成品。
+    #   测试钩子（只在显式设置时生效）：`WPW_TEST_FORCE_FAIL=write-B` ⇒ 在第 `2` 枚上强制失败，用于证明**回滚真跑**。
+    DA="$(dirname -- "$S_A")"; DB="$(dirname -- "$S_B")"
+    for d in "$DA" "$DB"; do
+      if ! mkdir -p "$d" 2>"$T".derr; then
+        echo "WPW=FAIL reason=target-dir-unusable step=preflight dir=$d cmd=\"mkdir -p $d\" stderr=$(head -n 1 "$T".derr)"; exit 1
+      fi
+      if [ ! -w "$d" ]; then
+        echo "WPW=FAIL reason=target-dir-unwritable step=preflight dir=$d cmd=\"test -w $d\""; exit 1
+      fi
+    done
+    for p in "$S_A" "$S_B"; do
+      if [ -e "$p" ] && [ ! -f "$p" ]; then
+        echo "WPW=FAIL reason=target-not-a-regular-file step=preflight path=$p（"install" 对目录会静默拷进去 ⇒ 必须先拒）"; exit 1
+      fi
+    done
+    [ -f "$S_A" ] && cp -p "$S_A" "$T".bakA
+    [ -f "$S_B" ] && cp -p "$S_B" "$T".bakB
+    pre_A="$([ -f "$S_A" ] && sha256sum "$S_A" | cut -c1-16 || echo absent)"
+    pre_B="$([ -f "$S_B" ] && sha256sum "$S_B" | cut -c1-16 || echo absent)"
+    now_of() { [ -f "$1" ] && sha256sum "$1" | cut -c1-16 || echo absent; }
+    rollback() {
+      [ -f "$T".bakA ] && install -m 644 "$T".bakA "$S_A"
+      [ -f "$T".bakB ] && install -m 644 "$T".bakB "$S_B"
+      echo "WPW_ROLLBACK why=$1 A=$S_A pre=$pre_A now=$(now_of "$S_A") | B=$S_B pre=$pre_B now=$(now_of "$S_B")"
+    }
+    if ! install -m 644 "$T" "$S_A" 2>"$T".errA; then
+      echo "WPW=FAIL reason=install-failed step=write-A sentinel=A path=$S_A cmd=\"install -m 644 <tmp> $S_A\" stderr=$(head -n 1 "$T".errA)"
+      rollback write-A; echo "WPW=FAIL partial=none（A 未写入、B 尚未动）"; exit 1
+    fi
+    if [ "${WPW_TEST_FORCE_FAIL:-}" = "write-B" ] || ! install -m 644 "$T" "$S_B" 2>"$T".errB; then
+      echo "WPW=FAIL reason=install-failed step=write-B sentinel=B path=$S_B cmd=\"install -m 644 <tmp> $S_B\" stderr=$(head -n 1 "${T}".errB 2>/dev/null || echo forced-by-test-hook)"
+      rollback write-B; echo "WPW=FAIL partial=none（A 已回滚到 pre）"; exit 1
+    fi
+    if cmp -s "$S_A" "$S_B"; then echo "WPW=PASS sentinels=2 cmp=IDENTICAL lines=13 keys=13 a=$S_A b=$S_B sha16=$(sha256sum "$S_A" | cut -c1-16)"; exit 0
+    else
+      echo "WPW=FAIL reason=sentinels-differ a=$S_A b=$S_B sha16_a=$(now_of "$S_A") sha16_b=$(now_of "$S_B")（**两枚都写成功**才可能走到这里 ⇒ 不是部分写）"
+      exit 1; fi ;;
   *) echo "用法: $0 [--dry-run|--write]" >&2; exit 2 ;;
 esac
