@@ -39,7 +39,7 @@
 ## §3 队列（一条改动 → 一次冻结）
 1. **`#77` 已落地**：`TASK-0740`＋`0742`＋`0744`＋`0745`（W180A 包）＋ 主控同趟追加（仓根 props 牙，**折叠进 `[9]`、不动步数**）＋ **21 件旧路径重指向**：步数 `47→50`／覆盖面 `205→211`／`--expect` **同趟现取**。随后 **`0747`**（W181A，`wsh` 必动 ⇒ 冻结闸 `allow_changed` 要含它）；再 **`#78`**＝`D-G147`＋显示号租借＋`0744-FU`（串行落地、数字现取）。
 2. 未闭 `[Next]`（现取）：`TASK-0747`（W181A 包已就绪、等落地窗口；`0740`／`0742`／`0744`／`0745` 已由 `#77` 办）；`TASK-0720`／`0721`／`0732`／`0741`／`0746` **本批已翻 ✅**；`TASK-0709`–`0719`／`0722`–`0739`／`0743` 早已 ✅。
-3. 未绿 `[MVP]`：`TASK-0007`（富文本 23／流文档 24 `rc=134`，真因 `TASK-0302`）｜`TASK-0201`（静默 `rc=139`，上界已收到 4.87%）｜`TASK-0302`（PTS／原生 LineServices 缺口 **可操作 88／实现口径 95**，现读 `工具口径 100`）。
+3. 未绿 `[MVP]`：`TASK-0007`（富文本 23／流文档 24 `rc=134`，真因 `TASK-0302`）｜`TASK-0201`（静默 `rc=139`，上界已收到 4.87%）｜`TASK-0302`（PTS／原生 LineServices 缺口 **可操作 87／实现口径 93**，现读 `工具口径 100`）。
 4. `TASK-0111` = ✅ **归档为「不可判 ＋ 已知无产品价值」**（号不撤）：① 该红已被 `#54`/`TASK-0210` 修掉（现行桥 `4e25e4b27d4d5ae1` 上 `0/12` 红 vs 旧件 `12/12`）⇒ **产品价值 = 0**；② `A` 臂红率**随时间漂移**（`12/12 = 100%` → `7/28 = 25.0%`）⇒ `P1` 被排除 ⇒ **整批 `VOID-PREMISE`、40 腿不跑**；`N1` 作为修法**撤回**。判据件：`~/w156a/{criteria.md,leg-plan.md,AMENDMENT-1.md,AMENDMENT-2.md,WAVE-PREREG-0111.md}`｜装置 `~/w155a/device/wpfhintsgate.so 3c2a36580a7806f6`。
 
 ### §4-追（`t17` dated 更正，2026-09-26；**§1–§3 原文保留**）
@@ -573,3 +573,7 @@ flock -n ~/heavy.lock -c 'echo SLOT=FREE' || echo SLOT=HELD; free -m | awk 'NR==
 ⏪ **机器值契约更正 · cell=#5**：以现取为准；`ts=2026-09-28T19:31:59.349+0800` 时 现值 ＝ `62`（命令：`grep -c '^run_step "' verify-all.sh`）（**`t62` 步数 61 → 62**。）
 ⏪ **成对读数（修前 → 修后，捕获式）**：`[HANDOFF-MV]` **修前** `rc=1`／`DIVERGED … mismatch=3 reasons=,#1:covered-file-changed-since-ts,#2:count-changed-since-ts,#5:count-changed-since-ts` ⇒ **修后** `rc=0`／`HANDOFF_MV=PASS cells=9 equal=8 manual=1 mismatch=0 uncomparable=0 reasons=none`（原样见交件载体 `build/MilBridge/P1-staticjaws-close-report.md`）｜`static-jaws-check.sh` 正极 **修前**（`t62` 现取 `ts=2026-09-28T19:26:31.917+0800`）`STATICJAWS=FAIL fails=1 n=31 excluded=31 noinfo=1 n_total=62`（唯一红 ＝ `HANDOFF-MV`）⇒ **修后见交件载体**｜**条在位自检命令**现取 ＝ `1`。
 ⏪ **`NOINFO`（具名，既不算绿也不算红）**：① **未跑整趟门禁**（会构建 ⇒ `provider` 位位移，`B-18` 在册）⇒ 端到端绿**未验**，本趟只跑该两牙 ＋ 四条不变量 ＋ 哨兵｜② **实例②「当时」的手抄值本席未见**（该表列自 `t48` 起为留档、原文未存）⇒ 只引 `t48` 块的**逐字自述**，**不声称**复核过那些手抄值｜③ `static-jaws-check.sh` 射程外的 **`31` 步**（构建／显示位／腿批／带参）本趟**未跑**。
+
+⏪ **机器值契约更正 · cell=#1**（波 W7 · `t63`，**改了覆盖面内件** ⇒ 按第 `28` 条同趟追写）：以现取为准；`ts=2026-09-28 20:50:00.718845769 +0800` 时 现值 ＝ `37b6131378bccb6843eeb4f2327c2e6260448e60bf929d76c1563eb9a7cead71`（命令：`bash ~/w153a/bin/infp.sh fp`）
+
+⏪ **机器值契约更正 · cell=#1**：以现取为准；`ts=2026-09-28T20:58:18.241+0800` 时 现值 ＝ `3cdd4b77d98f16b641469dd7ca733d9f21943fff568d37d7f0679029915c74be`（命令：`bash ~/w153a/bin/infp.sh fp`）（**`t68` 改了覆盖面内两件**（`build/MilBridge/tests/PtsPagesProbe/session_inner.sh`／`run-pts-pages-legs.sh` 的占用闸与调用链）**＋ 官方腿路真跑换代**（`evidence/arm_A/leg_23.env`／`leg_24.env` ＋ `evidence/app_g1.log`）⇒ 本格随之刷新；维护契约见第 `28` 条。⚠️ 同刻 `runner` 在跑 `t67`（会改 `build/MilBridge/arm-logs/**` 等覆盖面内件）⇒ 若本格此后又变，按第 `28` 条追写、并**逐件归因给对方**，别算成本趟的位移。）

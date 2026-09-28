@@ -46,7 +46,7 @@
 #      而本件的真名是 `…-check.sh` ⇒ 那句引用**永远跑不起来**。抽到 **0 条引用** ⇒
 #      `PTSGAP_CITED=NOINFO`（**响亮**，但不改 `rc` —— 它是辅助轨，不是本牙的判定本体）。
 #
-# 【两极化（`--selftest`，7 腿，其中 5 腿断言「必须红」）】合成夹具，不需要 `$R` 的真正文：
+# 【两极化（`--selftest`，**9 腿**，其中 **6 腿**断言「必须红」；`t63`/W7 加 L8/L9 两条前沿腿）】合成夹具，不需要 `$R` 的真正文：
 #   L1 正极性（全部复述位 == 现算 ∧ 声明自洽）⇒ `PASS`｜L2 正文某处 +1 ⇒ `FAIL` 并点名该件
 #   ｜L3 声明 `ops` +1 ⇒ `FAIL` `DRIFT ops`｜L4 复述位整件缺席 ⇒ `FAIL SITE-ABSENT`
 #   ｜L5 复述位在但抽不到（形态漂移）⇒ `FAIL SITE-NOHIT`｜L6 声明件缺席 ⇒ `NOINFO`＋`rc=3`
@@ -65,6 +65,14 @@
 #     ⇒ 「文档被改」**不**移动 `inputs_fp`；但改了**数**会在**每一次冻结**当场可见（本牙每次都跑）。
 #     这是**如实登记的射程边界**，不是疏漏（见 `criteria.md` §4）。
 #
+# 【`t63`／W7 新增的三条口径（**写死，防后人改读法**）】
+#   ① **进度 ＝ 具名前沿跳数**，**不是缺口条数** —— `impl = ops + stubs` 是**缺口计数**
+#      ⇒ **真进步让它下降**（本增量实测 `95 → 94`：能力前进一格，数却变小）⇒ 计数口径在本增量上**读反了**。
+#   ② 门禁步 `PTS-PAGES` **只读** `leg_*.env` 的列（`alive`／`app_rc`／`magenta`／`colors`），
+#      **不读 `entry=`** ⇒ **它的绿对「前沿位移」零证据力**（不许拿 `PTS-PAGES=PASS` 当进度证据）。
+#   ③ 前沿读数的**唯一载体** = `build/MilBridge/tests/PtsPagesProbe/evidence/app_g1.log` 里的**具名**
+#      `entry=<名>` 行 ＋ `PTS_GAP entry=<名>` 台账行（应用侧自报）；「下一站**无名**」（应用只记
+#      `entry=unknown`）**不算具名进度** ⇒ 印 `PTSGAP_FRONTIER_STATE=UNNAMED`（响亮、不翻 rc，但**绝不是绿**）。
 # 【成本】纯读、零 `dotnet`、不写 `$R`；现测 < 3 s。
 # 【卫生】临时件一律 `mktemp -d` ＋ `trap … EXIT` 自清；**不用**共享 `/tmp`
 #   （根默认 `$HOME/.cache/wpf-linux/tmp`，可用 `PTSGAP_TMPROOT` 覆盖）。
@@ -170,9 +178,10 @@ selftest() {
   printf '# PTSGAP-DECL: tool=%s dead=%s artifact=%s ops=%s impl=%s so16=%s exports=%s w66pre16=%s\n' \
       "$TOOL" "$DEAD" "$ARTI" "$OPS" "$IMPL" "$SO16" "$EXPORTS" "${W66:-none}" >"$fx/decl.txt"
 
-  leg() { # <腿名> <期望判词> <期望子串> <SITES> <DECL>
-    local name="$1" want="$2" sub="$3" s="$4" d="$5" out v
-    out=$(SITES="$s" DECL="$d" R="$R" PTSGAP_TMPROOT="$TMPD" bash "$SELF" --check 2>&1; echo "RC=$?")
+  leg() { # <腿名> <期望判词> <期望子串> <SITES> <DECL> [额外 env…]
+    local name="$1" want="$2" sub="$3" s="$4" d="$5"; shift 5
+    local out v
+    out=$(env "$@" SITES="$s" DECL="$d" R="$R" PTSGAP_TMPROOT="$TMPD" bash "$SELF" --check 2>&1; echo "RC=$?")
     case "$out" in *"PTSGAP=PASS"*) v=PASS ;; *"PTSGAP=FAIL"*) v=FAIL ;;
                     *"PTSGAP=NOINFO"*) v=NOINFO ;; *) v=OTHER ;; esac
     if [ "$v" = "$want" ] && { [ -z "$sub" ] || grep -qF -- "$sub" <<< "$out"; }; then
@@ -202,7 +211,16 @@ selftest() {
   sed 's/so16=[0-9a-f]*/so16=0000000000000000/' "$fx/decl.txt" >"$TMPD/decl-so.txt"
   leg "L7 内容锚 so16 造假（必须红）" FAIL "DRIFT so16" "$fx" "$TMPD/decl-so.txt"
 
-  printf 'PTSGAP_SELFTEST=%s pass=%d fail=%d legs=7 must_red=5\n' \
+  # ── `t63`／W7 新增两腿（前沿）：L8 假进度**必红**｜L9 前沿**真位移** ⇒ **不得假红** ──────
+  #  夹具载体：一份只含 `entry=LoCreateContext`（未位移）／另一份含 `entry=CreateDocContext`（已位移）
+  printf 'TAB entry=LoCreateContext\n' >"$TMPD/fr-notmoved.log"
+  printf 'TAB entry=CreateDocContext\n' >"$TMPD/fr-moved.log"
+  leg "L8 计数下降而前沿未动（假进度**必须红**）" FAIL "FAKE-PROGRESS" "$fx" "$fx/decl.txt" \
+      PTSGAP_FRONTIER_CARRIER="$TMPD/fr-notmoved.log" PTSGAP_FR_BASELINE_IMPL="$((IMPL+1))"
+  leg "L9 计数下降且前沿真位移（**不得假红**）" PASS "" "$fx" "$fx/decl.txt" \
+      PTSGAP_FRONTIER_CARRIER="$TMPD/fr-moved.log" PTSGAP_FR_BASELINE_IMPL="$((IMPL+1))"
+
+  printf 'PTSGAP_SELFTEST=%s pass=%d fail=%d legs=9 must_red=6\n' \
       "$([ "$nfail" -eq 0 ] && echo PASS || echo FAIL)" "$npass" "$nfail"
   [ "$nfail" -eq 0 ] || return 1
   return 0
@@ -281,6 +299,32 @@ while IFS= read -r ref; do
 done < <(grep -ohE 'bash [A-Za-z0-9_./-]+\.sh' "$LINES" 2>/dev/null | awk '{print $2}' | LC_ALL=C sort -u)
 echo "PTSGAP_CITED=$CITED refs=$CIT_N strict=$CITED_STRICT"
 [ "$CITED" = NOINFO ] && echo "  ⚠️ 复述位里一条 bash 命令引用都没抽到 ⇒ 辅助轨不可判（**这不是绿**）"
+
+# ── ③c 前沿成对 ＋ 假进度判红（`t63`／W7 新增；口径见件头 ①②③）────────────────────
+FR_CARRIER="${PTSGAP_FRONTIER_CARRIER:-$R/build/MilBridge/tests/PtsPagesProbe/evidence/app_g1.log}"
+FR_BEFORE_NAME="${PTSGAP_FR_BEFORE_NAME:-LoCreateContext}"     # 本增量**之前**的具名前沿（声明值）
+FR_BEFORE_N="${PTSGAP_FR_BEFORE_N:-3}"                         # 其台账行计数（声明值）
+FR_BASELINE_IMPL="${PTSGAP_FR_BASELINE_IMPL:-95}"              # 本增量**之前**的 impl（假进度判据的基线）
+if [ -s "$FR_CARRIER" ]; then
+  FR_NOW="$(grep -ao 'entry=[A-Za-z0-9_]*' "$FR_CARRIER" 2>/dev/null | sort | uniq -c | sort -rn | head -1 | awk '{print $2}')"
+  FR_NOW_N="$(grep -ac "entry=${FR_NOW#entry=}" "$FR_CARRIER" 2>/dev/null || true)"; FR_NOW_N="${FR_NOW_N:-0}"
+  FR_SHA="$(sha256sum "$FR_CARRIER" 2>/dev/null | cut -c1-16)"
+  FR_MT="$(stat -c '%y' "$FR_CARRIER" 2>/dev/null)"
+  echo "PTSGAP_FRONTIER before=${FR_BEFORE_NAME}@${FR_BEFORE_N} after=${FR_NOW#entry=}@${FR_NOW_N} carrier_sha16=$FR_SHA carrier_mtime=${FR_MT:-?} ts=$(date '+%F %T.%N %z')"
+  case "${FR_NOW#entry=}" in
+    ''|unknown)
+      echo "PTSGAP_FRONTIER_STATE=UNNAMED（载体里**没有具名前沿**：应用侧只记 ${FR_NOW#entry=} ⇒ 本增量**不计具名进度**；**这不是绿**）" ;;
+    *)
+      echo "PTSGAP_FRONTIER_STATE=NAMED frontier=${FR_NOW#entry=}（具名前沿成立）" ;;
+  esac
+  # (B) **假进度必红**：计数下降（impl < 基线）∧ 前沿名**未动** ⇒ `#66` 的 `P03` 形态
+  if [ "$IMPL" -lt "$FR_BASELINE_IMPL" ] && [ "${FR_NOW#entry=}" = "$FR_BEFORE_NAME" ]; then
+    echo "  FAKE-PROGRESS impl=$IMPL < 基线 $FR_BASELINE_IMPL 而前沿仍是 ${FR_BEFORE_NAME} ⇒ **名字离开名单而能力为 0**（假进度）"
+    rc=1
+  fi
+else
+  echo "PTSGAP_FRONTIER=NOINFO reason=carrier-absent($FR_CARRIER)（载体不在 ⇒ 前沿不可判；**不许当绿**）"
+fi
 
 # ── ④ 判词 ────────────────────────────────────────────────────────────────────────
 if [ "$rc" -eq 0 ]; then echo "PTSGAP=PASS $LIVE"; else echo "PTSGAP=FAIL $LIVE"; fi
