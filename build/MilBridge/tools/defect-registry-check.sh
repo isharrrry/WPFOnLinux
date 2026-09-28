@@ -11,6 +11,9 @@
 #                                             ⇒ DEFREG=NOINFO reason=decl-unparsable（**不许当红也不许当绿**）
 #   ③ 声明里 `req=K1,K2` 的编号，在某一个 K 的 route 文件里**一次都没出现**
 #                                             ⇒ DEFREG=FAIL reason=declared-id-missing-in-route（**逐个点名**）
+#   ③′ 现场 route 出现集**超出** `req`（现场有、而 `req` 没写）        ⇒ DEFREG=FAIL reason=declared-id-extra-in-route（**逐个点名**）
+#      ⏪ 口径句（`B-12` 修法／`t49`）：**③ 与 ③′ 合起来 ⇒ `req` ≡ 现场 route 出现集**（`req` ＝ **要求集**）——
+#        「出现集减去 `req` 必须为空」；**缺一必红、多一亦必红** ⇒ 手工把 `req` 收窄成子集**不再静默 `PASS`**。
 #   ④ route 文件里出现、而声明里没有的编号      ⇒ DEFREG=FAIL reason=undeclared-id-in-route（**逐个点名**）
 #   ⑤ 只在 route 文件**之外**（`known-red*.json` / 报告 / 代码注释）出现的未声明编号
 #                                             ⇒ DEFREG=NOINFO reason=id-only-outside-registry（未登记，不许当绿）
@@ -127,6 +130,7 @@ emit_decl() {
   printf '# 词法边界（实测）：D-ZZ9 **不合法**（scope 段只许"1 个大写字母 + 数字量词 + 可选 1 个小写"）\n'
   printf '#   ⇒ 若真需要多位大写 scope，必须**同时**改 FAMRE 与本节说明（否则声明会被判 decl-unparsable）\n'
   printf '#   req=K1,K2  ⇒ 该编号在 K1 与 K2 的 route 文件里**各至少出现一次**（缺一个即 FAIL 点名）\n'
+  printf '#   ⏪ 口径句（`t49`／`B-12` 修法）：**`req` ＝ 要求集** —— ③ 缺一必红，③′ **多一亦必红** ⇒ 合起来 ⇒ **「出现集减去 `req` 必须为空」**（`req` 恰等于现场 route 出现集）\n'
   printf '#   req=-      ⇒ **家族名/scaffold**（如 `D-G`、`D-T`），不要求在缺陷册里有条目\n'
   printf '#   present=   ⇒ 仅"声明依据"（现场快照的并集），**不作判据**；与 `req` 冲突会被判 FAIL\n'
   for id in $all; do
@@ -170,7 +174,7 @@ run_check() {
   if [ "$n_decl" -eq 0 ]; then echo 'DEFREG=NOINFO reason=no-declaration（0 条 `ID<TAB>` 行）'; return 2; fi
 
   local declared; declared="$(printf '%s' "$decl" | grep '^ID	' | cut -f2 | sort -u)"
-  local missing='' undecl='' meta='' k p fid fl
+  local missing='' extra='' undecl='' meta='' k p fid fl
 
   # ②/③ 声明 ⇒ 现场；并核 `present=` 的**真实性**（照 baseline-sha-check.sh:66-77 的"独立子项"做法）：
   #    判据 = ① 声明的 `present=` 里列出的每一个键，现场**确实**有该编号（否则声明是伪证 ⇒ 点名 FAIL）；
@@ -207,6 +211,14 @@ run_check() {
   $id req=$k ROUTE-FILE-MISSING=$p"; continue; }
       [ -n "${ID2LINE["$k:$id"]:-}" ] || missing="$missing
   $id req=$k MISSING-IN=$k route=$p"
+    done
+    # ③′ 【`B-12` 修法｜`t49`】「出现集减去 `req` 必须为空」：现场 route 出现集**不得超出** `req`
+    #    —— 修前「同一份数据既生成又据以判」⇒ 手工收窄 `req` 会**静默 `PASS`**（欠报不可见）
+    for k in KD CS HO AB; do
+      case ",$req," in *",$k,"*) continue ;; esac
+      [ -n "${ID2LINE["$k:$id"]:-}" ] || continue
+      extra="$extra
+  $id extra-in=$k route=$(key_path "$k") req=$req first-seen=$k:${ID2LINE["$k:$id"]}"
     done
   done <<< "$declared"
 
@@ -253,12 +265,13 @@ run_check() {
   [ -n "$outside" ] && echo "DEFREG_UNREG=n=$(printf '%s' "$outside" | wc -w) ids=$(printf '%s' "$outside" | sed 's/^ //')"
 
   # 判定顺序是**判据的一部分**（不许依赖它"恰好"命中哪一条）：
-  #   缺号（声明⇒现场） > 未声明（现场⇒声明） > 声明自身的 `present=` 不诚实 > 只在 route 之外
+  #   缺号（声明⇒现场） > **多号（现场超出 `req`）** > 未声明（现场⇒声明） > 声明自身的 `present=` 不诚实 > 只在 route 之外
   [ -n "$meta" ] && printf 'DEFREG_DECLMETA=n=%s declared-present-not-matching-live（诊断，**不判红**）:%s\n' "$(printf '%s' "$meta" | grep -c .)" "$meta"
   [ -n "$missing" ] && { printf 'DEFREG=FAIL reason=declared-id-missing-in-route%s\n' "$missing"; return 1; }
+  [ -n "$extra" ]    && { printf 'DEFREG=FAIL reason=declared-id-extra-in-route%s\n' "$extra"; return 1; }
   [ -n "$undecl" ]  && { printf 'DEFREG=FAIL reason=undeclared-id-in-route%s\n' "$undecl"; return 1; }
   [ -n "$outside" ] && { echo 'DEFREG=NOINFO reason=id-only-outside-registry（只在 route 之外出现的未声明编号 ⇒ 未登记，**不许当绿**）'; return 2; }
-  echo "DEFREG=PASS declared=$n_decl route_ids=$n_route（每个声明编号在其 req 的每个 route 文件里都在；无未声明编号）"
+  echo "DEFREG=PASS declared=$n_decl route_ids=$n_route（每个声明编号在其 req 的每个 route 文件里都在 ∧ **现场 route 出现集未超出 req**；无未声明编号）"
   return 0
 }
 

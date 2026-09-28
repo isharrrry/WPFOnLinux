@@ -1,10 +1,11 @@
-# DECL-GEN = (--emit) 2026-09-28 16:37:35 +0800
+# DECL-GEN = (--emit) 2026-09-28 18:01:35 +0800
 # DECL-ANCHORS = KD=6a1ca425a94c4fae CS=13077b52c938f8af HO=a4d8ffcf4c37f6fe AB=b96d4312565a3c49 KRJ=6351a46296d17b28 KRF=ab09235afd949bc2 KRP=3c9e3a309b990d31
 # grammar: D-[A-Z][0-9]*[a-z]?(-[A-Za-z0-9]+)*
 # fields:  ID<TAB><id><TAB>req=<key,key,...|-><TAB>present=<key,key,...>
 # 词法边界（实测）：D-ZZ9 **不合法**（scope 段只许"1 个大写字母 + 数字量词 + 可选 1 个小写"）
 #   ⇒ 若真需要多位大写 scope，必须**同时**改 FAMRE 与本节说明（否则声明会被判 decl-unparsable）
 #   req=K1,K2  ⇒ 该编号在 K1 与 K2 的 route 文件里**各至少出现一次**（缺一个即 FAIL 点名）
+#   ⏪ 口径句（`t49`／`B-12` 修法）：**`req` ＝ 要求集** —— ③ 缺一必红，③′ **多一亦必红** ⇒ 合起来 ⇒ **「出现集减去 `req` 必须为空」**（`req` 恰等于现场 route 出现集）
 #   req=-      ⇒ **家族名/scaffold**（如 `D-G`、`D-T`），不要求在缺陷册里有条目
 #   present=   ⇒ 仅"声明依据"（现场快照的并集），**不作判据**；与 `req` 冲突会被判 FAIL
 ID	D-A1	req=KD,CS,HO,AB	present=KD,CS,HO,AB
