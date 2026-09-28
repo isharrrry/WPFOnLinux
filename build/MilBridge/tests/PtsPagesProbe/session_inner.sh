@@ -17,12 +17,78 @@ TAG="${1:?tag}"; shift
 [ $# -gt 0 ] || { echo "need >=1 group" >&2; exit 2; }
 D="${W67_DISPLAY:-:237}"
 # ⏪【`t14`／W2·B-9，读时 2026-09-28T16:02:39+0800】默认显示号**占用探测**（`D-G139` 同族：长跑自起的显示位必须按 PID 收净；**不许静默复用别人的号**）
-XDIR="${WPF_X11_DIR:-/tmp/.X11-unix}"
-if [ -S "$XDIR/X${D#:}" ]; then
-  echo "DISPLAY_OCCUPIED=$D sock=$XDIR/X${D#:} ⇒ 拒跑（号已被占；请用 W67_DISPLAY=<空闲号> 或先按 PID 收净）" >&2
+# ⏪【`t68`，读时 2026-09-28T20:54:02.855+0800】**修装置互斥 ＋ 占位保护名义化**（`D-G188`）。上一条判据的**原文逐字保留**在下面（一字未删），
+#   新判据在它之上加两条：① **官方调用者自有显示位（lease）放行** —— 否则本脚本会被**自己的调用者**拒死
+#   （`run-pts-pages-legs.sh` 起 `Xvfb :237` ⇒ 本闸判占用 ⇒ `PTS-PAGES` 腿路整条跑不起来）；② **`WPF_X11_DIR` 改写
+#   不得静默改判** —— 该改写让「被占的号」看着空闲 ⇒ 保护名义化。
+#   ── 原判据（逐字留档，不再生效）─────────────────────────────────────────────
+#     XDIR="${WPF_X11_DIR:-/tmp/.X11-unix}"
+#     if [ -S "$XDIR/X${D#:}" ]; then
+#       echo "DISPLAY_OCCUPIED=$D sock=$XDIR/X${D#:} ⇒ 拒跑（号已被占；请用 W67_DISPLAY=<空闲号> 或先按 PID 收净）" >&2
+#       exit 3
+#     fi
+#     echo "DISPLAY_LEASE=free display=$D sock=$XDIR/X${D#:}" >&2
+#   ── 新判据 ────────────────────────────────────────────────────────────────
+#   【射程句（写死）】**占用** ＝ 该号在**规范目录** `/tmp/.X11-unix` 或 `WPF_X11_DIR` 指向的目录里存在
+#     `X<n>` socket，**且不是**由本脚本**祖先链上的 lease 持有者**亲手起的**活** `Xvfb` 所持有；
+#     **放行** ＝ lease 五条全成立（① 常规件 ② 模式 `600` ③ `DISPLAY` 相符 ④ `OWNER_PID` 在本脚本祖先链上
+#     ⑤ 活 `Xvfb` 且其 `ppid` == `OWNER_PID`）。**两边都不判「空闲」时（socket 在任一边存在）才走 lease**。
+#   【防伪造】外人拿不到「你的祖先链」：`OWNER_PID` 必须是**本进程的祖先**，且那个 `Xvfb` 必须是它的**亲儿子**
+#     ⇒ 另起一个 `Xvfb` 占号、或把 `WPF_X11_DIR` 指到空目录，都**不**满足。
+#   【口径（`D-G188`）】可被环境变量**静默**改变判定的保护 ＝ 名义保护 ⇒ 一律 `NOINFO(reason=保护名义化)`。
+CANON_XDIR=/tmp/.X11-unix
+XDIR_OVERRIDE="${WPF_X11_DIR:-}"
+XN="${D#:}"
+sock_here=no; sock_canon=no
+[ -n "$XDIR_OVERRIDE" ] && [ -S "$XDIR_OVERRIDE/X$XN" ] && sock_here=yes
+[ -S "$CANON_XDIR/X$XN" ] && sock_canon=yes
+if [ -n "$XDIR_OVERRIDE" ] && [ "$XDIR_OVERRIDE" != "$CANON_XDIR" ]; then
+  echo "WPF_X11_DIR_OVERRIDE=$XDIR_OVERRIDE（判据不改：与规范目录 $CANON_XDIR **双边**检查 ⇒ 该改写不得让被占的号看着空闲；D-G188）" >&2
+fi
+ancestor_has() {  # $1=pid ⇒ 该 pid 是否在本脚本**祖先链**上（含 `$$`）
+  local pid=$$ p
+  while [ -n "$pid" ] && [ "$pid" != 0 ] && [ "$pid" != 1 ]; do
+    [ "$pid" = "$1" ] && return 0
+    [ -r "/proc/$pid/stat" ] || return 1
+    p="$(sed 's/^.*) //' "/proc/$pid/stat" 2>/dev/null | awk '{print $2}')"
+    [ -n "$p" ] || return 1
+    [ "$p" = "$pid" ] && return 1
+    pid="$p"
+  done
+  return 1
+}
+lease_ok=0; lease_reason=none; L="${W67_DISPLAY_LEASE:-}"; l_xpid=''; l_owner=''
+if [ "$sock_here" = yes ] || [ "$sock_canon" = yes ]; then
+  if [ -z "$L" ]; then lease_reason=no-lease
+  elif [ ! -f "$L" ] || [ -L "$L" ]; then lease_reason=lease-not-regular
+  elif [ "$(stat -c %a "$L" 2>/dev/null)" != 600 ]; then lease_reason=lease-mode-not-600
+  else
+    l_disp="$(sed -n 's/^DISPLAY=//p' "$L" | head -1)"
+    l_owner="$(sed -n 's/^OWNER_PID=//p' "$L" | head -1)"
+    l_xpid="$(sed -n 's/^XVFB_PID=//p' "$L" | head -1)"
+    if [ "$l_disp" != "$D" ]; then lease_reason=lease-display-mismatch
+    elif [ -z "$l_owner" ] || [ -z "$l_xpid" ]; then lease_reason=lease-incomplete
+    elif ! ancestor_has "$l_owner"; then lease_reason=lease-owner-not-ancestor
+    elif ! kill -0 "$l_xpid" 2>/dev/null; then lease_reason=lease-xvfb-dead
+    else
+      xcl="$(tr '\0' ' ' < "/proc/$l_xpid/cmdline" 2>/dev/null || true)"
+      xpp="$(sed 's/^.*) //' "/proc/$l_xpid/stat" 2>/dev/null | awk '{print $2}')"
+      case "$xcl" in
+        *Xvfb*"$D"*) if [ "$xpp" = "$l_owner" ]; then lease_ok=1; else lease_reason=lease-xvfb-not-child-of-owner; fi ;;
+        *) lease_reason=lease-xvfb-cmdline-mismatch ;;
+      esac
+    fi
+  fi
+fi
+if [ "$sock_here" = no ] && [ "$sock_canon" = no ]; then
+  echo "DISPLAY_LEASE=free display=$D sock=$CANON_XDIR/X$XN" >&2
+elif [ "$lease_ok" = 1 ]; then
+  echo "DISPLAY_LEASE=official-caller-owned display=$D sock=$CANON_XDIR/X$XN xvfb_pid=$l_xpid owner_pid=$l_owner lease=$L（① 常规件 ② 模式 600 ③ DISPLAY 相符 ④ owner 在祖先链上 ⑤ 活 Xvfb 且是其亲儿子 ⇒ 放行）" >&2
+else
+  echo "DISPLAY_OCCUPIED=$D sock=$CANON_XDIR/X$XN ⇒ 拒跑（号已被占；请用 W67_DISPLAY=<空闲号> 或先按 PID 收净）" >&2
+  echo "LEASE_REJECT reason=$lease_reason lease=${L:-<未给>} display=$D（外人不放行：无 lease／伪造／过期／非祖先链／Xvfb 非其亲生 ⇒ 一律拒）" >&2
   exit 3
 fi
-echo "DISPLAY_LEASE=free display=$D sock=$XDIR/X${D#:}" >&2
 export PATH="$HOME/.dotnet:$PATH"; export DOTNET_gcServer=0
 OUT="$W/logs/$TAG"; SHOTS="$OUT/shots"; mkdir -p "$OUT" "$SHOTS"
 

@@ -134,6 +134,26 @@ else
   echo "device=NOINFO reason=x-not-up"; kill "$XFWM" "$XVFB" 2>/dev/null; exit 2
 fi
 
+# ⏪【`t68`，读时 2026-09-28T20:54:24.554+0800】**官方调用者的显示位 lease**（`D-G188`：修「装置互斥 ＋ 保护名义化」）。本脚本**自己**起了
+#   `$DISPLAY_NUM` 的 `Xvfb`（`XVFB=$!`）⇒ 把「我是它的**亲生父亲**」写成一件 **`600`** 权限的 lease 交给下游
+#   `session_inner.sh` 的占用闸。闸据此在自己的判据内区分**两种**「socket 存在」：
+#     · **官方调用者的自有显示位**（lease 五条全成立：常规件／模式 `600`／`DISPLAY` 相符／`OWNER_PID` 在闸的祖先链上／
+#       活 `Xvfb` 且其 `ppid` == `OWNER_PID`）⇒ **放行**（否则本脚本会被自己的闸拒死 ⇒ `PTS-PAGES` 腿路跑不起来）；
+#     · **外人占用**（无 lease／伪造／过期／非祖先链／`Xvfb` 非其亲生）⇒ **仍拒跑**（闸不放水）。
+#   ⚠️ 防伪造的要点：外人**拿不到**「闸进程的祖先链」这个事实；把 `WPF_X11_DIR` 指到空目录也**不**能让被占的号看着空闲
+#      （闸对 `WPF_X11_DIR` 与规范目录**双边**检查）。
+LEASE="$OUTDIR/device/display-lease.txt"
+{
+  printf 'DISPLAY=%s\n' "$DISPLAY_NUM"
+  printf 'OWNER_PID=%s\n' "$$"
+  printf 'XVFB_PID=%s\n' "$XVFB"
+  printf 'SOCK_DIR=%s\n' "${WPF_X11_DIR:-/tmp/.X11-unix}"
+  printf 'TS=%s\n' "$(date -Iseconds)"
+} > "$LEASE"
+chmod 600 "$LEASE"
+export W67_DISPLAY_LEASE="$LEASE"
+echo "DISPLAY_LEASE_FILED=$LEASE owner_pid=$$ xvfb_pid=$XVFB display=$DISPLAY_NUM mode=$(stat -c %a "$LEASE")"
+
 # ── 跑腿（**调用方负责在重活槽里跑本脚本**）──────────────────────────────────
 # ⚠️【落仓修 · C（实测踩到，两处必须同趟）】
 #   ① GROUPS 是 **bash 的内置只读特殊变量**（进程的组 ID 列表）⇒ 对它赋值**静默无效**：
@@ -156,6 +176,7 @@ sleep 1
 for f in xfwm.pid xvfb.pid; do
   [ -s "$OUTDIR/device/$f" ] && { kill -9 "$(cat "$OUTDIR/device/$f")" 2>/dev/null; rm -f "$OUTDIR/device/$f"; }
 done
+rm -f "$OUTDIR/device/display-lease.txt"   # ⏪【`t68`】显示位 lease 随装置收尾一并撤（不留可被复用的旧 lease）
 
 # ── 转证据契约 ───────────────────────────────────────────────────────────────
 # ⚠️【落仓加（实测需要）】session_inner.sh 把 session.txt 与原始日志写在
