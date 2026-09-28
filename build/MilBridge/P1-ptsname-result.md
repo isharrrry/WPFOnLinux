@@ -136,6 +136,16 @@ VERIFYALL-STEPS-DECL: 62 gen=#81   # verify-all.sh:73
 `t108` 现取：两条收尾同侪（`DestroyDocContext`／`LoDisposePenaltyModule`）**都已导出且是诚实 stub** ⇒ **本步不需要同趟补 stub**（`t97` 那条 `rc=134` 的机制是「对端**未导出**」，本步不成立）；但 **`:488` 的 `PTS.Validate(DestroyDocContext)` 此前结构性不可达、本步后变成可达** ⇒ 判据已写 P11（收尾面新可达却无读数 ⇒ 必红）与二选一声明。
 ⇒ **裁定**：第四步靶心 ＝ **`CreateDocContext`**（签名/语义按 `Pts.cs:3090-3094` 定死：`ref FSCONTEXTINFO` ＋ `out IntPtr` → `int`）；**必须**同趟交付「`:488` 收尾面走到没走到」的二值读数；**定名一律用台账面**（`^PTS_GAP entry=` 按 `seq=` 排序），托管 `entry=` 与探针 `after=` 只作粗证（`F-1` 与探针脸两处已点名）；**不许**为保住 `native_gap` 的某个数字而让靶心继续走 `wpf_pts_gap()`。实现件排在 `t108`（判据）与 `t109`（`F-1` 口径修）**之后**。
 
+**裁定十五（承 `t110` 回执）—— 同类边界例外（`impl` 随动的 5 件越域）：接受，附三条约束。**
+与裁定七／十一同形：`t110` 让 `impl 89→87` ⇒ 牙要求现值位随动 ⇒ 它同步了 5 件的 `实现口径 89→87`（13 处命中），其中 `docs/ROUTES.md`／`samples/WpfFeatureProbe/KNOWN-DEFECTS.md` **不在其写域**。⇒ **接受**（不许改 ⇒ C3 必红，等于拿假红换真绿）；三条约束照旧（逐件点名＋逐处 before→after／只改 token 不删句不动结构／由 `t111` 判）。
+
+**裁定十六（承 `t110` 回执）—— `t110` 的 `failed` 是「靶心达标 ＋ 被另一族阻断」，不是实现失败；阻断面开给字体栈。**
+现取事实：`CreateDocContext` 台账行 **1→0**、`PTS_GAP` 与 `[PTS-UNAVAILABLE]` **都归零**、页级占位消失、托管排版链**首次**到达 `FlowDocumentFormatter.Format`（此前结构性不可达）；`nm＝exports＝572`；`C1/C2/C3/C7/C8/C9/C10` 全绿；字段读回 **7/7** 全等、四个 NULL 拒绝非 0。而腿 `leg_24` 崩在 `Environment.FailFast`（**不可捕获**，`Invariant.cs:192-204`，绕过 `DispatcherUnhandledException`）的**字体栈**：`FontFamily.get_FirstFontFamily ← FontFamily.get_LineSpacing ← DynamicPropertyReader.GetLineHeightValue ← FlowDocumentFormatter.ComputePageMargin ← FlowDocumentFormatter.Format`；`fc-list`＝**414**（不是没字体，是该 Run 请求的族解析不到时走了 `FailFast` 而非降级）；崩溃帧里**没有**任何 `CreateDocContext`/`DestroyDocContext` 帧，收尾同伴**没走到**（`doc_des=0`）；该栈**早在册**（`docs/ROUTES.md:193` 逐字点名）。
+⇒ **裁定**：① **定性**：本步是**W8 的真实前进**（PTS 那条链不再走缺口路径、页级占位消失），`failed` 来自**另一族**（字体解析缺降级路径）—— 记为本步真实结论，**不许**简化成「W8 第四步失败」。② **阻断面另开一族**：按 `t110` 的建议开给字体栈（判据先写 → 实现 → 独立复核），靶心＝「**字体族解析失败时必须可降级**（页级占位／回退族），而不是 `FailFast` 把进程打死」。③ **在册证据照实**：本趟在册证据是**半趟**（`leg_24 alive=no app_rc=134`、`leg_23` 未完成）⇒ **照实入册**，**不许**用旧的全绿证据冒充现状；门禁那条红是**真红**（属字体族阻断），等字体面修好后再由 `t110` 的作者复跑收回。
+
+**裁定十七（承 `t110` 回执）—— `t110` 抓到的四个「仪器自身」缺陷按 finding 处理，不另立号。**
+`(a)` 重复销毁断言次序错（真销毁用换位删除 ⇒ 先销毁别的句柄会覆盖槽位）；`(b)` 长度纪律量错对象（量了链中途那份报告）；`(c)` **观测镜环满**（修前该入口是 stub 不 push，变真后链 push 4 条刚好写满 4 格环 ⇒ 夹具自己两条把要找的条目挤掉）；`(d)` 夹具断言看错变量。⇒ **裁定**：这四条是**仪器面**缺陷，随本步载体入册即可（**不新立号**，除非复核判其独立可复用）；其中 `(c)` 请**明确写进纪律第 `30` 条族的实例**（「换代会改变链的 push 条数 ⇒ 环容量假设必须重验」）。
+
 ## 9 未做 / 边界
 
 - **未**跑整趟门禁（`verify-all.sh` 全跑）；本件只跑相关已接线牙与判据件。

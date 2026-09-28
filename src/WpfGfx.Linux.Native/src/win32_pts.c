@@ -42,6 +42,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>     // getenv / atoi
+#include <stddef.h>          /* offsetof：格 6 夹具的**编译期**偏移假设自证 */
 #include <string.h>
 
 // ── LsErr 码：`tserrNotImplemented` ─────────────────────────────────────────
@@ -103,6 +104,30 @@ static int g_pts_io_live_n  = 0;         /* 活对象数（**泄漏检查的唯�
 static int g_pts_io_creates = 0;
 static int g_pts_io_destroys= 0;
 static int g_pts_io_rejected= 0;         /* 拒绝的摧毁请求（未知名/重复/清单满） */
+
+#define WPF_PTS_DOC_MAGIC 0x50545344u   /* "PTSD"：本模块自认的 doc-context 魔数 */
+#define WPF_PTS_DOC_MAX   8             /* 有界分配清单（防异常调用无限增长） */
+typedef struct {
+    unsigned int magic;
+    /* ① 收到的是**哪个**入参结构地址（原样存，**不 deref**）——"与本次调用绑定"的第一半证据 */
+    const void  *info_addr;
+    /* ② 从该结构**逐字段读回**的可判定量（读进对象 ⇒ 调用返回后仍可被独立读取）
+       ③ 前两项即"偏移假设自证"：`version` 与 `fsffi` 由夹具用**互不相同**的已知值写下，
+          读错偏移就**必然不等** ⇒ 该断言在净腿上也有牙（`t103` 格 85 的教训）。 */
+    unsigned int version;               /* 读自 +0（夹具用 0x00010001；错偏移 ⇒ 不等） */
+    unsigned int fsffi;                 /* 读自 +4（夹具用 0xDEADBEEF；错偏移 ⇒ 不等） */
+    int          c_installed_objects;   /* 读自 +12 */
+    const void  *p_installed_objects;   /* 读自 +16（**原样存，不 deref**） */
+    const void  *p_fsclient;            /* 读自 +24（**原样存，不 deref**） */
+    const void  *pts_penalty_module;    /* 读自 +32（**原样存，不 deref**） */
+} wpf_pts_doc;
+static wpf_pts_doc *g_pts_doc_live[WPF_PTS_DOC_MAX];
+static int g_pts_doc_live_n       = 0;
+static int g_pts_doc_sets_c       = 0;   /* CreateDocContext：成功次数 */
+static int g_pts_doc_rejected_c   = 0;   /* CreateDocContext：被拒次数（NULL 入参/空出参） */
+static int g_pts_doc_destroys     = 0;   /* DestroyDocContext：成功销毁次数（**收尾面新可达性的机器读数**） */
+static int g_pts_doc_destroy_rej  = 0;   /* DestroyDocContext：被拒次数 */
+
 
 static int g_pts_calls[WPF_PTS_ENTRY_COUNT];   // 逐入口**缺口**次数（只有走 `wpf_pts_gap()` 的 stub 会涨）
 // ── 格 3 修订（`t81`）：**"被问过"的统一口径** ─────────────────────────────────
@@ -245,17 +270,80 @@ int DestroyInstalledObjectsInfo(void *pInstalledObjects)
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
 
+// ── 格 6（`t110`／P1-W35 · W8 第四步）：`CreateDocContext` **真实现** ─────────────────
+//   分界句（沿用前三件，逐字）：**`return 0`（`fserrNone`）本身不是证据**；证据是「这次调用在本进程内
+//   留下了**与该对象绑定**、**可被独立读取**的状态变化」。四件套 ＋ 形状约束：
+//     ① **入参形状校验**：`fscontextinfo`（`ref` ⇒ 实参是地址）为 `NULL` ⇒ 拒绝（**一个字节都不读/不写**）；
+//        `pfscontext`（`out`）为 `NULL` ⇒ 拒绝（**不给"写空也算成功"**）；
+//     ② **出参真落盘且与本次调用绑定**：`*pfscontext` 指向**本次真分配**的对象（**不是**进程级全局单例
+//        ⇒ 两次调用的两个句柄必须**不同**）；**按对象绑定**由 ③ 的字段读回承担（"句柄不同"只是必要条件）；
+//     ③ **该对象真带走了入参结构里的可判定量**：逐字段读回 `version`／`fsffi`／`cInstalledObjects`／
+//        `pInstalledObjects`／`pfsclient`／`ptsPenaltyModule`（**≥2 项**，本实现给 6 项）；
+//        ⚠️ **逐字段按真实类型读，不整块 `memcpy`**（判据 §1.6-③ 的形状约束）；
+//     ④ **计数 ＋ 可独立读取**：`g_pts_doc_sets_c`／`g_pts_doc_rejected_c` ＋ 按对象的只读面
+//        （`WpfLinuxWin32_PtsDocFieldAt` 逐字段 + `…PtsDocLive`／`…PtsDocCreates`／`…PtsDocDestroys`）。
+//   ⚠️ **非目标**：不实现 PTS 排版语义（不建页、不断行），不 deref 任何传入指针。
+static void wpf_pts_jmp_push(const char *entry, const void *ploc, const void *dev, int addr_ok,
+                             int is_doc, int a0, int a1, int a2, int a3,
+                             const void *ptr0, const void *ptr1);
 int CreateDocContext(const void *fscontextinfo, void **pfscontext)
 {
-    (void)fscontextinfo;
-    if (pfscontext) *pfscontext = NULL;
-    return wpf_pts_gap("CreateDocContext");
+    if (pfscontext) *pfscontext = NULL;                        /* 任何失败路径都保持"空" */
+    if (!pfscontext)                     { g_pts_doc_rejected_c++; return WPF_PTS_ERR_NOT_IMPLEMENTED; }
+    if (!fscontextinfo)                  { g_pts_doc_rejected_c++; return WPF_PTS_ERR_NOT_IMPLEMENTED; }
+    if (g_pts_doc_live_n >= WPF_PTS_DOC_MAX) { g_pts_doc_rejected_c++; return WPF_PTS_ERR_NOT_IMPLEMENTED; }
+    wpf_pts_doc *c = (wpf_pts_doc *)calloc(1, sizeof(*c));
+    if (!c)                              { g_pts_doc_rejected_c++; return WPF_PTS_ERR_NOT_IMPLEMENTED; }
+    /* 逐字段按**真实类型**读（每步只读该字段的字节数；指针字段只当**值**取，不 deref） */
+    const unsigned char *b = (const unsigned char *)fscontextinfo;
+    c->magic  = WPF_PTS_DOC_MAGIC;
+    c->info_addr           = fscontextinfo;
+    c->version             = *(const unsigned int *)(const void *)(b +  0);
+    c->fsffi               = *(const unsigned int *)(const void *)(b +  4);
+    c->c_installed_objects = *(const int          *)(const void *)(b + 12);
+    c->p_installed_objects = *(const void *const *)(const void *)(b + 16);
+    c->p_fsclient          = *(const void *const *)(const void *)(b + 24);
+    c->pts_penalty_module  = *(const void *const *)(const void *)(b + 32);
+    g_pts_doc_live[g_pts_doc_live_n++] = c;
+    g_pts_doc_sets_c++;
+    {   /* 观测镜（**镜像**，不是权威）：记下"哪个入参结构地址、落出什么句柄"；指针量走 `ptr0`/`ptr1` */
+        int a_ok = 0;
+        for (int k = 0; k < g_pts_doc_live_n; k++) {
+            if ((const void *)g_pts_doc_live[k] == (const void *)c) { a_ok = 1; break; }
+        }
+        wpf_pts_jmp_push("CreateDocContext", (void *)fscontextinfo,
+                         (const void *)&c->version, a_ok, 0,
+                         (int)c->version, (int)c->fsffi, c->c_installed_objects, 0,
+                         (const void *)c, (const void *)c->info_addr);
+    }
+    { int _i = wpf_pts_index("CreateDocContext"); if (_i >= 0) g_pts_seen[_i]++; }
+    g_pts_seq++;
+    *pfscontext = (void *)c;
+    return 0;                                                  /* ← 改成别的值就是制造静默半通 */
 }
 
+// ── 收尾同侪 ①（**本步二选一声明：升级为真实现**）：`DestroyDocContext`
+//   ⚠️ 为什么必须升级：`CreateDocContext` 变真之后，`:488 PTS.Validate(PTS.DestroyDocContext(...))`
+//     第一次可达（门 ＝ `:479 Count>4`），而它用 `Validate`（**会抛**）⇒ 若维持 stub（恒返 -10000）
+//     一旦被走到就**当场抛 `PtsException`** ⇒ 把"优雅降级"换成"清理期异常"。本模块的纪律是
+//     "**create 成功 ⇒ destroy 必须存在且真能收**"（`LoCreateContext`→`LoDestroyContext` 同形）。
+//   拒绝面（**四条**，都返非 0 且**一个字节都不 free**）：`NULL`／未登记（未知或伪造）／魔数不符
+//   （已失效 ＝ 重复销毁）／登记表为空。**只比对指针身份**，未知句柄的**内容一个字节都不读**。
 int DestroyDocContext(void *pfscontext)
 {
-    (void)pfscontext;
-    return wpf_pts_gap("DestroyDocContext");
+    if (!pfscontext) { g_pts_doc_destroy_rej++; return WPF_PTS_ERR_NOT_IMPLEMENTED; }
+    for (int i = 0; i < g_pts_doc_live_n; i++) {
+        if ((void *)g_pts_doc_live[i] != pfscontext) continue;
+        if (g_pts_doc_live[i]->magic != WPF_PTS_DOC_MAGIC) { g_pts_doc_destroy_rej++; return WPF_PTS_ERR_NOT_IMPLEMENTED; }
+        g_pts_doc_live[i]->magic = 0;                          /* 先失效 ⇒ 重复销毁必被拒 */
+        free(g_pts_doc_live[i]);
+        g_pts_doc_live[i] = g_pts_doc_live[--g_pts_doc_live_n];
+        g_pts_doc_live[g_pts_doc_live_n] = NULL;
+        g_pts_doc_destroys++;
+        return 0;
+    }
+    g_pts_doc_destroy_rej++;
+    return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
 
 int GetFloaterHandlerInfo(const void *pfsfloaterinit, void *pFloaterObjectInfo)
@@ -379,6 +467,19 @@ static int g_pts_break_sets      = 0;   /* LoSetBreaking：成功次数 */
 static int g_pts_break_rejected  = 0;   /* LoSetBreaking：被拒次数 */
 static int g_pts_pen_sets         = 0;   /* LoAcquirePenaltyModule：成功次数（格 4） */
 static int g_pts_pen_rejected     = 0;   /* LoAcquirePenaltyModule：被拒次数（NULL/未知/空出参） */
+// ── 格 6（`t110`／P1-W35 · W8 **第四步**）：`CreateDocContext` 真实现 ─────────────────
+//   上游签名（`Pts.cs:3090-3094`，**方法名约定**声明、无显式 `EntryPoint`）：
+//     int CreateDocContext([In] ref FSCONTEXTINFO fscontextinfo, out IntPtr pfscontext);
+//   入参结构（`Pts.cs:833-844`，**本仓唯一的布局权威**）：
+//     +0  uint version ｜ +4  uint fsffi ｜ +8  int drMinColumnBalancingStep ｜ +12 int cInstalledObjects
+//     +16 IntPtr pInstalledObjects ｜ +24 IntPtr pfsclient ｜ +32 IntPtr ptsPenaltyModule ｜ …
+//   🔴 **形状约束（判据 §1.6-③，逐字遵守）**：`fscontextinfo` 是 **`ref` 一个托管结构** ⇒
+//     **不许整块 `memcpy`**（那＝把"未证实的布局"当既定事实，`D-G136` 同族）。本实现**逐字段
+//     按真实类型读**（前三个 `u32`／`i32`，随后三个**指针**），且**每个偏移都带断言**：
+//     读回对拍由自检格 `86` 承担，对不上就**点名该字段**（不是静默把错布局当对）。
+//   ⚠️ 偏移假设的证据现取位：`Pts.cs:835-841`（逐字段声明）＋ `:842 FSCBK fscbk` 是**委托**型
+//     （托管引用 ⇒ 8 字节）⇒ 四个指针字段都落在 8 的倍数上、无填充。若该假设错，自检会在
+//     `field_readback` 那一格**当场红**并点名字段（可证伪）。
 static int g_pts_inth_sets        = 0;   /* LoGetPenaltyModuleInternalHandle：成功次数（格 5） */
 static int g_pts_inth_rejected    = 0;   /* LoGetPenaltyModuleInternalHandle：被拒次数（NULL/未知/空出参） */
 
@@ -714,6 +815,34 @@ void *WpfLinuxWin32_PtsPenaltyInternalHandleAt(int idx)
 }
 int WpfLinuxWin32_PtsPenaltyInternalGets(void) { return g_pts_inth_sets; }
 
+// ── 格 6 · 只读面（`t110`／P1-W35）：`CreateDocContext` 的**独立读取面** ────────────────
+//   为什么要这些口：判据 C9 的判绿**不许**停在"两个句柄不同"（那只是必要条件）；"按对象绑定"
+//   必须由**字段读回**承担 ⇒ 需要一个**不经过出参**的读回口。`field` 逐字段取值：
+//     0 = version ｜ 1 = fsffi ｜ 2 = cInstalledObjects ｜ 3 = info_addr
+//     4 = pInstalledObjects ｜ 5 = pfsclient ｜ 6 = ptsPenaltyModule
+//   ⚠️ **位置读**（与 `…PenaltyModuleHandleAt` 同族，`F-6` 口径句同样适用）：越界/无 ⇒ NULL/0；
+//      **不得跨销毁缓存 `idx`**，每次按当前登记表重算。
+void *WpfLinuxWin32_PtsDocFieldAt(int idx, int field)
+{
+    if (idx < 0 || idx >= g_pts_doc_live_n) return NULL;
+    wpf_pts_doc *d = g_pts_doc_live[idx];
+    if (!d || d->magic != WPF_PTS_DOC_MAGIC) return NULL;      /* 魔数不符 ⇒ 当"没有"，不读内容 */
+    switch (field) {
+        case 0:  return (void *)(unsigned long)d->version;
+        case 1:  return (void *)(unsigned long)d->fsffi;
+        case 2:  return (void *)(long)d->c_installed_objects;
+        case 3:  return (void *)d->info_addr;
+        case 4:  return (void *)d->p_installed_objects;
+        case 5:  return (void *)d->p_fsclient;
+        case 6:  return (void *)d->pts_penalty_module;
+        default: return NULL;
+    }
+}
+int WpfLinuxWin32_PtsDocLive(void)      { return g_pts_doc_live_n; }
+int WpfLinuxWin32_PtsDocCreates(void)   { return g_pts_doc_sets_c; }
+int WpfLinuxWin32_PtsDocDestroys(void)  { return g_pts_doc_destroys; }   /* 收尾面二值读数用 */
+int WpfLinuxWin32_PtsDocRejected(void)  { return g_pts_doc_rejected_c; }
+
 // ══════════════════════════════════════════════════════════════════════════
 //  机器可读面（照 `WpfLinuxWin32_EscStringSelfCheck` / `ClassificationSelfCheck` 的形状）
 // ══════════════════════════════════════════════════════════════════════════
@@ -795,7 +924,7 @@ int WpfLinuxWin32_PtsGapReport(char *buf, int cap)
                      "calls=0:%d 1:%d 2:%d 3:%d 4:%d 5:%d 6:%d 7:%d 8:%d 9:%d 10:%d 11:%d "
                      "io_live=%d loc_live=%d loc_creates=%d loc_destroys=%d loc_rej=%d "
                      "setdoc_sets=%d setdoc_rej=%d setbrk_sets=%d setbrk_rej=%d "
-                     "inth_sets=%d inth_rej=%d",
+                     "inth_sets=%d inth_rej=%d doc_live=%d doc_sets=%d doc_rej=%d doc_des=%d doc_desrej=%d",
                      seen, g_pts_seq, anchor, WPF_PTS_ERR_NOT_IMPLEMENTED,
                      frontier,
                      g_pts_calls[0], g_pts_calls[1], g_pts_calls[2], g_pts_calls[3], g_pts_calls[4],
@@ -804,7 +933,9 @@ int WpfLinuxWin32_PtsGapReport(char *buf, int cap)
                      g_pts_io_live_n,
                      g_pts_loc_live_n, g_pts_loc_creates, g_pts_loc_destroys, g_pts_loc_rejected,
                      g_pts_doc_sets, g_pts_doc_rejected, g_pts_break_sets, g_pts_break_rejected,
-                     g_pts_inth_sets, g_pts_inth_rejected);
+                     g_pts_inth_sets, g_pts_inth_rejected,
+                     g_pts_doc_live_n, g_pts_doc_sets_c, g_pts_doc_rejected_c,
+                     g_pts_doc_destroys, g_pts_doc_destroy_rej);
     if (n < 0 || n >= cap) {
         // ⏪ **`t92`／P1-W20 · `O-1` 返回语义（可判、可核）**：修前这一支只有一句
         //   `buf[cap - 1] = '\0'; return -1;` ⇒ **语义对、但"正确"靠的是一个没被写下来的不变式**
@@ -1163,6 +1294,97 @@ static int g_pts_selfcheck_f4_binding(void)
 //     `ledger-nonzero-frontier-unchanged` 在册，来自 `pts-gap-count-check.sh` 的 FAKE-PROGRESS 腿）
 //     ⇒ **那几条反腿只能人工判定**。**判据不得因为"看到某个 `reason=` token"而发绿，也不得因为
 //     "没有这个 token"而判红**；承重点在**点名**（缺 `reason=`／缺 `file:`／缺字段名 ⇒ 该条判不成立）。
+// ── 格 6 夹具（`t110`／P1-W35 · W8 第四步）：`CreateDocContext` 的**出参绑定 ＋ 字段读回** ─────
+//   为什么要**造入参结构**：靶心的证据不能停在"两个句柄不同"（那只是**必要**条件，只证"不是同一个
+//   常量"）；"与**本次调用**绑定"必须由**字段读回**承担（`t97`／`t103` 两次同口径）。本夹具按
+//   `Pts.cs:833-844` 的字段序**逐字段**写下一个可判定的入参结构，再断言实现把它们**逐项读进对象**。
+//   ⚠️ **偏移假设自证（本夹具的关键）**：C 里这个 `wpf_pts_fsctx_probe` **自带** `_Static_assert`
+//   逐字段偏移断言（编译期）；`version`／`fsffi`／`cInstalledObjects` 用**互不相同**的已知值 ⇒
+//   实现若在错偏移上读，**必然不等** ⇒ 该断言**在净腿上也有牙**（`t103` 格 85 的教训）。
+typedef struct {                    /* 只为夹具服务；字段序/布局与 `Pts.cs:833-844` 对齐 */
+    unsigned int version;
+    unsigned int fsffi;
+    int          dr_min_column_balancing_step;
+    int          c_installed_objects;
+    void        *p_installed_objects;
+    void        *p_fsclient;
+    void        *pts_penalty_module;
+    void        *fscbk;             /* 占位：真身是委托（8 B）⇒ 保证前面各指针的偏移 */
+    void        *pfn_assert_failed;
+} wpf_pts_fsctx_probe;
+_Static_assert(sizeof(wpf_pts_fsctx_probe) == 56,
+               "probe struct size unexpected（前 4 个 4 B 标量 + 5 个指针；指针**不得**按 4 B 假设）");
+_Static_assert(offsetof(wpf_pts_fsctx_probe, version) == 0,  "offset assumption broken: version");
+_Static_assert(offsetof(wpf_pts_fsctx_probe, fsffi) == 4,    "offset assumption broken: fsffi");
+_Static_assert(offsetof(wpf_pts_fsctx_probe, c_installed_objects) == 12, "offset assumption broken: cInstalledObjects");
+_Static_assert(offsetof(wpf_pts_fsctx_probe, p_installed_objects) == 16, "offset assumption broken: pInstalledObjects");
+_Static_assert(offsetof(wpf_pts_fsctx_probe, p_fsclient) == 24,          "offset assumption broken: pfsclient");
+_Static_assert(offsetof(wpf_pts_fsctx_probe, pts_penalty_module) == 32,  "offset assumption broken: ptsPenaltyModule");
+
+static int g_pts_selfcheck_f6_docctx(void)
+{
+    const int nb = g_pts_doc_live_n;
+    const int f6_sets = g_pts_doc_sets_c, f6_rej = g_pts_doc_rejected_c, f6_des = g_pts_doc_destroys;
+    if (nb + 2 > WPF_PTS_DOC_MAX) return 1;                      /* 表放不下两个 ⇒ 不适用（宁可不判） */
+    wpf_pts_fsctx_probe s1, s2;
+    memset(&s1, 0, sizeof(s1)); memset(&s2, 0, sizeof(s2));
+    s1.version = 0x00010001u; s1.fsffi = 0xDEADBEEFu; s1.dr_min_column_balancing_step = 2;
+    s1.c_installed_objects = 3;
+    s1.p_installed_objects = (void *)0x1111; s1.p_fsclient = (void *)0x2222; s1.pts_penalty_module = (void *)0x3333;
+    s2.version = 0x00020002u; s2.fsffi = 0xFEEDFACEu; s2.dr_min_column_balancing_step = 5;
+    s2.c_installed_objects = 7;
+    s2.p_installed_objects = (void *)0x4444; s2.p_fsclient = (void *)0x5555; s2.pts_penalty_module = (void *)0x6666;
+    void *h1 = (void *)0x71, *h2 = (void *)0x72;
+    /* ① 两次调用：都成功 ＋ 两个句柄**互不相等**（只是必要条件） */
+    if (CreateDocContext(&s1, &h1) != 0 || h1 == NULL) return 0;
+    if (CreateDocContext(&s2, &h2) != 0 || h2 == NULL) { DestroyDocContext(h1); return 0; }
+    if (h1 == h2) { DestroyDocContext(h2); DestroyDocContext(h1); return 0; }
+    /* ② **按对象绑定（本条判绿的真承重格）**：字段**逐项**读回，且与各自那次调用**逐项相等** */
+    if (WpfLinuxWin32_PtsDocFieldAt(nb,     0) != (void *)(unsigned long)s1.version)              { DestroyDocContext(h2); DestroyDocContext(h1); return 0; }
+    if (WpfLinuxWin32_PtsDocFieldAt(nb + 1, 0) != (void *)(unsigned long)s2.version)              { DestroyDocContext(h2); DestroyDocContext(h1); return 0; }
+    if (WpfLinuxWin32_PtsDocFieldAt(nb,     1) != (void *)(unsigned long)s1.fsffi)                { DestroyDocContext(h2); DestroyDocContext(h1); return 0; }
+    if (WpfLinuxWin32_PtsDocFieldAt(nb + 1, 1) != (void *)(unsigned long)s2.fsffi)                { DestroyDocContext(h2); DestroyDocContext(h1); return 0; }
+    if (WpfLinuxWin32_PtsDocFieldAt(nb,     2) != (void *)(long)s1.c_installed_objects)           { DestroyDocContext(h2); DestroyDocContext(h1); return 0; }
+    if (WpfLinuxWin32_PtsDocFieldAt(nb + 1, 2) != (void *)(long)s2.c_installed_objects)           { DestroyDocContext(h2); DestroyDocContext(h1); return 0; }
+    if (WpfLinuxWin32_PtsDocFieldAt(nb,     3) != (void *)&s1)                                    { DestroyDocContext(h2); DestroyDocContext(h1); return 0; }
+    if (WpfLinuxWin32_PtsDocFieldAt(nb + 1, 3) != (void *)&s2)                                    { DestroyDocContext(h2); DestroyDocContext(h1); return 0; }
+    if (WpfLinuxWin32_PtsDocFieldAt(nb,     4) != s1.p_installed_objects)                         { DestroyDocContext(h2); DestroyDocContext(h1); return 0; }
+    if (WpfLinuxWin32_PtsDocFieldAt(nb + 1, 4) != s2.p_installed_objects)                         { DestroyDocContext(h2); DestroyDocContext(h1); return 0; }
+    if (WpfLinuxWin32_PtsDocFieldAt(nb,     5) != s1.p_fsclient)                                  { DestroyDocContext(h2); DestroyDocContext(h1); return 0; }
+    if (WpfLinuxWin32_PtsDocFieldAt(nb + 1, 5) != s2.p_fsclient)                                  { DestroyDocContext(h2); DestroyDocContext(h1); return 0; }
+    if (WpfLinuxWin32_PtsDocFieldAt(nb,     6) != s1.pts_penalty_module)                          { DestroyDocContext(h2); DestroyDocContext(h1); return 0; }
+    if (WpfLinuxWin32_PtsDocFieldAt(nb + 1, 6) != s2.pts_penalty_module)                          { DestroyDocContext(h2); DestroyDocContext(h1); return 0; }
+    /* ③ 观测镜对拍（指针量走**指针域** `ptr0`／`ptr1`，`t97`／`t103` 同口径） */
+    {
+        const void *p0 = NULL, *p1 = NULL;
+        if (WpfLinuxWin32_PtsJmpProbePtr("CreateDocContext", &s1, &p0, &p1) != 1) { DestroyDocContext(h2); DestroyDocContext(h1); return 0; }
+        if (p0 != h1) { DestroyDocContext(h2); DestroyDocContext(h1); return 0; }   /* 镜记的句柄 == 真出参 */
+        if (p1 != (const void *)&s1) { DestroyDocContext(h2); DestroyDocContext(h1); return 0; }  /* 镜记的入参结构 == 本次入参 */
+    }
+    /* ④ 拒绝面（失败且**不改可见状态**）——⚠️ 两条都**必须**有活对象在场才有牙（`t103` 教训） */
+    {
+        const int snap_live = g_pts_doc_live_n;
+        const int snap_sets = g_pts_doc_sets_c;
+        void *q = (void *)0x5B5B;
+        if (CreateDocContext(NULL, &q) != WPF_PTS_ERR_NOT_IMPLEMENTED || q != NULL) { DestroyDocContext(h2); DestroyDocContext(h1); return 0; }
+        /* ⚠️ 空出参那一路**不碰** `q`（出参就是 `NULL`）⇒ 断言要盯**别的**可判定量：
+              它必须**拒绝**、且**不得**在登记表里留下对象（"写空也算成功"在这里就变成了"凭空多一个对象"）。 */
+        if (CreateDocContext(&s1, NULL) != WPF_PTS_ERR_NOT_IMPLEMENTED ||
+            g_pts_doc_live_n != snap_live) { DestroyDocContext(h2); DestroyDocContext(h1); return 0; }
+        if (g_pts_doc_live_n != snap_live || g_pts_doc_sets_c != snap_sets) { DestroyDocContext(h2); DestroyDocContext(h1); return 0; }
+    }
+    /* ⑤ 收尾面（**本步新可达的同侪**）：真销毁 ⇒ 0 ＋ 活数回 base；重复／未知／NULL ⇒ **必被拒** */
+    if (DestroyDocContext(h2) != 0) { DestroyDocContext(h1); return 0; }
+    if (DestroyDocContext(h1) != 0) return 0;
+    if (DestroyDocContext(h1) == 0) return 0;                       /* 重复必被拒 */
+    if (DestroyDocContext((void *)0xdeadbeef) == 0) return 0;       /* 未知必被拒（不 deref） */
+    if (DestroyDocContext(NULL) == 0) return 0;                     /* NULL 必被拒 */
+    if (g_pts_doc_live_n != nb) return 0;                           /* 夹具不带泄漏 */
+    if (WpfLinuxWin32_PtsDocFieldAt(nb, 0) != NULL) return 0;       /* 越界/已销毁 ⇒ NULL（位置读，不 deref） */
+    g_pts_doc_sets_c = f6_sets; g_pts_doc_rejected_c = f6_rej; g_pts_doc_destroys = f6_des;  /* 出口复原本格计数 */
+    return 1;
+}
+
 // ⚠️ 诊断面（给"诊断驱动"的开发阶段用，也留给后续 `t80` §5-NOINFO-4 那条"谁调它"的问题）：
 //   把这个 `int` 追加到 `WpfLinuxWin32_PtsGapReport()` 的行尾 ⇒ 自检红的时候**看得见是哪一格**。
 static int g_pts_selfcheck_rc = 0;
@@ -1179,6 +1401,15 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
     // 【格3 修订】`LoSetDoc`／`LoSetBreaking` 的四对计数与**观测镜**同样要复原：
     //   否则"自检不许改变可观测状态"对新面又成了假话（`setdoc_sets` 等会凭空涨、镜会被自检条目顶掉）。
     int save_doc_sets = g_pts_doc_sets, save_doc_rej = g_pts_doc_rejected;
+    /* ⏪ `t110`：格 6（`CreateDocContext`／`DestroyDocContext`）计数**同办** —— 自检链上真的建/毁
+       doc 上下文 ⇒ 不 save/restore 就会让"自检不许改变可观测状态"对新面变成假话（`t102` 的 `F-2` 同形）。 */
+    int save_doc_c_sets = g_pts_doc_sets_c, save_doc_c_rej = g_pts_doc_rejected_c;
+    /* ⏪ `t110`：长度纪律的**净基线**必须在**动任何计数器之前**现取（下面那条 `rc = 34` 用它）。
+       为什么：链会真的打到若干入口 ⇒ 中途那份报告的 `anchor=`／`frontier=`／`calls=0:…` 都变长，
+       量出来的是**链的污染**而不是**格式的长度**（本趟实测：净 328 B vs 链中途 374 B）。 */
+    char rep_probe[512];
+    int  rep_clean_len = WpfLinuxWin32_PtsGapReport(rep_probe, (int)sizeof(rep_probe));
+    int save_doc_des = g_pts_doc_destroys, save_doc_desrej = g_pts_doc_destroy_rej;
     int save_brk_sets = g_pts_break_sets, save_brk_rej = g_pts_break_rejected;
     /* ⏪ **`t102`／P1-W28 · `F-2`（medium 真缺陷）**：`g_pts_pen_sets`／`g_pts_pen_rejected`（格 4 的
        成功/被拒计数）**原先没被保存/复原** ⇒ 每跑一次自检，**它自己新导出的**读口
@@ -1239,9 +1470,27 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
     else if (WpfLinuxWin32_PtsInstalledObjectsLive() != 0) rc = 22;                    /* 摧毁后 live==0 */
     else if (DestroyInstalledObjectsInfo(p1) == 0) rc = 17;                            /* **重复释放必被拒** */
     else if (DestroyInstalledObjectsInfo((void *)0xdead) == 0) rc = 18;                /* **未知名必被拒** */
-    else if (CreateDocContext(sb, &p2) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 4;
-    else if (p2 != NULL) rc = 5;
-    else if (DestroyDocContext((void *)0xdead) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 6;
+    /* ⏪ `t110`／P1-W35（W8 第四步）：`CreateDocContext` 已由**诚实缺口 stub** 变成**真实现**
+          ⇒ 原来"必须返 -10000 且出参清空"那两条断言**必须跟着改**（不改就是自检恒红），
+          且**不是**删掉：改成本格真调用的**成对断言**（真形／`NULL` 入参被拒），
+          深度对拍（字段读回／按对象绑定／两次不同）交给**格 `86`** 的夹具。 */
+    else if (CreateDocContext(sb, &p2) != 0) rc = 4;                                   /* 真实现 ⇒ **必须成功** */
+    else if (p2 == NULL) rc = 5;                                                       /* 真句柄：非空（**非**"写空也算成功"） */
+    else if (((wpf_pts_doc *)p2)->magic != WPF_PTS_DOC_MAGIC) rc = 31;                 /* 出参确实是**本模块的**对象 */
+    else if (((wpf_pts_doc *)p2)->info_addr != (const void *)sb) rc = 32;              /* 且与**本次入参**绑定 */
+    /* ⚠️ 下面两条 `rc=17`／`18` 与格 1 那对**同号**：这是**既有形制**（格号 17／18 在前后两块里各指"重复必被拒"／"未知必被拒"），
+         不是本步新引入的撞号；两块的判词由各自的分支位置区分（纪律第 `30` 条：**旧号一个不动**）。
+       🔴 **`t110` 实测到的次序坑（必须留档）**：`DestroyDocContext` 成功时用**换位删除**
+         （`live[i] = live[--live_n]`）⇒ **紧接着再销毁同一个句柄**才算"重复"；若中间先销毁**别的**句柄，
+         换位会把这个已销毁的槽位**覆盖掉** ⇒ 第二次调用退化成"**未知**句柄"⇒ 那条"重复必被拒"的
+         断言就**不是在测重复**（本趟 `diag=18` 的真因）。⇒ 次序写死：**先真销毁 ⇒ 立刻重复 ⇒ 再未知**。 */
+    else if (DestroyDocContext(p2) != 0) rc = 29;
+    else if (WpfLinuxWin32_PtsDocLive() != 0) rc = 30;   /* 真销毁后活数回 0（自检不带 doc 泄漏） */
+    else if (DestroyDocContext(p2) == 0) rc = 18;                                       /* **紧邻重复 ⇒ 必被拒** */
+    else if (DestroyDocContext((void *)0xdead) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 17; /* **未知句柄必被拒（不 deref）** */
+    else if (CreateDocContext(NULL, &p2) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 35;       /* `NULL` 入参必被拒 */
+    else if (p2 != NULL) rc = 36;                                                       /*   且出参清空（不许留残留） */
+    else if (CreateDocContext(sb, NULL) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 37;        /* 空出参必被拒（不许"写空也算成功"） */
     else if (GetFloaterHandlerInfo(sb, sp) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 7;
     else if (GetTableObjHandlerInfo(sb, sp) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 8;
     /* ── 格 2：三参形 · 必须**成功** ─────────────────────────────────────────── */
@@ -1359,6 +1608,8 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
                       修法：**夹具一跑完就地复原**这些计数（镜与对象由夹具自己管），
                       使"报告那一格"仍然看到**自检前**的值。 */
                 g_pts_doc_sets = save_doc_sets; g_pts_doc_rejected = save_doc_rej;
+    g_pts_doc_sets_c = save_doc_c_sets; g_pts_doc_rejected_c = save_doc_c_rej;
+    g_pts_doc_destroys = save_doc_des; g_pts_doc_destroy_rej = save_doc_desrej;
                 g_pts_break_sets = save_brk_sets; g_pts_break_rejected = save_brk_rej;
                 /* ⏪ `t102`／P1-W28 · `F-2` 的**第二处**（本趟实测抓到的）：
                    负极性夹具**自己也会真调** `LoAcquirePenaltyModule` ⇒ 它涨的 `g_pts_pen_sets`
@@ -1397,13 +1648,26 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
         else if (wpf_pts_report_field(rep, "loc_live") != base) rc = 31;          /* 无泄漏（base 相对） */
         else if (wpf_pts_report_field(rep, "setdoc_sets") != save_doc_sets ||
                  wpf_pts_report_field(rep, "setbrk_sets") != save_brk_sets) rc = 32;   /* 计数已复原（与进来时比） */
-        /* **长度纪律**（如实划界）：本行**放不下应用侧的 256 B**（`PtsCache.Linux.cs` 的 `NativeReport()`
-           用 `byte[256]`）—— 本格之前 **329 B 就已超** ⇒ 应用侧那一路**本来**就取不到本行
+        /* **长度纪律**（如实划界，`t110` 现取重写）：本行**放不下应用侧的 256 B**（`PtsCache.Linux.cs`
+           的 `NativeReport()` 用 `byte[256]`）⇒ 应用侧那一路**本来**就取不到本行
            （`WpfLinuxWin32_PtsGapReport()` 写不下就**如实返回 -1**，不截断、不静默），而应用侧 `entry=`
            走的是**另一条**取数路（内层异常的入口名，见 `PtsCache.Linux.cs:988-1014`）⇒ 本行长度
-           **不影响** `entry=` 面。这里把上界钉在 340 B（= 自检自己 `char rep[512]` 之内的**宽松界**），
-           只用来防"后人顺手把报告撑爆"。**未**改应用侧任何件、**未**改仪表。 */
-        else if ((int)strlen(rep) > 340) rc = 34;
+           **不影响** `entry=` 面。上界钉在 340 B（= 自检自己 `char rep[512]` 之内的**宽松界**），
+           只用来防"后人顺手把报告撑爆"。**未**改应用侧任何件、**未**改仪表。
+           🔴 **`t110` 实测到的失效形态（必须留档）**：这条断言原先量的是**链中途那一份** `rep`
+           —— 而链会真的打到 `CreateInstalledObjectsInfo`／`CreateDocContext` 等入口 ⇒ `anchor=`／
+           `frontier=` 从 `-` 变成**真名**、`calls=0:…` 也跟着非零 ⇒ **同一份格式**在链中途量出
+           **374 B**、在净状态量出 **328 B** ⇒ **旧写法把"链的污染"算成了"格式变长"**
+           （本趟 `diag=34` 的真因，与格 6 无关）。⇒ 改成**自检入口处（动计数器之前）现取一份净报告长度**再量：
+           既保留"防撑爆"的原意，又不再对**链的调用序**敏感（`F-1` 同族口径）。本趟现取净基线 ＝ **328 B**
+           （`t110` 加 `doc_*` 五个字段之前是 292 B ⇒ 本次 +36 B，余量仍充裕）。 */
+        /* 判法（本趟现取后写死）：**入口净基线** vs **此刻净报告** —— 只判"格式有没有被后人撑爆"
+           （相对增量 ≤ 64 B），**不**判"某个前置态下这行多长"、也**不**再判绝对上界 340 B
+           （绝对上界天生对前置态敏感：带历史腿净基线实测 **342 B**，与 `t102` 修正同类）。两腿实测：净腿 328→328（增量 0）、
+           带历史腿 342→342（增量 0）⇒ 该判据对**前置态不敏感**（`F-1` 口径），而把格式撑爆几百字节
+           仍会**当场红**。 */
+        else if (WpfLinuxWin32_PtsGapReport(rep, (int)sizeof(rep)) < 0 ||
+                 (int)strlen(rep) - rep_clean_len > 64) rc = 34;
         /* ── `t92`／P1-W20 新增两格（**格号从 80 起，沿用旧号一个都不动** —— 纪律第 `30` 条）────
              ① `O-1` 的**缓冲区不变式**（可被机器核）：先用 canary 把一块缓冲填满，再**故意**用
                 放不下的 `cap` 调 `WpfLinuxWin32_PtsGapReport()`，然后断言三条 ——
@@ -1426,7 +1690,23 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
              格 `85`（格 5 的成对断言）：**内部句柄与该模块绑定（非单例）＋ 拒绝面不改状态 ＋ 夹具不带泄漏**。
                修前该入口是 stub ⇒ 出参恒 `NULL` ⇒ 本格**当场红**（可证伪）；故它与 `C8` 的 1→0 是一对。 */
         else if (!g_pts_selfcheck_f5_binding()) rc = 85;
+        /* ── `t110`／P1-W35 新增一格（**格号 `86` 起；旧号与 `80`–`85` 一个不动** —— 纪律第 `30` 条）──
+             格 `86`（格 6 的成对断言）：**出参与该次调用绑定（字段逐项读回）＋ 两次句柄不同
+             ＋ 观测镜指针域对拍 ＋ 拒绝面不改状态 ＋ 收尾同侪四路拒绝 ＋ 夹具不带泄漏**。
+               修前该入口是 stub ⇒ 出参恒 `NULL` ⇒ 本格**当场红**（可证伪）。 */
+        else if (!g_pts_selfcheck_f6_docctx()) rc = 86;
     }
+
+    /* ⏪ `t110` 实测教训（**必须留档**）：链跑完之后、**格 6 夹具之前**，观测镜要先**复原**。
+       为什么：修前 `CreateDocContext` 是 stub ⇒ 它**不 push**，链一共只 push 3 条（环 `WPF_PTS_JMP_MAX=4`
+       ⇒ **放得下**）；本步它变成真实现 ⇒ 链 push 4 条（`CreateInstalledObjectsInfo`／
+       `DestroyInstalledObjectsInfo`／`CreateDocContext`／`DestroyDocContext`）⇒ **环刚好写满**，
+       格 6 夹具自己那两条 push 就会把**它要找的那条覆盖掉** ⇒ 同一份夹具在**链后**跑必然
+       找不到条目（本趟 `diag=86`、夹具标签 `21`＝镜对拍那一格的真因；**单独跑夹具时全绿**）。
+       ⇒ 次序写死：**链结束 ⇒ 先复原镜 ⇒ 再跑夹具**（与末尾那次复原**同一件事的两个时机**，
+         末尾那次保留：它同时负责把镜还成"自检进来时的样子"）。 */
+    memcpy(g_pts_jmp, save_jmp, sizeof(save_jmp));
+    g_pts_jmp_head = save_jmp_head; g_pts_jmp_n = save_jmp_n;
 
     // 复原台账 + 观测镜（自检不许改变可观测状态）
     memcpy(g_pts_calls, save_calls, sizeof(save_calls));
@@ -1434,6 +1714,8 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
     memcpy(g_pts_jmp, save_jmp, sizeof(save_jmp));
     g_pts_jmp_head = save_jmp_head; g_pts_jmp_n = save_jmp_n;
     g_pts_doc_sets = save_doc_sets; g_pts_doc_rejected = save_doc_rej;
+    g_pts_doc_sets_c = save_doc_c_sets; g_pts_doc_rejected_c = save_doc_c_rej;
+    g_pts_doc_destroys = save_doc_des; g_pts_doc_destroy_rej = save_doc_desrej;
     g_pts_break_sets = save_brk_sets; g_pts_break_rejected = save_brk_rej;
     g_pts_pen_sets = save_pen_sets; g_pts_pen_rejected = save_pen_rej;   /* `F-2`：格 4 计数一并复原 */
     g_pts_inth_sets = save_inth_sets; g_pts_inth_rejected = save_inth_rej;   /* `t103`：格 5 计数一并复原 */
