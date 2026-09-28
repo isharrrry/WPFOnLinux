@@ -46,9 +46,9 @@
     "evidence_log_sha256": "0153827e9c590d1e",
     "arm_logs": {
       "tline": "0153827e9c590d1e9dcd51c168a40e625a005c06b9f553b94cf0eaa5ba951eb3",
-      "tab-zero": "9150c3a26a3cb789582f3df655006955cf1db10dda00d91097d24d97b40e1912",
-      "tab-rtl": "92570318851ca7e85f64017c89bd784d971cfe4028f7b8e47cb79035146755c4",
-      "tab-anchor": "1c43a12dcaa5718a27f5e4c66d6ff59bd3b6da0b199e384a315b54e7041cc916",
+      "tab-zero": "b5239c4e5b95fa5625ed573c7a3f4f63cadaed5224f0565f84d8a0694e54ae07",
+      "tab-rtl": "70feb4b5d4ab80f70833140556bd97c207439b85cde3b114e02d939091a2b25e",
+      "tab-anchor": "2e62d68ed5edd5e7b68c7d965cd74b8ab6c3a203c36b516ba340812c69674948",
       "textlineproto": "c537f0c007a6c9226cfb1d82b42e565056968dc3302976f4d17d3b26d32c901a"
     },
     "probes": {

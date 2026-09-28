@@ -58,12 +58,13 @@
 # COLUMN-FLOOR arm=tab-oracle-anchor col=START      judged_min=615 released_min=194
 # COLUMN-FLOOR arm=tab-oracle-anchor col=OVERFLOWED judged_min=421
 # COLUMN-CORPUS file=tests/parity/windows/tab-anchor/out/tab-anchor-oracle.json sha16=0cebc0afd5142fbf
-# ARM-LOG-SHA arm=tab-anchor    sha16=1c43a12dcaa5718a
-# ARM-LOG-SHA arm=tab-zero      sha16=9150c3a26a3cb789
-# ARM-LOG-SHA arm=tab-rtl       sha16=92570318851ca7e8
+# ARM-LOG-SHA arm=tab-anchor    sha16=2e62d68ed5edd5e7
+# ARM-LOG-SHA arm=tab-zero      sha16=b5239c4e5b95fa56
+# ARM-LOG-SHA arm=tab-rtl       sha16=70feb4b5d4ab80f7
 # ARM-LOG-SHA arm=tline         sha16=0153827e9c590d1e
 # ARM-LOG-SHA arm=textlineproto sha16=c537f0c007a6c922
 #   **九位（Release 权威件）**：`bridge` `4e25e4b27d4d5ae1`（5028208 B）／`pc` `5b6cfda3e12b84fc`／`pf` `b9a4f3a0e48e688d`（6123520 B）／`windowsbase` `9e860cbeecb352e1`／`provider` `7e8a217b4165a6b9`／`win32shim` `6825dd7071387a46`／`wic_shim` `f7b3026c8c019be2`／`hbtextline` `921ba9c65e9fb3be`／`dwf` `c83be96f18759edc`
+#   （重钉说明，`2026-09-28T21:53:01.432+0800`）⏪ **dated 重钉（队长，2026-09-28T21:52:46.680+0800）：`tab-anchor`／`tab-zero`／`tab-rtl` 三行 sha16 已随 `t67`（重建 CoverageProbe 后重取三支臂日志）更新为现盘值。本次**只重钉臂日志派生声明**（`known-red.json` 的 `generation.arm_logs` 同趟改全 64 位）；**九位与世代号不变**（`gen=#80`）⇒ 这不是新世代冻结，而是把「现盘 / 登记表 / 冻结块」三角重新对齐（原三条红：`ARM-LOG-SHA` 与 `COLUMN-FLOOR` 只能同时绿 ⟺ 现盘＝冻结块）。**`tline`／`textlineproto` 两行未动**（现盘未变）。）
 #     · **相对 `#79` 冻结值**：`win32shim` `e8127a3d7128d417` → `6825dd7071387a46`（**产品改动**）／`pf` `12fb36e7b0df1802` → `b9a4f3a0e48e688d`（**环成员**，`D-G92`）；其余位 `pc` `38ae477949238306`／`windowsbase` `ed04eb65081c2d3a`／`dwf` `0d25f64a7dbb4c78`／`provider` `8cb1b50619f4c133` → `7e8a217b4165a6b9`／`wic_shim` `f7b3026c8c019be2` → `f7b3026c8c019be2`（**`#80` 起由 `fmt` 键现取** —— 此前是写死的字面量，见 `D-G166`／`D-G149` 第二代）／`bridge`／`hbtextline` 见 `BASELINE tier=` 机读行。
 #   **`BRIDGE_SRC_FP` = `d697b1e10ff48881`**（上一代 `d697b1e10ff48881`）。
 #   **`inputs_fp` = `abc76bd55f513b8def295692e64b9d89e2ff99e807be8210aa7ee57f3289601f`**（**本波冻后值 · 机读形态** —— 这一行是**下一代 `prev_infp` 的唯一来源**；上一代 = `4c096e9c0705a95d8a2a69617f777df06686e48b8e0ce40ae16eec75e095f180`）。覆盖面 **212 → 217**（本波 +5 件），`[42] --expect` **同趟** `212 → 217`。

@@ -829,7 +829,7 @@ def selftest():
             '九位行里塞裸 16 位 hex ⇒ 模板面 FAIL 并点名 `kind=nine`')
         # S9b（新）：裸 hex **只**出现在 `ARM-LOG-SHA`（非承载行）⇒ **只列不判**：PASS ＋ 有 NOTE（这是口径②的边界）
         tpl2 = os.path.join(T, 'rec2.txt')
-        open(tpl2, 'w').write('# template\n# ARM-LOG-SHA arm=tab-anchor sha16=1c43a12dcaa5718a\n'
+        open(tpl2, 'w').write('# template\n# ARM-LOG-SHA arm=tab-anchor sha16=2e62d68ed5edd5e7\n'
                               '#   **`inputs_fp` = `{INFP}`**（占位符，不是裸值）\n')
         out = subprocess.run(['python3', os.path.abspath(__file__), '--root', SELF_ROOT, '--freezer', '/nonexistent',
                               '--template', tpl2], capture_output=True, text=True).stdout
