@@ -47,6 +47,16 @@
 #      `PTSGAP_CITED=NOINFO`（**响亮**，但不改 `rc` —— 它是辅助轨，不是本牙的判定本体）。
 #
 # 【两极化（`--selftest`，**9 腿**，其中 **6 腿**断言「必须红」；`t63`/W7 加 L8/L9 两条前沿腿）】合成夹具，不需要 `$R` 的真正文：
+#   ⏪ `t106`（2026-09-29）**扫描形状收窄（与裁定九一致）**：复述位扫描改为**逐行分类** ——
+#     **自引旧代工件**的行（行内 `libwpfwin32.so <16hex>` ≠ 现盘 `so16`，或 `<N> 导出` ≠ 现盘 `exports`）
+#     ＝ **历史行**，其数字**不参与现值判定**（在场不红，只印 `PTSGAP_HISTORICAL=n=…`）；
+#     其余命中行**逐处**参与（写错 ⇒ 必红 `SITE-DRIFT`）；**每字段**若只剩历史行 ⇒
+#     `SITE-HISTORICAL-ONLY` ＋ `PTSGAP=NOINFO reason=current-site-absent`（`rc=3`，**绝不当绿**）。
+#     ⇒ 两极化腿增至 **12 腿**（H1 历史行在场不得假红／H2 现值位写错必红／H3 只剩历史行 ⇒ NOINFO）。
+#     ⚠️ **判定的域＝全树逐字段**：某**件**某字段只剩历史行只是**告示**（`SITE-HISTORICAL-ONLY`）；
+#     只有当某字段**在全树**都没有现值位时 ⇒ `PTSGAP=NOINFO reason=current-site-absent fields=…`（`rc=3`）。
+#     理由（现取）：`samples/WpfFeatureProbe/KNOWN-DEFECTS.md` 的 `ops`／`impl` 两字段现值位本就不在该件（现值由
+#     `pts-gap-decl.txt` 侧同步），若按"每件每字段"判，真树会**永久 NOINFO** ⇒ 那样牙同样没有牙。
 #   L1 正极性（全部复述位 == 现算 ∧ 声明自洽）⇒ `PASS`｜L2 正文某处 +1 ⇒ `FAIL` 并点名该件
 #   ｜L3 声明 `ops` +1 ⇒ `FAIL` `DRIFT ops`｜L4 复述位整件缺席 ⇒ `FAIL SITE-ABSENT`
 #   ｜L5 复述位在但抽不到（形态漂移）⇒ `FAIL SITE-NOHIT`｜L6 声明件缺席 ⇒ `NOINFO`＋`rc=3`
@@ -220,7 +230,40 @@ selftest() {
   leg "L9 计数下降且前沿真位移（**不得假红**）" PASS "" "$fx" "$fx/decl.txt" \
       PTSGAP_FRONTIER_CARRIER="$TMPD/fr-moved.log" PTSGAP_FR_BASELINE_IMPL="$((IMPL+1))"
 
-  printf 'PTSGAP_SELFTEST=%s pass=%d fail=%d legs=9 must_red=6\n' \
+  # ── `t106` 新增三腿（扫描形状收窄）：H1 历史行在场**不得假红**｜H2 现值位写错**必红并点名**｜
+  #    H3 某字段**只剩历史行** ⇒ `NOINFO reason=current-site-absent`（响亮、不当绿）
+  local h="$TMPD/fx6"; rm -rf "$h"; cp -a "$fx" "$h"
+  {
+    local soexpair2="libwpfwin32.so 0000000000000000"
+    printf -- '- **🆕 在册数更正（2026-09-24 车道 W154A-PTS 只读盘点，主控落册）**：工具口径 **%s**（件 %s／%s 导出）… ⇒ **可操作缺口 %s**；**实现口径 %s**\n' \
+      "$((TOOL+1))" "$soexpair2" "$((EXPORTS+2))" "$((OPS+1))" "$((IMPL+1))"
+    printf -- '- 现值出处（现盘）：工具口径 **%s** ⇒ **可操作缺口 %s**；**实现口径 %s**\n' "$TOOL" "$OPS" "$IMPL"
+  } >>"$h/samples/WpfFeatureProbe/KNOWN-DEFECTS.md"
+  leg "H1 历史行在场（自引旧代 ⇒ 不参与）**不得假红**" PASS "" "$h" "$fx/decl.txt"
+
+  local h2="$TMPD/fx7"; rm -rf "$h2"; cp -a "$h" "$h2"
+  sed -i "s/现值出处（现盘）：工具口径 \*\*$TOOL\*\*/现值出处（现盘）：工具口径 **$((TOOL+1))**/" \
+      "$h2/samples/WpfFeatureProbe/KNOWN-DEFECTS.md"
+  leg "H2 现值位写错（**必须红并点名**）" FAIL "SITE-DRIFT samples/WpfFeatureProbe/KNOWN-DEFECTS.md tool" "$h2" "$fx/decl.txt"
+
+  local h3="$TMPD/fx8"; rm -rf "$h3"
+  mkdir -p "$h3/docs" "$h3/build/MilBridge" "$h3/samples/WpfFeatureProbe" "$h3/src/WpfGfx.Linux.Native/src"
+  # ⚠️ 反引号一律**不写进双引号**（`DQ-BACKTICK` 族；`t48`/`t60`/`t106` 都栽过）⇒ 用具名变量拼装
+  local sotic='libwpfwin32.so'
+  local soold='0000000000000000'
+  local soexpair="$sotic $soold"
+  printf -- '- 历史：工具口径 **%s** − **可操作 %s**（短）｜**实现口径 %s**（件 %s／%s 导出）；可操作缺口 %s 条／实现口径 %s 条／**可操作 %s 条\n' \
+      "$((TOOL+1))" "$((OPS+1))" "$((IMPL+1))" "$soexpair" "$((EXPORTS+2))" "$((OPS+1))" "$((IMPL+1))" "$((OPS+1))" >"$h3/docs/ROUTES.md"
+  printf -- '- 历史：工具口径 **%s** ⇒ **可操作缺口 %s**；**实现口径 %s**（件 %s／%s 导出）\n' \
+      "$((TOOL+1))" "$((OPS+1))" "$((IMPL+1))" "$soexpair" "$((EXPORTS+2))" >"$h3/samples/WpfFeatureProbe/KNOWN-DEFECTS.md"
+  printf -- '- 历史：**可操作 %s／实现口径 %s**（件 %s／%s 导出）\n' "$((OPS+1))" "$((IMPL+1))" "$soexpair" "$((EXPORTS+2))" >"$h3/README.md"
+  printf -- '- 历史：**可操作 %s／实现口径 %s**（件 %s／%s 导出）\n' "$((OPS+1))" "$((IMPL+1))" "$soexpair" "$((EXPORTS+2))" >"$h3/build/MilBridge/HANDOFF-NEXT.md"
+  printf -- '//   历史：可操作 %s／实现口径 %s 条（件 %s／%s 导出）\n' "$((OPS+1))" "$((IMPL+1))" "$soexpair" "$((EXPORTS+2))" >"$h3/src/WpfGfx.Linux.Native/src/win32_classification.c"
+  printf -- '- 历史：工具报缺 **%s** ⇒ **可操作 %s**（件 %s／%s 导出）\n' "$((TOOL+1))" "$((OPS+1))" "$soexpair" "$((EXPORTS+2))" >"$h3/docs/unimplemented.md"
+  cp -a "$SITES/docs/WAVE66-PREREGISTRATION.md" "$h3/docs/" 2>/dev/null || true   # W66 锚取自 $SITES ⇒ 夹具须同备，否则 live 不可读 ⇒ 假红
+  leg "H3 某字段只剩历史行（必须 NOINFO、**绝不当绿**）" NOINFO "reason=current-site-absent" "$h3" "$fx/decl.txt"
+
+  printf 'PTSGAP_SELFTEST=%s pass=%d fail=%d legs=12 must_red=7\n' \
       "$([ "$nfail" -eq 0 ] && echo PASS || echo FAIL)" "$npass" "$nfail"
   [ "$nfail" -eq 0 ] || return 1
   return 0
@@ -244,14 +287,63 @@ done
 
 # ── ③ 正文复述位（内容锚抽取；命中数 ==0 ⇒ 响亮失败）────────────────────────────
 # `one <相对路径> <含数的上下文 ERE> <标签> <期望值>`：该式在**该件里的每一次命中**都必须等于期望值。
+# ⏪ `t106`（2026-09-29，与 `build/MilBridge/P1-ptsname-result.md` §8 **裁定九**一致）
+#   **扫描形状收窄：历史行不承担现值** —— 判据是**内容锚**（不看行号、不看文件）：
+#   一条**命中行**被判「**历史行**」⇔ 它**自引了一个与现盘不同的工件世代**，即满足其一：
+#     ① 行内出现 `libwpfwin32.so <16hex>`（或裸 `.so <16hex>`）且该 16hex ≠ 现盘 `so16`；
+#     ② 行内出现 `<N> 导出` 且 `N` ≠ 现盘 `exports`。
+#   ⇒ 这类行**只描述它引用的那一代**（裁定九），其数字**不参与现值判定**（**在场不红**）；
+#   **其余命中行一律参与**（现值出处写错 ⇒ **必红并点名** `SITE-DRIFT <件> <字段> want=… got=…`）。
+#   ⚠️ **没有**放宽到"整件不扫"：本件对**每一处命中**逐处分类（同一件可同时有历史行与现值行）；
+#   且**每个字段都必须至少有一处现值位**，否则 ⇒ `SITE-HISTORICAL-ONLY …` ＋
+#   `PTSGAP=NOINFO reason=current-site-absent`（**响亮、`rc=3`、绝不当绿**）。
+#   ⚠️ 也不采用"只扫第一处"这类脆弱口径（那会让"第二处写错"漏网）。
+CUR_SITE_MISSING=0
+HIST_TOTAL=0
+HISTONLY=""          # 出现过"只剩历史行"的**字段标签**集合（空格分隔）
+CURSEEN=""           # 出现过现值位的**字段标签**集合（空格分隔）
+lab_add() { case " ${!1} " in *" $2 "*) ;; *) eval "$1=\"${!1} $2\"" ;; esac; }   # `${!1}`＝按名取现值（去重靠它）
+
+# 该行是否"自引旧代工件"（⇒ 历史行）：$1 ＝ 行文本
+line_is_hist() {
+  local L="$1" h e
+  # ⚠️ 本行的 ERE **故意不含反引号**（双引号内的反引号会被 shell 当命令替换 ⇒ `D-G186` 同族坑）
+  h=$(printf '%s' "$L" | LC_ALL=C grep -oE '[.]so[^0-9a-f]{0,3}[0-9a-f]{16}' 2>/dev/null | grep -oE '[0-9a-f]{16}' | head -1)
+  if [ -n "$h" ] && [ "$h" != "$SO16" ]; then return 0; fi
+  e=$(printf '%s' "$L" | grep -oE '[0-9]+ 导出' 2>/dev/null | grep -oE '[0-9]+' | head -1)
+  if [ -n "$e" ] && [ "$e" != "$EXPORTS" ]; then return 0; fi
+  return 1
+}
+
+# 现值位扫描（`t106` 起）：逐**行**分类 —— 历史行计票不判定；现值行**逐处**判定
 one() {
-  local p="$SITES/$1" re="$2" lab="$3" want="$4" vf="$TMPD/v.$$" nh v
+  local p="$SITES/$1" re="$2" lab="$3" want="$4" vf="$TMPD/v.$$" nh v line vals ncur nhist
   if [ ! -s "$p" ]; then echo "  SITE-ABSENT $1"; rc=1; return; fi
-  grep -oE "$re" "$p" 2>/dev/null | grep -oE '[0-9]+' >"$vf" 2>/dev/null || true
-  nh=$(wc -l < "$vf" | tr -d ' ')
-  if [ "${nh:-0}" -eq 0 ]; then
-    echo "  SITE-NOHIT $1 $lab (响亮失败：形态漂移或该处未落新数)"; rc=1; rm -f "$vf"; return
+  : >"$vf"; ncur=0; nhist=0
+  # ⚠️ 只喂**命中行**（`grep -E` 一次过件）—— 逐行 grep 全件会把本牙从 <3 s 拖到 >50 s（`t106` 实测）
+  while IFS= read -r line; do
+    [ -n "$line" ] || continue
+    vals=$(printf '%s\n' "$line" | grep -oE "$re" 2>/dev/null | grep -oE '[0-9]+' 2>/dev/null || true)
+    [ -n "$vals" ] || continue
+    if line_is_hist "$line"; then
+      nhist=$((nhist + $(printf '%s\n' "$vals" | grep -c .)))
+      continue
+    fi
+    printf '%s\n' "$vals" >>"$vf"
+    ncur=$((ncur + $(printf '%s\n' "$vals" | grep -c .)))
+  done < <(grep -E "$re" "$p" 2>/dev/null || true)
+  if [ "${ncur:-0}" -eq 0 ]; then
+    if [ "${nhist:-0}" -gt 0 ]; then
+      # ⏪ `t106`：**本件**该字段只剩历史行 ⇒ 只是**告示**（现值位可在别件）；是否 NOINFO 由**全树逐字段**在判词处裁定
+      echo "  SITE-HISTORICAL-ONLY $1 $lab hist=$nhist（本件该字段只剩**自引旧代工件**的历史行 ⇒ 现值位当在别件；全树口径见 PTSGAP=NOINFO reason=current-site-absent）"
+      lab_add HISTONLY "$lab"
+    else
+      echo "  SITE-NOHIT $1 $lab (响亮失败：形态漂移或该处未落新数)"; rc=1
+    fi
+    rm -f "$vf"; return
   fi
+  HIST_TOTAL=$((HIST_TOTAL + nhist))
+  lab_add CURSEEN "$lab"
   while IFS= read -r v; do
     [ -n "$v" ] || continue
     [ "$v" = "$want" ] || { echo "  SITE-DRIFT $1 $lab want=$want got=$v"; rc=1; }
@@ -277,6 +369,9 @@ one src/WpfGfx.Linux.Native/src/win32_classification.c '可操作 [0-9]+／'    
 one src/WpfGfx.Linux.Native/src/win32_classification.c '／实现口径 [0-9]+ 条' impl "$IMPL"
 one docs/unimplemented.md       '工具报缺 \*\*[0-9]+\*\*'             tool "$TOOL"
 one docs/unimplemented.md       '⇒ \*\*可操作 [0-9]+\*\*'             ops  "$OPS"
+
+# ⏪ `t106`：历史行的**可见性**（不参与判定，但**不许静默**）——只作信息行，不改 `rc`
+[ "${HIST_TOTAL:-0}" -gt 0 ] && echo "PTSGAP_HISTORICAL=n=$HIST_TOTAL（自引旧代工件的**历史行**命中数：**不参与现值判定**，见裁定九）"
 
 # ── ③b `D-G141` 族：复述位里写进去的命令必须真能跑 ────────────────────────────────
 LINES="$TMPD/cited-lines.txt"; : >"$LINES"
@@ -334,5 +429,12 @@ else
 fi
 
 # ── ④ 判词 ────────────────────────────────────────────────────────────────────────
+# ⏪ `t106`：**现值出处缺失**是一门**响亮**的 NOINFO（`rc=3`）——**绝不当绿**（也不当红：缺位不是矛盾）
+_misslab=""
+for _l in $HISTONLY; do case " $CURSEEN " in *" $_l "*) ;; *) _misslab="$_misslab $_l" ;; esac; done
+if [ "$rc" -eq 0 ] && [ -n "$_misslab" ]; then
+  echo "PTSGAP=NOINFO reason=current-site-absent fields=${_misslab# }（这些字段**全树**只剩历史行 ⇒ 现值出处缺失；**这不是绿**，见裁定九／t106）"
+  exit 3
+fi
 if [ "$rc" -eq 0 ]; then echo "PTSGAP=PASS $LIVE"; else echo "PTSGAP=FAIL $LIVE"; fi
 exit "$rc"
