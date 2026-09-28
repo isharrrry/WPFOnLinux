@@ -557,7 +557,21 @@ int WpfLinuxWin32_PtsGapCalls(void) { return g_pts_seq; }
 int WpfLinuxWin32_PtsInstalledObjectsLive(void)    { return g_pts_io_live_n; }
 int WpfLinuxWin32_PtsInstalledObjectsCreates(void) { return g_pts_io_creates; }
 
-// 第 idx 个"见过"的入口名写进 buf（nul 结尾）。命中 ⇒ 返回 1，越界/无 ⇒ 0。
+// 第 idx 个"见过"的入口名写进 buf（nul 结尾）。
+//   ⏪ **`t92`／P1-W20 · `F-3` 真修（纵深防御；本口是"裸口"，任何调用者都可能不经托管侧那层纪律）**：
+//     修前原文 ＝ `snprintf(buf, (size_t)cap, "%s", k_pts_entries[i]); return 1;` —— **无长度检查**：
+//     `snprintf` 截断时**仍然返回 1** ⇒ 调用方拿到**貌似完整的短名**（`cap=5 ⇒ 1/`"LoAc"`）。
+//     这在判据面比 `unknown` **更坏**：`unknown` 是诚实的"没读到"，截断名是一个**看起来可归因的假名**
+//     （若截断恰好落在名册里另一个真名上 ⇒ **假绿**）。
+//   **返回语义（本口定死，可判、可核）**：
+//     · 命中且**放得下**（`cap >= 名长 + 1`）      ⇒ 返回 **1**，`buf` ＝ 真名（nul 结尾）；
+//     · **放不下**（`cap <= 名长`）**或** `cap <= 0` **或** `buf == NULL` ⇒ 返回 **0**，且
+//       **当 `buf` 非空且 `cap > 0` 时**把 `buf` 写成**空串**（`buf[0] = '\0'`）—— **绝不留下截断名**；
+//     · **无此 idx**（越界／没有该条目）⇒ 返回 **0**，同样写空串。
+//   ⇒ **三种"没拿到"都归一到同一种可判形态（`0` ＋ 空串）**；调用者**凭返回值**即可判定，
+//     就算**忽略返回值**也只会拿到空串（不会拿到看似完整的假名）。
+//     ⚠️ 与 `t90` 在托管侧落的纪律（`GapEntryNameAt()` 用 `strlen(buf) < cap-1` 保守判截断）**相容**：
+//        本口现在在放不下时根本不写名 ⇒ 那一层即使不变也**只会更保守**（多判 unknown、不会误信假名）。
 int WpfLinuxWin32_PtsGapEntryName(int idx, char *buf, int cap)
 {
     if (!buf || cap <= 0) return 0;
@@ -565,6 +579,11 @@ int WpfLinuxWin32_PtsGapEntryName(int idx, char *buf, int cap)
     for (int i = 0; i < WPF_PTS_ENTRY_COUNT; i++) {
         if (g_pts_calls[i] <= 0) continue;
         if (seen == idx) {
+            int need = (int)strlen(k_pts_entries[i]) + 1;      // 名长 + nul
+            if (cap < need) {                                  // **放不下** ⇒ 不返回截断名
+                buf[0] = '\0';
+                return 0;
+            }
             snprintf(buf, (size_t)cap, "%s", k_pts_entries[i]);
             return 1;
         }
@@ -607,8 +626,57 @@ int WpfLinuxWin32_PtsGapReport(char *buf, int cap)
                      g_pts_io_live_n,
                      g_pts_loc_live_n, g_pts_loc_creates, g_pts_loc_destroys, g_pts_loc_rejected,
                      g_pts_doc_sets, g_pts_doc_rejected, g_pts_break_sets, g_pts_break_rejected);
-    if (n < 0 || n >= cap) { buf[cap - 1] = '\0'; return -1; }
+    if (n < 0 || n >= cap) {
+        // ⏪ **`t92`／P1-W20 · `O-1` 返回语义（可判、可核）**：修前这一支只有一句
+        //   `buf[cap - 1] = '\0'; return -1;` ⇒ **语义对、但"正确"靠的是一个没被写下来的不变式**
+        //   （尾部多余字节恰好是 0）。本格把该不变式**写进代码并可被机器核**（三条）：
+        //     ① **只有这一支**返回 `-1`（放得下 ⇒ 返回**正的长度**，由末尾 `return n;` 给）⇒
+        //        "`-1` ＝ 没写出一条完整行"成了**唯一**的失败形态；
+        //     ② `strnlen(buf, cap)` 被**钉在 `cap - 1`**（行首到 `cap-2` 是完整前缀，`cap-1` 是 nul）
+        //        ⇒ 不会因未初始化字节而让长度飘到 `cap`；
+        //     ③ `buf[cap-1]` **之后**（`cap` 起的尾部区域）**必须仍是调用前的 canary** ⇒ 本函数
+        //        **一个字节都不越界写**（`g_pts_report_tail_is_clean()` 就是这条断言的机器可读面）。
+        //   ⇒ **两类读者的读数（载体有成对读数）**：**按 rc 判**的读者看到 `-1` ＝ 明确"没拿到完整行"
+        //     （`PtsCache.Linux.cs` 的 `NativeReport()` 正是这一类，它据此**放大缓冲重试**）；
+        //     **忽略 rc** 的读者只会读到**该前缀 ＋ 一个空串收尾** —— 是**良构的截断**，
+        //     不是"半截行里混着栈垃圾"（尾部字节区不是本行内容）。
+        buf[cap - 1] = '\0';
+        return -1;
+    }
     return n;
+}
+
+// ⏪ **`t92`／P1-W20 · `O-1` 的机器可读检查口**（纯读，`<string.h>` 函数，不依赖 `<ctype.h>`）：
+//   判"`buf[0 .. cap-1]` 这一行是否良构 ∧ `cap` 起的尾部区域是否仍是调用前的 canary"。
+//   返回 **1** ＝ 良构（`strnlen(buf, cap) <= cap - 1` ∧ `buf` 区域不含 canary 字节）；
+//          **0** ＝ 不良构（越界写了／该行区里出现了 canary 字节 ⇒ 行内容延伸到了尾部区）。
+//   ⚠️ 本口**不**判"内容对不对"，只判 `O-1` 那条**缓冲区不变式**；调用者负责把 canary 填好。
+//   ⚠️【`t92`】**故意 `static`（不进导出面）**：本件的硬约束是"导出面**不该因本件变动**（561）"
+//      ⇒ 检查口只给**本文件内部**（自检）用；仓外探针要核这条不变式时，按**同一配方**自填 canary
+//      并读返回形态即可（配方逐字入载体），不必多两个导出符号（那会把 561 变成 563）。
+static int g_pts_report_tail_is_clean(const char *buf, int cap)
+{
+    if (!buf || cap <= 0) return 0;
+    const unsigned char CANARY = 0xA5;
+    size_t line_len = strnlen(buf, (size_t)cap);
+    if (line_len > (size_t)(cap - 1)) return 0;                  // 行区长到 cap ⇒ 没被 nul 收尾
+    for (size_t k = 0; k < line_len; k++) {
+        if ((unsigned char)buf[k] == CANARY) return 0;           // 行区里出现 canary ⇒ 形状不对
+    }
+    // 尾部区（`cap` 起）由调用者按需检查：本口只知道"行区"的边界；尾部检查见下一个口。
+    return 1;
+}
+
+// 尾部区（`buf[cap .. cap+tail-1]`）是否**一个字节都没被动**（仍是调用前的 canary）。
+//   返回 1 ＝ 干净；0 ＝ 被写脏（＝ 发生了越界写）。同上：**static，不进导出面**。
+static int g_pts_report_tail_untouched(const char *buf, int cap, int tail)
+{
+    if (!buf || cap <= 0 || tail <= 0) return 0;
+    const unsigned char CANARY = 0xA5;
+    for (int k = 0; k < tail; k++) {
+        if ((unsigned char)buf[cap + k] != CANARY) return 0;
+    }
+    return 1;
 }
 
 // ── 格 3 · **负极性夹具**（自检的一部分；写成函数只为让"必红点"逐条可点名）──────────────
@@ -657,6 +725,57 @@ static int wpf_pts_neg_polarity(void)
     if (LoDestroyContext(loc_never) != 0) { LoDestroyContext(loc_c); return 78; }
     if (LoDestroyContext(loc_c) != 0) return 79;
     return 0;
+}
+
+// ── `t92`／P1-W20 的两格夹具（**static，不进导出面**；由自检调用）──────────────────────────
+//   ① `O-1` 缓冲区不变式：canary 填满 → 用放不下的 cap 调报告 → 三条断言。
+#define WPF_PTS_O1_CANARY 0xA5
+static int g_pts_selfcheck_o1_canary(void)
+{
+    enum { CAP = 251, TAIL = 32 };                 // `CAP` 取"必定放不下"的小值；TAIL 是越界写的探针区
+    unsigned char b[CAP + TAIL];
+    for (int k = 0; k < CAP + TAIL; k++) b[k] = WPF_PTS_O1_CANARY;
+    int rc = WpfLinuxWin32_PtsGapReport((char *)b, CAP);
+    if (rc != -1) return 0;                          // ① 写不下 ⇒ 必须只走 -1
+    if ((int)strnlen((const char *)b, (size_t)CAP) != CAP - 1) return 0;   // ② 行区被精确收尾在 cap-1
+    if (!g_pts_report_tail_is_clean((const char *)b, CAP)) return 0;       // ③ 行区良构
+    if (!g_pts_report_tail_untouched((const char *)b, CAP, TAIL)) return 0; // ④ 尾部区一个字节都没动
+    return 1;
+}
+
+//   ② `F-3` 边界：**现册最长名**（32 B＝`LoGetPenaltyModuleInternalHandle`）⇒ `cap = 名长` 必 "没拿到"。
+//      取最长名而不是写死某个名：名册将来加更长的名，本格**自动跟着收紧**（不写死名字/长度）。
+static int g_pts_selfcheck_f3_boundary(void)
+{
+    int longest = 0;
+    for (int i = 0; i < WPF_PTS_ENTRY_COUNT; i++) {
+        int n = (int)strlen(k_pts_entries[i]);
+        if (n > longest) longest = n;
+    }
+    if (longest <= 0) return 0;
+    char small[64];
+    if (longest + 1 > (int)sizeof(small)) return 0;
+    /* 用**缺口名册**里最后一个有计数的入口（与 ②路同口径）；没有缺口 ⇒ 本格不适用（返回 1，不红） */
+    int last = -1;
+    for (int i = 0; i < WPF_PTS_ENTRY_COUNT; i++) if (g_pts_calls[i] > 0) last = i;
+    if (last < 0) return 1;
+    for (int k = 0; k < (int)sizeof(small); k++) small[k] = (char)0x5A;
+    /* 该入口在"缺口名册序"里的 idx */
+    int want = -1, seen = 0;
+    for (int i = 0; i < WPF_PTS_ENTRY_COUNT; i++) {
+        if (g_pts_calls[i] <= 0) continue;
+        if (i == last) { want = seen; break; }
+        seen++;
+    }
+    if (want < 0) return 0;
+    int nlen = (int)strlen(k_pts_entries[last]);
+    /* `cap = nlen` ⇒ 差一个 nul 的位置 ⇒ 必须"没拿到"（rc 0 ＋ 空串），**绝不许**给截断名 */
+    if (WpfLinuxWin32_PtsGapEntryName(want, small, nlen) != 0) return 0;
+    if (small[0] != '\0') return 0;
+    /* 反向（成对）：`cap = nlen + 1` 必须**拿到全名** */
+    if (WpfLinuxWin32_PtsGapEntryName(want, small, nlen + 1) != 1) return 0;
+    if (strcmp(small, k_pts_entries[last]) != 0) return 0;
+    return 1;
 }
 
 // 自检（**这就是防"后人顺手把 return 改成 0"的那道牙**）：
@@ -855,6 +974,15 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
            **不影响** `entry=` 面。这里把上界钉在 340 B（= 自检自己 `char rep[512]` 之内的**宽松界**），
            只用来防"后人顺手把报告撑爆"。**未**改应用侧任何件、**未**改仪表。 */
         else if ((int)strlen(rep) > 340) rc = 34;
+        /* ── `t92`／P1-W20 新增两格（**格号从 80 起，沿用旧号一个都不动** —— 纪律第 `30` 条）────
+             ① `O-1` 的**缓冲区不变式**（可被机器核）：先用 canary 把一块缓冲填满，再**故意**用
+                放不下的 `cap` 调 `WpfLinuxWin32_PtsGapReport()`，然后断言三条 ——
+                `rc == -1` ∧ `strnlen(buf, cap) == cap-1` ∧ `buf[cap]` 起的尾部区**仍是 canary**
+                （＝**没有越界写**）。任一条不成立 ⇒ 红并点名格号。
+             ② `F-3` 的**不返回截断名**：对一个**已知名长**建成一个 `cap = 名长` 的缓冲（差一个 nul
+                的位置）⇒ 断言 `WpfLinuxWin32_PtsGapEntryName()` **返回 0** 且 `buf[0] == '\0'`。 */
+        else if (!g_pts_selfcheck_o1_canary()) rc = 80;
+        else if (!g_pts_selfcheck_f3_boundary()) rc = 81;
     }
 
     // 复原台账 + 观测镜（自检不许改变可观测状态）
