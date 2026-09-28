@@ -162,6 +162,30 @@ git -C ~/netTest/GitProj/WPFOnLinux log --oneline -3; git -C ~/netTest/GitProj/W
 # 7) 重活槽与内存
 flock -n ~/heavy.lock -c 'echo SLOT=FREE' || echo SLOT=HELD; free -m | awk 'NR==2{print "avail="$7"MB"}'
 ```
+### ⏪ **dated · 机器值「现取生成契约」（`t10`／W1，读时 `2026-09-28T15:53:08+0800`；§1–§6 与 §7 原文**一字未删**）**
+
+**背景**：侦察件 `build/MilBridge/P1-tail-scout.md`（`493808af2699c40a`）§B-11 现取点名——本件机器值是**手抄**的 ⇒ 每代必陈旧。**本波（W1）＝文档面**：逐格落「**一行现取生成命令** ＋ **现取值** ＋ **牙草案** ＋ **代价与落地位置**」。
+
+**① 逐格对照（「现取值」全部由右侧命令现跑取得；「生成命令」即该格的唯一取数入口）**
+
+| # | 处（内容锚） | 在册原文（逐字，留档） | 现取值 | 现取生成命令（一行） |
+|---|---|---|---|---|
+| 1 | §7-4 输入指纹 | `bash ~/w153a/bin/infp.sh fp        # 期望 bb54413c…（#76 冻结值；每波现取）` | `abc76bd55f513b8def295692e64b9d89e2ff99e807be8210aa7ee57f3289601f` | `bash ~/w153a/bin/infp.sh fp` |
+| 2 | §7-4 覆盖面件数 | `bash ~/w153a/bin/infp.sh list \| wc -l   # 期望 205` | `226` | `bash ~/w153a/bin/infp.sh list \| wc -l` |
+| 3 | §7-1 冻结世代 | `sed -n '9p' $R/docs/CURRENT-STATE.md` | `BASELINE-FROZEN gen=#80 sha16=b96d4312565a3c49 file=samples/WpfTextDemo/ACCEPTANCE-BASELINE.md` | `sed -n '9p' docs/CURRENT-STATE.md` |
+| 4 | §7-3 登记册自洽 | （§4 原写 `declared=155`；`t58` dated → `214`；`t62` dated → `215`） | `DEFREG=PASS declared=215 route_ids=215` | `bash build/MilBridge/tools/defect-registry-check.sh \| tail -1` |
+| 5 | §7-5 步数 | `grep -c '^run_step "'` | `55`（首行声明 `# VERIFYALL-STEPS-DECL: 55 gen=#79`） | `grep -c '^run_step "' verify-all.sh` |
+| 6 | §7-5 放行标记（**行内 glob 只覆盖 `w6*`**） | `ls -l ~/w21-verify/w6*-POST.done ~/w21-verify/w6*-record.txt 2>/dev/null` | `w6*-POST.done=10`／`w6*-record.txt=10`（**全量** `w*-POST.done=25`／`*record*=49`，最末 `w77-record.txt`） | `ls ~/w21-verify/w*-POST.done \| wc -l`；`ls ~/w21-verify/*record* \| tail -1` |
+| 7 | §7-6 推送面 | `git ls-remote … feat-Linux \| cut -c1-16` | 本地 `HEAD` == `ls-remote` == `88ab841414b6b5e2` | `git log --oneline -1`；`git ls-remote origin refs/heads/feat-Linux \| cut -c1-16` |
+| 8 | §2 在飞 | `**`#77`**（仪器波；五件 ＝ …）` | **无链在跑**（`#80` 已全链闭环；本件 `dated 对齐 · §2` 行已载） | `sed -n '9p' docs/CURRENT-STATE.md` ＋ `git status --porcelain` |
+| 9 | §1 九位 | `#77` 九值（`pc 53fd7fffcdb30243` …） | 本件 `dated 对齐` 行已给 `#80` 九值；**权威路径表** ＝ `build/MilBridge/tools/wave-freeze-consistency-check.py:104-115` | §7-2 的 `for f in …; do sha256sum …` 循环（**取数口径必须按权威路径表**：`provider` 的 canon 路径 ＝ `build/DirectWrite.Linux/Provider/bin/Release/…`） |
+
+**② 判据（会红的牙草案，逐字）**：新牙 `build/MilBridge/tools/handoff-machine-values-check.sh` 对①表逐格**现跑生成命令**并与**件内该格文本**比对 —— 不等 ⇒ `HANDOFF_MV=FAIL` 并**逐格点名**（`cell=#N anchor=… in-repo=… live=…`）；全等 ⇒ `HANDOFF_MV=PASS cells=9`。**反极性（必须真跑）**：人为把某一格改错一个字符 ⇒ **必红并点名该格**；**不许**「解析不了就跳过」。
+
+**③ 代价与落地位置（逐件；本波**只落文档面**）**：新牙件 ⇒ **新文件**（`build/MilBridge/tools/…`）；入覆盖面 ⇒ `build/close-wave.sh` 的 `fp_inputs()` **+1 行**（覆盖面 `226 → 227`）⇒ `verify-all.sh` 的 `[42] --expect` **必须同趟改**；若接进门禁 ⇒ **步数 `55 → 56`**（四处声明 `DECL`／`STEP-NAMES`／口径句／预登记**同趟**改）。**⚠️ 这三处（新牙件／`close-wave.sh`／`verify-all.sh`）都不在 W1 写域 ⇒ 本波 `NOINFO(reason=落地件不在本波写域)`，牙面按侦察分波表归 W4**。
+
+**④ 本波自证（B-10：入口／出口各一次）**：入口 `inputs_fp=abc76bd55f513b8d…`／覆盖面 `226`；出口同值（逐字读数见 `build/MilBridge/P1-w1-report.md`）⇒ 与 `#80` 冻结值的关系逐格如实写在报告内。
+
 
 ## §8 方法射程边界（**`t29` 补**；与 `docs/ROUTES.md`／缺陷册**同一术语、同一结论**）
 
