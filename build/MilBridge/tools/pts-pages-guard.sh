@@ -20,6 +20,12 @@
 #   G8  leg 24 托管侧具名行 `[PTS-UNAVAILABLE] site=FlowDocumentView.DocumentPage` ∧ `err≠0`  否 ⇒ FAIL
 #   G9  leg 23 同上                                                         否 ⇒ FAIL
 #   G10（⏪ 2026-09-28 改形态）具名 `entry=` 在位（`unknown` 不算）       否 ⇒ NOINFO(frontier-unnamed)（**不进 rc**；判据文本见 `g10_name_check()` 块内注释）
+#   G10b（⏪ `t73`／scribe 2026-09-28 加牙）具名 `entry=` **在在册名单内**（名单源＝native `k_pts_entries[]`，内容锚）  否 ⇒ FAIL(off-roster)（**红并点名、进 rc**）
+#   ⏪（`t73`／scribe，2026-09-28；**已按队长 `ts=2026-09-28T21:54` 裁定回正**）`G10` 那句的「**不进 rc**」按**成型口径**读，三支定型：
+#     · **无名**（应用侧只记 `entry=unknown`）⇒ `PTS_G10_NAME=PASS form=unnamed` —— 无名是**算出来的状态**，**不是"算不出"** ⇒ **不进 `fails` 也不进 `cannot`**（判词不受扰动）；
+#     · **名单源不可读**（`roster_names` 取不到表／表头锚失效）⇒ `NOINFO reason=roster-source-unreadable` ⇒ **折进 `cannot`**（`PTS_GUARD=NOINFO`，rc=2）；
+#     · **具名但不在册** ⇒ `FAIL frontier=… off-roster=…` ⇒ **折进 `fails`**（`PTS_GUARD=FAIL`，rc=1）。
+#   （本行初版曾把「无名」写成折 `cannot`；按裁定改判 `PASS`，理由＝`NOINFO` 在门禁里同样是 ❌，而「前沿无名」在 `PTS` 长线上是**长期常态** ⇒ 那等于用 `NOINFO` 造长期红。）
 #   G11 `DEV x_up=yes`                          否 ⇒ NOINFO（装置没起来 ⇒ 读数无效，不是红）
 #   G12 两腿 `five_stable=yes`                  否 ⇒ NOINFO（跑的过程中件被换）
 #
@@ -69,8 +75,20 @@ MAGENTA_FLOOR="${PTS_GUARD_MAGENTA_FLOOR:-20000}"
 # ── 小工具 ───────────────────────────────────────────────────────────────────
 field() { printf '%s' "$1" | grep -o -m1 "[[:space:]]$2=[^[:space:]]*" | head -1 | sed "s/^[[:space:]]$2=//"; }
 
+# ── native 在册名单（**内容锚**；`t73` 加牙：`g10_name_check` 的名单源）──────────────
+#   ⚠️ 名单**不写死任何单个名字**：现取 native 在册表 `k_pts_entries[]`。
+#      **内容锚** = 该表的表头行 → 紧随的首个 `};`（无行号、无字面名字）。
+SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROSTER_SRC="${PTS_G10_ROSTER_SRC:-$(cd "$SELF_DIR/../../.." && pwd)/src/WpfGfx.Linux.Native/src/win32_pts.c}"
+roster_names() {   # 印在册名（每行一个）；源缺失／表头锚取不到 ⇒ 空输出 ＋ rc=1（调用方**不许当绿**）
+  [ -f "$ROSTER_SRC" ] || return 1
+  sed -n '/^static const char \*const k_pts_entries\[\] = {/,/^};/p' "$ROSTER_SRC" \
+    | sed -n 's/^[[:space:]]*"\([A-Za-z0-9_]*\)",\{0,1\}[[:space:]]*$/\1/p'
+}
+
 # ── 方向口径闸（`TASK-0741`：口径**自证**；坏 ⇒ 响亮）────────────────────────
 DIR_TOKEN=""; DIR_RC=0
+G10_RC=0; G10_TOKEN="g10-name-PASS"
 direction_gate() {   # ⚠️ **绝不可用命令替换调用**（子壳里赋的 DIR_TOKEN 会丢）⇒ 直接调用后读 DIR_RC/DIR_TOKEN
   local line fl
   line="$(grep -m1 -E '^#[[:space:]]*PTS-DIRECTION:' "$0" 2>/dev/null || true)"
@@ -101,8 +119,10 @@ direction_gate() {   # ⚠️ **绝不可用命令替换调用**（子壳里赋�
 #
 # ⏪ **dated 口径入件（`t14`／W2·B-8，读时 2026-09-28T16:02:39+0800）**：本判据件的**射程边界**（原先只写在 `build/MilBridge/P0-mvp-pts-report.md`，现**搬进判据件自身**）：
 #   · **本步只读 `leg_*.env` 的列，不读 `entry=` ⇒ 它的绿对"前沿位移"零证据力。**
+#   ⏪ **dated 更正（`t73`／scribe，2026-09-28）**：上面那半句里的「**不读 `entry=`**」**与事实不符**、按实写 —— 本步**确实读** `entry=`（就是 `g10_name_check`），只是它**只报形态**（在册名单／无名／名单源不可读）、**不承担名字归因**，「其绿对前沿位移零证据力」这个**结论**仍成立（归因在 `pts-gap-count-check.sh` 的具名前沿判据）。来源＝队长 `t69` 复核入册精度（提交 `6e5cd74`）。
 #   · 因此本件**自带一条具名对拍**：件头 `G10` 描述的 `entry=<名>` 与 `--legs <dir>/app_g1.log` 的**现取前沿名**必须**逐字相同** ⇒ 不同即 `FAIL` 并点名（`PTS_G10_NAME=FAIL header=… observed=…`）；算不出来（缺件/无日志）⇒ `NOINFO`，**不许当绿**。
 #   · ⚠️ **`verify-all.sh` 的行号必须现取、不许写死**（历史在册句引 `:1173`，现取命中行不是它）⇒ 本件不写步号、不写行号。
+# ⏪ **dated 更正（`t73`／scribe，2026-09-28；只收紧不放松）**：上面 `【t14】` 那条「件头具名 ⇔ 现取前沿**逐字相同**」的对拍**作废**（它的被比量是**写死的一个名字**；`t63` 关掉该缺口后前沿结构性无名 ⇒ 老实现**早退**、判词行缺席）。`G10` 那句里残留的旧名字**只是历史文字、零承重**（判据不再读它 —— 现场可证：把 `app_g1.log` 的具名换成**不在册**的名字，判据仍**必红**，见 `--g10-name` 腿）。现判据 = 件头 `G10`／`G10b` 两行 ＋ `g10_name_check()` 块内 ⏪ 三条。
 # 【`t14`／W2·B-8】件头 G10 具名 ⇔ 现取前沿（**口径搬进判据件自身**；不符 ⇒ 红并点名；算不出 ⇒ NOINFO）
 g10_name_check() {
   # ⏪ dated 更正（队长，2026-09-28；本块即判据文本，按 D-G142 口径活在本件内）：
@@ -115,21 +135,60 @@ g10_name_check() {
   #     · 有具名 entry ⇒ `PASS observed=<名>`；多名字 ⇒ 附 `names=<n>`
   #   「名字是否可归因 / 是否假进度」由 `pts-gap-count-check.sh` 的具名前沿判据与它的
   #   `FAKE-PROGRESS` 腿承担（`t63` 已真跑兑现）；本函数不再重复承担那条判据。
-  local dir="$1" obs n_names
+  # ⏪ dated 更正（`t73`／scribe，2026-09-28；**只收紧、不放松**）：上面那条新形态**缺一半牙** ——
+  #   它把「具名但**不在册**」也判 `PASS`（`obs` 非空即绿）⇒ 一个拼错/伪造的名字能拿到绿。
+  #   本条补的正是**形态**的另一半（仍**不写死任何单个名字**）：
+  #     · `obs` 非空 ∧ **在在册名单内**（`roster_names` 现取自 native `k_pts_entries[]`）⇒ `PASS`；
+  #     · `obs` 非空 ∧ **不在名单内** ⇒ `PTS_G10_NAME=FAIL … off-roster=…`（**红并点名**）；
+  #     · 名单源缺失／表头锚取不到 ⇒ `NOINFO reason=roster-source-unreadable`（**永不当绿**）。
+  #   折 rc 口径（`judge_legs` 侧）：`FAIL` 进 `fails` ⇒ `PTS_GUARD=FAIL`；`NOINFO` 进 `cannot` ⇒
+  #   `PTS_GUARD=NOINFO` —— 依据＝本件第 `32`–`35` 行自declared 的判序，**不把"判不了"读成绿**。
+  #   ⏪ **`ts=2026-09-28T21:54 队长裁定（回正）**：上面队长那条的「无具名 ⇒ `NOINFO`」**改判 `PASS(form=unnamed)`**
+  #     —— 无名是「**算出来的状态**」（应用侧确实没有具名 `entry=`），**不属"判不了"**；只有**名单源取不到**才是
+  #     `NOINFO`。⇒ 三支定型：**无名 ⇒ `PASS`（不进 `fails`／`cannot`）｜名单源不可读 ⇒ `NOINFO`（折 `cannot`）
+  #     ｜具名但名单外 ⇒ `FAIL(off-roster)`（折 `fails`）**。
+  local dir="$1" obs names_all n_names roster n_roster off nm
   obs="$(grep -o 'entry=[A-Za-z0-9_]*' "$dir/app_g1.log" 2>/dev/null | sed 's/^entry=//' | grep -v '^unknown$' | sort | uniq -c | sort -rn | head -1 | awk '{print $2}')"
-  n_names="$(grep -o 'entry=[A-Za-z0-9_]*' "$dir/app_g1.log" 2>/dev/null | sed 's/^entry=//' | grep -v '^unknown$' | sort -u | wc -l | tr -d ' ')"
+  names_all="$(grep -ao 'entry=[A-Za-z0-9_]*' "$dir/app_g1.log" 2>/dev/null | sed 's/^entry=//' | grep -v '^unknown$' | LC_ALL=C sort -u)"
+  n_names="$(printf '%s\n' "$names_all" | awk 'NF{n++} END{print n+0}')"
   if [ -z "$obs" ]; then
-    echo "PTS_G10_NAME=NOINFO reason=frontier-unnamed（应用侧无具名 entry= ⇒ 前沿此刻结构性无名；只报形态、不进 rc）"
+    echo "PTS_G10_NAME=PASS form=unnamed reason=frontier-unnamed（应用侧无具名 entry= ＝**算出来的形态**、不是「算不出」⇒ 本判据按形态通过；名字归因由 pts-gap-count-check.sh 的具名前沿判据承担）"
+    G10_RC=0; G10_TOKEN="g10-name-form-unnamed"
     return 0
   fi
-  echo "PTS_G10_NAME=PASS observed=$obs names=$n_names"
+  roster="$(roster_names)"
+  n_roster="$(printf '%s\n' "$roster" | awk 'NF{n++} END{print n+0}')"
+  if [ "$n_roster" -eq 0 ]; then
+    echo "PTS_G10_NAME=NOINFO reason=roster-source-unreadable src=$ROSTER_SRC frontier=$obs（**在册名单取不到 ⇒ 判不了 ⇒ 永不当绿**）"
+    G10_RC=2; G10_TOKEN="g10-name-roster-source-unreadable"
+    return 0
+  fi
+  off=""
+  for nm in $names_all; do
+    case $'\n'"$roster"$'\n' in
+      *$'\n'"$nm"$'\n'*) ;;
+      *) off="$off$nm," ;;
+    esac
+  done
+  if [ -n "$off" ]; then
+    echo "PTS_G10_NAME=FAIL frontier=$obs off-roster=${off%,} roster=$n_roster（具名行**不在在册名单**内 ⇒ 红并点名；名单源=$ROSTER_SRC）"
+    G10_RC=1; G10_TOKEN="g10-name-off-roster(${off%,})"
+    return 0
+  fi
+  echo "PTS_G10_NAME=PASS observed=$obs names=$n_names roster=$n_roster（形态判据：具名行**在在册名单内**；不写死任何名字）"
+  G10_RC=0; G10_TOKEN="g10-name-PASS"
   return 0
 }
 
 judge_legs() {
   local dir="$1"
-  g10_name_check "$dir" || true
   local fails=() cannot=() diags=()
+  # G10 形态三态（`t73`／scribe）：**不早退** ⇒ 判词行必在场；红进 `fails`、`NOINFO` 进 `cannot`
+  g10_name_check "$dir"
+  case "${G10_RC:-0}" in
+    1) fails+=("$G10_TOKEN") ;;
+    2) cannot+=("$G10_TOKEN") ;;
+  esac
   local k alive rc mag colors ns msite merr nerr ngap ae seq logb ink
   direction_gate || true
   if [ "$DIR_RC" -ne 0 ]; then
@@ -266,8 +325,15 @@ judge_legs() {
 # ── 合成用例两极化（无 X、无应用、秒级）───────────────────────────────────────
 selftest() {
   local T; T="$(mktemp -d)"; local npass=0 nfail=0
+  export PTS_G10_ROSTER_SRC="$ROSTER_SRC"   # 副本（`_sb`/`_rz`/`_pf`）也要吃同一份名单源
+  local G10_FIX_NAME; G10_FIX_NAME="$(roster_names | head -1)"
+  if [ -z "$G10_FIX_NAME" ]; then
+    printf 'PTS_GUARD_SELFTEST=FAIL pass=0 fail=1 reason=roster-source-unreadable src=%s\n' "$ROSTER_SRC"
+    return 1
+  fi
   mk() { # mk <case> <k> <alive> <app_rc> <magenta> <colors> <ns> <err> <native_gap> <native_err> <five> <xup> [ink]
     local c="$1" k="$2" d="$T/$1"; mkdir -p "$d"
+    printf 'TAB entry=%s\n' "$G10_FIX_NAME" > "$d/app_g1.log"   # `t73`：G10 形态判据的载体（在册名 ⇒ 各例不受 G10 扰动）
     printf 'X_UP=%s display=:237\n' "${12}" > "$d/device.txt"
     printf 'LEG k=%s alive=%s app_rc=%s magenta=%s colors=%s ns=%s ae=12345 ink=%s\n' "$2" "$3" "$4" "$5" "$6" "$7" "${13:-}" > "$d/leg_$2.env"
     printf 'NAMED managed_unavail=%s err=%s native_gap=%s native_err=%s\n' \
@@ -377,6 +443,33 @@ selftest() {
   else
     nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "phase 位缺失 ⇒ PTS_DIRECTION=FAIL" "no" "yes"
   fi
+  # ── `t73`：G10 形态判据**两极化**（载体 = 真路径 `app_g1.log`；名单源 = 内容锚现取）──
+  # ㉑ 具名且在册 ⇒ 判据 `PASS`、整步判词不被 G10 扰动（正极）
+  good c21; chk PASS "$(out "$(judge_legs "$T/c21")")" "G10·在册名 ⇒ PASS"
+  # ㉒ 具名但**不在册** ⇒ `PTS_G10_NAME=FAIL`（点名）＋ 整步 `PTS_GUARD=FAIL`（反极）
+  good c22; printf 'TAB entry=NotAnEntryZZ\n' > "$T/c22/app_g1.log"
+            _o22="$(judge_legs "$T/c22" 2>&1)" || true; chk FAIL "$(out "$_o22")" "G10·不在册 ⇒ 必红"
+            if grep -qF 'PTS_G10_NAME=FAIL' <<< "$_o22" && grep -qF 'off-roster=NotAnEntryZZ' <<< "$_o22"; then
+              npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "G10·不在册 ⇒ 点名" "yes"
+            else
+              nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "G10·不在册 ⇒ 点名" "no" "FAIL+off-roster"
+            fi
+  # ㉓ 无具名（只 `unknown`）⇒ `PTS_G10_NAME=PASS form=unnamed`（**队长 ts=21:54 裁定回正**：无名是算出来的
+  #    状态、不是"算不出"）＋ 判词**不被扰动**（`PTS_GUARD=PASS`）
+  good c23; printf 'TAB entry=unknown\n' > "$T/c23/app_g1.log"
+            _o23="$(judge_legs "$T/c23" 2>&1)" || true; chk PASS "$(out "$_o23")" "G10·无名 ⇒ 判词 PASS"
+            if grep -qF 'reason=frontier-unnamed' <<< "$_o23"; then
+              npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "G10·无名 ⇒ reason 在位" "yes"
+            else
+              nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "G10·无名 ⇒ reason 在位" "no" "reason=frontier-unnamed"
+            fi
+  # ㉔ 名单源取不到（env 指空路径）⇒ `NOINFO reason=roster-source-unreadable`（**零名单不当绿**）
+  _o24="$(PTS_G10_ROSTER_SRC="$T/nonexistent-pts.c" bash "$0" --g10-name "$T/c21" 2>&1)"; _rc24=$?
+  if grep -qF 'roster-source-unreadable' <<< "$_o24" && [ "$_rc24" -eq 2 ]; then
+    npass=$((npass+1)); printf '  %-34s => rc=%-3s ok\n' "G10·名单源不可读 ⇒ NOINFO" "$_rc24"
+  else
+    nfail=$((nfail+1)); printf '  %-34s => rc=%-3s ✗ 期望 %s\n' "G10·名单源不可读 ⇒ NOINFO" "$_rc24" "rc=2+reason"
+  fi
   rm -rf "$T"
   printf 'PTS_GUARD_SELFTEST=%s pass=%d fail=%d\n' "$([ "$nfail" = 0 ] && echo PASS || echo FAIL)" "$npass" "$nfail"
   [ "$nfail" = 0 ]
@@ -384,6 +477,7 @@ selftest() {
 
 case "${1:---selftest}" in
   --legs) shift; judge_legs "${1:?--legs 需要目录}"; exit $? ;;
+  --g10-name) shift; g10_name_check "${1:?--g10-name 需要目录}"; exit "$G10_RC" ;;   # `t73`：只跑形态判据（两极化腿用）
   --selftest) selftest; exit $? ;;
-  *) echo "用法: $0 --legs <dir> | --selftest" >&2; exit 2 ;;
+  *) echo "用法: $0 --legs <dir> | --g10-name <dir> | --selftest" >&2; exit 2 ;;
 esac
