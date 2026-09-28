@@ -302,3 +302,16 @@ rc=0
 ---
 
 `P1-W8-STEP2-CRITERIA 自证（`head -n -1 <本件> | sha256sum | cut -c1-16`）＝ 427cc82e166f1a48（口径＝末行之前的全文；末行＝本行）`
+
+---
+
+## ⏪ `t104` dated 更正 —— `§0` 事实 1 ／ `C2` 的「缺口面 `97 → 97`」这条前提**在"同趟必须补同伴入口"时不成立**（读时 `2026-09-29T01:1x+0800`；本件上方全部原文**一字未删**，本段**只加行**，**不改任何 `acceptance` 的实质**）
+
+- **点名**：本件 `§0` 快照表里那行「覆盖自检器」写的 **`[PresentationNative_cor3.dll] 97 条`**、那行「缺口三格」写的 **`PTSGAP=PASS tool=97 dead=11 artifact=1 ops=85 impl=91 so16=657f448c2077ba1f exports=561`**，以及 `C2` 的 acceptance（`before ＝ after（现取 97）`）、`C2` 期望形状（`条数 ＝ 97（不变）`）、`R2`／`R3` 两行（`97`／`＝ 97（不变）`／`97 / 11 / 1 / 85 / 91`）与 §6 那句「缺口面（本条判"不变"，`97 → 97`）」 —— 这些都是**当时现取**的读数，**本段不删不改**，只在下面给出更正与理由。
+- **实测（本席现取，`t98` 的 `C2` 判词同向）**：`python3 src/WpfGfx.Linux.Native/tools/check-shim-coverage.py --tier mapped` 与 `--tier all` 现取**都是 `[PresentationNative_cor3.dll] 96 条`**；三格现取 ＝ **`PTSGAP=PASS tool=96 dead=11 artifact=1 ops=84 impl=90 so16=461e5557bd7dd571 exports=565`** ⇒ 相对 `§0` 那行是 **`tool 97→96`／`ops 85→84`／`impl 91→90`（三格同幅 −1）**，而 **`dead`／`artifact` 未动**。
+- **机理（为什么"不变"这条前提会失准）**：`C2` 的"不变"隐含假设是「本增量**只**让实现往前走、**不**碰导出面」。而 `t97` 的第二步**同趟必须补** `LoDisposePenaltyModule` 的**同伴入口**（不补的话 `TextPenaltyModule.Finalize()` 走释放路径时抛在 `GC.RunFinalizers()` ⇒ 整进程 `rc=134`）⇒ 该名由**「未导出」变「已导出」** ⇒ 它**离开缺口面** ⇒ 计数**必然 −1**。⇒ **`96 = 97 − 1`**：本条前提与「同趟必补同伴」**互斥**，不是仪器错、也不是实现假进步。
+- **前进证据压在**行为面**（本增量判"前进"的强证据不改）**：① **台账行消失**（`PTS_GAP entry=<该名>` 不再出现）；② **前沿位移**（判据件 `PTSGAP_FRONTIER` 的 `before` 名 → `after` 名更换）；③ **`entry=` 面换代**（在册证据里具名集合与频次变化）。**这三格与"缺口面不变"无因果关系** ⇒ 缺口面那格**由"必不变"降级为"允许 −1 且须逐条点名归因"**（`t98` 的 `C2` 判词：本条**不成立**，但**逐条点名归因成立**）。
+- **指向**：队长已在 `build/MilBridge/P1-ptsname-result.md` **§8 裁定八**（内容锚：`裁定八（承 t97 回执）—— 判据 §0「缺口面 97→97」被实测推翻，按「不硬凑」处置。`）把本条**按「设计错判据」处置** ⇒ **本件作为契约使用时，`C2` 请按裁定八读**；本段**只作更正，不追加/不撤销任何 acceptance 条款**（`C1`–`C8` 的其它格与两极化要求一律不动）。
+- **索引（不重复落笔）**：同批复核还点了 `F-5`（`P1`／`P3`／`P4`／`P7` 的 `reason` token 在 `build/MilBridge/tools/**` 里现取**命中 0** —— 本席现算四个 token 各 `0` 文件）与 `F-6`（`WpfLinuxWin32_PtsPenaltyModuleHandleAt(idx)` 是**位置读**：现取原文 `if (idx < 0 || idx >= g_pts_loc_live_n) return NULL; return g_pts_loc_live[idx]->penalty_module_handle;` ⇒ 登记表销毁后会**紧凑换位** ⇒ **不得跨销毁缓存 `idx`**）；这两条**已派 `t102`（runner，`src/**` 侧）落口径句** ⇒ 本段**只给索引**，不在此重复落笔。
+
+`P1-W8-STEP2-CRITERIA dated 追加后自证（`head -n -1 <本件> | sha256sum | cut -c1-16`）＝ aec339dc96cbc148（口径＝末行不计入自身取值；原自证行 `427cc82e166f1a48` 系**追加前**全文值，`t104` 原样保留）
