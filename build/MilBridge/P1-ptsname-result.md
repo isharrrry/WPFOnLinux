@@ -128,6 +128,14 @@ VERIFYALL-STEPS-DECL: 62 gen=#81   # verify-all.sh:73
 `t105` 独立复核挖出 medium `F-1`：托管 `[PTS-UNAVAILABLE] … entry=` 取的是**在册表序最后一个有缺口计数的入口**（`GapEntryNameAt(count-1)`），本步**首次同时有两条缺口条目** ⇒ 台账是 `CreateDocContext seq=5` ＋ `LoDisposePenaltyModule seq=6`，而托管 `entry=` **两次都写 `LoDisposePenaltyModule`、`CreateDocContext` 一次都没写** ⇒ 判据 C4 的 verify 把台账行与托管行混在一张直方图里，读不出「运行期到底哪个站点撞的」。
 ⇒ **补充裁定**：判「被撞入口／下一跳是谁」**以台账口径为准**（现取 `^PTS_GAP entry=` 行，按 `seq=` 排序）；托管 `entry=` 面只作「**具名位移**」的粗证（证明名字从无到有），**不作为定名依据**。⇒ 第四步靶心仍为 `CreateDocContext`（裁定十二不变），但**判据必须按本补写**，否则会把 `CreateDocContext` 的功劳记到 `LoDisposePenaltyModule` 头上。修 `F-1` 的活另派（`PtsCache.Linux.cs` 取值口径 ＋ `pts-pages-guard.sh` 的 C4 verify）；`F-2`（`CreateDocContext` 是方法名约定声明、字面 `EntryPoint` 命中 0）与 `F-3`（七个 `reason` token 命中 0 ⇒ 按「字段名或 token 二者之一」）同趟处置。
 
+**裁定十三（承 `t108` 回执）—— `native_gap` 量的是「台账打印行数」，不是「缺口条目数」。**
+`t108` 现取指出：`native_gap` 来自 `legs-to-env.py` 对**台账打印行**的计数，受 `win32_pts.c:120-129` 的打印预算（缺省 64）与 `ledger=truncated` 影响 ⇒ 它**不是**缺口条目数。
+⇒ **裁定**：① **接受**它写死的那条 —— 本步正常形态是 `2 → 1`，**判绿但必须点名归因**；**为保住 `native_gap=2` 而让靶心继续走 `wpf_pts_gap()` ⇒ 直接判红**（那是把仪表当目标）。② **收紧**：在册（判据件 ＋ `HANDOFF-NEXT.md` 的相应索引位）必须写明该量的语义是「**台账打印行数**」；且当 `ledger=truncated` 在场时，该面**不得**用于「缺口减少」的判词 ⇒ 记 `NOINFO` 并给出 `truncated` 计数（若可得）。③ 由随后的判据关账件落册并附现取读数。
+
+**裁定十四（承 `t108` 回执）—— W8 第四步实现的前置与靶心（定稿）。**
+`t108` 现取：两条收尾同侪（`DestroyDocContext`／`LoDisposePenaltyModule`）**都已导出且是诚实 stub** ⇒ **本步不需要同趟补 stub**（`t97` 那条 `rc=134` 的机制是「对端**未导出**」，本步不成立）；但 **`:488` 的 `PTS.Validate(DestroyDocContext)` 此前结构性不可达、本步后变成可达** ⇒ 判据已写 P11（收尾面新可达却无读数 ⇒ 必红）与二选一声明。
+⇒ **裁定**：第四步靶心 ＝ **`CreateDocContext`**（签名/语义按 `Pts.cs:3090-3094` 定死：`ref FSCONTEXTINFO` ＋ `out IntPtr` → `int`）；**必须**同趟交付「`:488` 收尾面走到没走到」的二值读数；**定名一律用台账面**（`^PTS_GAP entry=` 按 `seq=` 排序），托管 `entry=` 与探针 `after=` 只作粗证（`F-1` 与探针脸两处已点名）；**不许**为保住 `native_gap` 的某个数字而让靶心继续走 `wpf_pts_gap()`。实现件排在 `t108`（判据）与 `t109`（`F-1` 口径修）**之后**。
+
 ## 9 未做 / 边界
 
 - **未**跑整趟门禁（`verify-all.sh` 全跑）；本件只跑相关已接线牙与判据件。
