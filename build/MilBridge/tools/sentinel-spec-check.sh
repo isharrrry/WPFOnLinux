@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ═══════════════════════════════════════════════════════════════════════════════
 # sentinel-spec-check.sh —— 哨兵「键序／字节格式」规范牙（`t23`／W3a；**本件不接线**，接线归 W4）
-⏪ **dated 更正（`t48`／W4b，读时 2026-09-28T17:47:04.418+0800）**：**已接线**：`verify-all.sh` 步名 `SENTINEL-SPEC`（`run_step "SENTINEL-SPEC" bash build/MilBridge/tools/sentinel-spec-check.sh`）＋ **覆盖面已计入**（`build/close-wave.sh` 的 `fp_inputs()`；现取件数 **233**）⇒ 上一行的「接线归 W4」**自此过期**（**原句一字未删**，以本行为准）。
+# ⏪ **dated 更正（`t48`／W4b，读时 2026-09-28T17:47:04.418+0800）**：**已接线**：`verify-all.sh` 步名 `SENTINEL-SPEC`（`run_step "SENTINEL-SPEC" bash build/MilBridge/tools/sentinel-spec-check.sh`）＋ **覆盖面已计入**（`build/close-wave.sh` 的 `fp_inputs()`；现取件数 **233**）⇒ 上一行的「接线归 W4」**自此过期**（**原句一字未删**，以本行为准）。
 #
 # 【它挡的是什么】`C-1`：哨兵的**键序／字节格式无规范** ⇒ 同一"哨兵内容"可用不同字节表达 ⇒
 #   `sha16` 不可对拍、后人照抄「十键」这类与现场不符的说法（现取是 **13 键**）。

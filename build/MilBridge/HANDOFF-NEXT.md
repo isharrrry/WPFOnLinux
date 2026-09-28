@@ -505,3 +505,12 @@ flock -n ~/heavy.lock -c 'echo SLOT=FREE' || echo SLOT=HELD; free -m | awk 'NR==
 ⏪ **机器值契约更正 · cell=#9**：以现取为准；`ts=2026-09-28T17:51:30.670+0800` 时 现值 ＝ `f951e80b55e85782`（命令：`sed -n '104,115p' build/MilBridge/tools/wave-freeze-consistency-check.py | sha256sum | cut -c1-16`）
 
 ⏪ **机器值契约更正 · cell=#8（取代上文同格各条）**：以现取为准；`ts=2026-09-28T17:53:15.136+0800` 时 现值 ＝ `11`（命令：`git status --porcelain | grep -v 'build/MilBridge/HANDOFF-NEXT.md' | grep -v 'build/MilBridge/P1-w4b-report.md' | wc -l`）（**口径（写死，取代上文#8各口径）**：本格判「**本波两个自写件之外**的树内脏件行数」—— 排除 `build/MilBridge/HANDOFF-NEXT.md`（本件）与 `build/MilBridge/P1-w4b-report.md`（本波交件载体），两者都会**随本波每次追加而动**（自指）⇒ 排除后该值在交付态**稳定**，且仍能看见**别的车道冒出的新脏件**；「有无链在跑」仍**无仓内权威机读读者** ⇒ `NOINFO(reason=在跑状态无仓内权威读者)`。）
+
+### ⏪ **dated · 机器值 4 格「去自证伪」更正（`t54`／`t50` F1 修法；读时 2026-09-28T18:06:55.563+0800）**
+
+⏪ **口径行（写死，取代此前各格口径）**：① 9 格表的**「现取值」列自 `t48` 起为留档**，**判据面在更正行**（牙逐格把 `table=`／`corrected=` **两值都上屏**；只改表列 ⇒ **可见但不判**，那是**已知边界**、不许当绿）｜② `cell=#7` **明确不对拍 `HEAD`**（理由：**提交动作本身**会把对拍 `HEAD` 的格打红）⇒ 记 **`state=manual`**，推送面的机器读者归 `B-15` 的推送标记牙｜③ `cell=#8` 改判 **本波写域面（`build/`／`docs/`／仓根 `verify-all.sh`）之外**的脏件数 ⇒ **与提交阶段无关**（提交前后同值），仍能看见别的车道/别的波冒出的脏件。
+⏪ **机器值契约更正 · cell=#7**：非机读：本格 ＝ **推送面**，对拍 `HEAD` 短哈希是**流水线敏感量** ⇒ **移出牙的对拍集**（`state=manual`）；**原句与表列一字未删**。
+⏪ **机器值契约更正 · cell=#8**：以现取为准；`ts=2026-09-28T18:06:55.563+0800` 时 现值 ＝ `0`（命令：`git status --porcelain | grep -vE '^.. (build/|docs/|verify-all\.sh)' | wc -l`）（**与提交阶段无关**：本波全部写域件都在这三个面内 ⇒ 其脏/净不影响本格。）
+⏪ **机器值契约更正 · cell=#4**：以现取为准；`ts=2026-09-28T18:06:55.563+0800` 时 现值 ＝ `DEFREG=PASS declared=218 route_ids=218（每个声明编号在其 req 的每个 route 文件里都在 ∧ **现场 route 出现集未超出 req**；无未声明编号）`（命令：`bash build/MilBridge/tools/defect-registry-check.sh | tail -1`）（**`t49` 改了 `DEFREG=PASS` 行的括注文本** ⇒ 本格随之刷新。）
+⏪ **机器值契约更正 · cell=#1**：以现取为准；`ts=2026-09-28T18:06:55.563+0800` 时 现值 ＝ `3e36f04024128302229050763f436f41f611bd745a26892cad13f467bdcc28f3`（命令：`bash ~/w153a/bin/infp.sh fp`）（**`t49`／`t54` 改了覆盖面内件的内容** ⇒ 本格随之刷新。）
+

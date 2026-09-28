@@ -18,7 +18,7 @@
 #   陌生路径下静默建树会把哨兵写进**没人读的地方**而生产仍旧 ⇒ **假绿方向**（`D-G181`／`D-G182` 同族）。
 
 # 【不接线】本件**未被 `close-wave.sh`／`verify-all.sh` 调用**（接线归 W4）。
-⏪ **dated 更正（`t48`／W4b，读时 2026-09-28T17:47:04.418+0800）**：**已接线**：`verify-all.sh` 步名 `WAVE-PUSH`（`run_step "WAVE-PUSH" bash build/MilBridge/tools/wave-push.sh --dry-run`）＋ **覆盖面已计入**（`build/close-wave.sh` 的 `fp_inputs()`；现取件数 **233**）⇒ 上一行的「【不接线】」**自此过期**（**原句一字未删**，以本行为准）。
+# ⏪ **dated 更正（`t48`／W4b，读时 2026-09-28T17:47:04.418+0800）**：**已接线**：`verify-all.sh` 步名 `WAVE-PUSH`（`run_step "WAVE-PUSH" bash build/MilBridge/tools/wave-push.sh --dry-run`）＋ **覆盖面已计入**（`build/close-wave.sh` 的 `fp_inputs()`；现取件数 **233**）⇒ 上一行的「【不接线】」**自此过期**（**原句一字未删**，以本行为准）。
 # ═══════════════════════════════════════════════════════════════════════════════
 set -uo pipefail
 
@@ -76,7 +76,7 @@ case "$MODE" in
   --dry-run)
     emit
     [ "$rc" -eq 0 ] || { echo "WPW=FAIL reason=value-unavailable（见 none(...)）" >&2; exit 1; }
-    echo "WPW=DRYRUN lines=13 keys=13" >&2 ;;
+    echo "WPW=DRYRUN lines=13 keys=13" ;;   # ⏪ `t54`：设计上屏行由 stderr 改 stdout（该件真跑 stderr 须归零；无仓内消费者）
   --write|'')
     T="$(mktemp)"; trap 'rm -f "${T:-}" "${T:-}".bakA "${T:-}".bakB "${T:-}".errA "${T:-}".errB "${T:-}".derr' EXIT
     emit > "$T"

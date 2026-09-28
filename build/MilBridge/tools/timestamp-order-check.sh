@@ -2,7 +2,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # timestamp-order-check.sh —— 「文内 dated 戳 ≤ 该行**首次入册**的提交时刻」牙
 #   （`t27`／V2 收口；归族 `D-G176`（跨会话第 `18` 条）；**本波不接线** —— 接线归 W4）
-⏪ **dated 更正（`t48`／W4b，读时 2026-09-28T17:47:04.418+0800）**：**已接线**：`verify-all.sh` 步名 `TS-ORDER`（`run_step "TS-ORDER" bash build/MilBridge/tools/timestamp-order-check.sh`）＋ **覆盖面已计入**（`build/close-wave.sh` 的 `fp_inputs()`；现取件数 **233**）⇒ 上一行的「接线归 W4」**自此过期**（**原句一字未删**，以本行为准）。
+# ⏪ **dated 更正（`t48`／W4b，读时 2026-09-28T17:47:04.418+0800）**：**已接线**：`verify-all.sh` 步名 `TS-ORDER`（`run_step "TS-ORDER" bash build/MilBridge/tools/timestamp-order-check.sh`）＋ **覆盖面已计入**（`build/close-wave.sh` 的 `fp_inputs()`；现取件数 **233**）⇒ 上一行的「接线归 W4」**自此过期**（**原句一字未删**，以本行为准）。
 #
 # 【它挡的是什么】本仓 dated 追加纪律要求「读时戳必须早于落盘」。`t70` 立的是**秒级**规则；
 #   本仓**已第二次**撞上它的下一格洞：**秒级戳与落盘落在同一秒 ⇒ 先后不可判**

@@ -16,6 +16,12 @@
 #
 # 【三态】rc=0 `HANDOFF_MV=PASS cells=9 …`｜rc=1 `HANDOFF_MV=FAIL`（逐格点名）｜rc=2 `=NOINFO`（表/锚缺失）
 # 【自述】已接线：`verify-all.sh` 步名 `HANDOFF-MV`；覆盖面已计入（`build/close-wave.sh` 的 `fp_inputs()`）。
+# 【口径句（`t54` 修；对应 `t50` 的 F1／F5）】
+#   ① **表原文列**（9 行 `| N | …` 的「现取值」列）**自 `t48` 起为留档**：判据面在**更正行**（`机器值契约更正 · cell=#N`，取**最后一条**）⇒ 逐格把**两个值都上屏**（`table=` 与 `corrected=`）。
+#   ② **反极射程（写死）**：篡改对象 ＝ **该格最后一条更正行的 `现值`**；只改表格「现取值」列**不产生新 `HIT`**（更正行优先）⇒ 那是**已知边界**：靠 `table=`／`corrected=` 上屏**可见**，但**判据不判它**（不许把「表列看起来对」当绿）。
+#   ③ **两格移出对拍集（`t54`／`t50` F1 修法）**：`cell=#7`（推送面）**明确不对拍 `HEAD`** ⇒ 记 `state=manual`（理由：**提交动作本身**会把对拍 `HEAD` 的格打红）；
+#      `cell=#8`（在飞）改判 **本波写域面之外**的脏件数 ⇒ **与提交阶段无关**（提交前后同值）。
+
 # 【测试钩子】`--selftest`：三例（真件正极／改一字符反极／行数≠9 ⇒ NOINFO），零网络、零 `$R` 写入。
 # 用法：bash handoff-machine-values-check.sh [--file PATH] [--selftest]
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -112,13 +118,13 @@ check_file() {  # $1=件 ⇒ rc
       fail=$((fail+1)); continue
     fi
     if [ "$form" = manual ]; then
-      echo "HANDOFF_MV_CELL cell=#$ci anchor=${anchors_put} state=manual（非机读格：现取值列是散文、无单行机读形态）"
+      echo "HANDOFF_MV_CELL cell=#$ci anchor=${anchors_put} state=manual table=$inrepo corrected=- live=-（该格不对拍：见牙头口径句③）"
       manual=$((manual+1)); continue
     fi
     case "$c" in ''|*'…'*|*'＋'*|*'；'*) echo "HANDOFF_MV_HIT cell=#$ci anchor=${anchors_put} rule=command-not-executable cmd=$c"; fail=$((fail+1)); continue ;; esac
     live="$(run_cmd "$c")"
     if [ "$live" = "$v" ]; then
-      echo "HANDOFF_MV_CELL cell=#$ci anchor=${anchors_put} state=equal live=$live"
+      echo "HANDOFF_MV_CELL cell=#$ci anchor=${anchors_put} state=equal table=$inrepo corrected=$v live=$live"
       equal=$((equal+1))
     else
       echo "HANDOFF_MV_HIT cell=#$ci anchor=${anchors_put} in-repo=$v live=$live cmd=$c"
@@ -142,22 +148,34 @@ selftest() {
   case "$out" in *HANDOFF_MV=PASS*cells=9*) v1=PASS ;; *) v1=FAIL ;; esac
   [ "$rc1" = 0 ] && [ "$v1" = PASS ] && np=$((np+1)) || nf=$((nf+1))
   echo "HANDOFF_MV_SELFTEST_CASE case=S1 kind=positive rc=$rc1 verdict=$v1 原样=$(printf '%s' "$out" | grep -m1 'HANDOFF_MV=')"
-  # S2 反极：把**最后一条**更正行（＝真正 govern 的那条）的现值改一位 ⇒ 必红并点名
+  # S2 反极（`t54` F4／F5 修）：篡改对象 ＝ **某一格（`TARGET_CELL`）的最后一条更正行**的现值；
+  #  断言 ①：被篡改格**必须**出现在 `HIT` 行里（按 `cell=#N` **精确** grep，不再取首条 HIT）；
+  #  断言 ②：`mismatch` 相对正极 **至少 +1**；断言 ③：把篡改**回退** ⇒ 该格回到 `state=equal`。
+  TARGET_CELL=9
   cp -p "$src" "$T/f2.md"
   python3 -c 'import re,sys
-p=sys.argv[1]; s=open(p,encoding="utf-8").read().split("\n"); tgt=None
+p=sys.argv[1]; c=sys.argv[2]; s=open(p,encoding="utf-8").read().split("\n"); tgt=None
 for i,l in enumerate(s):
-    if "机器值契约更正" in l and "cell=#" in l: tgt=i
+    if "机器值契约更正" in l and ("cell=#"+c) in l: tgt=i
 assert tgt is not None
 l=s[tgt]; m=re.search(r"现值 ＝ `([^`]+)`", l); assert m
 v=m.group(1); nv=v[:-1]+("0" if v[-1]!="0" else "1")
 s[tgt]=l.replace("现值 ＝ `"+v+"`","现值 ＝ `"+nv+"`",1)
-open(p,"w",encoding="utf-8").write("\n".join(s))' "$T/f2.md"
+open(p,"w",encoding="utf-8").write("\n".join(s))' "$T/f2.md" "$TARGET_CELL"
   out="$(bash "$SELF" --file "$T/f2.md" 2>&1)"; rc2=$?
+  mm2="$(printf '%s\n' "$out" | sed -n 's/.*mismatch=\([0-9]*\).*/\1/p' | tail -1)"
   v2=OTHER
-  case "$out" in *HANDOFF_MV_HIT*) case "$out" in *HANDOFF_MV=FAIL*) v2=FAIL-named ;; esac ;; esac
-  [ "$rc2" = 1 ] && [ "$v2" = FAIL-named ] && np=$((np+1)) || nf=$((nf+1))
-  echo "HANDOFF_MV_SELFTEST_CASE case=S2 kind=negative rc=$rc2 verdict=$v2 原样=$(printf '%s' "$out" | grep -m1 'HANDOFF_MV_HIT')"
+  printf '%s\n' "$out" | grep -qF "HANDOFF_MV_HIT cell=#$TARGET_CELL" && v2=HIT-named-this-cell
+  printf '%s\n' "$out" | grep -qF "HANDOFF_MV=FAIL" || v2=OTHER
+  [ -n "$mm2" ] && [ "$mm2" -ge 1 ] && [ "$v2" = HIT-named-this-cell ] && [ "$rc2" = 1 ] && np=$((np+1)) || nf=$((nf+1))
+  echo "HANDOFF_MV_SELFTEST_CASE case=S2 kind=negative rc=$rc2 verdict=$v2 target=cell=#$TARGET_CELL mismatch=$mm2 expect=HIT-that-cell/rc1/mismatch>=1 原样=$(printf '%s' "$out" | grep -m1 "HANDOFF_MV_HIT cell=#$TARGET_CELL")"
+  # S4 回退：把篡改回退（＝原件）⇒ 该格必须回 `state=equal`（证明「点名的就是被篡改的那一格」）
+  out="$(bash "$SELF" --file "$src" 2>&1)"; rc4=$?
+  v4=OTHER
+  printf '%s\n' "$out" | grep -qF "HANDOFF_MV_CELL cell=#$TARGET_CELL" && printf '%s\n' "$out" | grep -qF "HANDOFF_MV_CELL cell=#$TARGET_CELL" && v4=EQUAL-restored
+  printf '%s\n' "$out" | grep -F "HANDOFF_MV_CELL cell=#$TARGET_CELL" | grep -q "state=equal" || v4=OTHER
+  [ "$v4" = EQUAL-restored ] && np=$((np+1)) || nf=$((nf+1))   # 本腿只断言「该格回 equal」；整体 PASS 由 S1 管
+  echo "HANDOFF_MV_SELFTEST_CASE case=S4 kind=revert overall_rc=$rc4（仅信息） verdict=$v4 target=cell=#$TARGET_CELL 原样=$(printf '%s' "$out" | grep -m1 "HANDOFF_MV_CELL cell=#$TARGET_CELL")"
   # S3 行数≠9（只在 9 格表区内删第 9 行）⇒ NOINFO（不许静默判绿）
   grep -v '^| 9 | §1 九位' "$src" > "$T/f3.md"   # 内容锚：只删 9 格表的第 9 行
   out="$(bash "$SELF" --file "$T/f3.md" 2>&1)"; rc3=$?
