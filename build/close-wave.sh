@@ -385,7 +385,10 @@ tests/WpfGfx.Linux.Tests/Commands.Tests/tools/verify-cmd-layout.py \
           build/MilBridge/tools/appbar-startup-ledger.tsv \
           build/MilBridge/tools/devices/xwrap-sockid.c \
           build/MilBridge/tools/devices/xwrap-sockid.so \
-          build/MilBridge/tools/devices/dev-selftest.c
+          build/MilBridge/tools/devices/dev-selftest.c \
+            build/MilBridge/tools/sentinel-spec-check.sh \
+            build/MilBridge/tools/wave-push.sh \
+            build/MilBridge/tools/timestamp-order-check.sh
     } | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -d' ' -f1
 }
 sha16() { sha256sum "$1" 2>/dev/null | cut -c1-16; }

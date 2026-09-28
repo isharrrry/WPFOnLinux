@@ -4,6 +4,7 @@
 #           → PC 侧行对拍（`TextLine.Start` 列）→ **帧列（`FrameProbe`，帧原点机制）**。
 #
 # ⚠️ **步数口径（引用前必读；三个数不能互相引用）**：
+#   **`#81` 收官起 = 58 步**（⏪ 本行**取代**紧邻下方那条 `55 步`（`t47`／W4a **加三步**：55 → 58）：三颗交付牙接线（`sentinel-spec-check.sh` 真跑生产哨兵／`wave-push.sh --dry-run` 预演／`timestamp-order-check.sh` 戳序）＋ 四处声明同趟 ＋ 覆盖面 **226 → 229** ＋ `[42] --expect 226 → 229`。⚠️ **派单写「55 → 56」系算术笔误**（`55 ＋ 3 ＝ 58`）。读时 `ts=2026-09-28T17:34:10.732+0800`）
 #   **`#79` 收官起 = 55 步**（⏪ 本行**取代**紧邻下方那条 `53 步`：`t27` 在 `t20` 落地之后把 `t19` 的两件牙接线 —— 第 `[+]` 步 `RETIRED-PATH`（`pkg-src-retiredpath-check.sh`）与第 `[+]` 步 `REPORT-ID-DOMAIN`（`report-id-domain-check.sh`）；`t20` 加的两行与它那两颗牙**一字未动**。**步数：53 → 55**）
 #   **`#80` 收官起 = 55 步**（⏪ 本行**取代**紧邻下方那条 `53 步`：`t27` 在 `t20` 落地之后把 `t19` 的两件牙接线 —— 第 `[+]` 步 `RETIRED-PATH`（`pkg-src-retiredpath-check.sh`）与第 `[+]` 步 `REPORT-ID-DOMAIN`（`report-id-domain-check.sh`）；`t20` 加的两行与它那两颗牙**一字未动**。**步数：53 → 55**）
 #   **`#79` 收官起 = 53 步**（`#79` 加两步（51 -> 53）：`ROOT-ENTRIES`（TASK-0750，根级条目白名单）与 `WIRING-CLOSURE`（TASK-0751，交付 子集 接线 与 接线 蕴含 真判）；覆盖面 217 -> 219、`[42] --expect` 同趟改。仪器波 · 零产品改动。步数：51 -> 53）
@@ -67,6 +68,7 @@
 #   ⚠️ 本块**故意放在同一个文件里**：跨文件的手工声明在本仓**已经失败过一次**（`docs/CURRENT-STATE.md`
 #      那句"当前期望是 N 步"在 `#26`/`#27` 连加 3 步时毫无反应、全程零红）⇒ 声明必须与本体同趟改、同趟审。
 #   ⚠️ **不许**用 `echo "====="` 当接线锚（它在本文件里有 **4** 处）；锚用 `run_step "DEFECT-REGISTRY" …`。
+# VERIFYALL-STEPS-DECL: 58 gen=#81   ← ⏪ `t47`／W4a **加三步**（55 → 58）：三颗交付牙**同趟**接线 —— 第 `[+]` 步 `SENTINEL-SPEC`（`build/MilBridge/tools/sentinel-spec-check.sh`：哨兵「键序／字节格式」11 键规范，默认跑**生产两枚哨兵**）／第 `[+]` 步 `WAVE-PUSH`（`build/MilBridge/tools/wave-push.sh --dry-run`：推送**预演**，13 键上屏、**不写盘**）／第 `[+]` 步 `TS-ORDER`（`build/MilBridge/tools/timestamp-order-check.sh`：戳序判据，默认件 `build/MilBridge/P1-w1-close-verify.md`）。**同趟**：覆盖面 **226 → 229**（`fp_inputs()` **+3 行**：三颗牙的**件路径身份**，不用 glob）＋ 第 `[42]` 步 `FP-MANIFEST-TEETH` 的 `--expect 226 → 229` ＋ 头注释口径句 ＋ `STEP-NAMES`（55 → 58 项）＋ 预登记 `docs/WAVE81-PREREGISTRATION.md`。⚠️ **派单写的是「55 → 56」＝算术笔误**（`55 ＋ 3 ＝ 58`；「三颗新牙**各接一步**」与判据「`grep -c '^run_step "'` == 声明数」二者只能取 `58`），本行逐字记之（读时 `ts=2026-09-28T17:34:10.732+0800`）。步数：**55 → 58**）
 # VERIFYALL-STEPS-DECL: 55 gen=#79   ← `t27` **加两步**（53 → 55）：`t19` 两件牙接线 —— `RETIRED-PATH`（A 组：包件源/旧路径默认值；`--tree` 扫仓内源树 ＋ `retired-path-provenance.tsv` 声明式出处清单，`kind=code` 永不豁免）／`REPORT-ID-DOMAIN`（D 组：「报告里出现的 `D-G<digits>` ⊆ declared」＋ `book-entry-required.tsv` 的「在册 ∧ 成条」绑定判据）。**同趟**：覆盖面 **219 → 225**（`fp_inputs()` **+6 行**：两牙 ＋ 四张 tsv）＋ `[42] --expect 219 → 225`（**落地后现取一次算准**）＋ 头注释口径句 ＋ `STEP-NAMES`。**`t20` 的两行与两颗牙一字未动**。**步数：53 → 55**）
 # VERIFYALL-STEPS-DECL: 53 gen=#79   <- `#79` 加两步（51 -> 53）：(1) 第 `[+]` 步 `ROOT-ENTRIES`（`TASK-0750`：根级条目 子集 允许清单；两来源 = `git ls-files -z` 与 工作树 `test -e`；超限逐条点名并分别印来源；清单件缺席 / 根缺席 / `git` 取不到 = NOINFO）(2) 第 `[+]` 步 `WIRING-CLOSURE`（`TASK-0751`：交付的牙 子集 run_step 接线集合 与 接线 蕴含 真判词；黑名单族 = `usage...` / `bad-usage` / `USAGE_ERR` / `no-cases` / `cases-absent` / `no-manifest` / `empty-manifest` / `manifest-missing` 与 字段 `cases=0`；豁免逐行给 why 且超上限即红；与 `TASK-0740` 互补、互不代偿）。同趟：覆盖面 51 -> 53（本波 2 件）与 第 `[42]` 步 `--expect` 同趟现取；四处声明同趟改。仪器波 · 零产品改动。步数：51 -> 53）
 # VERIFYALL-STEPS-DECL: 51 gen=#78   ← `TASK-0747`（`D-G124` `F-A`）**加一步**（50 → 51）：第 `[51]` 步 `APPBAR-STARTUP`（补一处 `SHAppBarMessage` 导出 ⇒ 启动期不再抛 `EntryPointNotFoundException`；本牙 = 活体符号面 ∧ 录下的腿表，两臂合取、分开计数）
@@ -117,7 +119,7 @@
 # VERIFYALL-STEPS-DECL: 18 gen=#30   ← **史实行**（`#30` 收官当时的步数 —— 那一波**一步未加**）
 #   ⚠️ 读者 `decl_line()` 取**第一条**（`sed -n … | head -1`）⇒ **最上面那条才是当前口径**；
 #   下面两条只为「本波从哪一代起、加了几步」留机读痕迹。⚠️ **史实行只许追加、不许改**（纪律 61 同族）。
-# VERIFYALL-STEP-NAMES: 主工程 WpfGfx.Linux | wpf-linux.sln | Commands.Tests | Rendering.Tests | Windowing.Tests | HelloMil.Tests | ManagedLayer.Tests | Presentation.Tests | verify-cmd-layout.py | tline-gate（五臂） | PcLineOracle·Start 列 | FrameProbe-frame | BASELINE-SHA | ARM-LOG-SHA | BUILD-HYGIENE | DEFECT-REGISTRY | VERIFYALL-SELF | FP-INPUTS-HYGIENE | HIDDEN-ONLY | COLUMN-FLOOR | QUOTE-TRAP | PRODUCT-ENTRY | FRAME-PRESENCE | PIPEFAIL-SIGPIPE | THIRD-PARTY | R-GATE（连续交互） | NUL-BYTES | HYGIENE | REGRESSION-DECISION | UIA-DOOR | IME-LANDING | GEOM-BEAT | GEOM-RESEND | PREREG-FOUR-REQ | PROC-PATTERN-GUARD | REGIME-IDENTITY | BASELINE-RATE-GATE | PTS-PAGES | SILENT-HIT-V2 | BAK-COMPLETENESS | REPO-ALIAS | FP-MANIFEST-TEETH | SELFDESC-WIRING | LANE-PATH | ROWS-IDENTITY | X-CENSUS | BOUNDARY-DECL | WIRING-COVERAGE | PARSER-GUARD | PROTO-ATTR | APPBAR-STARTUP | ROOT-ENTRIES | WIRING-CLOSURE | RETIRED-PATH | REPORT-ID-DOMAIN
+# VERIFYALL-STEP-NAMES: 主工程 WpfGfx.Linux | wpf-linux.sln | Commands.Tests | Rendering.Tests | Windowing.Tests | HelloMil.Tests | ManagedLayer.Tests | Presentation.Tests | verify-cmd-layout.py | tline-gate（五臂） | PcLineOracle·Start 列 | FrameProbe-frame | BASELINE-SHA | ARM-LOG-SHA | BUILD-HYGIENE | DEFECT-REGISTRY | VERIFYALL-SELF | FP-INPUTS-HYGIENE | HIDDEN-ONLY | COLUMN-FLOOR | QUOTE-TRAP | PRODUCT-ENTRY | FRAME-PRESENCE | PIPEFAIL-SIGPIPE | THIRD-PARTY | R-GATE（连续交互） | NUL-BYTES | HYGIENE | REGRESSION-DECISION | UIA-DOOR | IME-LANDING | GEOM-BEAT | GEOM-RESEND | PREREG-FOUR-REQ | PROC-PATTERN-GUARD | REGIME-IDENTITY | BASELINE-RATE-GATE | PTS-PAGES | SILENT-HIT-V2 | BAK-COMPLETENESS | REPO-ALIAS | FP-MANIFEST-TEETH | SELFDESC-WIRING | LANE-PATH | ROWS-IDENTITY | X-CENSUS | BOUNDARY-DECL | WIRING-COVERAGE | PARSER-GUARD | PROTO-ATTR | APPBAR-STARTUP | ROOT-ENTRIES | WIRING-CLOSURE | RETIRED-PATH | REPORT-ID-DOMAIN | SENTINEL-SPEC | WAVE-PUSH | TS-ORDER
 #   **`#28` 收官起 = 17 步**（`#28` 加第 `[11]` 步 `VERIFYALL-SELF`）｜**`#29` 收官起 = 18 步**
 #   （`#29` 加第 `[12]` 步 `FP-INPUTS-HYGIENE`：核对 `fp_inputs()` 的覆盖面里**不许出现产物路径**）｜
 #   **`#30` 收官起 = 18 步**（**仪器加固波、步数一步未加**）｜**`#31` 收官起 = 21 步**（`#31` 加第 `[13]` 步
@@ -1192,7 +1194,7 @@ run_step "REPO-ALIAS" bash build/MilBridge/tools/repo-alias-check.sh --allow bui
 #   ∧ `sha256sum` `stderr` 空。它**不**判「清单**内容正确**」—— 判不了"该收的没收"（覆盖面缺项）。
 echo
 echo "[42] 指纹清单的牙（清单逐行形状 ＋ 件数对账；D-G120②；NOINFO 不算绿；#70 加）"
-run_step "FP-MANIFEST-TEETH" bash build/MilBridge/tools/fp-manifest-step.sh --expect 226
+run_step "FP-MANIFEST-TEETH" bash build/MilBridge/tools/fp-manifest-step.sh --expect 229
 run_step "SELFDESC-WIRING" bash build/MilBridge/tools/selfdescription-wiring-check.sh
 run_step "LANE-PATH" bash build/MilBridge/tools/lane-path-check.sh
 run_step "ROWS-IDENTITY" bash build/MilBridge/tools/rows-identity-check.sh
@@ -1209,6 +1211,13 @@ run_step "WIRING-CLOSURE" bash build/MilBridge/tools/wiring-closure-check.sh
 #   两件都是**纯读、秒级、零 `dotnet`**：A 件扫仓内源树 ＋ 声明式出处清单；D 件扫报告语料 ＋ 注册器 ID 域。
 run_step "RETIRED-PATH" bash build/MilBridge/tools/pkg-src-retiredpath-check.sh --tree
 run_step "REPORT-ID-DOMAIN" bash build/MilBridge/tools/report-id-domain-check.sh
+# ── 【`t47`／W4a 接线：三颗交付牙（哨兵规范／推送预演／戳序）】────────────────────────────
+#   为什么此前是 `UNWIRED`：三颗牙在 `t23`／`t24`／`t27` 落仓，接线按顺序约束归 W4（`t43`／`t44` 只做口径面与改形）。
+#   三件都是**纯读、秒级、零 `dotnet`**：① 哨兵键序／字节格式（11 键，读生产两枚哨兵）② `wave-push` **只预演**（`--dry-run`，不写盘）
+#   ③ 戳序判据（默认件 `P1-w1-close-verify.md`）。覆盖面（`fp_inputs()`）**同趟 +3 行** ⇒ 226 → 229。⚠️ 步号不写死（以现场步序为准）。
+run_step "SENTINEL-SPEC" bash build/MilBridge/tools/sentinel-spec-check.sh
+run_step "WAVE-PUSH" bash build/MilBridge/tools/wave-push.sh --dry-run
+run_step "TS-ORDER" bash build/MilBridge/tools/timestamp-order-check.sh
 # W168A-0724-END
 # W160A-0721-END
 # W154A-0714-END
