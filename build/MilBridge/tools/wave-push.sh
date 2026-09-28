@@ -13,6 +13,10 @@
 #             `FP` 走 `bash build/bridge-src-fp.sh`（**不是** `inputs_fp`）；`WAVE`／`BASELINE`／`BASELINE_SHA16` 由 `docs/CURRENT-STATE.md:9` 派生。
 #
 # 【用法】`bash wave-push.sh --dry-run`（只打印 13 行到 stdout、**不写盘**）｜`bash wave-push.sh`（写两枚哨兵 ＋ 自证 `cmp`）
+# ⏪ **dated 修（`t35`，读时 2026-09-28T16:42:53.604+0800；`t30` §V-2）**：**只对两条规范路径**（`/tmp/bridge-frozen.flag`／`$HOME/wfp-runs/bridge-frozen.flag`）**自动建父目录**；
+#   **其它任何路径**必须显式 `WPW_MKDIR_OK=1`，否则 `WPW=FAIL reason=strange-target-path … hint=set WPW_MKDIR_OK=1`（**拒跑并点名**）——
+#   陌生路径下静默建树会把哨兵写进**没人读的地方**而生产仍旧 ⇒ **假绿方向**（`D-G181`／`D-G182` 同族）。
+
 # 【不接线】本件**未被 `close-wave.sh`／`verify-all.sh` 调用**（接线归 W4）。
 # ═══════════════════════════════════════════════════════════════════════════════
 set -uo pipefail
@@ -82,10 +86,27 @@ case "$MODE" in
     #   （哪一枚／哪一步／哪条命令／`stderr` 首行）＋ **回滚**，保证两枚都不留半成品。
     #   测试钩子（只在显式设置时生效）：`WPW_TEST_FORCE_FAIL=write-B` ⇒ 在第 `2` 枚上强制失败，用于证明**回滚真跑**。
     DA="$(dirname -- "$S_A")"; DB="$(dirname -- "$S_B")"
-    for d in "$DA" "$DB"; do
-      if ! mkdir -p "$d" 2>"$T".derr; then
-        echo "WPW=FAIL reason=target-dir-unusable step=preflight dir=$d cmd=\"mkdir -p $d\" stderr=$(head -n 1 "$T".derr)"; exit 1
+    # ⏪ dated 修（`t35`，读时 2026-09-28T16:42:53.604+0800；`t30` §V-2 队长裁定）：**只对两条规范路径**自动建父目录；
+    #   **其它任何路径**必须**显式** `WPW_MKDIR_OK=1` 才允许建 —— 否则 **拒跑并点名**
+    #   （`WPW_S1` 打错一处会静默建出陌生目录树、把哨兵写进没人读的地方，而生产仍旧 ⇒ **假绿方向**）。
+    mkdir_ok=0; [ "${WPW_MKDIR_OK:-}" = "1" ] && mkdir_ok=1
+    ensure_dir() {   # $1=哨兵名(A|B) $2=哨兵路径 $3=父目录 $4=是否规范路径(1/0)
+      [ -d "$3" ] && return 0
+      if [ "$4" = 1 ] || [ "$mkdir_ok" = 1 ]; then
+        if ! mkdir -p "$3" 2>"$T".derr; then
+          echo "WPW=FAIL reason=target-dir-unusable step=preflight dir=$3 cmd=\"mkdir -p $3\" stderr=$(head -n 1 "$T".derr)"; exit 1
+        fi
+        [ "$4" = 0 ] && echo "WPW_MKDIR_OK sentinel=$1 path=$2 dir=$3（**陌生路径显式放行**：`WPW_MKDIR_OK=1` ⇒ 上屏，不静默）"
+      else
+        echo "WPW=FAIL reason=strange-target-path sentinel=$1 path=$2 dir=$3 hint=set WPW_MKDIR_OK=1（**陌生路径不许静默建树**：哨兵会写进没人读的地方 ⇒ 假绿方向）"; exit 1
       fi
+      return 0
+    }
+    canon_a=0; [ "$S_A" = "/tmp/bridge-frozen.flag" ] && canon_a=1
+    canon_b=0; [ "$S_B" = "$HOME/wfp-runs/bridge-frozen.flag" ] && canon_b=1
+    ensure_dir A "$S_A" "$DA" "$canon_a"
+    ensure_dir B "$S_B" "$DB" "$canon_b"
+    for d in "$DA" "$DB"; do
       if [ ! -w "$d" ]; then
         echo "WPW=FAIL reason=target-dir-unwritable step=preflight dir=$d cmd=\"test -w $d\""; exit 1
       fi

@@ -376,3 +376,9 @@ flock -n ~/heavy.lock -c 'echo SLOT=FREE' || echo SLOT=HELD; free -m | awk 'NR==
 - ⏪ **V-3②（计件补全：例②漏列）**：第 `19` 条例②只写了 `build/MilBridge/P1-dg179-report.md` 一件 —— **现取 `t18`（I 批）那笔提交 `f590aca`（`2026-09-28T16:12:16+08:00`）的 `numstat`**：`build/MilBridge/HANDOFF-NEXT.md` `6 0`｜`build/MilBridge/P1-dg179-report.md` `3 0`｜`build/MilBridge/tools/defect-registry-declared.tsv` `3 2`｜`samples/WpfFeatureProbe/KNOWN-DEFECTS.md` `12 0` ⇒ **I 批动了四件，例②漏列三件**（`HANDOFF-NEXT.md`／`declared.tsv`／`KNOWN-DEFECTS.md`）。同 V-3①：**这三件当时的 `mtime` 亦已不可现取** ⇒ 记 `NOINFO`，只给提交级旁证 `f590aca`＝`16:12:16`。
 - ⏪ **口径（两例共用，逐字）**：**「凡『本族第几次 ＋ 并列几例』的计件，必须用**该笔提交的 `numstat`** 数件（`git show --numstat <sha>`），不许凭记忆列件名；被后续写重写掉的 `mtime` 一律给 `NOINFO` ＋ 提交级旁证。」**
 - ⏪ **本席自伤（同趟如实记）**：本块**首跑未落** —— 生成脚本的多行字符串拼接括号不闭合 ⇒ **`SyntaxError`、`rename` 未执行**；当场复核该件 `sha16=3d25341c90eb6dff`／`lines=369` 与写前**逐字相同**、`numstat` 空 ⇒ **零损伤**；改列表拼接后本块才落定（故本块读时戳晚于原计划，数字以本块为准）。
+
+### ⏪ **dated 追加 · W4 首跑前检查项（三颗新牙接线 ＋ `--expect` 同趟 ＋ `WPW_MKDIR_OK` 语义）（`t35`，读时 2026-09-28T16:43:25.199+0800）**
+
+- ⏪ **接线（三颗同趟）**：`build/MilBridge/tools/sentinel-spec-check.sh`（`8c8470a3b3dd0c0d`；`t23` 落）／`build/MilBridge/tools/wave-push.sh`（`213ecfbaee4ebd71`；`t24` 落、`t29`＋`t35` 加固）／`build/MilBridge/tools/timestamp-order-check.sh`（`6ace8e29f3cf6357`；`t27` 落、`t33` 收窄）—— 三颗现取 **`in-list=0`**（都在 `fp_inputs()` 覆盖面**外**）⇒ **必须同趟加进 `fp_inputs()`**，并**同趟**给出覆盖面件数与 `verify-all.sh` 第 `[42]` 步的 `--expect`（现取 `226`，加三颗 ⇒ `229`）、步数（现取 `55`）四处声明。
+- ⏪ **`WPW_MKDIR_OK` 语义（写死，`t35` 落）**：`wave-push.sh` **只对两条规范路径**（`/tmp/bridge-frozen.flag`／`$HOME/wfp-runs/bridge-frozen.flag`）**自动建父目录**；**其它任何路径**必须显式 `WPW_MKDIR_OK=1`，否则 **`WPW=FAIL reason=strange-target-path … path=… dir=… hint=set WPW_MKDIR_OK=1`（拒跑并点名）**；显式放行时**上屏** `WPW_MKDIR_OK …`（**不静默**）。⇒ **W4 首跑若用非规范路径（例如临时车道），必须先设 `WPW_MKDIR_OK=1` 并在日志里保留那行上屏**；否则**拒跑是预期行为、不是故障**。
+- ⏪ **首跑后必须现算并上屏**：两枚哨兵 `cmp`（须 `IDENTICAL`）＋ 各枚 `sha16` ＋ `inputs_fp`（带 `ts`）——按本区第 `20` 条口径（`ts=<亚秒戳> 时 入口=X 出口=X，覆盖面=N`）。
