@@ -114,3 +114,22 @@
 6. `build/MilBridge/HANDOFF-NEXT.md`：按队长硬协调②**本趟不动**（`t54` 已写三节、`t57` 只追加一行）；其 §7 的 `R=` **现取已是 git 树路径**（`:105` `R=/home/links-dev/netTest/GitProj/WPFOnLinux`）⇒ 该格**已验证满足、无需改**。
 
 SELF=件外现取（自指）
+
+## §8 推送与两哨兵（**已做**，现取；本节为 `t14` 追加）
+
+> 本件 §7-1 写的「推送与两哨兵未做」是**当时状态**（队长硬协调①：必须排在 `t57` 之后）。`t57` 落地（`DEFREG=PASS declared=213 route_ids=213` ＋ **`DECLDRIFT=0`**；`REPORTID=PASS files=187 ids=1912`，两项均现取）后，本节按序补做。
+
+| 项 | 值（现取） |
+|---|---|
+| 提交①（12 件文档收口） | **`d80ec2a3a2eea7fa0fa2817619a8fbc21bc75684`**（`STAGED=12`；`PUSH_LIST_GAP=PASS list==porcelain (12)`；`FF=yes`） |
+| 提交②（`HANDOFF-NEXT` 的并发写残差：**仅一处空行**） | **`6d09f788c26bd3d0437ec13f2a4b8891c0c3f3fb`** |
+| `git ls-remote origin feat-Linux` | `6d09f788c26bd3d0437ec13f2a4b8891c0c3f3fb`（**`REMOTE==LOCAL=PASS`**） |
+| 逐件核到远端 | `BYTECHECK ok=11 mismatch=1` → **`mismatch` 那件是 `HANDOFF-NEXT`**：它在**我 `git add` 之后**又被并发写了一次（`ce4415e042fe0bc0 → da07663759b5bf23`，差异＝**一处空行**）⇒ 由提交②带上，**现已逐件相等**（`git cat-file blob HEAD:` ＝ 工作树 ＝ `da07663759b5bf23`） |
+| `porcelain` | **0** |
+| 两哨兵（**按内容重写**） | `/tmp/bridge-frozen.flag` 与 `~/wfp-runs/bridge-frozen.flag`：`cmp` **IDENTICAL**；内容 `sha16=**f2ab94d32b8e1e40**`；写前 mtime `12:21:26` → 写后 **`12:30:48`**（两件同刻）；`WAVE=w80-freeze`／`BASELINE=#80`／`BASELINE_SHA16=b96d4312565a3c49` |
+| 九位 vs `#80` 冻结那一刻 | **零差异位**（哨兵**内容**与推送前逐字节相同；`FP` 由 `bash build/bridge-src-fp.sh` 现算 ＝ `d697b1e10ff48881`）⇒ **`NINE_MATCH_FREEZE=yes`**（无结构性差异、也无一次性差异） |
+| 冻结块不变量 | `samples/WpfTextDemo/ACCEPTANCE-BASELINE.md` 现取 **`b96d4312565a3c49`**（**未动**） |
+| 标记（字段不许为空） | `~/w14a/W80_DOCSCLOSE.done`：`push_rc=0`／`stop_line=none(all-steps-ok)`／`baseline_sha16=b96d4312565a3c49`／`wave=#80`／`list_n=12`／`block_unchanged=yes` |
+
+- **口径（如实）**：**哨兵写(12:30:48) 早于提交②(12:31:02)** —— 因提交②只带一处空行（**不含任何产品件、不含 `CURRENT-STATE`／基线件**）⇒ 哨兵内容不受影响（机器证：块件仍 `b96d4312565a3c49`、九位现取与哨兵逐位相同）。此顺序**不构成反例**，但按本仓"最后两个动件"的严格读法应记一笔。
+- **逐件归宿**（12 件）：`README.md`（本趟）｜`docs/ROUTES.md`（本趟）｜`docs/CURRENT-STATE.md`（本趟）｜`docs/RELEASE-READINESS.md`（本趟）｜`docs/INDEX.md`（本趟）｜`docs/unimplemented.md`（本趟）｜`build/MilBridge/W78A-report.md`（本趟 dated 追加）｜`build/MilBridge/P1-docs-close-report.md`（本趟新建）｜`build/MilBridge/P0-w80-report.md`（`t46` 未跟踪件，队长指定由本趟带上）｜`build/MilBridge/HANDOFF-NEXT.md`（`t54`／`t57` 落仓件）｜`samples/WpfFeatureProbe/KNOWN-DEFECTS.md`（`t57`）｜`build/MilBridge/tools/defect-registry-declared.tsv`（`t57`）。
