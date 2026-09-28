@@ -26,7 +26,7 @@
 #   | `comment`/`data` 命中**未声明** | **`FAIL rule=undeclared-retired-path-mention`** | 豁免走**声明式出处清单 ＋ 每件命中数上限**（逼后来者显式声明） |
 #   | 清单声明 `max_hits` `<` 现读命中数 | **`FAIL rule=provenance-tree-grown`** | 与 `repo-alias-allow.tsv`／`lane-path-provenance.tsv` 同口径：**上限＝现读数 ⇒ 树长大也红** |
 #   | 清单里 `registered=` 不在 declared 集 | **`FAIL rule=declaration-unregistered`** | 豁免必须挂在**已入册**的缺陷号上（"声明只能把『已知在册具名』的降成可见，不能把『未知』降成绿"） |
-#   | 射程面 `build`／`tests`／`src` **任一目录缺席**（仅 `tree` 面） | **`FAIL reason=tree-dir-missing dirs=<缺哪些>`** | 三目录**就是**射程面本身；缺席 ⇒ 该腿**根本没被判**。此前这种局面被并进 `reason=no-paths-file` 的 `NOINFO`（`path=` 还为空）⇒ **会被读成"没红"** —— 本行由 `t25` 收口（`D-G182`） |
+#   | 射程面 `build`／`tests`／`src` **任一目录缺席**（仅 `tree` 面） | **`FAIL reason=tree-dir-missing dirs=<缺哪些>`** | 三目录**就是**射程面本身；缺席 ⇒ 该腿**根本没被判**。此前这种局面被并进 `reason=no-paths-file` 的 `NOINFO`（`path-field-empty` 还为空）⇒ **会被读成"没红"** —— 本行由 `t25` 收口（`D-G182`） |
 #
 #   ⚠️ **面①（`--paths-file`）例外约定（写死）**：该面**不认任何豁免**（连 `code-evidence-source` 也不认）——
 #      喂进来的件是**即将入仓**的件 ⇒ "默认值指向已撤除的树"就是要拦的东西本身。
@@ -49,10 +49,15 @@
 #
 # ⏪ **dated 修（`t25`，读时 2026-09-28T16:20:02+0800；`D-G182`；发现者 `t15`、配号队长）**：
 #   ① `tree` 面**目录闸**：`build`／`tests`／`src` 任一缺席 ⇒ `rc=1` `reason=tree-dir-missing dirs=…`（**点名**），
-#      **不许**降成 `NOINFO`（旧行为 `path=` 为空 ⇒ 「没被判」被读成「没红」）；三目录齐 ⇒ 判定路径不变。
-#   ② `NOINFO` 的 reason 由 `no-paths-file`（`tree` 面语义指错方向）改为 `corpus-unreadable mode=$MODE path=${PATHSFILE:-none}`；
-#      **此后本件任何输出里不再出现空 `path=`**（`paths` 面清单缺席仍 `NOINFO rc=3`，语义不变）。
+#      **不许**降成 `NOINFO`（旧行为 `path-field-empty` 为空 ⇒ 「没被判」被读成「没红」）；三目录齐 ⇒ 判定路径不变。
+#   ② `NOINFO` 的 reason 由 `no-paths-file`（`tree` 面语义指错方向）改为 `corpus-unreadable mode=$MODE path-field=<none|路径>`；
+#      **此后本件任何输出里不再出现空 `path-field-empty`**（`paths` 面清单缺席仍 `NOINFO rc=3`，语义不变）。
 #   ③ `--selftest` 新增 `S9`／`S10`／`S11` 三条 `tree` 面臂（缺目录必红点名／三目录齐含针必红／三目录齐干净必绿）。
+#   ⏪ **dated 措辞修（`t31`，读时 2026-09-28T16:32:32.687+0800；并入 `D-G103` 族、**不新号**；发现者 `t26`、队长裁定并入）**：
+#      **判词文本**（`echo` 的字符串 ＋ 件头括注／表格）一律**不得内嵌被断言字段的字面** —— 指「`path` 字段为空」时用 **`path-field-empty`**，
+#      **唯一**允许出现 `path` 字段字面的地方是**判词发射端**（那一个字段，永不为空）。可现算不变量：
+#        · `EQ='='; grep -c "path$EQ" <本件>` ⇒ **恰 `1`**（＝发射端那一行）；判词**文本** ⇒ **`0`**。
+#        · 断言器口径：先剥「（…）」与反引号，再判「**真·空字段**」（字段名 `path` 后紧跟 `$EQ`、右侧为空／空白／引号／行尾）⇒ 正常态 **`0`**。
 # ═══════════════════════════════════════════════════════════════════════════════
 set -uo pipefail
 
@@ -161,13 +166,13 @@ run_check() {
   local declared; declared="$(declared_id_set)"
   load_prov || true          # 清单缺席 ⇒ 下面按"无豁免"处理（comment/data 未声明 ⇒ 红），**不静默放行**
   # ⏪ dated 修（`t25`，读时 2026-09-28T16:20:02+0800；`D-G182`）：`tree` 面射程＝`build`／`tests`／`src` **三目录**；
-  #   任一缺席 ⇒ **响亮失败并点名**（`rc=1`），**不再**并进 `NOINFO`（旧行为连 `path=` 都是空的 ⇒
+  #   任一缺席 ⇒ **响亮失败并点名**（`rc=1`），**不再**并进 `NOINFO`（旧行为连 `path-field-empty` 都是空的 ⇒
   #   会把「这一腿根本没被判」读成「没红」＝假绿方向）。三目录齐 ⇒ 判定路径与改前一致。
   if [ "$MODE" = "tree" ]; then
     local miss='' d
     for d in build tests src; do [ -d "$ROOT/$d" ] || miss="$miss${miss:+,}$d"; done
     if [ -n "$miss" ]; then
-      echo "RETIREDPATH=FAIL reason=tree-dir-missing dirs=$miss root=$ROOT（射程面三目录必须齐；**不许**降成 NOINFO、**不许**空 path=）"
+      echo "RETIREDPATH=FAIL reason=tree-dir-missing dirs=$miss root=$ROOT（射程面三目录必须齐；**不许**降成 NOINFO、**不许**path-field-empty）"
       return $RC_FAIL
     fi
   fi
@@ -287,7 +292,7 @@ selftest() {
   # S8 反极：清单文件不存在 ⇒ NOINFO（不许当绿）
   set +e; out="$(bash "$SELF" --paths-file "$T/does-not-exist" --root "$T" 2>&1)"; rc=$?; set -e
   arm S8 "$([ "$rc" = "3" ] && echo 1 || echo 0)" "清单缺席 ⇒ NOINFO（rc=$rc）"
-  # S9 反极（`D-G182`／`t25`）：`tree` 面**只建 `build/`** ⇒ **必红并点名 `tests`／`src`**（不许 NOINFO、不许空 path=）
+  # S9 反极（`D-G182`／`t25`）：`tree` 面**只建 `build/`** ⇒ **必红并点名 `tests`／`src`**（不许 NOINFO、不许path-field-empty）
   mkdir -p "$T/r9/build"; printf '#!/usr/bin/env bash\nR=/\n' > "$T/r9/build/ok.sh"
   set +e; out="$(bash "$SELF" --tree --root "$T/r9" --provenance "$T/none" 2>&1)"; rc=$?; set -e
   arm S9 "$([ "$rc" = "1" ] && grep -q 'reason=tree-dir-missing' <<< "$out" && grep -q 'dirs=tests,src' <<< "$out" && ! grep -q 'no-paths-file' <<< "$out" && echo 1 || echo 0)" "tree 面只建 build/ ⇒ FAIL 点名 tests,src（rc=$rc）"
