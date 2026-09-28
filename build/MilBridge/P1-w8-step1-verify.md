@@ -101,3 +101,44 @@
 
 P1-W8-STEP1-VERIFY: t83 attempt 2 | ① 诚实性成立（ctypes 第二实现：A/B 两上下文 LoSetDoc(1,0,11/22/33/44) vs (0,1,55/66/77/88) ⇒ probe [1,0,11,33] vs [0,1,55,77]；LoSetBreaking 7 vs 9；未知 0xdeadbeef/NULL/重复销毁/销毁后 ⇒ 全 -10000 且不 deref；报告计数 loc_creates=2 loc_destroys=2 loc_rej=1 setdoc_sets=2 setdoc_rej=3 setbrk_sets=2 setbrk_rej=2 与调用序逐项吻合）＋F-① low（自检调用史敏感：全新进程 rc=1 diag=0 ⇒ 调过 LoCreateContext+LoSetDoc 后 rc=0 diag=25/32）＋O-①（探针是调用史镜像，已销毁对象的旧记录仍在）｜② C1 部分成立（nm=561=exports 561 ∧ >557；两新符号在册；SelfCheck 3→4；**但九位行未追写，仍写 win32shim=6825dd7071387a46 而现盘 .so=3bd193e54785b5db**）｜C2 成立（mapped 明细命中 0；汇总 99→97 减幅=2=真补入口数）｜C3 成立（PTSGAP=PASS tool=97 dead=11 artifact=1 ops=85 impl=91 so16=3bd193e54785b5db exports=561；99/87/93→97/85/91 各减 2；FRONTIER_STATE=NAMED frontier=LoSetDoc）｜C4 不成立（在册 evidence entry= 仍 2 entry=LoSetDoc 未换代；t81 那趟 2 entry=dll:NotImplemented + 1 entry=LoAcquirePenaltyModule，NotImplemented/dll 上游命中 0 ⇒ 不可回溯）｜C5 不成立（在册 native_gap=0 且 rc=1 fails=native-ledger-absent；t81 那趟 native_gap=1 但 rc=1 fails=g10-name-off-roster(dll)）｜C6 部分成立（已导出且会红；探针不互校）｜③ P5 我自造反腿成立（PTSGAP_FRONTIER_CARRIER=stuck + PTSGAP_FR_BASELINE_IMPL=999 ⇒ rc=1 ＋ FAKE-PROGRESS impl=91 < 基线 999 而前沿仍是 LoCreateContext ＋ PTSGAP=FAIL；正腿 rc=0 PTSGAP=PASS）＋token 不一致 low（判据期望 reason=ledger-nonzero-frontier-unchanged）｜P3 现场即红（off-roster=dll 点名）｜P2/P6 NOINFO（反腿需重编译副本，禁构建）｜④ 同趟性不成立（在册 DEV shim=2a5165700a8c8579 ≠ so16=3bd193e54785b5db；t81 那趟 == so16 但非门禁读面）｜⑤ 在册面不成立（leg_23/24.env 与 HEAD 版逐字节相同、mtime 23:04:40、native_gap=0）；t81 那趟 alive=yes/app_rc=143/magenta 50094,54684/native_gap=1；native-ledger-absent 仍红如实｜⑥ 成立（不变量 62/234/62 gen=#81/234；哨兵 cmp IDENTICAL FP=d697b1e10ff48881 不该重写；inputs_fp bf1edb1bf82c15137dab0be3d62a0d7f 与 HANDOFF-NEXT.md:607 cell=#1 追写 ts=23:24:29.950477561 前 16 位一致）｜⑦ 载体新建 UTF-8 首记号 # P1-W8-STEP1-VERIFY mode 644 末行自报｜HEAD 7a89ad7｜NOINFO 5 条
 SELF-SHA16 （口径 = `head -n -1 build/MilBridge/P1-w8-step1-verify.md | sha256sum | cut -c1-16`）= `0ec05f3fb48f9059`
+
+## ⏪ **`t89` dated 追加 —— `t83` 余项关账（仪器面/口径面）＋ 九位「历史 vs 现盘」分辨 ＋ 哨兵世代标签分辨**（读时 `ts=2026-09-29T00:1x+08:00`；**本节为追加，上文一字未删**）
+
+### §A 九位：「历史 vs 现盘」三个不同的物（本条取代 `t83` 的「九位行未追写」读法）
+- **① 历史（不许改写）**：`build/MilBridge/HANDOFF-NEXT.md` 顶部「九位（`#77` 冻结值；取法见 §7-2）」那一行 ＝ **`#77` 冻结世代**的值；紧随其下 `⏪ **dated 对齐（`t58`…）**：**现九位（现取，`#80`）**…` 那一行 ＝ **`#80` 冻结世代**的值。两行都是**冻结世代的历史对比**，`t83` 说它们"未追写"**属实但不构成缺陷** —— **不许**把世代值改写成当盘值（那会把"历史"抹掉）。
+- **② 另一个物（`cell=#9`）**：`HANDOFF_MV` 的 `cell=#9` 判的是**权威路径表**（`build/MilBridge/tools/wave-freeze-consistency-check.py` 的 `NINE_PATHS` → 首个 `]`），现取 `f951e80b55e85782`，`handoff-machine-values-check.sh` 报 `state=equal`。**它与"九件产物 sha16"不是同一物**：一个判「**路径表**有没有被改写」，一个记「**九个产物**当时是什么」。⇒ 引 `cell=#9` 时**不得**读成"九件 sha16 对上了"。
+- **③ 现盘九值（本席现取快照；`ts=2026-09-29T00:1x+0800`；取法＝按上面那张 `NINE_PATHS` 现取，`{CFG}` ⇒ `Release`）**：
+  | 位 | 现盘 sha16 | 路径 |
+  |---|---|---|
+  | `bridge` | `4e25e4b27d4d5ae1` | `build/MilBridge/.artifacts/publish/MilBridge.Linux/release_linux-x64/wpfgfx_cor3.so` |
+  | `pc` | `5b6cfda3e12b84fc` | `build/PresentationCore.Linux/bin/Release/PresentationCore.dll` |
+  | `pf` | **`b3f0d129f0234b58`** | `build/PresentationFramework.Linux/bin/Release/PresentationFramework.dll` |
+  | `windowsbase` | `9e860cbeecb352e1` | `build/WindowsBase.Linux/bin/Release/WindowsBase.dll` |
+  | `provider` | `24e4e0a731dbed40` | `build/DirectWrite.Linux/Provider/bin/Release/DirectWrite.Linux.Provider.dll` |
+  | `win32shim` | **`3bd193e54785b5db`** | `src/WpfGfx.Linux.Native/bin/libwpfwin32.so` |
+  | `wic_shim` | `f7b3026c8c019be2` | `build/DirectWrite.Linux/wic-shim/libwpfwic.so` |
+  | `hbtextline` | `921ba9c65e9fb3be` | `build/shims/PresentationCore.HbTextLine.cs` |
+  | `dwf` | `c83be96f18759edc` | `build/DirectWriteForwarder.Linux/bin/Release/DirectWriteForwarder.dll` |
+- **④ 本波（`#81`）内的移位（如实记，带来源）**：`win32shim` `2a5165700a8c8579` → **`3bd193e54785b5db`**（`t81` 的 native 增量：`LoSetDoc`／`LoSetBreaking` 诚实实现）；`pf` `8ef62d37e7c2ce2e`（在册旧值）→ `cff36ea4c64455e4`（**本席 `t87` 的 before 构建**）→ **`b3f0d129f0234b58`**（**本席 `t87` 终态构建**：`entry=` 归因修复）。⇒ **本波收尾时须再取一次「现盘九值」**（若其后又移位），并与 `#80 九值` 并列写清「谁是谁的历史」。
+
+### §B 哨兵世代标签（队长 `t89` 追加裁定 ①）：`w80-freeze`/`#80` **与现盘一致**，不许改
+- `HANDOFF_MV` 的 `cell=#3`（§7-1 冻结世代）现取仍 `BASELINE-FROZEN gen=#80 sha16=…` 且 `state=equal` ⇒ **当前冻结世代仍是 `#80`**。
+- 而 `#81` 是**波号**（`verify-all.sh` 首行 `# VERIFYALL-STEPS-DECL: 62 gen=#81`）—— **与"冻结世代"不是同一量**（量名看着像，所指不同）。
+- ⇒ 哨兵写 `WAVE=w80-freeze`／`BASELINE=#80` **与现盘一致**；**不许**为"跟上 `#81`"改写哨兵；`t86` 报的「逐键一致、唯 `WAVE`/`BASELINE` 与 `#81` 不一致」按本条**判为不构成缺陷**。**本席从未写哨兵。**
+
+### §C `t83` 判词的**时点**（队长 `t89` 追加裁定 ②）：`C4`/`C5` 的前提已被刷新
+- `t83` 的「**`C4`／`C5` 在在册面不成立**」＋「同趟性不成立」＋「在册零回归不成立」**只对它的那个时点成立**（当时在册腿证据**未随趟换代**：`DEV shim=2a5165700a8c8579` ≠ `so16=3bd193e54785b5db`、`native_gap=0`）。
+- **现取（本席自算，默认证据目录；`ts=2026-09-29T00:1x+0800`）**：`bash build/MilBridge/tools/pts-pages-guard.sh --legs build/MilBridge/tests/PtsPagesProbe/evidence` ⇒ **`rc=0`**／`PTS_G10_NAME=PASS observed=LoAcquirePenaltyModule names=1 roster=12 domains=pts-declared`／**`PTS_GUARD=PASS legs=2/2 fails=- cannot=- diag=- direction=in-file phase=degraded`**；在册 `app_g1.log` 现取 **`3 entry=LoAcquirePenaltyModule`**（`sha16=e348b4ef70ab521e`）、`leg_23.env` 现取 `NAMED managed_unavail=1 err=-10000 native_gap=1 native_err=-10000`。
+- ⇒ 「那条真红 `native-ledger-absent(PTS_GAP n=0)`」已被 **W8 增量（`native_gap 0→1`）＋ 在册重取（`t86`）** 消解；**判据件本趟只读**（`pts-pages-guard.sh` 未动）。⇒ 读 `t83` 判词时**必须同时读它的时点**，不得读成现行结论。
+
+### §D P5 反腿 token 口径（本件关账 ②；落点在工具件）
+- 判据件 `build/MilBridge/P1-w8-step1-criteria.md` 的 P5 行**逐字**要求 `FAIL reason=ledger-nonzero-frontier-unchanged`，且同件「必红的判法（统一）」写明「红而不点名（缺 `reason=`／缺 `file:` 或字段名）⇒ **该条判据判不成立**」。
+- 实现 `build/MilBridge/tools/pts-gap-count-check.sh` 原只给字段名（`impl=`／`基线`／`前沿仍是 <名>`）⇒ **本席选"补 token"**（判据件**不动**：它已由 `t81` 当契约用过；补的是**期望 token 本身**，不改判定实质）。
+- **成对读数（本席自造仓外夹具 `~/t89-runner/p5/stuck.log` ＝ 一行 `entry=LoCreateContext`；`PTSGAP_FR_BASELINE_IMPL=999`）**：改前 `rc=1` ＋ `FAKE-PROGRESS impl=91 < 基线 999 而前沿仍是 LoCreateContext ⇒ …（假进度）`（**无 `reason=`**）⇒ 改后 `rc=1` ＋ **`FAKE-PROGRESS reason=ledger-nonzero-frontier-unchanged impl=91 < 基线 999 而前沿仍是 LoCreateContext ⇒ …（假进度）`**；工具 `--selftest` 改前改后**同值**：`PTSGAP_SELFTEST=PASS pass=9 fail=0 legs=9 must_red=6`；工具件 `4f31e67461e13090` → **`450938d411489c15`**（模式 `755` 保）。
+
+### §E `F-①`／`O-①` 调用史约束（本件关账 ①；落点在纪律区）
+- 已升格为 **`build/MilBridge/HANDOFF-NEXT.md` 纪律第 `30` 条**（口径句逐字＋现场成对读数＋机制原文＋条在位自检命令），本件不再复写；**成对读数**（本席现取，`so16=3bd193e54785b5db`，`ts=2026-09-29T00:13:16.217+0800`）：自检 fresh ⇒ `rc=1 diag=0`｜先建活上下文 ⇒ `rc=0 diag=25`（报表 `loc_live=2`）｜先写 doc/brk（已收干净）⇒ `rc=0 diag=32`（报表 `setdoc_sets=1 setbrk_sets=1 calls=2`）；探针 `probe(live)=(1,0,[1,0,11,33])` ⇒ **销毁后同值**（调用史镜像）、未知句柄 `(0,…)`。夹具＝仓外 `~/t89-runner/fixt_probe.py`（Python＋`ctypes`，**不构建/不起应用/不占显示位**）。
+SELF-SHA16 （口径 = `head -n -1 build/MilBridge/P1-w8-step1-verify.md | sha256sum | cut -c1-16`）= `675d68a45c1b3694`（**本行系 `t89` 追加后的口径**；上一行 `0ec05f3fb48f9059` 是 `t83` 当时的正文口径，**原样保留**）
+
+- ⏪ **同趟更正（`t89`／`scribe`，`ts=2026-09-29T00:16:0x+0800`）**：上一条里引的 P5 反腿输出**位置口径**更正 —— 实现最终落法是**行尾追加**（目的是让**旧句成为新行的逐字前缀**，使「只增不改」可机器证：`旧句 in 新行` 为真），故**原样输出**是：`  FAKE-PROGRESS impl=91 < 基线 999 而前沿仍是 LoCreateContext ⇒ **名字离开名单而能力为 0**（假进度） reason=ledger-nonzero-frontier-unchanged`。工具件终值 `4f31e67461e13090` → **`e490ab4ea9fea678`**（338 行／模式 `755`／`numstat 8 1`；那 `1` 个删行 ＝ 被改写的那条红行，其**全文是新行的前缀**）；`--selftest` 前后同值 `PTSGAP_SELFTEST=PASS pass=9 fail=0 legs=9 must_red=6`；正腿 `PTSGAP=PASS tool=97 dead=11 artifact=1 ops=85 impl=91 so16=3bd193e54785b5db exports=561`（`so16` 与现盘 shim 同值）。判据件 `P1-w8-step1-criteria.md` 的 P5 期望 token 与「红必点名」判法**均满足**（token 在行尾，仍可 `grep`）。
+SELF-SHA16 （口径 = `head -n -1 build/MilBridge/P1-w8-step1-verify.md | sha256sum | cut -c1-16`）= `a95ecd660bf01318`（**本行系 `t89` 同趟更正后的口径**；其上分别是 `t83` 的 `0ec05f3fb48f9059` 与 `t89` 首次追加的 `675d68a45c1b3694`，**均原样保留**）

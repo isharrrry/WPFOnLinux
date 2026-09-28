@@ -319,7 +319,14 @@ if [ -s "$FR_CARRIER" ]; then
   esac
   # (B) **假进度必红**：计数下降（impl < 基线）∧ 前沿名**未动** ⇒ `#66` 的 `P03` 形态
   if [ "$IMPL" -lt "$FR_BASELINE_IMPL" ] && [ "${FR_NOW#entry=}" = "$FR_BEFORE_NAME" ]; then
-    echo "  FAKE-PROGRESS impl=$IMPL < 基线 $FR_BASELINE_IMPL 而前沿仍是 ${FR_BEFORE_NAME} ⇒ **名字离开名单而能力为 0**（假进度）"
+    # ⏪ dated 口径对齐（`t89`，2026-09-29；**只在行尾追加 token、原句一字未改**）：
+    #   判据件 `build/MilBridge/P1-w8-step1-criteria.md` 的 P5 行**逐字**要求报
+    #   `FAIL reason=ledger-nonzero-frontier-unchanged`，同件「必红的判法（统一）」又写明
+    #   「红而不点名（缺 `reason=`／缺 `file:` 或字段名）⇒ 该条判据判不成立」。
+    #   原实现只给字段名（`impl=`／`基线`／`前沿仍是 <名>`）而**无 `reason=`** ⇒ 二选一里选**补 token**
+    #   （判据件**不动**：它已由 `t81` 当契约用过；补的是**期望 token 本身**，不改判定实质）。
+    #   位置选**行尾**：使原句成为新行的**逐字前缀**（`只增不改` 可机器证：`旧句 in 新行` 为真）。
+    echo "  FAKE-PROGRESS impl=$IMPL < 基线 $FR_BASELINE_IMPL 而前沿仍是 ${FR_BEFORE_NAME} ⇒ **名字离开名单而能力为 0**（假进度） reason=ledger-nonzero-frontier-unchanged"
     rc=1
   fi
 else
