@@ -31,7 +31,7 @@
 #   并**断言相等**（不等即 `rc=9` 停手 = 基底漂移），再把 `tool/dead/artifact/ops/impl`
 #   交给牙**现算对账**（不等即牙红 —— 那才是"数漂了"，与基底漂移是两回事，分开报）。
 # ══════════════════════════════════════════════════════════════════════════════════
-# PTSGAP-DECL: tool=99 dead=11 artifact=1 ops=87 impl=93 so16=2a5165700a8c8579 exports=557 w66pre16=bf6b683d94549087
+# PTSGAP-DECL: tool=97 dead=11 artifact=1 ops=85 impl=91 so16=3bd193e54785b5db exports=561 w66pre16=bf6b683d94549087
 #   ⚠️ 波 `#78` 重锚（**产品改动 ⇒ 在册数必须跟随权威件**）：`TASK-0747` 补 `SHAppBarMessage` ⇒ `so16` 换、导出 550→554；
 #   `ops=88`/`impl=95`/`tool=100`/`dead=11`/`artifact=1` 由本趟 `LIVE` 现算**逐字段相等**，未动。
 #   本次重锚是 `D-G70` 形态的**第三次**实例（`#77` 的 `PIPEFAIL`/`PROTO-ATTR` 漏 `--cases` 同族：产品/接线一动，声明就得同趟跟）。
