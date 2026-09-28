@@ -18,8 +18,16 @@
 #   按提交号取时刻：     git -C <root> show -s --format=%cI <sha>
 #   ⚠️ 取不到任何提交 ＝ 该行**尚未入册**（工作树脏／新件）⇒ **`NOINFO`**（不许静默判等）。
 #
+# ⏪ **dated 修（`t33`，读时 2026-09-28T16:37:08.696+0800；`D-G183`（由 `t28` 发现、队长配号）＋`V-4`）**：
+#   ① **扫描域收窄**：只判「**该行自身的戳**」—— 戳前那一段（去空白／`*`／反引号／标点后）**必须以自证标记收尾**
+#      （`读时`／`读取时刻`／`读取`／`落盘`／`提交时刻`／`dated`／`ts=`）；**引用/引证文本里的戳**（如引夹具的未来戳）
+#      一律**不判**且**逐条上屏**（`TSORDER_QUOTED`）⇒ 修前对 `build/MilBridge/P1-v-close-report.md:52`（**已提交、干净**）
+#      的那处**假红** `rc=1` 不复现；**红线**：该件的**引证现场一字不改**（真缺陷现场留在册）。
+#   ② **`NOINFO` 的 reason 不许被吃掉**（`V-4`）：件不存在 ⇒ `file-absent`；只有引用戳 ⇒ `no-self-stamps`；
+#      **只有「语料里根本没有戳」**才 ⇒ `no-stamps`。
+#
 # 【判据（先写死；三态；`NOINFO` 不算绿）】
-#   rc=0 `TSORDER=PASS`    语料非空 ∧ 每条戳**都能对拍**且不晚于首次入册 ∧ 不晚于 `mtime`
+#   rc=0 `TSORDER=PASS`    语料非空 ∧ 每一条**自证戳**都能对拍且不晚于首次入册（引用戳**不判**、只上屏）
 #   rc=1 `TSORDER=FAIL`    存在**戳晚于首次入册**或**晚于 `mtime`** 的行 ⇒ **逐行点名**（件＋行＋两时刻＋差）
 #   rc=3 `TSORDER=NOINFO`  算不出：无戳语料／该行未入册／**同秒不可对拍**／件不存在／语料为空
 #   rc=4                   用法错
@@ -30,6 +38,7 @@
 # 【测试钩子】`--selftest`（自带 fixture，零网络、不依赖真仓状态）；
 #   `--assume-first-commit <ISO>` 在**没有提交历史**时显式喂入「首次入册时刻」（夹具／沙箱用；
 #   真树判据一律走 `git log -S` —— 该钩子只换输入、**不换判据**）。
+#   `S1`–`S5` 原有五臂；`t33` 新增 **`S6`**（**引用夹具未来戳 ＋ 本行有自证戳 ⇒ 不许红**）、**`S7`**（**只有引用戳 ⇒ `NOINFO(no-self-stamps)`，不许红**）、**`S8`**（件不存在 ⇒ `reason` 含 `file-absent`）。
 #
 # 【用法】bash timestamp-order-check.sh [--file <件>]… [--assume-first-commit ISO] [--selftest]
 #   缺省语料（现取）＝ `build/MilBridge/P1-w1-close-verify.md`（已提交、干净、全戳可对拍）。
@@ -67,24 +76,36 @@ check_file() {   # ⇒ 回 rc；累积量写进全局
   local spec="$1" abs rel self_abs
   case "$spec" in /*) abs="$spec"; rel="${spec#$ROOT/}" ;; *) abs="$ROOT/$spec"; rel="$spec" ;; esac
   if [ ! -f "$abs" ]; then
-    echo "TSORDER_NOFILE file=$rel（件不存在 ⇒ 不判）"; NOINFO_REASONS="$NOINFO_REASONS,no-file"; return $RC_NOINFO
+    echo "TSORDER_NOFILE file=$rel（件不存在 ⇒ 不判）"; NOINFO_REASONS="$NOINFO_REASONS,file-absent"; return $RC_NOINFO
   fi
   self_abs="$SELF_DIR/$(basename -- "$SELF")"
   if [ "$(cd -- "$(dirname -- "$abs")" && pwd)/$(basename -- "$abs")" = "$self_abs" ]; then
     echo "TSORDER_SELF_SKIP file=$rel reason=detector-itself（自跳过，**上屏**；不影响判词）"; return $RC_PASS
   fi
   local msec musec; msec="$(stat -c %Y "$abs" 2>/dev/null)"; musec="$(stat -c %y "$abs" 2>/dev/null | cut -d' ' -f2)"
-  local n=0 stamps=0 nlines=0
+  local n=0 stamps=0 nlines=0 self=0
   local line st sec fsec sub nmax=0 nmin=0
   while IFS= read -r line; do
     n=$((n+1))
     local found; found="$(printf '%s' "$line" | grep -oE "$STAMPRE" || true)"
     [ -n "$found" ] || continue
-    nlines=$((nlines+1))
+    nlines=$((nlines+1)); local rest="$line"
     while IFS= read -r st; do
       [ -n "$st" ] || continue
       stamps=$((stamps+1))
+      # ⏪ dated 修（`t33`，读时 2026-09-28T16:37:08.696+0800；`D-G183`）：**只判「该行自身的戳」** —— 戳前那一段（去空白／`*`／反引号／标点）
+      #   必须**以自证标记收尾**；**引用/引证文本里的戳一律不判**并**逐条上屏**（`TSORDER_QUOTED`）。
+      local pre="${rest%%"$st"*}"
+      rest="${rest#*"$st"}"
+      local tail; tail="$(printf '%s' "$pre" | sed 's/[[:space:]*`：:，,=（(]*$//')"
+      case "$tail" in
+        *读时|*读取时刻|*读取|*落盘|*提交时刻|*dated|*ts=) : ;;
+        *) QUOTED=$((QUOTED+1))
+           echo "TSORDER_QUOTED file=$rel:$n stamp=$st（**引用/引证**文本里的戳（前缀未以自证标记收尾）⇒ **不判**，上屏）"
+           continue ;;
+      esac
       case "$st" in *.*) sub="ms" ;; *) sub="none" ;; esac
+      self=$((self+1))
       sec="$(epoch_of "$st")"
       if [ -z "$sec" ]; then
         echo "TSORDER_UNPARSABLE file=$rel:$n stamp=$st（`date -d` 解不出 ⇒ 不判）"
@@ -123,29 +144,35 @@ check_file() {   # ⇒ 回 rc；累积量写进全局
       fi
     done <<< "$found"
   done < "$abs"
-  NFILES=$((NFILES+1)); NLINES=$((NLINES+nlines)); NSTAMPS=$((NSTAMPS+stamps))
-  echo "TSORDER_SCAN file=$rel lines=$n lines_with_stamp=$nlines stamps=$stamps mtime=$musec"
+  NFILES=$((NFILES+1)); NLINES=$((NLINES+nlines)); NSTAMPS=$((NSTAMPS+stamps)); NSELF=$((NSELF+self)); NQUOTED=$((NQUOTED+QUOTED))
+  if [ "$stamps" -gt 0 ] && [ "$self" -eq 0 ]; then
+    NOINFO_REASONS="$NOINFO_REASONS,no-self-stamps"; NOINFO_HIT=1
+    echo "TSORDER_NOSELF file=$rel（本件**只有引用戳、零自证戳** ⇒ 判不了 ⇒ **不判绿**）"
+  fi
+  echo "TSORDER_SCAN file=$rel lines=$n lines_with_stamp=$nlines stamps=$stamps self=$self quoted=$QUOTED mtime=$musec"
   return $RC_PASS
 }
 
 run_check() {
   FUTURE_HIT=0; NOINFO_HIT=0; NOINFO_REASONS=""
-  NFILES=0; NLINES=0; NSTAMPS=0
+  NFILES=0; NLINES=0; NSTAMPS=0; NSELF=0; NQUOTED=0; QUOTED=0
   local f rc
   for f in "${FILES[@]}"; do check_file "$f"; rc=$?; [ "$rc" -gt "$RC_PASS" ] && NOINFO_HIT=1; done
   if [ "$FUTURE_HIT" = 1 ]; then
     echo "TSORDER=FAIL reason=future-stamp files=$NFILES stamped_lines=$NLINES stamps=$NSTAMPS"
     return $RC_FAIL
   fi
-  if [ "$NSTAMPS" -eq 0 ]; then
-    echo "TSORDER=NOINFO reason=no-stamps files=$NFILES（零戳语料 ⇒ **零检查不许给 PASS**）"
-    return $RC_NOINFO
-  fi
+  # ⏪ dated 修（`t33`，读时 2026-09-28T16:37:08.696+0800；`D-G183`／`V-4`）：**先报 `NOINFO` 的真因**（件不存在／无自证戳／未入册／同秒）；
+  #   只有「语料里**根本没有戳**」才给 `reason=no-stamps` ⇒ **原因名不许被吃掉**。
   if [ "$NOINFO_HIT" = 1 ]; then
-    echo "TSORDER=NOINFO reason=${NOINFO_REASONS#,} files=$NFILES stamped_lines=$NLINES stamps=$NSTAMPS（不可对拍者已逐条上屏；**NOINFO 不算绿**）"
+    echo "TSORDER=NOINFO reason=${NOINFO_REASONS#,} files=$NFILES stamped_lines=$NLINES stamps=$NSTAMPS self=$NSELF quoted=$NQUOTED（不可判／不可对拍者已逐条上屏；**NOINFO 不算绿**）"
     return $RC_NOINFO
   fi
-  echo "TSORDER=PASS files=$NFILES stamped_lines=$NLINES stamps=$NSTAMPS（每条戳均 ≤ 其行首次入册时刻 ∧ 可对拍）"
+  if [ "$NSTAMPS" -eq 0 ]; then
+    echo "TSORDER=NOINFO reason=no-stamps files=$NFILES（**语料里没有任何戳** ⇒ 零检查不许给 PASS）"
+    return $RC_NOINFO
+  fi
+  echo "TSORDER=PASS files=$NFILES stamped_lines=$NLINES stamps=$NSTAMPS self=$NSELF quoted=$NQUOTED（**自证戳**均 ≤ 其行首次入册时刻 ∧ 可对拍；引用戳不判）"
   return $RC_PASS
 }
 
@@ -175,6 +202,17 @@ selftest() {
   printf '无戳行\n' > "$T/none.md"
   set +e; out="$(bash "$SELF" --file "$T/none.md" 2>&1)"; rc=$?; set -e
   arm S5 "$([ "$rc" = "3" ] && grep -q 'no-stamps' <<< "$out" && echo 1 || echo 0)" "零戳语料 ⇒ NOINFO(no-stamps)（rc=$rc）"
+  # S6 反极（`D-G183`）：**引用夹具未来戳 ＋ 本行有自证戳** ⇒ **不许红**
+  printf '⏪ 反极（伪造未来戳）：沙箱把戳改成 %s（**引用**，不是本行的自证戳）\n⏪ dated 追加（t33，读时 2020-01-01T00:00:00.123+0800）\n' "$FUT" > "$T/quoted.md"
+  set +e; out="$(bash "$SELF" --file "$T/quoted.md" --assume-first-commit '2026-09-28T16:40:00+08:00' 2>&1)"; rc=$?; set -e
+  arm S6 "$([ "$rc" = "0" ] && grep -q 'TSORDER=PASS' <<< "$out" && grep -q 'TSORDER_QUOTED' <<< "$out" && echo 1 || echo 0)" "**引用**夹具未来戳 ＋ 有自证戳 ⇒ **不许红**（rc=$rc）"
+  # S7 反极：**只有引用戳**（含未来戳）⇒ NOINFO(no-self-stamps)，不许红
+  printf '⏪ 反极：沙箱把戳改成 %s（**引用**；全件没有自证戳）\n' "$FUT" > "$T/onlyquoted.md"
+  set +e; out="$(bash "$SELF" --file "$T/onlyquoted.md" 2>&1)"; rc=$?; set -e
+  arm S7 "$([ "$rc" = "3" ] && grep -q 'no-self-stamps' <<< "$out" && echo 1 || echo 0)" "只有引用戳 ⇒ NOINFO(no-self-stamps)（rc=$rc）"
+  # S8 V-4：件不存在 ⇒ 聚合句 reason 反映真因（file-absent）
+  set +e; out="$(bash "$SELF" --file "$T/absent-file.md" 2>&1)"; rc=$?; set -e
+  arm S8 "$([ "$rc" = "3" ] && grep -q 'reason=file-absent' <<< "$out" && echo 1 || echo 0)" "件不存在 ⇒ NOINFO(reason=file-absent)（rc=$rc）"
   echo "TSORDER_SELFTEST=$([ "$nfail" = 0 ] && echo PASS || echo FAIL) cases=$((npass+nfail)) pass=$npass fail=$nfail"
   [ "$nfail" = 0 ] && return $RC_PASS || return $RC_FAIL
 }
