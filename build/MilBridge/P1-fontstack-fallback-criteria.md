@@ -447,3 +447,42 @@ cd /home/links-dev/netTest/GitProj/WPFOnLinux && fc-list : family | tr ',' '\n' 
 - **与 PNG 像素统计的关系（逐字）**：`colors=`／`magenta=` 是**可逐位复算**的量；`ink=` 是**粗代理**——复核者自量的"深色像素" **871/840070 量级**（阈值不同：他 837862、我按"三通道和 < 384"得 840070）**不是同一个量**（一图一值、依赖"众数色"假设）。
 - **口径（逐字）**：`ink=` **只可作"这页是不是纯空白"的粗证**（守卫的 `realized` 期只要求 `magenta==0 ∧ ink>0`）；**不得**用它做任何**阈值/比例/逐位**断言，也**不得**与 `magenta`／`colors` 并列当"同等可复算"。**本件不改 `shotstat.py`**（它已把口径写在注释里；我把它**抬进判据册**以免后人误读）。
 `P1-FONTSTACK-FALLBACK-CRITERIA dated 追加后自证（`head -n -1 <本件> | sha256sum | cut -c1-16`）＝ 1646ab12fee8ab65（口径＝末行不计入自身取值；原自证行系**追加前**全文值，原样保留）
+---
+
+## ⏪ `t118` dated 追加 —— **`realized` 期的四条新判据 `N1–N4` ＋ 截图同趟自证要件**（读时 `2026-09-29T03:4x–04:0x+0800`；上方原文**一字未删**，本段**只加行**）
+
+> **为什么加在本件**：本件的 `C5`/`C6`/`C9` 就是「两页是否真排版」的判据面；`t117` 现取证明**今天那三条绿条件（`magenta=0` ∧ 无具名行 ∧ `ink>0`）＋ `native_gap=0` 会一起成立，而画面仍是 demo 的「敬请期待」空态页** ⇒ 相位翻转前必须把「画出了内容」这件事**变成有区分力的读数**。⇒ 下面四条是**相位翻转的硬前置**（裁定二十一的 ②/③）。
+
+### `N1` **`ink>0` 没有区分力 ⇒ 改为「帧身份 ＋ 帧位移」双要件**
+- **objective**：把 `realized` 期的"画出了内容"从**粗代理**升级为**有区分力**的读数。
+- **acceptance**：① **帧身份**：该页帧 `sha256`（前16）**∉ 登记的空态参照集**；② **帧位移**：`AE(boot,该页帧) > 0` **且**每次点击后 `AE(上一帧,本帧) > 0`（除非命中 `N3` 同貌例外）；③ **`ink>0` 降级为"必要不充分"**（保留但**不再单独**满足本条）。
+- **verify（单行）**：`D=build/MilBridge/tests/PtsPagesProbe/evidence; sha256sum "$D"/shots/g1/k24.png | cut -c1-16; python3 build/MilBridge/tests/PtsPagesProbe/shotstat.py "$D"/shots/g1/{boot,k23,k24}.png; compare -metric AE "$D"/shots/g1/boot.png "$D"/shots/g1/k24.png null:`
+- **取哪个字段／期望形状**：`sha256` 前16／`colors,magenta,ink`／`AE` 整数。**期望**：帧 `sha256` ∉ 空态参照集（今天参照集 ＝ `{ef3fd6765f18f51b}`；`boot` ＝ `b21eb530afd3c66c`）、`AE(boot,k24) > 0`（今天 **15386** ⇒ 该项**单独不够**）。
+- **现取依据**：`shotstat` 四帧 `ink` **全为 480000**（`boot` `colors=386`；`k23`＝`k24`＝`last` `colors=383`）⇒ 既有 `ink -gt 0` **恒真**。
+- ⚠️ **边界**：本条只对**已登记的空态参照**有分辨力（空态换版须同趟重登记）；`AE` 是**像素位移**，不是"内容对不对"。
+
+### `N2` **运行期 ENFE 必须留痕（按入口名过滤）**
+- **objective**：`EntryPointNotFoundException` 被吞后账面必须看得见，否则相位翻转会把"异常被吞"判成"排版成功"。
+- **acceptance**：① 证据必须能现算 `ENFE_TOTAL=<n>` 与 `ENFE_BY_NAME=<名>:<n>,…`（**按入口名**）；② **`ENFE_TOTAL>0` 时判据面不得给"排版成功"的绿**，除非该批入口名被**显式列入本步非目标清单**（逐名可核）；③ **归因按入口名过滤**（不得按计数/均值归因）。
+- **verify（单行）**：`D=build/MilBridge/tests/PtsPagesProbe/evidence; grep -c 'Unable to find an entry point named' "$D"/app_g1.log; grep -o "entry point named '[A-Za-z0-9_]*'" "$D"/app_g1.log | sed "s/.*named '//;s/'$//" | LC_ALL=C sort | uniq -c | sort -rn`
+- **取哪个字段／期望形状**：`ENFE_TOTAL` ＋ 按名直方图；**期望** `ENFE_TOTAL` 与**非目标 allowlist** 差集为 **0**。**现取：1081**（**1080×`FsCreatePageBottomless` ＋ 1×`FsCreatePageFinite`**）⇒ 若此刻翻相位，本条**必红**。
+- **接线提示**：`N2` 的**执行位在守卫**（`build/MilBridge/tools/**`，非本件写域）⇒ 本件只落判据与 verify 单行；守卫侧接线**另派单**。
+
+### `N3` **两页帧相同 ⇒ 对照腿判据**
+- **objective**：判开 `leg23-AE=0` 的两种语义（（i）两页本来同貌 /（ii）第 23 页没重绘）。
+- **acceptance**：**对照腿**（同一趟、`clicks=[23,24]`）必须给出：① 两腿各自帧 `sha256`；② **两帧必须不同**；**若相同** ⇒ 必须给出「两页确实同貌」的证据（两页 `ns=` 指向**同一 UI 且该 UI 无页别差异**），否则判**（ii）没重绘 ⇒ 红**；③ 每次点击后 `AE>0`（同上例外）。
+- **verify（单行）**：`D=<对照腿目录>; sha256sum "$D"/shots/g1/k23.png "$D"/shots/g1/k24.png | awk '{print $1}' | LC_ALL=C sort -u | wc -l; compare -metric AE "$D"/shots/g1/k23.png "$D"/shots/g1/k24.png null:; grep -E '^LEG k=2[34]' "$D"/leg_2[34].env`
+- **取哪个字段／期望形状**：`sha256` 去重计数（**期望 2**）／`AE`（**期望 >0**）／两条 `LEG` 的 `ae`。**现取：去重计数 ＝ 1、`AE(k23,k24)` ＝ 0** ⇒ 本条**今天红**。
+- **补充**：把 `AE=0` 从**诊断**（守卫现取 `diags+=leg$k-AE=0(点击前后无像素差)`）升为**本条下的判据项**（红/例外二选一）。
+
+### `N4` **内容身份**（`ns=` **不承担**它）
+- **objective**：证明"画面是该页**自己的内容**"，不是应用的空态页。
+- **acceptance**：① **负身份**（今天可达）＝ `N1①` 的帧身份；② **正身份**（今天**无载体**）＝ 该页**专属**期望指纹（登记一次已知良好渲染的帧 `sha256`，或该页专属结构读数如 `TabControl` 的 tab 数）；③ **`ns=` 不得单独**承担内容身份；④ 在 ② 落地前，本条记 **`NOINFO(无正身份载体)`**，**不得折绿**。
+- **verify（单行）**：`D=build/MilBridge/tests/PtsPagesProbe/evidence; sha256sum "$D"/shots/g1/k24.png | cut -c1-16; grep -E '^LEG k=24' "$D"/leg_24.env; grep -ci 'neptune' "$D"/app_g1.log`
+- **现取依据**：三帧 `sha256` 同值，且画面是 demo 的「敬请期待」空态页（`~/hc-linux/src/Shared/HandyControlDemo_Shared/UserControl/Main/UnderConstruction.xaml:16` 的 `LangKeys.ComingSoon` 那一格）；`grep -ci 'neptune'` ＝ **0**；而 `leg_24.env` 的 `ns=…FlowDocumentDemo` ⇒ **`ns=` 与空态画面同时成立**（`t110` 反例）⇒ `ns=` 只证"加载了那个类型"。
+
+### 截图类证据的**同趟自证**（**通用要件**；照 `C7` 的做法）
+- **要件（逐字）**：**凡以截图为承重件**，必须同时给出 **①** 截图 `sha256`（前16）；**②** 该截图与所引读数**同趟**的证明（引**同趟字段**：`DEV` 行的 `shim=`／`pf=`、`session.txt` 的 `ts`、或该趟 `POSTSHIM`）；**③** 该截图的 `shotstat` **现读**与 `leg_*.env` 的 `colors`／`magenta`／`ink` **逐格相等**。**缺任一 ⇒ 截图只作辅助件，不得单独承重**。
+- **verify（单行）**：`D=build/MilBridge/tests/PtsPagesProbe/evidence; sha256sum "$D"/shots/g1/k24.png | cut -c1-16; python3 build/MilBridge/tests/PtsPagesProbe/shotstat.py "$D"/shots/g1/k24.png; grep -E '^LEG k=24' "$D"/leg_24.env; grep -E '^DEV ' "$D"/leg_24.env`
+- **实例（`t117` 登记，本席如实转记）**：`02:48` 那趟 `session.txt`／`leg_24.env` 写 `colors=1 magenta=0 ink=0`，而仓库内 `k24.png` 现取（03:5x 复量）＝ **383 色**且与 03:14 那趟**逐字节相同** ⇒ 该趟截图**与其 env 不同趟** ⇒ **只作辅助**。**今天**三者一致（`shotstat` 383 ＝ `leg_24.env colors=383` ＝ `session.txt` 帧行 383）⇒ 在册截图**满足本条** ✓。
+`P1-FONTSTACK-FALLBACK-CRITERIA dated 追加后自证（`head -n -1 <本件> | sha256sum | cut -c1-16`）＝ 862166d879740fe0（口径＝末行不计入自身取值；原自证行系**追加前**全文值，原样保留）
