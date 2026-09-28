@@ -984,6 +984,35 @@ namespace MS.Internal.PtsHost
         }
 
         /// <summary>native 台账里最近一条缺口的 LsErr；取不到 ⇒ A1 的常量。</summary>
+        /// <summary>从 DllImport 三族的异常文本里取**入口名**（取不到 ⇒ 空串；不抛）。</summary>
+        private static string EntryNameFromException(Exception e)
+        {
+            try
+            {
+                if (e == null) return string.Empty;
+                string msg = e.Message ?? string.Empty;
+                int a = msg.IndexOf("named '", StringComparison.Ordinal);
+                if (a >= 0)
+                {
+                    int b = msg.IndexOf('\'', a + 7);
+                    if (b > a + 7) return msg.Substring(a + 7, b - a - 7);
+                }
+                int c = msg.LastIndexOf('\'');
+                if (c > 0)
+                {
+                    int d = msg.LastIndexOf('\'', c - 1);
+                    if (d >= 0 && c > d + 1)
+                    {
+                        string pth = msg.Substring(d + 1, c - d - 1);
+                        int sl = pth.LastIndexOf('/');
+                        return "dll:" + (sl >= 0 ? pth.Substring(sl + 1) : pth);
+                    }
+                }
+            }
+            catch (Exception) { }
+            return string.Empty;
+        }
+
         private static int NativeError()
         {
             string s = NativeReport();
@@ -1031,8 +1060,19 @@ namespace MS.Internal.PtsHost
         internal static PtsUnavailableException Describe(Exception e)
         {
             string entry = NativeEntryName();
+            // ⏪ 取数补齐（队长 2026-09-28；`t70` 复核的推荐形态）：native 台账在此刻**必为零行**
+            //   （本链第一个会留痕的站 `PTS.CreateDocContext` 还没走到）⇒ 只读台账只会得 `unknown`。
+            //   而入口名/**就在原始异常里**（DllImport 三族的 `Message` 自带入口名/DLL 名）⇒ 从此处补一格取数，
+            //   使 `entry=` 面**具名**（不带后缀：名字原样，便于与名册直接对拍；来源只记在 msg 里）。
+            bool entryFromException = false;
+            if (entry == "unknown")
+            {
+                string fromEx = EntryNameFromException(e);
+                if (!string.IsNullOrEmpty(fromEx)) { entry = fromEx; entryFromException = true; }
+            }
             int err = NativeError();
             string msg = "PTS 能力不可用（PTS / 原生 LineServices 未实现 —— D-G70）：entry=" + entry
+                       + (entryFromException ? "（入口名取自异常文本：native 台账此行未留痕）" : "")
                        + " err=" + err.ToString("0")
                        + " ⇒ 本次布局**如实失败**，不假装成功";
             return new PtsUnavailableException(entry, err, msg, e);
