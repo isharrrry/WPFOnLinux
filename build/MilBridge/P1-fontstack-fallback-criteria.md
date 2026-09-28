@@ -410,3 +410,40 @@ cd /home/links-dev/netTest/GitProj/WPFOnLinux && fc-list : family | tr ',' '\n' 
 - **⑦ 纪律第 `30` 条**：三格 ＋ 调用序 ＋ 两种误导形态；**并把"净腿不崩就以为修好了"升为必要条款**（崩进程族的 `fresh 的绿＝假绿`）；另加"降级判定必须标明取值源"。
 - **⑧ `NOINFO` 9 条**，各带"消掉需要什么证据"。
 `P1-FONTSTACK-FALLBACK-CRITERIA 自证（`head -n -1 <本件> | sha256sum | cut -c1-16`）＝ 1f5f79d9f3a41971（口径＝末行之前的全文；末行＝本行）`
+
+---
+
+## ⏪ `t116` dated 追加 —— `t115` 余项关账（`F-1` 直接读数落进装置 ＋ `F-2` 行数口径 ＋ `O-1` ／ `O-3` ／ `O-4` 口径）（读时 `2026-09-29T03:2x+0800`；上方原文**一字未删**，本段**只加行**）
+
+### `F-1`（low，主项）—— **按（甲）**：把「位点不再执行」变成**装置输出里的直接读数**
+
+- **做了什么（只加行，既有行一字未动）**：`build/MilBridge/tests/PtsPagesProbe/session_inner.sh` 在 `CLICK` 行之后、`PHASE` 行之前**新增一行机读**：
+  `FAILLINE k=<k> failfast=<n> unrec=<n> src=app_g<gi>.log:FailFast|Unrecoverable`；
+  `build/MilBridge/tests/PtsPagesProbe/legs-to-env.py` 把它**带进 `leg_<k>.env` 的第四段**（既有三段 `LEG`／`NAMED`／`DEV` 字段**一个不动**）。
+- **口径（逐字）**：**`failfast=`** ＝ 该腿**原始 app 日志**里 **`FailFast`** 字样的**行数**（.NET `Environment.FailFast` 的失败位点标记；来源行＝`$GLOG`，即 `app_g<gi>.log`）；**`unrec=`** ＝ 同日志里 **`Unrecoverable system error`** 的**行数**（**与既有 `fatal=` 同源同量 ⇒ 两者逐字等价**；保留 `fatal=` 只为不破坏既有读法）。**判「`FailFast` 位点这次有没有执行」看 `failfast=`**；`alive=yes`／`ink>0`／崩溃栈消失**只是辅证**，**不得**再冒充直接读数。
+- **可判性成对读数（本席现取；仓外夹具，**不跑应用**）**：① **修前**：在册证据里 `grep -oE 'failfast=[0-9]+|unrec=[0-9]+' evidence/**` ⇒ **0 命中**（只有 `session.txt` 的 `fatal=0` ×2）⇒ 该对读数**无载体**；② **修后**：用**同源 `cnt`/`$GLOG` 干跑该 printf** ⇒ 无标记时 `failfast=0 unrec=0`、日志里注入两行标记后 ⇒ **`failfast=1 unrec=1`**（**计数器有响应**，不是常量）；③ **转换器**（仓外夹具 session ＋ 空 `app_g1.log`）⇒ `leg_24.env` 出现 `FAILLINE k=24 failfast=0 unrec=0 src=app_g1.log:FailFast|Unrecoverable`，而 `LEG`／`NAMED`／`DEV` 三段**逐字同形**；④ **反兼容**：旧格式 session（删掉该行）⇒ 两格给 **`-`（＝"没测到"，不是 0**；与 `ink=` 同一约定）。
+- **装置仍工作（不跑腿的可判证明）**：守卫 `pts-pages-guard.sh` 对装置件**零引用**（现取 `grep -c 'session_inner\|legs-to-env' tools/pts-pages-guard.sh` ＝ **0**）⇒ `--legs` 的判词**与装置改动无关**（对同一目录结果不变）；`bash -n session_inner.sh` 与 Python 语法编译**均过**；**新行只落在 `CLICK`–`PHASE` 之间**，而转换器的 region token 扫描**按既有规则自动带走**（未新增解析器、未改锚）。
+- **代价如实记**：装置件在覆盖面内 ⇒ 本件同趟追写 `cell=#1`；**未**跑腿（派单禁）⇒ "整趟腿仍工作"这一格**只有**上面三条**间接**证明（零引用／语法／夹具往返），**没有**一整趟真腿的端到端读数 —— 该格记 **`NOINFO(未跑腿)`**。
+
+### `F-2`（low）—— 生成器自报行数与生成件实际行数**差 33**：口径差，**不是**内容差
+- **现取（我自读＋自算）**：生成器 `src/WpfGfx.Linux.Native/tools/patch-presentationcore-compositefont.py` 印的是 `[断言] 上游 N 行 → 生成物 **2202** 行` ＝ **`len(out.splitlines())`（正文 `out`）**；而**写盘**的是 **`output = HEADER + out`**（同一函数里紧接的下一句）⇒ 落盘件＝ `build/PresentationCore.Linux/FamilyCollection.Linux.cs` ＝ **2235** 行（我现取 `wc -l`）。**我自算 `HEADER` 的行数 ＝ 33** ⇒ **`2235 = 2202 + 33`**（差**恰为**头注释块）。
+- ⇒ **口径（逐字）**：该自报数**是"正文行数"、不是"整件行数"**；整件行数 ＝ 正文 ＋ `HEADER`（今天 `HEADER` ＝ 33 行）。**两者都不参与 `identical` 判定**（后者比的是**整件字节**）。
+- ⚠️ **本件不改生成器**（`src/**` 不在写域）⇒ 只把口径写进册；**若**后人要把自报改成整件口径，那是 `src/**` 的改写 ⇒ 另派单（且须同趟跑 `--check` 复验 `identical`）。
+
+### `O-1`（观察，必落册）—— **`form=unnamed` 不是「具名前进」的证据**
+- **现取**：在册证据 `entry=unknown` ＝ **0**、`[PTS-UNAVAILABLE]` ＝ **0** ⇒ 托管具名面**整趟为空** ⇒ 守卫只能给 `PTS_G10_NAME=PASS **form=unnamed** reason=frontier-unnamed`。
+- **口径（逐字）**：**`form=unnamed` 只说"没有具名行可判、形态判据按其形态通过"**，**不**是"具名前进"。**"具名前进"的证据面**是 **`PTSGAP`／台账**（`^PTS_GAP entry=` 行与 `PTSGAP_FRONTIER` 的 `before`→`after` 名更换）；两者**是两件事**，**禁止**互相折算。⚠️ 本趟**正是**"具名面为空 + 台账面 0 行"的态（第四步已把靶心 `CreateDocContext` 做真 ⇒ 该站的具名行**不再出现**）⇒ 该态**不是**"具名倒退"，也**不是**"具名前进"。
+
+### `O-3`（观察）—— c 反腿（「永远降级」）的仪器级执法位今天空 ⇒ **按（乙）改成证据面判据**
+- **现状（现取）**：副本级反腿仍 `NOINFO` ⇒ 该条**仪器级**执法位**今天空**；现实中只能靠"同趟两态并存 ＋ 直方图 `fallback=no=7 > fallback=yes=4`"作替代。
+- **本件处置＝（乙）**（只落判据，不实现仪器）：把 `C9` 的 c 格**改成证据面可判形式** —— **要求同一趟读数里同时出现两种方言**：
+  ① **`requested=<受控不存在族> … fallback=yes`**（≥1 条）；② **`requested=<受控存在族> … fallback=no`**（≥1 条）。
+  ⇒ **判"永远降级"**：若只有 ①、没有 ② ⇒ **必红并点名**（"两态分不开：疑似永远降级"）；若只有 ②、没有 ① ⇒ 也**必红**。
+- ⚠️ **口径只收到"今天可达"的边界（如实记）**：我现取的三元组直方图是 `requested=DEJAVU fallback=no resolved=none`×3／`requested=ARIAL fallback=yes resolved=none`×2／`requested=GEORGIA fallback=no resolved=none`×1 ⇒ **`resolved=` 今天恒 `none`** ⇒ 所以本格**不要求** `resolved=<该族自身>`：**那样会造出一条今天永不可能绿的判据**（本仓禁此）。⇒ 本格压在两轴上：**`requested=`（点名受控族）＋ `fallback=`（两方言并存）**。**若将来** `resolved=` 真携带解析结果，**可**把要求收紧到 `resolved=<该族自身>`（记为**未来项**，非本件）。
+- **（甲）路线的代价（只写要求、不实现）**：要给出**可构建副本或旁路开关**（把"永远降级"做成第二个产物代）⇒ 触及 `src/**` ＋ 构建/跑腿 ⇒ **另派单**；本件不实现。
+
+### `O-4`（观察）—— `ink=` 的口径**写死**（它是"非占位、非底色"的像素数，**不是**深色像素数）
+- **现取（我自读 `shotstat.py` ＋ 自算复验）**：`ink = W×H − magenta − dominant`，其中 `dominant` ＝ 该图**出现次数最多的单色**的像素数（页底/背景的代理），`ink<0 ⇒ 0`；**定义无阈值**。复验（在册 `shots/g1/k24.png`，1280×1024）：`shotstat.py` ⇒ `ink=480000`；**我按同式自算** ⇒ `480000 = 1310720 − 0 − 830720` ✓（**可复算**）。
+- **与 PNG 像素统计的关系（逐字）**：`colors=`／`magenta=` 是**可逐位复算**的量；`ink=` 是**粗代理**——复核者自量的"深色像素" **871/840070 量级**（阈值不同：他 837862、我按"三通道和 < 384"得 840070）**不是同一个量**（一图一值、依赖"众数色"假设）。
+- **口径（逐字）**：`ink=` **只可作"这页是不是纯空白"的粗证**（守卫的 `realized` 期只要求 `magenta==0 ∧ ink>0`）；**不得**用它做任何**阈值/比例/逐位**断言，也**不得**与 `magenta`／`colors` 并列当"同等可复算"。**本件不改 `shotstat.py`**（它已把口径写在注释里；我把它**抬进判据册**以免后人误读）。
+`P1-FONTSTACK-FALLBACK-CRITERIA dated 追加后自证（`head -n -1 <本件> | sha256sum | cut -c1-16`）＝ 1646ab12fee8ab65（口径＝末行不计入自身取值；原自证行系**追加前**全文值，原样保留）

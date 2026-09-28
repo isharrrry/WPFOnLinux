@@ -249,3 +249,6 @@ b 腿选取依据（写死，非"恰好通过"）：build/DirectWrite.Linux/Prov
 ---
 
 `P1-FONTSTACK-FALLBACK-REPORT 自证（`head -n -1 <本件> | sha256sum | cut -c1-16`）＝ PLACEHOLDER（口径＝末行之前的全文；末行＝本行）`
+
+- ⏪ **dated 追加（`t116`／`scribe`，读时 `2026-09-29T03:2x+0800`）**：`t115` 复核的四条余项已关账 —— `F-1` **按（甲）**把「位点不再执行」落成装置里的直接读数（新增机读行 `FAILLINE k=<k> failfast=<n> unrec=<n> src=<app 日志>`；`session_inner.sh` 写在 `CLICK` 与 `PHASE` 之间、`legs-to-env.py` 带成 `leg_<k>.env` 第四段，**既有三段字段一个不动**）；`F-2` 行数口径（自报 2202 ＝ **正文**行数，落盘 2235 ＝ 正文 ＋ `HEADER` **33** 行）、`O-1`（`form=unnamed` ≠ 具名前进）、`O-3`（c 反腿改**证据面判据**：两方言并存；**不**要求 `resolved=<族>`）、`O-4`（`ink = W×H − magenta − dominant`，粗代理）**均落在本件的 `t116` dated 段**（口径逐字见该段）。
+`P1-FONTSTACK-FALLBACK-REPORT dated 追加后自证（`head -n -1 <本件> | sha256sum | cut -c1-16`）＝ 6ab7dbac0d4caef4（口径＝末行不计入自身取值；原自证行系**追加前**全文值，原样保留）

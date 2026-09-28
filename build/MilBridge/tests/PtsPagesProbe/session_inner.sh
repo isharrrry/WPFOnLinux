@@ -175,6 +175,15 @@ PY
       "$(cnt "Unrecoverable system error" "$GLOG")" \
       "$(cnt "Unhandled exception" "$GLOG")" \
       "$(grep -o '\[NS\] loaded [^ ]*' "$GLOG" 2>/dev/null | tail -1 | awk '{print $3}')"
+    # ⏪ `t116`（`t115` 的 `F-1`）**「位点不再执行」的直接读数**：新增一行**机读** `FAILLINE`（**既有 `CLICK`／`PHASE` 行一字未动**）。
+    #   **口径（逐字）**：`failfast=` ＝ 原始 app 日志（`$GLOG`）里 `FailFast` 字样的**行数**（.NET `Environment.FailFast`
+    #   的失败位点标记）；`unrec=` ＝ 同日志里 `Unrecoverable system error` 的**行数**（**与既有 `fatal=` 同源同量**
+    #   ⇒ 两者**逐字等价**，保留 `fatal=` 只为不破坏既有读法）。⇒ 判「`FailFast` 位点这次有没有执行」**看这一行**（`… failfast=0`）；
+    #   `alive=yes`／`ink>0`／崩溃栈消失**只是辅证**，**不得**再冒充"直接读数"。
+    #   位置：落在 `CLICK` 与 `PHASE` 之间 ⇒ 转换器 `legs-to-env.py` 的既有 region token 扫描**自动带走**（不新增解析器）。
+    printf 'FAILLINE k=%s failfast=%s unrec=%s src=%s\n' \
+      "$k" "$(cnt "FailFast" "$GLOG")" "$(cnt "Unrecoverable system error" "$GLOG")" \
+      "app_g$gi.log:FailFast|Unrecoverable"
     n1="$(firstline "$GLOG" "EntryPointNotFoundException: Unable to find an entry point named 'CreateInstalledObjectsInfo'")"
     n2="$(firstline "$GLOG" "PTS_GAP entry=")"
     n3="$(firstline "$GLOG" "\[PTS-UNAVAILABLE\] site=")"

@@ -117,3 +117,63 @@
 - `O-1`／`O-2`／`O-3` 三条观察（具名面整趟为空 ⇒ `form=unnamed` 不是前进证据；`leg23-AE=0` 与 `colors-out-of-band=383` 两条诊断仍在；c 反腿的副本形态仍 `NOINFO`）**位置不变、结论不变**。
 
 SELF-SHA16 （口径 ＝ `head -n -1 <本件> | sha256sum | cut -c1-16`）＝ 9561b60e571ae418
+
+---
+
+## ⏪ `t116` dated 追加 —— 本席（`scribe`）对 `t115` 余项的**独立现取**与关账处置（读时 `2026-09-29T03:2x+0800`；本件上方原文**一字未删**；段末给出新的自报口径值）
+
+**仪器（现取）**：`.so` ＝ `a131ea4e6f5cc4f5`；Release／部署件 ＝ `2988f5154ecacdd`；装置件 `session_inner.sh`／`legs-to-env.py` **本周首改**（覆盖面内 ⇒ 同趟 `cell=#1`）；夹具**全部仓外**（`/tmp/t116-fx`、`/tmp/t116-dry.sh`、证据副本 `/tmp/t116-ev`），**用完删**。
+
+### ① `F-1`：**按（甲）** —— 「位点不再执行」变成装置里的直接读数（成对可判性）
+```
+修前：grep -oE 'failfast=[0-9]+|unrec=[0-9]+' evidence/**  ⇒ 0 命中（只有 session.txt 的 fatal=0 ×2）⇒ 无载体
+修后（同源 cnt/$GLOG 干跑）：无标记 ⇒ FAILLINE k=24 failfast=0 unrec=0 src=app_g1.log:FailFast|Unrecoverable
+                              注入 'FailFast' + 'Unrecoverable system error' 各一行 ⇒ failfast=1 unrec=1   （计数器有响应）
+转换器往返（仓外夹具 session + 空 app_g1.log）：leg_24.env 第四段 ⇒ FAILLINE k=24 failfast=0 unrec=0 src=…
+                              而 LEG／NAMED／DEV 三段与改前**逐字同形**
+反兼容（旧格式 session，删该行）：⇒ failfast=- unrec=-（＝"没测到"，不是 0）
+```
+- **口径**：`failfast=` ＝ `app_g<gi>.log` 里 `FailFast` 的**行数**；`unrec=` ＝ 同日志里 `Unrecoverable system error` 的行数（**≡ 既有 `fatal=`**，同源同量）。**判位点用 `failfast=`**；`alive=yes`／`ink>0`/崩溃栈消失**只作辅证**。
+- **装置仍工作（不跑腿的可判证明）**：守卫对装置件**零引用**（`grep -c` ＝ **0**）⇒ `--legs` 判词与装置改动无关；`bash -n` ＋ Python 编译过；新行落在 `CLICK`–`PHASE` 之间 ⇒ 转换器**既有 region 扫描自动带走**（未改锚、未新增解析器）。
+- **`NOINFO(未跑腿)`**：**没有**一整趟真腿的端到端读数（派单禁跑腿）⇒ "整趟腿仍工作"只有上面三条**间接**证明。
+
+### ② `F-2`：**口径差 33 ＝ `HEADER` 行数**（不改生成器）
+```
+生成器（自读 src/WpfGfx.Linux.Native/tools/patch-presentationcore-compositefont.py）：
+  print(f"[断言] 上游 N 行 → 生成物 {len(out.splitlines())} 行")   ⇒ 数的是**正文 out**
+  output = HEADER + out                                          ⇒ 落盘的是**整件**
+我自算：HEADER 行数 = 33；生成件 wc -l = 2235 ⇒ 2235 = 2202 + 33 ✓
+```
+⇒ **口径（逐字）**：该自报**是正文行数、不是整件行数**；整件 ＝ 正文 ＋ `HEADER`（今天 33 行）；两者**都不参与 `identical` 判定**（后者比整件字节）。**本件不改生成器**（`src/**` 越域）。
+
+### ③ `O-1`：**`form=unnamed` ≠ 具名前进**（必落册）
+```
+现取：evidence/app_g1.log 里 entry=unknown = 0、[PTS-UNAVAILABLE] = 0
+     守卫 --legs（证据副本）⇒ PTS_G10_NAME=PASS form=unnamed reason=frontier-unnamed
+```
+⇒ **口径**：`form=unnamed` 只表示"**没有具名行可判、形态判据按其形态通过**"；「具名前进」的证据面是 **`PTSGAP`／台账**（`^PTS_GAP entry=` 行与 `PTSGAP_FRONTIER` 的 `before→after` 名更换）。**两者是两件事，禁止互相折算**；本趟"具名面为空 ＋ 台账 0 行"的态**既不是倒退、也不是前进**。
+
+### ④ `O-3`：**按（乙）** 把 c 反腿改成**证据面判据**（今天可达的那个形态）
+```
+现取三元组直方图（evidence/app_g1.log）：
+   3  requested=DEJAVU   fallback=no  resolved=none
+   2  requested=ARIAL    fallback=yes resolved=none
+   1  requested=GEORGIA  fallback=no  resolved=none
+   ⇒ resolved= 今天恒 none；fallback=no = 7 > fallback=yes = 4（与 t115 记的 no=7>yes=4 相符）
+```
+⇒ **本件落进判据件**（`P1-fontstack-fallback-criteria.md` 的 `t116` 段）：`C9` 的 c 格改为**要求同一趟读数里两种方言并存** —— ① `requested=<受控不存在族> … fallback=yes` ≥1；② `requested=<受控存在族> … fallback=no` ≥1；**只有其一 ⇒ 必红并点名**（"两态分不开：疑似永远降级／从不降级"）。**不要求** `resolved=<族>`（现取恒 `none` ⇒ 那样是**永不可能绿**的判据；记为**未来项**）。**（甲）路线只写要求与代价**（要可构建副本或旁路开关 ⇒ `src/**` ＋ 构建/跑腿 ⇒ 另派单）。
+
+### ⑤ `O-4`：`ink=` 的口径（自读 `shotstat.py` ＋ **自算复验**）
+```
+公式（源码注释逐字）：ink = W×H − magenta − dominant（dominant ＝ 出现次数最多的单色像素数；ink<0 ⇒ 0；**无阈值**）
+复验（evidence/shots/g1/k24.png，1280x1024）：shotstat.py ⇒ ink=480000
+   我按同式自算 ⇒ 480000 = 1310720 − 0 − 830720 ✓（可复算）
+"深色像素"（另一量）：复核者 837862／我按"三通道和<384" 840070 ⇒ **与 ink 不是同一个量**
+```
+⇒ **口径**：`ink=` 只作"**这页是不是纯空白**"的粗证（守卫 `realized` 期只用 `magenta==0 ∧ ink>0`）；**不得**用于阈值/比例/逐位断言，**不得**与 `magenta`／`colors` 并列称"同等可复算"。**未改 `shotstat.py`**（其注释已有口径；本件把它抬进判据册）。
+
+### ⑥ 本席同趟复核（与 `t115` 的成立面不冲突）
+- `leg_24 alive=yes app_rc=143`／`colors=383`／`ink=480000`（现取 leg env）；`FailFast|Unrecoverable` 在**应用日志**里现取 **0** 命中（`grep -c` 现取）——这与 `F-1` 的装置口径**互补**：前者是"应用日志里没有该串"，后者是"装置把该计数**落成机读格**"。
+- **守卫 `--legs` 的现取判词**（与 `t115` 的 §B 一致）：`PTS_GUARD=FAIL legs=2/2 fails=leg24-placeholder-missing(magenta=0<20000),leg24-named-line(missing-or-err=-),leg23-placeholder-missing…` ⇒ **这正是 C6 的红面**（字体栈降级后页面真排版 ⇒ 既有 `degraded` 相位判据仍在执法）⇒ **不是**本件引入、**也**不是"修好了"的证据；**相位翻转另排**。
+⏪ 待办指向：`O-3` 的（甲）路线与 `F-2` 的生成器文案、`F-1` 的"整趟腿端到端"三项**均需另派单**（前两者触 `src/**`，后者需跑腿）。
+SELF-SHA16 （`t116` dated 追加后；口径 ＝ `head -n -1 <本件> | sha256sum | cut -c1-16`）＝ dacae10b60e852e2（原自报行 `9561b60e571a` 系**追加前**全文值，原样保留）

@@ -2,10 +2,15 @@
 # -*- coding: utf-8 -*-
 """把 session_inner.sh 的 session.txt 转成守卫的证据契约 `leg_<k>.env`。
 
-契约（守卫 `pts-pages-guard.sh` 的输入）——每腿一个文件、三段：
+契约（守卫 `pts-pages-guard.sh` 的输入）——每腿一个文件、四段：
     LEG   k=<23|24> alive=<yes|no> app_rc=<int> magenta=<int> colors=<int> ns=<页类名> ae=<int>
     NAMED managed_unavail=<0|1> err=<int|-> native_gap=<int> native_err=<int|->
     DEV   x_up=<yes|no> five_stable=<yes|no> shim=<sha16> pf=<sha16>
+    ⏪ `t116`（`t115` 的 `F-1`）**新增第四段**（**只加行，前三段的字段一个不动**）：
+    FAILLINE k=<23|24> failfast=<int|-> unrec=<int|-> src=<app 日志名:模式>
+          **口径**：`failfast=` ＝ 原始 app 日志里 `FailFast` 的行数（`Environment.FailFast` 位点标记）；
+          `unrec=` ＝ 同日志里 `Unrecoverable system error` 的行数（**与 `session_inner.sh` 的 `fatal=` 同源同量**）。
+          旧格式 session（没有 `FAILLINE` 行）⇒ 两格给 **`-`（＝"没测到"，不是 0）**，与 `ink=` 同一约定。
 另有 `<outdir>/device.txt`（X_UP=…）。
 
 纪律：**解析任一侧为空必须响亮失败**（不许把"空"读成 0）——
@@ -57,6 +62,11 @@ def parse_click(block, k, logfile=None):
         die("k=%d 的 CLICK 行缺格 %s（region 前 200 字：%s）" % (k, miss, region[:200].replace("\n", "\\n")))
     alive, ae, ns = tok["alive"], tok["AE"], tok["ns_last"]
     punav = tok["pts_unavail"]
+    # ⏪ `t116`（`t115` 的 `F-1`）**新增两格（可选）**：`failfast=`／`unrec=` 来自 `session_inner.sh` 的 `FAILLINE` 行
+    #   （它在 `CLICK` 与 `PHASE` 之间 ⇒ 上面的 region token 扫描已经带到 `tok` 里）。**旧格式 session 没有该行**
+    #   ⇒ 两格给 `-`（＝"没测到"，**不是 0**；与 `ink=` 同一约定，理由同 `t12` 的注释）。
+    failfast = tok.get("failfast", "-")
+    unrec = tok.get("unrec", "-")
     # 洋红/色数：取该组里该 k 的那一张截图的 shotstat 行
     shot = None
     for sm in re.finditer(r"^\s*FILE=(\S+\.png) (\d+)x(\d+) colors=(\d+) magenta=(\d+) total=(\d+)(?: ink=(\d+))?$",
@@ -113,7 +123,8 @@ def parse_click(block, k, logfile=None):
         ngap = len(re.findall(r"PTS_GAP entry=", open(logfile, encoding="utf-8", errors="replace").read()))
     return dict(alive=alive, app_rc=None, magenta=magenta, colors=colors, ns=ns, ae=ae, ink=ink,
                 managed_unavail=1 if punav_n else 0, err=merr, native_gap=ngap,
-                native_err=nerr, pts_unavail_n=punav_n, pts_gap_n=int(tok["pts_gap"]))
+                native_err=nerr, pts_unavail_n=punav_n, pts_gap_n=int(tok["pts_gap"]),
+                failfast=failfast, unrec=unrec)
 
 
 def main():
@@ -167,6 +178,9 @@ def main():
                 f.write("DEV x_up=%s five_stable=%s shim=%s pf=%s\n"
                         % (xup, fstable,
                            shim.group(1) if shim else "-", pf.group(1) if pf else "-"))
+                # ⏪ `t116`（`t115` 的 `F-1`）：**只加行** —— 既有三段（`LEG`／`NAMED`／`DEV`）字段一个不动。
+                f.write("FAILLINE k=%d failfast=%s unrec=%s src=app_g%s.log:FailFast|Unrecoverable\n"
+                        % (k, d["failfast"], d["unrec"], gi))
                 f.write("# arm=%s group=%s\n" % (arm, gi))
             if p_primary:
                 with open(p_primary, "w", encoding="utf-8") as f2:
