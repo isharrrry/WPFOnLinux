@@ -31,7 +31,20 @@
 #   并**断言相等**（不等即 `rc=9` 停手 = 基底漂移），再把 `tool/dead/artifact/ops/impl`
 #   交给牙**现算对账**（不等即牙红 —— 那才是"数漂了"，与基底漂移是两回事，分开报）。
 # ══════════════════════════════════════════════════════════════════════════════════
-# PTSGAP-DECL: tool=96 dead=11 artifact=1 ops=84 impl=90 so16=4e999451e9ab137e exports=565 w66pre16=bf6b683d94549087
+# PTSGAP-DECL: tool=96 dead=11 artifact=1 ops=84 impl=89 so16=a2de5ff2b667f33f exports=567 w66pre16=bf6b683d94549087
+#   ⚠️ 波 W8·`t103` 重锚（`D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
+#   `LoGetPenaltyModuleInternalHandle` 由诚实缺口 stub 升为真实现 ⇒ `so16` `4e999451e9ab137e`→`5c2097d35cd89749`、
+#   导出 **565→567**，**逐名二条**（新加的两个**独立读取面**，与 `t97` 同形制）：
+#     `WpfLinuxWin32_PtsPenaltyInternalHandleAt`（按 idx 读"该对象自己的内部句柄"）、
+#     `WpfLinuxWin32_PtsPenaltyInternalGets`（格 5 成功计数）。
+#   ⚠️ 同趟**第二次**重锚（`so16` `5c2097d35cd89749`→`a2de5ff2b667f33f`，导出仍 **567**）：反腿实测发现
+#     格 `85` 的拒绝面断言**只在"登记表里有 `NULL` 罚分句柄的对象"时才咬人**（夹具两对象都已 acquire
+#     ⇒ 修前的坏实现照样过 ⇒ **反腿不红＝该格没有牙**）⇒ 夹具先建一个"只建不 acquire"的活对象再调
+#     ⇒ 该断言**在净腿上也有牙**（真实现 `1/0`、去掉 NULL 检查的坏实现 `0/85`）。**判定链与实现语义未动。**
+#   `tool=96 dead=11 artifact=1 ops=84 impl=**89**` 由本趟 `check-shim-coverage.py`／牙**现算逐字段对账**
+#   （`impl` 由 `90` 降为 `89` ＝ `LoGetPenaltyModuleInternalHandle` 离开缺口名单的**事实**，非凑数）。
+#   注：`ops=84`/`impl=89` 是**缺口计数**（真进展会让它们**下降**），本步主跳的缺口证据在**前沿**
+#   （`PTSGAP_FRONTIER`）与 `entry=` 面，不在本行数字上 ⇒ 本行只做**基底同步**，不冒充进展。
 #   ⚠️ 波 `#78` 重锚（**产品改动 ⇒ 在册数必须跟随权威件**）：`TASK-0747` 补 `SHAppBarMessage` ⇒ `so16` 换、导出 550→554；
 #   `ops=88`/`impl=95`/`tool=100`/`dead=11`/`artifact=1` 由本趟 `LIVE` 现算**逐字段相等**，未动。
 #   本次重锚是 `D-G70` 形态的**第三次**实例（`#77` 的 `PIPEFAIL`/`PROTO-ATTR` 漏 `--cases` 同族：产品/接线一动，声明就得同趟跟）。

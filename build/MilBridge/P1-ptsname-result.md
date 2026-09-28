@@ -116,6 +116,14 @@ VERIFYALL-STEPS-DECL: 62 gen=#81   # verify-all.sh:73
 我在 `t102` 的边界里**明写**「不许改 `samples/**`（文档面另有单子）」；它仍为该牙的复述位改了该件三处 token（并在自己载体里**主动申报**）。
 ⇒ **裁定**：记为**写域违反**（非隐瞒 —— 它申报了）；后果已被 `t104` 的恢复抹平，且我提交 `f1aedbe` 时**已把该件排除在索引之外**（只提交 `src/**`／`evidence/**`／`HANDOFF-NEXT.md`／载体），故那处改动**从未进入历史提交**。⇒ 供后人参考：**牙的复述位若落在别人写域的件里，正确处理是「报告 ＋ 等该写域持有者同趟改」，不是自己改。**
 
+**裁定十一（承 `t103` 回执）—— 同类边界例外：接受「`impl` 真实下降 ⇒ 现值位随动」的四处越域，附三条约束。**
+`t103` 让 `impl 90→89`（真实现 ⇒ 缺口真少一条），而牙的整件扫描要求**现值位 == live** ⇒ 它同趟把 `实现口径 90→89` 同步进 5 件，其中 **`docs/ROUTES.md`／`samples/WpfFeatureProbe/KNOWN-DEFECTS.md`／`README.md`／`src/WpfGfx.Linux.Native/src/win32_classification.c` 四件不在它派单的写域清单**内（与裁定七同形）。
+⇒ **裁定：接受**（不许改 ⇒ 该步必红，等于拿一条假红换一条真绿）；同样附三条约束：① 逐件点名 ＋ 逐处 before→after；② **只改数字 token、不删句、不动结构**；③ 由 `t105` 独立复核按这三条判。**注意区分**：这与 `t104` 处理的 `:2257` **不是同一类** —— 那一条是**历史行**（自引旧代工件，数字必须保持该代），本裁定说的是**现值位**（必须随 live 动）；`t106` 收窄后的牙已能把两者分开（`SITE-HISTORICAL-ONLY`／`PTSGAP_HISTORICAL=n=1`）。
+
+**裁定十二（承 `t103` 回执）—— 下一步（W8 第四步）的靶心与前置。**
+`t103` 让链**首次走到 `PtsCache.Linux.cs:548` 的 `PTS.CreateDocContext`**（台账 `seq=5`，仍是诚实 stub、返 `-10000`），`entry=` 面现取 `3 LoDisposePenaltyModule ＋ 1 CreateDocContext`，两条同伴**都没打死进程**。
+⇒ **裁定**：第四步靶心 ＝ **`CreateDocContext`**（PTS 十名之一、也是 `t70` 当初指认的第一个留痕站），且**必须先查**它的两条收尾同侪是否已导出 —— `DestroyDocContext`（`PtsCache.Linux.cs:416`／`:488`）与 `TextPenaltyModule.Dispose`（`:421`／`:493`，**须后于前者**）；若未导出 ⇒ 按 `t97` 的教训**同趟补诚实 stub**，否则同类 `rc=134` 风险仍在。判据先写、实现后做、独立复核照旧。
+
 ## 9 未做 / 边界
 
 - **未**跑整趟门禁（`verify-all.sh` 全跑）；本件只跑相关已接线牙与判据件。

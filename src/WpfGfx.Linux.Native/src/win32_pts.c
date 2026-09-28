@@ -322,6 +322,14 @@ typedef struct {
          ③ 它的**身份可被机器核**：只要 `*out == &某在册对象->penalty_module_handle` ⇒ 绑定成立。 */
     void        *penalty_module_handle;
     int          penalty_acquisitions;   /* 本对象上成功落盘的 LoAcquirePenaltyModule 次数 */
+    /* ── 格 5（`t103`／W8-3）：`LoGetPenaltyModuleInternalHandle` 真落盘的**内部句柄** ──
+       上游签名（`LineServices.cs:1580`）：`LsErr LoGetPenaltyModuleInternalHandle(IntPtr penaltyModuleHandle,
+       out IntPtr penaltyModuleInternalHandle)`。⚠️ **入参是"罚分模块句柄"，不是 `ploc`** ——
+       本模块把 `penalty_module_handle` 取成**本对象上那个字段的地址** ⇒ 模块句柄本身就是
+       `wpf_pts_loc *` 的**指针值**（**无需**任何结构内偏移推算：字段就在结构里 ⇒ `指针身份` 直接可比）。
+       本格把内部句柄也**落在这个对象上**（＝与"哪个模块"绑定、**不是**进程级全局单例）。 */
+    void        *penalty_internal_handle;
+    int          penalty_internal_gets;  /* 本对象上成功落盘的 LoGetPenaltyModuleInternalHandle 次数 */
 } wpf_pts_loc;
 
 static wpf_pts_loc *g_pts_loc_live[WPF_PTS_LOC_MAX];
@@ -371,6 +379,8 @@ static int g_pts_break_sets      = 0;   /* LoSetBreaking：成功次数 */
 static int g_pts_break_rejected  = 0;   /* LoSetBreaking：被拒次数 */
 static int g_pts_pen_sets         = 0;   /* LoAcquirePenaltyModule：成功次数（格 4） */
 static int g_pts_pen_rejected     = 0;   /* LoAcquirePenaltyModule：被拒次数（NULL/未知/空出参） */
+static int g_pts_inth_sets        = 0;   /* LoGetPenaltyModuleInternalHandle：成功次数（格 5） */
+static int g_pts_inth_rejected    = 0;   /* LoGetPenaltyModuleInternalHandle：被拒次数（NULL/未知/空出参） */
 
 // 【格 2 · 真实现】成功 ⇒ 返回 0（`fserrNone`）＋ `*ploc` = **真句柄**；失败 ⇒ 返回 -10000 且 `*ploc = NULL`。
 //   ⚠️ 两种自相矛盾形态都禁止：**成功却给空句柄** / **失败却给非空句柄**（件头纪律）。
@@ -638,12 +648,71 @@ int LoDisposePenaltyModule(void *penaltyModuleHandle)
     return wpf_pts_gap("LoDisposePenaltyModule");
 }
 
+// ── 格 5 · 真实现（`t103`／W8-3）：`LoGetPenaltyModuleInternalHandle`（托管声明 `LineServices.cs:1580`）──
+//   契约：`LsErr LoGetPenaltyModuleInternalHandle(IntPtr penaltyModuleHandle, out IntPtr penaltyModuleInternalHandle)`
+//   调用链（现取）：`PtsCache.Linux.cs:533` 的 `GetTextPenaltyModule()` → `:534` 的 `dangerousGetHandle()`
+//   ＝ `TextPenaltyModule.DangerousGetHandle()`（`TextPenaltyModule.cs:83-84`：**非 `None` 即抛**）——
+//   它是**功能路径**上掐住整条链的那一站（`LoDisposePenaltyModule` 只在清理期、且返回值被丢弃）。
+//   ⚠️ **形状差异（本步要害）**：入参是**罚分模块句柄**，不是 `ploc`（与第二步的 `LoAcquirePenaltyModule(ploc,…)` 不同）。
+//      本模块的模块句柄 ＝ **上下文对象上那个字段的地址** ⇒ 它的**指针值就是 `wpf_pts_loc *`**
+//      （字段就在结构里 ⇒ **无需**任何偏移推算）⇒ 句柄身份校验＝**逐位比对"在册对象们的模块句柄"**，
+//      **绝不 deref 未知指针**（伪造/野指针一律当场拒绝，进程不崩）。
+//   四件套（照前两步同形，逐条有现取证据位）：
+//     ① **句柄身份校验**：只认 `LoAcquirePenaltyModule` **自己发过且仍在册**的模块句柄；
+//        `NULL`／未知／伪造 ⇒ 返回 `-10000` 且**一个字节都不读**；
+//     ② **出参真落盘且与该模块绑定**：`*internalHandle = &c->penalty_internal_handle`
+//        （**不是**全局单例 ⇒ 第二个模块不串味）；`internalHandle == NULL` ⇒ **拒绝**（不给"写空也算成功"）；
+//     ③ **计数**：`g_pts_inth_sets`／`g_pts_inth_rejected`（＋按对象的 `penalty_internal_gets`）；
+//     ④ **可独立读取**：观测镜记下"哪个模块句柄、落出了什么内部句柄、该内部句柄是否**真等于**
+//        某个在册对象自己的那个字段"。**指针量一律走镜的 `ptr0`/`ptr1` 专用域**（`t97` 实测教训：
+//        塞进 `int a0` 会被截断 ⇒ 对拍恒不等 ⇒ **假红**）。
+//   ⚠️ **非目标**：不实现罚分模块内部算法；**不**升级 `LoDisposePenaltyModule`（本步契约：不必升级、不得回退）；
+//      **不**把 `CreateDocContext` 的 stub 改成真实现（那是下一跳）。
 int LoGetPenaltyModuleInternalHandle(void *penaltyModuleHandle, void **internalHandle)
 {
-    (void)penaltyModuleHandle;
-    if (internalHandle) *internalHandle = NULL;
-    return wpf_pts_gap("LoGetPenaltyModuleInternalHandle");
+    if (internalHandle) *internalHandle = NULL;                 // 任何失败路径都保持"空"
+    if (!internalHandle) { g_pts_inth_rejected++; return WPF_PTS_ERR_NOT_IMPLEMENTED; }
+    /* ⏪ `t103` 自检实测教训（不是预判）：**`penaltyModuleHandle == NULL` 必须在查表之前显式拒绝**。
+       只靠"扫在册对象、逐个比 `penalty_module_handle == 入参`"是**不够**的 —— 只要有一个在册对象的
+       `penalty_module_handle` 恰好**也是** `NULL`（未被 `LoAcquirePenaltyModule` 取过的对象就是这种），
+       那次"拿 `NULL` 当句柄"的调用就会**命中该对象并返回 0** ⇒ 拒绝面**静默半通**
+       （实测：`LoGetPenaltyModuleInternalHandle(NULL,&q)` 返回 `0` 且把 `q` 写成内部句柄 ⇒ 格 5 当场红；
+       该红只在"对象已存在"的历史腿上暴露，**另开进程的净腿反而修不出来** ⇒ 正是纪律第 `30` 条
+       第二种误形"净腿绿 = 假绿"的又一实证）。 */
+    if (!penaltyModuleHandle) { g_pts_inth_rejected++; return WPF_PTS_ERR_NOT_IMPLEMENTED; }
+    wpf_pts_loc *c = NULL;
+    for (int i = 0; i < g_pts_loc_live_n; i++) {                // 按**指针身份**查（不 deref 入参）
+        if (g_pts_loc_live[i]->magic != WPF_PTS_LOC_MAGIC) continue;
+        if (g_pts_loc_live[i]->penalty_module_handle == penaltyModuleHandle) { c = g_pts_loc_live[i]; break; }
+    }
+    if (!c) { g_pts_inth_rejected++; return WPF_PTS_ERR_NOT_IMPLEMENTED; }
+    c->penalty_internal_handle = (void *)&c->penalty_internal_handle;
+    c->penalty_internal_gets++;
+    g_pts_inth_sets++;
+    {   /* `addr_ok` **现算**（与前两格同口径）：该内部句柄**是否真等于某个在册对象的该字段**。 */
+        int a_ok = 0;
+        for (int k = 0; k < g_pts_loc_live_n; k++) {
+            if ((const void *)&g_pts_loc_live[k]->penalty_internal_handle == (const void *)&c->penalty_internal_handle) { a_ok = 1; break; }
+        }
+        wpf_pts_jmp_push("LoGetPenaltyModuleInternalHandle", (void *)penaltyModuleHandle,
+                         (const void *)&c->penalty_internal_handle, a_ok, 0, 0, 0, 0, 0,
+                         c->penalty_internal_handle, (const void *)penaltyModuleHandle);
+    }
+    { int _i = wpf_pts_index("LoGetPenaltyModuleInternalHandle"); if (_i >= 0) g_pts_seen[_i]++; }
+    g_pts_seq++;
+    *internalHandle = c->penalty_internal_handle;
+    return 0;                                                   /* ← 改成别的值就是制造静默半通 */
 }
+
+// ── 格 5 · 只读探针（机器可读、供自检与仓外探针独立读取）────────────────────────────────
+//   第 idx 个在册对象上落盘的**内部句柄**（指针值本身，不 deref）；越界/无 ⇒ NULL。
+//   ⚠️ 与 `…PtsPenaltyModuleHandleAt` 同族纪律（`F-6` 口径句同样适用）：**位置读**，**不得跨销毁缓存 `idx`**。
+void *WpfLinuxWin32_PtsPenaltyInternalHandleAt(int idx)
+{
+    if (idx < 0 || idx >= g_pts_loc_live_n) return NULL;
+    return g_pts_loc_live[idx]->penalty_internal_handle;
+}
+int WpfLinuxWin32_PtsPenaltyInternalGets(void) { return g_pts_inth_sets; }
 
 // ══════════════════════════════════════════════════════════════════════════
 //  机器可读面（照 `WpfLinuxWin32_EscStringSelfCheck` / `ClassificationSelfCheck` 的形状）
@@ -725,7 +794,8 @@ int WpfLinuxWin32_PtsGapReport(char *buf, int cap)
                      "PTS_GAP_REPORT mode=honest-fail entries=%d calls=%d anchor=%s err=%d frontier=%s "
                      "calls=0:%d 1:%d 2:%d 3:%d 4:%d 5:%d 6:%d 7:%d 8:%d 9:%d 10:%d 11:%d "
                      "io_live=%d loc_live=%d loc_creates=%d loc_destroys=%d loc_rej=%d "
-                     "setdoc_sets=%d setdoc_rej=%d setbrk_sets=%d setbrk_rej=%d",
+                     "setdoc_sets=%d setdoc_rej=%d setbrk_sets=%d setbrk_rej=%d "
+                     "inth_sets=%d inth_rej=%d",
                      seen, g_pts_seq, anchor, WPF_PTS_ERR_NOT_IMPLEMENTED,
                      frontier,
                      g_pts_calls[0], g_pts_calls[1], g_pts_calls[2], g_pts_calls[3], g_pts_calls[4],
@@ -733,7 +803,8 @@ int WpfLinuxWin32_PtsGapReport(char *buf, int cap)
                      g_pts_calls[10], g_pts_calls[11],
                      g_pts_io_live_n,
                      g_pts_loc_live_n, g_pts_loc_creates, g_pts_loc_destroys, g_pts_loc_rejected,
-                     g_pts_doc_sets, g_pts_doc_rejected, g_pts_break_sets, g_pts_break_rejected);
+                     g_pts_doc_sets, g_pts_doc_rejected, g_pts_break_sets, g_pts_break_rejected,
+                     g_pts_inth_sets, g_pts_inth_rejected);
     if (n < 0 || n >= cap) {
         // ⏪ **`t92`／P1-W20 · `O-1` 返回语义（可判、可核）**：修前这一支只有一句
         //   `buf[cap - 1] = '\0'; return -1;` ⇒ **语义对、但"正确"靠的是一个没被写下来的不变式**
@@ -838,6 +909,92 @@ static int wpf_pts_neg_polarity(void)
     if (g_pts_loc_live_n != nb) return 79;       /* `t102`：夹具自带**不带泄漏**断言（base 相对） */
     g_pts_pen_sets = npen; g_pts_pen_rejected = npenrj;   /* `t102`／`F-2`：夹具出口复原 pen 计数 */
     return 0;
+}
+
+// ── 格 5 夹具（`t103`／W8-3；**static，不进导出面**）────────────────────────────────────────
+//   「两态可区分」的三个方位（每对只有一个变量在动）：
+//     ① **成功**：某模块上取一次 ⇒ 出参**非空**且 `== &该对象->penalty_internal_handle`；
+//     ② **按对象绑定**：两个模块各取各的 ⇒ 两个出参**各不相同**、且各等于**自己**对象的字段；
+//     ③ **拒绝面**：`NULL` 模块／未知（伪造）模块／已销毁对象的旧模块句柄／`internalHandle==NULL`
+//        ⇒ **一律 -10000 且出参被清空**（并且**不改任何可见状态**）。
+//   ⚠️ 指针量一律走**指针域**（`ptr0`），**不**塞 `int` 域（`t97` 实测：截断 ⇒ 假红）。
+static int g_pts_selfcheck_f5_binding(void)
+{
+    void *c1 = NULL, *c2 = NULL;
+    void *m1 = (void *)0x71, *m2 = (void *)0x72;    /* 先投毒 */
+    void *i1 = (void *)0x81, *i2 = (void *)0x82;    /* 先投毒 */
+    const int nb = g_pts_loc_live_n;
+    const int f5_is = g_pts_inth_sets, f5_ir = g_pts_inth_rejected;
+    if (nb + 2 > WPF_PTS_LOC_MAX) return 1;
+    if (LoCreateContext(NULL, NULL, &c1) != 0 || c1 == NULL) { return 0; }
+    if (LoCreateContext(NULL, NULL, &c2) != 0 || c2 == NULL) { LoDestroyContext(c1); return 0; }
+    /* 两个模块句柄通过真实现取得（**不**手工编造 ⇒ 保证身份校验路径与生产一致） */
+    if (LoAcquirePenaltyModule(c1, &m1) != 0) { LoDestroyContext(c2); LoDestroyContext(c1); return 0; }
+    if (LoAcquirePenaltyModule(c2, &m2) != 0) { LoDestroyContext(c2); LoDestroyContext(c1); return 0; }
+    if (m1 == NULL || m2 == NULL || m1 == m2) { LoDestroyContext(c2); LoDestroyContext(c1); return 0; }
+    /* ① 成功 + ② 按对象绑定 */
+    if (LoGetPenaltyModuleInternalHandle(m1, &i1) != 0) { LoDestroyContext(c2); LoDestroyContext(c1); return 0; }
+    if (LoGetPenaltyModuleInternalHandle(m2, &i2) != 0) { LoDestroyContext(c2); LoDestroyContext(c1); return 0; }
+    if (i1 == NULL || i2 == NULL)              { LoDestroyContext(c2); LoDestroyContext(c1); return 0; }
+    if (i1 == (void *)0x81 || i2 == (void *)0x82) { LoDestroyContext(c2); LoDestroyContext(c1); return 0; }  /* 必须被改写 */
+    if (i1 == i2)                              { LoDestroyContext(c2); LoDestroyContext(c1); return 0; }  /* **不共享** */
+    if (i1 != (void *)&((wpf_pts_loc *)c1)->penalty_internal_handle) { LoDestroyContext(c2); LoDestroyContext(c1); return 0; }
+    if (i2 != (void *)&((wpf_pts_loc *)c2)->penalty_internal_handle) { LoDestroyContext(c2); LoDestroyContext(c1); return 0; }
+    /* 独立读取面（按 idx 现算，**不得**写死 0/1 —— `F-6` 口径） */
+    if (WpfLinuxWin32_PtsPenaltyInternalHandleAt(nb)     != i1) { LoDestroyContext(c2); LoDestroyContext(c1); return 0; }
+    if (WpfLinuxWin32_PtsPenaltyInternalHandleAt(nb + 1) != i2) { LoDestroyContext(c2); LoDestroyContext(c1); return 0; }
+    /* ④ 镜 vs 对象：指针走**指针域** */
+    {
+        const void *p0 = NULL, *p1 = NULL;
+        if (WpfLinuxWin32_PtsJmpProbePtr("LoGetPenaltyModuleInternalHandle", m1, &p0, &p1) != 1) {
+            LoDestroyContext(c2); LoDestroyContext(c1); return 0;
+        }
+        if (p0 != i1) { LoDestroyContext(c2); LoDestroyContext(c1); return 0; }   /* 镜记的内部句柄 == 对象上的 */
+        if (p1 != m1) { LoDestroyContext(c2); LoDestroyContext(c1); return 0; }   /* 镜记的模块句柄 == 入参 */
+    }
+    /* ③ 拒绝面（失败且**不改可见状态**） */
+    {
+        void *snap = ((wpf_pts_loc *)c1)->penalty_internal_handle;
+        int   nget = ((wpf_pts_loc *)c1)->penalty_internal_gets;
+        void *q = (void *)0x5B5B;
+        /* ⏪ `t103` 反腿实测教训（**必须留档**）：**这一条只在"登记表里有 `NULL` 罚分句柄的对象"时才咬人。**
+           首次实现时本夹具**两对象都已 acquire 过**（`penalty_module_handle != NULL`）⇒ 拿 `NULL` 入参
+           扫表扫不到任何对象 ⇒ 修前那个坏实现（缺 `!penaltyModuleHandle` 检查）**照样返回非 0**
+           ⇒ **反腿不红、本格没有牙**（我自己的 P7 反腿就是这么抓出这条的：`badreal` 该给 `0/85` 却给了 `1/0`）。
+           而运行期的真实命中路径恰恰是"**还没 acquire 的活对象**"（那正是历史腿上暴露的那次）。
+           ⇒ 修法：**先造出**一个 `penalty_module_handle == NULL` 的活对象再调（`c3` 只建不 acquire）——
+           这样"拿 `NULL` 当句柄"才有东西可误命中，该断言**在净腿上也有牙**。 */
+        void *c3 = NULL;
+        if (LoCreateContext(NULL, NULL, &c3) != 0 || c3 == NULL) { LoDestroyContext(c2); LoDestroyContext(c1); return 0; }
+        if (((wpf_pts_loc *)c3)->penalty_module_handle != NULL) {   /* 前提：它确实是"未 acquire"的活对象 */
+            LoDestroyContext(c3); LoDestroyContext(c2); LoDestroyContext(c1); return 0;
+        }
+        if (LoGetPenaltyModuleInternalHandle(NULL, &q) != WPF_PTS_ERR_NOT_IMPLEMENTED || q != NULL) {
+            LoDestroyContext(c3); LoDestroyContext(c2); LoDestroyContext(c1); return 0;
+        }
+        if (LoDestroyContext(c3) != 0) { LoDestroyContext(c2); LoDestroyContext(c1); return 0; }
+        q = (void *)0x5B5B;
+        if (LoGetPenaltyModuleInternalHandle((void *)0xdeadbeef, &q) != WPF_PTS_ERR_NOT_IMPLEMENTED || q != NULL) {
+            LoDestroyContext(c2); LoDestroyContext(c1); return 0;
+        }
+        if (LoGetPenaltyModuleInternalHandle(m1, NULL) != WPF_PTS_ERR_NOT_IMPLEMENTED) {
+            LoDestroyContext(c2); LoDestroyContext(c1); return 0;
+        }
+        if (((wpf_pts_loc *)c1)->penalty_internal_handle != snap ||
+            ((wpf_pts_loc *)c1)->penalty_internal_gets != nget) {
+            LoDestroyContext(c2); LoDestroyContext(c1); return 0;    /* 被拒路径**不许**改状态 */
+        }
+    }
+    /* ⑤ 销毁后：旧模块句柄**必被拒**（对象已不在册 ⇒ 身份校验查不到 ⇒ 且不 deref） */
+    if (LoDestroyContext(c2) != 0) { LoDestroyContext(c1); return 0; }
+    if (LoDestroyContext(c1) != 0) return 0;
+    {
+        void *q = (void *)0x5C5C;
+        if (LoGetPenaltyModuleInternalHandle(m1, &q) != WPF_PTS_ERR_NOT_IMPLEMENTED || q != NULL) return 0;
+    }
+    if (g_pts_loc_live_n != nb) return 0;                                       /* 夹具不带泄漏 */
+    g_pts_inth_sets = f5_is; g_pts_inth_rejected = f5_ir;                       /* 夹具出口复原本格计数 */
+    return 1;
 }
 
 // ── `t92`／P1-W20 的两格夹具（**static，不进导出面**；由自检调用）──────────────────────────
@@ -1031,6 +1188,7 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
        否则"链上"自己涨的那部分会被写进 `save_*`，末尾复原**回不到真基线**（本趟实测抓到的
        第二形态：链上 `LoAcquirePenaltyModule(loc_a,…)` 涨 1、报告块看到的仍是 2）。 */
     int save_pen_sets = g_pts_pen_sets, save_pen_rej = g_pts_pen_rejected;
+    int save_inth_sets = g_pts_inth_sets, save_inth_rej = g_pts_inth_rejected;   /* `t103`：格 5 同办 */
     wpf_pts_jmp save_jmp[WPF_PTS_JMP_MAX];
     int save_jmp_head = g_pts_jmp_head, save_jmp_n = g_pts_jmp_n;
     memcpy(save_jmp, g_pts_jmp, sizeof(save_jmp));
@@ -1055,6 +1213,11 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
     // 【`#66` W158A 修订】3 个新入口**各自一个先被投毒的出参**：否则链条走到这里时 `p1`
     //   早已被第 1 条入口清成 NULL ⇒ `p1 != NULL` 那三条断言**恒不成立**（恒绿假牙）。
     void *q1 = (void *)0x33, *q2 = (void *)0x34, *q3 = (void *)0x35;
+    /* ⏪ `t103` 自检实测教训：**被拒断言必须用自己的出参变量**。原来"未知句柄 ⇒ 出参必被清空"那条
+       与"真句柄 ⇒ 必须成功"那条**共用 `&q2`** ⇒ 前一条把 `q2` 清成 `NULL`，后一条就把 `NULL`
+       当罚分模块句柄传下去 ⇒ 本步的真实现在第 15 格**当场红**（这就是本趟实测的 `diag=15`，
+       不是实现坏、是**断言之间串了变量**）。`q4` 专供被拒面，**不碰** `q2`。 */
+    void *q4 = (void *)0x36;
     (void)q1;   /* 保留投毒初值：`EntryName…` 面已不再用它，但"先投毒"的形制留着（W158A 口径） */
     // 【格2 修订】`LoCreateContext` 也是"先投毒再调"：修前它负责把出参清成 NULL，
     //   修后它负责**填真句柄** ⇒ 若不投毒，`loc != NULL` 那条断言会被上一轮的残留骗绿。
@@ -1167,10 +1330,25 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
                       **非空且 ≠ 毒值** → 再**未知句柄**调用 → 断言返 -10000 且出参**被清空**。 */
                 if (LoAcquirePenaltyModule(loc_a, &q2) != 0) rc = 13;   /* 真实现 ⇒ **必须成功** */
                 else if (q2 == NULL || q2 == (void *)0x34) rc = 14;     /* 出参：非空且 ≠ 毒值 */
-                else if (LoAcquirePenaltyModule((void *)0xdeadbeef, &q2) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 17;
-                else if (q2 != NULL) rc = 18;                          /* 被拒 ⇒ 出参清空（**非**非空假句柄） */
-                else if (LoGetPenaltyModuleInternalHandle(sb, &q3) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 15;
-                else if (q3 != NULL) rc = 16;
+                else if (LoAcquirePenaltyModule(loc_a, &q4) != 0) rc = 17;   /* 看家真落盘（先写 */
+                else if (q4 == NULL) rc = 18;                            /*   非空，证明这口真会写） */
+                else if (LoAcquirePenaltyModule((void *)0xdeadbeef, &q4) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 17;
+                else if (q4 != NULL) rc = 18;                          /* 被拒 ⇒ 出参清空（**非**非空假句柄） */
+                /* ⏪ `t103`／W8-3：`LoGetPenaltyModuleInternalHandle` 已由**诚实缺口 stub** 变成**真实现**
+                      ⇒ 原来那两条"必须返 -10000 且出参清空"的断言**必须跟着改**（不改就是自检恒红），
+                      且**不是**删掉：改成**格 5 的成对断言**（见 `g_pts_selfcheck_f5_binding()`）。
+                      ⚠️ 入参是**罚分模块句柄**（`q2` 里那个真句柄），**不是** `loc_a` —— 这是本步的形状差异。 */
+                else if (LoGetPenaltyModuleInternalHandle(q2, &q3) != 0) rc = 15;   /* 真实现 ⇒ **必须成功** */
+                else if (q3 == NULL || q3 == (void *)0x35) rc = 16;                 /* 出参：非空且 ≠ 毒值 */
+                else if (LoGetPenaltyModuleInternalHandle(q2, &q4) != 0) rc = 19;   /* 第二个模块句柄也能取 */
+                else if (q4 == NULL) rc = 19;
+                else if (LoGetPenaltyModuleInternalHandle((void *)0xdeadbeef, &q3) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 19;
+                else if (q3 != NULL) rc = 21;                                       /* 被拒 ⇒ 出参清空 */
+                /* ⚠️ `t103` 实测第 2 条：**拿 `NULL` 当罚分模块句柄**必须被拒（且出参清空）。
+                      修前它**静默半通**（返回 0，命中"`penalty_module_handle` 也是 `NULL` 的在册对象"）
+                      ⇒ 这条断言就是实现里那个 NULL 检查的**牙齿**，不写它就等于没修、也没牙。 */
+                else if (LoGetPenaltyModuleInternalHandle(NULL, &q4) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 22;
+                else if (q4 != NULL) rc = 23;
                 else if (LoDestroyContext(loc_a) != 0) rc = 70;      /* 收尾：第二个也要真收掉 */
                 else if (g_pts_loc_live_n != base) rc = 71;         /* 无泄漏（base 相对） */
                 /* ⚠️【**顺序即语义** 之二 —— 本趟实测格号 `32` 的来源】负极性夹具**自己**会真调
@@ -1187,6 +1365,7 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
                    **原先不在"就地复原"清单里**（清单只有前面那几对）⇒ 报告块看到的仍是**涨过的数**
                    ⇒ 新格 `84` 当场红。⇒ 与其它计数**同源同办**：就地复原 `g_pts_pen_*`。 */
                 g_pts_pen_sets = save_pen_sets; g_pts_pen_rejected = save_pen_rej;
+                g_pts_inth_sets = save_inth_sets; g_pts_inth_rejected = save_inth_rej;
                 g_pts_loc_creates = save_loc_creates; g_pts_loc_destroys = save_loc_destroys;
                 g_pts_loc_rejected = save_loc_rejected;
                 /* ⚠️ `g_pts_seen[]` **刻意不在这里复原**：它承载的正是"这两条真实现**真的被问过**"这条
@@ -1243,6 +1422,10 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
                修前每调一次 +3 ⇒ 本格**当场红**（可证伪）。 */
         else if (g_pts_loc_live_n != base) rc = 83;
         else if (g_pts_pen_sets != save_pen_sets) rc = 84;
+        /* ── `t103`／P1-W29 新增一格（**格号 `85` 起；旧号与 `80/81/82/83/84` 一个不动** —— 纪律第 `30` 条）──
+             格 `85`（格 5 的成对断言）：**内部句柄与该模块绑定（非单例）＋ 拒绝面不改状态 ＋ 夹具不带泄漏**。
+               修前该入口是 stub ⇒ 出参恒 `NULL` ⇒ 本格**当场红**（可证伪）；故它与 `C8` 的 1→0 是一对。 */
+        else if (!g_pts_selfcheck_f5_binding()) rc = 85;
     }
 
     // 复原台账 + 观测镜（自检不许改变可观测状态）
@@ -1253,6 +1436,7 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
     g_pts_doc_sets = save_doc_sets; g_pts_doc_rejected = save_doc_rej;
     g_pts_break_sets = save_brk_sets; g_pts_break_rejected = save_brk_rej;
     g_pts_pen_sets = save_pen_sets; g_pts_pen_rejected = save_pen_rej;   /* `F-2`：格 4 计数一并复原 */
+    g_pts_inth_sets = save_inth_sets; g_pts_inth_rejected = save_inth_rej;   /* `t103`：格 5 计数一并复原 */
     g_pts_io_creates = save_creates; g_pts_io_destroys = save_destroys; g_pts_io_rejected = save_rejected;
     g_pts_loc_creates = save_loc_creates; g_pts_loc_destroys = save_loc_destroys; g_pts_loc_rejected = save_loc_rejected;
     g_pts_seq = save_seq;
