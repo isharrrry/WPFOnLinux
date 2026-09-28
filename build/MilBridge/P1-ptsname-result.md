@@ -124,6 +124,10 @@ VERIFYALL-STEPS-DECL: 62 gen=#81   # verify-all.sh:73
 `t103` 让链**首次走到 `PtsCache.Linux.cs:548` 的 `PTS.CreateDocContext`**（台账 `seq=5`，仍是诚实 stub、返 `-10000`），`entry=` 面现取 `3 LoDisposePenaltyModule ＋ 1 CreateDocContext`，两条同伴**都没打死进程**。
 ⇒ **裁定**：第四步靶心 ＝ **`CreateDocContext`**（PTS 十名之一、也是 `t70` 当初指认的第一个留痕站），且**必须先查**它的两条收尾同侪是否已导出 —— `DestroyDocContext`（`PtsCache.Linux.cs:416`／`:488`）与 `TextPenaltyModule.Dispose`（`:421`／`:493`，**须后于前者**）；若未导出 ⇒ 按 `t97` 的教训**同趟补诚实 stub**，否则同类 `rc=134` 风险仍在。判据先写、实现后做、独立复核照旧。
 
+**裁定十二补（承 `t105` 回执）—— 判「下一跳是谁」必须用台账口径，不许用托管 `entry=` 面。**
+`t105` 独立复核挖出 medium `F-1`：托管 `[PTS-UNAVAILABLE] … entry=` 取的是**在册表序最后一个有缺口计数的入口**（`GapEntryNameAt(count-1)`），本步**首次同时有两条缺口条目** ⇒ 台账是 `CreateDocContext seq=5` ＋ `LoDisposePenaltyModule seq=6`，而托管 `entry=` **两次都写 `LoDisposePenaltyModule`、`CreateDocContext` 一次都没写** ⇒ 判据 C4 的 verify 把台账行与托管行混在一张直方图里，读不出「运行期到底哪个站点撞的」。
+⇒ **补充裁定**：判「被撞入口／下一跳是谁」**以台账口径为准**（现取 `^PTS_GAP entry=` 行，按 `seq=` 排序）；托管 `entry=` 面只作「**具名位移**」的粗证（证明名字从无到有），**不作为定名依据**。⇒ 第四步靶心仍为 `CreateDocContext`（裁定十二不变），但**判据必须按本补写**，否则会把 `CreateDocContext` 的功劳记到 `LoDisposePenaltyModule` 头上。修 `F-1` 的活另派（`PtsCache.Linux.cs` 取值口径 ＋ `pts-pages-guard.sh` 的 C4 verify）；`F-2`（`CreateDocContext` 是方法名约定声明、字面 `EntryPoint` 命中 0）与 `F-3`（七个 `reason` token 命中 0 ⇒ 按「字段名或 token 二者之一」）同趟处置。
+
 ## 9 未做 / 边界
 
 - **未**跑整趟门禁（`verify-all.sh` 全跑）；本件只跑相关已接线牙与判据件。
