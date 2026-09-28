@@ -229,6 +229,7 @@ GDI+ 的**图像编解码族**只做到"应用能起来"；`ntdll` 面只有 `Rt
 ## ⏪ **dated 收口（2026-09-28 · 车道 `t14`；上文一字未动）**
 
 - **账一**：上文 §7 的 `upstream/wpf/` 行已逐字点名「**根目录那份不使用**」**被证伪**（两条独立机制：根 `Directory.Build.props` 被 MSBuild 自动导入 ⇒ `error MSB4236`；其 **92 个 csproj** 进 build-hygiene 候选集；现取读数见该行）。⚠️ **该事实的"入册"（`KNOWN-DEFECTS.md` 新号）尚未落** —— 逐字状态＝**待配号**（本趟不动 route 件；登记批由 `t57`／队长安排）。
+- ⏪ **dated 更正（`t66`，读时 `2026-09-28T13:17+08:00`；上文「尚未落／待配号」原文保留）**：**该事实的入册已经落** —— 现取 `samples/WpfFeatureProbe/KNOWN-DEFECTS.md:3666` 有 **`### 🆕 D-G180`**（「fork 根级上游件会改变整棵树的求值结果」）；声明表现取有 **`ID	D-G180	req=KD`**；`DEFREG=PASS declared=`**`215`**（**已含 `D-G180`**；读时同上）⇒ **不再是"待配号"**。
 - 🔴 **九位权威产物是「本地物件」**：`src/WpfGfx.Linux.Native/bin/` 被 `.gitignore`（`:22-26`）忽略 ⇒ `git ls-files src/WpfGfx.Linux.Native/bin/libwpfwin32.so` ＝ **0**、`…/exports.txt` ＝ **0**（现取）⇒ **干净克隆取不回、必须重建**。凡本文档任何"产物已在库/已在远端"的暗示都是**假绿方向** —— `R8` 判据① 正是「**干净 clone ＋ 按 README 从零构建**」。
 - **导出面三种口径（现取，读时 `2026-09-28T12:26+08:00`）**：在册口径（`wc -l < src/WpfGfx.Linux.Native/bin/exports.txt`）＝ **556**｜`nm -D --defined-only` ＝ **556**｜`nm -D` 全量 ＝ **648** ⇒ 引用必须写明口径。
 - **交接面**：九位产物不进 git ⇒ 交接必须靠**构建**或 `~/w-keep-shims/`（HANDOFF-NEXT 的未结账项里已写）。
