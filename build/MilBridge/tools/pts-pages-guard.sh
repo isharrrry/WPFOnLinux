@@ -69,6 +69,7 @@
 # 【用法】
 #   bash pts-pages-guard.sh --legs <dir>      # 只判（纯读、无 X、<0.2 s）—— 门禁里用这一支
 #   bash pts-pages-guard.sh --selftest        # 合成用例两极化（无 X、无应用）
+#   bash pts-pages-guard.sh --c4-ledger <dir> # `t109`：C4 定名**以台账为准**（两直方图分开印；台账缺 ⇒ NOINFO）
 # ─────────────────────────────────────────────────────────────────────────────
 set -uo pipefail
 
@@ -110,6 +111,11 @@ DECL_TREE="${PTS_G10_DECL_TREE:-$(cd "$SELF_DIR/../../.." && pwd)/upstream/wpf}"
 #       ③ 属性块之后 ≤3 个**非空行**内出现 `extern`（＝真的是 P/Invoke 方法，不是孤零零一条属性）；
 #       ④ **先剥注释**：行注释 `//…` 截断、块注释 `/* … */` 逐段剥掉（跨行状态 `inb`）⇒ 块注释里整段
 #          「声明」不再命中（本席另造夹具真实测：修前 `PASS` ⇒ 修后 `FAIL`）。
+#   ⏪ `t109`（2026-09-29）**`t105` 的 `F-2`：补第二支形态「方法名约定」** —— 现取：`CreateDocContext` 的
+#     **显式** `EntryPoint = "CreateDocContext"` 在 `upstream/wpf` 全树命中 **0**；它是按**方法名约定**声明的
+#     （`upstream/…/MS/Internal/PtsHost/Pts.cs:3091` `internal static extern int CreateDocContext(…)`，属性在上一行）。
+#     ⇒ 本支（**仅当该属性块内没有 `EntryPoint=` 时**才走）：属性起始行（同 ①）＋ 其后 ≤3 个非空行内真的 `extern`
+#     ＋ **成员名（`(` 前最后一个标识符）逐字等于入口名** ⇒ 命中并印声明位。**不放松**第一支的形态要求。
 #     ⚠️ **树范围不收紧**（仍是 `upstream/wpf/**/*.cs`）：域的定义是「**该入口名在其声明树里对拍上**」，
 #        按目录形状（例如只扫 `TextFormatting/**`）收窄会把这个**域定义**换成**路径启发式** ⇒ 其它族
 #        （`Fs*`／`Nl*`／未来新族）的真声明会被漏掉。⇒ 只收紧**锚的形态**，不动**域的射程**。
@@ -136,6 +142,26 @@ decl_hit() {   # <名> ⇒ 印**真声明**的首个声明位 `file:line`；无�
           if (C[i] !~ /^[[:space:]]*\[[[:space:]]*DllImport[[:space:]]*\(/) continue
           txt = C[i]; j = i
           while (txt !~ /\]/ && j < i + 5 && j < FNR) { j++; txt = txt " " C[j] }
+          has_ep = (txt ~ /EntryPoint[[:space:]]*=/)
+          if (!has_ep) {
+            # ⏪ `t109`（`t105` 的 `F-2`）：**方法名约定**声明 —— `[DllImport(…)]` 块内**没有** `EntryPoint=` 时，
+            #   入口名**就是紧随其后的成员名**（现场：`Pts.cs:3091` 的 `CreateDocContext`，显式 `EntryPoint=` 全树命中 0）。
+            #   形态仍要求「真属性起始行」＋「≤3 个非空行内真的 `extern`」＋「成员名逐字等于该入口名」⇒ 注释骗不过（同 `t82` 口径）。
+            seenx = 0
+            for (k = j + 1; k <= FNR && seenx < 3; k++) {
+              if (C[k] ~ /[^[:space:]]/) {
+                seenx++
+                if (C[k] ~ /(^|[^A-Za-z0-9_])extern([^A-Za-z0-9_]|$)/) {
+                  m = C[k]
+                  if (match(m, /[A-Za-z_][A-Za-z0-9_]*[[:space:]]*\(/)) {   # `(` 前那个标识符（成员名）
+                    m = substr(m, RSTART, RLENGTH); sub(/[[:space:]]*\($/, "", m)
+                  } else { m = "" }
+                  if (m == nm) { print FILENAME ":" i; exit }
+                }
+              }
+            }
+            continue
+          }
           if (txt !~ ("EntryPoint[[:space:]]*=[[:space:]]*\"[[:space:]]*" nm "[[:space:]]*\"")) continue
           seen = 0
           for (k = j + 1; k <= FNR && seen < 3; k++) {
@@ -263,6 +289,10 @@ g10_name_check() {
   done
   if [ -n "$off" ]; then
     echo "PTS_G10_NAME=FAIL frontier=$obs off-roster=${off%,} roster=$n_roster domains=$doms decl=${decl:-none}（域归因**失败**：该名**既不在 PTS 在册表、也无「DllImport…EntryPoint=」声明位** ⇒ 红并点名；声明树=$DECL_TREE）"
+    # ⏪ `t109`（`t105` 的 `F-3`／判据 `P4`）：**给「必红并点名」补一个可判 token 载体** ——
+    #   `P4` 期望的 `reason=entry-name-not-backtraceable` 在 `tools/**` 里现取**命中 0**（只有 `ledger-nonzero-frontier-unchanged`
+    #   在册）⇒ 本行**行尾追加**该 token（**判据件一字不删**：旧句仍是新行的逐字前缀）。
+    echo "  reason=entry-name-not-backtraceable name=${off%,} decl_tree=$DECL_TREE（该名在声明树里**回溯不上**：既非显式 \`EntryPoint=\`，也非「DllImport 成员名」形态）"
     G10_RC=1; G10_TOKEN="g10-name-off-roster(${off%,})"
     return 0
   fi
@@ -652,9 +682,48 @@ selftest() {
   [ "$nfail" = 0 ]
 }
 
+
+# ══ `t109`／`t105` `F-1`② · **C4 侧读法：定名改用「台账口径」**（与 `P1-ptsname-result.md` §8 **裁定十二补**一致）══
+#   口径（逐字）：判「**被撞入口／下一跳是谁**」**以台账为准** —— 现取 `<dir>/app_g1.log` 里 `^PTS_GAP entry=<名>` 行，
+#   取 `seq=` 排序后的**最早**那一条 ＝ **下一跳**（链上最早那一站）；**最晚**那一条 ＝ **最近一次缺口调用**。
+#   托管 `entry=` 面**只作「具名位移」的粗证**（证"名字从无到有"），**不作定名依据** —— 两者不一致时**以台账为准**，
+#   判词里**两个直方图分开印、绝不合并**（`t105` 的 `F-1` 正是「混在一张直方图」才读不出"谁撞的"）。
+c4_ledger_check() {   # <dir> ⇒ 印 PTS_C4_* 三行；台账不在 ⇒ NOINFO（**绝不当绿**）
+  local d="${1:?--c4-ledger 需要目录}"
+  local log="$d/app_g1.log" ent seq0 seqn next bumped k
+  if [ ! -s "$log" ]; then
+    echo "PTS_C4_LEDGER=NOINFO reason=ledger-absent($log)（载体不在 ⇒ 「被撞入口／下一跳」**不可判** ⇒ 绝不当绿）"
+    C4_RC=3; return 3
+  fi
+  ent=$(grep -aE '^PTS_GAP entry=[A-Za-z0-9_]+' "$log" 2>/dev/null | wc -l | tr -d ' ')
+  if [ "${ent:-0}" -eq 0 ]; then
+    echo "PTS_C4_LEDGER=NOINFO reason=ledger-empty(0 行 ^PTS_GAP entry=)（台账未落痕 ⇒ 不可判 ⇒ 绝不当绿）"
+    C4_RC=3; return 3
+  fi
+  next=$(grep -aE '^PTS_GAP entry=[A-Za-z0-9_]+' "$log" 2>/dev/null | sed -n 's/.*entry=\([A-Za-z0-9_]*\).*seq=\([0-9]*\).*/\2 \1/p' | LC_ALL=C sort -n -k1,1 | head -1 | awk '{print $2}')
+  seq0=$(grep -aE '^PTS_GAP entry=[A-Za-z0-9_]+' "$log" 2>/dev/null | sed -n 's/.*entry=\([A-Za-z0-9_]*\).*seq=\([0-9]*\).*/\2 \1/p' | LC_ALL=C sort -n -k1,1 | head -1 | awk '{print $1}')
+  bumped=$(grep -aE '^PTS_GAP entry=[A-Za-z0-9_]+' "$log" 2>/dev/null | sed -n 's/.*entry=\([A-Za-z0-9_]*\).*seq=\([0-9]*\).*/\2 \1/p' | LC_ALL=C sort -n -k1,1 | tail -1 | awk '{print $2}')
+  seqn=$(grep -aE '^PTS_GAP entry=[A-Za-z0-9_]+' "$log" 2>/dev/null | sed -n 's/.*entry=\([A-Za-z0-9_]*\).*seq=\([0-9]*\).*/\2 \1/p' | LC_ALL=C sort -n -k1,1 | tail -1 | awk '{print $1}')
+  k=$(grep -aoE '^PTS_GAP entry=[A-Za-z0-9_]+' "$log" 2>/dev/null | sed 's/^PTS_GAP entry=//' | LC_ALL=C sort -u | wc -l | tr -d ' ')
+  echo "PTS_C4_LEDGER=PASS lines=$ent distinct=$k next=$next next_seq=$seq0 bumped=$bumped bumped_seq=$seqn（台账口径：**next ＝ 按 seq 最早的缺口入口 ＝ 下一跳**；bumped ＝ 最近一次缺口调用）"
+  echo "PTS_C4_SOURCE=ledger（定名**以台账为准**；托管 entry= 面只作具名位移的**粗证**，不作定名依据 —— 裁定十二补）"
+  # —— 两直方图**分开**印（绝不合并；这正是 `t105` `F-1` 的病灶形态）
+  echo "PTS_C4_HISTO=mode=separate ledger:$(grep -aoE '^PTS_GAP entry=[A-Za-z0-9_]+' "$log" 2>/dev/null | sed 's/^PTS_GAP entry=//' | LC_ALL=C sort | uniq -c | tr -s ' ' | tr '\n' ';')"
+  echo "PTS_C4_HISTO_MANAGED=separate managed:$(grep -aoE 'entry=[A-Za-z0-9_]+' "$log" 2>/dev/null | sed 's/^entry=//' | LC_ALL=C sort | uniq -c | tr -s ' ' | tr '\n' ';')"
+  local mgr
+  mgr=$(grep -aoE 'entry=[A-Za-z0-9_]+' "$log" 2>/dev/null | sed 's/^entry=//' | LC_ALL=C sort | uniq -c | sort -rn | head -1 | awk '{print $2}')
+  if [ -n "$mgr" ] && [ "$mgr" != "$next" ]; then
+    echo "PTS_C4_NAME=LEDGER-OVERRIDE managed=$mgr ledger_next=$next（两口径不一致 ⇒ **以台账为准**；托管面只算"具名位移"粗证）"
+  else
+    echo "PTS_C4_NAME=AGREE managed=${mgr:-none} ledger_next=$next"
+  fi
+  return 0
+}
+
 case "${1:---selftest}" in
   --legs) shift; judge_legs "${1:?--legs 需要目录}"; exit $? ;;
   --g10-name) shift; g10_name_check "${1:?--g10-name 需要目录}"; exit "$G10_RC" ;;   # `t73`：只跑形态判据（两极化腿用）
+  --c4-ledger) shift; c4_ledger_check "${1:?--c4-ledger 需要目录}"; exit "${C4_RC:-0}" ;;   # `t109`：C4 定名改用台账口径（裁定十二补）
   --selftest) selftest; exit $? ;;
-  *) echo "用法: $0 --legs <dir> | --g10-name <dir> | --selftest" >&2; exit 2 ;;
+  *) echo "用法: $0 --legs <dir> | --g10-name <dir> | --c4-ledger <dir> | --selftest" >&2; exit 2 ;;
 esac

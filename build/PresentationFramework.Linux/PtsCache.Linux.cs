@@ -999,22 +999,44 @@ namespace MS.Internal.PtsHost
             //   ④ 兜底 `frontier=` ＝ `g_pts_seen[]` 的**被问过**口径（真实现也算）—— **不是缺口名**，只在①②③全空时用，且此处如实注明。
             //   四者都取不到 ⇒ `unknown`（**不猜**）。
             // ⏪ `t90`：②路改走 `GapEntryNameAt()`（**带长度纪律**，见该方法的注释）—— 读口本身**可能静默截断**（`F-3`）。
+            // ⏪ `t109`（2026-09-29）**`t105` 的 `F-1`（medium）＋ `P1-ptsname-result.md` §8 裁定十二补：多缺口态下不许指错人**。
+            //   **现场（`t105` 现取）**：本波第一次同时有两条缺口（台账 `PTS_GAP entry=CreateDocContext seq=5` 与
+            //   `entry=LoDisposePenaltyModule seq=6`），而 ②路 `idx = count-1` ⇒ **表序末名** ⇒ 托管
+            //   `[PTS-UNAVAILABLE] … entry=` **两次都写 `LoDisposePenaltyModule`**、`CreateDocContext` **一次都没写**
+            //   ⇒ 会把第四步靶心（`CreateDocContext`）的功劳记到别人头上。
+            //   **新口径（逐字）**：托管侧改取**在册表序第一个有缺口计数的入口名**。理由是**结构事实**：
+            //   `k_pts_entries[]` **本身按调用链次序排列**（installed-objects → doc-context → floater/table → Lo* 族 → dispose），
+            //   故"表序首"＝**链上最早那一站**＝台账口径（`^PTS_GAP entry=` 行按 `seq=` 排序取最早）下的「**下一跳**」。
+            //   多缺口时它与"表序末名"**不同**；而"最近一次缺口调用"在本现场**恰好是另一站** ⇒ 若取它，`CreateDocContext`
+            //   仍永远不会被点名，`F-1` 的病**没治**。
+            //   ⚠️ **限制如实记**：native 报表**不暴露 recency**（现取字段只有 `anchor=`／`frontier=`／逐条 `calls=`），
+            //   且 `src/**` 不在本件写域 ⇒ 托管侧**无法**按"最近一次调用"取名；本件用的是上面那条**表序＝链序**的结构事实。
+            //   取值顺序（逐字）：① 旧形 `last=` → ② **`anchor=`（表序首个有缺口计数的入口名）** → ③ **`GapEntryNameAt(0)`**
+            //   （老 shim 无 `anchor=` 时同义；带长度纪律）→ ④ 表序末名 `GapEntryNameAt(count-1)`（**仅当**②③都取不到时**兜底**，
+            //   保持旧行为）→ ⑤ 兜底 `frontier=`（`g_pts_seen[]` 的**被问过**口径，**不是缺口名**，此处如实注明）→ ⑥ `unknown`（**不猜**）。
             foreach (string key in new string[] { "last=" })
             {
                 string nm0 = FieldOf(s, key);
                 if (nm0 != null) return nm0;
             }
+            foreach (string key in new string[] { "anchor=" })
+            {
+                string nmA = FieldOf(s, key);
+                if (nmA != null) return nmA;
+            }
             try
             {
+                string nmF = GapEntryNameAt(0, GapNameCap);            // ③ 表序**首个**（＝链上最早那一站）
+                if (nmF != null) return nmF;
                 int cnt = PtsGapCountNative();
                 if (cnt > 0)
                 {
-                    string nm1 = GapEntryNameAt(cnt - 1, GapNameCap);
+                    string nm1 = GapEntryNameAt(cnt - 1, GapNameCap);  // ④ 表序末名：仅兜底（旧行为）
                     if (nm1 != null) return nm1;
                 }
             }
             catch (Exception) { }
-            foreach (string key in new string[] { "anchor=", "frontier=" })
+            foreach (string key in new string[] { "frontier=" })
             {
                 string nm2 = FieldOf(s, key);
                 if (nm2 != null) return nm2;
