@@ -964,6 +964,16 @@ namespace MS.Internal.PtsHost
                    CharSet = CharSet.Ansi, ExactSpelling = true)]
         private static extern int PtsGapReportNative([Out] byte[] buf, int cap);
 
+        // ⏪ `t87` 加：**缺口名册的专用读口**（native 侧现取 `win32_pts.c`：`PtsGapCount()` ＝ `g_pts_calls[i] > 0`
+        //   的条数；`PtsGapEntryName(idx, buf, cap)` ＝ **按在册表序**第 `idx` 个「有缺口计数」的入口名，成功 `1`／无此 idx `0`）。
+        //   ⚠️ 这两个导出在**旧 shim** 上没有 ⇒ 每次调用都包在 `try` 里（与上面同款：具名是锦上添花，不许盖掉真失败）。
+        [DllImport(DllImport.PresentationNative, EntryPoint = "WpfLinuxWin32_PtsGapCount", ExactSpelling = true)]
+        private static extern int PtsGapCountNative();
+
+        [DllImport(DllImport.PresentationNative, EntryPoint = "WpfLinuxWin32_PtsGapEntryName",
+                   CharSet = CharSet.Ansi, ExactSpelling = true)]
+        private static extern int PtsGapEntryNameNative(int idx, [Out] byte[] buf, int cap);
+
         /// <summary>native 侧累计入口调用数（快照用）。取不到 ⇒ 0。</summary>
         internal static int NativeCalls()
         {
@@ -975,42 +985,152 @@ namespace MS.Internal.PtsHost
         private static string NativeEntryName()
         {
             string s = NativeReport();
-            int i = s.IndexOf("last=", StringComparison.Ordinal);
-            if (i < 0) return "unknown";
-            i += 5;
-            int j = s.IndexOf(' ', i);
-            string name = (j < 0) ? s.Substring(i) : s.Substring(i, j - i);
-            return string.IsNullOrEmpty(name) || name == "-" ? "unknown" : name;
-        }
-
-        /// <summary>native 台账里最近一条缺口的 LsErr；取不到 ⇒ A1 的常量。</summary>
-        /// <summary>从 DllImport 三族的异常文本里取**入口名**（取不到 ⇒ 空串；不抛）。</summary>
-        private static string EntryNameFromException(Exception e)
-        {
+            // ⏪ `t87`：口径**现取**（`t81` 把 native 行压形成 `anchor=`／`frontier=`；更早的形是 `last=`）：
+            //   ① 报表旧形 `last=` ＝ **缺口名册的末名**（最贴近台账 `PTS_GAP entry=<名>`）；
+            //   ② **缺口名册专用读口**（`PtsGapCount()`／`PtsGapEntryName(idx)`；`idx = count-1` ＝ **在册表序最后一个有缺口计数**的入口）
+            //      —— `g_pts_calls[]` 的口径**只对走 `wpf_pts_gap()` 的 stub 涨**（真实现不涨）⇒ 这才是"缺口"口径；
+            //   ③ 报表 `anchor=` ＝ 在册表序**第一个有缺口计数**的入口名（同一缺口口径的另一端）；
+            //   ④ 兜底 `frontier=` ＝ `g_pts_seen[]` 的**被问过**口径（真实现也算）—— **不是缺口名**，只在①②③全空时用，且此处如实注明。
+            //   四者都取不到 ⇒ `unknown`（**不猜**）。
+            foreach (string key in new string[] { "last=" })
+            {
+                string nm0 = FieldOf(s, key);
+                if (nm0 != null) return nm0;
+            }
             try
             {
-                if (e == null) return string.Empty;
-                string msg = e.Message ?? string.Empty;
-                int a = msg.IndexOf("named '", StringComparison.Ordinal);
-                if (a >= 0)
+                int cnt = PtsGapCountNative();
+                if (cnt > 0)
                 {
-                    int b = msg.IndexOf('\'', a + 7);
-                    if (b > a + 7) return msg.Substring(a + 7, b - a - 7);
-                }
-                int c = msg.LastIndexOf('\'');
-                if (c > 0)
-                {
-                    int d = msg.LastIndexOf('\'', c - 1);
-                    if (d >= 0 && c > d + 1)
+                    byte[] nb = new byte[128];
+                    if (PtsGapEntryNameNative(cnt - 1, nb, nb.Length) == 1)
                     {
-                        string pth = msg.Substring(d + 1, c - d - 1);
-                        int sl = pth.LastIndexOf('/');
-                        return "dll:" + (sl >= 0 ? pth.Substring(sl + 1) : pth);
+                        string nm1 = CStr(nb);
+                        if (!string.IsNullOrEmpty(nm1)) return nm1;
                     }
                 }
             }
             catch (Exception) { }
-            return string.Empty;
+            foreach (string key in new string[] { "anchor=", "frontier=" })
+            {
+                string nm2 = FieldOf(s, key);
+                if (nm2 != null) return nm2;
+            }
+            return "unknown";
+        }
+
+        /// <summary>`<键>=<值>` 取值（`值` 到空格或串尾；`-`／`unknown`／空 ⇒ `null`；不抛）。</summary>
+        private static string FieldOf(string s, string key)
+        {
+            if (string.IsNullOrEmpty(s)) return null;
+            int i = s.IndexOf(key, StringComparison.Ordinal);
+            if (i < 0) return null;
+            i += key.Length;
+            int j = s.IndexOf(' ', i);
+            string name = (j < 0) ? s.Substring(i) : s.Substring(i, j - i);
+            return (string.IsNullOrEmpty(name) || name == "-" || name == "unknown") ? null : name;
+        }
+
+        /// <summary>nul 结尾字节缓冲 ⇒ 串（不抛）。</summary>
+        private static string CStr(byte[] b)
+        {
+            int n = 0;
+            while (n < b.Length && b[n] != 0) n++;
+            char[] c = new char[n];
+            for (int k = 0; k < n; k++) c[k] = (char)b[k];
+            return new string(c);
+        }
+
+        /// <summary>native 台账里最近一条缺口的 LsErr；取不到 ⇒ A1 的常量。</summary>
+        /// <summary>从 DllImport 三族的异常文本里取**入口名**（取不到 ⇒ `"unknown"`；不抛）。</summary>
+        // ⏪ 措辞分支 ＋ 形状校验（`t87`，2026-09-28；现场：旧实现「取最后一个单引号串＋`dll:` 前缀」**无形状校验**
+        //   ⇒ 把**入口名**当成库名，产出 `dll:NotImplemented` 这种**不可归因的合成名** ⇒ 判据 `domains=unattributable` 必红）。
+        //   **新口径（逐字）**：① 入口名措辞（`named 'X'`；Windows 形 `in DLL 'Y'` ／ Linux 形 `in shared library 'Y'`）
+        //   ⇒ 取**入口名原样**（不加前缀），且**必须**是 C 标识符形状（挡掉 `dll:`／路径／含 `:` 的合成串）；
+        //   ② 库名措辞（`Unable to load shared library 'Y'`／`Unable to load DLL 'Y'`／`in shared library 'Y'`／`in DLL 'Y'`）
+        //   ⇒ 取库名、去目录、加 `dll:` 前缀，且**只接受真库名形状**（`*.dll` 或 `lib*.so`／`lib*.so.<数字>`）；
+        //   ③ 其余（含「措辞命中但形状不合」）⇒ **`unknown`** —— **绝不许**合成不可归因名。
+        private static string EntryNameFromException(Exception e)
+        {
+            try
+            {
+                if (e == null) return "unknown";
+                string msg = e.Message ?? string.Empty;
+
+                // ① 入口名措辞：`… named 'X' in DLL 'Y'`／`… named 'X' in shared library 'Y'`
+                int a = msg.IndexOf("named '", StringComparison.Ordinal);
+                if (a >= 0)
+                {
+                    int b = msg.IndexOf('\'', a + 7);
+                    if (b > a + 7)
+                    {
+                        string entry = msg.Substring(a + 7, b - a - 7);
+                        if (IsEntryNameShape(entry)) return entry;
+                    }
+                    return "unknown";                     // 措辞命中而形状不合 ⇒ 不猜
+                }
+
+                // ② 库名措辞（四种措辞并列；命中即**只在真库名形状**下加前缀）
+                string[] libWording = new string[]
+                {
+                    "Unable to load shared library '",
+                    "Unable to load DLL '",
+                    "in shared library '",
+                    "in DLL '",
+                };
+                foreach (string w in libWording)
+                {
+                    int p = msg.IndexOf(w, StringComparison.Ordinal);
+                    if (p < 0) continue;
+                    int q = msg.IndexOf('\'', p + w.Length);
+                    if (q > p + w.Length)
+                    {
+                        string lib = msg.Substring(p + w.Length, q - p - w.Length);
+                        int sl = lib.LastIndexOf('/');
+                        string baseName = sl >= 0 ? lib.Substring(sl + 1) : lib;
+                        if (IsLibraryNameShape(baseName)) return "dll:" + baseName;
+                    }
+                    return "unknown";                     // 措辞命中而形状不合 ⇒ 不猜
+                }
+            }
+            catch (Exception) { }
+            return "unknown";
+        }
+
+        /// <summary>入口名形状：C 标识符（首字符字母/`_`，其余字母数字/`_`）—— 挡掉 `dll:`／路径／含 `:` 的合成串。</summary>
+        private static bool IsEntryNameShape(string s)
+        {
+            if (string.IsNullOrEmpty(s)) return false;
+            if (!(char.IsLetter(s[0]) || s[0] == '_')) return false;
+            for (int i = 1; i < s.Length; i++)
+            {
+                char ch = s[i];
+                if (!(char.IsLetterOrDigit(ch) || ch == '_')) return false;
+            }
+            return true;
+        }
+
+        /// <summary>库名形状：`*.dll`（大小写不敏感）或 `lib*.so`／`lib*.so.&lt;数字&gt;`（ELF 版本后缀）。</summary>
+        private static bool IsLibraryNameShape(string s)
+        {
+            if (string.IsNullOrEmpty(s)) return false;
+            string t = s.ToLowerInvariant();
+            if (t.EndsWith(".dll", StringComparison.Ordinal)) return t.Length > 4;
+            if (t.StartsWith("lib", StringComparison.Ordinal))
+            {
+                int so = t.IndexOf(".so", StringComparison.Ordinal);
+                if (so > 3)
+                {
+                    string rest = t.Substring(so + 3);
+                    if (rest.Length == 0) return true;
+                    if (rest[0] == '.' && rest.Length > 1)
+                    {
+                        for (int i = 1; i < rest.Length; i++) if (!char.IsDigit(rest[i])) return false;
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         private static int NativeError()
@@ -1029,13 +1149,24 @@ namespace MS.Internal.PtsHost
         {
             try
             {
-                byte[] buf = new byte[256];
-                if (PtsGapReportNative(buf, buf.Length) <= 0) return string.Empty;
-                int n = 0;
-                while (n < buf.Length && buf[n] != 0) n++;
-                char[] c = new char[n];
-                for (int k = 0; k < n; k++) c[k] = (char)buf[k];
-                return new string(c);
+                // ⏪ 长度纪律（`t87`，2026-09-28；现场：`t81` 让台账有行后本串变长 ⇒ 旧码定长 `byte[256]` ⇒ 整条读不到，
+                //   `NativeEntryName()` 退回 `unknown` ⇒ `Describe()` 只能去异常文本里取数 ⇒ 那一路又产出过合成名）。
+                //   native 侧**返回约定**（现取原文，`src/WpfGfx.Linux.Native/src/win32_pts.c`）：
+                //     `if (n < 0 || n >= cap) { buf[cap - 1] = '\0'; return -1; }` ／ `return n;`
+                //   ⇒ `>0` ＝ **写入长度**；`-1` ＝ **写不下**（**不截断、不静默**，`buf` 已被终结）
+                //   ⇒ 读不全的**唯一信号是 `-1`** ⇒ **放大缓冲重试**（`256 → 4 KiB → 64 KiB`，上限写死 `64 KiB`）。
+                for (int cap = 256; cap <= 65536; cap *= 16)
+                {
+                    byte[] buf = new byte[cap];
+                    int rc = PtsGapReportNative(buf, buf.Length);
+                    if (rc <= 0) continue;                        // `-1` ⇒ 写不下 ⇒ 放大再试
+                    int n = 0;
+                    while (n < buf.Length && buf[n] != 0) n++;
+                    char[] c = new char[n];
+                    for (int k = 0; k < n; k++) c[k] = (char)buf[k];
+                    return new string(c);
+                }
+                return string.Empty;                              // `64 KiB` 仍写不下 ⇒ 如实"读不到"（不猜）
             }
             catch (Exception) { return string.Empty; }
         }
@@ -1068,7 +1199,9 @@ namespace MS.Internal.PtsHost
             if (entry == "unknown")
             {
                 string fromEx = EntryNameFromException(e);
-                if (!string.IsNullOrEmpty(fromEx)) { entry = fromEx; entryFromException = true; }
+                // ⏪ `t87`：`EntryNameFromException()` 的"取不到"哨兵由**空串**改为 **`"unknown"`**
+                //   （与 `NativeEntryName()` 的哨兵一致 ⇒ 判据侧只认一个哨兵值）；此处按哨兵判，不再按"非空"判。
+                if (!string.IsNullOrEmpty(fromEx) && fromEx != "unknown") { entry = fromEx; entryFromException = true; }
             }
             int err = NativeError();
             string msg = "PTS 能力不可用（PTS / 原生 LineServices 未实现 —— D-G70）：entry=" + entry
