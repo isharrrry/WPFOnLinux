@@ -260,3 +260,64 @@ rc=0
 · 腿跑器 `run-pts-pages-legs.sh` ＝ `863ef62f1761005a`／208 行（**只读，本趟未动**）。
 · 槽：`HEAVYSLOT=ACQUIRED waited=0s` → `RELEASED rc=0 held=34s max_hold=1800s`；`avail=7380MB min_avail=2500MB`。
 本件编排口径（自报可复算）：**正文**（`head -n -1`，261 行）sha16 ＝ `d60ef8beba622462`；**`inputs_fp` 现值** ＝ `4140b706b03ac78f55239206788d0460a9529018489d164837c6a39cbfa98662`（二者与现树各按本节命令现算可逐位对拍）。⚠️ **全文 sha16 是自指量、不可自报**（把全文值写进本行 ⇒ 写下它的动作就改掉了全文 ⇒ 自报值必然与现算不符，本趟实测：自报值按位替换后现算恒不匹配）⇒ 本件**只报正文值与 `inputs_fp`**，全文值由读者现算（`sha256sum` 本件）。模式 `644`。
+
+---
+
+## ⏪ **`t85` dated 关账（`t79` 的 `F1`／`F2`／`F3` ＋ `O1`／`O2`／`O3`）**（读时 `ts=2026-09-28T23:2x+08:00`；**本节为追加，上文一字未改**；本件上方那条自报口径行**原样保留**，本节末另给**新**的自报口径值）
+
+### `F1`（low）备份面 ≠ 换代面 —— 处置：**确诊 ＋ 逐件现取旧像 ＋ 纪律入册**（**未补备份**，理由见下）
+- **改动面现取**（`git show --numstat --format='%H %ci %s' b47cf09`）：该笔共 **16** 条 `numstat` 行 ＝ `evidence/` 下 **12** 件 ＋ 四份报告／载体件（`P1-evidence-promote-report.md` `262 0`／`P1-g10-domain-report.md` `91 0`／`P1-g10-domain-verify.md` `100 0`／`P1-ptsname-result.md` `21 1`）。**备份面现取**（`~/t78-runner/bak/evidence-pre/`）：**7** 件 ＝ `app_g1.log`／`device.txt`／`five_post_g1.txt`／`five_pre_g1.txt`／`leg_23.env`／`leg_24.env`／`session.txt`。
+  ⇒ **未备份且被改动的 6 件**：`arm_A/leg_23.env`／`arm_A/leg_24.env`／`device/xfwm.log`／`shots/g1/k23.png`／`shots/g1/k24.png`／`shots/g1/last.png`。（`device.txt` 属「**备份了但未变**」⇒ **不计入缺口**；这是 `N=12` 与 `M=7` 之外还要看**集合**的理由。）
+- **六件逐件旧像／新像现取**（`git cat-file -e` 逐件 **`rc=0`**；`git show <rev>:<path> | sha256sum | cut -c1-16` ＋ `| wc -c`）：
+  | 件（相对 `evidence/`） | 旧像 `b47cf09^` | 新像 `b47cf09` |
+  |---|---|---|
+  | `arm_A/leg_23.env` | `ae26bbfa7976c776`（272 B） | `99fcf0901de5f719`（272 B） |
+  | `arm_A/leg_24.env` | `8d103daa32cf24d5`（273 B） | `ccd9bdedc4756f6e`（273 B） |
+  | `device/xfwm.log` | `8ef9e0450181ec31`（170 B） | `8f6df378c5d79ac8`（170 B） |
+  | `shots/g1/k23.png` | `6c4e46b5024bf942`（103687 B） | `edb39dbff97652b1`（102535 B） |
+  | `shots/g1/k24.png` | `30fa8476edb8d69a`（86266 B） | `dde2ba1b594df52a`（85148 B） |
+  | `shots/g1/last.png` | `6c4e46b5024bf942`（103687 B） | `edb39dbff97652b1`（102535 B） |
+  （`k23.png` 与 `last.png` **同哈希** ⇒ `last` 是 `k23` 的副本，如实记。）
+- **处置①：纪律入册** —— `build/MilBridge/HANDOFF-NEXT.md` **第 `29` 条**（口径句逐字：「凡改一批件…**备份面 ≡ 换代面**…先现取改动面清单、再按同一清单逐件 `cp -p`…`N ≠ M` 即如实报红」），含**不自指**的条在位自检命令（现取 `n=1`）。
+- **处置②：本件不补备份（如实记理由）** —— 六件**已提交**、旧像可从 `b47cf09^` **逐件取回**（上表），补备份**不增加可回退性**，却要去改**仓外**目录（本单只许**只读** `~/t78-runner/**`）⇒ 不补是**有据的**，不是遗漏。
+
+### `F2`（low）`before` 是**声明常量**（不是现取）—— 处置：**在册写明 ＋ 给代价，不实现**（**不许**写成「已解决」）
+- **定义位现取**（`build/MilBridge/tools/pts-gap-count-check.sh`；行号**仅本次有效**）：
+  - `:305  FR_BEFORE_NAME="${PTSGAP_FR_BEFORE_NAME:-LoCreateContext}"     # 本增量**之前**的具名前沿（声明值）`
+  - `:306  FR_BEFORE_N="${PTSGAP_FR_BEFORE_N:-3}"                         # 其台账行计数（声明值）`
+  - 使用位 `:313` 的 `echo "PTSGAP_FRONTIER before=${FR_BEFORE_NAME}@${FR_BEFORE_N} after=…"`；另 `:321`／`:322` 用**同名常量**判 `FAKE-PROGRESS`。
+- **在册口径（逐字）**：**`PTSGAP_FRONTIER` 的 `before=` 侧 ＝ 「**上一增量**的**声明值**」（判据件内的常量，可用 `PTSGAP_FR_BEFORE_NAME`／`PTSGAP_FR_BEFORE_N` 覆盖），**不是现取** ⇒ `before/after` 这一对**跨趟 by construction**；它只能证「`after` 可具名（且与声明的前沿不同）」，**不能**证「同趟位移」。**要真现取** ⇒ 需**另立判据**：把「上一趟载体」纳入读数面（一条**跨趟账本**，或以上一趟落盘物的**哈希锚**＋「上一趟如何唯一确定」的规定）；**本件不实现**（代价：多一个账本面 ⇒ 又多一处会漂的来源，且当前无判据需求）。
+- **`t79` 的判词保持不变**：该条**部分成立** —— 本条只把「**为什么部分**」写清，**不改判词**。
+
+### `F3`（low）时点值缺 `ts` —— 处置：**按第 `24` 条分层写清 ＋ dated 更正入册**
+- **被更正的两行现取**（**本件上文**，原文保留）：`:22` 与 `:259` 均写「`build/MilBridge/tools/pts-pages-guard.sh` **sha16=`b74d2be6f9093115`**／**572 行**（`t76` 终态件；本趟**只读**，未动）」。**时点值**：那是 `t78`（读时 `ts≈2026-09-28T23:04:40`）看到的**在飞件**读数，**当时成立**（**不是**错）。
+- **分层现取（`t85`）**：
+  | 层 | 判据件版本 | 现取来源 |
+  |---|---|---|
+  | **提交级**（`HEAD` ＝ `b47cf09`） | **`59bffc8e5b5a621a`／483 行** | `git show HEAD:build/MilBridge/tools/pts-pages-guard.sh \| sha256sum`／`\| wc -l`；最后改它的笔 ＝ `7bccbf4`（`2026-09-28 21:55:40`）；`a8b8acd`／`b47cf09` 对该件 **0 行** |
+  | `t76` **在飞件**（`t78` 引的那版） | `b74d2be6f9093115`／572 行 | **从未提交**（工作树中间态） |
+  | **现盘** | **`944e61f39f24631c`／660 行** | `sha256sum`／`wc -l`（`t82` 终态，**未提交**） |
+- ⇒ **在册写法**：**判据件读数一律带 `ts=` ＋ 「提交级／在飞件」标注**；只写 sha16 会被下一个写者立刻作废（第 `24` 条）。
+
+### `O1`（观察）判据被第三方改过 —— 处置：**归因写明**
+- **时序（现取）**：`t79` 只读时（`ts≈23:11:46`）工作树已是 `t82` 的**第一趟** —— `9b46dc9b3fbfda32`／**643** 行、`mtime 23:08:51`、`--selftest` 例数 **37 → 40**；**同一时刻提交级仍是 `59bffc8e5b5a621a`／483**（上表）。
+- **结论（后人可直接用）**：**证据换代笔 `b47cf09` 与判据件无关**（`git show --numstat` 空）⇒ 换代**不改变判据**；判据的两次移动（`t76` → `b74d2be6f9093115`、`t82` → `9b46dc9b3fbfda32` → `944e61f39f24631c`）都发生在**工作树**、且**都未提交**。`t79` 的「`pass=40 ≠ 37`」归因 `t82`（判据面收紧：非 PTS 域归因锚，载体 `build/MilBridge/P1-g10-anchor-tighten-report.md`），**不是** `t78` 的越域。
+
+### `O2`（观察）归因证据只在仓外 —— 处置：**两行原样落仓**（落点＝**本节**；**不改仓外件、不落证据目录**）
+- **落点选择与理由**：落在**本件**（报告），**不**在 `build/MilBridge/tests/PtsPagesProbe/evidence/` 下新建件 —— 因为该目录**在覆盖面内**（`close-wave.sh` 的 `fp_inputs()`）⇒ 新建件会**移动 `inputs_fp`** 并改变「在册证据集」的语义（那套件是**装置跑腿的产出**，不是**仓外日志的转录**）；本件是引它们的载体 ⇒ 版本化在一起更省事，且**零指纹位移**。
+- **仓外源（只读，未改）**：`~/t78-runner/logs/legs-promote.log`：`sha16=f5b6811d26faefa0`／**44** 行／`mtime 2026-09-28 23:04:40.733`。
+- **两行原样（`sed -n`／`grep -n` 现取）**：
+```
+4:AUTHORITY: shim=2a5165700a8c8579 pf=8ef62d37e7c2ce2e ｜ APPDIR: shim=2a5165700a8c8579 pf=8ef62d37e7c2ce2e
+43:POSTSHIM: shim=2a5165700a8c8579 pf=8ef62d37e7c2ce2e（== authority ⇒ 读数可归因）
+```
+- ⚠️ **时点标注（第 `24` 条；本席现取）**：这两行是 **`ts≈23:04:40` 的时点值**；**现盘 `src/WpfGfx.Linux.Native/bin/libwpfwin32.so` ＝ `3bd193e54785b5db`**（≠ 日志里的 `2a5165700a8c8579`），且在册证据 `five_pre_g1.txt`／`five_post_g1.txt`／`leg_23.env` **仍载** `shim=2a5165700a8c8579`（本席现取）⇒ 该换代的「权威面」**只在那一刻成立**；**要把「证据 ↔ 现盘」重新接上，需在新一趟重取腿**（属下一波，不在本单）。
+
+### `O3`（观察）指纹侧未留痕 —— 处置：**成对读数入册（现已闭合，不报红）**
+- `t79` 现取的 `inputs_fp=b8f10edccaf381dab7ab8583c73a1510…` 是**时点值**（那一趟的读数），仓内 0 命中属实。
+- **现取对拍（`t85`）**：`bash ~/w153a/bin/infp.sh fp` ⇒ **`ec63b28dc68e6468f6c78dda573af9dc5567fc39d67a785379d2941d4a78d3b1`**；`build/MilBridge/HANDOFF-NEXT.md` **最后一条** `cell=#1` 行（`ts=2026-09-28T23:16:43.998+0800`）现值 ＝ **同值**；`bash build/MilBridge/tools/handoff-machine-values-check.sh` ⇒ **`HANDOFF_MV=PASS cells=9 equal=8 manual=1 mismatch=0 uncomparable=0 reasons=none`**（`rc=0`），明细行现取 `cell=#1 … state=equal corrected=ec63b28d… live=ec63b28d…`。⇒ **一致**；`t82` 收尾的三次 `cell=#1` 追写（`23:11:47`／`23:13:21`／`23:16:43`）已把该格接上现盘。**未替他人改写任何格。**
+
+### 本件自身遵守（第 `29` 条，本条刚入册）＋ 边界自证
+- **改动面 ＝ 3 件 ＝ 备份面 3 件**：`build/MilBridge/P1-evidence-promote-report.md`／`docs/ROUTES.md`／`build/MilBridge/HANDOFF-NEXT.md`，逐件写前 `cp -p` 到 `~/w281-scribe/bak/*.pre-t85`（逐件 `cmp` 通过）；**覆盖面零位移**（三件均**不在** `fp_inputs()` 名单内 ⇒ 按本单硬条款**未**追写 `cell=#1`）。
+- **未改**：`pts-pages-guard.sh`（本件无需改它 ⇒ 未改）／`verify-all.sh`／`build/close-wave.sh`／`src/**`／`build/PresentationFramework.Linux/**`／两枚哨兵／`evidence/**`（只读）／`~/t78-runner/**`（只读）。未跑整趟门禁、未构建、未跑腿、未占显示位、未 `git add/commit/push`。
+**本件编排口径（自报可复算；`t85` 关账后）**：`head -n -1 build/MilBridge/P1-evidence-promote-report.md | sha256sum | cut -c1-16` ＝ `477c21fad3c45f55`（含上文与 `t85` 关结节；**上一版**（`t85` 之前）＝ `d60ef8beba622462`，那一行**原样保留在上方**）
