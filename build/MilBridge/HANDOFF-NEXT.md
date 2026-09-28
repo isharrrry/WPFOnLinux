@@ -146,3 +146,90 @@ flock -n ~/heavy.lock -c 'echo SLOT=FREE' || echo SLOT=HELD; free -m | awk 'NR==
 **② §8 的「根因＝`GENS` 键表不含 `provider`」与现件不符**：该缺口**已由 `TASK-0745`／`D-G166` 落地补上** —— `w27-freeze.py` 的 `_FORM_NINE` **含 `provider`**（逐键 vs 现取值对拍；`prev_*` 取**哨兵**而非九位行）；`#79` 冻结时 `BLOCKVALUE=PASS keys=9` 即其现场。
 **③ `+115` 归因误导（逐字节证）**：`absent` 与 `baseold` 的输出差**不是**"件身份"不可归因 —— 差恰是一行 `[G147_WORKAREA]`（**114 B，含 LF**）；且 `absent` 比 `baseold` **多 3 个 `wpf_x11_workarea_*` 符号**（553 vs 550）⇒ **单变量对只有 `baseold↔ret0`**（同为无/有该三符号之外的差异面），其余配对都是**多变量**，不得当作单变量证据。
 **④ `X-CENSUS` 那句 `pre-chain-baseline-absent` 是手写判词**：(a) 与同两趟日志里自引的 **`X_CENSUS=PASS leaks=0 new_orphan_sock=0 base_live=0 now_live=1 base_socks=2 now_socks=3`** 矛盾；(b) 该 reason **不在器具词表**（`xvfb-census-check.sh` 只有 `baseline-absent`／`baseline-format-unknown`／`orphan-socket-residue`／`ps-empty-or-unreadable`／`snapshot-unwritable`／`snapshot-with-ps-file`／`sock-dir-absent`）⇒ **不是器具产出**；登记 **`D-G168`「判词必须来自器具的词表；手写 `reason=` 即假账」**；(c) 处方「链首补快照」**早已实现**（`verify-all.sh:468-473`）。**真缺口（具名）**：**跨整条 `close-wave` 链无基线** —— `grep -c snapshot build/close-wave.sh` = **0**（读取时刻 2026-09-28T01:59:07+08:00）。
+
+---
+
+## §0 队长起手页（**仓内载体**；`t54` 建）
+
+> ⚠️ **位置说明（先读这句）**：本件纪律是"**只增不改**"⇒ 本节与下面两节一律**追加在文件末尾**、**没有**插到文件头（那一处插入会让 `t14` 的推送与成对重测多一笔）。**读法＝从上往下读到尾**；三节的落仓时刻都是 `2026-09-28T12:2x–12:3x+08:00`（`#80` 冻结 `b96d4312565a3c49` 之后、`t14` 推送之前）。
+
+- **触发语（逐字）**：「**按 `~/wcaptain-audit/CAPTAIN-PREAMBLE.md` 起手**」。
+- **该页（仓外件，只引用、不改）现取**：`98afa223eb7a18e7`／**29 行**／2,729 B（读取时刻 `2026-09-28T12:22:32+08:00`）。照 `t29`／`t33` 先例：**仓外件只引用**。
+- **三件开口动作（逐字照该页 §0 三条）**：
+  1. `agent_teams_status`（**谁在跑、谁卡着**）＋ `tail -60 ~/wcaptain-audit/w78-block-audit.md`（**活账尾**）；
+  2. 读绑定规则 `~/wcaptain-audit/BINDING-RULES.md`（**条目清单 ＋ 哪几条带牙 `[牙]`**）⇒ **仓内载体＝本件下一节**；
+  3. **量资源**：`awk '/^MemAvailable:/{printf "%d MB\n",$2/1024}' /proc/meminfo`｜`awk '/^SwapFree:/{print $2/1024" MB"}' /proc/meminfo`｜`df -h ~ | tail -1`。
+- **起手页 §1 的硬纪律里，与本件直接相关的两条（逐字）**：「每个结论 = **artifact ＋ 字段 ＋ sha16 ＋ 读取时刻**；`NOINFO` **既不算绿也不算红**」「一次**只一个写者**；写前 `stat -c %h`、`temp＋rename`、备份取在任何写之前」。
+- **为什么需要这一节（理由句，逐字）**：「本机长期记忆是**查询命中的摘录**（不是全量），中间推理与工具轨迹不保真 ⇒ **文件才是记忆**。」
+  ⇒ **推论**：凡要跨会话活着的东西**必须落到仓内件**；仓外的 `~/wcaptain-audit/*` 是队长的**私有记忆**（该页 §2 的"记忆文件地图"自己写着「**都在仓外，不动 `inputs_fp`**」），**仓内**载体＝本件本节 ＋ 下一节（绑定规则）＋ `P0-w80-report.md`／`docs/ROUTES.md` 等**在册**件。
+- **⚠️ 该页 §3「当前波」的时效口径（现取更正，只增不改）**：该页 §3 写的是 `#79` 时代的现场（预登记 `docs/WAVE80-PREREGISTRATION.md`、基线取 `# RE-FROZEN #79` 块）。**现取**：`docs/CURRENT-STATE.md:9` = `BASELINE-FROZEN gen=#80 sha16=b96d4312565a3c49`；块件 `samples/WpfTextDemo/ACCEPTANCE-BASELINE.md` 现读 **`b96d4312565a3c49`** ⇒ 该页 §3 **必先现取再引用**（该页自己写着"**起手时以仓内现取为准，勿凭本页过期值**"）。
+
+## §绑定规则·跨会话有效（18 条：**8 条有牙 ＋ 1 条部分牙 ＋ 9 条仅成文**）
+
+> **原件（仓外，只引用不改）**：`~/wcaptain-audit/BINDING-RULES.md` = **`22a3a65ec9137918`**／22 行／2,520 B（读取时刻 `2026-09-28T12:22:32+08:00`）⇒ 本节**逐条按现取重算**（不凭印象）。
+> **口径（照原件）**：**[牙]** ＝ 门禁/链**每趟读它** ⇒ 跨会话自然生效；**[文]** ＝ 仅成文 ⇒ **必须靠读件**。
+> ⚠️ **一条对全节成立的边界**：**有牙 ≠ 牙在仓内** —— 本节的 8 条牙里有 **4 条牙落在仓外**（`~/w79c/bin/*.sh`，见 A 表"牙位置"列）⇒ 换台机器/清车道目录 ⇒ 牙**连同规则一起消失**（建议见 D 表）。
+
+### A. 有牙的 8 条（**牙路径 ＋ 现取 `sha16` ＋ 判据行原文**）
+
+| # | 规则（逐字） | 牙（路径 ／ 现取 `sha16` ／ 位置） | 判据行原文（行号现取） |
+|---|---|---|---|
+| 1 | **stop 真值只看标记里的 `baseline_sha16`（不看 `rc`）** | `~/w79c/bin/w79-freeze2end.sh` ＝ **`a9f0de4cfc39a0b2`**（**仓外**） | `:31` `_bs="$(sha256sum $R/samples/WpfTextDemo/ACCEPTANCE-BASELINE.md \|cut -c1-16)"; [ -n "$_bs" ] && echo "baseline_sha16=$_bs" \|\| echo "baseline_sha16=none(baseline-unreadable)"`；**"不看 rc"的机器证**＝`:19` 停手按**内容**判：`grep -aq '基线已重冻为 #79' $L/w79-freeze.log \|\| { echo "FREEZE_FAILED ⇒ 停手（**不落 POST.done**）"; echo "STOP=freeze-red"; exit 8; }` |
+| 2 | **标记任何字段不许为空 ⇒ 写 `none(<reason>)`** | 同上（`push_rc`／`freeze_last`／`baseline_sha16`） | `:34` 注释逐字「**标记里任何字段都不许为空**；取不到 ⇒ `none(<reason>)`」＋三条出口：`:31`／`:32` `freeze_last=none(no-freeze-log)`／`:36` `push_rc=none(no-PUSH_RC-in-output)` |
+| 3 | **测试钩子必须排在"清理/写标记"之前** | 同上（`MARKTEST` 包住真跑块） | `:7`–`:9`（`MARKTEST=0` → `--marktest <outfile> <markfile>` 解析 → `if [ "$MARKTEST" = 0 ]`）**早于** `:10` `rm -f "$MARK"`；且 `:6` 注释逐字「**跳过①②③④，只跑标记块**（块本体一字不改，避免"第二实现"）」 |
+| 4 | **覆盖面变 ⇒ `--expect` 同趟改，且"先声明后事实"** | `build/MilBridge/tools/fp-manifest-step.sh` ＝ **`db4a2d9856534aba`**（**仓内**）＋ 判据端 `build/MilBridge/tools/fp-manifest-teeth-check.sh` ＝ **`be19edddf7f02797`**（**仓内**） | `fp-manifest-step.sh:78` `FP_MANIFEST_STEP=NOINFO reason=expect-not-a-number expect=$EXPECT`｜`:150` `FP_MANIFEST_STEP=FAIL reason=sha256sum-stderr-nonempty …`｜`:172` `FP_MANIFEST_STEP_RC=…`；**`delta` 判据行**＝`fp-manifest-teeth-check.sh:175` `FP_MANIFEST_TEETH=FAIL reason=files-n-mismatch files_n=$files_n expect=$expect delta=$(( … ))` |
+| 5 | **标记存在 ≠ 链成功；"远端事实"只许 `git ls-remote` 现取** | `~/w79c/bin/w79-push.sh` ＝ **`fb46d69e6a5cd78a`**（**仓外**）＋ 驱动标记块（同 #1 的牙） | `:205` `REM=$(git ls-remote origin refs/heads/feat-Linux \| cut -f1); LOC=$(git rev-parse HEAD)`｜`:213` `REMOTE_AFTER=$(git ls-remote origin refs/heads/feat-Linux \| cut -f1)`｜`:222`–`:224`（**按当刻远端 tip 判祖先**，不用本地 `origin/*` 缓存） |
+| 7 | **仓内路径 ≠ 仓内容 ⇒ 判据面按 `git ls-files`／显式 `skipdirs` 划界** | `build/MilBridge/tools/nul-bytes-check.sh` ＝ **`2902c14fa1081a5c`**（**仓内**） | `:107` 现场逐字「它是**仓内路径、但非仓内容** —— `.git/info/exclude:8` 排除它、`git ls-files \| grep -c agent-teams` **= 0**」；`:111` 口径句逐字「`git ls-files`（或显式 `skipdirs`）划界」；实现位 `:152/:155/:207/:277`（`NULB_SKIPDIR_OUT`／`skipdir_dirs`） |
+| 8 | **"两个输入"做比较的工具必须用可区分标识命名中间产物** | `~/w79c/bin/diffclass.sh` ＝ **`0b9d9c41e983a930`**（**仓外**） | `:28`–`:29` 按**输入绝对路径的 `sha16`** 命名（`KEY_A`／`KEY_B`）⇒ `:46`–`:47` `EVIDENCE_A=… sha16=… lines=…`；**闸一** `:32` `NOINFO reason=evidence-path-collision detail=A 与 B 解析到**同一绝对路径**…`；**闸二** `:36`–`:37` `同 basename($BA) ∧ 内容不同 ⇒ 拒绝判定` |
+| 9 | **route 件（`KD` 等）编辑必须批量在 `--emit` 之前，之后不许再动** | `build/MilBridge/tools/defect-registry-check.sh` ＝ **`c2d0773e5561a9d1`**（**仓内**） | `:251` `DEFREG_DECLDRIFT=$drift changed-route-files-since-DECL-GEN keys=$dkeys`｜`:252` `DEFREG_DECLDRIFT_KEYS=%s  # 机读差集键行（零漂移给 -；`?` = 声明件里读不到锚行）` |
+
+### B. 部分牙 1 条
+
+| # | 规则（逐字） | 现状（现取） | 缺口（逐字） |
+|---|---|---|---|
+| 15 | **停止线 `avail<2000MB ∨ swapfree<512MB`；每批 `/proc/meminfo`** | `~/heavy-slot.sh`＝**`963987607f95d591`**（口径行 `:92` `min_avail="${HEAVY_MINAVAIL:-1200}"`／`:93` `avail_wait="${HEAVY_AVAILWAIT:-600}"`；`HEAVYSLOT=NOINFO reason=low-memory` 打 `:16`）＋ 队长页 `:12` 逐字「重活一律走槽：`bash ~/heavy-slot.sh --min-avail 2500 --max-hold 1800 --wait 3600 -- <cmd>`；停手线 `MemAvailable<2000MB ∨ SwapFree<512MB`」 | 槽**只挡内存、不挡 swap**（原件自己写 `[部分牙]`）；`--min-avail` 默认 **1200** 与停手线 **2000** **不是同一个数** ⇒ 两条口径并存、**没有任何一处同时判两者** |
+
+### C. 仅成文的 9 条（**出处 ＝ 件 ＋ 行号 ＋ 判词**；＋ **谁读它**）
+
+| # | 规则（逐字／缩写） | 出处（件 ＋ 行号 ＋ 判词，现取） | 谁读它 |
+|---|---|---|---|
+| 6 | **`cmp` 相同 ≠ 当代（哨兵按内容判 `BASELINE`／`BASELINE_SHA16`）** | `build/MilBridge/T24-report.md`（**`23f30c6cc0cdcd53`**）`:41`「**附加独立证（两哨兵）**：`/tmp/bridge-frozen.flag` 的九键 + `BASELINE=#79` + `BASELINE_SHA16=901619543b3d913b` …」＋ `:126`「两哨兵 `cmp` ⇒ **IDENTICAL**」 | 收尾车道 ＋ 复验者（`t24`／`t40` 验收都是这么读的）；**队长** |
+| 10 | **冻结与哨兵必须是"最后两个动作"（九位是重建驱动）** | `build/MilBridge/P0-w80-report.md`（**`3cc9becdc15f2211`**）`:60` §6 标题「两条结构性结论…」＋ `:95` §10-1 逐字「…＋"因此冻结与哨兵必须是最后两个动作"…」 | 收尾车道（`t46` 族）＋ 队长 |
+| 11 | **计数类/点读指纹必须带读取时刻；判"某件不存在"必须给不经 `tail`／`head` 截断的原文** | `build/MilBridge/P0-mvp-pts-report.md`（**`d79a0c009515b3c4`**）`:82`「`> 读取时刻：**2026-09-28T09:5x+08:00**（各条另注）」＋ `:136`／`:147`（两处 `inputs_fp` 都带时刻） | **所有写报告的车道**；队长（据此字段判账） |
+| 12 | **关系式/区间类数字：转述前自己算、或标"未复核"** | 应用实例 `build/MilBridge/VPts-t52-review.md`（**`fae0b816b04dfe58`**）`:85`「复述位（我自己的口径＝**行**，读时 `09:48:45`）…」＋ `:86` 逐字「⚠️ 口径差异如实记：`t52` 自报"**7 处复述位**"，我按**行**数得 **9 行／4 件**」（**主控两次同族错**在**仓外**审计件 ⇒ 该半 `NOINFO`） | 复验者 ＋ 队长 |
+| 13 | **落仓一律 `temp+rename`；反极性腿一律在副本树上跑** | `build/MilBridge/HANDOFF-NEXT.md:54`（本件 §5 纪律 6 逐字「**写盘 temp + `rename`**；改动前 `cp -p` 备份 —— ⚠️ **备份必须取在"任何写之前"**」）＋ 实例 `build/MilBridge/P0-teeth-close-report.md`（`t31` 三条腿全在副本树、真树两件 `sha16` 为落仓态） | **所有写者**（含本条自己：本节就是 `temp+rename` 落的） |
+| 14 | **静默阈值 30 min ⇒ 存活检查 ⇒ 仍静默 ⇒ `reassign_task` 重试** | **仓外**（队长规程／派单件）⇒ `NOINFO(reason=载体不在仓内；仓内只检索到同形词 `W47A-report.md:37` 的"存活检查"＝另一种含义)` | **队长**（队员只受其后果影响） |
+| 16 | **成员按契约对齐必须用存储契约文本；同句拒两次即停手报队长** | **仓外**（契约文本存于团队状态，本会话只读）⇒ `NOINFO(reason=载体不在仓内)` | 队长 ＋ 成员（对齐时） |
+| 17 | **派单 `verify` 一律给可重跑、`rc=0` 的单行命令原文** | **仓外**（任务契约的 `Verify` 字段）⇒ `NOINFO(reason=载体不在仓内)` | 队长（写）／成员（执行） |
+| 18 | **事实与账必须连 `artifact ＋ field ＋ sha16 ＋ 读取时刻`；缺数据写 `NOINFO`，不许猜** | `~/wcaptain-audit/CAPTAIN-PREAMBLE.md:11`（逐字）＋ 本件 `:88`（纪律 40「**报数一律现算，不引用前一次列印**」） | **全体**（本仓纪律，每个任务收口都用它） |
+
+### D. 待升牙候选（3 条；**升牙＝把"靠读件"变成"每趟有人读它"**）
+
+1. **「撤/删任何路径前，全仓 `grep` 该路径的读取者（含 `*.cs`、探针源、牙）」** —— 现出处 `~/wcaptain-audit/CAPTAIN-PREAMBLE.md:14`（**仓外**，`[文]`）。**升牙理由（本波现成证据）**：`build/MilBridge/tools/pkg-src-retiredpath-check.sh`（`d54a5a14c1934bac`）的 `tree` 面**只扫 `*.sh/*.py/*.c/*.h`、不扫 `*.cs`** ⇒ 现取**九件 `.cs` 带死根而守卫全绿**（见下一节 N4）⇒ 这条规则**今天恰恰在它最需要的地方没有牙**。
+2. **「陈述前必须现取核对口径（波次/同体制/CI 都算）；数字与字段名逐字抄」** —— 现出处 `~/wcaptain-audit/CAPTAIN-PREAMBLE.md:15`（**仓外**，`[文]`）。**升牙理由**：本仓已有同族的**在册**先例（口径类缺陷成族）⇒ 有现成的形态可抄：给"口径句"配**机读读者**（现成实现见 `build/MilBridge/tools/prereg-four-requirements-check.sh` 与 `defect-registry-check.sh` 的"机读行 + 逐条上屏"两形态）。
+3. **「标记里任何字段不许为空 ⇒ 写 `none(<reason>)`」** —— 出处 `~/wcaptain-audit/BINDING-RULES.md:6`。**⚠️ 它其实已经有牙，但牙在仓外**：`~/w79c/bin/w79-freeze2end.sh`（`a9f0de4cfc39a0b2`）`:31/:32/:36`。**升牙＝把它搬进仓内**（否则清一次车道目录 ⇒ 规则与牙一起消失；这与 A 表顶部那条边界是同一件事）。
+
+## §下一波未闭项（具名，不许静默）
+
+> **本节由 `t54` 建（9 条），`t14` 在其后**追加**（**别另起一套**：本节就是唯一清单；追加以"§下一波未闭项（续）"或直接在本节末尾加条）。
+> **每条都给"件 ＋ 字段 ＋ `sha16` ＋ 现取时刻"级证据指针**；凡取不到的格一律 `NOINFO` 并具名原因。
+> **现取时刻（本节各行另注）**：`2026-09-28T12:22:32–12:23:52+08:00`（`#80` 冻结 `b96d4312565a3c49` 之后、`t14` 推送之前）。
+
+1. **`D-G176` 预留（九位跨同一输入两次整波不复现）** —— 证据件 `build/MilBridge/P0-w80-report.md`（**`3cc9becdc15f2211`**／104 行）`:60`（§6 标题）＋ `:95`（§10-1 逐字）。口径：**本波不登记号值**（写进 route 件会让 `DEFREG=FAIL reason=undeclared-id-in-route`）⇒ **下一波随登记批一起落**；证据指针＝该报告 §6 的两个时刻读数（`provider` 三时刻 `759ac1686e5ef87d`／`8cb1b50619f4c133`／`7e8a217b4165a6b9`）。
+2. **`D-G178`（候选，主控仪器缺陷）＋ 同族在车道侧** —— `P0-w80-report.md:82`（§8 标题）＋ `:96`（§10-2 逐字「`w27-freeze.py` 入口锚严格行首 vs 出口锚容忍装饰 ⇒ 冻后 `--prev-check-only` 假红」）。**车道侧同族**：推牙取块按 `^# RE-FROZEN #79` **严格行首** ⇒ 冻后上一代块头被加装饰 ⇒ **取空拦停**（提交已生成、**零部分推送**），已按同族修法改成"**取全文第一处** `` `inputs_fp` `` **声明**"（判据语义不变）；载体＝`~/w79c/bin/w79-push.sh`（现取 `fb46d69e6a5cd78a`，**仓外**）⇒ **下一波把它搬进仓内**并把锚改成内容锚。
+3. **三条死根面（`unused`／`unused`／`used` ＋ 死根面 `NOINFO`）** —— `P0-w80-report.md:86`（§9 表）。现取逐件：
+   - `build/MilBridge/tests/T2eLineHeight/Program.cs`（**`26abfba8bbd1ac17`**）`:24` `private const string Root = "/home/links-dev/netTest/wpf-linux-20260906/wpf-linux";` ⇒ **`unused`**（判据：`grep -c 'T2e' verify-all.sh` = **0**，报告 §9 逐字"无运行期调用者"）；
+   - `build/MilBridge/tests/PcLineOracle/Program.cs`（**`a787a9db23c3302c`**）`:171` 同形常量 ⇒ **`unused`**；
+   - `build/MilBridge/tests/CoverageProbe/Program.cs`（**`a6d0352b86467111`**）`:88` 同形常量（另 `:1028`／`:1159`／`:1240` 局部字面量）⇒ **`used`**（三支 tab 臂宿主：`retake-arms-w23.sh:109-128`）⇒ **常量本身 `unused`** ＋ **死根面 `NOINFO(臂日志零签名)`**（**必须查清**，`NOINFO` 不许当绿）。
+   - **本波已修的一件（前后 `sha16`）**：`build/MilBridge/tests/HbTextLineParity/Program.cs:42` ＝ `149dd986a642fdfc`（**前值引自 `t46` 的 `P0-w80-report.md §3`／本件未独立复算该前值**）→ **`dda989bb024d20e6`**（**现取**；`numstat 1 1`，死根签名 6→**0**）。
+   - **另六件＝字面残留（本波只审不改，逐件给行号与原文摘录，结论 `NOINFO(reason=未做活/死判定)`）**：`tests/FrameProbe/Program.cs`（`503e6ebd86d70303`）`:309`｜`tests/ResolverGuardProbe/Program.cs`（`76caccc4693bf4a1`）`:40`｜`tests/LsProbe/Program.cs`（`b8dba8fbbc05a327`）`:9`｜`tests/BboxProbe/Program.cs`（`c06f605002cb5d48`）`:23`｜`tests/IcuBreakParity/Program.cs`（`1b2815e197638a23`）`:62`｜`DirectWrite.Linux/WicSeamProbe/Program.cs`（`08f7bd96d1c33f22`）`:15`（逐行原文见本次落仓的车道证据件，或 `grep -n 'wpf-linux-20260906' <件>` 现取）。
+4. **守卫射程洞（本波发现，下一波登记；本波不改牙）** —— `build/MilBridge/tools/pkg-src-retiredpath-check.sh`（**`d54a5a14c1934bac`**）`:107`–`:110` 的 `tree` 面逐字：`find "$ROOT" -maxdepth 1 -type f \( -name '*.sh' -o -name '*.py' \)` ＋ `find "$ROOT/build" "$ROOT/tests" "$ROOT/src" -type f \( -name '*.sh' -o -name '*.py' -o -name '*.c' -o -name '*.h' \)` ⇒ **不扫 `*.cs`** ⇒ 现取**十件带死根而守卫全绿**（九件现存 ＋ `HbTextLineParity` 本波已修）⇒ **射程洞如实记**（与 D 表候选 1 同源）。
+5. **仪器注释陈旧（`provider` 两值重复）** —— `~/w21-verify/w27-freeze.py`（**`7e3d0fecefa9f20c`**）`:443`–`:444` 现取逐字：`:443` `# （照 `#79` 先例：那两格取**哨兵**的现取值。本代另有"重建驱动"事实：`#79` 块声明 `759ac1686e5ef87d`，`／`:444` `#  \`Provider\` 产物先后被重建为 \`8cb1b50619f4c133\`（02:23:33）与 \`8cb1b50619f4c133\` ⇒ 三个时刻都写进 \`P0-w80-report.md\` §六）` ⇒ **同一值连写两次**（应为 `8cb1b…` 与第三个值 `7e8a217b4165a6b9` 或注明"第二次同值"）⇒ **注释与事实不符**，下一波改准（该件**仓外**，队长写域）。
+6. **`FILES` 累积语义** —— `P0-w80-report.md:100`（§10-6 逐字「`~/w79c/bin/w79-push.sh` 的清单是**累积**的（本笔 **121 件** vs 本笔入笔 **61 件**）」）；同件 `:78`（§7）现取同形读数。⇒ 建议下一波改"**每波一份清单 ＋ 逐件归宿**"。
+7. **`arm-logs` 硬链接形态的两种处置** —— `P0-w80-report.md:101`（§10-7）＋ 现场 `:25`／`:26`（§2-3：`repo-alias` 红＝`~/wfp-runs/arms23/` 的 5 个 `nlink=2` 孪生；`arm-logs/README.md` 说该目录 `*.log`"**是硬链接、不是拷贝**"）⇒ 两案：（甲）删输出侧孪生（本波做法，已达 `ALIAS=PASS`）／（乙）把该树在 `repo-alias-allow.tsv` **声明**掉（**上限**待定）⇒ **下一波择一并写清代价**。
+8. **`PTS-PAGES` 的"零证据力"射程句仍只在报告里、未入判据件自身** —— 句子载体＝`build/MilBridge/P0-mvp-pts-report.md`（**`d79a0c009515b3c4`**）`:178` 逐字「门禁步 `PTS-PAGES`（`verify-all.sh:1173`，默认读本目录）**只读 `leg_*.env` 的列，不读 `entry=`** ⇒ **它的绿对"前沿位移"零证据力**」；**判据件** `build/MilBridge/tools/pts-pages-guard.sh`（**`bfa6414eb7104f85`**）现取**不含该句**（`grep -c '零证据力'` = **0**）⇒ 下一波把该口径句搬进判据件自身（本仓"口径搬进判据件"的既有做法见 `TASK-0741`）。
+   ⚠️ **本件现取的三处更正（两口径并列，供下一波一次改准）**：① 该句里引的 `verify-all.sh:1173` **现取是 `fi`**；`run_step "PTS-PAGES"` 的真实行号 ＝ **`verify-all.sh:1174`**（`run_step "PTS-PAGES" bash build/MilBridge/tools/pts-pages-guard.sh --legs "$PTS_EVIDENCE_DIR"`）⇒ **引行号必须现取**。② 该句说的"不读 `entry=`"**成立**：G10 实现（`pts-pages-guard.sh:180`–`:190`）读的是 `leg_*.env` 里 `NAMED … native_gap=<计数>` **计数**，不读前沿名。③ **但件头 `pts-pages-guard.sh:22` 的描述里具名了旧前沿**：逐字 `#   G10 至少一条 native \`PTS_GAP entry=CreateInstalledObjectsInfo\`           否 ⇒ FAIL` —— 而现前沿是 **`LoCreateContext`**（`t52`/`t55` 的具名行证据）⇒ **描述与实现都不回答"前沿是谁"**，且描述里的具名还是**旧名** ⇒ 下一波同趟做：把零证据力口径句搬进件 ＋ 修正 G10 描述的具名。
+9. **`session_inner.sh:18` 的显示号缺占用断言** —— `build/MilBridge/tests/PtsPagesProbe/session_inner.sh`（**`f687ad65fd05f6e2`**）`:18` 现取逐字 `D="${W67_DISPLAY:-:237}"` ⇒ **默认值没有"该号是否已被占用"的断言**（本波已知陷阱、**故意缓**）⇒ 下一波加占用探测（或改成"现取空闲号"）。
+
+10. **`inputs_fp` 相对 `#80` 冻结值的漂移 ＝ 0（本批零位移，具名事实）** —— 现取 `2026-09-28T12:30:21+08:00`：`bash ~/w-p0mig/bin/infp-n.sh fp`（只读抽取 `build/close-wave.sh` 的 `fp_inputs()`，不执行收割脚本）＝ **`abc76bd55f513b8def295692e64b9d89e2ff99e807be8210aa7ee57f3289601f`** ＝ `#80` 冻结值（`samples/WpfTextDemo/ACCEPTANCE-BASELINE.md:69`，该件现取 `sha16=b96d4312565a3c49`）**逐位相同**（同趟 `EXTRACT_SELFSAME=yes`、`FILES_N=226` ＝ `build/MilBridge/P0-w80-report.md:77` 的 `INFP_COUNT_RULER` 常数 `226`）；**机制（现取，双向）**：本批 `t57` 的三件 —— `samples/WpfFeatureProbe/KNOWN-DEFECTS.md`（`3b9abdfd0c619391`）／`build/MilBridge/tools/defect-registry-declared.tsv`（`6f1a3f99a922a6f1`）／`build/MilBridge/HANDOFF-NEXT.md`（本节自身）—— **一件都不在 `fp_inputs()` 覆盖面内**：逐件 `infp-n.sh list` 命中 ＝ `0`／`0`／`0`，且 `fp_inputs()` 的显式白名单与 `find` 链里逐字 `grep` 这三件 ＝ **0 命中** ⇒ 本批对 `inputs_fp` **机械零影响**（不是"漂移被掩盖"，是覆盖面不含；覆盖面现取 **226 件**，`#80` 冻后零改动）。⚠️ **如实划界**：本批**没有**把 `inputs_fp` 推离冻值，因此**无位移需放行**；`#80` 之后其他车道的改件（`docs/CURRENT-STATE.md` `13077b52c938f8af` 等）亦全在覆盖面外（`fp_inputs()` 现取不认它们）。
+> **本节与 `t14` 的分工（逐字，防并行改同一件）**：**`t54` 建这 9 条并把节头写死**；`t14` 若要补条，**在同一节内追加**（或加"（续）"），**不要另起一节**，也不要在本节内改写既有条目的数字（照本件纪律：**只增不改**）。

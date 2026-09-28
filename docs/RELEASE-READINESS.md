@@ -102,3 +102,11 @@ bash verify-all.sh                # 24 步验收（含真开窗渲染）
 ⚠️ `verify-all.sh` 需要 X server（脚本自己起 `:99`；应用门禁用 `:97`）与 `xvfb`/`x11-apps`/`imagemagick`。
 验收的**唯一权威基线**是 `samples/WpfTextDemo/ACCEPTANCE-BASELINE.md`（整份 sha 只在
 `docs/CURRENT-STATE.md` 的 `BASELINE-FROZEN` 机器行里声明**一次**）。
+
+
+---
+
+## ⏪ **dated 收口（2026-09-28 · 车道 `t14`；上文一字未动）**
+
+- 🔴 **九位权威产物不进 git**（现取）：`git ls-files src/WpfGfx.Linux.Native/bin/libwpfwin32.so` ＝ **0**、`…/exports.txt` ＝ **0**（`.gitignore:22-26` 忽略整个 `bin/`）⇒ **发布件必须由接收方重建**；本文档不得出现"产物已在库/已在远端"的暗示（`R8` 判据①＝干净 clone ＋ 从零构建）。
+- **基线声明处唯一**：`docs/CURRENT-STATE.md:9` 的 `BASELINE-FROZEN` 机器行是**唯一**声明点（现读 `gen=#80 sha16=b96d4312565a3c49`）；别处只许引用、不许再写值。

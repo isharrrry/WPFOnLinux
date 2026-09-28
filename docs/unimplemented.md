@@ -608,3 +608,12 @@ channel.NotImplRegistry      // Dictionary<MilCmd, long>：哪个命令字被拒
 channel.FailedCommands       // 返回其它失败码的命令数
 channel.CommittedCommands    // 成功解码执行的命令数
 ```
+
+
+---
+
+## ⏪ **dated 收口（2026-09-28 · 车道 `t14`；上文一字未动）**
+
+- **PTS/LineServices 条（按 `pts` 波真实结果）**：**可操作缺口 88／实现口径 95／工具口径 100**（`D-G70`；`PTSGAP=PASS tool=100 dead=11 artifact=1 ops=88 impl=95 so16=6825dd7071387a46 exports=556`，现取）；**在册旧数 `111` 已证 `TOOL-UNSOUND`**（`TASK-0720`），另 §本文 `:555` 已把工具口径「110」那条分解式作废 —— 本块**不重复那些结论**，只钉"用哪个数"。
+- **进度口径（逐字）**：**「进度 ＝ 具名前沿跳数，不是缺口条数」** —— 现取证据：在册 `evidence/app_g1.log`（`eb6af2e16ba2bcfb`）**`3× entry=LoCreateContext`／`0× CreateInstalledObjectsInfo`**（前沿跳数 **0 → 1**）；⚠️ 门禁步 `PTS-PAGES`（`verify-all.sh:1174`）**只读 `leg_*.env` 的列、不读 `entry=`** ⇒ 它的绿**对"前沿位移"零证据力**。
+- 🔴 **九位产物是本地物件**（`git ls-files` ＝ 0）⇒ 本文档凡涉及"产物"的段落都须按**重建**读。

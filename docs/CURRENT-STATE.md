@@ -931,3 +931,13 @@ $ ps -eo pid,args | grep -c 'dotnet'                    ⇒ 5      ← 又多一
 - **MVP 交互验收（冻结件）**：`D-G55` 四步连做（TextBox 焦点＋打字、**立刻**换页、下拉打开 `413x274`、点项 `sel=1/9`＋关闭）全通 ＋ **产品级第二腿**（仪器全关）活满 20 s。
 - **未闭合（不挡 MVP）**：`D-G58`（Tools#2 `Effects` 的 `E_NOTIMPL`，判定点已到行）｜`D-G57`（页签/按钮文字零墨，根因 `NOINFO`）｜`D-G59`（选 X 显示不复核）｜`D-G60`（身份记录出生即陈旧）｜`D-G61`（`[GEO]` 仪器致下拉 SIGSEGV）｜`R-GATE`／`R-CSRC`／`W1`／`P3` 重标。
 - **两处主控纪律事故（留档）**：`#47` 冻后第二趟因我"运行期改 `verify-all.sh`"整趟作废；`#48` 冻后第一趟因我"运行期改 `KNOWN-DEFECTS.md`/`handoff.md`＋重生成声明表"（第 `[10]` 步的判定输入）出现 `declared 96→97` 漂移。**教训：route 件与声明表也是判定输入**。
+
+
+---
+
+## ⏪ **dated 收口（2026-09-28 · 车道 `t14`；本页上文（含 `:8`／`:9`）一字未动）**
+
+- **本页与该机器行对齐（现取 `2026-09-28T12:26+08:00`）**：`:9` ＝ `BASELINE-FROZEN gen=#80 sha16=b96d4312565a3c49 file=samples/WpfTextDemo/ACCEPTANCE-BASELINE.md`；块件现取 **`b96d4312565a3c49`**（`# RE-FROZEN #80` 块在 `:7`）；两哨兵 `cmp` **IDENTICAL**（`WAVE=w80-freeze`／`BASELINE=#80`／`BASELINE_SHA16=b96d4312565a3c49`）。降级不变量：**`gen` 与整份 `sha` 只在这一行声明一次**（`:8` 那句只许**指向**本行；`D-G173` 记的就是 `:8` 散文里那个陈旧世代值——**其修法归 `t40`／登记批，本趟不代做**）。
+- 🔴 **九位权威产物不进 git**（现取）：`git ls-files src/WpfGfx.Linux.Native/bin/libwpfwin32.so` ＝ **0**（`.gitignore:22-26`）⇒ 本页任何"产物在库"的读法都是**假绿方向**；交接靠**重建**或 `~/w-keep-shims/`。
+- **导出面三种口径（现取）**：在册口径 `exports.txt` ＝ **556**｜`nm -D --defined-only` ＝ **556**｜`nm -D` 全量 ＝ **648**。
+- **文档收口件**：`build/MilBridge/P1-docs-close-report.md`（本趟的结账表／被改件 before-after／四项门禁／`NOINFO` 清单／推翻语句）。

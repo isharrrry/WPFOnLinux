@@ -73,3 +73,12 @@ git -C ~/netTest/GitProj/WPFOnLinux log --oneline -- docs/<文件名>
 git -C ~/netTest/GitProj/WPFOnLinux show <commit>:docs/<文件名> > /tmp/<文件名>
 ```
 **同日另三笔去陈**：`handoff.md` **5283 → 333 行**（`HO` 键要求的 88 个编号行**逐字保留**；替换前用 `DRC_HO` 指向临时件跑 `DEFREG=PASS` 验过）｜`docs/ROUTES.md` **840 → 606 行**（`§15b–§15y` **24 段**压成「标题 ＋ 一行指针」，**标题全留**以便交叉引用；新增 `§15aa` 收 `#57`–`#59`）｜`README.md` §0 重写（旧 8 行「已知问题」表删除）、§6「权威件是 Debug」更正为 **Release（`#40` 起）**。
+
+
+---
+
+## ⏪ **dated 收口（2026-09-28 · 车道 `t14`；上文一字未动）**
+
+- **现场对齐（现取）**：冻结 `#80`／块件 `b96d4312565a3c49`／`docs/CURRENT-STATE.md:9` 为**唯一**基线声明点／`verify-all.sh` **55 步**（首行 `DECL` 55 `gen=#80`）／覆盖面 **225 件**（`[42] --expect 225`）。
+- **本趟动过的文档面**（逐件 before→after 见 `build/MilBridge/P1-docs-close-report.md`）：`docs/ROUTES.md`／`README.md`／`docs/CURRENT-STATE.md`／`docs/RELEASE-READINESS.md`／`docs/unimplemented.md`／`docs/INDEX.md`／`build/MilBridge/W78A-report.md`（dated 追加）。
+- 🔴 **九位产物不进 git**（`git ls-files` ＝ 0）⇒ 任何"产物在库"的索引描述都是**假绿方向**。

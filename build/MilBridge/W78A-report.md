@@ -566,3 +566,17 @@ PY
 | `build/MilBridge/known-red.json` | `e38300c235593d3b` | 采样值 |
 
 **本报告**：`$R/build/MilBridge/W78A-report.md` —— sha16 见收尾消息（生成后现算）。
+
+
+---
+
+## ⏪ **dated 更正（2026-09-28 · 车道 `t4` 现场，`t14` 落册；本报告上面各节原文一字未动）**
+
+**被更正句（原文保留）**：上文 `:170`／`:171` 把 `GetFloaterHandlerInfo`（`PtsCache.cs:259`）与 `GetTableObjHandlerInfo`（`PtsCache.cs:278`）标为「上下文创建期**无条件**调用」。
+
+**现取更正（逐条）**：
+- `InitFloaterObjInfo`（`PtsCache.cs:648-666`）／`InitTableObjInfo`（`:673-726`）**只填回调结构体、不调 native** ⇒ 那两条导出**不在上下文创建链上**；
+- 它们只在 **native→managed 回调**里被调（`PtsHost.cs:1094`／`1098` → `PtsCache.cs:259`／`278`）；
+- ⇒ **预期前沿由 `idx4` 改为 `idx6`**；且本报告曾用作控制手段的「**故意停在 `idx4`**」**不可用**（那两格不经创建链）。
+
+**口径（同趟写进 `docs/ROUTES.md` 的 `TASK-0302` 子树）**：**进度 ＝ 具名前沿跳数，不是缺口条数**（`#66` 的 `P03` 实证：3 个 `Lo*` 名字离开名单而能力为 0 ＝ 假进度）。
