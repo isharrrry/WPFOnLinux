@@ -105,9 +105,9 @@ collect_corpus() {   # 面②的仓内域（**排除**证据/台账/产物）
       git -C "$ROOT" diff --cached --name-only --diff-filter=ACMR 2>/dev/null | sed "s|^|$ROOT/|"
       ;;
     tree)
-      find "$ROOT" -maxdepth 1 -type f \( -name '*.sh' -o -name '*.py' \) 2>/dev/null
+      find "$ROOT" -maxdepth 1 -type f \( -name '*.sh' -o -name '*.py' -o -name '*.cs' \) 2>/dev/null
       find "$ROOT/build" "$ROOT/tests" "$ROOT/src" -type f \
-           \( -name '*.sh' -o -name '*.py' -o -name '*.c' -o -name '*.h' \) 2>/dev/null
+           \( -name '*.sh' -o -name '*.py' -o -name '*.c' -o -name '*.h' -o -name '*.cs' \) 2>/dev/null
       ;;
     paths)
       [ -r "$PATHSFILE" ] || return 1

@@ -12,7 +12,8 @@ class Program
     static int Main(string[] args)
     {
         string path = args.Length > 0 ? args[0]
-            : "/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/samples/HelloMil/screenshot.png";
+            : (Environment.GetEnvironmentVariable("WPF_PROBE_PNG")
+               ?? throw new InvalidOperationException("死根已清：未设 WPF_PROBE_PNG（本件不再内嵌退役树路径）"));
         Console.WriteLine("FILE=" + path);
         Console.WriteLine("EXISTS=" + File.Exists(path));
 

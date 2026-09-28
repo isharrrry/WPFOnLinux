@@ -19,7 +19,7 @@
 #   G7  leg 23 `ns == HandyControlDemo.UserControl.RichTextBoxDemo`    否 ⇒ NOINFO
 #   G8  leg 24 托管侧具名行 `[PTS-UNAVAILABLE] site=FlowDocumentView.DocumentPage` ∧ `err≠0`  否 ⇒ FAIL
 #   G9  leg 23 同上                                                         否 ⇒ FAIL
-#   G10 至少一条 native `PTS_GAP entry=CreateInstalledObjectsInfo`           否 ⇒ FAIL
+#   G10 至少一条 native `PTS_GAP entry=LoCreateContext`           否 ⇒ FAIL
 #   G11 `DEV x_up=yes`                          否 ⇒ NOINFO（装置没起来 ⇒ 读数无效，不是红）
 #   G12 两腿 `five_stable=yes`                  否 ⇒ NOINFO（跑的过程中件被换）
 #
@@ -98,8 +98,31 @@ direction_gate() {   # ⚠️ **绝不可用命令替换调用**（子壳里赋�
 }
 
 # ── 判读一份证据目录 ─────────────────────────────────────────────────────────
+#
+# ⏪ **dated 口径入件（`t14`／W2·B-8，读时 2026-09-28T16:02:39+0800）**：本判据件的**射程边界**（原先只写在 `build/MilBridge/P0-mvp-pts-report.md`，现**搬进判据件自身**）：
+#   · **本步只读 `leg_*.env` 的列，不读 `entry=` ⇒ 它的绿对"前沿位移"零证据力。**
+#   · 因此本件**自带一条具名对拍**：件头 `G10` 描述的 `entry=<名>` 与 `--legs <dir>/app_g1.log` 的**现取前沿名**必须**逐字相同** ⇒ 不同即 `FAIL` 并点名（`PTS_G10_NAME=FAIL header=… observed=…`）；算不出来（缺件/无日志）⇒ `NOINFO`，**不许当绿**。
+#   · ⚠️ **`verify-all.sh` 的行号必须现取、不许写死**（历史在册句引 `:1173`，现取命中行不是它）⇒ 本件不写步号、不写行号。
+# 【`t14`／W2·B-8】件头 G10 具名 ⇔ 现取前沿（**口径搬进判据件自身**；不符 ⇒ 红并点名；算不出 ⇒ NOINFO）
+g10_name_check() {
+  local dir="$1" hdr obs
+  hdr="$(sed -n 's/.*G10 至少一条 native `PTS_GAP entry=\([A-Za-z0-9_]*\)`.*/\1/p' "${BASH_SOURCE[0]}" | head -1)"
+  obs="$(grep -o 'entry=[A-Za-z0-9_]*' "$dir/app_g1.log" 2>/dev/null | sed 's/^entry=//' | sort | uniq -c | sort -rn | head -1 | awk '{print $2}')"
+  if [ -z "$hdr" ] || [ -z "$obs" ]; then
+    echo "PTS_G10_NAME=NOINFO reason=算不出来 header='${hdr}' observed='${obs}'（**不许当绿**）"
+    return 0
+  fi
+  if [ "$hdr" != "$obs" ]; then
+    echo "PTS_G10_NAME=FAIL header=$hdr observed=$obs（件头具名与现取前沿不一致 ⇒ 红并点名）"
+    return 1
+  fi
+  echo "PTS_G10_NAME=PASS header=$hdr observed=$obs"
+  return 0
+}
+
 judge_legs() {
   local dir="$1"
+  g10_name_check "$dir" || return 1
   local fails=() cannot=() diags=()
   local k alive rc mag colors ns msite merr nerr ngap ae seq logb ink
   direction_gate || true

@@ -168,7 +168,7 @@ namespace MilBridge.PcLineOracle
 
     internal static class Program
     {
-        private const string Root = "/home/links-dev/netTest/wpf-linux-20260906/wpf-linux";
+        private static readonly string Root = Environment.GetEnvironmentVariable("WPF_PROBE_PCLINE_ROOT") ?? "";
         private const string FallbackEnvVar = "WPF_LINUX_TEXTLINE_FALLBACK";
         private const double Tol = 0.05;
 

@@ -85,7 +85,8 @@ namespace MilBridge.CoverageProbe
 
     internal static class Program
     {
-        private const string Root = "/home/links-dev/netTest/wpf-linux-20260906/wpf-linux";
+        private static readonly string Root = Environment.GetEnvironmentVariable("WPF_PROBE_COVERAGE_ROOT")
+            ?? throw new InvalidOperationException("死根已清：未设 WPF_PROBE_COVERAGE_ROOT（本件不再内嵌退役树路径）");
 
         /// <summary>与 `samples/WpfTextDemo/MainWindow.xaml` 的 ① 号文本块**同一串**（中英混排）。</summary>
         private const string DemoText =
@@ -1025,8 +1026,9 @@ namespace MilBridge.CoverageProbe
 
         private static int RunFallbackCheck()
         {
-            const string root = "/home/links-dev/netTest/wpf-linux-20260906/wpf-linux";
-            const string fontPath = root + "/build/fonts/NotoSans-Regular.ttf";
+            string root = Environment.GetEnvironmentVariable("WPF_PROBE_COVERAGE_ROOT")
+                ?? throw new InvalidOperationException("死根已清：未设 WPF_PROBE_COVERAGE_ROOT（本件不再内嵌退役树路径）");
+            string fontPath = root + "/build/fonts/NotoSans-Regular.ttf";
             const double em = 16.0;
             GlyphTypeface gt = null; Typeface tf = MakeTypeface("Noto Sans");
             if (tf != null) tf.TryGetGlyphTypeface(out gt);
@@ -1156,8 +1158,9 @@ namespace MilBridge.CoverageProbe
         /// </summary>
         private static int RunModifierArmB(string path)
         {
-            const string root = "/home/links-dev/netTest/wpf-linux-20260906/wpf-linux";
-            const string fontPath = root + "/build/fonts/NotoSans-Regular.ttf";
+            string root = Environment.GetEnvironmentVariable("WPF_PROBE_COVERAGE_ROOT")
+                ?? throw new InvalidOperationException("死根已清：未设 WPF_PROBE_COVERAGE_ROOT（本件不再内嵌退役树路径）");
+            string fontPath = root + "/build/fonts/NotoSans-Regular.ttf";
             GlyphTypeface gt = null; Typeface tf = MakeTypeface("Noto Sans");
             if (tf != null) tf.TryGetGlyphTypeface(out gt);
             if (gt == null) { Console.WriteLine("MODB 字体解析失败"); return 2; }
@@ -1237,10 +1240,11 @@ namespace MilBridge.CoverageProbe
         /// </summary>
         private static int RunModifierCheck()
         {
-            const string root = "/home/links-dev/netTest/wpf-linux-20260906/wpf-linux";
+            string root = Environment.GetEnvironmentVariable("WPF_PROBE_COVERAGE_ROOT")
+                ?? throw new InvalidOperationException("死根已清：未设 WPF_PROBE_COVERAGE_ROOT（本件不再内嵌退役树路径）");
             // ⚠️ 字体必须与真值/harness 一致（`Root + "/build/fonts"` Regular）：第一版我用 Liberation Sans
             //    ⇒ 行宽只剩 ~93%、Extent 16.91 vs 18.00 —— 那是**字体差**不是修法差（仪器口径错，已纠）。
-            const string fontPath = root + "/build/fonts/NotoSans-Regular.ttf";
+            string fontPath = root + "/build/fonts/NotoSans-Regular.ttf";
             GlyphTypeface gt = null; Typeface tf = MakeTypeface("Noto Sans");
             if (tf != null) tf.TryGetGlyphTypeface(out gt);
             if (gt == null) { Console.WriteLine("MODCHK 字体解析失败"); return 2; }

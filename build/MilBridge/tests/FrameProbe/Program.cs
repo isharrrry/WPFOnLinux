@@ -306,7 +306,8 @@ namespace MilBridge.FrameProbe
 
             // ---------- 1) 被测件自证：**两份** sha16（本机副本 + 权威路径） ----------
             string localPc = Path.Combine(AppContext.BaseDirectory, "PresentationCore.dll");
-            string authPc = "/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/PresentationCore.Linux/bin/Debug/PresentationCore.dll";
+            string authPc = Environment.GetEnvironmentVariable("WPF_PROBE_FRAMEPROBE_AUTH_PC")
+                ?? throw new InvalidOperationException("死根已清：未设 WPF_PROBE_FRAMEPROBE_AUTH_PC（本件不再内嵌退役树路径）");
             string pcBefore = Sha16(localPc);
             Console.WriteLine("FRAMEPROBE 被测件 本机副本=" + localPc + " sha16=" + pcBefore
                               + "｜权威路径=" + authPc + " sha16=" + Sha16(authPc));

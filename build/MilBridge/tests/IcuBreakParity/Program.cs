@@ -59,7 +59,8 @@ internal static class Program
             if (a == "--verbose" || a == "-v") _verbose = true;
             else oraclePath = a;
         }
-        _root = "/home/links-dev/netTest/wpf-linux-20260906/wpf-linux";
+        _root = Environment.GetEnvironmentVariable("WPF_PROBE_ROOT")
+            ?? throw new InvalidOperationException("死根已清：未设 WPF_PROBE_ROOT（本件不再内嵌退役树路径）");
         if (oraclePath == null) oraclePath = _root + "/tests/parity/windows/shaping/out-layout/dwrite-layout-cjk-oracle.json";
         if (!File.Exists(oraclePath)) { Console.WriteLine("[失败] 找不到 oracle：" + oraclePath); return 2; }
 

@@ -16,6 +16,13 @@ BIN="${W67_BIN:-$SELF_DIR}"
 TAG="${1:?tag}"; shift
 [ $# -gt 0 ] || { echo "need >=1 group" >&2; exit 2; }
 D="${W67_DISPLAY:-:237}"
+# ⏪【`t14`／W2·B-9，读时 2026-09-28T16:02:39+0800】默认显示号**占用探测**（`D-G139` 同族：长跑自起的显示位必须按 PID 收净；**不许静默复用别人的号**）
+XDIR="${WPF_X11_DIR:-/tmp/.X11-unix}"
+if [ -S "$XDIR/X${D#:}" ]; then
+  echo "DISPLAY_OCCUPIED=$D sock=$XDIR/X${D#:} ⇒ 拒跑（号已被占；请用 W67_DISPLAY=<空闲号> 或先按 PID 收净）" >&2
+  exit 3
+fi
+echo "DISPLAY_LEASE=free display=$D sock=$XDIR/X${D#:}" >&2
 export PATH="$HOME/.dotnet:$PATH"; export DOTNET_gcServer=0
 OUT="$W/logs/$TAG"; SHOTS="$OUT/shots"; mkdir -p "$OUT" "$SHOTS"
 

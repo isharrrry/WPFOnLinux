@@ -20,7 +20,9 @@ internal static class Program
 
     private static int Main(string[] argv)
     {
-        string font = argv.Length > 0 ? argv[0] : "/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/build/fonts/NotoSans-Regular.ttf";
+        string font = argv.Length > 0 ? argv[0]
+            : (Environment.GetEnvironmentVariable("WPF_PROBE_FONT")
+               ?? throw new InvalidOperationException("死根已清：未设 WPF_PROBE_FONT（本件不再内嵌退役树路径）"));
         double em = argv.Length > 1 ? double.Parse(argv[1]) : 16.0;
         Console.WriteLine($"== 逐字形 bbox（{font} @ {em}px）==");
         byte[] p = Encoding.UTF8.GetBytes(font + "\0");

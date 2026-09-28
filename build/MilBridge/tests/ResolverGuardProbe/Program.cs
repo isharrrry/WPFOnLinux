@@ -37,7 +37,9 @@ internal static class Program
         string path = Path.GetFullPath(args[1]);
         List<string> rest = args.Skip(2).ToList();
         s_useStream = rest.Remove("--loadstream");   // 无值开关：去掉即算给了
-        string shim = TakeOption(rest, "--shim") ?? "/home/links-dev/netTest/wpf-linux-20260906/wpf-linux/src/WpfGfx.Linux.Native/bin/libwpfwin32.so";
+        string shim = TakeOption(rest, "--shim")
+            ?? Environment.GetEnvironmentVariable("WPF_PROBE_SHIM")
+            ?? throw new InvalidOperationException("死根已清：未设 WPF_PROBE_SHIM（本件不再内嵌退役树路径）");
 
         Console.WriteLine("PROBE=ResolverGuardProbe");
         Console.WriteLine("MODE=" + mode);

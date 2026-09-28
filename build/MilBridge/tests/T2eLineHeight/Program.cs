@@ -21,11 +21,12 @@ using WpfLinux.Shims.PresentationCore;
 
 internal static class Program
 {
-    private const string Root = "/home/links-dev/netTest/wpf-linux-20260906/wpf-linux";
-    private const string Dir = Root + "/tests/parity/windows/layout-b34";
-    private const string CasesPath = Dir + "/cases-cd2.json";
-    private const string ResultsPath = Dir + "/results-cd2.json";
-    private const string FontLat = Root + "/build/fonts/NotoSans-Regular.ttf";
+    private static readonly string Root = Environment.GetEnvironmentVariable("WPF_PROBE_T2E_ROOT")
+        ?? throw new InvalidOperationException("死根已清：未设 WPF_PROBE_T2E_ROOT（本件不再内嵌退役树路径）");
+    private static readonly string Dir = Root + "/tests/parity/windows/layout-b34";
+    private static readonly string CasesPath = Dir + "/cases-cd2.json";
+    private static readonly string ResultsPath = Dir + "/results-cd2.json";
+    private static readonly string FontLat = Root + "/build/fonts/NotoSans-Regular.ttf";
     private const string FontCjk = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc";
 
     private static int _fail;
