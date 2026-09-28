@@ -533,3 +533,13 @@ bash build/MilBridge/tools/baseline-rate-gate.sh \
 
 
 SELF-SHA16 （口径 = `head -n -1 build/MilBridge/P0-mvp-segv-report.md | sha256sum | cut -c1-16`）= `db4cb49b321ec9c2`
+
+## §15 ⏪ dated 结账（W6／`t52`，读时 2026-09-28T20:25:57.094+0800）—— `t7` 复测 ＋ `t9` 独立判词的读数入账
+
+- **`t9` 判词的八条主判词逐条成立**（`P1-task0201-verify.md`，整件 `sha16` `9e06936d9309f981`／`117` 行），推翻 `t7` 主结论的话 ＝ **没有**；`t9` 的两条 medium（`F2` 闸口径混用／`F3` 冻结块计数）与三条 low（`F1`／`F4`／`F5`）**不翻主结论**。
+- **命中与分母（按件代分开 ＋ 按 `tag` 去重）**：主臂（现件代 `6825dd7071387a46`）`0/175`；修前臂（`abf6879c027c5e73`）`1/140`（`H140`）。台账现取 `358` 总行／`357` 数据／唯一 `tag` `335`／重复 `22`（**逐条**：`A6C,B3C,H051–H059,W126–W136`）；去重依据 ＝ `t9` §1（22 组里仅 `ts_end` 22/22 不同、`dead_at_s` `10` 组差 `±1 s`、其余列 22/22 逐格相同 ⇒ 无重放未复现）。我自算件代口径：现件代 `195`／修前件代 `140`（`t9` 另有 `主臂 175＋对照 16＋pilot 4` 的细分，**台账无 arm 列 ⇒ 我未能独立复现该细分**，引 `t9` 具名）。
+- **上界两口径（我自算）**：`CP(0,175) = 1.697278%`（＝功效表口径）｜`Wilson 单侧(0,175) = 1.522487%`｜`CP(1,140) = 3.343503%`｜`CP(2,175) = 3.553694%`（注册基线 `2/175` 的正确闸值）。
+- **闸（器具现取，捕获式）**：`registered=1/140@2026-09-28T18:39:39..2026-09-28T20:11:55+display=:238`／`gate=0.0334`／`effect=0.0071` ⇒ `BASELINERATE=FAIL`＋`REASON=VOID-PREMISE`；注册基线形态 `registered=2/175@…+display=:185`／`gate=0.0355`／`effect=0.0114` ⇒ 同样 `FAIL`／`VOID-PREMISE`；**缺时间窗** ⇒ `BASELINERATE=NOINFO`／`NOINFO-NO-WINDOW`（`rc=3`）。
+- **可分性（器具现取）**：`REGRESSION_DECISION=NOINFO`（`rc=3`）／`REGDEC_FISHER p=0.444444 two_tailed=yes method=hypergeometric-le-observed`／`REGDEC_MDE … min_detectable_p1=0.056`／`REGDEC_REQUIRED_N_OBS per_arm=CAP approx=1091 > NMAX=400`；Newcombe 自算（「旧−新」）`[−1.512733%, +3.934839%]` 含 `0`；**`REGDEC_DIRECTION=` 器具未印**（未显著 ⇒ 按设计不印）⇒ **本件不断言方向、不得宣称改善**。
+- **`F3` 更正后现值**：`dead_at_s` 差 `1 s` 的 `tag` ＝ **`10`** 个（`H052/H053/H056/H057/H058/H059/W127/W130/W133/W135`）；本报告 `§16` 原写的 `4` **以本行为准**（更正批 `t66` 正落 dated 更正）。
+- **`NOINFO`（具名）**：① 未跑整趟门禁；② 未重跑任何重活腿（本任务只结账）；③ `t9` 的 `主臂 175／对照 16／pilot 4` 细分**我未能独立复现**（台账无 arm 列）；④ 产出端 `--replay` 在本环境被环境闸拒（`t9` 现取 `rc=9 reason=envguard`）。
