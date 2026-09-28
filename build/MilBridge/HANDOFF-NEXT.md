@@ -323,3 +323,16 @@ flock -n ~/heavy.lock -c 'echo SLOT=FREE' || echo SLOT=HELD; free -m | awk 'NR==
 - **同条目号**：`D-G181`（**队长配号**；现取该号在册，条目见 `samples/WpfFeatureProbe/KNOWN-DEFECTS.md` 的 `## P1 复核关账批`）。**责任在队长**（该 `verify` 原文由队长写给 `t12` 的契约），条目「边界」段已如实记。
 - **两条机器证（我现取自算）**：工作树级在同件上**空输出**；提交级 `git diff --numstat e122f8d4 39f23d0 -- build/MilBridge/P1-dg179-report.md` ⇒ **`4	0`**；另备份前缀 `cmp`（`head -c 17360 …`）⇒ **IDENTICAL**。
 - **同族（不合并）**：`D-G130`／`D-G125`／`D-G172`。
+### ⏪ **dated 哨兵规范入册 · 键序／字节格式（`t23`／W3a，读时 `2026-09-28T16:14:33+0800`；本节各原文**一字未删**）**
+
+**载体**＝本行；**判据件**＝`build/MilBridge/tools/sentinel-spec-check.sh`（sha16 `8c8470a3b3dd0c0d`；**本波不接线**，接线归 W4）。**规范用**现取**的行数与键名集合（**不是**「十键」）**：
+
+1. **行数 ＝ `13`**（`wc -l` 现取；**任何 14／12 行 ⇒ 红**）。
+2. **键名集合 ∧ 键序逐字固定（现取，逐字）**：`SHA`｜`FP`｜`PC`｜`PF`｜`WB`｜`WIN32SHIM`｜`HBTL`｜`WIC`｜`PROVIDER`｜`DWF`｜`WAVE`｜`BASELINE`｜`BASELINE_SHA16`。⇒ **键序打乱 ⇒ 红并点名 `got=`／`want=`**。
+3. **字节格式**：每行形如 `<KEY>=<VALUE>`；**行尾单个 `\n`**（末字节 `0a`）；**无空行**；**无 `CR`**（`grep -c $'\r'` 必须 `0`）。⇒ **任一违反 ⇒ 红**。
+4. **两枚哨兵必须 `cmp` 相同**（`/tmp/bridge-frozen.flag` ∧ `~/wfp-runs/bridge-frozen.flag`）。⇒ **不同 ⇒ 红**。
+5. **各键值 == 权威路径现取**：九键走 `build/MilBridge/tools/wave-freeze-consistency-check.py:104-115` 的 `NINE_PATHS`（`CFG=Release`）—— **`provider` 必须走工程产出目录 `build/DirectWrite.Linux/Provider/bin/Release/…`（禁 `PresentationCore.Linux/bin/…` 副本）**；`FP` 走 `bash build/bridge-src-fp.sh` ⇒ **`FP` ＝ `BRIDGE_SRC_FP`，不是 `inputs_fp`**；`WAVE`／`BASELINE`／`BASELINE_SHA16` ⇔ `docs/CURRENT-STATE.md` 的 `BASELINE-FROZEN` 行（现取 `gen=#80`／`sha16=b96d4312565a3c49` ⇒ `w80-freeze`／`#80`／`b96d4312565a3c49`）。⇒ **不等 ⇒ 红**；权威件缺席 ⇒ 该键 **`NOINFO`**（不算绿）。
+6. **任何字段不许为空**：取不到必须写 **`none(<reason>)`** —— 该形态**允许、上屏**（`SSC_NONE=ALLOWED`）、**不判红**；**空值（`KEY=`）一律判红**（现取哨兵**零空值**）。
+7. **缺一枚哨兵 ⇒ `NOINFO(rc=2)`，不许静默判等**（不许把"只有一枚"读成"两枚相同"）。
+
+**两极化（本波真跑，四例）**：键序打乱 ⇒ `SSC_KEYSET=FAIL`（rc=1）｜字段清空 ⇒ `SSC_EMPTY=FAIL`（rc=1）｜缺一枚 ⇒ `SSC=NOINFO reason=sentinel-absent`（rc=2）｜`none(<reason>)` ⇒ `SSC_NONE=ALLOWED` ∧ 总判 `PASS`（rc=0）。**正极**真树 ⇒ `SSC=PASS lines=13 keys=13 cmp=IDENTICAL`（rc=0，13 键值**逐键**命中权威路径）。
