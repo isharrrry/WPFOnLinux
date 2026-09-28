@@ -1,159 +1,190 @@
 #!/bin/bash
 # ═══════════════════════════════════════════════════════════════════════════════
-# handoff-machine-values-check.sh —— 「机器值格有牙看着」牙（`B-11` 的牙面；`t48`／W4b 落地）
+# handoff-machine-values-check.sh —— 「机器值格有牙看着」牙（`B-11`；`t48` 落、`t54` F1–F5、`t57` G1–G4）
 #
-# 【要解决的缺口】`build/MilBridge/HANDOFF-NEXT.md` 的「机器值『现取生成契约』」（`t10`／W1）那张
-#   **9 格表**是**手抄现跑**的 ⇒ 此后每代必陈旧，而**仓内零读者**（无牙看着）。
+# 【判据（逐格可判真假）】对 `HANDOFF-NEXT.md` 那 **9 格表**逐格**现跑该格命令**，与件内现值比对。
+#   取值优先级：① 件内 `机器值契约更正 · cell=#N` **最后一条**（只增不改 ⇒ 追加取代旧行）② 表内「现取值」列。
+#   状态：`state=equal`｜`state=manual`（该格**不对拍**）｜`state=mismatch`（有差异 ⇒ 逐格点名）。
 #
-# 【判据（逐格可判真假）】对表内 9 格**逐格现跑该格的现取生成命令**，与**件内该格的现值**比对：
-#   · 一致 ⇒ `state=equal`；不等 ⇒ `HANDOFF_MV=FAIL` 并**逐格点名** `cell=#N anchor=… in-repo=… live=…`
-#   · 「现值」的来源（**优先级**）：① 本件内 **dated 更正行**（`机器值契约更正 · cell=#N`）里给的现值
-#     ② 表内该行「现取值」列原文。⇒ 更正行**不是**免死金牌：它的值同样被现跑命令对拍。
-#   · **非机读格**（`非机读` 具名）：该格的「现取值」列是**散文**、无单行机读形态 ⇒ 上屏 `state=manual`
-#     并计数；**这不是「解析不了就跳过」**：它是**显式分类 + 上屏 + 计数**（跳过会是静默）。
-#   · ⚠️ **射程边界（如实写）**：本牙判「**值与件内记载是否一致**」，**不**判「该值本身是否可信」；
-#     表格行数 ≠ 9 / 表头锚找不到 / 更正行解析失败 ⇒ `HANDOFF_MV=NOINFO|FAIL`（**不许静默判绿**）。
-#
-# 【三态】rc=0 `HANDOFF_MV=PASS cells=9 …`｜rc=1 `HANDOFF_MV=FAIL`（逐格点名）｜rc=2 `=NOINFO`（表/锚缺失）
+# 【口径句（`t57` 写死）】
+#   ① **表原文列**（9 行 `| N | …` 的「现取值」列）**自 `t48` 起为留档**：判据面在**更正行**；逐格把
+#      `table=`／`corrected=`／`live=` **三值都上屏**（只改表列 ⇒ 可见、**不判**：已知边界，不许当绿）。
+#   ② **维护契约（逐字）**：「**改了覆盖面内任一件 ⇒ 必须同趟追写 `cell=#1` 的 `ts=` 更正行**；
+#      改了**任一 route 件** ⇒ 追写 `cell=#4`（本波已把 `#4` 改成**只判稳定子串**：`^DEFREG=PASS` 前缀 ∧
+#      `declared=(\d+) route_ids=\1` **形态等价** ⇒ **具体计数不再是被判量**，只进 `HANDOFF_MV_DIAG` 诊断列）。」
+#   ③ **门禁判据只能是**被门禁覆盖的世界**的函数**（`t57`／G1）：`cell=#8` **不再**对拍「全机脏件数」，
+#      改判**本波预登记在位谓词**（命令取 `docs/WAVE81-PREREGISTRATION.md` 的**存在且非空**）；「其它车道在飞」
+#      的信息**只进旁注** `HANDOFF_MV_NOTE lane-activity=<n>`（**不进 `equal` 计数、不影响 `rc``）。
+#   ④ **拒收族（`t57`／G3）**：**「对拍 `HEAD`／工作树状态／流水线相位」类命令一律拒收**（正则
+#      `HEAD|git log|git status|git rev-parse|git ls-remote`）⇒ `rule=cell-not-comparable-to-pipeline-state`；
+#      **`cell=#7`（推送面）若呈机读形态**（同行同时给出 `现值 ＝ ` 与 `命令：`）⇒
+#      **`rule=cell-7-not-comparable-to-HEAD`**（`t50` F1 的时间炸弹 ⇒ 由本牙拦住）。
+#   ⑤ **报头分化（`t57`／G2）**：`HANDOFF_MV=PASS`（`rc=0`）／**`HANDOFF_MV=DIVERGED reason=cell-mismatch`**
+#      （有格与现取不符 ⇒ **追写 dated 更正行**）／**`HANDOFF_MV=FOREIGN reason=<…>`**（差异源**不在本件写域**：
+#      拒收族、不可比格）／**`HANDOFF_MV=NOINFO reason=<…>`**（表/锚缺失、行数≠9、不可读）⇒ **一个 `FAIL` 不许承担三种语义**。
+#   ⑥ **自测自主性（`t57`／G4）**：`--selftest` 的**正极用自造夹具**（仓外 `mktemp -d`）⇒ **不依赖活件**；
+#      活件好坏由**正极真跑**那条腿判（它本就该随世界变）。夹具腿：S1 正极／S2 篡改点名／S3 行数≠9／S4 回退／
+#      S5 **活件副本被改陈旧 ⇒ 自测仍 PASS**（自主性证明）／S6 **活件真跑仍如实反映**。
 # 【自述】已接线：`verify-all.sh` 步名 `HANDOFF-MV`；覆盖面已计入（`build/close-wave.sh` 的 `fp_inputs()`）。
-# 【口径句（`t54` 修；对应 `t50` 的 F1／F5）】
-#   ① **表原文列**（9 行 `| N | …` 的「现取值」列）**自 `t48` 起为留档**：判据面在**更正行**（`机器值契约更正 · cell=#N`，取**最后一条**）⇒ 逐格把**两个值都上屏**（`table=` 与 `corrected=`）。
-#   ② **反极射程（写死）**：篡改对象 ＝ **该格最后一条更正行的 `现值`**；只改表格「现取值」列**不产生新 `HIT`**（更正行优先）⇒ 那是**已知边界**：靠 `table=`／`corrected=` 上屏**可见**，但**判据不判它**（不许把「表列看起来对」当绿）。
-#   ③ **两格移出对拍集（`t54`／`t50` F1 修法）**：`cell=#7`（推送面）**明确不对拍 `HEAD`** ⇒ 记 `state=manual`（理由：**提交动作本身**会把对拍 `HEAD` 的格打红）；
-#      `cell=#8`（在飞）改判 **本波写域面之外**的脏件数 ⇒ **与提交阶段无关**（提交前后同值）。
-
-# 【测试钩子】`--selftest`：三例（真件正极／改一字符反极／行数≠9 ⇒ NOINFO），零网络、零 `$R` 写入。
-# 用法：bash handoff-machine-values-check.sh [--file PATH] [--selftest]
+# 【用法】bash handoff-machine-values-check.sh [--file PATH] [--selftest]
 # ═══════════════════════════════════════════════════════════════════════════════
 set -uo pipefail
-
-SELF="${BASH_SOURCE[0]}"
-SELF_DIR="$(cd -- "$(dirname -- "$SELF")" && pwd)"
+SELF="${BASH_SOURCE[0]}"; SELF_DIR="$(cd -- "$(dirname -- "$SELF")" && pwd)"
 ROOT="${HMVC_ROOT:-$(cd -- "$SELF_DIR/../../.." && pwd)}"
 LEADIN='逐格对照（「现取值」全部由右侧命令现跑取得'
+REJECT_ERE='HEAD|git log|git status|git rev-parse|git ls-remote'
 RC_PASS=0; RC_FAIL=1; RC_NOINFO=2; RC_USAGE=4
 FILE=""
-
-usage() { sed -n '2,26p' "$SELF" | sed 's/^# \{0,1\}//'; }
-
-# ── 单格：解析 → 现跑 → 比对 ────────────────────────────────────────────────────
-# 行文本切分：先把 `\|` 换成哨兵，再按 `|` 切（表格单元里含转义竖线）
-split_row() {  # $1=行 ⇒ 每字段一行（1-based：1=#,2=处,3=在册原文,4=现取值,5=命令）
-  local s="$1"
-  s="${s//\\|/$'\x01'}"
-  local IFS='|'
-  local -a f=($s)
-  local f1="${f[1]//$'\x01'/|}" f2="${f[2]//$'\x01'/|}" f3="${f[3]//$'\x01'/|}"
-  local f4="${f[4]//$'\x01'/|}" f5="${f[5]//$'\x01'/|}"
+split_row() {  # $1=行 ⇒ 印 5 个字段（1-based 1..5；`\|` 哨兵还原）
+  local s="$1"; s="${s//\\|/$'\x01'}"; local IFS='|'; local -a f=($s)
+  local f1="${f[1]//$'\x01'/|}" f2="${f[2]//$'\x01'/|}" f3="${f[3]//$'\x01'/|}" f4="${f[4]//$'\x01'/|}" f5="${f[5]//$'\x01'/|}"
   printf '%s\n' "$f1" "$f2" "$f3" "$f4" "$f5"
 }
 trim() { local s="$1"; s="${s#"${s%%[![:space:]]*}"}"; s="${s%"${s##*[![:space:]]}"}"; printf '%s' "$s"; }
 strip_bt() { local s="$1"; s="${s//\`/}"; printf '%s' "$s"; }
-
-# 更正行取值：`机器值契约更正 · cell=#N` 且同行含 `现值 ＝ \`X\`` 与 `命令：\`Y\``（非机读格给 `非机读`）
-corr_of() {  # $1=文件 $2=格号 ⇒ 印 "值<TAB>命令<TAB>形态"（无更正 ⇒ 空）
-  local n="$2" line LAST_V='' LAST_C='' LAST_FORM='value' FOUND=0
+corr_of() {  # $1=件 $2=格号 ⇒ "值<TAB>命令<TAB>形态<TAB>锚"（**最后一条为准**；无 ⇒ 空）
+  local n="$2" line LAST_V='' LAST_C='' LAST_FORM='value' LAST_ANC='' FOUND=0
   while IFS= read -r line; do
     case "$line" in *'机器值契约更正'*"cell=#$n"*) ;; *) continue ;; esac
-    local form='value' v=''
+    local form='value' v='' c='' anc=''
     case "$line" in *'非机读'*) form='manual' ;; esac
     v="${line#*现值 ＝ \`}"; v="${v%%\`*}"
-    local c="${line#*命令：\`}"; c="${c%%\`*}"
+    c="${line#*命令：\`}"; c="${c%%\`*}"
+    anc="${line#*锚=}"; case "$line" in *'锚='*) anc="${anc%%[，,；;]*}" ;; *) anc='' ;; esac
     if [ "$form" = value ] && { [ -z "$v" ] || [ "$v" = "$line" ]; }; then
-      printf 'PARSE-FAIL\t\t%s' "$form"; return 0
+      FIRST_BAD=1
     fi
-    LAST_V="$v"; LAST_C="$c"; LAST_FORM="$form"; FOUND=1
+    LAST_V="$v"; LAST_C="$c"; LAST_FORM="$form"; LAST_ANC="$anc"; FOUND=1
   done < "$1"
-  if [ "${FOUND:-0}" = 1 ]; then printf '%s\t%s\t%s' "$LAST_V" "$LAST_C" "$LAST_FORM"; return 0; fi
+  if [ "${FIRST_BAD:-0}" = 1 ] && [ -z "$LAST_V" ]; then printf 'PARSE-FAIL\t\t%s\t' "$LAST_FORM"; return 0; fi
+  [ "$FOUND" = 1 ] && printf '%s\t%s\t%s\t%s' "$LAST_V" "$LAST_C" "$LAST_FORM" "$LAST_ANC"
   printf ''
 }
-
-run_cmd() {  # $1=命令 ⇒ stdout 首行（去尾空白）
-  local out
-  out="$(cd "$ROOT" && timeout 120 bash -c "$1" 2>/dev/null | head -1 || true)"
-  printf '%s' "$(trim "$out")"
-}
-
-check_file() {  # $1=件 ⇒ rc
-  local f="$1" i n=0 line
+run_cmd() { local out; out="$(cd "$ROOT" && timeout 120 bash -c "$1" 2>/dev/null | head -1 || true)"; printf '%s' "$(trim "$out")"; }
+check_file() {  # $1=件 ⇒ 印判词；rc=0 PASS／1 DIVERGED|FOREIGN／2 NOINFO
+  local f="$1" line nhits lead
   [ -r "$f" ] || { echo "HANDOFF_MV=NOINFO reason=file-unreadable file=$f"; return $RC_NOINFO; }
-  local lead nhits
   nhits="$(grep -c -F -- "$LEADIN" "$f" || true)"
   lead="$(grep -n -F -- "$LEADIN" "$f" | head -1 | cut -d: -f1 || true)"
-  if [ -z "$lead" ]; then echo "HANDOFF_MV=NOINFO reason=leadin-anchor-absent anchor=$LEADIN file=$f"; return $RC_NOINFO; fi
-  if [ "$nhits" != 1 ]; then echo "HANDOFF_MV=NOINFO reason=leadin-not-unique hits=$nhits anchor=$LEADIN file=$f"; return $RC_NOINFO; fi
-  # 逐行扫，收集连续 9 行 `| N |`
-  local -a rows=()
-  local seen=0
+  [ -n "$lead" ] || { echo "HANDOFF_MV=NOINFO reason=leadin-anchor-absent anchor=$LEADIN file=$f"; return $RC_NOINFO; }
+  [ "$nhits" = 1 ] || { echo "HANDOFF_MV=NOINFO reason=leadin-not-unique hits=$nhits file=$f"; return $RC_NOINFO; }
+  local -a rows=(); local seen=0
   while IFS= read -r line; do
-    if [ "$seen" = 0 ]; then
-      case "$line" in *"$LEADIN"*) seen=1 ;; esac
-      continue
-    fi
-    case "$line" in
-      '') if [ "${#rows[@]}" -gt 0 ]; then break; fi; continue ;;
-    esac
-    case "$line" in
-      '| '[0-9]' '*) rows+=("$line") ;;
-    esac
+    if [ "$seen" = 0 ]; then case "$line" in *"$LEADIN"*) seen=1 ;; esac; continue; fi
+    case "$line" in '') [ "${#rows[@]}" -gt 0 ] && break; continue ;; esac
+    case "$line" in '| '[0-9]' '*) rows+=("$line") ;; esac
   done < "$f"
-  n="${#rows[@]}"
-  if [ "$n" != 9 ]; then
-    echo "HANDOFF_MV=NOINFO reason=table-rows!=9 got=$n anchor=$LEADIN file=$f"
-    return $RC_NOINFO
-  fi
-  local fail=0 equal=0 manual=0 ci v c form live inrepo anchors_put corr
+  [ "${#rows[@]}" = 9 ] || { echo "HANDOFF_MV=NOINFO reason=table-rows!=9 got=${#rows[@]} anchor=$LEADIN file=$f"; return $RC_NOINFO; }
+  local equal=0 manual=0 mism=0 uncomparable=0 reasons='' rc_reason=''
   for line in "${rows[@]}"; do
-    mapfile -t F < <(split_row "$line")
+    local -a F=(); mapfile -t F < <(split_row "$line")
+    local ci anch inrepo corr v c form live why
     ci="$(trim "${F[0]}")"; ci="${ci//[^0-9]/}"
-    local anchors_put; anchors_put="$(trim "${F[1]}")"
+    anch="$(trim "${F[1]}")"
     inrepo="$(trim "$(strip_bt "${F[3]}")")"
     corr="$(corr_of "$f" "$ci")"
     form='row'; v="$inrepo"; c="$(strip_bt "${F[4]}")"
     if [ -n "$corr" ]; then
-      v="$(printf '%s' "$corr" | cut -f1)"; c="$(printf '%s' "$corr" | cut -f2)"; form="$(printf '%s' "$corr" | cut -f3)"
+      v="$(printf '%s' "$corr" | cut -f1)"; c="$(printf '%s' "$corr" | cut -f2)"
+      form="$(printf '%s' "$corr" | cut -f3)"; local canc; canc="$(printf '%s' "$corr" | cut -f4)"
+      [ -n "$canc" ] && anch="$canc（锚已在更正行改写；表内原锚='$anch'）"
+    fi
+    # ④ 拒收族：`#7` 机读形态 ＋ 「对拍流水线/工作树状态」类命令
+    if [ "$ci" = 7 ]; then
+      if [ "$form" = value ] && [ -n "$v" ] && [ -n "$c" ]; then echo "HANDOFF_MV_HIT cell=#7 anchor=${anch} rule=cell-7-not-comparable-to-HEAD reason=not-comparable cmd=$c（`#7` 是推送面/流水线敏感量 ⇒ 不许呈机读形态）"; uncomparable=$((uncomparable+1)); continue; fi
+    fi
+    if [ -n "$c" ] && printf '%s' "$c" | grep -qE "$REJECT_ERE"; then
+      echo "HANDOFF_MV_HIT cell=#$ci anchor=${anch} rule=cell-not-comparable-to-pipeline-state reason=not-comparable cmd=$c"
+      uncomparable=$((uncomparable+1)); continue
     fi
     if [ "$v" = 'PARSE-FAIL' ]; then
-      echo "HANDOFF_MV_HIT cell=#$ci anchor=${anchors_put} rule=correction-parse-failed"
-      fail=$((fail+1)); continue
+      echo "HANDOFF_MV_HIT cell=#$ci anchor=${anch} rule=correction-parse-failed reason=not-comparable"; uncomparable=$((uncomparable+1)); continue
     fi
     if [ "$form" = manual ]; then
-      echo "HANDOFF_MV_CELL cell=#$ci anchor=${anchors_put} state=manual table=$inrepo corrected=- live=-（该格不对拍：见牙头口径句③）"
+      echo "HANDOFF_MV_CELL cell=#$ci anchor=${anch} state=manual table=$inrepo corrected=- live=-（该格不对拍：见牙头口径句①②④）"
       manual=$((manual+1)); continue
     fi
-    case "$c" in ''|*'…'*|*'＋'*|*'；'*) echo "HANDOFF_MV_HIT cell=#$ci anchor=${anchors_put} rule=command-not-executable cmd=$c"; fail=$((fail+1)); continue ;; esac
+    case "$c" in ''|*'…'*|*'＋'*|*'；'*) echo "HANDOFF_MV_HIT cell=#$ci anchor=${anch} rule=command-not-executable reason=not-comparable cmd=$c"; uncomparable=$((uncomparable+1)); continue ;; esac
     live="$(run_cmd "$c")"
+    if [ "$ci" = 4 ]; then
+      # ② `#4`：只判**稳定子串**（前缀 ∧ `declared=(\\d+) route_ids=\\1` 形态等价）；计数只进诊断列
+      local ep lp ev lv
+      ep="$(printf '%s' "$v"  | grep -oE '^DEFREG=[A-Z]+' | head -1)"
+      lp="$(printf '%s' "$live" | grep -oE '^DEFREG=[A-Z]+' | head -1)"
+      ev="$(printf '%s' "$v"  | grep -oE 'declared=[0-9]+ route_ids=[0-9]+' | head -1)"
+      lv="$(printf '%s' "$live" | grep -oE 'declared=[0-9]+ route_ids=[0-9]+' | head -1)"
+      local lv_ok=1; [ -n "$lv" ] || lv_ok=0
+      if [ "$lv_ok" = 1 ]; then
+        [ "$(printf '%s' "$lv" | awk '{print $1}' | sed 's/^declared=//')" = "$(printf '%s' "$lv" | awk '{print $2}' | sed 's/^route_ids=//')" ] || lv_ok=0
+      fi
+      echo "HANDOFF_MV_DIAG cell=#4 declared_live=$(printf '%s' "$lv" | awk '{print $1}' | sed 's/^declared=//') route_ids_live=$(printf '%s' "$lv" | awk '{print $2}' | sed 's/^route_ids=//') declared_inrepo=$(printf '%s' "$ev" | awk '{print $1}' | sed 's/^declared=//') route_ids_inrepo=$(printf '%s' "$ev" | awk '{print $2}' | sed 's/^route_ids=//')（**计数不是被判量**）"
+      if [ "$ep" = "$lp" ] && [ "$lv_ok" = 1 ]; then
+        echo "HANDOFF_MV_CELL cell=#4 anchor=${anch} state=equal table=$inrepo corrected=$v live=$live（判据＝前缀 ∧ 两值相等）"
+        equal=$((equal+1))
+      else
+        echo "HANDOFF_MV_HIT cell=#4 anchor=${anch} rule=route-file-changed-since-ts reason=foreign-lane-activity in-repo=$v live=$live"
+        mism=$((mism+1)); reasons="$reasons,#4:route-file-changed-since-ts"
+      fi
+      continue
+    fi
     if [ "$live" = "$v" ]; then
-      echo "HANDOFF_MV_CELL cell=#$ci anchor=${anchors_put} state=equal table=$inrepo corrected=$v live=$live"
+      echo "HANDOFF_MV_CELL cell=#$ci anchor=${anch} state=equal table=$inrepo corrected=$v live=$live"
       equal=$((equal+1))
     else
-      echo "HANDOFF_MV_HIT cell=#$ci anchor=${anchors_put} in-repo=$v live=$live cmd=$c"
-      fail=$((fail+1))
+      case "$ci" in
+        1) why='covered-file-changed-since-ts' ;;
+        2|5) why='count-changed-since-ts' ;;
+        3|6|9) why='external-state-changed-since-ts' ;;
+        *) why='cell-value-changed-since-ts' ;;
+      esac
+      echo "HANDOFF_MV_HIT cell=#$ci anchor=${anch} rule=cell-mismatch reason=$why in-repo=$v live=$live cmd=$c"
+      mism=$((mism+1)); reasons="$reasons,#$ci:$why"
     fi
   done
-  if [ "$fail" -gt 0 ]; then
-    echo "HANDOFF_MV=FAIL cells=9 equal=$equal manual=$manual mismatch=$fail file=$f"
+  local lane; lane="$(cd "$ROOT" && git status --porcelain 2>/dev/null | grep -vcE '^.. (build/|docs/|samples/|src/|verify-all\.sh|README\.md|handoff\.md)' || true)"
+  echo "HANDOFF_MV_NOTE lane-activity=${lane}（= 写域面（build/ docs/ samples/ src/ 根件）之外的脏件数；**旁注，不进 equal 计数、不影响 rc**）"
+  if [ "$uncomparable" -gt 0 ]; then
+    echo "HANDOFF_MV=FOREIGN reason=cell-not-comparable cells=9 equal=$equal manual=$manual mismatch=$mism uncomparable=$uncomparable reasons=${reasons:-none}"
     return $RC_FAIL
   fi
-  echo "HANDOFF_MV=PASS cells=9 equal=$equal manual=$manual file=$f"
+  if [ "$mism" -gt 0 ]; then
+    echo "HANDOFF_MV=DIVERGED reason=cell-mismatch cells=9 equal=$equal manual=$manual mismatch=$mism uncomparable=$uncomparable reasons=${reasons:-none}"
+    return $RC_FAIL
+  fi
+  echo "HANDOFF_MV=PASS cells=9 equal=$equal manual=$manual mismatch=0 uncomparable=0 reasons=${reasons:-none}"
   return $RC_PASS
 }
-
+make_fixture() {  # $1=目标件路径 ⇒ 造一份**自治夹具**（9 格 ＋ 9 条更正行；全部用本地 printf 命令）
+  local out="$1" i
+  {
+    printf '%s\n' "$LEADIN（**夹具**）"; printf '\n'
+    printf '| # | 处（内容锚） | 在册原文 | 现取值 | 现取生成命令 |\n|---|---|---|---|---|\n'
+    for i in 1 2 3 4 5 6 7 8 9; do
+      if [ "$i" = 4 ]; then printf '| 4 | §7-3 登记册自洽 |  | `DEFREG=PASS declared=218 route_ids=218` | `echo DEFREG=PASS declared=218 route_ids=218` |\n'
+      else printf '| %s | 夹具格%s |  | `FIX%s` | `printf FIX%s` |\n' "$i" "$i" "$i" "$i"; fi
+    done
+    printf '\n'
+    for i in 1 2 3 4 5 6 7 8 9; do
+      if [ "$i" = 4 ]; then printf '⏪ **机器值契约更正 · cell=#4**：以现取为准；`ts=2026-01-01T00:00:00.000+0800` 时 现值 ＝ `DEFREG=PASS declared=218 route_ids=218`（命令：`echo DEFREG=PASS declared=218 route_ids=218`）\n'
+      elif [ "$i" = 7 ]; then printf '⏪ **机器值契约更正 · cell=#7**：非机读（夹具：推送面不对拍）\n'
+      else printf '⏪ **机器值契约更正 · cell=#%s**：以现取为准；`ts=2026-01-01T00:00:00.000+0800` 时 现值 ＝ `FIX%s`（命令：`printf FIX%s`）\n' "$i" "$i" "$i"; fi
+    done
+  } > "$out"
+}
 selftest() {
-  local T nf=0 np=0 out rc1 rc2 rc3 v1 v2 v3
+  local T np=0 nf=0 out rc INNER="${HMVC_SELFTEST_INNER:-0}"
   T="$(mktemp -d)"; trap 'rm -rf "$T"' RETURN
   local src="$ROOT/build/MilBridge/HANDOFF-NEXT.md"
-  # S1 正极：真件 ⇒ PASS cells=9
-  out="$(bash "$SELF" --file "$src" 2>&1)"; rc1=$?
-  case "$out" in *HANDOFF_MV=PASS*cells=9*) v1=PASS ;; *) v1=FAIL ;; esac
-  [ "$rc1" = 0 ] && [ "$v1" = PASS ] && np=$((np+1)) || nf=$((nf+1))
-  echo "HANDOFF_MV_SELFTEST_CASE case=S1 kind=positive rc=$rc1 verdict=$v1 原样=$(printf '%s' "$out" | grep -m1 'HANDOFF_MV=')"
-  # S2 反极（`t54` F4／F5 修）：篡改对象 ＝ **某一格（`TARGET_CELL`）的最后一条更正行**的现值；
-  #  断言 ①：被篡改格**必须**出现在 `HIT` 行里（按 `cell=#N` **精确** grep，不再取首条 HIT）；
-  #  断言 ②：`mismatch` 相对正极 **至少 +1**；断言 ③：把篡改**回退** ⇒ 该格回到 `state=equal`。
+  make_fixture "$T/fix.md"
+  # S1 正极（**自造夹具**，不依赖活件）
+  out="$(bash "$SELF" --file "$T/fix.md" 2>&1)"; rc=$?
+  case "$out" in *HANDOFF_MV=PASS*cells=9*) [ "$rc" = 0 ] && np=$((np+1)) || nf=$((nf+1)) ;; *) nf=$((nf+1)) ;; esac
+  echo "HANDOFF_MV_SELFTEST_CASE case=S1 kind=positive-fixture rc=$rc 原样=$(printf '%s' "$out" | grep -m1 'HANDOFF_MV=')"
+  # S2 反极：篡改夹具中 **cell=#9** 最后一条更正行的现值 ⇒ 必红且**点名该格** ＋ mismatch≥1
   TARGET_CELL=9
-  cp -p "$src" "$T/f2.md"
-  python3 -c 'import re,sys
+  cp -p "$T/fix.md" "$T/f2.md"
+  python3 -c '
+import re,sys
 p=sys.argv[1]; c=sys.argv[2]; s=open(p,encoding="utf-8").read().split("\n"); tgt=None
 for i,l in enumerate(s):
     if "机器值契约更正" in l and ("cell=#"+c) in l: tgt=i
@@ -162,36 +193,45 @@ l=s[tgt]; m=re.search(r"现值 ＝ `([^`]+)`", l); assert m
 v=m.group(1); nv=v[:-1]+("0" if v[-1]!="0" else "1")
 s[tgt]=l.replace("现值 ＝ `"+v+"`","现值 ＝ `"+nv+"`",1)
 open(p,"w",encoding="utf-8").write("\n".join(s))' "$T/f2.md" "$TARGET_CELL"
-  out="$(bash "$SELF" --file "$T/f2.md" 2>&1)"; rc2=$?
-  mm2="$(printf '%s\n' "$out" | sed -n 's/.*mismatch=\([0-9]*\).*/\1/p' | tail -1)"
-  v2=OTHER
-  printf '%s\n' "$out" | grep -qF "HANDOFF_MV_HIT cell=#$TARGET_CELL" && v2=HIT-named-this-cell
-  printf '%s\n' "$out" | grep -qF "HANDOFF_MV=FAIL" || v2=OTHER
-  [ -n "$mm2" ] && [ "$mm2" -ge 1 ] && [ "$v2" = HIT-named-this-cell ] && [ "$rc2" = 1 ] && np=$((np+1)) || nf=$((nf+1))
-  echo "HANDOFF_MV_SELFTEST_CASE case=S2 kind=negative rc=$rc2 verdict=$v2 target=cell=#$TARGET_CELL mismatch=$mm2 expect=HIT-that-cell/rc1/mismatch>=1 原样=$(printf '%s' "$out" | grep -m1 "HANDOFF_MV_HIT cell=#$TARGET_CELL")"
-  # S4 回退：把篡改回退（＝原件）⇒ 该格必须回 `state=equal`（证明「点名的就是被篡改的那一格」）
-  out="$(bash "$SELF" --file "$src" 2>&1)"; rc4=$?
-  v4=OTHER
-  printf '%s\n' "$out" | grep -qF "HANDOFF_MV_CELL cell=#$TARGET_CELL" && printf '%s\n' "$out" | grep -qF "HANDOFF_MV_CELL cell=#$TARGET_CELL" && v4=EQUAL-restored
-  printf '%s\n' "$out" | grep -F "HANDOFF_MV_CELL cell=#$TARGET_CELL" | grep -q "state=equal" || v4=OTHER
-  [ "$v4" = EQUAL-restored ] && np=$((np+1)) || nf=$((nf+1))   # 本腿只断言「该格回 equal」；整体 PASS 由 S1 管
-  echo "HANDOFF_MV_SELFTEST_CASE case=S4 kind=revert overall_rc=$rc4（仅信息） verdict=$v4 target=cell=#$TARGET_CELL 原样=$(printf '%s' "$out" | grep -m1 "HANDOFF_MV_CELL cell=#$TARGET_CELL")"
-  # S3 行数≠9（只在 9 格表区内删第 9 行）⇒ NOINFO（不许静默判绿）
-  grep -v '^| 9 | §1 九位' "$src" > "$T/f3.md"   # 内容锚：只删 9 格表的第 9 行
-  out="$(bash "$SELF" --file "$T/f3.md" 2>&1)"; rc3=$?
-  case "$out" in *HANDOFF_MV=NOINFO*table-rows!=9*) v3=NOINFO ;; *) v3=OTHER ;; esac
-  [ "$rc3" = 2 ] && [ "$v3" = NOINFO ] && np=$((np+1)) || nf=$((nf+1))
-  echo "HANDOFF_MV_SELFTEST_CASE case=S3 kind=noinfo rc=$rc3 verdict=$v3 原样=$(printf '%s' "$out" | grep -m1 'HANDOFF_MV=')"
-  echo "HANDOFF_MV_SELFTEST=$([ "$nf" = 0 ] && echo PASS || echo FAIL) cases=$((np+nf)) pass=$np fail=$nf"
+  out="$(bash "$SELF" --file "$T/f2.md" 2>&1)"; rc=$?
+  local mm; mm="$(printf '%s\n' "$out" | sed -n 's/.*mismatch=\([0-9]*\).*/\1/p' | tail -1)"
+  local v2=OTHER
+  printf '%s\n' "$out" | grep -qF "HANDOFF_MV_HIT cell=#$TARGET_CELL" && printf '%s\n' "$out" | grep -qF 'rule=cell-mismatch' && v2=HIT-named-this-cell
+  [ "$rc" = 1 ] && [ "$v2" = HIT-named-this-cell ] && [ -n "$mm" ] && [ "$mm" -ge 1 ] && np=$((np+1)) || nf=$((nf+1))
+  echo "HANDOFF_MV_SELFTEST_CASE case=S2 kind=negative-fixture rc=$rc verdict=$v2 target=cell=#$TARGET_CELL mismatch=$mm 原样=$(printf '%s' "$out" | grep -m1 "HANDOFF_MV_HIT cell=#$TARGET_CELL")"
+  # S3 夹具行数≠9 ⇒ NOINFO
+  grep -v '^| 9 | 夹具格9' "$T/fix.md" > "$T/f3.md"
+  out="$(bash "$SELF" --file "$T/f3.md" 2>&1)"; rc=$?
+  case "$out" in *HANDOFF_MV=NOINFO*table-rows!=9*) [ "$rc" = 2 ] && np=$((np+1)) || nf=$((nf+1)) ;; *) nf=$((nf+1)) ;; esac
+  echo "HANDOFF_MV_SELFTEST_CASE case=S3 kind=noinfo rc=$rc 原样=$(printf '%s' "$out" | grep -m1 'HANDOFF_MV=')"
+  # S4 回退：未篡改夹具 ⇒ 该格回 equal
+  out="$(bash "$SELF" --file "$T/fix.md" 2>&1)"; rc=$?
+  printf '%s\n' "$out" | grep -F "HANDOFF_MV_CELL cell=#$TARGET_CELL" | grep -q 'state=equal' && np=$((np+1)) || nf=$((nf+1))
+  echo "HANDOFF_MV_SELFTEST_CASE case=S4 kind=revert rc=$rc 原样=$(printf '%s' "$out" | grep -m1 "HANDOFF_MV_CELL cell=#$TARGET_CELL")"
+  # S5 自主性（`t57`／G4 验收②）：把**活件副本改陈旧**放进沙箱 ROOT ⇒ 用 `HMVC_ROOT` 跑 `--selftest` ⇒ **仍须 PASS**
+  if [ -r "$src" ] && [ "$INNER" = 0 ]; then
+    mkdir -p "$T/prod/build/MilBridge"; cp -p "$src" "$T/prod/build/MilBridge/HANDOFF-NEXT.md"
+    printf '⏪ **机器值契约更正 · cell=#5**：以现取为准；`ts=2026-01-01T00:00:00.000+0800` 时 现值 ＝ `STALE-BOGUS`（命令：`printf STALE-BOGUS`）\n' >> "$T/prod/build/MilBridge/HANDOFF-NEXT.md"
+    out="$(HMVC_SELFTEST_INNER=1 HMVC_ROOT="$T/prod" bash "$SELF" --selftest 2>&1)"; rc=$?
+    local s5; s5="$(printf '%s' "$out" | sed -n 's/.*HANDOFF_MV_SELFTEST=\([A-Z]*\).*/\1/p' | tail -1)"
+    local s5prod; s5prod="$(printf '%s' "$out" | grep -m1 'case=S6' | sed 's/.*原样=//')"
+    if [ "$s5" = PASS ] && [ "$rc" = 0 ]; then np=$((np+1)); else nf=$((nf+1)); fi
+    echo "HANDOFF_MV_SELFTEST_CASE case=S5 kind=autonomy-stale-production 陈旧活件沙箱下 selftest=$s5；该沙箱的活件腿 原样=${s5prod}（**两条腿分开：自测不依赖活件；活件好坏由正极真跑判**）"
+  fi
+  # S6 正极真跑（活件）—— **如实反映**（不参与自测的闸，只上屏）
+  if [ -r "$src" ]; then
+    out="$(bash "$SELF" --file "$src" 2>&1)"; rc=$?
+    echo "HANDOFF_MV_SELFTEST_CASE case=S6 kind=production rc=$rc 原样=$(printf '%s' "$out" | grep -m1 'HANDOFF_MV=')"
+  fi
+  echo "HANDOFF_MV_SELFTEST=$([ "$nf" = 0 ] && echo PASS || echo FAIL) cases=$((np+nf)) pass=$np fail=$nf（闸只含 S1–S4；S5／S6 为信息腿）"
   [ "$nf" = 0 ] && return $RC_PASS || return $RC_FAIL
 }
-
 while [ $# -gt 0 ]; do
   case "$1" in
     --file) FILE="${2:-}"; shift 2 ;;
     --selftest) selftest; exit $? ;;
-    -h|--help) usage; exit $RC_PASS ;;
-    *) echo "HANDOFF_MV=NOINFO reason=arg-not-accepted $1" >&2; exit $RC_USAGE ;;
+    -h|--help) sed -n '2,28p' "$SELF" | sed 's/^# \{0,1\}//'; exit $RC_PASS ;;
+    *) echo "HANDOFF_MV=NOINFO reason=arg-not-accepted arg=$1" >&2; exit $RC_USAGE ;;
   esac
 done
 [ -n "$FILE" ] || FILE="$ROOT/build/MilBridge/HANDOFF-NEXT.md"

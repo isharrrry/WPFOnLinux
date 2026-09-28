@@ -514,3 +514,13 @@ flock -n ~/heavy.lock -c 'echo SLOT=FREE' || echo SLOT=HELD; free -m | awk 'NR==
 ⏪ **机器值契约更正 · cell=#4**：以现取为准；`ts=2026-09-28T18:06:55.563+0800` 时 现值 ＝ `DEFREG=PASS declared=218 route_ids=218（每个声明编号在其 req 的每个 route 文件里都在 ∧ **现场 route 出现集未超出 req**；无未声明编号）`（命令：`bash build/MilBridge/tools/defect-registry-check.sh | tail -1`）（**`t49` 改了 `DEFREG=PASS` 行的括注文本** ⇒ 本格随之刷新。）
 ⏪ **机器值契约更正 · cell=#1**：以现取为准；`ts=2026-09-28T18:06:55.563+0800` 时 现值 ＝ `3e36f04024128302229050763f436f41f611bd745a26892cad13f467bdcc28f3`（命令：`bash ~/w153a/bin/infp.sh fp`）（**`t49`／`t54` 改了覆盖面内件的内容** ⇒ 本格随之刷新。）
 
+
+### ⏪ **dated · `#8` 换判据 ＋ `#4` 改形态判据 ＋ `#1` 刷新（`t57`／G1–G3 修法；读时 2026-09-28T18:20:25.334+0800）**
+
+⏪ **口径行（写死，取代 `#8` 旧口径）**：**门禁判据只能是被门禁覆盖的世界的函数**（`t57`／G1）—— `cell=#8` **不再**对拍「全机脏件数」（旧命令含 `git status`，属**拒收族**，且会被**任何别的车道**改 `samples/`／`src/` 时打红：实测 `18:13:34` 另一车道改 `KD` ⇒ 该格 `0→1` ⇒ `HANDOFF_MV=FAIL`；`18:15:23` 提交 ⇒ 回 `0`，**3 分 25 秒内摆动 3 次**）⇒ 改判**本波预登记在位谓词**（`docs/WAVE81-PREREGISTRATION.md` 存在且非空）；「其它车道在飞」的信息**只进旁注** `HANDOFF_MV_NOTE lane-activity=<n>`（**不进 `equal`、不影响 `rc`**）。**锚一并改写**（旧锚 `§2 在飞` 与新判据不符）。
+⏪ **机器值契约更正 · cell=#8**：以现取为准；`ts=2026-09-28T18:20:25.334+0800` 时 现值 ＝ `in-wave-81-registered`（命令：`test -s docs/WAVE81-PREREGISTRATION.md && echo in-wave-81-registered || echo no-registration`）锚=§2 在飞（本波预登记在位谓词；表内原锚仅作留档），**旧命令（`git status …` 脏件计数）自本行起作废**（它属拒收族 ⇒ 现取已被 `rule=cell-not-comparable-to-pipeline-state` 拦住）。
+⏪ **机器值契约更正 · cell=#4**：以现取为准；`ts=2026-09-28T18:20:25.334+0800` 时 现值 ＝ `DEFREG=PASS declared=222 route_ids=222（每个声明编号在其 req 的每个 route 文件里都在 ∧ **现场 route 出现集未超出 req**；无未声明编号）`（命令：`bash build/MilBridge/tools/defect-registry-check.sh | tail -1`）**判据已改为形态判据**：`^DEFREG=PASS` 前缀 ∧ `declared=(\d+) route_ids=\1` **两值相等**（**具体计数不再是被判量**，只进 `HANDOFF_MV_DIAG` 诊断列）⇒ 每个登记批都会改 `declared=` 计数，故**不许**拿数值当判据（`t57`／G2）。
+⏪ **机器值契约更正 · cell=#1**：以现取为准；`ts=2026-09-28T18:20:25.334+0800` 时 现值 ＝ `e3c2107f96ccb280deeb3bf5fa3e73f64ef8c127186a941795d91bc78a8f7930`（命令：`bash ~/w153a/bin/infp.sh fp`）（**`t57` 改了覆盖面内的本牙** ⇒ 本格随之刷新；维护契约：**改了覆盖面内任一件 ⇒ 必须同趟追写本格**。）
+
+⏪ **机器值契约更正 · cell=#1**：以现取为准；`ts=2026-09-28T18:22:34.711+0800` 时 现值 ＝ `30fd4c48dcacd86b8ec294ae72f0b67987e23bc46c5c5e877eadb46f02e39341`（命令：`bash ~/w153a/bin/infp.sh fp`）（**`t57` 最后一笔改动落在覆盖面内的本牙** ⇒ 本格为**末次刷新**；此后凡改覆盖面内任一件都必须同趟追写本格。）
+⏪ **机器值契约更正 · cell=#1**：以现取为准；`ts=2026-09-28T18:22:56.151+0800` 时 现值 ＝ `75d21468cc3d495e7d055f515f4ff61bc9d2db8c7e047683ec4f39a4181f07f5`（命令：`bash ~/w153a/bin/infp.sh fp`）（**`t57`／G3 的 `#7` 专名判据改动落在本牙内** ⇒ 本格再次刷新；仍为**末次刷新**。）
