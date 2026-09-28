@@ -317,3 +317,9 @@ flock -n ~/heavy.lock -c 'echo SLOT=FREE' || echo SLOT=HELD; free -m | awk 'NR==
 - **裁定（逐字，与 `build/MilBridge/P1-w1-report.md` 内同趟 dated 行一致）**：**「九位 `provider` 一格以**权威路径现值**为准：`build/DirectWrite.Linux/Provider/bin/Release/DirectWrite.Linux.Provider.dll` ⇒ `sha16` 前 16 ＝ `24e4e0a731dbed40`、`mtime ＝ 2026-09-28 13:11:49`（`104448 B`）；`7e8a217b4165a6b9` 是**在册块（`#80` 冻结那一刻）的声明值**，并列保留、仅作纪元对照。」**
 - **纪元限定（逐字）**：此后写「哨兵现取」必须带纪元 —— **「`#80` 纪元哨兵值 ＝ `7e8a217b4165a6b9`」** vs **「现盘哨兵值 ＝ `24e4e0a731dbed40`」**（`/tmp/bridge-frozen.flag` 现取）；**不许**写成无纪元的「哨兵现取」。
 - **边界**：本条**不改任何值、不改牙、不改路由件**；本件**不在 `fp_inputs()` 覆盖面内**（同趟入口/出口读数已印：`inputs_fp` 与覆盖面件数**零位移**）。
+### ⏪ **dated 口径句入册 · `D-G181`（`t18`，读时 `2026-09-28T16:10:48+0800`；本节各原文**一字未删**）**
+
+- **入册落点**：本**纪律区**（§下一波未闭项）。**口径句（逐字，此后一律照此）**：**「凡用 `git diff --numstat -- <路径>` 判『只增不改』，必须先证明它没在空转（工作树脏）或改用提交级（`git show --numstat <sha> -- <路径>`／`git diff <sha>^ <sha> -- <路径>`）；已提交件上该命令恒空、恒绿 —— 这是恒真假绿通道。」**
+- **同条目号**：`D-G181`（**队长配号**；现取该号在册，条目见 `samples/WpfFeatureProbe/KNOWN-DEFECTS.md` 的 `## P1 复核关账批`）。**责任在队长**（该 `verify` 原文由队长写给 `t12` 的契约），条目「边界」段已如实记。
+- **两条机器证（我现取自算）**：工作树级在同件上**空输出**；提交级 `git diff --numstat e122f8d4 39f23d0 -- build/MilBridge/P1-dg179-report.md` ⇒ **`4	0`**；另备份前缀 `cmp`（`head -c 17360 …`）⇒ **IDENTICAL**。
+- **同族（不合并）**：`D-G130`／`D-G125`／`D-G172`。
