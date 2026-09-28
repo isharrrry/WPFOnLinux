@@ -1,0 +1,303 @@
+# P1-task0201-recheck-report —— `TASK-0201`（静默 `rc=139` ＋ 0 字节日志）**现件代复测**
+
+> **车道** `runner`／**任务** `t7`（attempt 3；attempt 1／2 各被**宿主中断**连杀一次，见 §10）。
+> **判据件先写**：`build/MilBridge/P1-task0201-criteria.md`（`9c8362d0c5a80407`；§0–§11 跑前写，§12/§13/§14 是**跑中 dated 追加**，判据本体一字未改）。
+> **一句话**：**现件** `win32shim=6825dd7071387a46` 在主臂 `N=175` 上 **`0/175` 命中 ⇒ 95% 上界（功效表口径）`1.697278%`**（Wilson 单侧 `1.522487%`）；**同装置只换件的成对修前臂**（`abf6879c027c5e73`）**`1/140` 命中**（`H140`：`rc=139` ＋ 应用输出剔后 **0 B** ＋ `STACKOVF=0`）⇒ **装置的检测力在本趟被真命中自证**；但两臂**统计上分不开**（Fisher `p=0.444444`、差值 CI 含 0），且**基线率闸判 `VOID-PREMISE`** ⇒ **不得宣称"率显著变低"**。
+> **读取时刻**：全文读数现取于 `2026-09-28T15:45–20:16 +08:00`；**交付冻结值**见 §16。
+> **自报 sha16**：见末行 `SELF-SHA16`（口径 ＝ `head -n -1 … | sha256sum | cut -c1-16`）。
+
+---
+
+## §0 结论摘要（先给结论，证据在下）
+
+| 格 | 读数（现取） |
+|---|---|
+| 现件 `win32shim` | `6825dd7071387a46`（`$N/src/WpfGfx.Linux.Native/bin/libwpfwin32.so`，336,984 B；**跑前＝跑后**） |
+| **主臂**（现件，`N=175`，`:237` 无 WM） | **`0/175`**；175 腿全 `alive`／`rc=124`／`landed=8`／`(RAW,TRIM)=(115,0)`／`TRIM_GATE=ok` |
+| **主臂上界（两口径并列）** | **`1.697278%`**（功效表口径 `1−0.05^(1/N)`）｜**`1.522487%`**（Wilson 单侧 95%）｜校准：`k=0` 的 Clopper–Pearson 单侧**逐位同** `1.697278%`｜`α=0.025` 双侧 `2.085870%` |
+| **成对修前臂**（`abf6879c027c5e73`，`N=140`，`:238` 无 WM） | **`1/140`**（`H140`）；`134-stackovf`×139 ＋ `139-segv`×1 |
+| **成对臂上界（`k=1` ⇒ 走 `k>0` 支）** | 点估计 `0.714286%`｜**CP 单侧 95% `3.343503%`**｜Wilson 单侧 `3.137866%`｜`α=0.025` 双侧 `3.915371%`｜⚠️ **若误用 `k=0` 式子会报 `2.117077%`（低报 1.23 pp）** |
+| 两臂可分辨性 | Fisher 单侧 `p=0.444444`；率差 `+0.714286%`，Newcombe 95% CI **`[−1.512733%, +3.934839%]`（含 0）** ⇒ **分不开** |
+| 基线率闸 | 带窗（在册 `1/77`）⇒ `FAIL reason=VOID-PREMISE`；带窗（本趟成对 `1/140`）⇒ 同样 `VOID-PREMISE`；**缺窗 ⇒ `NOINFO reason=NOINFO-NO-WINDOW`（rc=3）** |
+| 槽 | 16 批，**`waited=0s` 逐批**（未让路／未让人等）；槽内实占合计 **`14,069 s ≈ 3.91 h`**；`TIMEOUT`/`NOINFO`/`MAXHOLD_KILL`/`WAITMEM` **各 0**；逐腿 `OOM` **0** |
+| 件位 | 现件 `6825dd7071387a46` 与两臂腿文件**跑前跑后不变**；修前件 `abf6879c027c5e73`；底座 `1ac5e587cda3fb20` |
+
+---
+
+## §1 腿数 `N` 与功效依据（出处 ＋ 现取时刻）
+
+- **出处（在册）**：`build/MilBridge/P0-mvp-segv-report.md` §4② 的功效表（"`≥131 腿`＝2.26%／`≥299 腿`＝1.00%"）；本件**现算复算**同一式 `ub95(0/N) = 1 − 0.05^(1/N)`。
+- **现算（命令见 §14）**：`N=59 ⇒ 4.950761%`｜**`N=131 ⇒ 2.260869%`**（在册锚 ✓）｜`N=149 ⇒ 1.990482%`｜**`N=175 ⇒ 1.697278%`**（在册 `t44` 同值 ✓）｜**`N=299 ⇒ 0.996915%`**（在册锚 ✓）｜`N=598 ⇒ 0.499706%`。
+- **主臂 `N=175`（先写）**：与在册现件代读数（`t44`：`0/175`）**同 `N`** ⇒ **只说"同 `N`"**（`P0` §13① 已撤回"同 N **同体制**可比"）；跨代比较由**成对臂**取代。
+- **成对修前臂**：注册行为 ＝ **命中即停**（`139` 即停批并冻结）⇒ 实际 `N=140`（**不是**上限 175）。
+- **未跑的腿**：**有 WM 腿不跑**（在册成对读数证明其无检测力：修前件在该腿上点击被吞、`landed 1/8`）⇒ 该格 `NOINFO reason=no-detection-power`。
+
+---
+
+## §2 装置（**四项逐格表** ＋ 逐段标注 ＋ 每腿自证）
+
+| 项 | 在册装置（`t44`／`t48`） | **本件 · 主臂（相 1/1b，`:237`）** | **本件 · 成对臂（相 2，`:238`）** |
+|---|---|---|---|
+| 显示位号 | `:185`（历史命中臂）／`:186` | **`:237`**（私有 `:2xx`，本队纪律） | **`:238`** |
+| 几何 | `1280x1024x24` | **同值**（`xdpyinfo` 现取 `1280x1024`） | **同值** |
+| 有无 WM | **无**（一次性 `xprop`） | **无 ＋ 逐腿自证**（`wm_check` 列 175/175 = `no such atom on any window.`） | **无 ＋ 逐腿自证**（140/140 同值） |
+| `arm`/`TO`/`pads` | `nogdb`／`50`／`0d3b966b7e1c3ecf` | **同值同 sha16** | **同值**（只换件） |
+
+- **装置对照腿（每批 1 趟，不入任何分母）**：主臂 **9 次运行**（8 批：`A1r12`／`A2`…`A7`／`A0`；`A6` 段对照腿因宿主中断**重跑一次**）＋ 成对臂 **7 次**（6 批；`B3` 段同因重跑一次）＋ pilot **2 次** ＝ **18 次运行**，其中 `P0C`（"显示未起"时）作废 ⇒ **合格 17/17**：`rc=124`／`alive`／`verdict=alive-window`／`landed=8`／`shim` 正确（`logs/batches.txt` 逐批 `CTRL_OK=1 CTRL_BAD=0`）。
+- **腿驱动器** ＝ 在册 `~/w44a/bin/one128.sh` 的复制（`~/t7-runner/bin/one-leg.sh` `2874ff11452036de`）：`diff <(sed -e 's|w44a|t7-runner|g' -e 's|W128A_APP|T7_APP|g' 在册件) 我的件` ⇒ **0 行** ⇒ **配方（9 击／坐标／等待／AE 口径／`ulimit`／`PAD` 旋钮）逐字未动**（只有车道根与变量名在复制时替换，那 3 行见 §13⑥）。
+- **BATCH_HEAD 逐批资源头**：`logs/<批>.log` 首行写 `avail_mb=… swapfree_mb=… df_kb=…`；**停手线**（`avail<2500MB ∨ swapfree<512MB ∨ df<5GB`）**每腿前**现取判定 ⇒ **全程一次未触**（无 `CHAIN_ABORTED`）。
+- **无 WM 的机制级旁证**：全机 `/proc` 扫不到任何 WM 客户端进程（`xfwm4`/`mutter`/`kwin`/`openbox`… 零命中，排除自身命令行的假匹配后）；`:237` 根窗子窗口是**应用自己的窗口、无 WM 重父化**。
+- ⚠️ **读法细节（本件现抓）**：`xprop -root _NET_SUPPORTING_WM_CHECK` 在 atom 已被 intern 后会由 `no such atom on any window.` 变成 `not found.` ⇒ **两者同义（根窗无该属性）**；只按前者匹配字符串会在长跑后误判"WM 出现了"（`D-G104`／`D-G141` 族）。
+
+---
+
+## §3 件位（路径承载体哈希只在本树内自比；**跑前／跑后各一次**）
+
+| 件 | sha16 | 说明 |
+|---|---|---|
+| **现件 shim**（`$N/src/WpfGfx.Linux.Native/bin/libwpfwin32.so`） | **`6825dd7071387a46`**（336,984 B） | **跑前＝跑后**（现取两次同值）；与 `~/w30x/app-auth/libwpfwin32.so` 逐字节相同（`cmp`） |
+| 主臂腿文件 `app-N/libwpfwin32.so` | **`6825dd7071387a46`** | 逐腿 `shim_check` **175/175** 同值 |
+| 修前件（在册红臂本体） | **`abf6879c027c5e73`**（299,040 B） | 与 `~/w128a/app-P/libwpfwin32.so` 逐字节相同；`strings` **无** `QUEUE_CORRUPT`／`POSTMSG_DEAD_TARGET` |
+| 成对臂腿文件 `app-P/libwpfwin32.so` | **`abf6879c027c5e73`** | 逐腿 `shim_check` **140/140** 同值 |
+| 装置底座 `~/w128a/app-A` | `HandyControlDemo.dll = 1ac5e587cda3fb20` | 94 件／113 MB；`-links +1` 命中 **0** |
+
+- **单变量断言（逐件清单差，机械）**：`app-N` vs 底座 ＝ **1 件**（只有 `libwpfwin32.so`）｜`app-P` vs 底座 ＝ **1 件**｜`app-N` vs `app-P` ＝ **1 件** ⇒ **两臂只差那一件**；两臂各 94 件、**零硬链接**。
+- **现件代身份旁证**：比在册 `#79` 代 `e8127a3d7128d417` **多 2 个导出**（`WpfLinuxWin32_PtsInstalledObjectsCreates`／`…Live`；`nm -D` 556 vs 554）、比修前件多 35 个（521）⇒ 属**修法之后的新一代**（含两具名台账）。⚠️ 该件**在 `.gitignore` 内**（`src/WpfGfx.Linux.Native/bin/`）⇒ 不在版控、无 HEAD blob 可比 ⇒ **只能现取**（本件两次现取同值即其一致性证据）。
+- **官方提示**：`#80` 后 `HEAD` 已多次前进（本件收工时 `c9eb0c374283b770…`）⇒ **本件读数与某一笔 `HEAD` 无关**，只与"现件 `.so` 的 sha16"绑定。
+
+---
+
+## §4 逐腿机读行与台账（落**我的车道目录**）
+
+- **每腿一行机读（13 列，仓内产出端口径）**：`~/t7-runner/legs-W.tsv`（主臂 175 行＋表头，`6724bbeab667f8b5`）／`legs-H.tsv`（成对臂 140 行＋表头，`ff7dfdbbd3b8bbcd`）；**分母内子集** `legs-W-den.tsv`／`legs-H-den.tsv`（与全集逐位同，因为两臂**作废 0、跳过 0**）。
+- **装置级台账（30 列／腿：`pad`／`device`／`verdict`／`dead_at_s`／`ext_kill_suspect`／`wm_check`／`ts_end`…）**：`~/t7-runner/runs.tsv`（`77210d3d5e47595f`，**全程 append、未改写**）。
+- **两份实现逐腿一致**：① 我的第二实现 `~/t7-runner/bin/judge.py`；② **仓内唯一实现** `silent-hit-v2-check.sh`（`9eccf056bf2d7417`）的 `--legs-from` ＋ **仓内唯一产出端** `run-silenthit-legs.sh`（`64574cfe296dac19`）的 **`--replay`**（吃每腿 rundir 重算、不起进程）。**主臂 175 腿逐腿对拍：`raw/trimmed/gate/stackovf/branch/hit/undeclared` 全同（`ok=175 bad=0`）**；成对臂同样逐腿对拍（含命中腿 `H140`：两实现都判 `HIT`／`SEGV_BRANCH=rc139`／`TRIM=0`）。
+- **判据本体的三态与"会红"自证（跑前）**：`--selftest` `PASS cases=9 fail=0 degenerate_flips=3 three_state=3/4/2`；我另造的档：假静默 SEGV（`rc=139`＋正文 0 B）⇒ **`HIT`**；同档 `TRIMMED>0` ⇒ **`NOT-HIT`**；`TRIM_GATE=noinfo` ⇒ **不进分母**；**缺列** ⇒ `FAIL reason=producer-absent-or-stale`；**空表** ⇒ `NOINFO reason=no-producer-lines`；**合池行** ⇒ `--denom FAIL R5`。
+- **`--denom` 跨件代分母表**（`~/t7-runner/logs/den-table.txt`，`64760f3b90d38ac6`）：`gen-W 6825dd7071387a46 175/0`｜`gen-H abf6879c027c5e73 140/1`｜`gen-t44 e8127a3d7128d417 175/0`（在册、非本趟，只作跨代对照）⇒ `SILENTHIT_DENOM=PASS rows=3 真件代=3 合池行=0`。
+
+---
+
+## §5 主臂读数（现件 `6825dd7071387a46`，`N=175`）
+
+| 格 | 值（现取） |
+|---|---|
+| 腿数（按 `tag` 去重后） | **175**（`W001..W175`，无缺） |
+| **入分母／作废／跳过** | **175／0／0** |
+| `FAMILY` | `alive=175`（**`n134=0`**，无任何 `134` 族死亡） |
+| `RC` | `124=175` |
+| `SEGV_BRANCH` | `none=175`（现场可达的两支 `rc139`／`fate` **零命中**；`term`／`stop-signo11` 现场不可达，见 §12） |
+| `(APP_TEXT_BYTES, TRIMMED)` | **`(115, 0)` ×175**（两个数都印） |
+| `TRIM_GATE` | `ok=175`（**零**未声明 tag） |
+| `CLICKS_LANDED` | **`8` ×175** ⇒ 配方**逐腿投递到位** |
+| `wm_check`／`shim_check`／`OOM` | `no such atom…`×175／`6825dd7071387a46`×175／`0`×175 |
+| **`SILENT_SEGV_HIT`（在册逐字判别式）** | **`0/175`** |
+| 仓内牙判词（`--legs-from`） | `SILENTHIT_LEGS rows=175 hits=0`／`SILENTHIT=PASS` |
+| 窗口（`D-G118` 要求带窗） | `0/175 @ 2026-09-28T15:51:46–18:38:17 +08:00, display=:237（无 WM）` |
+
+**与在册 `t44` 逐格对照**：`RAW=115`／`TRIM=0`／`landed∈{7,8}`／`rc=124`／`n134=0`／`alive=175` **逐格相同**；`shim` **换代**（`e8127a3d7128d417 → 6825dd7071387a46`）⇒ **该换代对本现象无可测影响**（但两次都是"零命中"，**不是**"新代更好"）。
+
+---
+
+## §6 上界：**两口径并列**（`D-G121`：`k=0` 与 `k>0` **走不同公式，未混用**）
+
+**主臂 `k=0`（只许用 `k=0` 支）**：
+
+| 口径 | 公式 | `0/175` |
+|---|---|---|
+| **功效表（在册）** | `1 − 0.05^(1/N)` | **`1.697278%`** |
+| **闸口径 Wilson 单侧 95%** | Wilson score，`z=1.6448536` | **`1.522487%`** |
+| `k=0` 的 Clopper–Pearson 单侧（**校准**） | `BetaInv(0.95,1,N)` | **`1.697278%`** ← 与功效表口径**逐位同** |
+| `α=0.025` 双侧（**不许混用**） | Clopper–Pearson 上界 | **`2.085870%`** |
+| 点估计 | `k/N` | `0.000000%` |
+
+**成对臂 `k=1`（只许用 `k>0` 支）**：**CP 单侧 95% `3.343503%`**｜Wilson 单侧 `3.137866%`｜`α=0.025` 双侧 `3.915371%`｜⚠️ **误用 `k=0` 式子会得 `2.117077%`** ⇒ 正是 `D-G121` 的低报形态（**本件用实测样本复现**：`k=1` 时两式差 **1.23 pp**）。
+**断言**：① `k=0` 与 `k>0` 在实现里走**不同分支**（`judge.py` 的 `if k == 0 … else …`）；② 每处上界都同印**公式名 ＋ `k` ＋ `N`**；③ **没有**把 `k=0` 的式子用在含命中的样本上（`k>0` 分支里那行 `[错]` 是**对照**，不是采用值）。
+
+---
+
+## §7 成对修前臂（相 2，`:238`，同装置**只换件**）
+
+- **构造**：`app-P` ＝ 底座 `~/w128a/app-A` 的**逐字节副本 ＋ 只换** `libwpfwin32.so`（`abf6879c027c5e73`）⇒ 与 `app-N` **只差 1 件**。
+- **分母**（按臂各写；`D-G94`）：**有效 140／作废 0／跳过 0／入分母 140**；`FAMILY = 134-stackovf×139 ＋ 139-segv×1`；`RC = 134×139 ＋ 139×1`；`landed = 8×139 ＋ 7×1`。
+- **命中腿 `H140`（逐字）**：`pad=2242`｜`shim=abf6879c027c5e73`｜`rc=139`｜`wrapper_killsig=11`｜`oom=0`｜`dead_at_s=28`｜`verdict=crash-segv`｜`FAMILY=139-segv`｜`STACKOVF=0`｜`landed=7`｜`ts_end=2026-09-28 20:11:55`｜`ext_kill_suspect=yes`。
+  `app.log` = **43 B、逐字一行** `timeout: 被监视的命令已核心转储`（`app.err` = 0 B）⇒ **剔除集行首锚定剔掉 `timeout:` 后，应用输出 = `0 B`** ⇒ 按在册判别式 **`SILENT_SEGV_HIT = yes`**（`SEGV_BRANCH=rc139`）。
+  **仓内产出端自己判的**（`--replay`）：`LEG tag=H140 rc=139 APP_TEXT_BYTES=43 APP_TEXT_BYTES_TRIMMED=0 TRIM_GATE=ok STACKOVF=0 SEGV_BRANCH=rc139 FAMILY=139-segv undeclared=0 HIT=yes` ＋ `SILENT_SEGV_HIT=yes …`。
+  证据已**冻结**：`~/t7-runner/frozen/H140/`（整目录）＋ `frozen/HIT-139.txt` ＋ `frozen/LAST-HIT`；**命中即停**（`logs/chain.log`：`=== 相 2 停：修前臂命中（H140）20:11:55 ===`，`B6 OK=14 … HIT139=H140`）。
+- **两臂对照表**：
+
+| 臂 | `shim` | `N`（入分母） | 命中 | `FAMILY` 分布 | 逐格 | 功效表口径 `ub95` | Wilson 单侧 95% |
+|---|---|---|---|---|---|---|---|
+| **现件**（本趟主臂） | `6825dd7071387a46` | **175** | **0** | `alive=175` | `(115,0)`／`rc=124`／`BRANCH=none` | **`1.697278%`** | `1.522487%` |
+| **修前**（本趟成对臂） | `abf6879c027c5e73` | **140** | **1** | `134-stackovf=139` ＋ `139-segv=1` | 139 腿 `RAW≈6.4 MB`（栈溢出文本）／`STACKOVF=1`；1 腿 `H140`：`RAW=43`／`TRIM=0`／`rc=139` | `2.117077%`（`k=0` 式，**仅供对照**）｜**正确 `CP 单侧 = 3.343503%`** | `3.137866%` |
+| （跨代对照，非本趟） | `e8127a3d7128d417` | 175 | 0 | `alive=175` | 在册 `t44` 读数 | `1.697278%` | 闸口径 `1.522487%` |
+
+- **两臂可分辨性（在册实现 `~/w48a/bin/pairstats48.py` `df4e25c529f212eb`）**：NEW `175/0` vs OLD `140/1` ⇒ 率差 `+0.714286%`，**Newcombe 95% CI `[−1.512733%, +3.934839%]`（含 0）**；**Fisher 单侧 `p=0.444444`** ⇒ **两臂分不开**（与在册 `t48` 的 `p=0.305556` 同量级）。
+- **本趟与在册 `t48` 的异同（逐格）**：
+  1. **同**：装置形逐格同（`nogdb`／`TO=50`／无 WM／同 `pads`）；`134-stackovf` 是修前件的**主死法**（在册 `76/77`，本趟 `139/140`）；命中腿形态**逐格同**（`rc=139`、应用输出剔后 `0 B`、`landed<8`、`dead_at_s≈28–34`、`ext_kill_suspect=yes`）。
+  2. **异（值得单独记）**：**在册命中的那一相位不复现** —— 在册 `H077`（`pad=1226`）在本趟**同相位**跑成 `rc=134`／`134-stackovf`／`RAW=6,447,493 B`（**结构上不可能**判成静默命中，因 `STACKOVF=1`）；本趟命中落在 `pad=2242`。⇒ **支持在册 `F4` 的更正**："`PAD` 是**相位旋钮**、不是成因；判别量是臂／件代"。同时**新增一条 dated 观察**：该命中的**相位不可复现**（在册 `t48` 亦为单次命中）。
+- **检测力自证（本件的用法）**：同一装置、同一批脚本、同一份相位表、**只换一件** ⇒ 修前件打出**真命中**、现件 `0/175` ⇒ **本趟的"零命中"不是"装置坏了"**（在册 `t48` 已有同问；本趟**独立复现**）。
+
+---
+
+## §8 基线率闸（`BASELINERATE`，`D-G118`）
+
+```
+① 在册同装置修前基线（**带窗**）vs 本趟现件臂
+   --registered '1/77@2026-09-28T06:39:59..2026-09-28T07:28:48+display=:186' --observed 0/175 --gate 0.03815851 --effect 0.01298701
+   ⇒ BASELINERATE=FAIL  BASELINERATE_RC=1
+     BASELINERATE_REASON=VOID-PREMISE ① ci_upper(0.0152) < gate(0.0382); ② observed(0.0000) < effect(0.0130) ⇒ 该效应在现世界不可发生
+     registered_in_observed_ci=1  gate_closed=1  effect_impossible=1  fisher_p=0.3056
+② 本趟**成对**基线（带窗）vs 本趟现件臂
+   --registered '1/140@2026-09-28T18:38:17..2026-09-28T20:11:55+display=:238' --observed 0/175 --gate 0.03343503 --effect 0.007143
+   ⇒ BASELINERATE=FAIL  VOID-PREMISE（ci_upper(0.0152) < gate(0.0334)；observed(0.0000) < effect(0.0071)）
+③ **缺窗**形态（在册历史速率原样喂入）
+   --registered '2/175' --observed 0/175 --gate 0.016973 --effect 0.011429
+   ⇒ BASELINERATE=NOINFO  reason=NOINFO-NO-WINDOW  BASELINERATE_RC=3（**不许当绿、不许据此宣称改善**）
+```
+**两条硬结论**：① 闸在**带窗**与**缺窗**两形态下**结论不同**（前者 `FAIL/VOID-PREMISE`，后者 `NOINFO`）⇒ **"缺窗 ⇒ `NOINFO`" 必须写进判据**；② 即便换成**同装置成对基线**，闸仍判 `VOID-PREMISE` ⇒ **不得据此宣称改善**（与在册 `P0` §13③／§14⑦ 一致，本件以**我自己的读数**复现）。
+
+---
+
+## §9 槽读数与让路时长（逐批，现取自动账）
+
+| 批 | 臂／显示 | `ACQUIRED waited` | `RELEASED held` | 异常 |
+|---|---|---|---|---|
+| `P0`／`P1`（pilot） | app-N `:237` | `0s`／`0s` | `3s`／`151s` | 无 |
+| `A1r12` | app-N `:237` | `0s` | `705s` | 无 |
+| `A2`／`A3`／`A4`／`A5` | app-N `:237` | `0s` | 各 `1309s` | 无 |
+| **`A6`（第一次，被宿主中断连杀）** | app-N `:237` | `0s` | **无 `RELEASED` 行（中断签名）** | 无 |
+| `A6`（续跑）／`A7` | app-N `:237` | `0s` | `1308s`／`1309s` | 无 |
+| `A0`（catch-up） | app-N `:237` | `0s` | `654s` | 无 |
+| `B1`／`B2`／`B4`／`B5` | app-P `:238` | `0s` | `844s`／`834s`／`834s`／`833s` | 无 |
+| **`B3`（第一次，被宿主中断连杀）** | app-P `:238` | `0s` | **无 `RELEASED` 行（中断签名）** | 无 |
+| `B3`（续跑）／`B6` | app-P `:238` | `0s` | `841s`／`517s` | 无 |
+
+- **让路时长**：**逐批 `waited=0s`** ⇒ 本件**没让路**、也**没让别人等**（取槽时刻恰好空；这不等于"别人不忙"）。**批间一律释放**（批末 `RELEASED`），**无空持**。
+- **槽内实占合计（有 `RELEASED` 的行）＝ `14,069 s ≈ 3.91 h`**（含 2 个 pilot 批与全部对照腿）；另有 **2 次 `ACQUIRED` 无配对 `RELEASED`** ＝ 两次宿主中断（其槽时不计入上式，如实列在 §10）。
+- **异常计数**：`HEAVYSLOT=TIMEOUT` **0**／`NOINFO low-memory` **0**／`MAXHOLD_KILL` **0**／`WAITMEM` **0**；逐腿 `OOM=0`；**停手线一次未触** ⇒ **没有任何一条腿是被槽杀／被内存闸拒的**。
+
+---
+
+## §10 台账重放（`D-G185` 的现场记录）—— **恢复动作正确，缺口在指针粒度**
+
+- **两次宿主中断**：attempt 1 的链在 `17:2x`、attempt 2 的链在 `~19:12` 被**宿主连带杀掉**（链／槽／两个 `Xvfb` 全停；**无** `CHAIN_ABORTED`／`CHAIN_STOP`／命中标记 ⇒ **不是**判据触发的停链）。
+- **缺口（根因）**：`group.sh` 只在**批末**写 `resume-<mode>.txt`（**批级指针**），而 `runs.tsv` 是**腿级台账** ⇒ 中断批里**已完成的腿**在续跑时**被重放**：
+  - 第一段：`A6 start=125` 被杀前已完成 `A6C` ＋ `W126..W136`（11 腿，`ts_end 17:29:56–17:39:10`）但指针停在 `125` ⇒ 续跑重放 ⇒ **`W126..W136` ＋ `A6C` 各两行**。
+  - 第二段：`B3 start=50` 被杀前已完成 `B3C` ＋ `H051..H059`（9 腿，`ts_end 19:07:06–19:11:49`）但指针停在 `50` ⇒ 续跑重放 ⇒ **`H051..H059` ＋ `B3C` 各两行**。
+- **机器数（交付冻结见 §16）**：`runs.tsv` **357 行 ／ 唯一 `tag` 335 ／ 重复 `tag` 22**（逐条两趟值见 `logs/dups-pairs.tsv` ＋ `dups-fields.txt`）。**字段级对拍**：`ts_end` **22/22 不同**（时点本就不同）、`dead_at_s` **4 个 tag 差 1 s**（`50↔51`，窗口计时抖动）、**其余字段（`pad`／`shim`／`rc`／`family`／`verdict`／`device`／`landed`／`ext_kill`／`stackovf`／`oom`／`wm_check`）22/22 逐格相同** ⇒ **重放复现了同一行为**（没有出现"同一 tag 两趟不一致"的情形；若出现，判据要求单独点名）。
+- **`A6` 段与 `A6C` 段的重叠（队长要的两条射程）**：`A6 段` ＝ `A6C(17:29:56) … W150(18:05:33)`，其中**重放窗口** ＝ `17:44:35–17:53:49`（重叠 ＝ `A6C` ＋ `W126..W136`）；`B3 段` ＝ `B3C(19:07:06) … H075(19:35:31)`，其中**重放窗口** ＝ `19:22:20–19:27:05`（重叠 ＝ `B3C` ＋ `H051..H059`）。**非重放的续跑腿**（`W137..W150`、`H060..H075`）各只一行。
+- **去重口径（先写在判据 §14）**：**按 `tag` 去重、保留最后一次** —— 机械理由：`one-leg.sh` 每腿开头 `rm -rf "$OUT"` ⇒ 同一 tag 第二趟**覆盖**第一趟 rundir ⇒ 盘上原始件属于**最后一趟**，逐腿判据只能与最后一趟对齐。**边界（点名）**：那 21 个腿 tag 的**第一趟 rundir 已被覆盖 ⇒ 其腿级原始件不可复取**，只剩台账行（两趟判据字段逐格相同，故不影响读数）。
+- **修法建议（`D-G185` 修法栏）**：① `resume` 指针**下沉到腿级**（每腿落完台账行后**立刻**更新）；② 台账加 `run_seq`（同一 tag 的趟次序）列 ⇒ "重放"在盘上**可机读**，不靠 mtime 猜。
+
+---
+
+## §11 我推翻了在册哪句话 / 我推翻了自己哪句话（逐条）
+
+1. 🔴 **推翻我自己的第一版实现**：它把 `EXTERNAL_KILL_SUSPECT=yes` 当作**出分母条件** ⇒ **把唯一的真命中 `H140` 踢出分母**，报成 `0/139`。**这正是 `D-G106` 那一族**（"假可疑把真命中踢出分母"）—— 而**我的先写判据 §2 明确禁止**这么做（"不用它踢命中，只作标记列"）。**以判据为准修实现**：分母条件只看 `device`／`gate`／`phase` ⇒ 成对臂 `1/140`。**若不修**，本报告会把 `1/140` 写成 `0/139`，并把"装置检测力"这一格**整个丢掉**。判据先行在这里**真的救了一条读数**。
+2. 🔴 **推翻我自己的核算脚本一处**：`finalize.sh` 首版把 `k` 写成**行数** ⇒ 闸被喂进 `observed=175/175`（荒谬值）并输出 `FAIL/DRIFT`。**已修**（`k` 取 `SILENT_SEGV_HIT=="yes"` 列，列号现取为 **12**）⇒ 修正后 `0/175` ⇒ 闸 `FAIL/VOID-PREMISE`。**这条自伤属"报数器自己算错"族（`D-G104`／`D-G125`）**，写在这里以免它被当成结论。
+3. **在册 `P0` §4② 的"`N=175` 与历史 `2/175` 同体制可比"** ⇒ 本件**不沿用**（`P0` §13① 已撤回）；本件只说**同 `N`**，跨代比较由**成对臂**承担。
+4. **在册 `t44` 的 `0/175` 不能直接当"现件代读数"**（现件 shim 已换代）⇒ 本件**重取**：上界同值 `1.697278%`，但**证据是本趟 175 腿**。
+5. **在册 `t48` 的命中相位不可复现**（新增 dated 观察）：在册 `H077`／`pad=1226` 在本趟同相位**跑成 `134-stackovf`**；本趟命中落在 `pad=2242` ⇒ **支持**在册 `F4`"`PAD` 不是成因、是相位旋钮"，并**新增**"该命中是**单次、不可按相位复现**"这一格。
+6. **在册 `P0` §13③ 的 `VOID-PREMISE` 成立**（不是推翻，是**独立复现**）：用**我自己的** `0/175` ＋ 在册带窗基线 ⇒ 同样 `FAIL/VOID-PREMISE`；并且**换成我自己的成对基线 `1/140` 仍是 `VOID-PREMISE`** ⇒ 结论更硬：**不得宣称改善**。
+7. **在册 `P0` §4③"有 WM 腿无检测力"**：本件**未跑**该腿（判据已定 `NOINFO`）⇒ **沿用、无新证据**。
+8. **装置自证口径**：在册只用**一次性** `xprop`；本件**逐腿**落台账，并抓到 `xprop` 输出语义随服务器状态改口（§2 末）⇒ 自证要按**语义**判，不按字符串（`D-G104`／`D-G141` 族）。
+
+---
+
+## §12 `NOINFO`／未做（逐条；既不算绿也不算红）
+
+1. **有 WM 腿**：`NOINFO reason=no-detection-power`（不跑）。
+2. **`term`／`stop-signo11` 两支**：两臂都是 `nogdb` ⇒ **无 `gdb.txt`** ⇒ 现场不可达（`--replay` 可判，但那不是腿）。
+3. **托管件面**：未随现树刷新（在册装置如此）⇒ 本读数**只覆盖"现件 shim"**，不覆盖现树全部产物。
+4. **用户现场**（`xrdp`＋`xfwm4`）：**不外推**。
+5. **残余窄 `TOCTOU`（`TASK-0211`）**：`0/175` **不等于**该窗口绝迹（只给它的率一个上界）。
+6. **`siaddr0`／栈符号**：本波无 gdb ⇒ 逐腿 `none` ⇒ 该格 `NOINFO`。
+7. **本趟未做**：`verify-all`／`close-wave`／任何 `dotnet` 构建（越域）；`runs.tsv` **未改写、未删行**。
+
+---
+
+## §13 自伤与装置事故（如实，逐条）
+
+1. **pilot 误推进指针**：pilot 批用 `MODE=plain` ⇒ 把 `resume-plain.txt` 写到 `12` ⇒ 主臂第一批从 `idx12` 起跑、`idx0..11` 缺 ⇒ 用 **catch-up 批（`A0 start=0 n=12`）**补齐（判据 §12）；腿标签唯一、`pad↔下标`映射不变、判据不动。**代价**：`654 s` 槽时。
+2. **两次宿主中断 ＋ 恢复**：见 §10（恢复＝重起私有显示 ＋ 按指针续跑；**恢复动作本身正确，缺口在指针粒度**）。**副产物**：2 次无配对 `RELEASED`、22 个 tag 的台账重放、21 个腿 tag 的第一趟 rundir 被覆盖。
+3. **显示服务器重启过**：中断前后**不是同一个 `Xvfb` 实例**（PID 变了）⇒ 两个子段**共享装置形**但**显示实例不同**（判据 §13 逐字记；`D-G116` 族要求点名）。
+4. **我的第二实现首版口径错**（跑前抓到并修）：`trailing-newline` 多算 1 B／`STACKOVF` 用出现次数而非行数／未声明 tag 用 `lstrip` ⇒ 与仓内实现**系统性偏差**；修正后**主臂 175 腿逐腿一致**。**若没抓**，175 腿的 `TRIMMED` 会**全错 1 B**（`0 → 1`）⇒ **全部判成 `NOT-HIT`**：这是"判据端与产出端必须对拍"的活例。
+5. **`/proc` 扫 WM 进程时的自匹配**：我的扫描命令**自己的命令行**含 `xfwm4`／`kwin` 等模式 ⇒ 首轮把自己列进"WM 进程"（`D-G93` 族"按关键词认对象"再现）；排除自身后重算得 **0**。
+6. **腿驱动器的 3 行差异（逐字披露）**：与在册件相比只有 ① 注释里的车道根、② `APP=` 默认值与 `OUT=`（`$HOME/w44a` → `$HOME/t7-runner`）、③ `gdb` 模板路径；**配方区一行未动**（把车道根归一化后 `diff` ＝ **0 行**）。⚠️ 我**没有**改在册车道 `~/w44a` 的任何件（现取：`w44a/run` 仍 182 目录、`w44a/legs.tsv` mtime 仍 `06:13`）。
+7. **收尾**：我自起的两个 `Xvfb`（`:237` pid `4143223`／`:238` pid `4143363`）**已按 PID 收**；全机无 `Xvfb :23x` 残留。
+
+---
+
+## §14 复算命令（逐条可重放）
+
+```bash
+N=/home/links-dev/netTest/GitProj/WPFOnLinux; L=$HOME/t7-runner
+# ① 件位
+sha256sum $N/src/WpfGfx.Linux.Native/bin/libwpfwin32.so $L/app-N/libwpfwin32.so $L/app-P/libwpfwin32.so | cut -c1-16
+# ② 功效表
+python3 -c 'for n in (131,175,299): print(n,"%.6f%%"%((1-0.05**(1.0/n))*100))'
+# ③ 我的第二实现（分母／命中／上界两口径；--out2 出分母内表）
+python3 $L/bin/judge.py $L/runs.tsv $L/run $N/build/MilBridge/tests/SilentHitProbe/silenthit-trim.tsv W --out $L/legs-W.tsv --out2 $L/legs-W-den.tsv
+python3 $L/bin/judge.py $L/runs.tsv $L/run $N/build/MilBridge/tests/SilentHitProbe/silenthit-trim.tsv H --out $L/legs-H.tsv --out2 $L/legs-H-den.tsv
+# ④ 仓内牙（判据端自检／两臂判词／跨代分母）
+bash $N/build/MilBridge/tools/silent-hit-v2-check.sh --selftest
+bash $N/build/MilBridge/tools/silent-hit-v2-check.sh --legs-from $L/legs-W-den.tsv      # rows=175 hits=0
+bash $N/build/MilBridge/tools/silent-hit-v2-check.sh --legs-from $L/legs-H-den.tsv      # rows=140 hits=1（H140 HIT）
+bash $N/build/MilBridge/tools/silent-hit-v2-check.sh --denom $L/logs/den-table.txt      # PASS 真件代=3 合池行=0
+# ⑤ 产出端 --replay 逐腿重算（不起进程）＋ 与我的实现逐腿对拍
+bash $L/bin/replay-check.sh '^W[0-9]{3}$'
+bash $L/bin/replay-check.sh '^H[0-9]{3}$'
+# ⑥ 成对统计（在册实现）
+python3 $HOME/w48a/bin/pairstats48.py $L/legs-W-den.tsv $L/legs-H-den.tsv
+# ⑦ 基线率闸：①在册带窗基线 ②本趟成对带窗基线 ③缺窗对照
+bash $N/build/MilBridge/tools/baseline-rate-gate.sh --registered '1/77@2026-09-28T06:39:59..2026-09-28T07:28:48+display=:186' --observed 0/175 --gate 0.03815851 --effect 0.01298701
+bash $N/build/MilBridge/tools/baseline-rate-gate.sh --registered '1/140@2026-09-28T18:38:17..2026-09-28T20:11:55+display=:238' --observed 0/175 --gate 0.03343503 --effect 0.007143
+bash $N/build/MilBridge/tools/baseline-rate-gate.sh --registered '2/175' --observed 0/175 --gate 0.016973 --effect 0.011429   # ⇒ NOINFO rc=3
+# ⑧ 台账重放逐格对拍
+bash $L/bin/dups.sh $L/runs.tsv
+# ⑨ 收工核算（一键盘点）
+bash $L/bin/finalize.sh
+```
+
+---
+
+## §15 小结（≤6 行，大白话）
+
+1. 现件（`win32shim=6825dd7071387a46`）在在册同一装置上**跑满 175 腿、一条没崩**，逐腿 `115 B`（剔掉包装器与应用自报插桩行后 `0 B`）⇒ **静默 `rc=139` 零命中**，上界 **1.70%**（功效表口径；Wilson 单侧 1.52%）。
+2. **检测力本趟被真命中自证**：同一装置、**只换一件**，修前件打出 **`1/140`** 的真静默 SEGV（`H140`：`rc=139` ＋ 应用输出剔后 `0 B`）⇒ 现件的"零命中"**不是装置坏了**。
+3. 但**两臂统计上分不开**（Fisher `p=0.444`、差值 CI 含 0），且**基线率闸判 `VOID-PREMISE`** ⇒ **不许说"率显著变低"**；缺窗只许 `NOINFO`。
+4. 上界**两口径都印**，`k=0` 与 `k>0` 走**不同公式**（`k=1` 时若误用 `k=0` 式会低报 1.23 pp）——**没有混用**。
+5. 两次**宿主中断**导致台账重放了 22 个 tag；我按"**按 tag 去重、保留最后一次**"报数，并点名"第一趟 rundir 已被覆盖"；根因＝**批级指针／腿级台账**（`D-G185`）。
+6. **我自己被先写判据救了一次**：第一版实现用 `ext_kill_suspect` 把真命中踢出分母（`D-G106` 族），判据 §2 禁止这么做 ⇒ 以判据为准修实现，否则本报告会把 `1/140` 写成 `0/139`。
+
+---
+
+## §16 交付冻结块（机器现算；`W6`／`t52` 结账请用这一块，**不要**用过程值）
+
+```
+runs.tsv              行=357  唯一tag=335  重复tag=22  sha16=77210d3d5e47595f
+重复 tag（22，逐条两趟值见 logs/dups-pairs.tsv）：
+   A6C,B3C,H051,H052,H053,H054,H055,H056,H057,H058,H059,
+   W126,W127,W128,W129,W130,W131,W132,W133,W134,W135,W136
+字段级对拍：ts_end 22/22 不同（时点本就不同）｜dead_at_s 4 个 tag 差 1s（窗口计时抖动）｜
+   其余字段（pad/shim/rc/family/verdict/device/landed/ext_kill/stackovf/oom/wm_check）22/22 逐格相同
+A6 段射程 ：A6C(17:29:56) … W150(18:05:33)；重放窗口 17:44:35–17:53:49 ⇒ 重叠＝A6C＋W126..W136
+B3 段射程 ：B3C(19:07:06) … H075(19:35:31)；重放窗口 19:22:20–19:27:05 ⇒ 重叠＝B3C＋H051..H059
+主臂分母  ：k=0  n=175（作废 0／跳过 0）｜上界：功效表 1.697278%｜Wilson1s 1.522487%｜CP-2s(α=0.025) 2.085870%
+成对臂分母：k=1  n=140（作废 0／跳过 0）｜上界：CP1s 3.343503%｜Wilson1s 3.137866%｜CP-2s(α=0.025) 3.915371%
+           （对照：若误用 k=0 式 ⇒ 2.117077%，低报 1.23 pp）
+两臂可分性：Fisher 单侧 p=0.444444｜Newcombe 95% CI [−1.512733%, +3.934839%]（含 0）
+基线率闸  ：①带窗(在册 1/77) FAIL/VOID-PREMISE ②带窗(本趟成对 1/140) FAIL/VOID-PREMISE ③缺窗 NOINFO rc=3
+槽        ：16 批；waited=0s 逐批；实占合计 14,069 s（3.91 h）；TIMEOUT/NOINFO/MAXHOLD_KILL/WAITMEM 各 0
+台账 sha16：runs.tsv 77210d3d5e47595f｜legs-W.tsv 6724bbeab667f8b5｜legs-W-den.tsv 6724bbeab667f8b5
+           legs-H.tsv ff7dfdbbd3b8bbcd｜legs-H-den.tsv ff7dfdbbd3b8bbcd
+           logs/dups.txt e42da074bfe92996｜logs/dups-pairs.tsv f872c1a1c1dbe8d7｜logs/dups-fields.txt cf4d8b0db4c39a83
+           logs/den-table.txt 64760f3b90d38ac6
+判据件    ：build/MilBridge/P1-task0201-criteria.md 9c8362d0c5a80407
+在册件    ：run-silenthit-legs.sh 64574cfe296dac19｜silenthit-trim.tsv 4270ab3da7a1d6d8
+           silent-hit-v2-check.sh 9eccf056bf2d7417｜pads175.txt 0d3b966b7e1c3ecf｜pairstats48.py df4e25c529f212eb
+冻结证据  ：~/t7-runner/frozen/H140/（整目录）＋ frozen/HIT-139.txt ＋ frozen/LAST-HIT
+读取时刻  ：2026-09-28T20:16:26.028939673 +0800（date '+%F %T.%N %z'）
+```
+
+SELF-SHA16 （口径 = `head -n -1 build/MilBridge/P1-task0201-recheck-report.md | sha256sum | cut -c1-16`）= `18354313a935bba5`
