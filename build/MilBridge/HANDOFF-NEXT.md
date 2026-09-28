@@ -382,3 +382,10 @@ flock -n ~/heavy.lock -c 'echo SLOT=FREE' || echo SLOT=HELD; free -m | awk 'NR==
 - ⏪ **接线（三颗同趟）**：`build/MilBridge/tools/sentinel-spec-check.sh`（`8c8470a3b3dd0c0d`；`t23` 落）／`build/MilBridge/tools/wave-push.sh`（`213ecfbaee4ebd71`；`t24` 落、`t29`＋`t35` 加固）／`build/MilBridge/tools/timestamp-order-check.sh`（`6ace8e29f3cf6357`；`t27` 落、`t33` 收窄）—— 三颗现取 **`in-list=0`**（都在 `fp_inputs()` 覆盖面**外**）⇒ **必须同趟加进 `fp_inputs()`**，并**同趟**给出覆盖面件数与 `verify-all.sh` 第 `[42]` 步的 `--expect`（现取 `226`，加三颗 ⇒ `229`）、步数（现取 `55`）四处声明。
 - ⏪ **`WPW_MKDIR_OK` 语义（写死，`t35` 落）**：`wave-push.sh` **只对两条规范路径**（`/tmp/bridge-frozen.flag`／`$HOME/wfp-runs/bridge-frozen.flag`）**自动建父目录**；**其它任何路径**必须显式 `WPW_MKDIR_OK=1`，否则 **`WPW=FAIL reason=strange-target-path … path=… dir=… hint=set WPW_MKDIR_OK=1`（拒跑并点名）**；显式放行时**上屏** `WPW_MKDIR_OK …`（**不静默**）。⇒ **W4 首跑若用非规范路径（例如临时车道），必须先设 `WPW_MKDIR_OK=1` 并在日志里保留那行上屏**；否则**拒跑是预期行为、不是故障**。
 - ⏪ **首跑后必须现算并上屏**：两枚哨兵 `cmp`（须 `IDENTICAL`）＋ 各枚 `sha16` ＋ `inputs_fp`（带 `ts`）——按本区第 `20` 条口径（`ts=<亚秒戳> 时 入口=X 出口=X，覆盖面=N`）。
+
+### ⏪ **dated 纪律追加 · 第 `21` 条（「界必须能站住」＋「`echo` 双引号内不许反引号」）（`t39`，读时 2026-09-28T16:50:42.550+0800）**
+
+- ⏪ **编号现取**：本区**编号块**最后一条 ＝ **第 `20` 条**（`t29` 落）；**主列表**最后一条 ＝ `18.`（现取 `:311`；其后 `###` 块内的 `1.`–`7.` 是**哨兵规范子列表**）⇒ 本条 ＝ **第 `21` 条**。
+- ⏪ **第 `21` 条·①（口径句，逐字）**：**「界必须能站住：凡给『可证界』，界内必须包含该行自身的落盘时刻；晚于该行提交时刻的界必假。」**（**活例**：`t35` 给出口行的窗下界 `2026-09-28T16:33:26.546` **晚于该行提交 `a9958fb`＝`2026-09-28T16:31:22`** ⇒ **假界**；`t39` 改成 `ts ∈ (2026-09-28T16:28:37.377, 2026-09-28T16:30:20.976105811]`，上界 ＝ `bak/*.pre-t35` 的 `mtime`、下界 ＝ 判据段落仓戳。）
+- ⏪ **第 `21` 条·②（口径句，逐字）**：**「`echo` 双引号内不许出现反引号（会被当命令替换、静默吃掉 token）—— 本件族已第 3 次（`t29`→`t35`）。」**
+- ⏪ **最小复现已跑读数（本席现跑，成对）**：反引号写法 ⇒ 输出 `A： ⇒ B`（**token 被吃掉**、`rc=0`、stderr 零行）；去掉反引号 ⇒ 输出 `A：WPW_MKDIR_OK=1 ⇒ B` ✓。**自检命令**：`grep -cE '^\s*echo ".*`' <件>` ⇒ 须 **`0`**（`build/MilBridge/tools/wave-push.sh` 修后现取 ＝ `0`；其显式放行腿首行现取**逐字含** `WPW_MKDIR_OK=1`）。

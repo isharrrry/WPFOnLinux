@@ -96,7 +96,7 @@ case "$MODE" in
         if ! mkdir -p "$3" 2>"$T".derr; then
           echo "WPW=FAIL reason=target-dir-unusable step=preflight dir=$3 cmd=\"mkdir -p $3\" stderr=$(head -n 1 "$T".derr)"; exit 1
         fi
-        [ "$4" = 0 ] && echo "WPW_MKDIR_OK sentinel=$1 path=$2 dir=$3（**陌生路径显式放行**：`WPW_MKDIR_OK=1` ⇒ 上屏，不静默）"
+        [ "$4" = 0 ] && echo "WPW_MKDIR_OK sentinel=$1 path=$2 dir=$3（**陌生路径显式放行**：WPW_MKDIR_OK=1 ⇒ 上屏，不静默）"
       else
         echo "WPW=FAIL reason=strange-target-path sentinel=$1 path=$2 dir=$3 hint=set WPW_MKDIR_OK=1（**陌生路径不许静默建树**：哨兵会写进没人读的地方 ⇒ 假绿方向）"; exit 1
       fi
