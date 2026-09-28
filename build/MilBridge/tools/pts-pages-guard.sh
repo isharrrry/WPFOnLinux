@@ -26,6 +26,8 @@
 #     · **名单源不可读**（`roster_names` 取不到表／表头锚失效）⇒ `NOINFO reason=roster-source-unreadable` ⇒ **折进 `cannot`**（`PTS_GUARD=NOINFO`，rc=2）；
 #     · **具名但不在册** ⇒ `FAIL frontier=… off-roster=…` ⇒ **折进 `fails`**（`PTS_GUARD=FAIL`，rc=1）。
 #   （本行初版曾把「无名」写成折 `cannot`；按裁定改判 `PASS`，理由＝`NOINFO` 在门禁里同样是 ❌，而「前沿无名」在 `PTS` 长线上是**长期常态** ⇒ 那等于用 `NOINFO` 造长期红。）
+#   G10c（⏪ `t76`／scribe 2026-09-28 **域前提修正**）具名 `entry=` **按其域归因**（判序：① PTS 在册表 `k_pts_entries[]` ⇒ `pts-declared`；② 声明树 `upstream/wpf/**/*.cs` 的 `DllImport … EntryPoint="<名>"` 行 ⇒ `dllimport-entry`）  两级都不命中 ⇒ **FAIL(unattributable)**（红并点名、进 `rc`）；声明树不在 ⇒ `NOINFO(decl-tree-absent)`（折 `cannot`）
+#   ⏪ 依据（`t76` 现取）：`entry=` 在 native 台账零行时取自**内层异常的入口名**（`PtsCache.Linux.cs` 的 `Describe()`）⇒ 取值域 ＝ **DllImport 入口名**、**不必属 PTS**（实测 `LoSetDoc` ＝ LineServices 族）⇒ `G10b` 的「拿 PTS 名册对拍」**只对 PTS 域成立**；**PTS 域一格不放**（在册表命中即可，未命中就落到 ②③ 两格照判）。
 #   G11 `DEV x_up=yes`                          否 ⇒ NOINFO（装置没起来 ⇒ 读数无效，不是红）
 #   G12 两腿 `five_stable=yes`                  否 ⇒ NOINFO（跑的过程中件被换）
 #
@@ -84,6 +86,71 @@ roster_names() {   # 印在册名（每行一个）；源缺失／表头锚取�
   [ -f "$ROSTER_SRC" ] || return 1
   sed -n '/^static const char \*const k_pts_entries\[\] = {/,/^};/p' "$ROSTER_SRC" \
     | sed -n 's/^[[:space:]]*"\([A-Za-z0-9_]*\)",\{0,1\}[[:space:]]*$/\1/p'
+}
+
+# ── 入口名的**声明树**（非 PTS 域的**内容锚**；`t76` 加）──────────────────────────
+#   **域判定（两级，全部内容锚；不许靠猜、不许按名字形状启发式）**：
+#     ① `k_pts_entries[]` 命中 ⇒ 域 ＝ `pts-declared`（PTS 在册表是 **PTS 域的定义**）；
+#     ② 未命中 ⇒ 在**声明树** `upstream/wpf/**/*.cs` 里找该入口的 **P/Invoke 声明**
+#        （内容锚 = **同一行**同时含 `DllImport` 与 `EntryPoint="<名>"`）⇒ 域 ＝ `dllimport-entry`；
+#     ③ 两级都不命中 ⇒ 域 ＝ `unattributable` ⇒ **红并点名**。
+#   ⚠️ 判序写死：**先在册表、后声明树**（一名同时在两处 ⇒ 归 **PTS 域**，按 PTS 域办）。
+#   ⚠️ 声明树不在 ⇒ 非 PTS 域**判不了** ⇒ `NOINFO(reason=decl-tree-absent)`（**永不当绿**）。
+#   依据（现场）：`entry=` 在 native 台账零行时取自**内层异常的入口名**
+#   （`build/PresentationFramework.Linux/PtsCache.Linux.cs` 的 `Describe()`）⇒ 取值域 ＝ **DllImport 入口名**，
+#   不必属 PTS（实测 `LoSetDoc` 属 LineServices 族：`upstream/…/TextFormatting/LineServices.cs` 的 `DllImport` 行）。
+DECL_TREE="${PTS_G10_DECL_TREE:-$(cd "$SELF_DIR/../../.." && pwd)/upstream/wpf}"
+#   ⏪ dated **收紧（`t82`／scribe，2026-09-28；`t77` 的 `F1` 真缺陷）**：旧锚只要求「同一行同时出现
+#     `DllImport` 与 `EntryPoint="<名>"`」⇒ **不分辨「声明」与「注释/字面量」**：一条注释里写下这两串
+#     就能把任意名字判绿（现取复现：假树只有一行注释 ⇒ `PASS observed=… domains=dllimport-entry`）。
+#     新锚（**只吃真声明**，四条合取；证据＝现盘 `upstream/wpf` 全树实测 **548/548** 真声明零漏）：
+#       ① **属性起始行**：`^[[:space:]]*\[[[:space:]]*DllImport[[:space:]]*\(`（⇒ 注释行 `//`／`/*`／`* `、
+#          字符串字面量行**在形态上就不成立**）；
+#       ② 该**属性块内**（本行起至首个 `]`，最多 6 行）含 `EntryPoint[[:space:]]*=[[:space:]]*"<名>"`；
+#       ③ 属性块之后 ≤3 个**非空行**内出现 `extern`（＝真的是 P/Invoke 方法，不是孤零零一条属性）；
+#       ④ **先剥注释**：行注释 `//…` 截断、块注释 `/* … */` 逐段剥掉（跨行状态 `inb`）⇒ 块注释里整段
+#          「声明」不再命中（本席另造夹具真实测：修前 `PASS` ⇒ 修后 `FAIL`）。
+#     ⚠️ **树范围不收紧**（仍是 `upstream/wpf/**/*.cs`）：域的定义是「**该入口名在其声明树里对拍上**」，
+#        按目录形状（例如只扫 `TextFormatting/**`）收窄会把这个**域定义**换成**路径启发式** ⇒ 其它族
+#        （`Fs*`／`Nl*`／未来新族）的真声明会被漏掉。⇒ 只收紧**锚的形态**，不动**域的射程**。
+decl_hit() {   # <名> ⇒ 印**真声明**的首个声明位 `file:line`；无命中／树不在 ⇒ 空输出 ＋ rc=1
+  local nm="$1" f out=""
+  [ -d "$DECL_TREE" ] || return 1
+  while IFS= read -r f; do
+    out="$(awk -v nm="$nm" '
+      function strip(l,   p, q, head, rest, n) {
+        if (inb) { if (index(l, "*/") > 0) { l = substr(l, index(l, "*/") + 2); inb = 0 } else return "" }
+        n = 0
+        while (index(l, "/*") > 0 && n < 8) {
+          n++
+          p = index(l, "/*"); head = substr(l, 1, p - 1); rest = substr(l, p + 2)
+          q = index(rest, "*/")
+          if (q > 0) { l = head substr(rest, q + 2) } else { l = head; inb = 1; break }
+        }
+        p = index(l, "//"); if (p > 0) l = substr(l, 1, p - 1)
+        return l
+      }
+      { C[FNR] = strip($0) }
+      END {
+        for (i = 1; i <= FNR; i++) {
+          if (C[i] !~ /^[[:space:]]*\[[[:space:]]*DllImport[[:space:]]*\(/) continue
+          txt = C[i]; j = i
+          while (txt !~ /\]/ && j < i + 5 && j < FNR) { j++; txt = txt " " C[j] }
+          if (txt !~ ("EntryPoint[[:space:]]*=[[:space:]]*\"[[:space:]]*" nm "[[:space:]]*\"")) continue
+          seen = 0
+          for (k = j + 1; k <= FNR && seen < 3; k++) {
+            if (C[k] ~ /[^[:space:]]/) {
+              seen++
+              if (C[k] ~ /(^|[^A-Za-z0-9_])extern([^A-Za-z0-9_]|$)/) { print FILENAME ":" i; exit }
+            }
+          }
+        }
+      }
+    ' "$f" 2>/dev/null)"
+    [ -n "$out" ] && break
+  done < <(grep -rl --include='*.cs' -E '^[[:space:]]*\[[[:space:]]*DllImport[[:space:]]*\(' "$DECL_TREE" 2>/dev/null | LC_ALL=C sort)
+  [ -n "$out" ] || return 1
+  printf '%s' "$out"
 }
 
 # ── 方向口径闸（`TASK-0741`：口径**自证**；坏 ⇒ 响亮）────────────────────────
@@ -147,6 +214,18 @@ g10_name_check() {
   #     —— 无名是「**算出来的状态**」（应用侧确实没有具名 `entry=`），**不属"判不了"**；只有**名单源取不到**才是
   #     `NOINFO`。⇒ 三支定型：**无名 ⇒ `PASS`（不进 `fails`／`cannot`）｜名单源不可读 ⇒ `NOINFO`（折 `cannot`）
   #     ｜具名但名单外 ⇒ `FAIL(off-roster)`（折 `fails`）**。
+  #   ⏪ dated 更正（`t76`／scribe，2026-09-28；**域前提修正，不放宽 `G10b`**）：上面那条把
+  #     「名单外」一律判 `FAIL` —— 它的**域前提是**「`entry=` 恒为 PTS 名」（拿 `k_pts_entries[]` 对拍）；
+  #     实测该前提**不成立**：`entry=` 取自**内层异常的入口名**（`PtsCache.Linux.cs` 的 `Describe()`）
+  #     ⇒ 取值域 ＝ **DllImport 入口名**，**不必属 PTS**（现场 `LoSetDoc` ＝ LineServices 族）
+  #     ⇒ 老形态会把一个**合法状态**判成**常驻红**。新形态 **按域分格**（判序写死、两级内容锚）：
+  #       · ① `k_pts_entries[]` 命中 ⇒ `pts-declared`（**G10b 一格不放**：PTS 域仍只在在册表内取绿）；
+  #       · ② 未命中 ∧ 声明树里命中 `DllImport … EntryPoint="<名>"` ⇒ `dllimport-entry` ⇒ 该格绿，
+  #            并**点名声明的 `file:line`**（`decl=` 字段）；**不**拿 PTS 名册去判它；
+  #       · ③ 两级都不命中 ⇒ `unattributable` ⇒ **红并点名**（`off-roster=` 字段原样保留）；
+  #       · 声明树不在 ⇒ `NOINFO(reason=decl-tree-absent)`（**永不当绿**）。
+  #     ⚠️ 只**增字段**（`domains=`／`decl=`），三态与既有字段（`frontier=`／`off-roster=`／`roster=`／
+  #        `observed=`／`names=`／`form=`／`reason=`）**一个不减**。
   local dir="$1" obs names_all n_names roster n_roster off nm
   obs="$(grep -o 'entry=[A-Za-z0-9_]*' "$dir/app_g1.log" 2>/dev/null | sed 's/^entry=//' | grep -v '^unknown$' | sort | uniq -c | sort -rn | head -1 | awk '{print $2}')"
   names_all="$(grep -ao 'entry=[A-Za-z0-9_]*' "$dir/app_g1.log" 2>/dev/null | sed 's/^entry=//' | grep -v '^unknown$' | LC_ALL=C sort -u)"
@@ -163,19 +242,40 @@ g10_name_check() {
     G10_RC=2; G10_TOKEN="g10-name-roster-source-unreadable"
     return 0
   fi
-  off=""
-  for nm in $names_all; do
+  # ── 按域分格（`t76`）：① 在册表 ⇒ pts-declared｜② 声明树命中 ⇒ dllimport-entry｜③ 都不命中 ⇒ unattributable
+  local doms="" off="" decl="" nm2 dom hit tree_absent=0
+  for nm2 in $names_all; do
     case $'\n'"$roster"$'\n' in
-      *$'\n'"$nm"$'\n'*) ;;
-      *) off="$off$nm," ;;
+      *$'\n'"$nm2"$'\n'*) dom="pts-declared" ;;
+      *)
+        if [ ! -d "$DECL_TREE" ]; then
+          dom="tree-absent"; tree_absent=1
+        else
+          hit="$(decl_hit "$nm2")"
+          if [ -n "$hit" ]; then
+            dom="dllimport-entry"; [ -n "$decl" ] || decl="$hit"
+          else
+            dom="unattributable"; off="$off$nm2,"
+          fi
+        fi ;;
     esac
+    case ",$doms," in *",$dom,"*) ;; *) doms="${doms:+$doms,}$dom" ;; esac
   done
   if [ -n "$off" ]; then
-    echo "PTS_G10_NAME=FAIL frontier=$obs off-roster=${off%,} roster=$n_roster（具名行**不在在册名单**内 ⇒ 红并点名；名单源=$ROSTER_SRC）"
+    echo "PTS_G10_NAME=FAIL frontier=$obs off-roster=${off%,} roster=$n_roster domains=$doms decl=${decl:-none}（域归因**失败**：该名**既不在 PTS 在册表、也无「DllImport…EntryPoint=」声明位** ⇒ 红并点名；声明树=$DECL_TREE）"
     G10_RC=1; G10_TOKEN="g10-name-off-roster(${off%,})"
     return 0
   fi
-  echo "PTS_G10_NAME=PASS observed=$obs names=$n_names roster=$n_roster（形态判据：具名行**在在册名单内**；不写死任何名字）"
+  if [ "$tree_absent" = 1 ]; then
+    echo "PTS_G10_NAME=NOINFO reason=decl-tree-absent tree=$DECL_TREE frontier=$obs roster=$n_roster（非 PTS 域的声明树不在 ⇒ **判不了** ⇒ 永不当绿）"
+    G10_RC=2; G10_TOKEN="g10-name-decl-tree-absent"
+    return 0
+  fi
+  if [ "$doms" = "pts-declared" ]; then
+    echo "PTS_G10_NAME=PASS observed=$obs names=$n_names roster=$n_roster domains=$doms（形态判据：具名行**在在册名单内**；PTS 域不写死任何名字）"
+  else
+    echo "PTS_G10_NAME=PASS observed=$obs names=$n_names roster=$n_roster domains=$doms decl=${decl:-none}（**域前提修正**：非 PTS 域判定为**该入口名在声明树里对拍上**（内容锚「DllImport … EntryPoint=<名>」，声明位见 decl 字段）⇒ 该格绿并将名字与声明位如实点名；**不**拿 PTS 在册表判它）"
+  fi
   G10_RC=0; G10_TOKEN="g10-name-PASS"
   return 0
 }
@@ -326,7 +426,22 @@ judge_legs() {
 selftest() {
   local T; T="$(mktemp -d)"; local npass=0 nfail=0
   export PTS_G10_ROSTER_SRC="$ROSTER_SRC"   # 副本（`_sb`/`_rz`/`_pf`）也要吃同一份名单源
+  export PTS_G10_DECL_TREE="$DECL_TREE"     # 同上：域判定的声明树也要传给副本
   local G10_FIX_NAME; G10_FIX_NAME="$(roster_names | head -1)"
+  # ⏪ `t82` 追记：**非 PTS 域夹具名必须现取**（不许写死）。现场：`t78` 把 `LoSetDoc`／`LoSetBreaking` 提进
+  #   `k_pts_entries[]`（10 → 12）⇒ 写死 `LoSetDoc` 的两条自测随世界腐坏（当时实测 `pass=38 fail=2`）。
+  #   取法（内容锚）：声明树里所有 `EntryPoint="<名>"` 名 − PTS 在册表 ⇒ 第一个即「非 PTS 域真名」。
+  local _ro _npts _npts_tree _save_tree
+  _ro="$(roster_names)"
+  _npts="$(grep -rhoE --include='*.cs' 'EntryPoint[[:space:]]*=[[:space:]]*\"[A-Za-z0-9_]+\"' "$DECL_TREE" 2>/dev/null \
+          | sed 's/.*"\([A-Za-z0-9_]*\)"/\1/' | LC_ALL=C sort -u \
+          | while IFS= read -r _n; do case $'\n'"$_ro"$'\n' in *$'\n'"$_n"$'\n'*) ;; *) printf '%s' "$_n"; break ;; esac; done)"
+  _npts_tree="$DECL_TREE"
+  if [ -z "$_npts" ]; then
+    _npts="LoFakeTreeRealZZ"; _npts_tree="$T/ft-real"
+    mkdir -p "$_npts_tree"
+    printf '[DllImport(DllImport.PresentationNative, EntryPoint="LoFakeTreeRealZZ")]\ninternal static extern int LoFakeTreeRealZZ(IntPtr p);\n' > "$_npts_tree/A.cs"
+  fi
   if [ -z "$G10_FIX_NAME" ]; then
     printf 'PTS_GUARD_SELFTEST=FAIL pass=0 fail=1 reason=roster-source-unreadable src=%s\n' "$ROSTER_SRC"
     return 1
@@ -470,6 +585,68 @@ selftest() {
   else
     nfail=$((nfail+1)); printf '  %-34s => rc=%-3s ✗ 期望 %s\n' "G10·名单源不可读 ⇒ NOINFO" "$_rc24" "rc=2+reason"
   fi
+  # ── `t76`：域前提修正的**三格两极化**（载体＝真路径 `app_g1.log`；域判定＝两级内容锚）──
+  # ㉕ PTS 域**假名**（形状像 PTS、在册表里没有）⇒ `FAIL`（`off-roster=` 点名）
+  good c25; printf 'TAB entry=LoNotARegisteredEntZZ\n' > "$T/c25/app_g1.log"
+            _o25="$(judge_legs "$T/c25" 2>&1)" || true; chk FAIL "$(out "$_o25")" "G10c·PTS假名 ⇒ 必红"
+            if grep -qF 'off-roster=LoNotARegisteredEntZZ' <<< "$_o25" && grep -qF 'domains=unattributable' <<< "$_o25"; then
+              npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "G10c·PTS假名 ⇒ 点名" "yes"
+            else
+              nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "G10c·PTS假名 ⇒ 点名" "no" "off-roster+domains=unattributable"
+            fi
+  # ㉖ 非 PTS 域**真名**（**现取**：不在 PTS 在册表 ∧ 声明树里对拍得上）⇒ 不红，且**点名声明位**
+  good c26; printf 'TAB entry=%s\n' "$_npts" > "$T/c26/app_g1.log"
+            _save_tree="$DECL_TREE"; [ "$_npts_tree" = "$DECL_TREE" ] || DECL_TREE="$_npts_tree"
+            _o26="$(judge_legs "$T/c26" 2>&1)" || true
+            DECL_TREE="$_save_tree"
+            chk PASS "$(out "$_o26")" "G10c·非PTS真名 ⇒ 不红"
+            if grep -qF 'domains=dllimport-entry' <<< "$_o26" && grep -qE 'decl=[^ ]*(upstream/wpf/.*\.cs|ft-real/A\.cs):[0-9]+' <<< "$_o26"; then
+              npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "G10c·非PTS真名 ⇒ 声明位点名" "yes"
+            else
+              nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "G10c·非PTS真名 ⇒ 声明位点名" "no" "domains=dllimport-entry+decl=<…>/(upstream/wpf|ft-real)/*.cs:<line>"
+            fi
+  # ㉗ 非 PTS 域**假名** ⇒ `FAIL`
+  good c27; printf 'TAB entry=NoSuchDeclaredEntryZZ\n' > "$T/c27/app_g1.log"
+            _o27="$(judge_legs "$T/c27" 2>&1)" || true; chk FAIL "$(out "$_o27")" "G10c·非PTS假名 ⇒ 必红"
+            if grep -qF 'off-roster=NoSuchDeclaredEntryZZ' <<< "$_o27"; then
+              npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "G10c·非PTS假名 ⇒ 点名" "yes"
+            else
+              nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "G10c·非PTS假名 ⇒ 点名" "no" "off-roster=NoSuchDeclaredEntryZZ"
+            fi
+  # ㉘ 声明树**不在** ⇒ 非 PTS 域判不了 ⇒ `NOINFO`（**永不当绿**；env 指空目录）
+  good c28
+            _o28="$(PTS_G10_DECL_TREE="$T/no-such-tree" bash "$0" --g10-name "$T/c26" 2>&1)"; _rc28=$?
+            if grep -qF 'reason=decl-tree-absent' <<< "$_o28" && [ "$_rc28" -eq 2 ]; then
+              npass=$((npass+1)); printf '  %-34s => rc=%-3s ok\n' "G10c·声明树缺席 ⇒ NOINFO" "$_rc28"
+            else
+              nfail=$((nfail+1)); printf '  %-34s => rc=%-3s ✗ 期望 %s\n' "G10c·声明树缺席 ⇒ NOINFO" "$_rc28" "rc=2+decl-tree-absent"
+            fi
+  # ── `t82`：**真声明锚**的三格（`t77` 的 `F1` 面）：假树自造，注释/字面量一律不吃 ──
+  mkdir -p "$T/ft1" "$T/ft2" "$T/ft3"
+  printf '// 本行只是注释里的示例：DllImport(Whatever, EntryPoint="LoCommentOnlyZZ") 供参考\n' > "$T/ft1/A.cs"
+  printf '// [DllImport(DllImport.PresentationNative, EntryPoint="LoCommentedOutZZ")]\n// internal static extern int LoCommentedOutZZ(IntPtr p);\n' > "$T/ft2/A.cs"
+  printf '[DllImport(DllImport.PresentationNative, EntryPoint="LoFakeTreeRealZZ")]\ninternal static extern int LoFakeTreeRealZZ(IntPtr p);\n' > "$T/ft3/A.cs"
+  good c29; printf 'TAB entry=LoCommentOnlyZZ\n' > "$T/c29/app_g1.log"
+            _o29="$(PTS_G10_DECL_TREE="$T/ft1" bash "$0" --g10-name "$T/c29" 2>&1)"; _rc29=$?
+            if grep -qF 'domains=unattributable' <<< "$_o29" && [ "$_rc29" -eq 1 ]; then
+              npass=$((npass+1)); printf '  %-34s => rc=%-3s ok\n' "G10c·注释假声明 ⇒ 必红" "$_rc29"
+            else
+              nfail=$((nfail+1)); printf '  %-34s => rc=%-3s ✗ 期望 %s\n' "G10c·注释假声明 ⇒ 必红" "$_rc29" "rc=1+domains=unattributable"
+            fi
+  good c30; printf 'TAB entry=LoCommentedOutZZ\n' > "$T/c30/app_g1.log"
+            _o30="$(PTS_G10_DECL_TREE="$T/ft2" bash "$0" --g10-name "$T/c30" 2>&1)"; _rc30=$?
+            if grep -qF 'off-roster=LoCommentedOutZZ' <<< "$_o30" && [ "$_rc30" -eq 1 ]; then
+              npass=$((npass+1)); printf '  %-34s => rc=%-3s ok\n' "G10c·注释掉的声明 ⇒ 必红" "$_rc30"
+            else
+              nfail=$((nfail+1)); printf '  %-34s => rc=%-3s ✗ 期望 %s\n' "G10c·注释掉的声明 ⇒ 必红" "$_rc30" "rc=1+off-roster=点名"
+            fi
+  good c31; printf 'TAB entry=LoFakeTreeRealZZ\n' > "$T/c31/app_g1.log"
+            _o31="$(PTS_G10_DECL_TREE="$T/ft3" bash "$0" --g10-name "$T/c31" 2>&1)"; _rc31=$?
+            if grep -qF 'domains=dllimport-entry' <<< "$_o31" && grep -qE 'decl=[^ ]*ft3/A\.cs:1' <<< "$_o31" && [ "$_rc31" -eq 0 ]; then
+              npass=$((npass+1)); printf '  %-34s => rc=%-3s ok\n' "G10c·真声明 ⇒ 绿＋点名" "$_rc31"
+            else
+              nfail=$((nfail+1)); printf '  %-34s => rc=%-3s ✗ 期望 %s\n' "G10c·真声明 ⇒ 绿＋点名" "$_rc31" "rc=0+dllimport-entry+decl=…"
+            fi
   rm -rf "$T"
   printf 'PTS_GUARD_SELFTEST=%s pass=%d fail=%d\n' "$([ "$nfail" = 0 ] && echo PASS || echo FAIL)" "$npass" "$nfail"
   [ "$nfail" = 0 ]
