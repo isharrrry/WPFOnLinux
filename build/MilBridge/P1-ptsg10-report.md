@@ -121,3 +121,52 @@ grep -n 'LoCreateContext|CreateInstalledObjectsInfo' build/MilBridge/tools/pts-p
 
 ---
 **自证口径**：本件末行携带 `head -n -1 build/MilBridge/P1-ptsg10-report.md | sha256sum | cut -c1-16` 的值；全文 `sha256` 只在交件消息里给（第 `24` 条）。
+
+## §10 ⏪ **dated 更正（`ts=2026-09-28T21:54` 队长裁定 → 本席 `21:54:55` 落盘）**：回正「无名」分支（**本条取代 §2 表格第 1 行与 §2 的修后读数行**）
+队长裁定逐条（原文照录其要点，`t73` attempt `e659c9f7…` 的 in-flight 指令）：**① 保留** `G10b`（在册名单牙、`FAIL(off-roster)` 折 `fails`）—— 并明示这条正是他契约里要求而**他自报未达成**的那一条（「名单外⇒必红在原实现里并不存在」）；**② 回正**：**无名 ⇒ `PASS`**（无名是**算出来的状态**，不是「算不出」），**不许折进 `cannot`**；只有 `roster_names` **取不到名单**才是 `NOINFO`。**③ 两条精度**（他据 `verifier` 复核采纳、提交 `6e5cd74`）：(a)「端口层无任何 `Lo*` `DllImport`」**只在 `build/**` ＋ `src/**` 面成立**（声明在 **`upstream/wpf/**`**，`…/TextFormatting/LineServices.cs` 起）；(b)「`PTS-PAGES` **不读** `entry=`」这半句**按实改写** —— 它**确实读**（就是 `g10_name_check`），只是**只报形态**；「其绿对前沿位移零证据力」的**结论仍成立**。
+
+**落法**：`g10_name_check()` 的无名分支 `NOINFO` ⇒ **`PASS form=unnamed reason=frontier-unnamed`**（`G10_RC=0` ⇒ **不进 `fails` 也不进 `cannot`**）；件头我上一趟加的那行与函数内 ⏪ 块**同趟改定为三支**（队长的原始 `⏪` 块与件头 `G10` 原句**一字未删**）；自测 ㉓ 的期望同趟由 `NOINFO` 改 `PASS`。**成对读数（写前／写后）**：`885f22a7025bc622`／**474** 行（`ts=21:52:27.711`，本席第一趟）⇒ **`59bffc8e5b5a621a`**／**483** 行（`ts=21:54:55.099`，第二趟）；对 `HEAD` 的 `git diff --numstat` ＝ `91 6` ⇒ **`100 6`**（删行仍 6，**全部是代码行**：匿名分支那一行 `echo` 等；**prose 0 删**）；`bash -n rc=0`；写前备份 `~/w281-scribe/bak/pts-pages-guard.sh.pre-t73b`（`cmp IDENTICAL`，写前 `%h=1`）。
+
+**三支定型 ＋ 队长点名的三条成对读数（原样，`ts` 见行内）**
+```
+支①正极·现树（真证据目录，默认名单源）ts=2026-09-28T21:55:00.741+0800
+  PTS_G10_NAME=PASS form=unnamed reason=frontier-unnamed（应用侧无具名 entry= ＝**算出来的形态**、不是「算不出」⇒ 本判据按形态通过；名字归因由 pts-gap-count-check.sh 的具名前沿判据承担）
+  PTS_GUARD=PASS legs=2/2 fails=- cannot=- diag=- direction=in-file phase=degraded          rc=0
+支②沙箱·具名但**不在册**（整步；腿件＝真证据副本）ts=2026-09-28T21:55:00.861+0800
+  PTS_G10_NAME=FAIL frontier=NotAnEntryZZ off-roster=NotAnEntryZZ roster=10（具名行**不在在册名单**内 ⇒ 红并点名；名单源=/home/…/src/WpfGfx.Linux.Native/src/win32_pts.c）
+  PTS_GUARD=FAIL legs=2/2 fails=g10-name-off-roster(NotAnEntryZZ) cannot=- diag=- direction=in-file phase=degraded   rc=1
+支③沙箱·**毁名册源**（`PTS_G10_ROSTER_SRC` 指空路径）ts=2026-09-28T21:55:00.992+0800
+  PTS_G10_NAME=NOINFO reason=roster-source-unreadable src=/tmp/t73-br/nonexistent-pts.c frontier=CreateInstalledObjectsInfo（**在册名单取不到 ⇒ 判不了 ⇒ 永不当绿**）   rc=2
+支③'毁名册源·整步 ts=2026-09-28T21:55:01.007+0800
+  PTS_GUARD=NOINFO legs=2/2 fails=- cannot=g10-name-roster-source-unreadable diag=- direction=in-file phase=degraded   rc=2
+夹具清除：fixture-removed-ok（/tmp/t73-br）
+```
+⇒ **三支定型（终版）**：**无名 ⇒ `PASS(form=unnamed)`（不进 `fails`／`cannot`）｜名单源不可读 ⇒ `NOINFO`（折 `cannot`）｜具名但名单外 ⇒ `FAIL(off-roster)`（折 `fails`）**。`--selftest`（终版）＝ `PTS_GUARD_SELFTEST=PASS pass=30 fail=0`，其中 `G10·` 六格：`在册名 ⇒ PASS`／`不在册 ⇒ 必红`／`不在册 ⇒ 点名`／`无名 ⇒ 判词 PASS`（**改判后**）／`无名 ⇒ reason 在位`／`名单源不可读 ⇒ NOINFO rc=2`。
+**如实记两点**：① 本席第一趟曾把「无名」折进 `cannot`（＝§2 表格第 1 行那个 `PTS_GUARD=NOINFO`），**已被本条取代**；队长给的理由（`NOINFO` 在门禁里同样是 ❌，而「前沿无名」在 `PTS` 长线上是长期常态 ⇒ 等于用 `NOINFO` 造长期红）**入册**。② §3 里「队长版对名单外名判绿」那条**仍然成立**（那是「在册名单」这条牙的**增益**证明，与「无名」分支无关）。
+
+## §11 第 `28` 条（**第二趟**）＋ 终态读数
+```
+cell=#1 追写（第二趟，guard v2 之后＝最后一次覆盖件写盘之后）：
+  PRE  587 行／e8ad9bb432b59af7／177454 B／644／%h=1（备份 ~/w281-scribe/bak/HANDOFF-NEXT.md.pre-t73b，cmp IDENTICAL）
+  ts=2026-09-28T21:55:1x+0800  fp 现值 ＝ 4dc922684b575124675234713df9f033814ba8483e32fe717530cc3659158412（命令：bash ~/w153a/bin/infp.sh fp）
+  POST 588 行／a512a6853372672c／177979 B／644／numstat **1 0**；写后复读 fp 同值（逐位相同）
+HANDOFF-MV 成对：ts=21:52:57.402 DIVERGED rc=1 cells=9 equal=6 manual=1 mismatch=2 reasons=,#1:covered-file-changed-since-ts,#3:external-state-changed-since-ts（第一趟追写**之前**）
+                ts=21:53:35.421 PASS     rc=0 cells=9 equal=8 manual=1 mismatch=0 uncomparable=0 reasons=none（第一趟追写**之后**）
+                ts=21:55:22.835 PASS     rc=0 cells=9 equal=8 manual=1 mismatch=0 uncomparable=0 reasons=none（第二趟追写**之后**）
+  ⚠️ 如实记：第二趟在「guard v2 写盘（21:54:55）」与「cell=#1 追写（21:55:1x）」之间**未取 HANDOFF-MV 读数**（不臆造中间态）；v2 使 `fp` 位移这件事由 fp 成对证明（`1d61fbe0…` → `4dc922684b575124…`）。
+终态读数（现取）：run_step=62 ｜ coverage=234 ｜ `# VERIFYALL-STEPS-DECL: 62 gen=#81` 在位 ｜ `run_step "FP-MANIFEST-TEETH" … --expect 234` 在位
+                    PIPEFAIL_SIGPIPE=PASS undeclared_hit=0 sites=100 hit=0（新代码用 bash `case` 匹配，无 `printf | grep -q` 站点）
+                    哨兵：cmp IDENTICAL；`sha16 80041e1c76d4cea8`（**他者** `mtime 21:53:39.145/.147` 所写，本席从未写哨兵；本席早前读数 `386865f802c2a1ff` ⇒ 期间被他者改过，如实记）
+static-jaws（**终版复跑** ts=21:55:43→21:56:24）：`STATICJAWS=PASS n=31 excluded=31 noinfo=1 n_total=62` rc=0
+                    唯一 NOINFO＝`FrameProbe-frame rc=2`（约定）；`PTS-PAGES` 仍在排除面：`reason=display-or-legs cmd=bash build/MilBridge/tools/pts-pages-guard.sh --legs "$PTS_EVIDENCE_DIR"` ⇒ 该步**不在**本牙被判量里，其本体读数见 §10 支①
+                    （对照：本席第一趟 ts=21:53:44 读到 `FAIL fails=1`（唯一红 `SENTINEL-SPEC`）＝**他者哨兵改写期间**的瞬时态；该红随 `21:53:39` 的哨兵改写与他 `t74` 提交而消，**不是**本件的修改面）
+```
+**未做**（本件边界，逐条）：未跑整趟门禁、未跑 `dotnet`／构建／应用／显示位；未动 `docs/ROUTES.md`／`samples/WpfFeatureProbe/KNOWN-DEFECTS.md`／`TASK-0007` 判据文本／`build/MilBridge/arm-logs/`／`src/**`（只读）／`verify-all.sh`／`build/close-wave.sh`／两枚哨兵；未 `git add`／`commit`／`push`（提交归队长；本席已把在飞件 `pts-pages-guard.sh` 终态值报给他）。三批夹具（`/tmp/t73-fx`／`fx2`／`fx3`／`br`）与临时件**全部已删**；`git status --porcelain` 里的其余差异属他者（`docs/ROUTES.md`／`samples/WpfTextDemo/ACCEPTANCE-BASELINE.md`／`docs/CURRENT-STATE.md`／`known-red.json`／`wave-freeze-consistency-check.py`／`defect-registry-declared.tsv`／`?? P1-w7-*.md` 等）**归属未核、本席未读未改**。
+
+## §12 ⏪ 收口追记（`ts=2026-09-28T21:57:10` 现取）：队长提交与「本席写后他者再追加」的终态
+队长已把本件三件提交为 **`7bccbf4`**「docs(#81): t73（scribe 版收口）—— pts-pages-guard 加 G10b 名册检查 + 无名分支回正为形态 PASS」，提交级 `numstat` ＝ `build/MilBridge/tools/pts-pages-guard.sh **100 6**` ／ `build/MilBridge/HANDOFF-NEXT.md **2 0**` ／ `build/MilBridge/P1-ptsg10-report.md **123 0**`（⇒ **提交级删行仍为 6，全在判据件的代码面**）。
+- `pts-pages-guard.sh`：`HEAD` 版 ＝ **`59bffc8e5b5a621a…`／483 行**，与工作树**逐位相同**（`git diff --numstat` 空）⇒ 落定。
+- `HANDOFF-NEXT.md`：本席写后**他者又追加一行**（`ts=21:55:36.408`，同值 `4dc92268…`）⇒ **终态 589 行／`90b7e0f8ac60a45d…`**；`HEAD` 笔里 `cell=#1` 两行＝`21:55:18.833`（**本席**）与 `21:55:36.408`（**他者**，值相同）。§11 里那个「588 行／`a512a6853372672c`」是**本席那次写入的瞬时值**，不与他者追加矛盾。
+- `P1-ptsg10-report.md`：`HEAD` 版 ＝ 123 行（本席第一版）；本席**收口版** ＝ **165 行**（`git diff --numstat` ＝ `42 0`，纯追加）**仍在工作树（未提交）** —— 提交归队长。
+- 复核（收口后现取，`ts=21:57:00.711`）：`HANDOFF_MV=PASS cells=9 equal=8 manual=1 mismatch=0 uncomparable=0 reasons=none` rc=0；`fp=4dc922684b575124675234713df9f033814ba8483e32fe717530cc3659158412`（与 `cell=#1` 现值逐位相同）；`DEFREG=PASS declared=223 route_ids=223`；`REPORTID=PASS files=230 ids=2188 declared=223`；`static-jaws` `STATICJAWS=PASS n=31 excluded=31 noinfo=1 n_total=62`（`ts=21:56:24.074`）。
+**本件自证**：`head -n -1 build/MilBridge/P1-ptsg10-report.md | sha256sum | cut -c1-16` ＝ `1391ad2efb45c16d`（本行系末行；上列各节即被哈希的全文）
