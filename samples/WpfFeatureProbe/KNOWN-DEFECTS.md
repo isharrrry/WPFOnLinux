@@ -3786,3 +3786,60 @@ AE 上界本就在 1 万量级；`P3>20000` 是按"弹窗=一整块白"的几何
 - **边界（如实划界）**：**不做修法**（把「模式守恒」写进统一落盘器或做成牙 ⇒ 另排波次）；本条只覆盖**在册三件实例的位移与恢复**，不声称全仓无其它模式位移。
 - **同族（不合并）**：**「声称与现场不符／静默假绿」族**（`D-G103`）。
 
+
+### ⏪ **dated 补记（`t59`／登记批补记轮：`D-G187` 第 `2` 形态 ＋ `O1`／`O2`／`O5`／`O6` 四条低危关账 ＋ `D-G186` 两条并列口径；读时 2026-09-28T18:46:48.863+0800）**
+
+⏪ **本块口径（写死）**：**只增不改**（上文一字未删）；本趟**只做文本与口径补记**，**不做任何装置修法**（`build/MilBridge/tools/**` 装置件一字未动；同趟唯一改动的非文本件是 `build/MilBridge/tools/defect-registry-declared.tsv` 的 `--emit` 重发）；读数一律**捕获式取 `rc`**（`cmd >out 2>err; echo $?`，**不接管道**）；行号一律**仅本次有效**；本件**写后**的 `sha16`／行数与 `DECL-GEN` 行见交件载体 `build/MilBridge/P1-dg187b-report.md`（本件**不写自身写后 `sha16`** ⇒ 避免**自指**使 `DECL-ANCHORS` 的 `KD=` 锚抖动）。
+
+⏪ **① `O4` → `D-G187` 补「第 `2` 形态」（并入同一条目，**不另起号**）：工作树／索引**长期分叉**，git **不可见****（本席现取复算，`ts=2026-09-28T18:44:50.624+0800`；件集 ＝ `build/MilBridge/tools/*.sh`，共 `72` 件）
+- **第 `2` 形态一句话（逐字）**：**「工作树与索引长期分叉（`600` 档 `15` 件／`711` 档 `28` 件，合 `43/72`；仅 `29/72` 处在规范档），其中 `600` 档对直接执行是真故障。」**
+- **两口径成对现值（同一 `72` 件集合）**：工作树 `stat -c %a` ＝ `600×15`／`644×13`／`711×28`／`755×16`；`git ls-files -s` ＝ `100644×28`／`100755×44` ⇒ **工作树四档、索引两档 ⇒ 长期分叉**。
+- **档位分解（交叉表，逐档给数）**：`100644 ⇒ 600` **`15`** 件｜`100755 ⇒ 711` **`28`** 件（合 **`43/72`** ＝ git **看不见**的那一半）｜规范档 `100644 ⇒ 644` **`13`** 件 ＋ `100755 ⇒ 755` **`16`** 件 ＝ **`29/72`**。
+- **补①（最关键，逐字）**：`git config core.fileMode` 现取 ＝ **`true`**，而**「索引 `x` 位 vs 工作树 `x` 位」不一致件数 ＝ `0`**（本席自算，同 `ts`）⇒ **`porcelain`／`status` 之所以干净，不是 git 不看模式，而是这一分叉**恰好全落在 `x` 位之外**** ⇒ **「`git status` 干净」不得当模式守恒的机器证**（条件一变它立刻会看见）。
+- **补②（`rc=126` 机制，副本自证、**仓外**，本席现取 `ts=2026-09-28T18:45:06.853+0800`）**：`stat=600` ⇒ `./x.sh` **`rc=126`**（`stderr` `1` 行，原样 `bash: 行 1: ./x.sh: 权限不够`）；同件 `bash x.sh` ⇒ **`rc=3`**（真跑、`stderr` `0` 行）⇒ **「`bash <件>` 调用式把 `600` 完全掩盖」**；`stat=755` ⇒ 同件 `./x.sh` **`rc=3`**、`bash x.sh` **`rc=3`**（两腿一致）⇒ 与第 `1` 形态的 `rc=126` **同一机源**（副本在仓外，**仓内残留 `0`**）。
+- **仓内调用式样例（逐字，现取 `:1200`，仅本次有效）**：`run_step "SELFDESC-WIRING" bash build/MilBridge/tools/selfdescription-wiring-check.sh` —— **`bash <件>` 形态正是把 `600` 完全掩盖的那一种**。
+- **实例件（现取，`ts=2026-09-28T18:44:55.952+0800`）**：`build/MilBridge/tools/selfdescription-wiring-check.sh` ＝ `stat -c %a` **`600`** ／ `git ls-files -s` **`100644`** ／ `182` 行；内容与 `05148bb^` 对拍（`git diff --numstat`）**无输出 ⇒ 差 `0` 行**。
+- **两个形态都要保留**：第 `1` 形态（`100755 → 100644`，git **可见**：`git show --summary` 会点名）＋ 第 `2` 形态（工作树档位分叉，git **不可见**）。
+- **边界（如实划界）**：**只登记、不修**（修它要动 `72` 件模式且无判据需求 ⇒ 另排波次）；`711` 档（owner 有 `x`、无 `w`）**在直接执行上是通的、不是坏档** —— 本席**不把 `711` 读成坏档**，只把 `600` 档写成对直接执行的**真故障**。
+- 🔴 **口径句（新增，永久，逐字）**：**「凡报『模式无位移』，必须同时给 `stat -c %a` 与 `git ls-files -s` 两口径；两口径不一致必须分别报，不许只报其一然后说『无位移』；『`git status` 干净』不得当模式守恒的机器证。」**
+
+⏪ **② `O1` 关账 —— `D-G184` 补「**最小复现的命令原文**」（上文只有配方；本席现取 `ts=2026-09-28T18:45:26.280+0800`，两条腿都**捕获式取 `rc`**）**
+- **正极（现取世界）**：`bash build/MilBridge/tools/selfdescription-wiring-check.sh >out 2>err; echo $?` ⇒ **`rc=0`**、`err` `0` 行；原样：
+```
+SELFDESC_WIRING=PASS examined=72 wired=50 unwired=22 undeclared=51 fails=0 run_step=61
+```
+  三件（`sentinel-spec-check.sh`／`wave-push.sh`／`timestamp-order-check.sh`）**各得一条 `SELFDESC_FILE … header=selfdesc-wired run_step=hit verdict=PASS rule=-`、无一条 `FAIL` 逐件行**（三条原样见交件载体）。
+- **反极（**仓外副本**：先 `mkdir -p <沙箱>/build/MilBridge/tools` ＋ `cp -p verify-all.sh <沙箱>/` ＋ `cp -p build/MilBridge/tools/wave-push.sh <沙箱>/build/MilBridge/tools/`，再往该副本**件头加一行行首无 `#`** 的「本件未接线（不进 verify-all）」，然后 `bash build/MilBridge/tools/selfdescription-wiring-check.sh --root <沙箱> >out 2>err; echo $?`）** ⇒ **`rc=1`**、`err` `0` 行；原样：
+```
+SELFDESC_FILE file=build/MilBridge/tools/wave-push.sh header=selfdesc-notwired run_step=hit verdict=FAIL rule=forward-selfdesc-notwired-but-wired
+SELFDESC_ROSTER examined=1 wired=1 unwired=0 undeclared=0 selfdesc_notwired=1 selfdesc_wired=1 fails=1
+SELFDESC_WIRING=FAIL examined=1 wired=1 unwired=0 undeclared=0 fails=1 run_step=61
+```
+  ⇒ **点名该件与 `rule=forward-selfdesc-notwired-but-wired`**；夹具全在仓外，**仓内残留 `0`**。
+
+⏪ **③ `O2` 关账 —— `D-G185` 现象行自称「逐条点名」却用 `…` 省略了 `9` 个 `tag` ⇒ 本条把集合**补全****（本席现取 `ts=2026-09-28T18:45:30.505+0800`；**帧仍在长 ⇒ 系过程值、非结账值**）
+- 台账 `~/t7-runner/runs.tsv` 现取：**总行 `215`／数据行 `214`／唯一 `tag` `202`／重复 `tag` `12` 个**（本席自算；上文现象行的 `171／170／158／12` 是 `18:13:34` 的**当时值**）。
+- **`12` 个重复 `tag` 逐条（原样，无省略）**：`A6C`／`W126`／`W127`／`W128`／`W129`／`W130`／`W131`／`W132`／`W133`／`W134`／`W135`／`W136`（**每个 ×2**）。重跑命令：`tail -n +2 ~/t7-runner/runs.tsv | cut -f1 | sort | uniq -cd | awk '{printf "%s×%s ", $2, $1}'`。
+- ⇒ **「逐条点名」这一自称自此与现场一致**（省略号只留在上文原句里，本行给出全集；**上文一字未删**）。
+
+⏪ **④ `O5` 关账 —— `D-G184` 里三个 `sha16` 的**口径** ＝ **整件**值（不是「紧邻那句所引件头某行」的前 `16` 位）**（本席现取复算，`ts=2026-09-28T18:45:16.709+0800`）
+- `build/MilBridge/tools/sentinel-spec-check.sh`：**整件** `sha256` 前 `16` 位 ＝ `7887de15d07b1f0d`（`119` 行）—— 与上文所载**逐位相同**。
+- `build/MilBridge/tools/wave-push.sh`：**整件** `sha256` 前 `16` 位 ＝ `bb7440867a646b32`（`143` 行）—— 与上文所载**逐位相同**。
+- `build/MilBridge/tools/timestamp-order-check.sh`：**整件** `sha256` 前 `16` 位 ＝ **`4483f12e222d98c8`**（`222` 行）—— ⚠️ 上文所载 `05dbf89b6c5e776e` 是 `t54` **当时**的整件值，已因 `t60` 的去反引号修法**过期** ⇒ 按本区第 `24` 条**以现取为准**。
+- **口径（写死）**：三处一律是**整件** `sha256` 的前 `16` 位（`sha256sum <件> | cut -c1-16`）；读者**不得**读成「该行内容的前 `16` 位」。
+
+⏪ **⑤ `O6` 关账 —— `D-G186` 第 `5` 实例所引 `declared=218` 系**当时值** ⇒ 按第 `24` 条改写为「以现取为准 ＋ `ts=`」**（本席现取，`ts=2026-09-28T18:45:53.302+0800`）
+- 现取：`DEFREG=PASS` 且 **`declared=222 route_ids=222`**（捕获式 `rc=0`、`stderr` `0` 行；命令 `bash build/MilBridge/tools/defect-registry-check.sh | tail -1`）。
+- **`218 → 222` 的 `+4` 归因（本席自算，两条现取）**：`05148bb`（`t53` 登记批）**同趟**入册 `D-G184`／`D-G185`／`D-G186`／`D-G187` 四号 —— `^ID` 行数 `05148bb^` ＝ **`218`** ⇒ `05148bb` ＝ **`222`**（**`+4`**）；且该四号在 `05148bb^` 现取出现 **`0`** 次、在 `05148bb` 现取出现 **`4`** 次。
+- ⇒ 上文那句「显式注入全量 `DRC_*` ⇒ `DEFREG=PASS declared=218 route_ids=218`」**仍是那次实验的当时读数**（原句一字未删）；**判据以现取为准**（第 `24` 条）—— **两值都要能读、冲突时取现取**。
+
+⏪ **⑥ `D-G186` 的两条**并列口径**（写进本条正文；源：`t58` 现场 ＋ `t60` 修法；本席现取 `ts=2026-09-28T18:46:01.962+0800`）**
+- **口径 A（计数语义）**：`shell-quote-trap-check.sh` 的 **`traps=N` 里的 `N` ＝ 反引号个数、不是行数** —— 同一条 `echo "…"` 行里**两个反引号各打一行** `SHELL_QUOTE_HIT`（同 `line=`、不同 `col=`）⇒ **计数与「件:行」站点数不等**。
+- **口径 B（站点归属；**与 A 并列写**，免后人按行数去找并不存在的第 `3`／`4` 处）**：写前那 `4` 个反引号落在 **`2` 处** —— ① `build/MilBridge/tools/handoff-machine-values-check.sh:94`（**`t57` 引入**）② `build/MilBridge/tools/timestamp-order-check.sh:112`（**既存**，自 `3aaaa3e`／W4a 起逐字相同）；**两处已由 `t60` 去掉**（分别改写成不带反引号的 `（cell=#7 是推送面/流水线敏感量 ⇒ 不许呈机读形态）` 与 `（date -d 解不出 ⇒ 不判）`）。
+- **并列的成对读数（本席现取）**：**写前**（同件集沙箱，`ts=2026-09-28T18:39:42.341+0800`）`SHELL_QUOTE_TRAP=FAIL reason=dq-backtick traps=4`，即 **反引号 `4` 个／「件:行」站点 `2` 处**；**写后（现取，`ts=2026-09-28T18:46:01.962+0800`）** `SHELL_QUOTE_TRAP=PASS reason=ok traps=0`，即 **`0` 个／`0` 处**（捕获式 `rc=0`、`stderr` `0` 行、`^SHELL_QUOTE_HIT` 行 `0`）。
+- **旁证（同趟，捕获式）**：`PIPEFAIL-SIGPIPE` —— 写前 `rc=1`／`undeclared_hit=1`／`sites=101` ＋ 点名 `handoff-machine-values-check.sh:96` ⇒ **写后（现取）`rc=0`／`PIPEFAIL_SIGPIPE=PASS undeclared_hit=0 declared=0 files=113 sites=100 hit=0 low=10 diag=5 safe=85 runs=12`**、点名行 **`0`** 行。
+- ⚠️ **边界**：本条**不改** `SD_*` 或任何牙；两处修法属 `t60`（载体 `build/MilBridge/P1-w4b-repair3-report.md`），**本条只把口径与成对现值入册**（与同批写入的 `HANDOFF-NEXT.md` 第 `27` 条同源）。
+
+⏪ **本趟写入范围与自证**：写域**只有三件** —— 本件（`samples/WpfFeatureProbe/KNOWN-DEFECTS.md`）、`build/MilBridge/tools/defect-registry-declared.tsv`（同趟 `--emit` 重发）、新建载体 `build/MilBridge/P1-dg187b-report.md`；**本件模式两口径**：`stat -c %a` ＝ `644`／`git ls-files -s` ＝ `100644`（写前 `ts=2026-09-28T18:44:40.831+0800` 与写后**逐位相同**）。**写入前后成对读数**（本件与 `declared.tsv` 的 `sha16`／行数、`DECL-GEN` 行、两遍 `DEFREG` 尾三行、四条不变量、两枚哨兵 `cmp`）**全部见交件载体**（本块**不写自身写后 `sha16`** —— 写它会改本件 ⇒ 使 `DECL-ANCHORS` 的 `KD=` 锚抖动，属**自指**，与本区第 `24` 条同族）。
+
+⏪ **`NOINFO`（具名，既不算绿也不算红）**：① **`D-G187` 第 `2` 形态只登记不修**（修它要动 `72` 件模式且无判据需求）⇒ 「修后是否无分叉」**未验**｜② `D-G185` 的台账读数**系过程值**（帧仍在长：同一会话内两次现取 `171 → 215`）⇒ **不是结账值**，凡以该台账作分母的结论仍须按该条口径重报｜③ **未跑整趟 `verify-all`**（会构建）⇒ 本趟只验**规则面与两枚哨兵**，端到端绿**未验**｜④ `O5` 里 `t54` 当时值 `05dbf89b6c5e776e` **已无法再复现为现取**（该件已被 `t60` 改）⇒ 旧值**只作留档**｜⑤ 本趟**未复核** `D-G186` 的「允许表」机制（写前读数 `allow=0`，本趟未使用）⇒ 其豁免口径**未验**。
