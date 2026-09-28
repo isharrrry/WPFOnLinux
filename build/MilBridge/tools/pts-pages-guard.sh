@@ -19,7 +19,7 @@
 #   G7  leg 23 `ns == HandyControlDemo.UserControl.RichTextBoxDemo`    否 ⇒ NOINFO
 #   G8  leg 24 托管侧具名行 `[PTS-UNAVAILABLE] site=FlowDocumentView.DocumentPage` ∧ `err≠0`  否 ⇒ FAIL
 #   G9  leg 23 同上                                                         否 ⇒ FAIL
-#   G10 至少一条 native `PTS_GAP entry=LoCreateContext`           否 ⇒ FAIL
+#   G10（⏪ 2026-09-28 改形态）具名 `entry=` 在位（`unknown` 不算）       否 ⇒ NOINFO(frontier-unnamed)（**不进 rc**；判据文本见 `g10_name_check()` 块内注释）
 #   G11 `DEV x_up=yes`                          否 ⇒ NOINFO（装置没起来 ⇒ 读数无效，不是红）
 #   G12 两腿 `five_stable=yes`                  否 ⇒ NOINFO（跑的过程中件被换）
 #
@@ -105,24 +105,30 @@ direction_gate() {   # ⚠️ **绝不可用命令替换调用**（子壳里赋�
 #   · ⚠️ **`verify-all.sh` 的行号必须现取、不许写死**（历史在册句引 `:1173`，现取命中行不是它）⇒ 本件不写步号、不写行号。
 # 【`t14`／W2·B-8】件头 G10 具名 ⇔ 现取前沿（**口径搬进判据件自身**；不符 ⇒ 红并点名；算不出 ⇒ NOINFO）
 g10_name_check() {
-  local dir="$1" hdr obs
-  hdr="$(sed -n 's/.*G10 至少一条 native `PTS_GAP entry=\([A-Za-z0-9_]*\)`.*/\1/p' "${BASH_SOURCE[0]}" | head -1)"
-  obs="$(grep -o 'entry=[A-Za-z0-9_]*' "$dir/app_g1.log" 2>/dev/null | sed 's/^entry=//' | sort | uniq -c | sort -rn | head -1 | awk '{print $2}')"
-  if [ -z "$hdr" ] || [ -z "$obs" ]; then
-    echo "PTS_G10_NAME=NOINFO reason=算不出来 header='${hdr}' observed='${obs}'（**不许当绿**）"
+  # ⏪ dated 更正（队长，2026-09-28；本块即判据文本，按 D-G142 口径活在本件内）：
+  #   本函数**不再**从件头抓写死的名字、也不再与现取前沿做相等比对 —— 那是**自指**设计
+  #   （判据从自己的注释取"期望名"），且在前沿**结构性无名**时（`t63` 把 `entry=LoCreateContext`
+  #   关成 `3→0` 之后，应用侧只记 `entry=unknown`）会把一个**合法状态**判成红，并**早退**
+  #   吞掉 `PTS_GUARD=` 判词行（现场：`rc=1` 且输出只有 `PTS_G10_NAME=FAIL` 一行）。
+  #   新形态（**职责分离、不放宽**）：本函数只报**形态**，**不进 rc**：
+  #     · 无具名 entry（只有 `unknown` / 空） ⇒ `NOINFO(reason=frontier-unnamed)`
+  #     · 有具名 entry ⇒ `PASS observed=<名>`；多名字 ⇒ 附 `names=<n>`
+  #   「名字是否可归因 / 是否假进度」由 `pts-gap-count-check.sh` 的具名前沿判据与它的
+  #   `FAKE-PROGRESS` 腿承担（`t63` 已真跑兑现）；本函数不再重复承担那条判据。
+  local dir="$1" obs n_names
+  obs="$(grep -o 'entry=[A-Za-z0-9_]*' "$dir/app_g1.log" 2>/dev/null | sed 's/^entry=//' | grep -v '^unknown$' | sort | uniq -c | sort -rn | head -1 | awk '{print $2}')"
+  n_names="$(grep -o 'entry=[A-Za-z0-9_]*' "$dir/app_g1.log" 2>/dev/null | sed 's/^entry=//' | grep -v '^unknown$' | sort -u | wc -l | tr -d ' ')"
+  if [ -z "$obs" ]; then
+    echo "PTS_G10_NAME=NOINFO reason=frontier-unnamed（应用侧无具名 entry= ⇒ 前沿此刻结构性无名；只报形态、不进 rc）"
     return 0
   fi
-  if [ "$hdr" != "$obs" ]; then
-    echo "PTS_G10_NAME=FAIL header=$hdr observed=$obs（件头具名与现取前沿不一致 ⇒ 红并点名）"
-    return 1
-  fi
-  echo "PTS_G10_NAME=PASS header=$hdr observed=$obs"
+  echo "PTS_G10_NAME=PASS observed=$obs names=$n_names"
   return 0
 }
 
 judge_legs() {
   local dir="$1"
-  g10_name_check "$dir" || return 1
+  g10_name_check "$dir" || true
   local fails=() cannot=() diags=()
   local k alive rc mag colors ns msite merr nerr ngap ae seq logb ink
   direction_gate || true
