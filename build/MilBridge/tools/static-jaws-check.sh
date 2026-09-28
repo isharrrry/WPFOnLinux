@@ -55,6 +55,10 @@ EXCL_LONG='pc-line-step.sh|hidden-only-step.sh'
 EXCL_WRITE='push-marker-write.sh'
 EXCL_INTERACTIVE='r-gate-step.sh'
 BARE_ERE='^bash[[:space:]]+build/MilBridge/tools/[A-Za-z0-9._-]+\.sh([[:space:]]+--dry-run)?[[:space:]]*$'
+# 只读带参白名单（⏪ 队长 2026-09-28 扩射程）：这些步**带参数但只读**、且参数可照 `verify-all.sh` 的默认表达式展开。
+#   纳入理由：本会话四条已接线红里有两条（`QUOTE-TRAP` 系、`GATE_PROBE` 系）正是**这类步**发现的，此前落在射程外。
+#   `ARM_LOGS` 的默认表达式**逐字照抄** `verify-all.sh:668`（不写死路径）。
+RO_PARAM_JAWS='tline-gate.sh'
 DISPLAY_ERE='--legs|Xvfb|xdpyinfo|DISPLAY='
 
 say() { printf '%s\n' "$*"; }
@@ -68,6 +72,8 @@ classify_exclusion() {  # $1=cmd $2=name ⇒ 印 reason（空串＝可收）
     build_sln_and_samples*)      say "non-bare-step:shell-function-step"; return 0 ;;
   esac
   if [[ "$cmd" =~ $DISPLAY_ERE ]]; then say "display-or-legs"; return 0; fi
+  local _b; _b="${cmd##*build/MilBridge/tools/}"; _b="${_b%% *}"
+  if [[ "$_b" =~ ^($RO_PARAM_JAWS)$ ]]; then say ""; return 0; fi
   if [[ "$cmd" =~ $BARE_ERE ]]; then say ""; return 0; fi
   say "non-bare-step:argv-not-bare"; return 0
 }
@@ -108,7 +114,12 @@ main_check() {
     tf="$(mktemp -d)"; out="$tf/out"; err="$tf/err"
     local t0 t1 ms
     t0="$(date +%s%3N)"
-    timeout -k 5 "$SJC_TIMEOUT" bash "$jaw" >"$out" 2>"$err"; rc=$?
+    if [[ "$base" =~ ^($RO_PARAM_JAWS)$ ]]; then
+      export ARM_LOGS="${WPF_TLINE_ARM_LOGS:-build/MilBridge/arm-logs}"
+      timeout -k 5 "$SJC_TIMEOUT" bash -c "$cmd" >"$out" 2>"$err"; rc=$?
+    else
+      timeout -k 5 "$SJC_TIMEOUT" bash "$jaw" >"$out" 2>"$err"; rc=$?
+    fi
     t1="$(date +%s%3N)"; ms=$((t1 - t0))
     stl="$(wc -l < "$err")"
     n_ran=$((n_ran + 1))
