@@ -59,6 +59,26 @@ else
   echo "device=NOINFO reason=sync-applocal-missing"; exit 2
 fi
 
+# ── 前置 1b（`t52`）：**硬闸** —— 应用目录里的 shim/pf 必须**就是 authority** ──────────
+#   为什么 `--check drift=0` 不够：它查的是"**此刻**目录里的件与权威一致"，而
+#   `session_inner.sh` 的 `cp -a "$DLLS/$ARM.*"` 会在**跑腿期间**把目录覆盖回旧代
+#   ⇒ 看门的那一刻是绿的、真正跑的却是旧件（实测：跑前 `6825dd7071387a46` ⇒ 跑后 `fc60c34d51fd9247`）。
+AUTH_SHIM="$REPO/src/WpfGfx.Linux.Native/bin/libwpfwin32.so"
+AUTH_PF="$REPO/build/PresentationFramework.Linux/bin/Release/PresentationFramework.dll"
+AUTH_SHIM16="$(sha256sum "$AUTH_SHIM" 2>/dev/null | cut -c1-16)"
+AUTH_PF16="$(sha256sum "$AUTH_PF" 2>/dev/null | cut -c1-16)"
+APP_SHIM16="$(sha256sum "$APPDIR/libwpfwin32.so" 2>/dev/null | cut -c1-16)"
+APP_PF16="$(sha256sum "$APPDIR/PresentationFramework.dll" 2>/dev/null | cut -c1-16)"
+echo "AUTHORITY: shim=$AUTH_SHIM16 pf=$AUTH_PF16 ｜ APPDIR: shim=$APP_SHIM16 pf=$APP_PF16"
+if [ -z "$AUTH_SHIM16" ] || [ -z "$AUTH_PF16" ]; then
+  echo "device=NOINFO reason=authority-missing shim=$AUTH_SHIM pf=$AUTH_PF"; exit 2
+fi
+if [ "$APP_SHIM16" != "$AUTH_SHIM16" ] || [ "$APP_PF16" != "$AUTH_PF16" ]; then
+  echo "device=NOINFO reason=app-stale-vs-authority app_shim=$APP_SHIM16 auth_shim=$AUTH_SHIM16 app_pf=$APP_PF16 auth_pf=$AUTH_PF16"
+  echo "  ∟ 装配口径坏 ⇒ 跑腿会产出**旧世界读数** ⇒ **拒跑**（不是"大概能跑"）。" >&2
+  exit 2
+fi
+
 # ── 前置 2：显示号空闲（只读 /proc/*/cmdline；**排除自己的整条祖先链**）──────────────
 #   ⚠️【落仓修 · A（D-G103 族 · 自匹配）】原口径只排除 $$／$PPID ⇒ **不够**：
 #     本器被 heavy-slot.sh 调起时，槽里的 env／bash 子进程**命令行里也带着**
@@ -155,4 +175,13 @@ for _f in "$SESS_LOGDIR"/app_g*.log "$SESS_LOGDIR"/five_pre_g*.txt "$SESS_LOGDIR
 done
 [ -d "$SESS_LOGDIR/shots" ] && cp -a "$SESS_LOGDIR/shots/." "$OUTDIR/shots/" 2>/dev/null
 python3 "$TOENV" "$OUTDIR/session.txt" "$OUTDIR/device.txt" "$OUTDIR/shots" "$OUTDIR" || exit 1
-echo "LEGS_RUNNER=OK rc_session=$rc_sess outdir=$OUTDIR"
+POST_SHIM16="$(sha256sum "$APPDIR/libwpfwin32.so" 2>/dev/null | cut -c1-16)"
+POST_PF16="$(sha256sum "$APPDIR/PresentationFramework.dll" 2>/dev/null | cut -c1-16)"
+if [ "$POST_SHIM16" != "$AUTH_SHIM16" ] || [ "$POST_PF16" != "$AUTH_PF16" ]; then
+  echo "device=NOINFO reason=app-swapped-during-run post_shim=$POST_SHIM16 auth_shim=$AUTH_SHIM16 post_pf=$POST_PF16 auth_pf=$AUTH_PF16"
+  echo "  ∟ 跑腿期间件被换过 ⇒ 本趟读数**不可归因**（旧世界）" >&2
+  echo "LEGS_RUNNER=NOINFO reason=app-swapped-during-run rc_session=$rc_sess outdir=$OUTDIR"
+  exit 2
+fi
+echo "POSTSHIM: shim=$POST_SHIM16 pf=$POST_PF16（== authority ⇒ 读数可归因）"
+LEGS_RUNNER=OK rc_session=$rc_sess outdir=$OUTDIR

@@ -290,6 +290,15 @@ PTSCACHE_E3_REPL = """#pragma warning disable IDE0017
                         // ⇒ 必须在这里显式释放，否则泄漏（上游只在正常拆卸路径 Dispose）。
                         // ⚠️ `TextPenaltyModule` 是**字段**（不是属性）⇒ 读它不会触发任何断言。
                         created.TextPenaltyModule?.Dispose();
+                        // ── 格 1（`TASK-0302`／`t12`）：installed-objects 现在**真的是**本地对象 ──────
+                        //   格 0 时 `CreateInstalledObjectsInfo` 恒失败 ⇒ `InstalledObjects` 恒 `IntPtr.Zero`
+                        //   ⇒ 这条 catch **没有东西可漏**。格 1 让它真的分配之后，上游**唯一**的释放口
+                        //   （`DestroyPTSContexts`，`PtsCache.cs:331-332`）**被这条 catch 绕过了**
+                        //   ⇒ 不补这一句就是"每失败一次漏一块"（native 侧 `installed_objects_live` 看得见）。
+                        //   ⚠️ `InstalledObjects` 是**字段**（`PtsCache.cs:793 internal IntPtr InstalledObjects;`）
+                        //      ⇒ 读它**不触发任何断言**（与 `PtsHost.Context` 那条 getter 断言不同，见上）。
+                        if (created.InstalledObjects != IntPtr.Zero)
+                            PTS.IgnoreError(PTS.DestroyInstalledObjectsInfo(created.InstalledObjects));
                         _contextPool.Remove(created);
                     }
 

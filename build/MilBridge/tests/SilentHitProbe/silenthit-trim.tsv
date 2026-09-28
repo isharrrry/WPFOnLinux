@@ -5,6 +5,7 @@ timeout:	1	yes	-	coreutils timeout(1)	包装器自己写的 stderr（被监视�
 [WMCHECK_STALE]	1	yes	WMCHECK_STALE	win32shim	src/WpfGfx.Linux.Native/src/win32_x11.c 具名台账（无 WM 且属性残留时才出现）
 [HC-UNHANDLED] #	0	yes	HC-UNHANDLED	HandyControlDemo	应用自报插桩（D-G123 的那一行）；换代后几乎每趟启动都有
 [HCIN]	0	yes	HCIN	HandyControlDemo	应用自报插桩（交互事件 trace）
+[G147_WORKAREA]	1	yes	G147_WORKAREA	win32shim	src/WpfGfx.Linux.Native/src/win32_x11.c:1721 `wpf_x11_workarea_declare()` 里**无条件** `fprintf(stderr, "[G147_WORKAREA] source=%s %s", g_wpf_workarea_src, cur)`（唯一开关 `WPF_LINUX_G147_DECL`，默认**开**且源码注释自述"是判据的取证口、不是调试噪音"；同 `who` 同内容节流，但被抑制次数以 `suppressed_since_last=` 照样上屏）⇒ 无 WM 腿**每腿恒一行**，属 shim 具名台账、非产品文本
 Unhandled exception.	0	no	-	dotnet runtime	应用真话：不许剔（剔了就是把红写成绿）
 Stack overflow.	0	no	-	dotnet runtime	应用真话：不许剔；同时是 STACKOVF 判据的读点
 Program terminated with signal	0	no	-	gdb	运行期真话：不许剔；第三支（fate/term）的读点所在件

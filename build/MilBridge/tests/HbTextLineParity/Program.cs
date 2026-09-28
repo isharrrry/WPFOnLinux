@@ -39,7 +39,7 @@ namespace MilBridge.HbTextLineParity
 {
     internal static class Program
     {
-        private const string Root = "/home/links-dev/netTest/wpf-linux-20260906/wpf-linux";
+        private const string Root = "/home/links-dev/netTest/GitProj/WPFOnLinux";
         private const string FontRegular = Root + "/build/fonts/NotoSans-Regular.ttf";
         private const string FontBold = Root + "/build/fonts/NotoSans-Bold.ttf";
         private const string FontItalic = Root + "/build/fonts/NotoSans-Italic.ttf";

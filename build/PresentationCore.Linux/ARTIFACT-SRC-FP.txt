@@ -7,18 +7,18 @@
 # 重算比对：python3 build/artifact-src-fp.py --check（缺本文件 / 缺被引产物 / 旧格式 ⇒ noinfo，**不报绿**）
 fp=2f3e458da268e872
 n=1374
-peer_fp=88b4d5862557c6f9
+peer_fp=fd7912772a8b11f9
 peer_n=8
 tool_sha256=e856e2e65e6c59cadd8e68b6a39c00b483992f9fdd459fb94c8b0221f8e597fd
 # 被引产物（sha256 前 16 + 仓库相对路径；**产物字节**，不是源）
-peer=759ac1686e5ef87d  build/DirectWrite.Linux/Provider/bin/Debug/DirectWrite.Linux.Provider.dll
+peer=7e8a217b4165a6b9  build/DirectWrite.Linux/Provider/bin/Debug/DirectWrite.Linux.Provider.dll
 peer=24e819debc1e5b13  build/DirectWriteForwarder.Linux/bin/Debug/DirectWriteForwarder.dll
 peer=4499439dff4b1e54  build/System.Windows.Extensions.Linux/bin/Debug/System.Windows.Extensions.dll
 peer=c264f0ec86fad755  build/System.Windows.Input.Manipulations.Linux/bin/Debug/System.Windows.Input.Manipulations.dll
 peer=856b84d2af114acb  build/System.Xaml.Linux/bin/Debug/System.Xaml.dll
 peer=76c3e977594876c9  build/UIAutomationProvider.Linux/bin/Debug/UIAutomationProvider.dll
 peer=2654da315acd2046  build/UIAutomationTypes.Linux/bin/Debug/UIAutomationTypes.dll
-peer=ed04eb65081c2d3a  build/WindowsBase.Linux/bin/Debug/WindowsBase.dll
+peer=9e860cbeecb352e1  build/WindowsBase.Linux/bin/Debug/WindowsBase.dll
 # 逐文件（**源侧**）：sha256 前 16 + 仓库相对路径；只列**本仓自有输入**（`upstream/**` 不列，用 --list 看全量）
 file=d2e034e81ce265bc  build/MilBridge/src/MilBridge.Resolver/MilCoreDllImportResolver.cs
 file=19a42240f59af073  build/PresentationCore.Linux/FamilyCollection.Linux.cs

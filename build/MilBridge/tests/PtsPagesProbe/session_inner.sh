@@ -45,7 +45,20 @@ gi=0
 for GROUP in "$@"; do
   gi=$((gi+1))
   ARM="${GROUP%%:*}"; KS="${GROUP#*:}"
-  SHIM="$DLLS/$ARM.libwpfwin32.so"; PF="$DLLS/$ARM.PresentationFramework.dll"
+  # ── `t52` 修装配口径（**根因就在这一行**）─────────────────────────────────────
+  #   A 臂的语义是"**现权威五件**"，而 `$DLLS/A.*` 是 `~/w160a/stage-arms.sh` 在
+  #   **2026-09-24 20:30** 落的那一份快照 ⇒ 原来这一行会把 `~/w67-work/app` 里
+  #   `sync-applocal.sh` 刚灌好的现件**就地覆盖回旧代**（实测：跑前 `shim=6825dd7071387a46`
+  #   ⇒ 跑后 `shim=fc60c34d51fd9247`）⇒ 腿跑的不是当前构建（`t12` 的阻塞）。
+  #   ⇒ A 臂改取**仓内权威路径**；B/C 臂（反极性臂）仍按 `$DLLS` 取（它们本来就该是别的件）。
+  #   `PTS_GUARD_ARM_FROM_DLLS=1` 可强制回旧行为 ⇒ 给硬闸造反极性腿用。
+  R_REPO="${PTS_GUARD_REPO:-$(cd -- "$SELF_DIR/../../../.." && pwd)}"
+  if [ "$ARM" = A ] && [ "${PTS_GUARD_ARM_FROM_DLLS:-0}" != 1 ]; then
+    SHIM="$R_REPO/src/WpfGfx.Linux.Native/bin/libwpfwin32.so"
+    PF="$R_REPO/build/PresentationFramework.Linux/bin/Release/PresentationFramework.dll"
+  else
+    SHIM="$DLLS/$ARM.libwpfwin32.so"; PF="$DLLS/$ARM.PresentationFramework.dll"
+  fi
   [ -f "$SHIM" ] || { echo "G$gi MISSING-SHIM $SHIM"; continue; }
   [ -f "$PF" ]   || { echo "G$gi MISSING-PF $PF"; continue; }
   cp -a "$SHIM" "$APPDIR/libwpfwin32.so"; cp -a "$PF" "$APPDIR/PresentationFramework.dll"

@@ -59,13 +59,16 @@ def parse_click(block, k, logfile=None):
     punav = tok["pts_unavail"]
     # 洋红/色数：取该组里该 k 的那一张截图的 shotstat 行
     shot = None
-    for sm in re.finditer(r"^\s*FILE=(\S+\.png) (\d+)x(\d+) colors=(\d+) magenta=(\d+) total=(\d+)$",
+    for sm in re.finditer(r"^\s*FILE=(\S+\.png) (\d+)x(\d+) colors=(\d+) magenta=(\d+) total=(\d+)(?: ink=(\d+))?$",
                           block, re.M):
         if re.search(r"/k%d\.png$" % k, sm.group(1)):
             shot = sm
     if shot is None:
         die("k=%d 的 shotstat 行缺失（截图没落或 shotstat 没跑）" % k)
     colors, magenta = shot.group(4), shot.group(5)
+    # `t12`：`ink=`（真实内容像素；判据反转 realized 期的证据位）。旧产者不给该格 ⇒ 记 `-`（**不是 0**：
+    #   "没测到"与"测到 0"必须分得开，否则 realized 期会把"缺证据位"读成"洋红=0 就绿"）。
+    ink = shot.group(7) if (shot.lastindex or 0) >= 7 and shot.group(7) is not None else "-"
     # ⚠️ `managed_err` 允许**空值**（`\S+` 会匹配不上空串 ⇒ 好腿被读成"PHASE 行缺失"）
     ph = re.search(r"^PHASE k=%d c1_ep=(\S+) c2_pts_gap=(\S+) c3_pts_unavail=(\S+) "
                    r"c4_unrecoverable=(\S+) managed_err=(\S*) native_err=(\S*)$" % k,
@@ -108,7 +111,7 @@ def parse_click(block, k, logfile=None):
     ngap = 0
     if logfile and os.path.isfile(logfile):
         ngap = len(re.findall(r"PTS_GAP entry=", open(logfile, encoding="utf-8", errors="replace").read()))
-    return dict(alive=alive, app_rc=None, magenta=magenta, colors=colors, ns=ns, ae=ae,
+    return dict(alive=alive, app_rc=None, magenta=magenta, colors=colors, ns=ns, ae=ae, ink=ink,
                 managed_unavail=1 if punav_n else 0, err=merr, native_gap=ngap,
                 native_err=nerr, pts_unavail_n=punav_n, pts_gap_n=int(tok["pts_gap"]))
 
@@ -157,8 +160,8 @@ def main():
             p = os.path.join(armdir, "leg_%d.env" % k)
             p_primary = os.path.join(outdir, "leg_%d.env" % k) if arm == "A" else None
             with open(p, "w", encoding="utf-8") as f:
-                f.write("LEG k=%d alive=%s app_rc=%d magenta=%s colors=%s ns=%s ae=%s\n"
-                        % (k, d["alive"], d["app_rc"], d["magenta"], d["colors"], d["ns"], d["ae"]))
+                f.write("LEG k=%d alive=%s app_rc=%d magenta=%s colors=%s ns=%s ae=%s ink=%s\n"
+                        % (k, d["alive"], d["app_rc"], d["magenta"], d["colors"], d["ns"], d["ae"], d["ink"]))
                 f.write("NAMED managed_unavail=%d err=%s native_gap=%d native_err=%s\n"
                         % (d["managed_unavail"], d["err"], d["native_gap"], d["native_err"]))
                 f.write("DEV x_up=%s five_stable=%s shim=%s pf=%s\n"

@@ -585,3 +585,9 @@ echo "WAVE_START=$(date +%FT%T)"; (date +%FT%T; time env WAVE_OWNER=w48a bash bu
 2026-09-27T14:20:39+08:00  owner=waveman  pid=4002516  ppid=4001821  tty=-  cwd=/home/links-dev/netTest/GitProj/WPFOnLinux  cmd=bash build/integration-wave.sh 
     ppid_cmd=bash build/close-wave.sh --native --skip-verify-all 
     ppid2_cmd=timeout --foreground --kill-after=5 1800 bash build/close-wave.sh --native --skip-verify-all 
+2026-09-28T10:22:49+08:00  owner=waveman  pid=3356159  ppid=3355459  tty=-  cwd=/home/links-dev/netTest/GitProj/WPFOnLinux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh --native --skip-verify-all 
+    ppid2_cmd=timeout --foreground --kill-after=5 1800 bash build/close-wave.sh --native --skip-verify-all 
+2026-09-28T10:27:25+08:00  owner=waveman  pid=3428273  ppid=3427564  tty=-  cwd=/home/links-dev/netTest/GitProj/WPFOnLinux  cmd=bash build/integration-wave.sh 
+    ppid_cmd=bash build/close-wave.sh --native --skip-verify-all 
+    ppid2_cmd=timeout --foreground --kill-after=5 1800 bash build/close-wave.sh --native --skip-verify-all 

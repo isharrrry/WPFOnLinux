@@ -40,7 +40,13 @@
 #   · 红条件（方向的**反面**，逐字）：`magenta=0 ∧ 无具名行 ∧ native_gap=0`；**反转必须成对**。
 #   · 下面这一行是**唯一机读声明行**；判词行**行尾**带 `direction=` 标记（**前缀语义一字不改**）；
 #     本行缺失／与编译常量不符 ⇒ `PTS_DIRECTION=FAIL` ＋ 本步**当场红**（**不许静默绿**）。
-# PTS-DIRECTION: absent="magenta=0" present-floor=20000 red-when="magenta=0 AND no-named-line AND native_gap=0" source=TASK-0741
+# PTS-DIRECTION: absent="magenta=0" present-floor=20000 red-when="magenta=0 AND no-named-line AND native_gap=0" source=TASK-0741 phase=degraded
+#   ⚠️【`t12` 的**判据反转**】`phase=degraded`（今天）＝ 上面那套绿条件（降级还在）；
+#     `phase=realized`（`TASK-0302` 真实现落地后**同趟**改）＝ 绿条件**反转**为
+#     `洋红 = 0 ∧ 无具名行 ∧ native_gap = 0 ∧ 真实排版证据（`ink` > 0）`；
+#     两期**共用**不可变量 `I1`（三态完备性）：`(magenta>0 ∧ 具名行在位)` ∨ `(magenta==0 ∧ 无具名行 ∧ ink>0)`；
+#     **第三态必红**（"只降级不画"＝空白，不许读成绿 —— 那是 `N2-b`）。
+#     `realized` 期缺 `ink` 证据位 ⇒ `NOINFO reason=no-real-layout-evidence`（**永不当绿**）。
 
 # 【反例牙】**本脚本的绿必须能被两极化证伪**，配方（三臂 × 5 腿）见
 #   `~/w156a/w67guard/polarity-recipe.md`：
@@ -75,6 +81,13 @@ direction_gate() {   # ⚠️ **绝不可用命令替换调用**（子壳里赋�
     echo "  ∟ \`D-G142\`：方向口径单点存在于别处 ⇒ 本件不自证 ⇒ **不许静默绿**"
     return 1
   fi
+  PHASE="$(printf '%s' "$line" | sed -n 's/.*phase=\([a-z]*\).*/\1/p')"
+  case "${PHASE:-}" in
+    degraded|realized) ;;
+    *) DIR_TOKEN="phase-missing-or-invalid"; DIR_RC=1
+       echo "PTS_DIRECTION=FAIL reason=phase-missing-or-invalid got=${PHASE:-none} expected=degraded|realized（t12 判据反转的口径位）"
+       return 1 ;;
+  esac
   fl="$(printf '%s' "$line" | sed -n 's/.*present-floor=\([0-9][0-9]*\).*/\1/p')"
   if [ -z "$fl" ] || [ "$fl" != "$MAGENTA_FLOOR" ]; then
     DIR_TOKEN="floor-mismatch"; DIR_RC=1
@@ -88,7 +101,7 @@ direction_gate() {   # ⚠️ **绝不可用命令替换调用**（子壳里赋�
 judge_legs() {
   local dir="$1"
   local fails=() cannot=() diags=()
-  local k alive rc mag colors ns msite merr nerr ngap ae seq logb
+  local k alive rc mag colors ns msite merr nerr ngap ae seq logb ink
   direction_gate || true
   if [ "$DIR_RC" -ne 0 ]; then
     echo "PTS_GUARD=FAIL legs=0/2 fails=direction($DIR_TOKEN) cannot=- diag=- direction=$DIR_TOKEN"
@@ -123,7 +136,7 @@ judge_legs() {
 
     alive="$(field "$line" alive)"; rc="$(field "$line" app_rc)"
     mag="$(field "$line" magenta)"; colors="$(field "$line" colors)"; ns="$(field "$line" ns)"
-    ae="$(field "$line" ae)"
+    ae="$(field "$line" ae)"; ink="$(field "$line" ink)"
     merr="$(field "${nline:-}" err)"
     ngap="$(field "${nline:-}" native_gap)"; nerr="$(field "${nline:-}" native_err)"
 
@@ -144,10 +157,20 @@ judge_legs() {
     [ "$alive" = yes ] || fails+=("leg$k-not-alive(alive=$alive)")
     # G3 退出码黑名单
     case "$rc" in 134|139) fails+=("leg$k-abort(app_rc=$rc)");; esac
-    # G4/G5 洋红阈值
-    [ "$mag" -ge "$MAGENTA_FLOOR" ] || fails+=("leg$k-placeholder-missing(magenta=$mag<$MAGENTA_FLOOR)")
-    # G8/G9 托管侧具名行（非零 err）
-    [ "${merr:-}" = "-10000" ] || fails+=("leg$k-named-line(missing-or-err=$merr)")
+    if [ "$PHASE" = realized ]; then
+      # ── realized 期：绿条件**反转**（`t12`）────────────────────────────────
+      [ "$mag" -eq 0 ] || fails+=("leg$k-placeholder-still-drawn(magenta=$mag≠0∧phase=realized)")
+      [ "${merr:-}" = "-" ] || [ -z "${merr:-}" ] || fails+=("leg$k-named-line-still-present(err=$merr)")
+      case "${ink:-}" in
+        ''|'-') cannot+=("leg$k(no-real-layout-evidence)") ;;        # 证据位缺失 ⇒ NOINFO（**不是绿**）
+        *[!0-9]*) cannot+=("leg$k(ink-unparsable=$ink)") ;;
+        *) [ "$ink" -gt 0 ] || fails+=("leg$k-no-real-ink(ink=$ink)") ;;
+      esac
+    else
+      # ── degraded 期（今天）：止损必须还在 ────────────────────────────────
+      [ "$mag" -ge "$MAGENTA_FLOOR" ] || fails+=("leg$k-placeholder-missing(magenta=$mag<$MAGENTA_FLOOR)")
+      [ "${merr:-}" = "-10000" ] || fails+=("leg$k-named-line(missing-or-err=$merr)")
+    fi
     # D1/D2 诊断
     case "${colors:-}" in ''|*[!0-9]*) diags+=("leg$k-colors=$colors");;
       *) if [ "$colors" -lt 800 ] || [ "$colors" -gt 1200 ]; then diags+=("leg$k-colors-out-of-band=$colors"); fi;; esac
@@ -161,7 +184,11 @@ judge_legs() {
     local g; g="$(field "$(grep -m1 '^NAMED ' "$ev" 2>/dev/null)" native_gap)"
     case "${g:-}" in ''|*[!0-9]*) ;; *) ngap_total=$((ngap_total + g));; esac
   done
-  [ "$ngap_total" -ge 1 ] || fails+=("native-ledger-absent(PTS_GAP n=0)")
+  if [ "$PHASE" = realized ]; then
+    [ "$ngap_total" -eq 0 ] || fails+=("native-ledger-still-present(PTS_GAP n=$ngap_total∧phase=realized)")
+  else
+    [ "$ngap_total" -ge 1 ] || fails+=("native-ledger-absent(PTS_GAP n=0)")
+  fi
 
   # D3 假 stub 诊断（**不判红**）
   for k in 24 23; do
@@ -170,7 +197,21 @@ judge_legs() {
     if [ "${ne:-}" = "0" ]; then diags+=("leg$k-native-err=0(fake-stub-suspected)"); fi
   done
 
-  local crit="magenta_floor=$MAGENTA_FLOOR alive24=$([ "$seen24" = 1 ] && echo ? || echo -) "
+  # ── `I1`（`t12`）：三态完备性 —— 两期共用，**第三态必红** ──────────────────────
+  #   (a) 降级形态：`magenta>0 ∧ 具名行在位`；(b) 真实形态：`magenta==0 ∧ 无具名行 ∧ ink>0`。
+  #   两者都不成立（例如"只降级不画"⇒ magenta=0 但具名行仍在）⇒ 红（`N2-b`）。
+  for k in 24 23; do
+    ev="$dir/leg_$k.env"; [ -s "$ev" ] || continue
+    local l1 n1 m1 i1
+    l1="$(grep -m1 '^LEG ' "$ev" 2>/dev/null)"; n1="$(grep -m1 '^NAMED ' "$ev" 2>/dev/null)"
+    m1="$(field "$l1" magenta)"; i1="$(field "$l1" ink)"
+    case "${m1:-}" in ''|*[!0-9]*) continue ;; esac
+    local named=0; [ "$(field "$n1" managed_unavail)" = 1 ] && named=1
+    if [ "$m1" -gt 0 ] && [ "$named" = 1 ]; then :            # (a) 降级形态齐
+    elif [ "$m1" -eq 0 ] && [ "$named" = 0 ]; then :          # (b) 真实形态（ink 由上面 phase 分支判）
+    else fails+=("leg$k-I1-incomplete(magenta=$m1 named=$named ⇒ 既非降级也非真实：空白/半通不许读成绿)"); fi
+  done
+  local crit="magenta_floor=$MAGENTA_FLOOR phase=$PHASE alive24=$([ "$seen24" = 1 ] && echo ? || echo -) "
   local v
   if [ "${#fails[@]}" -gt 0 ]; then
     v="FAIL"
@@ -179,13 +220,13 @@ judge_legs() {
   else
     v="PASS"
   fi
-  printf 'PTS_GUARD=%s legs=%s/%s fails=%s cannot=%s diag=%s direction=%s\n' \
+  printf 'PTS_GUARD=%s legs=%s/%s fails=%s cannot=%s diag=%s direction=%s phase=%s\n' \
     "$v" "$(ls "$dir"/leg_*.env 2>/dev/null | wc -l)" \
     "$((seen24 + seen23))" \
     "$( [ "${#fails[@]}" -gt 0 ] && printf '%s' "$(IFS=,; echo "${fails[*]}")" || printf '-')" \
     "$( [ "${#cannot[@]}" -gt 0 ] && printf '%s' "$(IFS=,; echo "${cannot[*]}")" || printf '-')" \
     "$( [ "${#diags[@]}" -gt 0 ] && printf '%s' "$(IFS=,; echo "${diags[*]}")" || printf '-')" \
-    "$DIR_TOKEN"
+    "$DIR_TOKEN" "$PHASE"
   case "$v" in
     PASS)   return 0 ;;
     FAIL)   return 1 ;;
@@ -196,10 +237,10 @@ judge_legs() {
 # ── 合成用例两极化（无 X、无应用、秒级）───────────────────────────────────────
 selftest() {
   local T; T="$(mktemp -d)"; local npass=0 nfail=0
-  mk() { # mk <case> <k> <alive> <app_rc> <magenta> <colors> <ns> <err> <native_gap> <native_err> <five> <xup>
+  mk() { # mk <case> <k> <alive> <app_rc> <magenta> <colors> <ns> <err> <native_gap> <native_err> <five> <xup> [ink]
     local c="$1" k="$2" d="$T/$1"; mkdir -p "$d"
     printf 'X_UP=%s display=:237\n' "${12}" > "$d/device.txt"
-    printf 'LEG k=%s alive=%s app_rc=%s magenta=%s colors=%s ns=%s ae=12345\n' "$2" "$3" "$4" "$5" "$6" "$7" > "$d/leg_$2.env"
+    printf 'LEG k=%s alive=%s app_rc=%s magenta=%s colors=%s ns=%s ae=12345 ink=%s\n' "$2" "$3" "$4" "$5" "$6" "$7" "${13:-}" > "$d/leg_$2.env"
     printf 'NAMED managed_unavail=%s err=%s native_gap=%s native_err=%s\n' \
       "$([ "$8" = "-" ] && echo 0 || echo 1)" "$8" "$9" "${10}" >> "$d/leg_$2.env"
     printf 'DEV x_up=%s five_stable=%s shim=x pf=y\n' "${12}" "${11}" >> "$d/leg_$2.env"
@@ -268,6 +309,44 @@ selftest() {
     npass=$((npass+1)); printf '  %-34s => rc=%-3s ok\n' "删句 ⇒ rc≠0" "$_sbrc"
   else
     nfail=$((nfail+1)); printf '  %-34s => rc=%-3s ✗ 期望非零\n' "删句 ⇒ rc≠0" "$_sbrc"
+  fi
+  # ── `t12`：判据反转的两极化（**realized 期**用同一件、只改口径位的副本跑）─────────
+  _rz="$T/guard-realized.sh"
+  sed 's/^\(# PTS-DIRECTION: .*\)phase=degraded$/\1phase=realized/' "$0" > "$_rz"
+  grep -q 'phase=realized' "$_rz" || { nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "realized 副本生成" "no" "yes"; }
+  rz() { local c="$1" want="$2" nm="$3" o v
+         o="$(bash "$_rz" --legs "$T/$c" 2>&1 || true)"; v="$(out "$o")"
+         chk "$want" "$v" "$nm"; return 0; }
+  # ⑮ realized 期：真实排版形态（magenta=0 ∧ 无具名行 ∧ native_gap=0 ∧ ink>0）⇒ PASS
+  rm -rf "$T/c15"; mk c15 24 yes 143 0 900 HandyControlDemo.UserControl.FlowDocumentDemo - 0 - yes yes 12345
+                  mk c15 23 yes 143 0 880 HandyControlDemo.UserControl.RichTextBoxDemo  - 0 - yes yes 12001
+                  rz c15 PASS "realized·真实形态"
+  # ⑯ realized 期：**缺 ink 证据位** ⇒ NOINFO（不许因 magenta=0 判绿）
+  rm -rf "$T/c16"; mk c16 24 yes 143 0 900 HandyControlDemo.UserControl.FlowDocumentDemo - 0 - yes yes
+                  mk c16 23 yes 143 0 880 HandyControlDemo.UserControl.RichTextBoxDemo  - 0 - yes yes
+                  rz c16 NOINFO "realized·缺 ink ⇒ NOINFO"
+  # ⑰ realized 期：占位还在（magenta>0）⇒ FAIL
+  rm -rf "$T/c17"; mk c17 24 yes 143 54454 851 HandyControlDemo.UserControl.FlowDocumentDemo -10000 1 -10000 yes yes 12345
+                  mk c17 23 yes 143 49864 843 HandyControlDemo.UserControl.RichTextBoxDemo  -10000 1 -10000 yes yes 12001
+                  rz c17 FAIL "realized·占位仍在 ⇒ FAIL"
+  # ⑱ realized 期：具名行仍在 ⇒ FAIL
+  rm -rf "$T/c18"; mk c18 24 yes 143 0 900 HandyControlDemo.UserControl.FlowDocumentDemo -10000 0 -10000 yes yes 12345
+                  mk c18 23 yes 143 0 880 HandyControlDemo.UserControl.RichTextBoxDemo  -10000 0 -10000 yes yes 12001
+                  rz c18 FAIL "realized·具名行仍在 ⇒ FAIL"
+  # ⑲ `I1` 反极性：degraded 期「只降级不画」（magenta=0 ∧ 具名行在位）⇒ **必红**（`N2-b`）
+  rm -rf "$T/c19"; mk c19 24 yes 143 0 643 HandyControlDemo.UserControl.FlowDocumentDemo -10000 1 -10000 yes yes
+                  mk c19 23 yes 143 0 641 HandyControlDemo.UserControl.RichTextBoxDemo  -10000 1 -10000 yes yes
+                  chk FAIL "$(out "$(judge_legs "$T/c19")")" "I1/N2-b：只降级不画 ⇒ 必红"
+  # ⑳ `phase` 位自身的反极性：把 `phase=` 删掉 ⇒ `PTS_DIRECTION=FAIL` ＋ 判词必红
+  _pf="$T/guard-nophase.sh"
+  sed 's/^\(# PTS-DIRECTION: .*\)phase=degraded/\1phase=/' "$0" > "$_pf"
+  rm -rf "$T/c20"
+  _pfo="$(bash "$_pf" --legs "$T/c20" 2>&1 || true)"
+  chk FAIL "$(out "$_pfo")" "phase 位缺失 ⇒ 判词必红"
+  if grep -qF 'PTS_DIRECTION=FAIL' <<< "$_pfo"; then
+    npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "phase 位缺失 ⇒ PTS_DIRECTION=FAIL" "yes"
+  else
+    nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "phase 位缺失 ⇒ PTS_DIRECTION=FAIL" "no" "yes"
   fi
   rm -rf "$T"
   printf 'PTS_GUARD_SELFTEST=%s pass=%d fail=%d\n' "$([ "$nfail" = 0 ] && echo PASS || echo FAIL)" "$npass" "$nfail"

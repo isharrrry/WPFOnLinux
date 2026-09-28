@@ -24,6 +24,9 @@
 //   **假句柄** ⇒ `PtsHost.Context != Zero` ⇒ 一连串 `Invariant.Assert` **全过** ⇒
 //   页面**空白但进程活着** ⇒ **没有任何红**。那正是本仓最忌讳的"**静默半通**"。
 //   两道牙防它：① `WpfLinuxWin32_PtsGapSelfCheck()`（本文件，机器可读，今天必须返回 1；
+//   ⚠️ 格 1（`t12`）后：`CreateInstalledObjectsInfo`/`DestroyInstalledObjectsInfo` 已**真实现**
+//      ⇒ 自检对这两条断言的是「**成功（0）＋ 真对象 ＋ 摧毁后无泄漏 ＋ 重复/未知名释放必被拒**」，
+//      对其余 **7** 条 stub 仍断言「返回 `-10000` 且出参清空」（`entries=7`）。
 //   谁把 stub 改成返回 0 ⇒ 它立刻变 0）；② `W78A-report.md` §3.2 的 `N2` 反极性
 //   （真去改成 0 ⇒ 产品判据必须变红；读数见 `build/MilBridge/W86A-report.md` §5）。
 //
@@ -62,6 +65,26 @@ static const char *const k_pts_entries[] = {
 };
 #define WPF_PTS_ENTRY_COUNT ((int)(sizeof(k_pts_entries) / sizeof(k_pts_entries[0])))
 
+// ── 格 1（`TASK-0302` 首个真增量，`t12`）：installed-objects 表的**真对象**状态 ────────
+//   契约：`Pts.cs:3077` `internal static extern int CreateInstalledObjectsInfo(ref FSIMETHODS,
+//   ref FSIMETHODS, out IntPtr pInstalledObjects, out int cInstalledObjects)`。
+//   本实现是**真的对象**：真实分配 / 真实表长 / 原样存下托管给的指针（**不 deref**）/
+//   真摧毁 + 逐项计数。⚠️ 它**不**让页面渲染 —— 前沿只位移一跳（idx0 ⇒ idx6 `LoCreateContext`）。
+#define WPF_PTS_IO_MAGIC   0x50545349u   /* "PTSI"：本模块自认的表头魔数 */
+#define WPF_PTS_IO_MAX     8             /* 有界分配清单（防被异常调用无限增长） */
+typedef struct {
+    unsigned int magic;
+    const void  *subtrack_methods;       /* 托管传进来的指针，**原样存** */
+    const void  *subpage_methods;
+    int          entries;                /* 表长（真值：两槽） */
+} wpf_pts_io_table;
+
+static wpf_pts_io_table *g_pts_io_live[WPF_PTS_IO_MAX];
+static int g_pts_io_live_n  = 0;         /* 活对象数（**泄漏检查的唯一真值**） */
+static int g_pts_io_creates = 0;
+static int g_pts_io_destroys= 0;
+static int g_pts_io_rejected= 0;         /* 拒绝的摧毁请求（未知名/重复/清单满） */
+
 static int g_pts_calls[WPF_PTS_ENTRY_COUNT];   // 逐入口调用次数
 static int g_pts_seq = 0;                      // 全局调用序号（1 起）
 static int g_pts_printed = 0;                  // 已打印的台账行数
@@ -77,6 +100,28 @@ static int wpf_pts_budget(void)
     if (e && *e) { int v = atoi(e); if (v > 0) n = v; }
     g_pts_budget = n;
     return n;
+}
+
+// 【**表序 ≠ 调用序**】`CreatePTSContext`（`PtsCache.cs:433-462`）的实际调用顺序是
+//   `0 → 6 → 7 → 8 → 2`；而销毁项（`1`,`3`）与浮动/表格项（`4`,`5`）**不在**创建链上
+//   （`4`/`5` 只在 native→managed 回调里被调：`PtsHost.cs:1094/1098` → `PtsCache.cs:259/278`）。
+//   ⇒ `first=`（表序最小）与 `last=`（表序最大）**都不是**可靠前沿（`t4` 实测）；
+//     `frontier=` 按**调用序**取"第一个真的被问到且如实失败的入口"。
+static const int k_pts_call_order[] = { 0, 6, 7, 8, 2, 1, 3, 4, 5 };
+#define WPF_PTS_CALL_ORDER_COUNT ((int)(sizeof(k_pts_call_order) / sizeof(k_pts_call_order[0])))
+
+// 前沿名（调用序上第一个 `g_pts_calls>0` 的入口；无 ⇒ "-"）
+static void wpf_pts_frontier(char *buf, size_t cap)
+{
+    buf[0] = '\0';
+    for (int k = 0; k < WPF_PTS_CALL_ORDER_COUNT; k++) {
+        int i = k_pts_call_order[k];
+        if (i >= 0 && i < WPF_PTS_ENTRY_COUNT && g_pts_calls[i] > 0) {
+            snprintf(buf, cap, "%s", k_pts_entries[i]);
+            return;
+        }
+    }
+    snprintf(buf, cap, "%s", "-");
 }
 
 // 入口索引（找不到 ⇒ -1；台账里一律以名字为准，索引只用来累加计数）
@@ -129,22 +174,48 @@ static int wpf_pts_gap(const char *entry)
 //   失败时把出参清成 `NULL`/`0`/`Zero`（不是留着未初始化内存，也不是给个假句柄）。
 //   ⇒ 即使调用方**不查返回值**（错误用法，但可能发生），拿到的也是"空"，而不是"假"。
 
+// 【格 1 · 真实现】成功 ⇒ **返回 0**（`fserrNone`）；出参 = 真实表指针 + 真实表长（两槽）。
+//   ⚠️ 绝**不**返回 `-10000` 而同时给出非空句柄 —— 那是自相矛盾的假对象（本仓最忌讳的形态）。
+//   ⚠️ 两个入参指针只被**存下来**，一个字节都不 deref（沿用件头纪律）。
 int CreateInstalledObjectsInfo(const void *fssubtrackparamethods,
                                const void *fssubpageparamethods,
                                void **pInstalledObjects,
                                int *cInstalledObjects)
 {
-    (void)fssubtrackparamethods;
-    (void)fssubpageparamethods;
-    if (pInstalledObjects) *pInstalledObjects = NULL;
+    if (pInstalledObjects) *pInstalledObjects = NULL;   // 出参先清空（任何失败路径都保持"空"）
     if (cInstalledObjects) *cInstalledObjects = 0;
-    return wpf_pts_gap("CreateInstalledObjectsInfo");
+    if (!pInstalledObjects || !cInstalledObjects) { g_pts_io_rejected++; return WPF_PTS_ERR_NOT_IMPLEMENTED; }
+    if (g_pts_io_live_n >= WPF_PTS_IO_MAX)        { g_pts_io_rejected++; return WPF_PTS_ERR_NOT_IMPLEMENTED; }
+    wpf_pts_io_table *t = (wpf_pts_io_table *)calloc(1, sizeof(*t));
+    if (!t)                                       { g_pts_io_rejected++; return WPF_PTS_ERR_NOT_IMPLEMENTED; }
+    t->magic            = WPF_PTS_IO_MAGIC;
+    t->subtrack_methods = fssubtrackparamethods;        /* 原样存，不 deref */
+    t->subpage_methods  = fssubpageparamethods;
+    t->entries          = 2;                            /* subtrack + subpage 两槽（真值） */
+    g_pts_io_live[g_pts_io_live_n++] = t;
+    g_pts_io_creates++;
+    *pInstalledObjects = (void *)t;
+    *cInstalledObjects = t->entries;
+    return 0;                                           /* ← 改成别的值就是制造静默半通 */
 }
 
+// 【格 1 · 真实现】成功 ⇒ 返回 0；**未知名 / 重复释放 / 空指针 ⇒ 返回非零且一个字节都不 free**
+//   （不对任意指针 free；句柄身份由本模块自己的分配清单 + 魔数认定）。
 int DestroyInstalledObjectsInfo(void *pInstalledObjects)
 {
-    (void)pInstalledObjects;
-    return wpf_pts_gap("DestroyInstalledObjectsInfo");
+    if (!pInstalledObjects) { g_pts_io_rejected++; return WPF_PTS_ERR_NOT_IMPLEMENTED; }
+    for (int i = 0; i < g_pts_io_live_n; i++) {
+        if ((void *)g_pts_io_live[i] != pInstalledObjects) continue;
+        if (g_pts_io_live[i]->magic != WPF_PTS_IO_MAGIC) { g_pts_io_rejected++; return WPF_PTS_ERR_NOT_IMPLEMENTED; }
+        g_pts_io_live[i]->magic = 0;                    // 先失效 ⇒ 重复释放必被拒
+        free(g_pts_io_live[i]);
+        g_pts_io_live[i] = g_pts_io_live[--g_pts_io_live_n];
+        g_pts_io_live[g_pts_io_live_n] = NULL;
+        g_pts_io_destroys++;
+        return 0;
+    }
+    g_pts_io_rejected++;
+    return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
 
 int CreateDocContext(const void *fscontextinfo, void **pfscontext)
@@ -214,6 +285,11 @@ int WpfLinuxWin32_PtsGapCount(void)
 // 累计调用次数（含重复）。
 int WpfLinuxWin32_PtsGapCalls(void) { return g_pts_seq; }
 
+// 【格 1 · 只读面】活对象数 / 累计成功创建次数。**这是"真对象真的有生命周期"的机器判据**：
+//   `live` 收尾必须回 0（不补 pf 侧释放 ⇒ 每失败一次漏一个，本面当场看得见）。
+int WpfLinuxWin32_PtsInstalledObjectsLive(void)    { return g_pts_io_live_n; }
+int WpfLinuxWin32_PtsInstalledObjectsCreates(void) { return g_pts_io_creates; }
+
 // 第 idx 个"见过"的入口名写进 buf（nul 结尾）。命中 ⇒ 返回 1，越界/无 ⇒ 0。
 int WpfLinuxWin32_PtsGapEntryName(int idx, char *buf, int cap)
 {
@@ -243,37 +319,55 @@ int WpfLinuxWin32_PtsGapReport(char *buf, int cap)
         snprintf(last, sizeof(last), "%s", k_pts_entries[i]);
         seen++;
     }
+    char frontier[64] = "-"; wpf_pts_frontier(frontier, sizeof(frontier));
     int n = snprintf(buf, (size_t)cap,
-                     "PTS_GAP_REPORT mode=honest-fail entries=%d calls=%d first=%s last=%s err=%d",
-                     seen, g_pts_seq, first, last, WPF_PTS_ERR_NOT_IMPLEMENTED);
+                     "PTS_GAP_REPORT mode=honest-fail entries=%d calls=%d first=%s last=%s err=%d "
+                     "frontier=%s entry_calls=0:%d 1:%d 2:%d 3:%d 4:%d 5:%d 6:%d 7:%d 8:%d "
+                     "installed_objects_live=%d creates=%d destroys=%d rejected=%d",
+                     seen, g_pts_seq, first, last, WPF_PTS_ERR_NOT_IMPLEMENTED,
+                     frontier,
+                     g_pts_calls[0], g_pts_calls[1], g_pts_calls[2], g_pts_calls[3], g_pts_calls[4],
+                     g_pts_calls[5], g_pts_calls[6], g_pts_calls[7], g_pts_calls[8],
+                     g_pts_io_live_n, g_pts_io_creates, g_pts_io_destroys, g_pts_io_rejected);
     if (n < 0 || n >= cap) { buf[cap - 1] = '\0'; return -1; }
     return n;
 }
 
 // 自检（**这就是防"后人顺手把 return 改成 0"的那道牙**）：
-//   ① 6 个入口**逐个真调一次**，返回值必须都 == -10000（非 0！）；
-//   ② 出参必须被清成 NULL/0（不许留未初始化内存、不许给假句柄）；
-//   ③ `WpfLinuxWin32_PtsGapReport` 必须写出一行、且含 `entries=9`、含 `err=-10000`。
+//   ① 格1 的两条**真实现**：`Create…` 必须返回 0 且出参非空/表长 2；`Destroy…` 必须返回 0；
+//      重复释放与未知名释放**必须**被拒（返回非零）；摧毁后 `live` 必须回 0；
+//   ② 其余 **7 条 stub** 逐个真调一次，返回值必须都 == -10000（非 0！），出参必须被清成 NULL/0；
+//   ③ `WpfLinuxWin32_PtsGapReport` 必须写出一行，含 `entries=7`、`err=-10000`、
+//      `frontier=LoCreateContext`、`installed_objects_live=0`。
 //   调用本身会动台账 ⇒ 自检**保存/复原**计数，跑完台账与本进程"自检前"一致（可重复跑）。
 int WpfLinuxWin32_PtsGapSelfCheck(void)
 {
     int save_calls[WPF_PTS_ENTRY_COUNT], save_seq = g_pts_seq, save_printed = g_pts_printed;
+    // 【格1 修订】自检现在会**真的**建/毁对象 ⇒ 三个 io 计数也要复原，否则"自检不许改变可观测状态"
+    //   这句话对新面就成了假话（`creates`/`destroys`/`rejected` 会凭空涨）。`live` 不保存：
+    //   它**必须**在自检结束时应为 0，那正是被断言的性质本身。
+    int save_creates = g_pts_io_creates, save_destroys = g_pts_io_destroys, save_rejected = g_pts_io_rejected;
     memcpy(save_calls, g_pts_calls, sizeof(save_calls));
 
     int old_budget = g_pts_budget;
     g_pts_budget = 0;                       // 自检期间**不打**台账（runs quiet）
 
     char sb[64] = { 0 }, sp[64] = { 0 };
-    void *p1 = (void *)0x1; int c1 = 12345;
+    void *p1 = NULL; int c1 = 0;   /* 格1：真实现 ⇒ 期望被填成 **非空** 且表长 2 */
     void *p2 = (void *)0x2;
     // 【`#66` W158A 修订】3 个新入口**各自一个先被投毒的出参**：否则链条走到这里时 `p1`
     //   早已被第 1 条入口清成 NULL ⇒ `p1 != NULL` 那三条断言**恒不成立**（恒绿假牙）。
     void *q1 = (void *)0x33, *q2 = (void *)0x34, *q3 = (void *)0x35;
     int rc = 0;
 
-    if (CreateInstalledObjectsInfo(sb, sp, &p1, &c1) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 1;
-    else if (p1 != NULL || c1 != 0) rc = 2;
-    else if (DestroyInstalledObjectsInfo((void *)0xdead) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 3;
+    if (CreateInstalledObjectsInfo(sb, sp, &p1, &c1) != 0) rc = 1;                     /* 格1：必须**成功** */
+    else if (p1 == NULL || c1 != 2) rc = 2;                                            /* 真对象：非空 + 表长 2 */
+    else if (WpfLinuxWin32_PtsInstalledObjectsLive() != 1) rc = 20;                    /* 创建后 live==1 */
+    else if (WpfLinuxWin32_PtsInstalledObjectsCreates() < 1) rc = 21;                  /* creates 计数涨了 */
+    else if (DestroyInstalledObjectsInfo(p1) != 0) rc = 3;                             /* 真摧毁 ⇒ 0 */
+    else if (WpfLinuxWin32_PtsInstalledObjectsLive() != 0) rc = 22;                    /* 摧毁后 live==0 */
+    else if (DestroyInstalledObjectsInfo(p1) == 0) rc = 17;                            /* **重复释放必被拒** */
+    else if (DestroyInstalledObjectsInfo((void *)0xdead) == 0) rc = 18;                /* **未知名必被拒** */
     else if (CreateDocContext(sb, &p2) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 4;
     else if (p2 != NULL) rc = 5;
     else if (DestroyDocContext((void *)0xdead) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 6;
@@ -287,13 +381,16 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
     else if (q3 != NULL) rc = 16;
 
     if (rc == 0) {
-        char rep[256];
+        char rep[384];
         if (WpfLinuxWin32_PtsGapReport(rep, (int)sizeof(rep)) <= 0) rc = 9;
-        else if (!strstr(rep, "entries=9") || !strstr(rep, "err=-10000")) rc = 10;
+        else if (!strstr(rep, "entries=7") || !strstr(rep, "err=-10000")) rc = 10;      /* 格1：只剩 7 条 stub */
+        else if (!strstr(rep, "frontier=LoCreateContext")) rc = 23;                     /* 格1：前沿=下一跳 */
+        else if (!strstr(rep, "installed_objects_live=0")) rc = 24;                     /* 无泄漏 */
     }
 
     // 复原台账（自检不许改变可观测状态）
     memcpy(g_pts_calls, save_calls, sizeof(save_calls));
+    g_pts_io_creates = save_creates; g_pts_io_destroys = save_destroys; g_pts_io_rejected = save_rejected;
     g_pts_seq = save_seq;
     g_pts_printed = save_printed;
     g_pts_budget = old_budget;

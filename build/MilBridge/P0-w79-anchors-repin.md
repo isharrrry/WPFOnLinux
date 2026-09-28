@@ -232,3 +232,43 @@
 2. **`t43` 的潜伏红**（本件修、已具名）：`nul-bytes-check.sh:683` 的 `printf|grep -q` 是 `t43` 新增、且 `t43` 交接时**未跑 verify-all** ⇒ 该红直到本件两趟 post 才被照出。⇒ 口径句（**下一笔登记**）：**「凡改到**在覆盖面内的判据件**，交接必须跑一次整链（`verify-all`），否则红的潜伏期由下一个无关车道的两趟 post 替你付。」**
 3. **未做**：`docs/CURRENT-STATE.md:8` 之外的第二声明路（如 `handoff.md` 里同类散文）**未普查**（本件只按契约清 `CS:8`）；`D-G172` 的**链序修法**（把 `--emit` 排到冻结之后）**属链侧**（`~/w79c/bin/w79-freeze2end.sh`），本件**只**把漂移做成"可见 + 具名"，**未改链序**（那是 `t46`／下一波的事）。
 4. **`#79` 的 `inputs_fp` 与现树不再相等**：属**代际前进**，终值冻结指向 `t46`（波 `#80`）。**本件全程未重冻**（基线 `901619543b3d913b`）。
+
+## §13 推送与哨兵（**推送后 append**；口径＝报告在推送后追加 ⇒ 终态残余 `porcelain` 只此一件，逐件具名）
+
+- **一笔推送**：`6a245bd..71603bd  HEAD -> feat-Linux`（`COMMIT=71603bd`｜`staged=18`｜`FF=yes`）；现取 `ls-remote` = **`71603bd3762059b3e1791be4a5eac2359657e01f`** = 本地 `HEAD`；树对象 `48af8258098c96adcc1b6ea156f9a8c4d25ab141`。
+  ⚠️ 远端断言一律用**现取 `ls-remote` tip**（**不**用 remote-tracking ref —— 那条陷阱本仓已记过）。
+- **推送窗口牙（本笔）**：`INFP_AT_PUSH=cb7fbeca…` vs `FROZEN_INFP=4c096e9c…` ⇒ **`ALLOW-DECLARED-DISPLACEMENT`（`changed_n=3`）**（具名声明的四条腿见 §10）＋ `INFP_RULER2=SAME_SOURCE_AGREE` ＋ `INFP_COUNT_RULER=PASS（live=225 == 声明常数 225）`。
+- **逐笔在场**：`REMOTE_PER_COMMIT=PASS n=2`（`993eb5d5..71603bd` 逐笔）＋ `REMOTE_TIP_FRESH=71603bd…`。
+- **本笔 18 件（逐件 blob 现取 `git ls-tree HEAD`；远端 ref == HEAD ⇒ 同一棵树）**：
+
+  | 件 | blob16 |
+  |---|---|
+  | `build/MilBridge/HANDOFF-NEXT.md` | `fd33b220f3e2f546` |
+  | `build/MilBridge/P0-mvp-segv-report.md` | `8a7ea638d272d9ba` |
+  | `build/MilBridge/P0-w78-report.md` | `ede547a9deca4d88` |
+  | `build/MilBridge/P0-w79-anchors-repin.md` | `4a6f2bc77c3886a5` |
+  | `build/MilBridge/P0-w79-report.md` | `edb949f24933283a` |
+  | `build/MilBridge/T24-report.md` | `8472dd8a2dcb28a6` |
+  | `build/MilBridge/V79d-provider-disposition-verify.md` | `47929c39fca61d5f` |
+  | `build/MilBridge/V79e-prefer-reds-close-verify.md` | `7381d779eb1dc475` |
+  | `build/MilBridge/V79f-t35-verify.md` | `c625200c9e3890e8` |
+  | `build/MilBridge/t22-report.md` | `e05cdcb1ecf80e9f` |
+  | `build/MilBridge/t37-report.md` | `1f38b03b61275af0` |
+  | `build/MilBridge/tools/baseline-sha-check.sh` | `b401506d1a13f694` |
+  | `build/MilBridge/tools/defect-registry-check.sh` | `f0d7bcc54bd6bb6b` |
+  | `build/MilBridge/tools/defect-registry-declared.tsv` | `5469e47aff1f7939` |
+  | `build/MilBridge/tools/nul-bytes-check.sh` | `49ee983815a3111e` |
+  | `docs/CURRENT-STATE.md` | `4c02d5ca761eae1e` |
+  | `samples/WpfFeatureProbe/KNOWN-DEFECTS.md` | `fbd76cd9284f16ce` |
+  | `verify-all.sh` | `9307d8199754bfe4` |
+
+- **清单 ↔ `porcelain` 双向差集（现算）**：`FILES_n=75`｜推送前 `porcelain_n=18`｜**差集 B（`porcelain` − `FILES`）= ∅ ⇒ 无静默漏**｜`pushed − FILES = ∅`｜差集 A（`FILES` − 本笔）= **57 件**（它们在前代/本代更早提交里，且仍在清单上 ⇒ 清单是**累积**语义，不是"本笔清单"）。
+  ⇒ 主控点名的 6 件（`HANDOFF-NEXT.md`／`P0-w78-report.md`／`P0-mvp-segv-report.md`／`P0-w79-report.md`／`T24-report.md`／`V79d`／`V79e`／`t22-report.md`）**全部入笔**；后到的脏件（`V79f-t35-verify.md`／`t37-report.md`／`nul-bytes-check.sh`／`KNOWN-DEFECTS.md`）也**一并入笔**（推送前 `porcelain_n=18` 与清单逐件对齐）。
+- **推送后残余 `porcelain`**：推送后现取 **0**；本报告在推送后 append 本节 ⇒ **终态残余 = ` M build/MilBridge/P0-w79-anchors-repin.md`（只此一件，逐件具名）**，属**下一代**（`t46`）落仓件。
+- **两哨兵**：`cmp /tmp/bridge-frozen.flag ~/wfp-runs/bridge-frozen.flag` ⇒ **IDENTICAL**；两件 sha16 同 **`d87d575ae8732003`**；`mtime 2026-09-28 03:25:37.451508668 +0800` ⇒ **由本笔推送重写**（不是 `#79` 那趟的陈旧件）。
+  题定值（现取）：`WAVE=w79-freeze`｜`BASELINE=#79`｜**`BASELINE_SHA16=901619543b3d913b`**（基线件现取仍 `901619543b3d913b` ⇒ **未重冻**）。
+  ⚠️ **如实点名一格**：哨兵九位字段写的是**现取**值，其中 **`PROVIDER=8cb1b50619f4c133` ≠ `#79` 冻结块的 `759ac1686e5ef87d`**（其余八位逐位同）。
+  ⇒ 口径：**"哨兵现取" 与 "冻结声明" 不是一回事**——冻结声明在 `samples/WpfTextDemo/ACCEPTANCE-BASELINE.md`，本件一字未动；该格**归因留 `NOINFO`**（本件**未**取到产物路径级证据，**不猜**是"哪一步重建了 provider 产物"），交 `t46` 冻结时按新值重取九位。
+- **`t23` 那两笔具名**（本笔的前一笔）：首笔 `PUSH_RC=9`／`PUSH_LIST_GAP=FAIL dirty-covered-files-not-in-list: build/MilBridge/tools/boundary-decl-check.sh` ⇒ **stage 之前停手 ＝ 零部分推送**；第二笔 `PUSH_RC=0`／`staged=31`／`COMMIT=6a245bd`。本笔 `6a245bd..71603bd` ＝ **第三笔**。
+- **推送牙自身的第三处自伤（具名）**：牙在 `git commit` **之后**才跑，而我第一版把判据面锚在**工作树脏件** ⇒ 提交后 `porcelain=0` ⇒ 现算集恒空 ⇒ 与声明集恒不等 ⇒ **拦停推送（提交已发生、零部分推送）**。修法＝判据面改成「**（脏件 ∪ 未推的已提交改动）∩ 覆盖面**」（`git status --porcelain` ∪ `git diff --name-only $REM..HEAD`）；修后复跑即 `ALLOW-DECLARED-DISPLACEMENT` ⇒ 推送成功。
+- **推送后关键判据（现取）**：`DEFREG=PASS declared=210 route_ids=210`｜`DEFREG_DECLDRIFT=0 … keys=-`｜`DEFREG_DECLDRIFT_KEYS=-`｜七键逐件现算 = `ac13076c17ca8f8f`／`90a22e10619a8485`／`a4d8ffcf4c37f6fe`／`901619543b3d913b`／`2209966ee1d2c5cc`／`ab09235afd949bc2`／`3c9e3a309b990d31`（与声明行逐位同）｜`inputs_fp=cb7fbeca…`｜基线 `901619543b3d913b`。

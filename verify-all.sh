@@ -5,6 +5,7 @@
 #
 # ⚠️ **步数口径（引用前必读；三个数不能互相引用）**：
 #   **`#79` 收官起 = 55 步**（⏪ 本行**取代**紧邻下方那条 `53 步`：`t27` 在 `t20` 落地之后把 `t19` 的两件牙接线 —— 第 `[+]` 步 `RETIRED-PATH`（`pkg-src-retiredpath-check.sh`）与第 `[+]` 步 `REPORT-ID-DOMAIN`（`report-id-domain-check.sh`）；`t20` 加的两行与它那两颗牙**一字未动**。**步数：53 → 55**）
+#   **`#80` 收官起 = 55 步**（⏪ 本行**取代**紧邻下方那条 `53 步`：`t27` 在 `t20` 落地之后把 `t19` 的两件牙接线 —— 第 `[+]` 步 `RETIRED-PATH`（`pkg-src-retiredpath-check.sh`）与第 `[+]` 步 `REPORT-ID-DOMAIN`（`report-id-domain-check.sh`）；`t20` 加的两行与它那两颗牙**一字未动**。**步数：53 → 55**）
 #   **`#79` 收官起 = 53 步**（`#79` 加两步（51 -> 53）：`ROOT-ENTRIES`（TASK-0750，根级条目白名单）与 `WIRING-CLOSURE`（TASK-0751，交付 子集 接线 与 接线 蕴含 真判）；覆盖面 217 -> 219、`[42] --expect` 同趟改。仪器波 · 零产品改动。步数：51 -> 53）
 #   **`#78` 收官起 = 51 步**（`#78` **加一步**（50 → 51）：第 `[51]` 步 `APPBAR-STARTUP` ＝ `TASK-0747`（`D-G124` `F-A` 最小修法）—— 给 shell32 面补一处 `SHAppBarMessage` 导出；本牙＝活体符号面 ∧ 录下的腿表，两臂合取、分开计数。同趟：覆盖面 **212 → 213**（本波 3 件）＋ `[42] --expect` 同趟改。**步数：50 → 51**）
 #   **`#77` 收官起 = 50 步**（`#77` **加三步**（47 → 50）：三颗判据牙同趟接线 —— `WIRING-COVERAGE`（`TASK-0740`）／`PARSER-GUARD`（`TASK-0742`）／`PROTO-ATTR`（`TASK-0744`）；覆盖面 **205 → 211**、`--expect` 同趟改。**仪器波 · 零产品改动**。**步数：47 → 50**）
@@ -1191,7 +1192,7 @@ run_step "REPO-ALIAS" bash build/MilBridge/tools/repo-alias-check.sh --allow bui
 #   ∧ `sha256sum` `stderr` 空。它**不**判「清单**内容正确**」—— 判不了"该收的没收"（覆盖面缺项）。
 echo
 echo "[42] 指纹清单的牙（清单逐行形状 ＋ 件数对账；D-G120②；NOINFO 不算绿；#70 加）"
-run_step "FP-MANIFEST-TEETH" bash build/MilBridge/tools/fp-manifest-step.sh --expect 225
+run_step "FP-MANIFEST-TEETH" bash build/MilBridge/tools/fp-manifest-step.sh --expect 226
 run_step "SELFDESC-WIRING" bash build/MilBridge/tools/selfdescription-wiring-check.sh
 run_step "LANE-PATH" bash build/MilBridge/tools/lane-path-check.sh
 run_step "ROWS-IDENTITY" bash build/MilBridge/tools/rows-identity-check.sh

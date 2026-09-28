@@ -1,5 +1,5 @@
-[HCIN] install pid=2077841
-[HC-UNHANDLED] #1 EntryPointNotFoundException: Unable to find an entry point named 'SHAppBarMessage' in shared library 'shell32.dll'. ｜ 首帧 at HandyControl.Tools.Interop.InteropMethods.SHAppBarMessage(Int32 dwMessage, APPBARDATA& pData)
+[G147_WORKAREA] source=net-workarea GetMonitorInfo mon=0,0,1280,1024 work=0,0,1280,1024 prop_present=1 prop_n=16
+[HCIN] install pid=3183687
 [NS] ATTRCOUNT DependencyObject=2 FrameworkElement=4 Control=0 TextBlock=2
 [NS] ASSM depObjAssm=WindowsBase, Version=4.0.0.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35 loc=/home/links-dev/w67-work/app/WindowsBase.dll attrAssm=System.Xaml, Version=4.0.0.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35 nsAssm=WindowsBase, Version=4.0.0.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35 attrCount=2 nameScopeHits= HIT:System.Xaml nonInherit=True
 [NS] CHAIN attrOnDependencyObject=True attrOnRootType=True dpField=True dpNull=False dpOwner=NameScope dpName=NameScope attachableMember=NameScope
@@ -565,10 +565,10 @@
 [HCIN] mouseUp hop=Grid src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
 [HCIN] mouseUp hop=Border src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
 [HCIN] mouseUp hop=MainWindow src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
-PTS_GAP entry=CreateInstalledObjectsInfo seq=1 err=-10000 calls=1
-[PTS-UNAVAILABLE] site=FlowDocumentView.DocumentPage entry=CreateInstalledObjectsInfo err=-10000 action=page-placeholder（已画出页级占位；进程继续）
+PTS_GAP entry=LoCreateContext seq=1 err=-10000 calls=1
+[PTS-UNAVAILABLE] site=FlowDocumentView.DocumentPage entry=LoCreateContext err=-10000 action=page-placeholder（已画出页级占位；进程继续）
 [NS] loaded HandyControlDemo.UserControl.FlowDocumentDemo scope=NameScope isINS=False contentScope=null upHits= UP0=FlowDocumentDemo FindName(PathDemo)=null FindName(PART_EditableTextBox)=null
-[HC-UNHANDLED] #2 PtsUnavailableException: PTS 能力已在本进程内判定不可用（首次失败见 InnerException）—— 本闩只覆盖这一个具名条件 ｜ 首帧 at MS.Internal.PtsHost.PtsCache.AcquireContextCore(PtsContext ptsContext, TextFormattingMode textFormattingMode)
+[HC-UNHANDLED] #1 PtsUnavailableException: PTS 能力已在本进程内判定不可用（首次失败见 InnerException）—— 本闩只覆盖这一个具名条件 ｜ 首帧 at MS.Internal.PtsHost.PtsCache.AcquireContextCore(PtsContext ptsContext, TextFormattingMode textFormattingMode)
 [HCIN] dump t10 TBlk(cs=1 chk=True ges=None b=Active/RS:TemplatedParent en=True vis=True)
 [STATE] t10 focus=ListBoxItem TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=24/31)
 [POP] |[0] HwndSource root=MainWindow wh=768x576 vis=True kids{TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=24/31)} hwnd=0xa00004 vis=root
@@ -582,16 +582,16 @@ PTS_GAP entry=CreateInstalledObjectsInfo seq=1 err=-10000 calls=1
 [GEO] Button#ButtonShiftOut scr=239,59 wh=27x27 en=True vis=True htv=True
 [GEO] ToggleButton#- scr=748,51 wh=27x27 en=True vis=True htv=True chk=False
 [GEO] Button#- scr=274,52 wh=29x25 en=True vis=True htv=True
-[GEO] TabItem#- scr=448,82 wh=165x27 en=True vis=True htv=True hdr=流文档单页视图 sel=False
-[GEO] TabItem#- scr=619,82 wh=165x27 en=True vis=True htv=True hdr=流文档查看器 sel=False
-[GEO] TabItem#- scr=276,82 wh=165x27 en=True vis=True htv=True hdr=流文档滚动视图 sel=True
-[GEO] RepeatButton#- scr=968,146 wh=0x0 en=False vis=False htv=True
-[GEO] RepeatButton#- scr=968,146 wh=0x0 en=False vis=False htv=True
-[GEO] RepeatButton#- scr=747,535 wh=20x20 en=True vis=True htv=True
-[GEO] Slider#- scr=768,536 wh=180x18 en=True vis=True htv=True val=100
-[GEO] RepeatButton#- scr=777,536 wh=18x18 en=True vis=True htv=True
-[GEO] RepeatButton#- scr=815,536 wh=126x18 en=True vis=True htv=True
-[GEO] RepeatButton#- scr=956,535 wh=20x20 en=True vis=True htv=True
+[GEO] TabItem#- scr=440,82 wh=165x27 en=True vis=True htv=True hdr=流文档单页视图 sel=False
+[GEO] TabItem#- scr=611,82 wh=165x27 en=True vis=True htv=True hdr=流文档查看器 sel=False
+[GEO] TabItem#- scr=268,82 wh=165x27 en=True vis=True htv=True hdr=流文档滚动视图 sel=True
+[GEO] RepeatButton#- scr=960,146 wh=0x0 en=False vis=False htv=True
+[GEO] RepeatButton#- scr=960,146 wh=0x0 en=False vis=False htv=True
+[GEO] RepeatButton#- scr=739,535 wh=20x20 en=True vis=True htv=True
+[GEO] Slider#- scr=760,536 wh=180x18 en=True vis=True htv=True val=100
+[GEO] RepeatButton#- scr=769,536 wh=18x18 en=True vis=True htv=True
+[GEO] RepeatButton#- scr=807,536 wh=126x18 en=True vis=True htv=True
+[GEO] RepeatButton#- scr=948,535 wh=20x20 en=True vis=True htv=True
 [GEO] Button#- scr=28,59 wh=203x27 en=True vis=True htv=True
 [GEO] TabItem#- scr=96,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
 [GEO] TabItem#- scr=173,93 wh=74x27 en=True vis=True htv=True hdr=HandyControlDemo.Data.DemoInfoModel sel=False
@@ -1020,7 +1020,7 @@ PTS_GAP entry=CreateInstalledObjectsInfo seq=1 err=-10000 calls=1
 [HCIN] mouseUp hop=Grid src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
 [HCIN] mouseUp hop=Border src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
 [HCIN] mouseUp hop=MainWindow src=Border open=- btn=Left state=Released devLB=Released bb=- handled=False cap=none
-[PTS-UNAVAILABLE] site=FlowDocumentView.DocumentPage entry=CreateInstalledObjectsInfo err=-10000 action=page-placeholder（已画出页级占位；进程继续）
+[PTS-UNAVAILABLE] site=FlowDocumentView.DocumentPage entry=LoCreateContext err=-10000 action=page-placeholder（已画出页级占位；进程继续）
 [NS] loaded HandyControlDemo.UserControl.RichTextBoxDemo scope=NameScope isINS=False contentScope=null upHits= UP0=RichTextBoxDemo FindName(PathDemo)=null FindName(PART_EditableTextBox)=null
 [HCIN] dump t15 TBlk(cs=1 chk=True ges=None b=Active/RS:TemplatedParent en=True vis=True)
 [STATE] t15 focus=ListBoxItem TG(off) TB(- len=0,caret=0,focus=False) TG(off) LB(ListBoxDemo sel=23/31)
