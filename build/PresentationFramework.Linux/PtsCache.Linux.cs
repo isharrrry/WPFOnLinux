@@ -1047,6 +1047,10 @@ namespace MS.Internal.PtsHost
         /// <summary>缺口名册读口的缓冲长度（**写死**；只有"缓冲有富余"的读数才可信，见 `GapEntryNameAt`）。</summary>
         // ⏪ `t90` 现取：现册最长名 `LoGetPenaltyModuleInternalHandle` ＝ 31 B，《128》有 96 B 富余 ⇒ 富余判据**必真**；
         //   一旦名册出现 ≥127 B 的名字，富余判据会**保守**判"截断 ⇒ unknown"（宁可误报 unknown，不许误信截断名）。
+        // ⏪ `t95`（2026-09-29）**`t91` 的 `G-4`：数字更正（逐字，实测现取）**——上一段的 `31 B`／`96 B` **写错**：
+        //   现取该名长度 ＝ **32 B**（`awk` 对 `src/WpfGfx.Linux.Native/src/win32_pts.c` 的 `k_pts_entries[]` 逐名取长，
+        //   `sort -rn | head -1` ⇒ `32 LoGetPenaltyModuleInternalHandle`；名册共 12 名）⇒ 128 − 32 ＝ **95 B** 富余。
+        //   **结论不变**（富余判据在现册必真）；被纠正的只是数字。**原句一字未删**（只增不改），以本段为准。
         private const int GapNameCap = 128;
 
         /// <summary>带**长度纪律**的缺口名册读口：拿到可信名 ⇒ 该名；截断/越界/形状不合 ⇒ `null`（**不抛**）。</summary>
@@ -1062,6 +1066,18 @@ namespace MS.Internal.PtsHost
         //   ③ 两条任一不满足 ⇒ `null`（调用方回落到 ③/④ 或最终 `unknown`）—— **绝不许**返回截断名。
         //   ⚠️ native 侧的**真修法**（`t88` 建议的"长度不足返 0"）需要改 `src/**`（本件写域**不含**它）⇒ 本件只把纪律落在
         //   **托管侧读口**（判据实际消费的就是这个值），native 侧的加固与建议补丁见载体 `P1-entry-attribution-fix2-report.md`。
+        //   ⏩ 事实上 `t92`（P1-W20）**已在 native 侧落地真修**：`WpfLinuxWin32_PtsGapEntryName()` 现在"放不下 ⇒ `0` ＋ 空串"
+        //   （`cap ≤ 名长` ⇒ `rc=0`），只读 128/95 B 富余档 ⇒ `rc=1` 全名。
+        // ⏪ `t95`（2026-09-29）**`t91` 的 `G-5`：保守边界口径句（不改实现）**。本读口的 ①富余判据是
+        //   `nm.Length >= cap - 1 ⇒ null` ⇒ **`cap == 名长 + 1`（native 恰好放得下、`t92` 后也会给全名）同样被判 `null`**
+        //   （`t91` 夹具实测：`cap=23 ⇒ <null>`、`cap=24` 才给名）。这是**刻意的保守**，理由三条：
+        //    (i) **跨 shim 世代的安全网**：`t92` 之前的那代 `.so` 仍会"截断 ＋ `rc=1`"（`cap=5 ⇒ name="LoAc"`）⇒ 只要本读口
+        //        可能落到**旧 shim** 上，`rc==1` 就**不足以**证明"拿到的是全名"；本判据不依赖 native 版本。
+        //    (ii) **代价在现盘为零**：生产路 `cap=GapNameCap=128`，现册最长名 **32 B** ⇒ 富余 **95 B** ⇒"恰好放得下"这一档
+        //         **在生产不可达**（只有夹具才会把 cap 调到 23/24）。
+        //    (iii) 方向正确：多收一档 `null` 是**误报 unknown（收紧）**，而它换掉的是"误信截断名（假绿）"的可能。
+        //   ⇒ **实现不动**（改成本该更"准"的"`rc==1` 即真名"会**失去 (i)**：对旧 shim 立刻退化回 `F-3` 的假绿灯）;
+        //      若将来确认部署面**永不**加载 `t92` 之前的 shim，可另派单把 ① 放宽为"`rc==1` ⇒ 信"，届时 `cap=23/24` 两档应同值。
         internal static string GapEntryNameAt(int idx, int cap)
         {
             try
@@ -1083,10 +1099,11 @@ namespace MS.Internal.PtsHost
         //   ⇒ 把**入口名**当成库名，产出 `dll:NotImplemented` 这种**不可归因的合成名** ⇒ 判据 `domains=unattributable` 必红）。
         //   **新口径（逐字）**：① 入口名措辞（`named 'X'`；Windows 形 `in DLL 'Y'` ／ Linux 形 `in shared library 'Y'`）
         //   ⇒ 取**入口名原样**（不加前缀），且**必须**是 C 标识符形状（挡掉 `dll:`／路径／含 `:` 的合成串）；
+        //      `t95`（`G-2`）：**形状不合 ⇒ 落到②路继续看**（不再整串掐掉；形状合则先返回，入口名优先）。
         //   ② 库名措辞（`Unable to load shared library 'Y'`／`Unable to load DLL 'Y'`／`in shared library 'Y'`／`in DLL 'Y'`）
         //   ⇒ 取库名、去目录、加 `dll:` 前缀，且**只接受真库名形状**（`*.dll`／`*.so`／`*.so.<纯数字段>…`；`t90` 放宽后
         //      **不要求 `lib` 前缀**，见 `IsLibraryNameShape` 的逐字口径）；措辞命中而形状不合 ⇒ **继续扫后面三条**（`t90`，`F-2`）。
-        //   ③ 其余（含「措辞命中但形状不合」）⇒ **`unknown`** —— **绝不许**合成不可归因名。
+        //   ③ 其余（两条路都取不到合法形状）⇒ **`unknown`** —— **绝不许**合成不可归因名。
         private static string EntryNameFromException(Exception e)
         {
             try
@@ -1104,7 +1121,12 @@ namespace MS.Internal.PtsHost
                         string entry = msg.Substring(a + 7, b - a - 7);
                         if (IsEntryNameShape(entry)) return entry;
                     }
-                    return "unknown";                     // 措辞命中而形状不合 ⇒ 不猜
+                    // ⏪ `t95`（2026-09-29）**`t91` 的 `G-2`：不再短路**。旧码在这里 `return "unknown"` ⇒ 与 `t90` 改过的
+                    //   ②路（措辞形状不合 ⇒ `continue`）**不对称**：现场夹具 `"… named 'Lo Ac' in DLL 'x.dll'."` 里
+                    //   后段 `in DLL 'x.dll'` 是**合法库名措辞**，却因前段形状不合被整串掐掉。
+                    //   新口径：①路**形状不合**只说明"这条入口名措辞给不出可用名" ⇒ **落到②路**继续按库名措辞取；
+                    //   ①路**形状合** 仍**先返回**（入口名优先，不被库名盖掉）；②路依旧逐条做**库名形状**校验
+                    //   ⇒ 本改动**不产生**"把真入口名当库名"的通路（取回的仍是 `dll:<库名>`，或最终 `unknown`）。
                 }
 
                 // ② 库名措辞（四种措辞并列；命中即**只在真库名形状**下加前缀）
@@ -1164,6 +1186,11 @@ namespace MS.Internal.PtsHost
         //      茎为空者（`.so`）、`.so` 后无点者（`foo.sox`）全拒。
         //   **没有**放宽到"任何带点的串"：判据的实质是**后缀**（`.so`／`.so.<纯数字>…`／`.dll`）＋ 字符面，
         //   不是"含点即收"。形状仍然只是**形状**（不证明名字真存在于本栈）⇒ 归因仍靠判据件的在册对拍。
+        // ⏪ `t95`（2026-09-29）**`t91` 的 `G-3`：点分段纪律（收紧）**。`t90` 那版只查字符面 ⇒ `a..so`（空段）、
+        //   `-x.so`／`+x.so`（前导符号）、`a...so`、`x.-1.so` 全被判 **true**（与注释"茎非空"的字面不符）。
+        //   **新增两条（逐字）**：⑥ 按 `.` 切分后**每段非空**（挡 `a..so`／`a...so`／`.so`）；⑦ **每段首字符必须是
+        //   字母/数字/`_`**（挡 `-x.so`／`+x.so`／`x.-1.so` 这类以 `-`／`+`／`.` 起头的段）——`-`／`+` 仍**许出现在段内**
+        //   （`libfoo-1.2.so`／`libstdc++.so.6` 必须继续收）。⇒ 这是**收紧**：新增拒格全是过去误收的空壳名。
         private static bool IsLibraryNameShape(string s)
         {
             if (string.IsNullOrEmpty(s)) return false;
@@ -1173,6 +1200,14 @@ namespace MS.Internal.PtsHost
             {
                 char ch = t[i];
                 if (!(char.IsLetterOrDigit(ch) || ch == '_' || ch == '.' || ch == '+' || ch == '-')) return false;
+            }
+            // ⑥⑦ 点分段纪律（`t95`／`G-3`）：段非空 ＋ 每段首字符 ∈ 字母/数字/`_`
+            string[] parts = t.Split('.');
+            for (int i = 0; i < parts.Length; i++)
+            {
+                if (parts[i].Length == 0) return false;
+                char c0 = parts[i][0];
+                if (!(char.IsLetterOrDigit(c0) || c0 == '_')) return false;
             }
             if (t.EndsWith(".dll", StringComparison.Ordinal)) return t.Length > 4;
             if (t.EndsWith(".so", StringComparison.Ordinal)) return t.Length > 3;          // 茎非空即可，**不要求 `lib`**

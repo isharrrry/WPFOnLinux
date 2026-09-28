@@ -177,3 +177,144 @@ D report anchor=[GetFloaterHandlerInfo] frontier=[LoAcquirePenaltyModule] report
 
 ⏪ 收尾复算（`t90` 同趟最后一笔，`ts=2026-09-29T00:29:18.287185422+0800；**只增不改**）：上列 §9 的 `STATICJAWS=FAIL fails=1`（唯一 HIT ＝ `SENTINEL-SPEC`）是**本件 rebuild 之后、哨兵重写之前**那一瞬的读数；同一趟**他者**（按边界＝队长动作）已重写哨兵（`~/wfp-runs/bridge-frozen.flag`，现取 `PF=83ba5884bb603296`／`SHA=4e25e4b27d4d5ae1`／`WIN32SHIM=3bd193e54785b5db`，mtime `2026-09-29 00:25:56.830178652`；**本席从未写哨兵**）⇒ 现取复算：`bash build/MilBridge/tools/sentinel-spec-check.sh` ⇒ **`rc=0`／`SSC=PASS`**，`bash build/MilBridge/tools/static-jaws-check.sh` ⇒ **`STATICJAWS=PASS n=32 excluded=30 noinfo=1 n_total=62`（0 HIT）**。⇒ §9① 那处红**已消解**（不是本席改的），§9② 的 `DEFREG_DECLDRIFT=1 keys=KD` **仍未闭**（他者面）。
 **本件自证（末行 · 收尾最终）**：`head -n -1 build/MilBridge/P1-entry-attribution-fix2-report.md | sha256sum | cut -c1-16` ＝ 534011faa64c3e75
+
+---
+
+## ⏪ `t95` dated 追加（2026-09-29T00:4x+0800；处置 `t91` 的 `G-2`／`G-3`／`G-4`／`G-5` ＋ **队长错口径更正（队长认账）**；**只增不改**，本件原有文字一字未删）
+
+写者 `scribe`（`t95` attempt 1／`43f5a8f9-25ac-4437-a770-0bb777fae2c4`）｜**一切读数现取自算**｜夹具仓外（`~/w281-scribe/t95/probe.ps1`：`pwsh` 反射现盘 Release 件 ＋ `Marshal.GetDelegateForFunctionPointer` 直调现盘 `.so`），零构建（构建另走重活槽）。
+
+**处置表**
+
+| 项 | 处置 | 落点 | 读数小节 |
+|---|---|---|---|
+| `G-2` ①路仍短路 | **修**（形状不合 ⇒ 落到②路，与 `F-2` 对齐） | `EntryNameFromException()` ①路尾 | §`G-2` |
+| `G-3` 形状两处过宽 | **修（收紧）**：新增「点分段纪律」两条 | `IsLibraryNameShape()` | §`G-3` |
+| `G-4` 注释数字错 | **改注释**（32 B／95 B；原句保留） | `GapNameCap` 上方 | §`G-4` |
+| `G-5` 保守边界 | **只落口径句**（实现**不动**，理由三条） | `GapEntryNameAt()` 上方 | §`G-5` |
+| 队长错口径 | **更正入册（队长认账）** | §队长错口径更正 | 我自算覆盖面 |
+
+**改动面（逐件现取，`ts=2026-09-29T00:41`）**
+
+- `build/PresentationFramework.Linux/PtsCache.Linux.cs`：`6c4913b9ef462294`（1307 行）→ **`6fecbab40f639616`（1342 行／`git diff --numstat` ＝ `37 2`）**。**那 2 个删行逐条点名**：① ①路尾 `return "unknown";                     // 措辞命中而形状不合 ⇒ 不猜`（`G-2` 的**功能改**：短路 → 落到②路）；② 旧 ③口径句那一行（「其余（含「措辞命中但形状不合」）⇒ `unknown`」—— 被**改写扩写**成新 ③ ＋ ① 的 `t95` 注）。**其余全是新增**（点分段纪律 ⑥⑦ ＋ 三处 dated 口径块 ＋ ①路注释）。
+- **构建**：`bash ~/heavy-slot.sh --wait 900 --max-hold 900 --min-avail 2000 -- bash -c 'dotnet build build/PresentationFramework.Linux/PresentationFramework.Linux.csproj -c Release -m:1 -v:m'` ⇒ `0 警告 0 错误`／`已用时间 00:00:41.05`（**先 `touch` 源件**，规避 `cp -p` 反旧 ⇒ MSBuild 静默跳过那个坑）。Release／部署件：`83ba5884bb603296` → **`6893d1d3fb1ee110`**（`sync-applocal.sh` 写模式后 `PASS drift=0`）；native `.so` 现取 **`657f448c2077ba1f`**（`t92` 那代，本件未动 `src/**`）。
+
+### `G-2` ①路短路（**修**）
+
+夹具 45 格真产物 A/B（**旧极** ＝ 部署件旧代 `83ba5884bb603296`；**新极** ＝ 新 Release 件 `6893d1d3fb1ee110`）⇒ **6 格变／39 格逐字不变**。`G-2` 那一格：
+
+```
+修前  A G2a named Lo Ac + DLL  => [unknown]          （"… named 'Lo Ac' in DLL 'x.dll'."）
+修后  A G2a named Lo Ac + DLL  => [dll:x.dll]        ✓ 与 `F-2` 的②路口径对齐
+```
+
+**极性守卫（两代同值，证明"没有把真入口名当库名"）**：
+
+```
+A E1 entry,sharedlib      => [LoAcquirePenaltyModule]   （①路形状合 ⇒ **先返回**，入口名优先；两代同）
+A E2 entry,DLL            => [LoSetDoc]                 （同上；两代同）
+A E3 entry,underscore     => [_LoSetDoc]                （同上；两代同）
+A G2b named fake + real so=> [NotImplemented]           （①路形状**合**（它是 C 标识符）⇒ 仍走①路；两代同）
+A G2c named Lo Ac + fake  => [unknown]                  （①路形状不合 → ②路命中但库名形状不合 ⇒ 仍 unknown；两代同）
+```
+
+⇒ **理由（写进代码注释）**：①路"形状不合"只说明**这条入口名措辞**给不出可用名 ⇒ 落到②路；①路"形状合"仍先返回 ⇒ 入口名**优先于**库名；②路**照旧逐条做库名形状校验** ⇒ 本改动**不产生**"把真入口名当库名"的通路（返回值只可能是 `dll:<库名>` 或最终 `unknown`）。
+⚠️ 一并如实记：①路对**任何** C 标识符形状的串都会原样返回（`G2b` 的 `NotImplemented` 即此）—— 这是 `t87` 的既有口径，**归因由判据件在册对拍承担**（`G10_NAME` 对不在册的名字**必红**），本件不改。
+
+### `G-3` 形状过宽（**修，收紧**）
+
+新增两条（逐字）：**⑥ 按 `.` 切分后每段非空**；**⑦ 每段首字符 ∈ 字母/数字/`_`**（`-`／`+` 仍**许出现在段内**）。⇒ 5 格由"误收"变"拒"（两代 A/B）：
+
+```
+修前 ⇒ 修后
+A G3a a..so     => [dll:a..so]     → [unknown]     （空段）
+A G3b -x.so     => [dll:-x.so]     → [unknown]     （前导 `-`）
+A G3c +x.so     => [dll:+x.so]     → [unknown]     （前导 `+`）
+A G3d a...so    => [dll:a...so]    → [unknown]     （连续空段）
+A G3e x.-1.so   => [dll:x.-1.so]   → [unknown]     （段以 `-` 起头；`t91` 未点名，本席按同一条纪律一并收掉）
+```
+
+**「仍收的真件名形」回归（两代同值，逐字未变）**：`wpfgfx_cor3.so`／`/opt/x/y/wpfgfx_cor3.so`（去目录）／`lib.so`／`libfoo.so.1`／`libfoo.so.1.2`／`libfoo-1.2.so`／`libstdc++.so.6`／`libwpfwin32.so`（含去目录形）／`PresentationNative_cor3.dll`／`LIBFOO.SO`／`LibFoo.So`／`a.b.so`。
+**如实点名的剩余宽度**：`a.b.so`（**段内的点**）仍收 —— 这是 `t90` 有意的决定（后缀 ＋ 字符面双判，非"含点即收"），本件不改变它；段内 `-`／`+` 也仍收（`libfoo-1.2.so`／`libstdc++.so.6` 必须继续收）。
+
+### `G-4` 注释数字（**改注释**）
+
+我自算（`awk` 对 `src/WpfGfx.Linux.Native/src/win32_pts.c` 的 `k_pts_entries[]` 逐名取长后 `sort -rn | head -1`）：**`32 LoGetPenaltyModuleInternalHandle`**（名册共 **12** 名）⇒ `128 − 32` ＝ **95 B** 富余。⇒ `t91` 的 `G-4` **成立**（旧注释 `31 B`／`96 B` 写错），结论不变（富余判据在现册必真）。刻意**不删**旧句：在其后追加 dated 段落说明数字更正，**以追加段为准**（只增不改）。
+
+### `G-5` 保守边界（**口径句；实现不动**）
+
+**我自算的边界读数**（现盘新件 `6893d1d3fb1ee110` ＋ `t92` 的 shim `657f448c2077ba1f`，同一进程同台账，驱动序 idx7→idx4；裸口 `B` 与托管 `C` 并排）：
+
+```
+B gapname idx=1 cap=23  => rc=1 name=[LoAcquirePenaltyModule]   ← native **恰好放得下**（名长 22，`t92` 后给全名）
+C GapEntryNameAt idx=1 cap=23 => [<null>]                        ← 托管**保守判**（22 >= 23-1）
+B gapname idx=1 cap=24  => rc=1 name=[LoAcquirePenaltyModule]
+C GapEntryNameAt idx=1 cap=24 => [LoAcquirePenaltyModule]         ← 富余 1 B ⇒ 信
+C GapEntryNameAt idx=0 cap=23 => [GetFloaterHandlerInfo]          ← 名长 21 ⇒ 21 < 23-1 ⇒ 信（边界是**逐名**的 `len+1`）
+B gapname cap=4/5/12    => rc=0 name=[]                          ← `t92` 的 native 新语义：放不下 ⇒ 0 ＋ 空串
+C GapEntryNameAt cap=4/5/12 => [<null>]
+```
+
+⇒ 口径句（写进代码）：判据是 `nm.Length >= cap - 1 ⇒ null` ⇒ **`cap == 名长 + 1` 也被判 `null`**（与"被截断"不可区分）。**刻意保守，理由三条**：(i) **跨 shim 世代的安全网** —— `t92` 之前的 `.so` 仍"截断 ＋ `rc=1`"（`t90` 实测 `cap=5 ⇒ name="LoAc"`）⇒ `rc==1` **不足以**证明拿到全名；(ii) **代价在现盘为零**：生产 `cap=128`、最长名 32 B ⇒ 该档**不可达**（只有夹具把 cap 调到 23/24）；(iii) 方向正确：多收一档 `null` 是**误报 unknown（收紧）**，换来的是排除"误信截断名（假绿）"。**实现不动**；若将来确认部署面**永不**加载 `t92` 之前的 shim，可另派单把 ① 放宽为"`rc==1` ⇒ 信"（届时 `cap=23/24` 应同值）。
+
+### 队长错口径更正（**队长认账**）
+
+`t91` 派单里那句「注意 `t90` 自己也改了覆盖面内件」**与现取不符** —— **队长已认账**。**我自算**（`bash ~/w153a/bin/infp.sh list`，234 件逐条 `grep -c`）：
+
+```
+win32_pts.c                           1        ← `src/WpfGfx.Linux.Native/src/win32_pts.c` **在**覆盖面内
+evidence/                            16        ← 在册证据目录**在**覆盖面内（`t94` 正在换它）
+PtsCache.Linux.cs                     0        ← `t90` 四件**都不在**覆盖面内
+P1-entry-attribution-fix2-report.md   0
+P1-entry-attribution-verify.md        0
+HANDOFF-NEXT.md                       0
+```
+
+⇒ 正确口径：**覆盖面含 native 源件与 `evidence/**`，不含 `t90` 的四件** —— 故 `t92`（改 `src/**`）**会**移指纹，而 `t90`／本 `t95` 的托管件＋载体**不会**（这也是本件 `fp` 未移的原因）。后人**不得**再用"`t90` 改了覆盖面内件"来解释指纹位移。
+
+### 现树正极 ＋ 零症状回归（新代 `pf=6893d1d3fb1ee110`／`shim=657f448c2077ba1f`）
+
+```
+正极（本席自己的腿目录 ~/w281-scribe/t95/legs-after；ts≈00:41）：
+  POSTSHIM: shim=657f448c2077ba1f pf=6893d1d3fb1ee110（== authority ⇒ 读数可归因）
+  bash build/MilBridge/tools/pts-pages-guard.sh --legs …  ⇒ rc=0
+  PTS_G10_NAME=PASS observed=LoAcquirePenaltyModule names=1 roster=12 domains=pts-declared
+  PTS_GUARD=PASS legs=2/2 fails=- cannot=- diag=- direction=in-file phase=degraded
+  `app_g1.log` 现取 `3 entry=LoAcquirePenaltyModule`；`HC-UNHANDLED` **1**（设计内闩）；`five_pre == five_post`（cmp 同）
+零回归（成对）：旧极 ＝ 在册 `evidence/leg_*.env`（`shim=3bd193e54785b5db pf=b3f0d129f0234b58`）｜新极 ＝ 本趟重跑
+  leg_23 除 `DEV` 轴（shim/pf）外**逐字相同**：alive=yes ｜ app_rc=143 ｜ magenta=49943 ｜ colors=844 ｜ ae=141283 ｜ ink=428456 ｜ ns 逐字同 ｜ native_gap=1 ｜ native_err=-10000
+  leg_24 同上**逐字相同**：alive=yes ｜ app_rc=143 ｜ magenta=54533 ｜ colors=852 ｜ ae=221857 ｜ ink=423798 ｜ ns 逐字同 ｜ native_gap=1 ｜ native_err=-10000
+  ⚠️ 本趟（`t92` 的 shim ＋ 本件新件）两腿与**在册证据**在 `DEV` 轴之外**逐位相同** —— 这比"成对通过"更强；但 `DEV` 轴仍是**两代**（在册证据落后）⇒ 见下 `G-1`。
+```
+
+⚠️ **`t91` 的 `G-1`（medium，同趟性）本件未闭、且被本件 build 再推一格**：在册证据载 `pf=b3f0d129f0234b58`，而现盘 Release/部署件已是 `6893d1d3fb1ee110`（`t90` 的 `83ba5884bb603296` 又被本件换代）⇒ 「门禁真读的证据」与「现树产品件」不同趟。**闭它需要一次在册证据换代**（`evidence/**` 是覆盖面内、本件**写域外**；`t94` 正在换）⇒ 归写者域/队长，**本席只给出本趟实测的替身正极**（腿目录在仓外）。
+
+### 不变量 / 指纹 / 牙 / 哨兵（现取）
+
+```
+不变量：`^run_step "` ＝ 62 ｜ 覆盖面 ＝ 234 ｜ `VERIFYALL-STEPS-DECL: 62 gen=#81` ＝ 1 ｜ `--expect 234` ＝ 1 ⇒ 四条未变
+指纹：`bash ~/w153a/bin/infp.sh fp` ＝ f4a21769b3d6399339d9ddb2dc99ec106ca6b4e345803d46b36be508abf15834（ts=2026-09-29T00:40:51.368540058+0800）
+      ⇒ 与本件落盘前 `HANDOFF-NEXT.md` 末条 `cell=#1`（`t92` 所写）**同值** ⇒ 本件三件**都不在覆盖面内**（§队长错口径更正 的自算），故**未移**。
+牙：HANDOFF_MV=PASS cells=9 equal=8 manual=1 mismatch=0 uncomparable=0 reasons=none
+    SHELL_QUOTE_TRAP=PASS ｜ PIPEFAIL_SIGPIPE=PASS ｜ REPORTID=PASS files=238 ids=2200 declared=224
+    STATICJAWS=FAIL fails=1 n=32 excluded=30 noinfo=1 n_total=62，唯一 HIT ＝ `STATICJAWS_HIT step=SENTINEL-SPEC rc=1`
+哨兵：`cmp /tmp/bridge-frozen.flag ~/wfp-runs/bridge-frozen.flag` ⇒ **IDENTICAL**
+```
+**两处非我红（如实点名，未越域去改）**：① **`SSC_VALUE=FAIL key=PF got=83ba5884bb603296 want=6893d1d3fb1ee110`** —— 本件 rebuild 的直接后果（哨兵 `PF` 还是 `t90` 那代）⇒ **哨兵需重写**（队长动作；本席**从未写哨兵**；`WIN32SHIM=657f448c2077ba1f` 已是 `t92` 那代、相符）。② **`DEFREG_DECLDRIFT=1 keys=KD`** —— 他者改 `KNOWN-DEFECTS.md` 未同趟 `--emit`（**仍未闭**；本席未动该件与 `declared.tsv`）。
+
+### 未做项 / `NOINFO` ＋ 边界自证 ＋ 备份面
+
+- **`NOINFO`①（`G-1` 在册证据换代）**：**未做** —— `tests/PtsPagesProbe/evidence/**` 在覆盖面内但**不在本件写域**（`t94` 在写）。**缺什么**：一次在册腿重取（使 `DEV pf` ＝ 现盘、`shim` ＝ 现盘）。
+- **`NOINFO`②（工具侧同族的"输出面"加固）**：`build/MilBridge/tools/**` 不在写域 ⇒ 未做（若要有牙断言"读口不返回截断名"的判据件，须另派单）。
+- **`NOINFO`③（`t92` 之前那代 shim 的实测）**：本趟探针只对着**现盘** `657f448c2077ba1f` 跑；旧代 `.so` 已被换代 ⇒ 「旧 shim 下本读口仍拒截断名」这一条只有 `t90` 的**历史读数**（`cap=5 ⇒ name="LoAc"`）＋ 判据式推理支撑，**未**在旧 `.so` 上复跑（它在盘上已不存在）。
+- **边界自证**：本席改动**只有 3 件**（`PtsCache.Linux.cs`／本载体／`HANDOFF-NEXT.md` 的 `cell=#1` 一行）；`src/**`（`t92` 在写）／`build/MilBridge/tools/**`／`verify-all.sh`／`close-wave.sh`／哨兵／`docs/ROUTES.md`／`tests/PtsPagesProbe/evidence/**`（`t94` 在写）**零碰**；未 `git add/commit/push`；未跑整趟门禁（只跑判据本体 ＋ 静态牙）；夹具仓外（`~/w281-scribe/t95/**`），**收尾删净**（含 `t90` 遗留夹具）。
+- **备份面 ≡ 改动面（第 `29` 条自证）**：写前逐件 `stat -c %h` ＝ **1** ＋ `cp -p` ⇒ `~/w281-scribe/bak/{PtsCache.Linux.cs,P1-entry-attribution-fix2-report.md,HANDOFF-NEXT.md}.pre-t95`（与写前件 `sha256` 逐件相同：`6c4913b9ef462294`／`b3c5f2cfc1336e4c`／`ec7068347be52a9f`）；落盘一律 temp + rename（mode 644 复核）。
+- **只增不改自证**：本载体原 179 行**逐字保留为前缀**（`cmp` 通过），新末行才是**现全文**自报值。
+**本件自证（末行 · `t95` 落盘后）**：`head -n -1 build/MilBridge/P1-entry-attribution-fix2-report.md | sha256sum | cut -c1-16` ＝ 1db3c9911eabb8ea
+
+### ⏪ `t95` 收尾补记（同趟；**只增不改**）：指纹位移归属 ＋ `G-1` 由 `t94` 换代闭掉
+
+- **指纹位移（如实记，别反复追写）**：本席**头一次**现取（`ts=2026-09-29T00:40:51.368540058+0800`）＝ `f4a21769b3d6399339d9ddb2dc99ec106ca6b4e345803d46b36be508abf15834`；随后 **`t94`（runner）换代了在册证据**（`evidence/app_g1.log` mtime `00:42:29.075683090`／`evidence/leg_23.env` mtime `00:42:32.384220333`，**非本席面**）⇒ 指纹移成 `48a3aa54b0f8d7ba1d3c40fb33f9229e713ecf33a58f9e0320d3ae56e6389830`。本席在**位移之后**（`ts=2026-09-29T00:42:38.793784318+0800`）现取并登记 `cell=#1` ⇒ 登记值＝**位移后的现值**，`bash build/MilBridge/tools/handoff-machine-values-check.sh` ⇒ **`HANDOFF_MV=PASS cells=9 equal=8 manual=1 mismatch=0`**；按派单要求**只登记一次、未追写**（本席三件不在覆盖面内 ⇒ 位移**不是**本件改动面所致）。
+- **`t91` 的 `G-1`（medium，在册证据同趟性）**：本件不写 `evidence/**` ⇒ 只能由写者域闭；现取**已闭** —— 在册 `evidence/leg_*.env` 的 `DEV` 轴现读 `x_up=yes five_stable=yes shim=657f448c2077ba1f pf=6893d1d3fb1ee110`（＝ 现盘 `.so` ＋ **本件新 Release/部署件**）⇒ 门禁真读的证据与现树产品件**同趟**。**不是我改的**（我没有那次重跑）。
+- **同趟性由内容证明（不只是由字段声称）**：本席自己那趟腿目录 `~/w281-scribe/t95/legs-after` 与在册证据逐件 `cmp` ⇒ **`leg_23.env`／`leg_24.env`／`five_pre_g1.txt`／`five_post_g1.txt` 四件逐字节相同**；唯一不同的 `app_g1.log` 是**原始会话日志**（含绝对路径／时间戳），其语义面同值（在册与我方都是 `3 entry=LoAcquirePenaltyModule`）。
+**本件自证（末行 · `t95` 收尾最终）**：`head -n -1 build/MilBridge/P1-entry-attribution-fix2-report.md | sha256sum | cut -c1-16` ＝ e6264d96a2203e8d
