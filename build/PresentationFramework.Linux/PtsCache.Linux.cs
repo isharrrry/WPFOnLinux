@@ -981,7 +981,13 @@ namespace MS.Internal.PtsHost
             catch (Exception) { return 0; }
         }
 
-        /// <summary>native 台账里"最近一条缺口"的入口名；取不到 ⇒ "unknown"（**不抛**）。</summary>
+        /// <summary>native 缺口台账里**在册表序**最后一个"有缺口计数"的入口名；取不到 ⇒ "unknown"（**不抛**）。</summary>
+        // ⏪ `t90`（2026-09-29）**注释-实现对齐**（`t88` 的 `F-4`；原注释写"最近一条缺口"＝**最近调用**，与实现不符）：
+        //   现取 native 原文（`win32_pts.c`，行号仅本次有效）：`WpfLinuxWin32_PtsGapEntryName()` ＝ `for (i = 0; i < COUNT; i++)
+        //   if (g_pts_calls[i] <= 0) continue; …` ⇒ **按 `k_pts_entries[]` 表序**；而 `wpf_pts_frontier()` ＝ 按 `k_pts_call_order[]`
+        //   **调用序**筛 `g_pts_seen[]`。两者**都不是**"最近一次调用"（native 侧根本没有记 recency）。
+        //   ⇒ 多缺口态下二者会给出**不同**名字（`t90` 现取：先调 idx7 `LoAcquirePenaltyModule`、后调 idx4 `GetFloaterHandlerInfo`
+        //   ⇒ ②路/`anchor=` 给表序名，`frontier=` 给调用序名，"最近调用的"是 `GetFloaterHandlerInfo` 而 ②路给 `LoAcquirePenaltyModule`）。
         private static string NativeEntryName()
         {
             string s = NativeReport();
@@ -992,6 +998,7 @@ namespace MS.Internal.PtsHost
             //   ③ 报表 `anchor=` ＝ 在册表序**第一个有缺口计数**的入口名（同一缺口口径的另一端）；
             //   ④ 兜底 `frontier=` ＝ `g_pts_seen[]` 的**被问过**口径（真实现也算）—— **不是缺口名**，只在①②③全空时用，且此处如实注明。
             //   四者都取不到 ⇒ `unknown`（**不猜**）。
+            // ⏪ `t90`：②路改走 `GapEntryNameAt()`（**带长度纪律**，见该方法的注释）—— 读口本身**可能静默截断**（`F-3`）。
             foreach (string key in new string[] { "last=" })
             {
                 string nm0 = FieldOf(s, key);
@@ -1002,12 +1009,8 @@ namespace MS.Internal.PtsHost
                 int cnt = PtsGapCountNative();
                 if (cnt > 0)
                 {
-                    byte[] nb = new byte[128];
-                    if (PtsGapEntryNameNative(cnt - 1, nb, nb.Length) == 1)
-                    {
-                        string nm1 = CStr(nb);
-                        if (!string.IsNullOrEmpty(nm1)) return nm1;
-                    }
+                    string nm1 = GapEntryNameAt(cnt - 1, GapNameCap);
+                    if (nm1 != null) return nm1;
                 }
             }
             catch (Exception) { }
@@ -1041,14 +1044,48 @@ namespace MS.Internal.PtsHost
             return new string(c);
         }
 
-        /// <summary>native 台账里最近一条缺口的 LsErr；取不到 ⇒ A1 的常量。</summary>
+        /// <summary>缺口名册读口的缓冲长度（**写死**；只有"缓冲有富余"的读数才可信，见 `GapEntryNameAt`）。</summary>
+        // ⏪ `t90` 现取：现册最长名 `LoGetPenaltyModuleInternalHandle` ＝ 31 B，《128》有 96 B 富余 ⇒ 富余判据**必真**；
+        //   一旦名册出现 ≥127 B 的名字，富余判据会**保守**判"截断 ⇒ unknown"（宁可误报 unknown，不许误信截断名）。
+        private const int GapNameCap = 128;
+
+        /// <summary>带**长度纪律**的缺口名册读口：拿到可信名 ⇒ 该名；截断/越界/形状不合 ⇒ `null`（**不抛**）。</summary>
+        // ⏪ `t90`（2026-09-29）**`t88` 的 `F-3`**：native `WpfLinuxWin32_PtsGapEntryName()` 现取原文（`win32_pts.c`，行号仅本次有效）
+        //   ＝ `snprintf(buf, (size_t)cap, "%s", k_pts_entries[i]); return 1;` —— **无长度检查**：`cap` 不够时
+        //   `snprintf` 静默截断，**仍然返回 1** ⇒ 调用方会拿到**貌似完整的短名**（`cap=5 ⇒ rc=1 name="LoAc"`）。
+        //   这在判据面比 `unknown` **更坏**：`unknown` 是诚实的"没读到"，而截断名是一个**看起来可归因的假名**
+        //   —— 判据按"名字在不在册"对拍 ⇒ 若某次截断恰好落在**名册里另一个真名**上，就会**假绿**（现状名册 12 名无
+        //   前缀包含对 ⇒ 今日现实风险是"假红"而非"假绿"，但这是**名册的偶然性**，不是纪律）。
+        //   **纪律（逐字）**：① 只用**富余**读数 —— `strlen(buf) < cap-1`（`snprintf` 截断时字符串长度恒为 `cap-1`
+        //   ⇒ 长度等于 `cap-1` 一律**不信**，宁可保守判 `unknown`；名字恰好 `cap-1` 长时也判 `unknown`，属**收紧**）；
+        //   ② 名字必须是**入口名形状**（C 标识符）—— 名册里的名字全是这种形，挡住截断产生的怪异串；
+        //   ③ 两条任一不满足 ⇒ `null`（调用方回落到 ③/④ 或最终 `unknown`）—— **绝不许**返回截断名。
+        //   ⚠️ native 侧的**真修法**（`t88` 建议的"长度不足返 0"）需要改 `src/**`（本件写域**不含**它）⇒ 本件只把纪律落在
+        //   **托管侧读口**（判据实际消费的就是这个值），native 侧的加固与建议补丁见载体 `P1-entry-attribution-fix2-report.md`。
+        internal static string GapEntryNameAt(int idx, int cap)
+        {
+            try
+            {
+                if (cap < 8) return null;                       // 连最短真名都放不下 ⇒ 不读
+                byte[] nb = new byte[cap];
+                if (PtsGapEntryNameNative(idx, nb, nb.Length) != 1) return null;   // 越界/无此 idx ⇒ 0
+                string nm = CStr(nb);
+                if (string.IsNullOrEmpty(nm)) return null;
+                if (nm.Length >= cap - 1) return null;          // ① 富余判据：长度顶到 cap-1 ⇒ 可能截断 ⇒ 不信
+                if (!IsEntryNameShape(nm)) return null;         // ② 形状判据
+                return nm;
+            }
+            catch (Exception) { return null; }
+        }
+
         /// <summary>从 DllImport 三族的异常文本里取**入口名**（取不到 ⇒ `"unknown"`；不抛）。</summary>
         // ⏪ 措辞分支 ＋ 形状校验（`t87`，2026-09-28；现场：旧实现「取最后一个单引号串＋`dll:` 前缀」**无形状校验**
         //   ⇒ 把**入口名**当成库名，产出 `dll:NotImplemented` 这种**不可归因的合成名** ⇒ 判据 `domains=unattributable` 必红）。
         //   **新口径（逐字）**：① 入口名措辞（`named 'X'`；Windows 形 `in DLL 'Y'` ／ Linux 形 `in shared library 'Y'`）
         //   ⇒ 取**入口名原样**（不加前缀），且**必须**是 C 标识符形状（挡掉 `dll:`／路径／含 `:` 的合成串）；
         //   ② 库名措辞（`Unable to load shared library 'Y'`／`Unable to load DLL 'Y'`／`in shared library 'Y'`／`in DLL 'Y'`）
-        //   ⇒ 取库名、去目录、加 `dll:` 前缀，且**只接受真库名形状**（`*.dll` 或 `lib*.so`／`lib*.so.<数字>`）；
+        //   ⇒ 取库名、去目录、加 `dll:` 前缀，且**只接受真库名形状**（`*.dll`／`*.so`／`*.so.<纯数字段>…`；`t90` 放宽后
+        //      **不要求 `lib` 前缀**，见 `IsLibraryNameShape` 的逐字口径）；措辞命中而形状不合 ⇒ **继续扫后面三条**（`t90`，`F-2`）。
         //   ③ 其余（含「措辞命中但形状不合」）⇒ **`unknown`** —— **绝不许**合成不可归因名。
         private static string EntryNameFromException(Exception e)
         {
@@ -1090,7 +1127,12 @@ namespace MS.Internal.PtsHost
                         string baseName = sl >= 0 ? lib.Substring(sl + 1) : lib;
                         if (IsLibraryNameShape(baseName)) return "dll:" + baseName;
                     }
-                    return "unknown";                     // 措辞命中而形状不合 ⇒ 不猜
+                    // ⏪ `t90`（2026-09-29）**`t88` 的 `F-2`：不再短路**。旧码在本措辞"命中但形状不合"时直接
+                    //   `return "unknown"` ⇒ **掐掉后面三条措辞**（现场：`'NotImplemented'` 在前段命中即返回，
+                    //   同串后段的 `in DLL 'x.dll'` 这次**合法**归因机会被丢掉）。新口径：本措辞给不出合法库名
+                    //   ⇒ 只说明**这条措辞**不作数，**继续扫后面三条**；四条全试完仍无合法库名 ⇒ 末尾统一 `unknown`。
+                    //   （闭合引号缺失同理 ⇒ 继续扫，不掐整串；形状校验一格都没放松。）
+                    continue;
                 }
             }
             catch (Exception) { }
@@ -1110,25 +1152,42 @@ namespace MS.Internal.PtsHost
             return true;
         }
 
-        /// <summary>库名形状：`*.dll`（大小写不敏感）或 `lib*.so`／`lib*.so.&lt;数字&gt;`（ELF 版本后缀）。</summary>
+        /// <summary>库名形状：基名（已去目录）必须形如 `&lt;茎&gt;.dll` 或 `&lt;茎&gt;.so`／`&lt;茎&gt;.so.&lt;数字段&gt;…`。</summary>
+        // ⏪ `t90`（2026-09-29）**`t88` 的 `F-1`：形状放宽到本栈真件名形**。旧码要求 `.so` 形**必须**以 `lib` 起头
+        //   ⇒ 本栈真件 `wpfgfx_cor3.so`（在册证据 `evidence/five_pre_g1.txt`：`wpfgfx_cor3.so=4e25e4b27d4d5ae1`）
+        //   被判 **`unknown`**，`lib.so` 亦然。新口径**逐字**：
+        //   ① **字符面**：只许 `[A-Za-z0-9_.+-]`（挡掉空格／`:`／`=`／`'`／路径分隔符／控制字符）；
+        //   ② `*.dll`（大小写不敏感）：茎非空（`t87` 原样，未动）；
+        //   ③ `*.so`：茎非空，**不要求 `lib` 前缀**（`wpfgfx_cor3.so` ⇒ **收**）；
+        //   ④ `*.so.<数字段>(.<数字段>)…`：`.so` 后**纯数字**段（`libfoo.so.1`／`libfoo.so.1.2` ⇒ 收；`libfoo.so.x`／`libfoo.so.1.beta` ⇒ 拒）；
+        //   ⑤ 其余一律 **false** —— 无 `.so`／`.dll` 后缀者（`NotImplemented`／`foo.bar`／`v1.2`／`x.txt`）、
+        //      茎为空者（`.so`）、`.so` 后无点者（`foo.sox`）全拒。
+        //   **没有**放宽到"任何带点的串"：判据的实质是**后缀**（`.so`／`.so.<纯数字>…`／`.dll`）＋ 字符面，
+        //   不是"含点即收"。形状仍然只是**形状**（不证明名字真存在于本栈）⇒ 归因仍靠判据件的在册对拍。
         private static bool IsLibraryNameShape(string s)
         {
             if (string.IsNullOrEmpty(s)) return false;
             string t = s.ToLowerInvariant();
-            if (t.EndsWith(".dll", StringComparison.Ordinal)) return t.Length > 4;
-            if (t.StartsWith("lib", StringComparison.Ordinal))
+            if (t[0] == '.') return false;                                                // 茎不许以点起头（`..so` 这类空壳拒）
+            for (int i = 0; i < t.Length; i++)
             {
-                int so = t.IndexOf(".so", StringComparison.Ordinal);
-                if (so > 3)
+                char ch = t[i];
+                if (!(char.IsLetterOrDigit(ch) || ch == '_' || ch == '.' || ch == '+' || ch == '-')) return false;
+            }
+            if (t.EndsWith(".dll", StringComparison.Ordinal)) return t.Length > 4;
+            if (t.EndsWith(".so", StringComparison.Ordinal)) return t.Length > 3;          // 茎非空即可，**不要求 `lib`**
+            int so = t.LastIndexOf(".so.", StringComparison.Ordinal);
+            if (so > 0)
+            {
+                string rest = t.Substring(so + 4);                                        // `.so.` 之后的数字段
+                if (rest.Length == 0) return false;
+                string[] seg = rest.Split('.');
+                for (int i = 0; i < seg.Length; i++)
                 {
-                    string rest = t.Substring(so + 3);
-                    if (rest.Length == 0) return true;
-                    if (rest[0] == '.' && rest.Length > 1)
-                    {
-                        for (int i = 1; i < rest.Length; i++) if (!char.IsDigit(rest[i])) return false;
-                        return true;
-                    }
+                    if (seg[i].Length == 0) return false;
+                    for (int k = 0; k < seg[i].Length; k++) if (!char.IsDigit(seg[i][k])) return false;
                 }
+                return true;
             }
             return false;
         }
@@ -1155,6 +1214,11 @@ namespace MS.Internal.PtsHost
                 //     `if (n < 0 || n >= cap) { buf[cap - 1] = '\0'; return -1; }` ／ `return n;`
                 //   ⇒ `>0` ＝ **写入长度**；`-1` ＝ **写不下**（**不截断、不静默**，`buf` 已被终结）
                 //   ⇒ 读不全的**唯一信号是 `-1`** ⇒ **放大缓冲重试**（`256 → 4 KiB → 64 KiB`，上限写死 `64 KiB`）。
+                // ⏪ `t90`（2026-09-29）**`t88` 的 `O-1` 口径句**：`-1` 那一支 native **已经把 `buf[cap-1] = '\0'` 写掉**
+                //   ⇒ "写不下"时 `buf` 里是一条**被截断的、以 nul 结尾的行**（不是空串！现取夹具：`cap=250/251/256`
+                //   ⇒ 末字节均 0）。⇒ **忽略 `rc` 的读者会读到一条貌似完整的短行**（与 `F-3` 同族）。托管侧一律以
+                //   `rc <= 0 ⇒ continue` 为准（**先看 `rc`，再看 `buf`**），本处即此纪律；`NativeReport()` 之外若有人
+                //   直调 `PtsGapReportNative` 也必须照此判。**绝不许**把 `buf` 的 nul 结尾当作"读到了一条完整行"的证据。
                 for (int cap = 256; cap <= 65536; cap *= 16)
                 {
                     byte[] buf = new byte[cap];
@@ -1185,6 +1249,13 @@ namespace MS.Internal.PtsHost
         }
 
         // A1 的 stub 唯一取值（= 上游 `Pts.cs:507` `tserrNotImplemented`）
+        // ⏪ `t90`（2026-09-29）**`t88` 的 `F-5` 口径句（只登记，不改值）**：本常量与 native 侧真值
+        //   `WPF_PTS_ERR_NOT_IMPLEMENTED`（现取 `src/WpfGfx.Linux.Native/src/win32_pts.c`：`#define WPF_PTS_ERR_NOT_IMPLEMENTED (-10000)`）
+        //   **同值** ⇒ `NativeError()` 读不到时回落本常量，**读到时**真值也是它 ⇒ **`err=` 面无法自证"到底读到了没有"**
+        //   （旧件"读不到"与新件"读到"都打 `err=-10000`）。**本件不改值**：`err=-10000` 是在册面（`leg_*.env` 的
+        //   `native_err=-10000`、判据件与台账行都用它），改成"域外哨兵"会**改动判据面** ⇒ 需另派单（改哨兵须同趟
+        //   与判据件/在册证据对齐）。⇒ 今日的"读到没读到"只能由**旁边那几格**作证（`entry=`／`native_gap=`／
+        //   `PTS_GAP entry=…` 台账行），**不许**只看 `err=`。
         private const int A1_STUB_ERR = -10000;
 
         /// <summary>把失败**具名**（入口名/错误码来自 native 台账；读不到就如实写 unknown）。</summary>

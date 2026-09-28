@@ -92,3 +92,144 @@
 4. **真实显示/排版面**：本任务**不许占显示位** ⇒ 未验（④只用成对读数与仪器判据）。
 
 SELF-SHA16 （口径 ＝ `head -n -1 <本件> | sha256sum | cut -c1-16`）＝ 9a34a170cd8482f1
+
+---
+
+## ⏪ `t90` dated 追加（2026-09-29T00:27+0800；处置本件五 `low` ＋ 一观察；**只增不改**，本件原有文字一字未删）
+
+写者 `scribe`（`t90`／P1-W19）｜**一切读数现取自算**（含对 `t87` 的件做 A/B 时都重跑了自己的夹具）｜仪器仓外、零构建（`pwsh 7.6.6` 反射现盘 Release 件 ＋ `Marshal.GetDelegateForFunctionPointer` 直调现盘 `.so`）。
+
+**处置表**
+
+| 项 | 处置 | 落点（现取） | 读数小节 |
+|---|---|---|---|
+| `F-1` 库名形状过窄 | **修**（放宽到本栈真件名形，**同时收紧字符面**） | `PtsCache.Linux.cs` `IsLibraryNameShape()` | §`F-1` |
+| `F-3` 读口无长度纪律 | **托管侧修**（纪律落在判据实际消费的读口）＋ native 真修法**入册未改**（`src/**` 不在本件写域，给建议补丁） | `GapEntryNameAt()`／`GapNameCap` | §`F-3` |
+| `F-2` 四措辞短路 | **修**（形状不合改 `continue` 续扫） | `EntryNameFromException()` ②路 | §`F-2` |
+| `F-4` 注释与实现不符 | **改注释**（实现**不动**：多缺口读数两代逐字同） | `NativeEntryName()` 注释 ＋ ②路口径块 | §`F-4` |
+| `F-5` `err=` 不可自证 | **只落口径句**（**值不改**，理由在册） | `A1_STUB_ERR` 上方 | §`F-5` |
+| `O-1` `-1` 已写 `buf[cap-1]` | **只落口径句** | `NativeReport()` 的 `-1` 口径块 | §`O-1` |
+| 队长派单错前提 | **更正入册（队长认账）** | §前提更正 | 我自算双锚 |
+
+**改动面（逐件现取；`ts=2026-09-29T00:26`）**
+
+- `build/PresentationFramework.Linux/PtsCache.Linux.cs`：本件头所载 `ab5851116641cc5c`（1236 行）→ **`6c4913b9ef462294`（1307 行／83583 B／mode 644）**；`git diff --numstat` ＝ **`92 21`**。那 **21 个删行全在下列 5 处改写点上**（逐条点名，无一处是"顺手删"）：①`NativeEntryName()` 的 XML 注释 1 行 ＋ ②路 6 行旧读法；②`EntryNameFromException()` ①路下**那句错位的重复 `<summary>`**（是 `NativeError` 的注释**串了行**，属注释面缺陷，一并更正）＋ ②路承重注释 1 行 ＋ ②路循环里 `return "unknown"` 1 行；③`IsLibraryNameShape()` 旧实现 10 行（旧：`StartsWith("lib")` 前缀硬条件）。**正文/判据/口径句无一处删除。**
+- Release／部署件：`b3f0d129f0234b58` → **`83ba5884bb603296`**（`dotnet build … -c Release` 经重活槽，`0 警告 0 错误`；两条腿 `POSTSHIM shim=3bd193e54785b5db pf=83ba5884bb603296 == authority`）。`libwpfwin32.so` **未动**（仍 `3bd193e54785b5db`）。
+
+### `F-1` 库名形状（修）—— 33 格 A/B，**7 格放宽 ＋ 3 格收紧**，其余 23 格逐字不变
+
+**新口径（逐字，已写进代码）**：基名（先去掉目录）必须 ① 只用 `[A-Za-z0-9_.+-]`、不以 `.` 起头；② `*.dll` 茎非空；③ `*.so` 茎非空（**不要求 `lib` 前缀**）；④ `*.so.<纯数字段>(.<纯数字段>)…`；⑤ 其余 **false**。**没有**放宽到"任何带点的串"（后缀＋字符面双判）。
+
+A/B 两代都是**真产物**：**旧** ＝ 部署件 `~/w67-work/app/PresentationFramework.dll`（现取 `b3f0d129f0234b58` ＝ 本件头所载那一代，**与在册腿证据同一件**）；**新** ＝ `build/…/bin/Release/PresentationFramework.dll` `83ba5884bb603296`。夹具原文见载体 `P1-entry-attribution-fix2-report.md` §仪器（全部仓外）。
+
+| 格 | 输入（库名措辞） | 旧 `b3f0d129…` | 新 `83ba5884…` | 判 |
+|---|---|---|---|---|
+| `M11` | `'wpfgfx_cor3.so'`（**本栈真件**） | `unknown` ✗ | `dll:wpfgfx_cor3.so` ✓ | 放宽（`F-1` 正题） |
+| `L7` | `'/opt/x/y/wpfgfx_cor3.so'`（去目录） | `unknown` ✗ | `dll:wpfgfx_cor3.so` ✓ | 放宽 |
+| `M16` | `'lib.so'` | `unknown` ✗ | `dll:lib.so` ✓ | 放宽 |
+| `M17` | `'libfoo.so.1.2'` | `unknown` ✗ | `dll:libfoo.so.1.2` ✓ | 放宽 |
+| `D7` | `'a.b.so'` | `unknown` | `dll:a.b.so` | 放宽（后缀判据；见下"未放松"三条） |
+| `T5` | `'NotImplemented.so'` | `unknown` | `dll:NotImplemented.so` | 放宽（**如实点名**：它**确实是**库名形状 ⇒ 形状面收；"该库是否真存在"是另一层，本件不承诺） |
+| `S1` | 见 §`F-2` | `unknown` | `dll:x.dll` | 放宽（`F-2`） |
+| `T1` | `'lib foo.so'`（茎含空格） | `dll:lib foo.so` ✗ | `unknown` ✓ | **收紧**（旧码无字符面判据，真收过带空格的"库名"） |
+| `T2` | `'lib:1.so'` | `dll:lib:1.so` ✗ | `unknown` ✓ | **收紧** |
+| `T3` | `'lib=1.so'` | `dll:lib=1.so` ✗ | `unknown` ✓ | **收紧** |
+
+**未放松的负样例（两代同判 `unknown`，11 格）**：`U1` `'NotImplemented'`（真实 `DllNotFoundException` 长措辞）／`U2` `System.NotImplementedException: 'NotImplemented'`／`U3` 裸 `'NotImplemented'`／`U5` 日志行形／`D1` `'foo.bar'`／`D2` `'v1.2'`／`D3` `'x.txt'`／`D4` `'libfoo.so.x'`／`D5` `'.so'`（空茎）／`D6` `'libfoo.so.1.beta'`／`D9` 只有目录的串／空串／`<null>` 异常。**未变的正样例**：入口名三格（`E1`／`E2`／`E3` ⇒ 入口名原样）＋ `L1`／`L2`／`L3`／`L8`／`L9`／`D8`／`T6`／`T7` 逐字同。
+
+**产物侧正极（同趟在册面）**：本席自己的腿目录 `five_pre_g1.txt` 现取**逐行**含 `wpfgfx_cor3.so=4e25e4b27d4d5ae1` ⇒ 「本栈真件名形」不是我编的，是**现盘五件清单里就有它**（这也正是 `F-1` 的立案依据）。
+
+### `F-3` 长度纪律（托管侧修；native 侧真修法入册）
+
+**① native 现约定（裸口，无纪律；两代同值——`B` 面 16 行 A/B **逐字相同**）**：`rc=1` 恒表示"idx 在册"，**不论有没有截断**。
+
+```
+B gapname idx=1(=`LoAcquirePenaltyModule`) cap=4  => rc=1 name=[LoA]
+B gapname idx=1                            cap=5  => rc=1 name=[LoAc]
+B gapname idx=1                            cap=12 => rc=1 name=[LoAcquirePe]
+B gapname idx=1                            cap=128=> rc=1 name=[LoAcquirePenaltyModule]
+B gapname idx=0(=`GetFloaterHandlerInfo`)  cap=5  => rc=1 name=[GetF]
+B gapname idx=2（越界）                    cap=128=> rc=0 name=[]
+```
+
+**② 托管纪律（新增；同进程、同台账）**：`GapEntryNameAt(idx,cap)` —— 旧代 `METHOD-ABSENT`，新代：
+
+```
+C idx=1 cap=4  => <null>      C idx=0 cap=4  => <null>
+C idx=1 cap=5  => <null>      C idx=0 cap=5  => <null>
+C idx=1 cap=12 => <null>      C idx=0 cap=12 => <null>
+C idx=1 cap=128=> LoAcquirePenaltyModule      C idx=0 cap=128=> GetFloaterHandlerInfo
+```
+
+⇒ 纪律两条（代码内逐字）：**①富余判据** `strlen < cap-1`（截断时长度恒为 `cap-1` ⇒ 不认；名字恰好 `cap-1` 长时也判 `unknown` ⇒ **宁可误报 unknown**）；**②形状判据**（入口名＝C 标识符）。生产路用 `GapNameCap=128`：现册最长名 `LoGetPenaltyModuleInternalHandle` **32 B**（名单 12 名，我自算）⇒ 富余 **95 B** ⇒ 富余判据在现册**必真**，一旦名册出现 ≥127 B 的名字则**保守判 unknown**（收紧方向）。
+
+**③「若返回截断名会骗过判据」夹具（判据本体，跑的是在册牙 `pts-pages-guard.sh --g10-name <目录>`）**：
+
+| 夹具（`app_g1.log` 内容） | 语义 | 读数 |
+|---|---|---|
+| `entry=LoAc` | **裸口 cap=5 的截断值** | `PTS_G10_NAME=FAIL frontier=LoAc off-roster=LoAc roster=12 domains=unattributable` **rc=1** |
+| `entry=LoAcquirePe` | 裸口 cap=12 的截断值 | `… FAIL off-roster=LoAcquirePe …` **rc=1** |
+| `entry=LoAcquirePenaltyModule` | **纪律读口的真值** | `PTS_G10_NAME=PASS observed=LoAcquirePenaltyModule names=1 roster=12 domains=pts-declared` **rc=0** |
+| `entry=LoSetDoc`（**构造**） | 「截断名恰好落在**另一个在册真名**上」这一情境 | `PTS_G10_NAME=PASS observed=LoSetDoc … domains=pts-declared` **rc=0** |
+
+⇒ 三点如实：(a) 判据按**值**在册对拍 ⇒ **只要**截断值落在某个真名上就会**假绿**（第 4 行证明"值面确实收"，第 4 行的情境是**构造的**：现册 12 名**无前缀包含对**，所以今天截断只会落到**没在册**的串上 ⇒ 现实风险是**假红**（第 1／2 行），假绿是**潜在**的）；(b) 这条潜在假绿的成因**不是名册**，是**读口无纪律**；(c) 纪律把两条路一起关掉：截断值**根本到不了** `entry=`（cap=4/5/12 全 `<null>`），生产 cap 只可能给出**带富余的完整名**或 `unknown`。
+
+**④ native 侧真修法（`F-3` 原文建议「长度不足返 0」）—— 本席未应用，给 `src/**` 持有者**（建议补丁，逐字）：
+
+```c
+/* WpfLinuxWin32_PtsGapEntryName：截断即响亮报 0，绝不回一个貌似完整的短名 */
+        if (seen == idx) {
+            size_t need = strlen(k_pts_entries[i]) + 1;
+            if ((size_t)cap < need) { buf[0] = '\0'; return 0; }     /* 长度不足 ⇒ 0（可判） */
+            memcpy(buf, k_pts_entries[i], need);
+            return 1;
+        }
+```
+
+配套（若采用）须同趟处理 `WpfLinuxWin32_PtsGapReport()` 的同类面（`O-1`：`-1` 时 `buf[cap-1]='\0'` 已写）与判据件里读该导出的任何地方 —— 这属于**另一次派单**，本件不越域。
+
+### `F-2` 措辞循环短路（修）
+
+`S1` 输入：`Unable to load DLL 'NotImplemented' or one of its dependencies: unable to find it in DLL 'x.dll'.` ⇒ 旧 `unknown`（首措辞命中、形状不合即 `return`，后段那条**合法库名**被掐掉）→ 新 **`dll:x.dll`**（`continue` 续扫四条措辞，形状校验一格未松）。**①路（入口名措辞）刻意保持短路** `return "unknown"`：那里"措辞命中而名字不是 C 标识符"说明**是入口名措辞给了个假名**，此时改去报库名会把"入口名归因"偷换成"库名归因" ⇒ 保留短路并写入代码注释（**不对称是有意的**，已逐字注明）。
+
+### `F-4` 注释与实现不符（改注释；实现两代逐字同）
+
+**本席自算的两缺口读数**（同一进程：**先**调 idx7 `LoAcquirePenaltyModule`、**后**调 idx4 `GetFloaterHandlerInfo`）：
+
+```
+D gap_count=2（驱动序：LoAcquirePenaltyModule idx7 → GetFloaterHandlerInfo idx4）
+B gapname cap=128 idx=0 => GetFloaterHandlerInfo      ← 在册**表序**首个有计数者（= `anchor=`）
+B gapname cap=128 idx=1 => LoAcquirePenaltyModule     ← 在册**表序**末个（= ②路 `idx=count-1`）
+D NativeEntryName() => LoAcquirePenaltyModule         ← 托管 ②路给的是**表序末名**
+D report anchor=[GetFloaterHandlerInfo] frontier=[LoAcquirePenaltyModule] report_len=291
+```
+
+⇒ **"最近调用"的是 `GetFloaterHandlerInfo`**，而 ②路/`anchor=` 给 `LoAcquirePenaltyModule` ⇒ 旧注释那句「native 台账里**最近一条缺口**的入口名」**与实现不符**（`t88` 的 `F-4` 成立，本席独立复现）。实现**不动**（native 侧根本没有 recency 字段；改实现＝改 native＝越域），改的是注释：现注释写明「**在册表序**最后一个有缺口计数的入口名（**不是**最近一次调用；与 `wpf_pts_frontier()` 的**调用序**口径不同）」。**旧代/新代 `D` 面 8 行逐字相同**（除新增的 `C` 面）⇒ 措辞更正**零行为改动**。
+
+### `F-5` `err=` 不可自证（口径句，值不改）
+
+我自算：native `win32_pts.c` `#define WPF_PTS_ERR_NOT_IMPLEMENTED (-10000)`；托管 `A1_STUB_ERR = -10000` ⇒ **同值** ⇒ `NativeError()` 读不到与读到时**都打 `err=-10000`** ⇒ `err=` 面**不能**用来判"到底读到没有"（旧件/新件的 `err` 面实测也确实同值）。**本件不改值**：`-10000` 是在册面（`leg_*.env` 的 `native_err=-10000`、台账行 `err=-10000`、判据件对拍都用它）⇒ 换"域外哨兵"会**改动判据面**，属另一次派单（须同趟与判据件＋在册证据对齐）。口径句已写进 `A1_STUB_ERR` 上方注释：**判"读到没读到"只许看旁边那几格**（`entry=`／`native_gap=`／`PTS_GAP entry=…` 台账行）。
+
+### `O-1` `-1` 已终结缓冲（口径句）
+
+我自算 native 原文：`if (n < 0 || n >= cap) { buf[cap - 1] = '\0'; return -1; }` ⇒ "写不下"时 `buf` 是一条**被截断且以 nul 结尾的行**（`t88` 的夹具读数 `CAP 250/251/256 buflast_is_nul=True` 与本席对 `-1` 那一支的原文读数一致）⇒ **忽略 `rc` 的读者会读到貌似完整的短行**（与 `F-3` 同族）。托管侧守法是 `rc <= 0 ⇒ continue`（**先看 `rc`，再看 `buf`**），口径句已写进 `NativeReport()` —— 并写明"**绝不许**把 `buf` 的 nul 结尾当作'读到了一条完整行'的证据"。
+
+### 前提更正（**队长认账**）
+
+`t88` 派单背景里那句「该名不在声明树（上游无 `DllImport` 声明）」**与现取不符** —— **队长已认账**。本席自算双锚：`upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationCore/MS/internal/TextFormatting/LineServices.cs:1569` ＝ `[DllImport(DllImport.PresentationNative, EntryPoint = "LoAcquirePenaltyModule")]`（`:1570` 是它的 `extern LsErr` 声明；`grep -rl 'LoAcquirePenaltyModule' upstream/wpf --include=*.cs | wc -l` ＝ **2**）＋ `src/WpfGfx.Linux.Native/src/win32_pts.c:78` ＝ 在册表 `"LoAcquirePenaltyModule",`。⇒ 「native 侧 stub」**不等于**「上游无声明」：它是**双锚**名（在册表 ＋ 上游声明）⇒ 后人**不得**沿用错误前提去弱化 `G10_NAME` 的域判据。
+
+### 现树正极 ＋ 零症状回归（新代 `pf=83ba5884bb603296`）
+
+```
+正极（本席自己的腿目录 ~/w281-scribe/t90/legs-after，`ts=00:25`）：bash build/MilBridge/tools/pts-pages-guard.sh --legs …
+  rc=0  PTS_G10_NAME=PASS observed=LoAcquirePenaltyModule names=1 roster=12 domains=pts-declared
+        PTS_GUARD=PASS legs=2/2 fails=- cannot=- diag=- direction=in-file phase=degraded
+  `app_g1.log` 现取 `3 entry=LoAcquirePenaltyModule`；`HC-UNHANDLED` **1**（设计内闩）；`five_pre == five_post`（cmp 同）
+零回归（成对，**不逐位相等**）：leg_23 alive yes→yes／app_rc 143→143／magenta 49943→49943／colors 844→844／ae 141283→141283／ink 428456→428456／ns 逐字同／native_gap 1→1／native_err -10000→-10000
+                    leg_24 alive yes→yes／app_rc 143→143／magenta 54533→54533／colors 852→**851**／ae 221857→**221246**／ink 423798→423798／ns 逐字同
+  成对取法：**旧极** ＝ 在册 `evidence/leg_*.env`（载 `pf=b3f0d129f0234b58`，与部署件同值）；**新极** ＝ 本席本趟重跑（载 `pf=83ba5884bb603296`）。
+```
+
+⚠️ 本席**只**在 `C`／`D` 面上做了产物 A/B；`entry=` 的旧极用的是**在册证据**（同一 `pf` 的那一代腿），新极是我自己跑的 ⇒ 「零症状回归」是**成对通过**，**不宣称**逐位相等（leg_24 的 `colors −1`／`ae −611` 与 `t88` 记的 ±518／±452 同量级，属重跑抖动）。
+
+**SELF-SHA16**（口径 ＝ `head -n -1 <本件> | sha256sum | cut -c1-16`）＝ cd25a41c0b651a62 —— ⚠️ 本块**之上**原末行 `SELF-SHA16 ＝ 9a34a170cd8482f1` 是**本块加入之前**全文的自报值 ⇒ **保留不改**（只增不改）；**本行**才是**现全文**的自报值（本行不参与自身取值，故重算稳定）。
