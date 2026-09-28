@@ -1733,11 +1733,39 @@ namespace MS.Internal.FontCache
                 // 所以按上游语义补上回退：Windows 上这一步落到 GlobalUI 的字体映射（最差也是 Arial）；
                 // 本移植上落到 **provider 的默认族**（`DefaultFontFamily.SelectFamilyName`，真实字体，
                 // 不是造的族、不是空的族；理由与实测见 GetProviderFallbackFamily）。
-                if (!OperatingSystem.IsWindows() && SystemCompositeFonts.IsSystemCompositeFontName(familyName))
+                // ⏪ `t114`／P1-W38：**降级判定诊断行**（判据 C4/C5 的可判面）。
+                //   三格固定字段：`requested=`（请求族名）/ `fallback=`（yes|no，二值）/ `resolved=`（选中族名或 none）。
+                //   口径：本条闸**只**在"名字命中 4 个系统复合字体 ∨ 名字是空字体族的规范族名"时才走到 ⇒
+                //   这条诊断在"存在族"的路径上**必然**打出 fallback=no（**常开**，不靠环境变量）。
+                //   ⚠️ 空字体族的规范名经 `CanonicalFontFamilyReference.Create(null, "#ARIAL")` 归一后
+                //      **就是 "ARIAL"**（`#` 是"无 location"前缀，分族名时被剥掉）⇒ 与 `FamilyName` 比较
+                //      用**精确** `Ordinal`（大小写按 `CanonicalFontFamilyReference` 的转义规则）。
+                //   既有的 `[FONT_DIAG] providerFallback:`（`WPF_LINUX_FONT_DIAG` 支）保持原样。
+                string _fbRequested = familyName;
+                bool _fbNullFontFamily = string.Equals(familyName, "ARIAL", StringComparison.Ordinal);
+                bool _fbCompositeName = SystemCompositeFonts.IsSystemCompositeFontName(familyName);
+                if (!_fbCompositeName && !_fbNullFontFamily)
+                {
+                    EmitFontFallbackDiag(_fbRequested, "no",
+                        _fontCollection[familyName] == null ? "none" : familyName);
+                }
+                // ⏪ `t114`／P1-W38：**闸门放宽** —— `ARIAL`（空字体族的规范族名）原先**过不了**这道名字闸
+                //   （闸内只有 4 个系统复合字体名）⇒ 落到 `_fontCollection["ARIAL"]` ⇒ null ⇒
+                //   `FontFamily.cs:336` 的 1 参 `Invariant.Assert` ⇒ `Environment.FailFast`（**不可捕获**）
+                //   ⇒ 整进程 `rc=134`。现在把**空字体族名**也纳入这道回退 ⇒ 它拿到 provider 默认族
+                //   （真实字体，不是造的族、不是空族）⇒ 该断言不再达成。
+                //   ⚠️ **不是**"永远降级"：本闸只覆盖"4 个系统复合字体名 ∨ 空字体族名"；
+                //   **存在族**根本不进这里（走下面的集合查找）⇒ "存在族被误降级"不可能发生。
+                if (!OperatingSystem.IsWindows() && (_fbCompositeName || _fbNullFontFamily))
                 {
                     IFontFamily providerFallback = GetProviderFallbackFamily();
                     if (providerFallback != null)
                     {
+                        /* ⏪ `t114`／P1-W38：把"**落到谁**"写进降级判定行（判据 C4 的 `resolved=`）。
+                           走 `_fontCollection` 查那次回退族名；查不到就如实 none（不编名）。 */
+                        EmitFontFallbackDiag(_fbRequested, "yes",
+                            (_fontCollection != null && _fontCollection[_fbRequested] != null)
+                                ? _fbRequested : "none");
                         return providerFallback;
                     }
                 }
@@ -1829,6 +1857,18 @@ namespace MS.Internal.FontCache
             //      不覆盖 ⇒ 答一个**覆盖该码点**的族名（按码点/按 run 选面，不按段落整体换族）。
             //    关掉开关（WPF_LINUX_COVERAGE_FALLBACK=0）或任何不确定 ⇒ 原样返回今天的族。
             return HbCoverageFallback.Wrap(new PhysicalFontFamily(fontFamilyDWrite), _fontCollection, fontFamilyDWrite);
+        }
+
+        /// <summary>
+        /// ⏪ `t114`／P1-W38：**降级判定诊断行**（常开；判据 C4/C5 的机器可读面）。
+        /// 三格固定字段：`requested=`（请求族名）/ `fallback=`（yes|no，二值）/ `resolved=`（选中族名或 none）。
+        /// **实例方法**：要查 `_fontCollection` 才能回答"这个名字在集合里找不找得到"。
+        /// 只打 stderr，不改任何返回值语义。
+        /// </summary>
+        private void EmitFontFallbackDiag(string requested, string fallback, string resolved)
+        {
+            Console.Error.WriteLine("[FONT_FALLBACK] requested=" + requested
+                + " fallback=" + fallback + " resolved=" + resolved);
         }
 
         /// <summary>

@@ -771,6 +771,10 @@ wpf-linux 路线图
 - **已登记的三条**（本波现场）：`D-G149`（冻结记录内 `provider` 陈旧 ↔ 模板写死字面量 ∧ 三道核全盲）｜`D-G150`（同名产物多「权威」路径无牙钉住相等）｜`D-G151`（保留集件因路径退役而静默失能）；**另 `D-G152`（主控引入、车道修复）**：「**路径既能当默认值、也能当守卫值；重指向前必须先看它在该件里的角色。**」
 - **本波修好的四处仪器缺陷（同趟，判据已复跑绿）**：`QUOTE-TRAP`（`display-lease-gate.sh:205/214`）｜`PIPEFAIL-SIGPIPE`（`display-lease.sh:463` here-string／`verify-all.sh:423` `grep -m 12`）｜`PROC-PATTERN-GUARD`（`display-lease.sh:51` 描述串改写）｜`PRODUCT-ENTRY`（**装置配置/装置源** `ProductEntryArm/{inputs.json,Program.cs}` 带旧路径 ⇒ 旧路径一族的**第三个成员**）⇒ 现读全绿（读数逐条在 `P0-w78-report.md` §2）。
 
+
+- ⏪ **dated 入册（`t114`／P1-W38，读时 `2026-09-29T03:16+0800`；本节原文一字未动，本条只增）**：字体栈**降级路径**落地后，两条**残留缺口**如实登记（**只登记、不主张扩面**，与队长裁定十八一致）：
+  - **① `build/DirectWrite.Linux/Provider/DefaultFontFamily.cs`（`d574c3acd6cc6939`）与 `LinuxFontCollection.cs`（`e07ac1329fec10fa`）两个覆盖面都不在** —— `fp_inputs()`（234 件）与 `ARTIFACT-SRC-FP`（PC/WB/PF 三工程 src 面）**都收不到它们** ⇒ **改这两件不会被任何牙发现**（`PresentationCore.Linux.csproj` 只把该 DLL 当 **peer** 引用）。
+  - **② 守卫 `phase=` 位与运行期态漂移（属 `tools/**`）**：`build/MilBridge/tools/pts-pages-guard.sh:51` 的 `# PTS-DIRECTION: … phase=degraded` 是**写死的判据相位**；`t114` 之后两页现取已落 **realized 态**（`magenta=0` ∧ 无具名降级行 ∧ `native_gap=0`）⇒ 该件**自己的件头规则**（`:52-53`）要求同趟改 `realized`。该件**不在 `t114` 写域**（硬条款禁改 `tools/**`）⇒ **如实登记、未改**；两侧判读见 `build/MilBridge/P1-fontstack-fallback-report.md` §C6。
 ## §15ae 波 `#77` 的**修复记账**（`t17`，2026-09-26；`t6` 独立复验判 `failed` 后逐条关账）
 
 > 复验报告：`build/MilBridge/V77-verify-report.md`（主链读数全过；两条验收 FAIL ＋ 七句现场被推翻/打折扣）。
