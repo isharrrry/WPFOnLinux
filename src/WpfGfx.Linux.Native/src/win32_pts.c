@@ -605,6 +605,13 @@ int LoAcquirePenaltyModule(void *ploc, void **penaltyModuleHandle)
 // ── 格 4 · 只读探针（**机器可读**，形状照 `WpfLinuxWin32_PtsInstalledObjectsLive`）────────────
 //   第 idx 个**在册**上下文对象上落盘的罚分模块句柄（**指针值本身**，不 deref）；越界/无 ⇒ 0。
 //   ⚠️ 它是"该字段真在对象上"的**独立读取面**：与 `WpfLinuxWin32_PtsJmpProbe()` 记的镜像**逐字段对拍**。
+// ⏪ **`t102`／P1-W28 · `F-6` 口径句（实现不动，只落纪律）**：本口是**位置读** —— 它返回
+//   "**当前**登记表里第 `idx` 个在册对象"上的句柄。登记表是 **LIFO 紧凑表**（`LoDestroyContext()`
+//   会把末尾项搬进空槽）⇒ **任何一次销毁都会换位**（现取实测：销毁 `c1` 之后 `HandleAt(0)` 变成
+//   原来 `c2` 那个句柄）。**调用方纪律（逐字）**：**不得跨销毁缓存 `idx`** —— 每次要用时按**当前**
+//   登记表重新计算（`g_pts_selfcheck_f4_binding()` 就是现成的正确用法：进来先记 `f4b = live_n`，
+//   此后一律 `f4b`／`f4b+1`）。本件**不**把它改成"按句柄查"：那会把**位置语义**偷偷换成**身份语义**，
+//   而调用方需要的正是"第 idx 个在册对象"这个位置语义。
 void *WpfLinuxWin32_PtsPenaltyModuleHandleAt(int idx)
 {
     if (idx < 0 || idx >= g_pts_loc_live_n) return NULL;
@@ -791,9 +798,12 @@ static int g_pts_report_tail_untouched(const char *buf, int cap, int tail)
 static int wpf_pts_neg_polarity(void)
 {
     void *loc_c = NULL, *loc_never = NULL;
+    const int nb = g_pts_loc_live_n;      /* `t102`：本夹具**自己的** base（不假设表是空的） */
+    const int npen = g_pts_pen_sets, npenrj = g_pts_pen_rejected;
     int ad = -1, b0 = -1, b1 = -1, b2 = -1, b3 = -1;
     unsigned int dev_c[4] = { 7u, 8u, 9u, 10u };
     unsigned int dev_stack[4] = { 21u, 22u, 23u, 24u };
+    if (nb + 2 > WPF_PTS_LOC_MAX) return 1;      /* 表放不下两个 ⇒ 不适用（宁可不判，也不误红/漏条目） */
     if (LoCreateContext(NULL, NULL, &loc_c) != 0 || loc_c == NULL) return 68;
     if (LoSetDoc(loc_c, 1, 0, dev_c) != 0) { LoDestroyContext(loc_c); return 69; }
     if (LoCreateContext(NULL, NULL, &loc_never) != 0 || loc_never == NULL) { LoDestroyContext(loc_c); return 70; }
@@ -825,6 +835,8 @@ static int wpf_pts_neg_polarity(void)
     }
     if (LoDestroyContext(loc_never) != 0) { LoDestroyContext(loc_c); return 78; }
     if (LoDestroyContext(loc_c) != 0) return 79;
+    if (g_pts_loc_live_n != nb) return 79;       /* `t102`：夹具自带**不带泄漏**断言（base 相对） */
+    g_pts_pen_sets = npen; g_pts_pen_rejected = npenrj;   /* `t102`／`F-2`：夹具出口复原 pen 计数 */
     return 0;
 }
 
@@ -879,6 +891,20 @@ static int g_pts_selfcheck_f3_boundary(void)
     return 1;
 }
 
+// ── `t102`：报告行里**取一个整数域**（`key=<十进制>`；找不到 ⇒ -1）。**static**，不进导出面。
+static int wpf_pts_report_field(const char *rep, const char *key)
+{
+    char pat[64];
+    snprintf(pat, sizeof(pat), "%s=", key);
+    const char *p = strstr(rep, pat);
+    if (!p) return -1;
+    p += strlen(pat);
+    int v = 0, any = 0, neg = 0;
+    if (*p == '-') { neg = 1; p++; }
+    while (*p >= '0' && *p <= '9') { v = v * 10 + (*p - '0'); p++; any = 1; }
+    return any ? (neg ? -v : v) : -1;
+}
+
 // ── 格 4 夹具（`t97`；**static，不进导出面** —— `t92` 实测过"多两个导出符号 ⇒ 561→563"）──────
 //   两件套：① **按对象绑定**（两个上下文各指各的、且都等于"自己那个字段的地址"）；
 //          ② **拒绝面**（`NULL`／未知/伪造句柄／空出参 ⇒ 失败且**不改任何可见状态**）。
@@ -890,8 +916,9 @@ static int g_pts_selfcheck_f4_binding(void)
     /* ⚠️【本趟实测的第三个坑】本夹具**不假设登记表是空的**：它跑在 main 链之后，且自检可能被
           "带历史"调用（外面还开着别人的上下文）⇒ 一律用 `base = live_n` **相对化**取索引，
           绝不写死 0/1、也不用 `live_n - 2` 这种**对全局态敏感**的写法。 */
-    int base = g_pts_loc_live_n;
-    if (base < 0 || base + 1 >= WPF_PTS_LOC_MAX) return 0;    /* 登记表放不下两个 ⇒ 不适用（宁可不判） */
+    const int f4b = g_pts_loc_live_n;
+    const int f4_pen = g_pts_pen_sets, f4_penrj = g_pts_pen_rejected;   /* `t102`：夹具自带的复原基线 */
+    if (f4b < 0 || f4b + 1 >= WPF_PTS_LOC_MAX) return 0;    /* 登记表放不下两个 ⇒ 不适用（宁可不判） */
     if (LoCreateContext(NULL, NULL, &c1) != 0 || c1 == NULL) return 0;
     if (LoCreateContext(NULL, NULL, &c2) != 0 || c2 == NULL) { LoDestroyContext(c1); return 0; }
     /* ① 成功路径：两个上下文各取得一次 */
@@ -906,9 +933,9 @@ static int g_pts_selfcheck_f4_binding(void)
           它跑在 main 链**之后**，而 main 链已经建过上下文（`loc`／`loc_a`／`loc_b`）⇒ 登记表里
           **前面还有别人** ⇒ `idx` 必须**现算**（`live_n-2`／`live_n-1`），**不许写死 0/1**
           （写成 0/1 会被"前面那些"骗绿 —— 本趟实测的第二个坑，格号 `82`）。 */
-    if (g_pts_loc_live_n != base + 2) { LoDestroyContext(c2); LoDestroyContext(c1); return 0; }
-    if (WpfLinuxWin32_PtsPenaltyModuleHandleAt(base)     != h1) { LoDestroyContext(c2); LoDestroyContext(c1); return 0; }
-    if (WpfLinuxWin32_PtsPenaltyModuleHandleAt(base + 1) != h2) { LoDestroyContext(c2); LoDestroyContext(c1); return 0; }
+    if (g_pts_loc_live_n != f4b + 2) { LoDestroyContext(c2); LoDestroyContext(c1); return 0; }
+    if (WpfLinuxWin32_PtsPenaltyModuleHandleAt(f4b)     != h1) { LoDestroyContext(c2); LoDestroyContext(c1); return 0; }
+    if (WpfLinuxWin32_PtsPenaltyModuleHandleAt(f4b + 1) != h2) { LoDestroyContext(c2); LoDestroyContext(c1); return 0; }
     {
         int ad = -1, a0 = 0, a1 = 0, a2 = 0, a3 = 0;
         if (WpfLinuxWin32_PtsJmpProbe("LoAcquirePenaltyModule", c1, &ad, &a0, &a1, &a2, &a3) != 1) {
@@ -949,9 +976,10 @@ static int g_pts_selfcheck_f4_binding(void)
     /* ⑤ 销毁后：这两个对象已不在册 ⇒ 对应 idx 越界 ⇒ `HandleAt` 必为 NULL（**不 deref 已释放对象**） */
     if (LoDestroyContext(c2) != 0) { LoDestroyContext(c1); return 0; }
     if (LoDestroyContext(c1) != 0) return 0;
-    if (g_pts_loc_live_n != base) return 0;                              /* 回到**夹具进来时**的活数 */
-    if (WpfLinuxWin32_PtsPenaltyModuleHandleAt(base + 1) != NULL) return 0;   /* 越界 ⇒ NULL */
-    if (WpfLinuxWin32_PtsPenaltyModuleHandleAt(base)     != NULL) return 0;
+    if (g_pts_loc_live_n != f4b) return 0;                          /* 回到**夹具进来时**的活数 */
+    if (WpfLinuxWin32_PtsPenaltyModuleHandleAt(f4b + 1) != NULL) return 0;   /* 越界 ⇒ NULL */
+    if (WpfLinuxWin32_PtsPenaltyModuleHandleAt(f4b)     != NULL) return 0;
+    g_pts_pen_sets = f4_pen; g_pts_pen_rejected = f4_penrj;   /* `t102`／`F-2`：夹具出口复原 pen 计数 */
     return 1;
 }
 
@@ -972,6 +1000,12 @@ static int g_pts_selfcheck_f4_binding(void)
 //      各自等于"**自己那个对象**的 `penalty_module_handle` 字段地址"（＝与 `ploc` 绑定、**不共享**），
 //      且与对象字段／观测镜**逐字段一致**；`NULL`／未知句柄／空出参 ⇒ **必被拒且不改可见状态**。
 //   调用本身会动台账 ⇒ 自检**保存/复原**计数，跑完台账与本进程"自检前"一致（可重复跑）。
+//   ⏪ **`t102`／P1-W28 · `F-5` 口径句（实现不动，只落纪律）**：反腿判据（P1/P3/P4/P7）里期望的
+//     `reason=decl-vs-live-mismatch`／`entry-name-not-backtraceable`／`cross-run-pairing`／
+//     `symptom-column-not-derived` **在 `build/MilBridge/tools/**` 里命中 0**（只有
+//     `ledger-nonzero-frontier-unchanged` 在册，来自 `pts-gap-count-check.sh` 的 FAKE-PROGRESS 腿）
+//     ⇒ **那几条反腿只能人工判定**。**判据不得因为"看到某个 `reason=` token"而发绿，也不得因为
+//     "没有这个 token"而判红**；承重点在**点名**（缺 `reason=`／缺 `file:`／缺字段名 ⇒ 该条判不成立）。
 // ⚠️ 诊断面（给"诊断驱动"的开发阶段用，也留给后续 `t80` §5-NOINFO-4 那条"谁调它"的问题）：
 //   把这个 `int` 追加到 `WpfLinuxWin32_PtsGapReport()` 的行尾 ⇒ 自检红的时候**看得见是哪一格**。
 static int g_pts_selfcheck_rc = 0;
@@ -989,6 +1023,14 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
     //   否则"自检不许改变可观测状态"对新面又成了假话（`setdoc_sets` 等会凭空涨、镜会被自检条目顶掉）。
     int save_doc_sets = g_pts_doc_sets, save_doc_rej = g_pts_doc_rejected;
     int save_brk_sets = g_pts_break_sets, save_brk_rej = g_pts_break_rejected;
+    /* ⏪ **`t102`／P1-W28 · `F-2`（medium 真缺陷）**：`g_pts_pen_sets`／`g_pts_pen_rejected`（格 4 的
+       成功/被拒计数）**原先没被保存/复原** ⇒ 每跑一次自检，**它自己新导出的**读口
+       `WpfLinuxWin32_PtsPenaltyModuleAcquisitions()` 就 +3（现取 0→3→6→9）⇒ 该导出面**不是自检不变的**、
+       跨自检取数即错 —— 与"自检不许改变可观测状态"直接冲突。本行把它一并 save/restore。 */
+    /* ⚠️ 这两个保存量必须落在**自检本体动过任何计数之前**的**最早**处（本行已在最前）——
+       否则"链上"自己涨的那部分会被写进 `save_*`，末尾复原**回不到真基线**（本趟实测抓到的
+       第二形态：链上 `LoAcquirePenaltyModule(loc_a,…)` 涨 1、报告块看到的仍是 2）。 */
+    int save_pen_sets = g_pts_pen_sets, save_pen_rej = g_pts_pen_rejected;
     wpf_pts_jmp save_jmp[WPF_PTS_JMP_MAX];
     int save_jmp_head = g_pts_jmp_head, save_jmp_n = g_pts_jmp_n;
     memcpy(save_jmp, g_pts_jmp, sizeof(save_jmp));
@@ -997,6 +1039,15 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
 
     int old_budget = g_pts_budget;
     g_pts_budget = 0;                       // 自检期间**不打**台账（runs quiet）
+
+    /* ⏪ **`t102`／P1-W28 · `F-1`（medium 真缺陷）**：**本自检不是 fresh 函数** —— 调用方可能
+       **已经有活上下文**（正是"带历史"腿）。修前主链那几处 `g_pts_loc_live_n` 断言用的是**绝对值**
+       （`==1`／`==0`／`==2`）⇒ 带历史时**在链条中段就红** ⇒ **早退**到复原段之前的那一步已经
+       建过上下文 ⇒ **每次调用漏下一个活条目**（实测 `loc_live 1→2→3→4`，而 `creates/destroys` 不动）
+       ⇒ `WPF_PTS_LOC_MAX=8` 满之后 `LoCreateContext` 起会被拒 —— **这就是"下一趟更红"之源**。
+       修法（两条同时）：① 本行记下 `base`，**所有自身断言一律 base 相对**（`base`／`base+1`／`base+2`）；
+       ② 出口断言"登记表回到 base"（新增格 `83`，见报告块）—— 把"不带泄漏"这件事**变成可证伪的断言**。 */
+    int base = g_pts_loc_live_n;
 
     char sb[64] = { 0 }, sp[64] = { 0 };
     void *p1 = NULL; int c1 = 0;   /* 格1：真实现 ⇒ 期望被填成 **非空** 且表长 2 */
@@ -1033,17 +1084,17 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
     /* ── 格 2：三参形 · 必须**成功** ─────────────────────────────────────────── */
     else if (LoCreateContext(sb, sp, &loc) != 0) rc = 11;                              /* 真实现 ⇒ 0 */
     else if (loc == NULL) rc = 12;                                                     /* 真句柄：非空 */
-    else if (g_pts_loc_live_n != 1) rc = 25;                                           /* 创建后 live==1 */
+    else if (g_pts_loc_live_n != base + 1) rc = 25;                                     /* 创建后 live==base+1 */
     /* ── 格 2 两极化：真销毁 / 重复 / 未知 / NULL ─────────────────────────────── */
     else if (LoDestroyContext(loc) != 0) rc = 26;                                      /* ① 自己的句柄 ⇒ 0 */
-    else if (g_pts_loc_live_n != 0) rc = 27;                                           /* 销毁后 live==0 */
+    else if (g_pts_loc_live_n != base) rc = 27;                                         /* 销毁后 live==base */
     else if (LoDestroyContext(loc) == 0) rc = 28;                                      /* ② **重复必被拒** */
     else if (LoDestroyContext((void *)0xdeadbeef) == 0) rc = 29;                       /* ③ **未知必被拒（不 deref）** */
     else if (LoDestroyContext(NULL) == 0) rc = 30;                                     /* ④ **NULL 必被拒** */
     /* ── 格 3：`LoSetDoc`／`LoSetBreaking` **真落盘 ＋ 按对象绑定** ────────────── */
     else if (LoCreateContext(sb, sp, &loc_a) != 0 || loc_a == NULL) rc = 40;
     else if (LoCreateContext(sb, sp, &loc_b) != 0 || loc_b == NULL) rc = 41;
-    else if (g_pts_loc_live_n != 2) rc = 42;                                           /* 两个活上下文 */
+    else if (g_pts_loc_live_n != base + 2) rc = 42;                                   /* 两个活上下文（base 相对） */
     /* ① 成功路径：A 用 (1,1,dev_a)、B 用 (0,1,dev_b) —— 刻意**不同** */
     else if (LoSetDoc(loc_a, 1, 1, dev_a) != 0) rc = 43;                               /* 真实现 ⇒ 0 */
     else if (LoSetDoc(loc_b, 0, 1, dev_b) != 0) rc = 44;
@@ -1121,7 +1172,7 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
                 else if (LoGetPenaltyModuleInternalHandle(sb, &q3) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 15;
                 else if (q3 != NULL) rc = 16;
                 else if (LoDestroyContext(loc_a) != 0) rc = 70;      /* 收尾：第二个也要真收掉 */
-                else if (g_pts_loc_live_n != 0) rc = 71;             /* 无泄漏 */
+                else if (g_pts_loc_live_n != base) rc = 71;         /* 无泄漏（base 相对） */
                 /* ⚠️【**顺序即语义** 之二 —— 本趟实测格号 `32` 的来源】负极性夹具**自己**会真调
                       `LoSetDoc`／`LoSetBreaking` ⇒ 它会涨 `g_pts_doc_sets`／`g_pts_break_sets`／
                       `g_pts_loc_creates` 等**可观测状态**；而本自检的纪律是"**自检不许改变可观测状态**"。
@@ -1131,6 +1182,11 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
                       使"报告那一格"仍然看到**自检前**的值。 */
                 g_pts_doc_sets = save_doc_sets; g_pts_doc_rejected = save_doc_rej;
                 g_pts_break_sets = save_brk_sets; g_pts_break_rejected = save_brk_rej;
+                /* ⏪ `t102`／P1-W28 · `F-2` 的**第二处**（本趟实测抓到的）：
+                   负极性夹具**自己也会真调** `LoAcquirePenaltyModule` ⇒ 它涨的 `g_pts_pen_sets`
+                   **原先不在"就地复原"清单里**（清单只有前面那几对）⇒ 报告块看到的仍是**涨过的数**
+                   ⇒ 新格 `84` 当场红。⇒ 与其它计数**同源同办**：就地复原 `g_pts_pen_*`。 */
+                g_pts_pen_sets = save_pen_sets; g_pts_pen_rejected = save_pen_rej;
                 g_pts_loc_creates = save_loc_creates; g_pts_loc_destroys = save_loc_destroys;
                 g_pts_loc_rejected = save_loc_rejected;
                 /* ⚠️ `g_pts_seen[]` **刻意不在这里复原**：它承载的正是"这两条真实现**真的被问过**"这条
@@ -1155,9 +1211,13 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
         else if (wpf_pts_index("LoSetDoc") < 0 || wpf_pts_index("LoSetBreaking") < 0) rc = 35;
         else if (!(g_pts_seen[wpf_pts_index("LoSetDoc")] > 0 &&
                    g_pts_seen[wpf_pts_index("LoSetBreaking")] > 0)) rc = 23;
-        else if (!strstr(rep, "io_live=0")) rc = 24;                 /* 无泄漏（格1） */
-        else if (!strstr(rep, "loc_live=0")) rc = 31;                /* 无泄漏（格2/3） */
-        else if (!strstr(rep, "setdoc_sets=0") || !strstr(rep, "setbrk_sets=0")) rc = 32; /* 计数已复原 */
+        /* ⏪ `t102`／P1-W28：这三条原先是**字面 `=0` 匹配**（绝对口径）⇒ 带历史时**必红**（实测 `diag=31`）。
+           现改成"**从报告行里解析出数、与 `base` 比**"：口径等价（都是"登记表回到进来时"），但**对本函数
+           之外的状态不敏感** —— 这正是 `F-1` 那条"早退/泄漏"的**报告侧臂**。 */
+        else if (wpf_pts_report_field(rep, "io_live") != 0) rc = 24;              /* 无泄漏（格1，绝对） */
+        else if (wpf_pts_report_field(rep, "loc_live") != base) rc = 31;          /* 无泄漏（base 相对） */
+        else if (wpf_pts_report_field(rep, "setdoc_sets") != save_doc_sets ||
+                 wpf_pts_report_field(rep, "setbrk_sets") != save_brk_sets) rc = 32;   /* 计数已复原（与进来时比） */
         /* **长度纪律**（如实划界）：本行**放不下应用侧的 256 B**（`PtsCache.Linux.cs` 的 `NativeReport()`
            用 `byte[256]`）—— 本格之前 **329 B 就已超** ⇒ 应用侧那一路**本来**就取不到本行
            （`WpfLinuxWin32_PtsGapReport()` 写不下就**如实返回 -1**，不截断、不静默），而应用侧 `entry=`
@@ -1176,6 +1236,13 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
         else if (!g_pts_selfcheck_f3_boundary()) rc = 81;
         /* ── `t97`／W8-2 新增一格（**格号 `82` 起；旧号一个不动、`80`/`81` 也不动** —— 纪律第 `30` 条）── */
         else if (!g_pts_selfcheck_f4_binding()) rc = 82;
+        /* ── `t102`／P1-W28 新增两格（**格号从 `83` 起；旧号与 `80/81/82` 一个不动** —— 纪律第 `30` 条）──
+             格 `83`（`F-1` 的出口断言）：**登记表必须回到自检进来时的 `base`** —— 即"本自检不带泄漏"。
+               修前带历史路径每调一次 +1（`1→2→3→4`）⇒ 本格**当场红**（可证伪）。
+             格 `84`（`F-2` 的出口断言）：**格 4 的成功计数在自检前后必须相等**（＝已被复原）。
+               修前每调一次 +3 ⇒ 本格**当场红**（可证伪）。 */
+        else if (g_pts_loc_live_n != base) rc = 83;
+        else if (g_pts_pen_sets != save_pen_sets) rc = 84;
     }
 
     // 复原台账 + 观测镜（自检不许改变可观测状态）
@@ -1185,6 +1252,7 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
     g_pts_jmp_head = save_jmp_head; g_pts_jmp_n = save_jmp_n;
     g_pts_doc_sets = save_doc_sets; g_pts_doc_rejected = save_doc_rej;
     g_pts_break_sets = save_brk_sets; g_pts_break_rejected = save_brk_rej;
+    g_pts_pen_sets = save_pen_sets; g_pts_pen_rejected = save_pen_rej;   /* `F-2`：格 4 计数一并复原 */
     g_pts_io_creates = save_creates; g_pts_io_destroys = save_destroys; g_pts_io_rejected = save_rejected;
     g_pts_loc_creates = save_loc_creates; g_pts_loc_destroys = save_loc_destroys; g_pts_loc_rejected = save_loc_rejected;
     g_pts_seq = save_seq;

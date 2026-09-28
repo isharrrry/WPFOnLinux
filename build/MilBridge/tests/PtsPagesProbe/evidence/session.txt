@@ -1,29 +1,29 @@
-DISPLAY_LEASE=official-caller-owned display=:237 sock=/tmp/.X11-unix/X237 xvfb_pid=3158093 owner_pid=3157509 lease=build/MilBridge/tests/PtsPagesProbe/evidence/device/display-lease.txt（① 常规件 ② 模式 600 ③ DISPLAY 相符 ④ owner 在祖先链上 ⑤ 活 Xvfb 且是其亲儿子 ⇒ 放行）
-=============== GROUP 1 arm=A clicks=[24,23] 00:53:46 ===============
-shim_sha16=461e5557bd7dd571 pf_sha16=6893d1d3fb1ee110
-five_pre: libwpfwin32.so=461e5557bd7dd571 wpfgfx_cor3.so=4e25e4b27d4d5ae1 PresentationCore.dll=5b6cfda3e12b84fc PresentationFramework.dll=6893d1d3fb1ee110 WindowsBase.dll=9e860cbeecb352e1 
-mem_avail_kB_start=5097164
-app_pid=3158190 timeout=200s
-boot_log_bytes=18901
+DISPLAY_LEASE=official-caller-owned display=:237 sock=/tmp/.X11-unix/X237 xvfb_pid=3389198 owner_pid=3388618 lease=build/MilBridge/tests/PtsPagesProbe/evidence/device/display-lease.txt（① 常规件 ② 模式 600 ③ DISPLAY 相符 ④ owner 在祖先链上 ⑤ 活 Xvfb 且是其亲儿子 ⇒ 放行）
+=============== GROUP 1 arm=A clicks=[24,23] 01:07:21 ===============
+shim_sha16=4e999451e9ab137e pf_sha16=6893d1d3fb1ee110
+five_pre: libwpfwin32.so=4e999451e9ab137e wpfgfx_cor3.so=4e25e4b27d4d5ae1 PresentationCore.dll=5b6cfda3e12b84fc PresentationFramework.dll=6893d1d3fb1ee110 WindowsBase.dll=9e860cbeecb352e1 
+mem_avail_kB_start=3907820
+app_pid=3389293 timeout=200s
+boot_log_bytes=14673
   boot  FILE=/home/links-dev/w67-work/logs/evidence/shots/g1/boot.png 1280x1024 colors=386 magenta=0 total=1310720 ink=480000
 boot_alive=yes
---- G1 click 24  00:53:54 ---
-BEFORE item=24 nm=FlowDocument stable=yes rect=28,410,203x27 point=127,423 expect=FlowDocumentDemo try=1
+--- G1 click 24  01:07:29 ---
+BEFORE item=24 nm=FlowDocument stable=yes rect=28,355,203x27 point=127,368 expect=FlowDocumentDemo try=1
 AFTER  item=24 alive=yes ns=HandyControlDemo.UserControl.FlowDocumentDemo ns_delta=1 try=1 expect_hit=yes
-  FILE=/home/links-dev/w67-work/logs/evidence/shots/g1/k24.png 1280x1024 colors=852 magenta=54182 total=1310720 ink=424107
-CLICK k=24 alive=yes expect=FlowDocumentDemo AE=221857 pts_unavail=1 pts_gap=2 guard=1 fatal=0 unh=0 ns_last=HandyControlDemo.UserControl.FlowDocumentDemo
-PHASE k=24 c1_ep=- c2_pts_gap=568 c3_pts_unavail=569 c4_unrecoverable=- managed_err=err=-10000 native_err=err=-10000
+  FILE=/home/links-dev/w67-work/logs/evidence/shots/g1/k24.png 1280x1024 colors=851 magenta=54182 total=1310720 ink=424107
+CLICK k=24 alive=yes expect=FlowDocumentDemo AE=221246 pts_unavail=1 pts_gap=2 guard=1 fatal=0 unh=0 ns_last=HandyControlDemo.UserControl.FlowDocumentDemo
+PHASE k=24 c1_ep=- c2_pts_gap=625 c3_pts_unavail=626 c4_unrecoverable=- managed_err=err=-10000 native_err=err=-10000
   c3_text: [PTS-UNAVAILABLE] site=FlowDocumentView.DocumentPage entry=LoGetPenaltyModuleInternalHandle err=-10000 action=page-placeholder（已画出页级占位；进程继续）
---- G1 click 23  00:54:01 ---
-BEFORE item=23 nm=RichTextBox stable=yes rect=28,379,203x27 point=127,392 expect=RichTextBoxDemo try=1
+--- G1 click 23  01:07:37 ---
+BEFORE item=23 nm=RichTextBox stable=yes rect=28,324,203x27 point=127,337 expect=RichTextBoxDemo try=1
 AFTER  item=23 alive=yes ns=HandyControlDemo.UserControl.RichTextBoxDemo ns_delta=1 try=1 expect_hit=yes
   FILE=/home/links-dev/w67-work/logs/evidence/shots/g1/k23.png 1280x1024 colors=844 magenta=49592 total=1310720 ink=428765
 CLICK k=23 alive=yes expect=RichTextBoxDemo AE=141985 pts_unavail=2 pts_gap=2 guard=1 fatal=0 unh=0 ns_last=HandyControlDemo.UserControl.RichTextBoxDemo
-PHASE k=23 c1_ep=- c2_pts_gap=568 c3_pts_unavail=569 c4_unrecoverable=- managed_err=err=-10000 native_err=err=-10000
+PHASE k=23 c1_ep=- c2_pts_gap=625 c3_pts_unavail=626 c4_unrecoverable=- managed_err=err=-10000 native_err=err=-10000
   c3_text: [PTS-UNAVAILABLE] site=FlowDocumentView.DocumentPage entry=LoGetPenaltyModuleInternalHandle err=-10000 action=page-placeholder（已画出页级占位；进程继续）
 alive_after_seq=yes
 APP_RC=143
 rc_reading: SIGTERM(仪器收的)
-log_bytes=117024
+log_bytes=121277
 FIVE_STABLE_G1=YES
-ALL_GROUPS_DONE 00:54:09
+ALL_GROUPS_DONE 01:07:45
