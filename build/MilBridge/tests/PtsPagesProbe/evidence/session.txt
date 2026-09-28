@@ -1,28 +1,30 @@
-=============== GROUP 1 arm=A clicks=[24,23] 09:32:25 ===============
-shim_sha16=6825dd7071387a46 pf_sha16=876f70dd7c0cbf7a
-five_pre: libwpfwin32.so=6825dd7071387a46 wpfgfx_cor3.so=4e25e4b27d4d5ae1 PresentationCore.dll=38ae477949238306 PresentationFramework.dll=876f70dd7c0cbf7a WindowsBase.dll=ed04eb65081c2d3a 
-mem_avail_kB_start=9525056
-app_pid=3183685 timeout=200s
-boot_log_bytes=18901
-  boot  FILE=/home/links-dev/w67-work/logs/pts-legs-C/shots/g1/boot.png 1280x1024 colors=386 magenta=0 total=1310720 ink=480000
+DISPLAY_LEASE=official-caller-owned display=:237 sock=/tmp/.X11-unix/X237 xvfb_pid=1552207 owner_pid=1550838 lease=/home/links-dev/netTest/GitProj/WPFOnLinux/build/MilBridge/tests/PtsPagesProbe/evidence/device/display-lease.txt（① 常规件 ② 模式 600 ③ DISPLAY 相符 ④ owner 在祖先链上 ⑤ 活 Xvfb 且是其亲儿子 ⇒ 放行）
+=============== GROUP 1 arm=A clicks=[24,23] 23:04:12 ===============
+shim_sha16=2a5165700a8c8579 pf_sha16=8ef62d37e7c2ce2e
+five_pre: libwpfwin32.so=2a5165700a8c8579 wpfgfx_cor3.so=4e25e4b27d4d5ae1 PresentationCore.dll=5b6cfda3e12b84fc PresentationFramework.dll=8ef62d37e7c2ce2e WindowsBase.dll=9e860cbeecb352e1 
+mem_avail_kB_start=7540084
+app_pid=1555062 timeout=200s
+boot_log_bytes=10336
+  boot  FILE=/home/links-dev/w67-work/logs/evidence/shots/g1/boot.png 1280x1024 colors=386 magenta=0 total=1310720 ink=480000
 boot_alive=yes
---- G1 click 24  09:32:33 ---
-BEFORE item=24 nm=FlowDocument stable=yes rect=28,410,203x27 point=127,423 expect=FlowDocumentDemo try=1
-AFTER  item=24 alive=yes ns=HandyControlDemo.UserControl.FlowDocumentDemo ns_delta=1 try=1 expect_hit=yes
-  FILE=/home/links-dev/w67-work/logs/pts-legs-C/shots/g1/k24.png 1280x1024 colors=851 magenta=54826 total=1310720 ink=423547
-CLICK k=24 alive=yes expect=FlowDocumentDemo AE=221857 pts_unavail=1 pts_gap=1 guard=1 fatal=0 unh=0 ns_last=HandyControlDemo.UserControl.FlowDocumentDemo
-PHASE k=24 c1_ep=- c2_pts_gap=568 c3_pts_unavail=569 c4_unrecoverable=- managed_err=err=-10000 native_err=err=-10000
-  c3_text: [PTS-UNAVAILABLE] site=FlowDocumentView.DocumentPage entry=LoCreateContext err=-10000 action=page-placeholder（已画出页级占位；进程继续）
---- G1 click 23  09:32:40 ---
-BEFORE item=23 nm=RichTextBox stable=yes rect=28,379,203x27 point=127,392 expect=RichTextBoxDemo try=1
+--- G1 click 24  23:04:20 ---
+BEFORE item=24 nm=FlowDocument stable=no rect=28,355,203x27 point=127,368 expect=FlowDocumentDemo try=1
+BEFORE item=24 nm=FlowDocument stable=yes rect=28,355,203x27 point=127,368 expect=FlowDocumentDemo try=2
+AFTER  item=24 alive=yes ns=HandyControlDemo.UserControl.FlowDocumentDemo ns_delta=1 try=2 expect_hit=yes
+  FILE=/home/links-dev/w67-work/logs/evidence/shots/g1/k24.png 1280x1024 colors=851 magenta=55051 total=1310720 ink=423346
+CLICK k=24 alive=yes expect=FlowDocumentDemo AE=221246 pts_unavail=1 pts_gap=0 guard=1 fatal=0 unh=0 ns_last=HandyControlDemo.UserControl.FlowDocumentDemo
+PHASE k=24 c1_ep=- c2_pts_gap=- c3_pts_unavail=681 c4_unrecoverable=- managed_err=err=-10000 native_err=
+  c3_text: [PTS-UNAVAILABLE] site=FlowDocumentView.DocumentPage entry=LoSetDoc err=-10000 action=page-placeholder（已画出页级占位；进程继续）
+--- G1 click 23  23:04:31 ---
+BEFORE item=23 nm=RichTextBox stable=yes rect=28,324,203x27 point=127,337 expect=RichTextBoxDemo try=1
 AFTER  item=23 alive=yes ns=HandyControlDemo.UserControl.RichTextBoxDemo ns_delta=1 try=1 expect_hit=yes
-  FILE=/home/links-dev/w67-work/logs/pts-legs-C/shots/g1/k23.png 1280x1024 colors=843 magenta=50236 total=1310720 ink=428205
-CLICK k=23 alive=yes expect=RichTextBoxDemo AE=140697 pts_unavail=2 pts_gap=1 guard=1 fatal=0 unh=0 ns_last=HandyControlDemo.UserControl.RichTextBoxDemo
-PHASE k=23 c1_ep=- c2_pts_gap=568 c3_pts_unavail=569 c4_unrecoverable=- managed_err=err=-10000 native_err=err=-10000
-  c3_text: [PTS-UNAVAILABLE] site=FlowDocumentView.DocumentPage entry=LoCreateContext err=-10000 action=page-placeholder（已画出页级占位；进程继续）
+  FILE=/home/links-dev/w67-work/logs/evidence/shots/g1/k23.png 1280x1024 colors=844 magenta=50461 total=1310720 ink=428004
+CLICK k=23 alive=yes expect=RichTextBoxDemo AE=140247 pts_unavail=2 pts_gap=0 guard=1 fatal=0 unh=0 ns_last=HandyControlDemo.UserControl.RichTextBoxDemo
+PHASE k=23 c1_ep=- c2_pts_gap=- c3_pts_unavail=681 c4_unrecoverable=- managed_err=err=-10000 native_err=
+  c3_text: [PTS-UNAVAILABLE] site=FlowDocumentView.DocumentPage entry=LoSetDoc err=-10000 action=page-placeholder（已画出页级占位；进程继续）
 alive_after_seq=yes
 APP_RC=143
 rc_reading: SIGTERM(仪器收的)
-log_bytes=116911
+log_bytes=125211
 FIVE_STABLE_G1=YES
-ALL_GROUPS_DONE 09:32:48
+ALL_GROUPS_DONE 23:04:39
