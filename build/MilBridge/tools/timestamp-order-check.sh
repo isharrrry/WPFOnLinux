@@ -2,6 +2,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # timestamp-order-check.sh —— 「文内 dated 戳 ≤ 该行**首次入册**的提交时刻」牙
 #   （`t27`／V2 收口；归族 `D-G176`（跨会话第 `18` 条）；**本波不接线** —— 接线归 W4）
+# ⏪ **dated 更正（`t60`／H1(a)，读时 2026-09-28T18:38:13.728+0800）**：本件 `TSORDER_UNPARSABLE` 那行消息里原有**两个双引号内反引号**（`DQ-BACKTICK`，两处；本波 `SHELL_QUOTE_TRAP` 总数 `4` 里的一半）⇒ **已删除**（该形态既被牙记红、又会被**命令替换**吃掉 ⇒ 消息会缺字）；**语义与可读性不变**；原句原文逐字记在 `build/MilBridge/HANDOFF-NEXT.md` 的 `t60` 块与交件载体里（那两件不被本牙扫）。
 # ⏪ **dated 更正（`t48`／W4b，读时 2026-09-28T17:47:04.418+0800）**：**已接线**：`verify-all.sh` 步名 `TS-ORDER`（`run_step "TS-ORDER" bash build/MilBridge/tools/timestamp-order-check.sh`）＋ **覆盖面已计入**（`build/close-wave.sh` 的 `fp_inputs()`；现取件数 **233**）⇒ 上一行的「接线归 W4」**自此过期**（**原句一字未删**，以本行为准）。
 #
 # 【它挡的是什么】本仓 dated 追加纪律要求「读时戳必须早于落盘」。`t70` 立的是**秒级**规则；
@@ -109,7 +110,7 @@ check_file() {   # ⇒ 回 rc；累积量写进全局
       self=$((self+1))
       sec="$(epoch_of "$st")"
       if [ -z "$sec" ]; then
-        echo "TSORDER_UNPARSABLE file=$rel:$n stamp=$st（`date -d` 解不出 ⇒ 不判）"
+        echo "TSORDER_UNPARSABLE file=$rel:$n stamp=$st（date -d 解不出 ⇒ 不判）"
         NOINFO_REASONS="$NOINFO_REASONS,unparsable"; NOINFO_HIT=1; continue
       fi
       local first="$ASSUME"

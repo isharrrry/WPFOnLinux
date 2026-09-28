@@ -25,6 +25,13 @@
 #   ⑥ **自测自主性（`t57`／G4）**：`--selftest` 的**正极用自造夹具**（仓外 `mktemp -d`）⇒ **不依赖活件**；
 #      活件好坏由**正极真跑**那条腿判（它本就该随世界变）。夹具腿：S1 正极／S2 篡改点名／S3 行数≠9／S4 回退／
 #      S5 **活件副本被改陈旧 ⇒ 自测仍 PASS**（自主性证明）／S6 **活件真跑仍如实反映**。
+# 【口径句（`t60` 写死）】
+#   ⑦ **`#4` 的报头与 `reason=` 同一 token**（`t60`／H3）：`#4` 的 `HIT` 行 ＝ `rule=route-file-changed-since-ts`（**规则名**）
+#      ＋ `reason=cell-mismatch`（**与报头 `DIVERGED reason=cell-mismatch` 同 token**）—— 该格差异源**在本件写域内**
+#      （route 件内容变了）⇒ **不启用 `FOREIGN`**（`FOREIGN` 的语义是「差异源**不在**本件写域」）。
+#   ⑧ **收尾行的闸声明**（`t60`／H2）：闸 ＝ `S1–S4` ＋ **`S5`（自主性腿，真参与 `np`／`nf`）**；**只有 `S6` 是信息腿**。
+#   ⑨ **`pipefail` 下的站点形态**（`t60`／`PIPEFAIL-SIGPIPE`）：拒绝族判定**不许**走「左端可多次 `write()` ＋
+#      末段命中即退」的**管道**形态（`set -o pipefail` 下管线 rc 可被翻成 `141`）⇒ 用 bash 内建 `[[ "$c" =~ $REJECT_ERE ]]`。
 # 【自述】已接线：`verify-all.sh` 步名 `HANDOFF-MV`；覆盖面已计入（`build/close-wave.sh` 的 `fp_inputs()`）。
 # 【用法】bash handoff-machine-values-check.sh [--file PATH] [--selftest]
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -91,9 +98,9 @@ check_file() {  # $1=件 ⇒ 印判词；rc=0 PASS／1 DIVERGED|FOREIGN／2 NOIN
     fi
     # ④ 拒收族：`#7` 机读形态 ＋ 「对拍流水线/工作树状态」类命令
     if [ "$ci" = 7 ]; then
-      if [ "$form" = value ] && [ -n "$v" ] && [ -n "$c" ]; then echo "HANDOFF_MV_HIT cell=#7 anchor=${anch} rule=cell-7-not-comparable-to-HEAD reason=not-comparable cmd=$c（`#7` 是推送面/流水线敏感量 ⇒ 不许呈机读形态）"; uncomparable=$((uncomparable+1)); continue; fi
+      if [ "$form" = value ] && [ -n "$v" ] && [ -n "$c" ]; then echo "HANDOFF_MV_HIT cell=#7 anchor=${anch} rule=cell-7-not-comparable-to-HEAD reason=not-comparable cmd=$c（cell=#7 是推送面/流水线敏感量 ⇒ 不许呈机读形态）"; uncomparable=$((uncomparable+1)); continue; fi
     fi
-    if [ -n "$c" ] && printf '%s' "$c" | grep -qE "$REJECT_ERE"; then
+    if [ -n "$c" ] && [[ "$c" =~ $REJECT_ERE ]]; then
       echo "HANDOFF_MV_HIT cell=#$ci anchor=${anch} rule=cell-not-comparable-to-pipeline-state reason=not-comparable cmd=$c"
       uncomparable=$((uncomparable+1)); continue
     fi
@@ -122,7 +129,7 @@ check_file() {  # $1=件 ⇒ 印判词；rc=0 PASS／1 DIVERGED|FOREIGN／2 NOIN
         echo "HANDOFF_MV_CELL cell=#4 anchor=${anch} state=equal table=$inrepo corrected=$v live=$live（判据＝前缀 ∧ 两值相等）"
         equal=$((equal+1))
       else
-        echo "HANDOFF_MV_HIT cell=#4 anchor=${anch} rule=route-file-changed-since-ts reason=foreign-lane-activity in-repo=$v live=$live"
+        echo "HANDOFF_MV_HIT cell=#4 anchor=${anch} rule=route-file-changed-since-ts reason=cell-mismatch in-repo=$v live=$live"
         mism=$((mism+1)); reasons="$reasons,#4:route-file-changed-since-ts"
       fi
       continue
@@ -223,7 +230,7 @@ open(p,"w",encoding="utf-8").write("\n".join(s))' "$T/f2.md" "$TARGET_CELL"
     out="$(bash "$SELF" --file "$src" 2>&1)"; rc=$?
     echo "HANDOFF_MV_SELFTEST_CASE case=S6 kind=production rc=$rc 原样=$(printf '%s' "$out" | grep -m1 'HANDOFF_MV=')"
   fi
-  echo "HANDOFF_MV_SELFTEST=$([ "$nf" = 0 ] && echo PASS || echo FAIL) cases=$((np+nf)) pass=$np fail=$nf（闸只含 S1–S4；S5／S6 为信息腿）"
+  echo "HANDOFF_MV_SELFTEST=$([ "$nf" = 0 ] && echo PASS || echo FAIL) cases=$((np+nf)) pass=$np fail=$nf（闸含 S1–S4 ＋ S5 自主性腿；S6 为信息腿）"
   [ "$nf" = 0 ] && return $RC_PASS || return $RC_FAIL
 }
 while [ $# -gt 0 ]; do
