@@ -567,3 +567,9 @@ cd /home/links-dev/netTest/GitProj/WPFOnLinux && bash build/MilBridge/tools/pts-
 ---
 
 `P1-TAIL-SCOUT=DONE items=22（A3＋B18＋C1） waves=8 W0_required=yes noinfo=7 heavy_ran=none N_touched=only_this_file sha16_self=21a3be1c895a9c03（口径 ＝ `head -n -1 <本件> | sha256sum | cut -c1-16`；末行即本行）`
+
+⏪ **dated 更正 · PROV 路径 ＋ 同件两处打架（`t25`，读时 2026-09-28T16:20:54+0800）** —— 由 `t15` §5-W3 点名、**队长独立核出更精确的一处**：**同一件内两处打架**（本席现取自算复核，两处原文逐字在下）。
+⏪ ① **两处不一致（逐字原文）**：**正文**（内容锚＝`### W2 ·` 小节里「**入口（原文照抄）**」那一条的第 `2` 项）逐字写 ——「豁免通道 ＝ `build/MilBridge/retired-path-provenance.tsv`（`kind=code` **永不豁免**）」【**正确**】；**§4 分波表**（内容锚＝表内行首 `| **W2** |` 的那一行）的「改仓件」栏逐字写 ——「`build/MilBridge/tools/retired-path-provenance.tsv`」【**错误**：该路径不存在】。（本轮现取行号：正文 `:254`／§4 表 `:517`，**仅本次有效**；本条自身插入后行号必再变 ⇒ 此后一律用内容锚。）
+⏪ ② **裁定**：**以正文那句为准** ＝ 豁免通道真件是 `build/MilBridge/retired-path-provenance.tsv`（本席现取：`2200 B`／mtime `2026-09-27 11:51:43`／sha16 `10d62946231cc809`；`build/MilBridge/tools/` 下**现取 ABSENT**；该件 `kind=code` 永不豁免的语义不变）。
+⏪ ③ **责任链（如实记）**：侦察 **§4 分波表**写错 ⇒ **队长据此路径写进 `t14` 契约的 `inScope`** ⇒ 被 **`t14` 如实顶回**（其报告 §2 末段点名该路径不存在）⇒ **本席同趟在册更正**。⇒ **`t14` 处置正确、不计其错**；错源在侦察件，责任链如上。
+⏪ **追加后口径**：`head -n -1 build/MilBridge/P1-tail-scout.md` ＝ `e84ff5e42910f57c`（口径＝**末行之前的全文**；末行＝**本行**）。

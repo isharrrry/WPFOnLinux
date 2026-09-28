@@ -134,3 +134,25 @@ echo "DISPLAY_LEASE=free display=$D sock=$XDIR/X${D#:}" >&2
 `DEFREG=PASS declared=215 route_ids=215`（两牙未退化）｜`REPORTID=PASS files=192 ids=2034 declared=215`｜`run_step` ＝ `55`（未变，本波不加步）｜**未** `git add/commit/push`；临时件残留 `0`。
 **槽**：`~/heavy-slot.sh --min-avail 1500 --max-hold 60 --wait 5 -- …` ⇒ **`HEAVYSLOT=TIMEOUT waited=5s slot_rc=9`**（`t7` 长占）⇒ B-3③／B-9 真显示腿 **`NOINFO`**，**未用任何"反正不跑"绕开判据**。
 **自报 sha16**（口径：**本行之前的全文**，即 `head -n -1 <本件> | sha256sum`）＝ **`e37f0270a525e815`**（整 64 hex 见交件消息）／本件 `wc -l` ＝ **`136` 行**（含本行；不含本行 `135` 行）／末次现取时刻 ＝ `2026-09-28T16:06:25+0800`／写入方式 ＝ **temp ＋ `rename`**／同趟自证：`DEFREG=PASS declared=215 route_ids=215`；`REPORTID=PASS files=193 ids=2035 declared=215`（rc=0）；`git ls-files '*.cs' | xargs grep -l 'wpf-linux-20260906' | wc -l` ＝ `0`；`RETIREDPATH=PASS mode=tree files=565 code=0`；`HEAVYSLOT=TIMEOUT waited=5s slot_rc=9`（B-3③／B-9 真显示腿＝`NOINFO`）。
+
+⏪ **dated 追加 · W1 关账（`t25`，读时 2026-09-28T16:20:54+0800）** —— `t15` §5-W1 点名的 low 收口：以下 **15 件**（13 改 ＋ 2 新建）**改后 sha16 全表**由 **本席现取自算**（**未照抄** `t15` §3；现取时刻 ＝ 2026-09-28T16:20:54+0800）。
+⏪ 逐件（件 ＋ 字段 ＋ sha16 ＋ `inFP` 现取）：
+⏪ 1. `build/DirectWrite.Linux/WicSeamProbe/Program.cs` ⇒ `b36728870f822a23`（`inFP=0`）
+⏪ 2. `build/MilBridge/tests/BboxProbe/Program.cs` ⇒ `2001427e88b7f709`（`inFP=0`）
+⏪ 3. `build/MilBridge/tests/CoverageProbe/Program.cs` ⇒ `c78ed88fc1fd34f4`（`inFP=0`）
+⏪ 4. `build/MilBridge/tests/FrameProbe/Program.cs` ⇒ `b6d00269cf6f6aad`（`inFP=0`）
+⏪ 5. `build/MilBridge/tests/IcuBreakParity/Program.cs` ⇒ `52f0ab739aaacf3b`（`inFP=0`）
+⏪ 6. `build/MilBridge/tests/LsProbe/Program.cs` ⇒ `f536e535d6903227`（`inFP=0`）
+⏪ 7. `build/MilBridge/tests/PcLineOracle/Program.cs` ⇒ `a23b7476833da140`（`inFP=0`）
+⏪ 8. `build/MilBridge/tests/ResolverGuardProbe/Program.cs` ⇒ `ca6f1bea560f2326`（`inFP=0`）
+⏪ 9. `build/MilBridge/tests/T2eLineHeight/Program.cs` ⇒ `1f719638830afdde`（`inFP=0`）
+⏪ 10. `build/MilBridge/tests/PtsPagesProbe/session_inner.sh` ⇒ `a70aeb1d988ebc9e`（`inFP=1`）
+⏪ 11. `build/MilBridge/tools/pkg-src-retiredpath-check.sh` ⇒ `60009734108344bd`（`inFP=1`）
+⏪ 12. `build/MilBridge/tools/pts-pages-guard.sh` ⇒ `7074a774739efaf2`（`inFP=1`）
+⏪ 13. `build/MilBridge/repo-alias-allow.tsv` ⇒ `19496f3615ccb45a`（`inFP=1`）
+⏪ 14. `build/MilBridge/P1-w2-criteria.md` ⇒ `ceecddcccda8521f`（`inFP=0`）
+⏪ 15. `build/MilBridge/P1-w2-report.md` ⇒ `80e1583d2680b382`（`inFP=0`）
+⏪ **对拍结论**：15 格与 `t15` §3 表**逐位相同、无一格不同**（本席独立自算 ⇒ **不是转述**）；第 `11`／`12`／`13` 件的现取来源是成对的两颗牙与本波白名单。
+⏪ **载体两格复算**（`t14` 自报）：`P1-w2-criteria.md` ＝ `ceecddcccda8521f` ⇒ 逐位相同；`P1-w2-report.md` **追加前** `head -n -1` ＝ `e37f0270a525e815`（`wc -l` ＝ `136`）⇒ 逐位相同。
+⏪ ⚠️ **口径提醒**：本追加块落定后，本件 `head -n -1` 的值**已不是** `e37f0270a525e815`（追加行都在末尾）⇒ 此后引用本件 sha16 **必须写明时刻**（`t14` 写入时刻 vs `t25` 追加后）；`t14` 原句**一字未删**。
+⏪ **追加后口径**：`head -n -1 build/MilBridge/P1-w2-report.md` ＝ `44f578c12a64431b`（口径＝**末行之前的全文**；末行＝**本行**）；**全文** sha16 由 `build/MilBridge/P1-w2-close-report.md` 现算登记（本件末行带自身口径 ⇒ 全文值不可能自指）。
