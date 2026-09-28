@@ -34,3 +34,8 @@
 4. **承重件写入纪律**：写前 `stat -c %h`＝1、`cp -p` 备份在任何写之前、`temp+rename`、逐处 before/after 逐字；**不许** `git add/commit/push`。
 
 ⏪ **dated 追加 · `W4b` 合波（`t48`，读时 2026-09-28T17:48:18.824+0800）**：三件新牙同趟接线 —— `HANDOFF-MV`（`build/MilBridge/tools/handoff-machine-values-check.sh`）／`PUSH-MARKER`（`build/MilBridge/tools/push-marker-check.sh`，写入端 `push-marker-write.sh` 由集成腿驱动）／`PROVIDER-REPRO`（`build/MilBridge/tools/provider-repro-check.sh`）。**同趟**：覆盖面 **229 → 233**（`fp_inputs()` +4 行：三件新件 ＋ 写入端，全**件路径身份**）＋ `[42] --expect 229 → 233` ＋ **四处声明**（首行 `# VERIFYALL-STEPS-DECL: 61 gen=#81`／头注释口径句 `**`#81` 收官起 = 61 步**`／`# VERIFYALL-STEP-NAMES:` 58 → 61 项／本件）⇒ 步数 **58 → 61**（三条共用**一次**加步窗口：各成一步）。另：三颗 `W4a` 牙的件头「不接线／归 W4」陈旧自述按 dated 追加更正为「已接线」（**原句一字未删**）⇒ 其件内容位移 ⇒ `inputs_fp` 必移，**覆盖面件数不变**（两值见 `build/MilBridge/P1-w4b-report.md`）。
+
+⏪ **dated 追加 · 静态牙全景体检做成常设牙（`t62`，读时 2026-09-28T19:26:21.995+0800）**：**第 `[+]` 步 `STATIC-JAWS`** = `build/MilBridge/tools/static-jaws-check.sh`（新建）⇒ **步数 `61 → 62`**、**覆盖面 `233 → 234`**（`build/close-wave.sh` 的 `fp_inputs()` **+1 行件路径身份**，不用 glob）、第 `[42]` 步 `--expect `233 → 234`；**四处声明同趟**（首行 `# VERIFYALL-STEPS-DECL: 62 gen=#81`／本波头注释口径句 `**`#81` 收官起 = 62 步**`／`# VERIFYALL-STEP-NAMES:` `61 → 62` 项／本预登记文件本行）。**既有历史行只追加、未改动。**
+⏪ **本步射程（写死）**：它只判「**已接线的裸静态牙此刻是否红**」（逐颗 `timeout -k 5 40 bash <牙> >out 2>err; rc=0` **捕获式取 `rc`**）—— 构建／显示位／腿批／带参步**不在射程内**，一律**具名** `STATICJAWS_EXCLUDED` 上屏（**不静默**）；`rc=124`／`rc=137`（超时/被杀）与牙自报 `NOINFO` ⇒ 计 `noinfo` **不算红**。⇒ **本步绿 ≠ 整趟门禁绿**（射程外 `NOINFO` 句）。
+⏪ **为什么现在才做**：`#81` 从 `1d136ca`（W4a）起就带着一个红的已接线 `[QUOTE-TRAP]` 步、`t57` 又引入第二处，**提交 4 次之后**才靠**临时命令**发现 ⇒ 本步把该临时做法固化成机器动作。
+⏪ **本波 `NOINFO`（具名）**：**不跑整趟门禁**（会构建 ⇒ `provider` 位位移，`B-18` 在册）⇒ 本波只跑 `bash -n`＋该牙自测/两极化＋单步命令；**冻结/推送面未动**。
