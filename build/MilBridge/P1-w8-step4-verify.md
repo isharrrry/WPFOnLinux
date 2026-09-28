@@ -136,3 +136,55 @@
 ---
 
 SELF-SHA16 （口径 ＝ `head -n -1 <本件> | sha256sum | cut -c1-16`）＝ ca87d36e14e091ff
+
+---
+
+## ⏪ `t113` dated 追加 —— 本席（`scribe`）对 `t111` 余项的**独立现取**与关账处置（读时 `2026-09-29T03:0x+0800`；本件上方原文**一字未删**；本段只加行，末行给出新的自报口径值）
+
+**仪器与产物（现取）**：`.so` ＝ `a131ea4e6f5cc4f5`（`nm -D --defined-only … | wc -l` ＝ **572** ＝ `bin/exports.txt` 行数）；`.dll`（Release／部署件）＝ `2988f5154ecacdd`；夹具**全部仓外**（`python3`＋`ctypes` 直调现盘 `.so`，逐例**独立进程**），**用完删**。
+
+### ① `F-1` 成对读数（我自造，不复用复核者的夹具）
+- **`NULL`** ⇒ `rc=-10000`、`*out` 清成 `NULL`、`PtsDocCreates()=0`、`PtsDocLive()=0`、报表 `doc_rej=1` ⇒ **干净拒绝**（一个字节都不读）✓ 与复核者一致。
+- **`PROT_NONE` 页** ⇒ **段错误 `rc=139`**（`BEFORE_CALL` 已印、死在调用内）✓ 与复核者一致。
+- **机理与不对称**：本席自读现盘原文 —— `CreateDocContext` 按偏移读入参结构（`b+0/+4/+12/+16/+24/+32`），而 `LoSetDoc`／`LoAcquirePenaltyModule`／`LoGetPenaltyModuleInternalHandle` 一律**先按指针身份查在册表**（`wpf_pts_loc_find(ploc)` 一类）**不 deref** ⇒ 不对称**来自职责差**（`CreateDocContext` 要"带走入参里的可判定量"）。
+- **处置＝（甲）判据补格（落点：`P1-w8-step4-criteria.md` 的 `t113` dated 段）**：只承诺 `NULL` 拒绝；「非 `NULL` 而不可读」记 **`NOINFO(前置不可先验)`**、**不构成红**（形态今日不可达：托管恒传 `ref FSCONTEXTINFO`；且要升成"可判前置"属**产品面**改动 ⇒ 另派单）。**未**把它写成"必须修否则红"，**未**静默抹掉。
+
+### ② `O-1` 成对读数：`PtsDocFieldAt(idx, field)` 的**下标语义**
+```
+FIELDAT idx=0 i=0 => 0x11111111     (version)
+FIELDAT idx=0 i=1 => 0x22222222     (fsffi)
+FIELDAT idx=0 i=2 => 0x7            (cInstalledObjects)
+FIELDAT idx=0 i=3 => 0x7c02be7e9000 (info_addr ＝ 记下的"入参结构地址"，**记账槽**)
+FIELDAT idx=0 i=4 => 0x4444444444444444 (pInstalledObjects)
+FIELDAT idx=0 i=5 => 0x5555555555555555 (pfsclient)
+FIELDAT idx=0 i=6 => 0x6666666666666666 (ptsPenaltyModule)
+```
+⇒ 映射表（`0,1,2` 然后**跳一格** `4,5,6`；`field=3` 不是第四个字段）已按 `t113` 段写进**判据件**；并重申它**是位置读**（与 `…PtsPenaltyModuleHandleAt` 同族，**不得跨销毁缓存 `idx`**）。
+
+### ③ `O-2` 成对读数：**我现取不能复现「与端口不一致」**
+```
+CREATE#1 rc=0 handle=0x…   CREATE#2 rc=0 handle=0x…
+PORT   creates=2 live=2 destroys=0
+REPORT doc_live=2 doc_sets=2 doc_rej=0 doc_des=0 doc_desrej=0     ⇒ doc_sets == PtsDocCreates() == 2
+```
+- **字段映射（自读 `snprintf` 实参表）**：`doc_sets=` ← **`g_pts_doc_sets_c`**（＝ `CreateDocContext` 成功数 ＝ 端口 `PtsDocCreates()` 的同一个变量）；**`setdoc_sets=`** 才是 `LoSetDoc` 成功数。
+- ⇒ 处置：**在册写死该格语义与端口对应**（判据件 `t113` 段），并把你（复核者）读到的 `doc_sets=0` 记 **`NOINFO(复现失败，最可能成因＝跨进程/跨快照对拍；未验证)`**；**本件不改 `src/**`**（该格现取一致；若仍要与端口逐字段绑定，属产品面改动 ⇒ 另派单）。
+
+### ④ `O-3` 成对读数：观测镜环**容量 ＝ 4、覆盖序 ＝ 最近 4 条**
+```
+PUSH#1..#6 （6 次 push，ploc 各不同）
+PROBE push#1 => rc=0   （已驱逐）
+PROBE push#2 => rc=0   （已驱逐）
+PROBE push#3..#6 => rc=1（可检索）
+另：先有 2 条（两次 create）再 push 4 条 ⇒ 最早那 2 条探不到
+```
+⇒ 口径句（并入**纪律第 `30` 条族**，**不新立号**）：凡用 `PtsJmpProbe` 追链的判据**必须**写明**环容量**与**覆盖序假设**，且 `rc=0` **不等于**"该调用没发生"（只是**已被驱逐**）。`t110` 自报的"环满"＝**本机制的第一个实例**。**落点**：判据件 `t113` 段 ＋ `HANDOFF-NEXT.md` 的纪律族**索引行**（`t113` 一行，指向第 `30` 条，不复制条本体）。
+
+### ⑤ `F-3` 同趟性（如实记）
+`leg_23.env` ＝ `shim=a2de5ff2b667f33f pf=6893d1d3fb1ee110`（**上一代**，`alive=yes app_rc=143`）｜`leg_24.env` ＝ `shim=a131ea4e6f5cc4f5 pf=2988f5154ecacdd`（**本代**，`alive=no app_rc=134`）⇒ **两轴都不同代** ⇒ `C7` 的"三者逐位相同"**今日不成立**（成因：`leg_24` 崩在字体栈／`leg_23` 未跑完）⇒ 在册写明「**完整的同趟换代排在字体栈阻断解除之后**」，此前两页成对只能记作**上代 vs 本代**。
+
+### ⑥ 本席同趟复核（与 `t111` 的靶心达标面无冲突）
+- 台账 `^PTS_GAP entry=` 行 **0**；托管 `[PTS-UNAVAILABLE]` **0**；现盘 `.so` `nm` ＝ `exports.txt` ＝ **572**（本席现取）。
+- ⚠️ **仪器在动**：`docs/ROUTES.md`／`HANDOFF-NEXT.md`／判据件等**均不在覆盖面内**（本席现算：各 `0`）⇒ 本件**不产生** `cell=#1` 登记义务（见交付回执的指纹读数）；若他者在本席作业期改覆盖面内件，位移归其所有。
+
+SELF-SHA16 （`t113` dated 追加后；口径 ＝ `head -n -1 <本件> | sha256sum | cut -c1-16`）＝ 56ceaa3893245704（原自报行 `ca87d36e14e091ff` 系**追加前**全文值，原样保留）
