@@ -3662,3 +3662,19 @@ AE 上界本就在 1 万量级；`P3>20000` 是按"弹窗=一整块白"的几何
   而「取空」在取块类判据里表现为**假红**（本条）或**零动作**（同族第二现场）。」**
 - **同族（不合并）**：`D-G119`（同类：无锚／窄锚取块的提前截断与跑到 EOF）／`D-G170`（射程错）／`D-G161`（标记字段不许为空）。
 - **边界**：**本件只登记**；冻后**不动仪器**（动它会让 `#80` 的读数不可复算）⇒ 修法留下一波，且**先加守卫**。
+
+### 🆕 **`D-G180`** —— **fork 根级上游件会改变整棵树的求值结果**：根 `Directory.Build.props` 被 MSBuild **自动导入** ⇒ 移植工程**求值即 `error MSB4236`**
+
+- **现象（在册读点，逐字）**：`README.md:180`「fork 根目录里那棵 dotnet/wpf **自带**的重复树，原先按「暂按保持现状」处置、并断言「**根目录那份不使用**」—— **那句已被证伪**」；两条**独立机制**：① 它的根 `Directory.Build.props` 会被 MSBuild **自动导入**（`eng/WpfArcadeSdk/Sdk/Sdk.props:5` ⇒ `Sdk="Microsoft.DotNet.Arcade.Sdk"`）⇒ `samples/HelloMil/HelloMil.csproj` **求值即** `error MSB4236`（同一命令在**没有那棵树**的树上给出正常 JSON）；② 它的 **92 个 csproj** 进 `build-hygiene-import-check.sh` 候选集 ⇒ `cand=88→180`／`undeclared=0→92`／`reason=drift`。
+- **根因**：MSBuild 的**自动导入**规则（`Directory.Build.props` 沿目录树**向上查找并无条件导入**）⇒ **根级**那一份的作用域是**整棵树**，而不是"它所在的那棵上游子树"。`README` 那句"不使用"是**按目录归属**读的，求值器**按搜索路径**读 ⇒ **两者不是同一件事**。
+- **证据（件 ＋ 字段 ＋ sha16 ＋ 时刻；`t58` 现取 `2026-09-28T12:34:49+08:00`）**：
+  ① `grep -c MSB4236 samples/WpfFeatureProbe/KNOWN-DEFECTS.md` ⇒ **0**（本条之前**无任何条目**记它）；
+  ② 根 props 现取**工作树无**（`test -e Directory.Build.props` ⇒ NO）且 **`HEAD` 亦无**（`git cat-file -e HEAD:Directory.Build.props` ⇒ 失败）⇒ **已由 P0 迁移移出**（隔离件 `~/w-p0mig/quarantine-dedupe/` 在位）；
+  ③ 机制读点：`build/MilBridge/P0-migrate-report.md:132`（根 `Directory.Build.props:20-36` 判 `Exists('eng/WpfArcadeSdk/…')`）＋ `docs/ROUTES.md:83`（P0 迁移的现读：`BHYGIENE_IMPORT=PASS reason=ok cand=88 undeclared=0`＋**88/88 求值级等价**）；
+  ④ 现取两档：`BHYGIENE_IMPORT=PASS reason=ok files=41 lines=41 mention_files=42 mention_lines=84 disappeared=0 dup=0 unlisted=0 undeclared=0`｜`ROOT_ALLOW=PASS root=/home/links-dev/netTest/GitProj/WPFOnLinux examined=22 tracked_n=22 worktree_n=25 allowed_n=25 unknown_tracked=0 unknown_fs=0`（牙 `build/MilBridge/tools/root-entries-allowlist-check.sh` ＝ **`d050d78198e6093c`**）。
+- **判据（机器，三条并列）**：① 根级出现**会被自动导入**的 `Directory.Build.props`／`.targets` ⇒ **求值必须能过**；② `[9] BUILD-HYGIENE` 的**候选集与未声明数**必须回落（`cand`／`undeclared` 两格）；③ 根级条目白名单牙 ⇒ `unknown_fs=0` ∧ `unknown_tracked=0`。
+- **两极化（先例＝P0 迁移那趟，`docs/ROUTES.md:83` 现读）**：**正极**＝现树（该件不在）⇒ `BHYGIENE_IMPORT=PASS reason=ok cand=88 undeclared=0` ＋ 整波 `失败步骤 0`；**反极**＝放回该件 ⇒ 求值 `error MSB4236`（当趟实测**整波 10 处失败步骤**，逐条都是求值错）＋ 候选集 `88→180`／`undeclared 0→92`／`reason=drift`；白名单牙档：放回该件 ⇒ **必红并逐条点名**（该牙的 `N1`／`N2`／`N3` 反极腿已在册）。
+- **同族但判词不同（不许合并）**：`D-G174`（判据面把**"仓内路径、但非仓内容"**计入 ⇒ **遍历域**问题）｜`D-G177`（牙的**射程洞**：`tree` 面不扫 `*.cs`）｜`D-G136`（件头自述 vs 接线）｜`D-G129`（状态位与报告不符）。**本条讲的是**：**文档按"目录归属"下的结论，与求值器按"搜索路径"的行为不是同一件事**。
+- 🔴 **口径句（永久）**：**「凡对构建输入下『用不用』的结论，必须在**求值器**的行为上验证（自动导入面／候选集面／根级白名单面），不能在目录归属的散文上验证。」**
+- **编号边界（防误读）**：**`D-G179` 已由队长保留**给另一条发现（`defect-registry-check.sh` 的 `req` 列在**自动路径上恒真**：`emit_decl()` 的 `req` 就是 `{KD,CS,HO,AB}` 里的**出现集**、又被校验侧拿去判"每个 route 文件各至少出现一次" ⇒ **同一趟既生成又据以判**），**不是漏号**；本件按配号用 **`D-G180`**。
+- **边界（如实划界）**：① 本件是**历史事实的入册** —— 该件**已由 P0 迁移搬出**（本趟**不改树、不动任何牙、不改判据**）；② **不声称**"全仓已无同类根级件"（`ROOT_ALLOW` 只覆盖**已声明的白名单面**，`examined=22`）；③ 机制读点 `eng/WpfArcadeSdk/Sdk/Sdk.props` 现取**已随结构性去重移出** ⇒ 那一行是**在册文档读点**（`README.md:180`／`P0-migrate-report.md:132`），**不是现取文件**。
