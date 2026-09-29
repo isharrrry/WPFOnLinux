@@ -104,6 +104,42 @@ MAGENTA_FLOOR="${PTS_GUARD_MAGENTA_FLOOR:-20000}"
 #       不得当成"仓内可查"；复核命令：`sha256sum ~/t119-runner/bak/run-N3-runner-shots/g1/k23.png | cut -c1-16`。
 FRAME_EMPTY_SET="1a76488aa4a790b3,ef3fd6765f18f51b"
 
+# ── ⏪ `t145`（`t142` 的 `C-A`）**色锚（颜色正身份）**：具名色 ＋ 定值 RGB ＋ 逐色出处 ─────────────
+#   出处（内容锚）：hc UI 定义 `FlowDocumentDemo.xaml` 的**具名色行**（`Background=GhostWhite`／`Paragraph Background=Beige
+#   Foreground=DarkGreen`／`Floater Background=GhostWhite`）⇒ WPF 具名色 ⇒ **定值 RGB**（逐色写在登记值里）。
+#   ⚠️ **阈值由反极标定**（不是"看起来该是 0"）：**现盘空态帧**（`shots/g1/{boot,k23,k24,last}.png`）上四色
+#   **实算全 0** 而同帧 `LightGray` **实算 44/51 px** ⇒ 该计数**是活的**（能分开"有该色/没该色"）⇒ 判据取
+#   `>= COLOR_ANCHOR_MIN`（硬写 200，**不设 env 旋钮**：旋钮只会被用来放松）。
+#   ⚠️ **`LightGray` 不入锚集**：它在空态帧里已有 44/51 px ＝ **死锚**（只有实测才知道，算不出来）。
+#   ⚠️ **`k=23` 无锚**（`RichTextBoxDemo.xaml` 只有 `Margin/Width/Height` 与三段 `Paragraph`，无具名色）
+#   ⇒ `k=23` 记具名 `NOINFO`，**严禁**用"k=24 有锚"推广过去。
+COLOR_ANCHOR_K24="GhostWhite=248,248,255 Beige=245,245,220 DarkGreen=0,100,0 LightGoldenrodYellow=250,250,210"
+COLOR_ANCHOR_MIN=200
+COLOR_ANCHOR_BASE_FRAME="boot.png"
+
+# 逐色 px 扫描器（纯读；PIL 不在 ⇒ rc=1 空输出 ⇒ 调用方按"读不到"处理，绝不当 0）
+color_px_scan() {   # color_px_scan <png> "<Name=r,g,b …>"
+  [ -s "$1" ] || return 1
+  python3 - "$1" "$2" <<'PYAC'
+import sys, collections
+try:
+    from PIL import Image
+except Exception:
+    sys.exit(3)
+p, spec = sys.argv[1], sys.argv[2]
+anch = {}
+for tok in spec.split():
+    n, rgb = tok.split("=")
+    anch[n] = tuple(int(x) for x in rgb.split(","))
+im = Image.open(p).convert("RGB")
+c = collections.Counter(im.getdata())
+print(" ".join("%s=%d" % (n, c.get(v, 0)) for n, v in anch.items()))
+PYAC
+}
+
+# 数"达到下限的锚色个数"；$1 ＝ 扫描输出
+color_anchor_hits() { local n=0 v; for pair in $1; do v="${pair#*=}"; case "$v" in ''|*[!0-9]*) continue;; esac; [ "$v" -ge "$COLOR_ANCHOR_MIN" ] && n=$((n+1)); done; printf '%s' "$n"; }
+
 # ── 小工具 ───────────────────────────────────────────────────────────────────
 field() { printf '%s' "$1" | grep -o -m1 "[[:space:]]$2=[^[:space:]]*" | head -1 | sed "s/^[[:space:]]$2=//"; }
 
@@ -510,6 +546,12 @@ judge_legs() {
   #       **「两页都没绘出内容」不构成例外**（⇒ 必红）。
   #     · **`degraded` 期**：本闸**不参与**（只印 `PTS_N1_POS=` 由 `INFO` 行带出）；
   #     · 取值缺（`N1_NECMISS` 非空）⇒ 本闸判 `NOINFO`（**绝不当绿**）。
+  #     · ⏪ **`t145` dated 追加（`t142` 的 `C-C`／`C-A`）**：
+  #       — **`n4` 源必须带独立可证伪支撑**：登记指纹与两腿 `fr_sha` 逐位相同**之外**，还要**守卫自己现算**的
+  #         色锚读数（`color_px_scan`，`>=COLOR_ANCHOR_MIN` 的色数 `>=2`）**成片**；否则印
+  #         `PTS_N4=DECLARED-ONLY reason=n4-registration-without-independent-support` 并折 `cannot`（**只登记不给绿**）。
+  #       — **色锚面（`C-A`）两相位都跑**（预先就位、不等相位翻转）：基线帧四色实算**必须全 0**（否则 `NOINFO anchor-dead-in-base`）；
+  #         `k=24` 缺席即红（点名色／期望／实测／基线）；`k=23` **无锚** ⇒ `NOINFO no-anchor-registered-for-k23`。
   #     · ⏪ **`t144`（`t139` `F-1`）dated 追加**：**`FAIL` 支加了前置** —— 只有**两腿必要件都真的成立**
   #       （per-leg `N1_NEC_23/24=yes`：要件① ∉ 参照集 ∧ 要件② 位移>0 ∧ 取值在位）**才**印
   #       `reason=only-necessary-condition-no-positive-evidence`；**否则**印
@@ -519,8 +561,23 @@ judge_legs() {
   if [ "$PHASE" = realized ]; then
     local _pos="" _n4miss=0 _anchor=0 _differ=0 _via="" _exproof="${PTS_N3_SAME_CONTENT_PROOF:-}" _exgo=0
     # (a) N4 正身份登记载体
+    # ⏪ `t145`（`t142` 的 `C-C`；**堵"登记即算"的声明式假绿通道**）：`n4` 源**只有指纹对拍**是不够的 ——
+    #   登记位**必须再带一条独立可证伪读数**（守卫**自己现算**的色锚 px：读什么＝该页帧四色 px；命令＝`color_px_scan`；值＝逐色 px）。
+    #   ⇒ 登记匹配 ∧ 支撑成片 才计入 `n4`；**只登记、无支撑** ⇒ `N4-DECLARED-ONLY`、**不给绿**（折 `cannot`）。
     if [ -n "${PTS_N4_POSITIVE_FP:-}" ]; then
-      if [ "${PTS_N4_POSITIVE_FP}" = "${N1_SHA_23},${N1_SHA_24}" ]; then _pos="${_pos:+$_pos,}n4"; else _n4miss=1; fi
+      if [ "${PTS_N4_POSITIVE_FP}" = "${N1_SHA_23},${N1_SHA_24}" ]; then
+        _n4sup="$(color_px_scan "$dir/shots/g1/k24.png" "$COLOR_ANCHOR_K24" 2>/dev/null || true)"
+        _n4hit="$(color_anchor_hits "${_n4sup:-}")"
+        if [ "${_n4hit:-0}" -ge 2 ]; then
+          _pos="${_pos:+$_pos,}n4(support=color-anchor:${_n4hit}colors>=${COLOR_ANCHOR_MIN})"
+        else
+          echo "  N4-DECLARED-ONLY declaration=${PTS_N4_POSITIVE_FP}（**登记位没有独立可证伪支撑** ⇒ 不算正身份证据、**不给绿**）support=color-anchor 现算=${_n4sup:-unreadable} min=${COLOR_ANCHOR_MIN} 反极基线=现盘空态帧四色全 0"
+          echo "PTS_N4=DECLARED-ONLY phase=$PHASE reason=n4-registration-without-independent-support declaration=${PTS_N4_POSITIVE_FP} support_hits=${_n4hit:-0} support_scan=${_n4sup:-none} support_min=${COLOR_ANCHOR_MIN}"
+          cannot+=("n4-declared-only(no-independent-support)")
+        fi
+      else
+        _n4miss=1
+      fi
     else
       _n4miss=1
     fi
@@ -559,6 +616,49 @@ judge_legs() {
       cannot+=("n1-gate(necessary-not-satisfied=nec23:${N1_NEC_23:-absent},nec24:${N1_NEC_24:-absent})")
     fi
   fi
+
+  # ── ⏪ `t145`（`t142` 的 `C-A`）**色锚读数**（**预先就位、不等相位翻转；两相位都跑**） ────────────────────
+  #   判据（逐字）：
+  #     · **基线标定**：`$COLOR_ANCHOR_BASE_FRAME`（默认 `boot.png`，现盘空态帧）上四色**实算必须全 0** ——
+  #       有任一枚 >0 ⇒ 该色**在本帧不可判别**（死锚，同 `LightGray`）⇒ 本面 `NOINFO reason=anchor-dead-in-base(...)`（**不给绿**）；
+  #     · **缺席即红**：`k=24` 该帧里四色**达到下限的个数 < 2** ⇒ **必红并点名**（哪几个色／期望 `>=${COLOR_ANCHOR_MIN}`／实测 px／基线值）；
+  #     · **`k=23` 无登记锚** ⇒ `NOINFO reason=no-anchor-registered-for-k23`（**严禁**拿 k=24 推广）；
+  #     · 帧不在 ⇒ `NOINFO reason=frame-absent`（**绝不当 0、绝不当绿**）。
+  #   ⚠️ **今天必红是预期结果**（两页今天都没绘出内容）—— 本块**如实把它跑成红**，**不放松阈值**。
+  local _ca_base _ca_base_out _ca_dead="" _ca_out _ca_hit _caf
+  _ca_base="$dir/shots/g1/$COLOR_ANCHOR_BASE_FRAME"
+  _ca_base_out="$(color_px_scan "$_ca_base" "$COLOR_ANCHOR_K24" 2>/dev/null || true)"
+  for pair in $_ca_base_out; do v="${pair#*=}"; case "$v" in ''|*[!0-9]*) continue;; esac; [ "$v" -gt 0 ] && _ca_dead="${_ca_dead}${_ca_dead:+,}${pair%%=*}"; done
+  echo "PTS_COLORANCHOR_BASE=frame=$COLOR_ANCHOR_BASE_FRAME scan=${_ca_base_out:-unreadable} min=$COLOR_ANCHOR_MIN all_zero=$([ -z "$_ca_dead" ] && echo yes || echo no) dead=${_ca_dead:-none}（**阈值由本基线标定**：基线全 0 ⇒ 该计数能分开"有该色/没该色"；`LightGray` 不入集——它在空态帧里已有 44/51 px）"
+  for _caf in 24 23; do
+    if [ "$_caf" = 23 ]; then
+      echo "PTS_COLORANCHOR=NOINFO k=23 reason=no-anchor-registered-for-k23 phase=$PHASE（`RichTextBoxDemo.xaml` 无具名色 ⇒ **本页无锚**；**严禁**用 k=24 的锚推广。⏪ `t145`：本支**只印具名 NOINFO 行、不折 `cannot`** —— 否则任何"没有 k=24 帧"的证据目录都会被整体读成不可判；**本面不给绿**这一点不变）"
+      continue
+    fi
+    if [ -n "$_ca_dead" ]; then
+      echo "PTS_COLORANCHOR=NOINFO k=24 reason=anchor-dead-in-base(${_ca_dead}) phase=$PHASE（基线帧上该色已 >0 ⇒ 不可判别 ⇒ 绝不当绿）"
+      cannot+=("color-anchor(anchor-dead-in-base=${_ca_dead})")
+      continue
+    fi
+    if [ ! -s "$dir/shots/g1/k24.png" ]; then
+      echo "PTS_COLORANCHOR=NOINFO k=24 reason=frame-absent($dir/shots/g1/k24.png) phase=$PHASE（帧不在 ⇒ 本面不可算 ⇒ **不给绿**；⏪ `t145`：本支**不折 `cannot`**，理由同 k=23 支——而"登记即算"那条假绿通道**照样堵住**：没有帧 ⇒ `n4` 的**独立支撑**也取不到 ⇒ `n4` 不计证据）"
+      continue
+    fi
+    _ca_out="$(color_px_scan "$dir/shots/g1/k24.png" "$COLOR_ANCHOR_K24" 2>/dev/null || true)"
+    if [ -z "$_ca_out" ]; then
+      echo "PTS_COLORANCHOR=NOINFO k=24 reason=scan-unreadable phase=$PHASE（扫描器读不到 ⇒ 不可算 ⇒ 绝不当绿）"
+      cannot+=("color-anchor(scan-unreadable)")
+      continue
+    fi
+    _ca_hit="$(color_anchor_hits "$_ca_out")"
+    if [ "${_ca_hit:-0}" -ge 2 ]; then
+      echo "PTS_COLORANCHOR=PASS k=24 scan=$_ca_out hits=$_ca_hit min=$COLOR_ANCHOR_MIN base=${_ca_base_out:-unreadable} phase=$PHASE（该页**具名色成片出现** ⇒ 该页内容至少部分真绘出；⚠️ **只准读成这一件事**，不得替代 `N1`/`N3`）"
+    else
+      echo "  COLOR-ANCHOR-ABSENT k=24 expect>=${COLOR_ANCHOR_MIN}px&hits>=2 measured=$_ca_out hits=$_ca_hit baseline($COLOR_ANCHOR_BASE_FRAME)=${_ca_base_out:-unreadable} phase=$PHASE（`FlowDocumentDemo` 的具名色**应有而未现** ⇒ 该页**没绘出内容**）"
+      echo "PTS_COLORANCHOR=FAIL k=24 scan=$_ca_out hits=$_ca_hit expect_min=$COLOR_ANCHOR_MIN expect_hits=2 baseline=${_ca_base_out:-unreadable} phase=$PHASE reason=declared-color-anchor-absent"
+      fails+=("leg24-color-anchor-absent(hits=$_ca_hit<2,scan=$_ca_out)")
+    fi
+  done
 
   # G10 native 台账（**两腿合并判**：至少一条）
   local ngap_total=0
@@ -933,11 +1033,13 @@ ENFE_EOF
   mk c45 24 yes 143 0 900 HandyControlDemo.UserControl.FlowDocumentDemo - 0 - yes yes 12345 0a0b0c0d0e0f1011 1234
   mk c45 23 yes 143 0 880 HandyControlDemo.UserControl.RichTextBoxDemo  - 0 - yes yes 12001 1213141516171819 1234
   _o="$(PTS_N4_POSITIVE_FP='1213141516171819,0a0b0c0d0e0f1011' bash "$_rz" --legs "$_g5" 2>&1 || true)"
-  chk PASS "$(out "$_o")" "t136·N4 正身份登记匹配 ⇒ 正证据 n4"
-  if grep -qF 'positive=n4,differ' <<<"$_o"; then
-    npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "t136·n4 点名(含 differ)" "yes"
+  # ⏪ `t145`（`C-C`）：期望由 `PASS` **收紧**为 `NOINFO` —— 该夹具**没有帧** ⇒ 登记位**拿不到独立支撑** ⇒ 不算正身份证据
+  chk NOINFO "$(out "$_o")" "t136·N4 登记匹配但无支撑 ⇒ 不给绿（t145 收紧）"
+  # ⏪ `t145`（`C-C`）：该夹具**没有帧** ⇒ 登记位拿不到独立支撑 ⇒ `positive` 里**不应**再出现 `n4`（只剩 `differ`）——**方向只有收紧**
+  if grep -qF 'positive=differ' <<<"$_o" && ! grep -qE 'positive=[^ ]*n4' <<<"$_o"; then
+    npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "t136/t145·无支撑 ⇒ positive 不含 n4" "yes"
   else
-    nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "t136·n4 点名(含 differ)" "no" "positive=n4,differ"
+    nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "t136/t145·无支撑 ⇒ positive 不含 n4" "no" "positive=differ 且无 n4"
   fi
 
   # ⑳ `phase` 位自身的反极性：把 `phase=` 删掉 ⇒ `PTS_DIRECTION=FAIL` ＋ 判词必红
@@ -1073,6 +1175,69 @@ ENFE_EOF
     npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "t144·(c) 缺整条 env ⇒ 第三态可分" "yes"
   else
     nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "t144·(c) 缺整条 env ⇒ 第三态可分" "no" "reason=necessary-input-missing(leg23(env-absent))"
+  fi
+  # ── ⏪ `t145`（`t142` 的 `C-C`／`C-A`）四条腿：**登记无支撑 ⇒ N4-DECLARED-ONLY／不给绿**／
+  #    **登记＋支撑成片 ⇒ `n4` 计证据（正极）**／**色锚缺席 ⇒ 必红点名**／**`k=23` 无锚 ⇒ 具名 NOINFO** ──
+  _n4a="$T/c50"; rm -rf "$_n4a"
+  mk c50 24 yes 143 0 900 HandyControlDemo.UserControl.FlowDocumentDemo - 0 - yes yes 12345 0a0b0c0d0e0f1011 1234
+  mk c50 23 yes 143 0 880 HandyControlDemo.UserControl.RichTextBoxDemo  - 0 - yes yes 12001 1213141516171819 1234
+  _o="$(PTS_N4_POSITIVE_FP='1213141516171819,0a0b0c0d0e0f1011' bash "$_rz" --legs "$_n4a" 2>&1 || true)"
+  if grep -qF 'PTS_N4=DECLARED-ONLY' <<<"$_o" && grep -qF 'reason=n4-registration-without-independent-support' <<<"$_o"; then
+    npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "t145·(a) 登记无支撑 ⇒ DECLARED-ONLY" "yes"
+  else
+    nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "t145·(a) 登记无支撑 ⇒ DECLARED-ONLY" "no" "PTS_N4=DECLARED-ONLY+reason"
+  fi
+  if ! grep -qE '^PTS_N1_POS=.*positive=[^ ]*n4' <<<"$_o"; then
+    npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "t145·(a) positive 不含 n4" "yes"
+  else
+    nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "t145·(a) positive 不含 n4" "no" "positive= 里不出现 n4"
+  fi
+  _n4b="$T/c51"; rm -rf "$_n4b"; cp -a "$_n4a" "$_n4b"; mkdir -p "$_n4b/shots/g1"
+  python3 - "$_n4b/shots/g1" <<'PYIMG'
+import sys, os
+from PIL import Image
+d = sys.argv[1]
+def mk(name, spec):
+    im = Image.new("RGB", (40, 40), (0, 0, 0))
+    px = im.load(); i = 0
+    for rgb, n in spec:
+        for _ in range(n):
+            px[i % 40, (i // 40) % 40] = rgb; i += 1
+    im.save(os.path.join(d, name))
+mk("boot.png", [((0, 0, 0), 1600)])                                     # 基线帧：四色全 0 ⇒ 标定成立
+mk("k24.png", [((248, 248, 255), 300), ((245, 245, 220), 300), ((0, 0, 0), 1000)])
+PYIMG
+  _o="$(PTS_N4_POSITIVE_FP='1213141516171819,0a0b0c0d0e0f1011' bash "$_rz" --legs "$_n4b" 2>&1 || true)"
+  if grep -qE 'positive=n4\(support=color-anchor' <<<"$_o"; then
+    npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "t145·(b) 登记＋支撑成片 ⇒ n4 计证据" "yes"
+  else
+    nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "t145·(b) 登记＋支撑成片 ⇒ n4 计证据" "no" "positive=n4(support=color-anchor:…)"
+  fi
+  chk PASS "$(out "$_o")" "t145·(b) 有支撑 ⇒ 正极 PASS"
+  _n4c="$T/c52"; rm -rf "$_n4c"; cp -a "$_n4a" "$_n4c"; mkdir -p "$_n4c/shots/g1"
+  python3 - "$_n4c/shots/g1" <<'PYIMG2'
+import sys, os
+from PIL import Image
+d = sys.argv[1]
+Image.new("RGB", (40, 40), (0, 0, 0)).save(os.path.join(d, "boot.png"))
+Image.new("RGB", (40, 40), (250, 250, 250)).save(os.path.join(d, "k24.png"))   # 帧在、四色仍缺
+PYIMG2
+  _o="$(bash "$_rz" --legs "$_n4c" 2>&1 || true)"
+  chk FAIL "$(out "$_o")" "t145·(c) 色锚缺席 ⇒ 必红（今天形态）"
+  if grep -qF 'PTS_COLORANCHOR=FAIL' <<<"$_o" && grep -qF 'reason=declared-color-anchor-absent' <<<"$_o" && grep -qF 'expect_min=200' <<<"$_o"; then
+    npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "t145·(c) 点名色/期望/实测/基线" "yes"
+  else
+    nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "t145·(c) 点名色/期望/实测/基线" "no" "PTS_COLORANCHOR=FAIL+expect_min=200"
+  fi
+  if grep -qF 'PTS_COLORANCHOR=NOINFO k=23 reason=no-anchor-registered-for-k23' <<<"$_o"; then
+    npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "t145·(d) k=23 无锚 ⇒ 具名 NOINFO" "yes"
+  else
+    nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "t145·(d) k=23 无锚 ⇒ 具名 NOINFO" "no" "NOINFO no-anchor-registered-for-k23"
+  fi
+  if grep -qF 'PTS_COLORANCHOR_BASE=frame=boot.png' <<<"$_o" && grep -qF 'all_zero=yes' <<<"$_o"; then
+    npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "t145·(d) 基线标定 all_zero=yes" "yes"
+  else
+    nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "t145·(d) 基线标定 all_zero=yes" "no" "BASE…all_zero=yes"
   fi
   rm -rf "$T"
   printf 'PTS_GUARD_SELFTEST=%s pass=%d fail=%d\n' "$([ "$nfail" = 0 ] && echo PASS || echo FAIL)" "$npass" "$nfail"
