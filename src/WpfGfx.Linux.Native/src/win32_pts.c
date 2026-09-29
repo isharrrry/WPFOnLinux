@@ -113,6 +113,37 @@ static int g_pts_io_rejected= 0;         /* 拒绝的摧毁请求（未知名/�
 
 #define WPF_PTS_DOC_MAGIC 0x50545344u   /* "PTSD"：本模块自认的 doc-context 魔数 */
 #define WPF_PTS_DOC_MAX   8             /* 有界分配清单（防异常调用无限增长） */
+
+/* ══════════════════════════════════════════════════════════════════════════════════════════════
+   ⏪ `t141`（P1-W61）承重前置 `PRECOND-FSCBK-SNAPSHOT-IN-DOC` —— **窗口常量（全文件唯一定义处）**
+
+   **为什么必须"值拷贝"而不能存指针**（判据件 `P1-drive-probe-criteria.md` §1.3 现取的三条）：
+     ① 入参是**托管对象字段的地址**（`PtsCache.Linux.cs:548` 的 `ref _contextPool[index].ContextInfo`；
+        `ContextInfo` 是 `ContextDesc` 的字段，同件 `:965`）⇒ CLR 只保证**封送期间**该地址有效，
+        **返回后可能搬移** ⇒ 跨调用持有它就是 **use-after-return**；
+     ② 现取本模块的 doc 对象（`wpf_pts_doc`）今天**没有**这张表 ⇒ 没有任何地方记着回调表；
+     ③ `wpf_pts_fscbk_probe()`（`t133` 的测量仪器）把 103 个字读进**栈上局部**、打印后**不留存**。
+   ⇒ 本件在 `CreateDocContext` 的**调用期内**把 `+40 .. +864`（103 个 8 B 字）**拷进 doc 对象**；
+     **只读拷贝**、**零托管改动**、**一个回调都不调**（硬试伪 `nms` 只会换来不可捕获的 `FailFast`）。
+   ⚠️ 常量值**不是本件算出来的**：`t133` 用三条独立仪器实测（载体 `P1-fscbk-offsets-report.md`）；
+     本件只**引用**其值，并在下方用编译期断言把"窗口落在结构内"钉死。
+   ⚠️ `WPF_PTS_FSCONTEXTINFO_SIZE` 是**托管侧实测值**（native 不能 `sizeof` 托管类型）⇒ 只能记常量，
+     并用 `OFF + SIZE <= FSCONTEXTINFO_SIZE` 断言窗口**在界内**。
+   ══════════════════════════════════════════════════════════════════════════════════════════════ */
+#define WPF_PTS_FSCBK_OFF             40    /* 实测：`offsetof(FSCONTEXTINFO, fscbk)` */
+#define WPF_PTS_FSCBK_SIZE            824   /* 实测：`sizeof(FSCBK)` ＝ 103 槽 × 8 B */
+#define WPF_PTS_FSCONTEXTINFO_SIZE    872   /* 实测：`sizeof(FSCONTEXTINFO)`（托管值，见上注） */
+#define WPF_PTS_FSCBK_SNAP_WORDS      (WPF_PTS_FSCBK_SIZE / 8)   /* 103 */
+
+/* 快照**状态**（三态，判据 2／6(d) 要求「未快照」与「快照了但全 0」**不同形**）：
+     0 `NONE`    ＝ 未快照（`calloc` 默认值；**成功路径不会停在这一态** —— 它只在"响亮拒绝"路径上出现，
+                    而拒绝路径**不登记对象** ⇒ 外部看到的是"没有这个对象"）
+     1 `ALLZERO` ＝ **已快照**，但 103 字**全 0**（合成/空表）—— 与上一态**判词不同**
+     2 `VALUE`   ＝ **已快照**且**非全 0**（真实回调表） */
+#define WPF_PTS_FSCBK_SNAP_NONE       0
+#define WPF_PTS_FSCBK_SNAP_ALLZERO    1
+#define WPF_PTS_FSCBK_SNAP_VALUE      2
+
 typedef struct {
     unsigned int magic;
     /* ① 收到的是**哪个**入参结构地址（原样存，**不 deref**）——"与本次调用绑定"的第一半证据 */
@@ -126,6 +157,13 @@ typedef struct {
     const void  *p_installed_objects;   /* 读自 +16（**原样存，不 deref**） */
     const void  *p_fsclient;            /* 读自 +24（**原样存，不 deref**） */
     const void  *pts_penalty_module;    /* 读自 +32（**原样存，不 deref**） */
+    /* ── ⏪ `t141`：回调表**快照**（值拷贝；判据 1／2／3）────────────────────────────────
+       `fscbk_snap` 是 `FSCONTEXTINFO+40..+864` 那 103 个 8 B 字的**逐字副本** ⇒ 调用返回后
+       仍可被独立读取（这正是"真拷贝而非存指针"的可证伪面：夹具把源缓冲区**改写**后再读回，
+       若为指针则必变、为值拷贝则不变）。 */
+    unsigned char fscbk_snap[WPF_PTS_FSCBK_SIZE];  /* 103 × 8 B（大小由断言钉死） */
+    int           fscbk_snap_state;                /* `WPF_PTS_FSCBK_SNAP_{NONE,ALLZERO,VALUE}` */
+    int           fscbk_snap_nonzero;              /* 快照里**非 0** 的 8 B 字数（0..103） */
 } wpf_pts_doc;
 static wpf_pts_doc *g_pts_doc_live[WPF_PTS_DOC_MAX];
 static int g_pts_doc_live_n       = 0;
@@ -133,6 +171,24 @@ static int g_pts_doc_sets_c       = 0;   /* CreateDocContext：成功次数 */
 static int g_pts_doc_rejected_c   = 0;   /* CreateDocContext：被拒次数（NULL 入参/空出参） */
 static int g_pts_doc_destroys     = 0;   /* DestroyDocContext：成功销毁次数（**收尾面新可达性的机器读数**） */
 static int g_pts_doc_destroy_rej  = 0;   /* DestroyDocContext：被拒次数 */
+
+/* ⏪ `t141`：`PRECOND-FSCBK-SNAPSHOT-IN-DOC` 的**成败面**（判据 2：不许静默 stub／假成功）
+     · `g_pts_fscbk_snap_taken` 快照**成功**次数（值拷贝真的发生了）
+     · `g_pts_fscbk_snap_gap`   快照**未发生**次数（每一条都有**具名**行 ⇒ 不许静默）
+     · `g_pts_fscbk_snap_allzero` 已快照但**全 0** 的次数（＝"表装了但空"这一态，**与"未快照"不同形**） */
+static int g_pts_fscbk_snap_taken   = 0;
+static int g_pts_fscbk_snap_gap     = 0;
+static int g_pts_fscbk_snap_allzero = 0;
+
+/* ⏪ `t141`：**编译期钉死**快照窗口（判据 5；与 `t133` 那 13 条同族，**不重复定义**任何常量） */
+_Static_assert(sizeof(((wpf_pts_doc *)0)->fscbk_snap) == WPF_PTS_FSCBK_SIZE,
+               "doc 快照区大小 != sizeof(FSCBK)（824）");
+_Static_assert(WPF_PTS_FSCBK_SNAP_WORDS == 103, "快照字数 != 103");
+_Static_assert(WPF_PTS_FSCBK_OFF == 40,  "快照窗口起点 != +40（实测值）");
+_Static_assert(WPF_PTS_FSCBK_SIZE == 824, "快照窗口长度 != 824（=103×8）");
+_Static_assert(WPF_PTS_FSCBK_OFF % 8 == 0, "快照窗口起点未 8 字节对齐");
+_Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_FSCBK_SIZE <= WPF_PTS_FSCONTEXTINFO_SIZE,
+               "快照窗口越出 FSCONTEXTINFO（40+824=864 必须 <= 872）");
 
 static void wpf_pts_jmp_push(const char *entry, const void *ploc, const void *dev, int addr_ok,
                              int is_doc, int a0, int a1, int a2, int a3,
@@ -428,8 +484,9 @@ int DestroyInstalledObjectsInfo(void *pInstalledObjects)
 //   **纪律**：本文件**只**读、**不试调**（试调错槽会崩；拿伪造 `nms`/`nmp` 调真槽会让托管侧
 //     `HandleToObject` 触发 `Invariant.FailFast`（不可捕获））。**一个回调都不调**。
 // ══════════════════════════════════════════════════════════════════════════════════════════
-#define WPF_PTS_FSCBK_OFF            40     /* 实测① */
-#define WPF_PTS_FSCBK_SIZE           824    /* 实测①：103 槽 × 8 B */
+/* ⚠️ `t141`：`WPF_PTS_FSCBK_OFF`／`WPF_PTS_FSCBK_SIZE` 的**唯一定义处**已上移到 `wpf_pts_doc`
+   （本模块顶部，约 `:122-136`）—— doc 的快照字段要用到它们。此处**不再重复定义**
+   （一处定义、多处引用）。 */
 #define WPF_PTS_FSCBK_CBKGEN_OFF     0
 #define WPF_PTS_FSCBK_CBKTXT_OFF     256
 #define WPF_PTS_FSCBK_CBKOBJ_OFF     504
@@ -529,6 +586,55 @@ static void wpf_pts_fscbk_probe(const void *info, const char *where)
     }
 }
 
+// ── ⏪ `t141`（P1-W61）承重前置：`PRECOND-FSCBK-SNAPSHOT-IN-DOC` ──────────────────────────
+//   在 `CreateDocContext` 的**调用期内**把 `FSCONTEXTINFO+40..+864`（103 个 8 B 字）**值拷贝**
+//   进 doc 对象（`wpf_pts_doc.fscbk_snap`）。为什么必须拷而不能存指针 ⇒ 见顶部常量块的三条理由。
+//
+//   **为什么必须"响亮失败"**（判据 2）：失败若静默，外部会看到一个"**看起来有表、其实全 0**"的
+//   对象 —— 那正是 `t130`／裁定二十三要挡的形态。本件把每条"未快照"路径都写成**具名行**
+//   `[FSCBK-SNAP-GAP] rc=… reason=… entry=CreateDocContext …`，并且**不登记对象**
+//   （拒绝路径不入册 ⇒ 外部看到的是"**没有这个对象**"，与"已快照但全 0"（`state=ALLZERO`）
+//   **判词不同** —— 这就是判据 2 的判别力所在）。
+static void wpf_pts_fscbk_snap_gap(const char *reason, const void *info, const void *ctx)
+{
+    g_pts_fscbk_snap_gap++;
+    fprintf(stderr, "[FSCBK-SNAP-GAP] rc=%d reason=%s entry=CreateDocContext info=%p ctx=%p state=NONE\n",
+            WPF_PTS_ERR_NOT_IMPLEMENTED, reason, info, ctx);
+}
+
+static void wpf_pts_fscbk_snapshot(wpf_pts_doc *c, const void *info)
+{
+    if (!c) return;                       /* 防呆：调用点已保证非空 */
+    if (!info) {                          /* 入参形状不合法 ⇒ 响亮失败＋具名留痕，**不登记对象** */
+        wpf_pts_fscbk_snap_gap("null-info", info, (const void *)c);
+        return;
+    }
+    /* **值拷贝**（不是存指针）：整段 824 B 逐字节搬进本对象 */
+    memcpy(c->fscbk_snap, (const unsigned char *)info + WPF_PTS_FSCBK_OFF, WPF_PTS_FSCBK_SIZE);
+    int nz = 0;
+    for (int i = 0; i < WPF_PTS_FSCBK_SNAP_WORDS; i++) {
+        unsigned long long w = 0;
+        for (int k = 0; k < 8; k++) w |= ((unsigned long long)c->fscbk_snap[i * 8 + k]) << (8 * k);
+        if (w) nz++;
+    }
+    c->fscbk_snap_nonzero = nz;
+    c->fscbk_snap_state   = (nz == 0) ? WPF_PTS_FSCBK_SNAP_ALLZERO : WPF_PTS_FSCBK_SNAP_VALUE;
+    if (nz == 0) g_pts_fscbk_snap_allzero++;
+    g_pts_fscbk_snap_taken++;
+    {   /* 判据件 §1.3 的"可核证据"：字节数／非零槽数 ＋ `+56`／`+80` 两槽**非零** */
+        unsigned long long w56 = 0, w80 = 0;
+        for (int k = 0; k < 8; k++) {
+            w56 |= ((unsigned long long)c->fscbk_snap[(16 + k)]) << (8 * k);   /* 40+16 = +56 */
+            w80 |= ((unsigned long long)c->fscbk_snap[(40 + k)]) << (8 * k);   /* 40+40 = +80 */
+        }
+        fprintf(stderr, "[FSCBK-SNAP] entry=CreateDocContext ctx=%p info=%p bytes=%d words=%d nonzero=%d "
+                        "state=%s slot56=%s slot80=%s taken=%d allzero=%d gap=%d\n",
+                (const void *)c, info, WPF_PTS_FSCBK_SIZE, WPF_PTS_FSCBK_SNAP_WORDS, nz,
+                (nz == 0) ? "ALLZERO" : "VALUE", w56 ? "nonzero" : "zero", w80 ? "nonzero" : "zero",
+                g_pts_fscbk_snap_taken, g_pts_fscbk_snap_allzero, g_pts_fscbk_snap_gap);
+    }
+}
+
 // ── 格 6（`t110`／P1-W35 · W8 第四步）：`CreateDocContext` **真实现** ─────────────────
 //   分界句（沿用前三件，逐字）：**`return 0`（`fserrNone`）本身不是证据**；证据是「这次调用在本进程内
 //   留下了**与该对象绑定**、**可被独立读取**的状态变化」。四件套 ＋ 形状约束：
@@ -545,11 +651,13 @@ static void wpf_pts_fscbk_probe(const void *info, const char *where)
 int CreateDocContext(const void *fscontextinfo, void **pfscontext)
 {
     if (pfscontext) *pfscontext = NULL;                        /* 任何失败路径都保持"空" */
-    if (!pfscontext)                     { g_pts_doc_rejected_c++; return WPF_PTS_ERR_NOT_IMPLEMENTED; }
-    if (!fscontextinfo)                  { g_pts_doc_rejected_c++; return WPF_PTS_ERR_NOT_IMPLEMENTED; }
-    if (g_pts_doc_live_n >= WPF_PTS_DOC_MAX) { g_pts_doc_rejected_c++; return WPF_PTS_ERR_NOT_IMPLEMENTED; }
+    /* ⏪ `t141`（判据 2）：四条**拒绝**路径都改成**响亮失败＋具名留痕**（原为一句话裸返；
+       目的＝让"**未快照**"这一态在日志里有名有姓，与"已快照但全 0"不混同）。 */
+    if (!pfscontext)                     { g_pts_doc_rejected_c++; wpf_pts_fscbk_snap_gap("null-out-param", fscontextinfo, NULL); return WPF_PTS_ERR_NOT_IMPLEMENTED; }
+    if (!fscontextinfo)                  { g_pts_doc_rejected_c++; wpf_pts_fscbk_snap_gap("null-info", fscontextinfo, NULL);       return WPF_PTS_ERR_NOT_IMPLEMENTED; }
+    if (g_pts_doc_live_n >= WPF_PTS_DOC_MAX) { g_pts_doc_rejected_c++; wpf_pts_fscbk_snap_gap("table-full", fscontextinfo, NULL); return WPF_PTS_ERR_NOT_IMPLEMENTED; }
     wpf_pts_doc *c = (wpf_pts_doc *)calloc(1, sizeof(*c));
-    if (!c)                              { g_pts_doc_rejected_c++; return WPF_PTS_ERR_NOT_IMPLEMENTED; }
+    if (!c)                              { g_pts_doc_rejected_c++; wpf_pts_fscbk_snap_gap("alloc-fail", fscontextinfo, NULL);       return WPF_PTS_ERR_NOT_IMPLEMENTED; }
     /* 逐字段按**真实类型**读（每步只读该字段的字节数；指针字段只当**值**取，不 deref） */
     const unsigned char *b = (const unsigned char *)fscontextinfo;
     c->magic  = WPF_PTS_DOC_MAGIC;
@@ -560,6 +668,11 @@ int CreateDocContext(const void *fscontextinfo, void **pfscontext)
     c->p_installed_objects = *(const void *const *)(const void *)(b + 16);
     c->p_fsclient          = *(const void *const *)(const void *)(b + 24);
     c->pts_penalty_module  = *(const void *const *)(const void *)(b + 32);
+    /* ⏪ `t141`（P1-W61）**承重前置**：**调用期内**把回调表值拷贝进本对象。
+       ⚠️ 失败 ⇒ **释放并拒绝**（`state == NONE`）⇒ **绝不**登记一个"看起来有表、其实没拷"的对象。
+       放在 `t133` 探针**之前**：本步是承重的，探针只是仪器。 */
+    wpf_pts_fscbk_snapshot(c, fscontextinfo);
+    if (c->fscbk_snap_state == WPF_PTS_FSCBK_SNAP_NONE) { free(c); return WPF_PTS_ERR_NOT_IMPLEMENTED; }
     /* ⏪ `t133`（P1-W55）测量小单：**只读回读** `FSCBK` 窗口（**绝不试调**任何回调）。
        ⚠️ 窗口 `b+40 .. b+864` 对**真实** `FSCONTEXTINFO`（872 B）在界内；夹具的合成结构也已按
           同一窗口**加宽**（见 `wpf_pts_fsctx_probe.probe_pad`）⇒ 夹具路径同样在界内。 */
@@ -1103,6 +1216,52 @@ int WpfLinuxWin32_PtsDocCreates(void)   { return g_pts_doc_sets_c; }
 int WpfLinuxWin32_PtsDocDestroys(void)  { return g_pts_doc_destroys; }   /* 收尾面二值读数用 */
 int WpfLinuxWin32_PtsDocRejected(void)  { return g_pts_doc_rejected_c; }
 
+/* ⏪ `t141`：`PRECOND-FSCBK-SNAPSHOT-IN-DOC` 的**只读面**（判据 3：按**真实类型**给形状，位宽不猜）
+     · `…PtsDocFscbkSnapState(idx)`   `-1` 无此对象（越界/魔数不符）／`0` 未快照／
+                                      `1` **已快照但全 0**／`2` **已快照且非全 0**
+     · `…PtsDocFscbkSnapNonzero(idx)` `-1` 同上／否则**非 0 的 8 B 字数**（0..103）
+     · `…PtsDocFscbkSnapGap()`        "未快照"（**响亮拒绝**）累计次数（每条都配一行具名行）
+     · `…PtsDocFscbkSnapTaken()`      快照**成功**累计次数
+     · `…PtsDocFscbkSnapAllZero()`    已快照但**全 0** 的累计次数
+     · `…PtsDocFscbkWordAt(idx, k, out)` 把快照里**相对窗口起点**第 `k` 个字（0..102）按
+                                      **8 B 无符号整数**写进出参；成功返 `0`；
+                                      越界／无此对象／空出参 ⇒ 返 `-1` 且**一个字节都不写**。
+   ⚠️ **语义边界（如实划界）**：这 8 B 是**封送后的函数指针或 `IntPtr`**（`FSCBK` 的槽就是这两种声明）；
+      本口**只给值**、**不 deref**、**不代它断言"是哪个回调"**，也**不**证"该槽可调用"。
+      「**未快照**」与「**快照了但全 0**」**不同形**：前者状态 `0` 且对象**根本未登记**（⇒ `-1`），
+      后者状态 `1`（对象在册、`nonzero=0`）。 */
+int WpfLinuxWin32_PtsDocFscbkSnapState(int idx)
+{
+    if (idx < 0 || idx >= g_pts_doc_live_n) return -1;
+    wpf_pts_doc *d = g_pts_doc_live[idx];
+    if (!d || d->magic != WPF_PTS_DOC_MAGIC) return -1;
+    return d->fscbk_snap_state;
+}
+int WpfLinuxWin32_PtsDocFscbkSnapNonzero(int idx)
+{
+    if (idx < 0 || idx >= g_pts_doc_live_n) return -1;
+    wpf_pts_doc *d = g_pts_doc_live[idx];
+    if (!d || d->magic != WPF_PTS_DOC_MAGIC) return -1;
+    if (d->fscbk_snap_state == WPF_PTS_FSCBK_SNAP_NONE) return -1;
+    return d->fscbk_snap_nonzero;
+}
+int WpfLinuxWin32_PtsDocFscbkSnapGap(void)     { return g_pts_fscbk_snap_gap; }
+int WpfLinuxWin32_PtsDocFscbkSnapTaken(void)   { return g_pts_fscbk_snap_taken; }
+int WpfLinuxWin32_PtsDocFscbkSnapAllZero(void) { return g_pts_fscbk_snap_allzero; }
+int WpfLinuxWin32_PtsDocFscbkWordAt(int idx, int k, unsigned long long *out)
+{
+    if (!out) return -1;
+    if (idx < 0 || idx >= g_pts_doc_live_n) return -1;
+    wpf_pts_doc *d = g_pts_doc_live[idx];
+    if (!d || d->magic != WPF_PTS_DOC_MAGIC) return -1;
+    if (d->fscbk_snap_state == WPF_PTS_FSCBK_SNAP_NONE) return -1;
+    if (k < 0 || k >= WPF_PTS_FSCBK_SNAP_WORDS) return -1;
+    unsigned long long v = 0;
+    for (int i = 0; i < 8; i++) v |= ((unsigned long long)d->fscbk_snap[k * 8 + i]) << (8 * i);
+    *out = v;
+    return 0;
+}
+
 // ── 格 7 · 只读面（`t123`／P1-W46）：`FsCreatePageBottomless` 的**成功/失败面**（判据 C4 的承重口）──
 //   为什么要这几个口：判据 §2.2 形态 (b) 指出 **托管侧 `ValidateAndTrace` 在常见情形下不抛、且只在
 //   tracing 开时记一行** ⇒ 「返非 0 却没有任何痕迹」是**新开出来的假绿通路**。本模块把"痕迹"落在
@@ -1619,6 +1778,9 @@ _Static_assert(offsetof(wpf_pts_fsctx_probe, probe_pad) == 56,
                "probe struct prefix size unexpected（前 4 个 4 B 标量 + 5 个指针；指针**不得**按 4 B 假设）"
                "；`t133` 把原 `sizeof(...) == 56` 换成 `offsetof(probe_pad) == 56`（**同一条牙**，"
                "因为结构尾部加了 `probe_pad` 以容纳只读回读窗口）");
+/* ⏪ `t141`：夹具结构的 `fscbk` 偏移**必须**与快照窗口起点**同源**（判据 5；两处不得各写各的） */
+_Static_assert(offsetof(wpf_pts_fsctx_probe, fscbk) == WPF_PTS_FSCBK_OFF,
+               "夹具结构的 fscbk 偏移与快照窗口起点不一致（+40）");
 _Static_assert(offsetof(wpf_pts_fsctx_probe, version) == 0,  "offset assumption broken: version");
 _Static_assert(offsetof(wpf_pts_fsctx_probe, fsffi) == 4,    "offset assumption broken: fsffi");
 _Static_assert(offsetof(wpf_pts_fsctx_probe, c_installed_objects) == 12, "offset assumption broken: cInstalledObjects");
