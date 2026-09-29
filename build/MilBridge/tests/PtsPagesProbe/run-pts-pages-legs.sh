@@ -142,17 +142,53 @@ self_in_chain() { case " $SELF_CHAIN " in *" $1 "*) return 0 ;; esac; return 1; 
 #     · **有界等待**：被占 ⇒ 每 0.5s 重扫、最多 `$PTS_DISPLAY_WAIT_SECS`（默认 30）秒（**先等上一趟自己的 Xvfb 收净**）；
 #       **等不到 ⇒ 显式失败并点名**（`DISPLAY_WAIT … state=timeout` ＋ `device=NOINFO reason=display-not-free …` ＋
 #       **计数行** ＋ `LEGS_RUNNER=FAIL` ＋ `exit 2`）—— **绝不静默继续**。
-occupied_by() {   # occupied_by <display> ⇒ 印占用者 pid（stdout 空＝空闲）
+# ── ⏪ `t157`（修 `D-2`；**方向＝收紧"占用者"判据**）────────────────────────────────
+#   病灶（`t155` 实测上报）：旧 `occupied_by()` 按 `/proc/*/cmdline` **字面**扫显示号
+#     ⇒ **任何第三方壳**（例如另一条车道的 `bash -c '…:237…'`）都被判"该号被占"
+#     ⇒ `DISPLAY_WAIT … state=timeout`、`device=NOINFO reason=display-not-free occupant_pid=3795376`
+#     （实测那个 pid 是 `~/t123-runner/logs/t152` 侧的 `bash -c`，**不是 X server**）⇒ **假占用**。
+#   新判据（两条，逐字）：**占用** ＝ ① `/tmp/.X11-unix/X<n>`（或 `WPF_X11_DIR` 指向目录）存在 socket 件
+#      且**有活进程正持有该 socket inode**（`/proc/<pid>/fd/*` → `socket:[<inode>]`，逐字比对 inode ⇒
+#      这是**真正的持有者**，不是命令行字面）；或 ② 该号**尚无 socket 件**时，只认**进程名是 X server**
+#      （`Xvfb`/`Xorg`/`Xephyr`/`Xdummy`/`Xvnc`/`X`，取 `/proc/<pid>/comm`）**且**其 cmdline 带该号 token
+#      （窄口：只防"刚起、还没建 socket"的窗口期）。
+#   **件在但没人持有** ⇒ 具名 `DISPLAY_STALE_SOCKET … action=reclaim`（**不算占用** ⇒ 不再无谓等 30s）。
+#   既有行形状与既有打印**一字未动**：只**新增** `DISPLAY_STALE_SOCKET`／`DISPLAY_HANDOFF` 两行（新增行）。
+is_x_server() {    # is_x_server <pid> ⇒ 0 ＝ 进程名是 X server（`comm` ／ `exe` 两路都认）
+  case "$(cat "/proc/$1/comm" 2>/dev/null)" in
+    Xvfb|Xorg|Xephyr|Xdummy|Xvnc|X|Xwayland|Xtightvnc|Xtigervnc|Xrealvnc) return 0 ;;
+  esac
+  case "$(basename "$(readlink -f "/proc/$1/exe" 2>/dev/null || true)")" in
+    Xvfb|Xorg|Xephyr|Xdummy|Xvnc|Xwayland|Xtightvnc|Xtigervnc|Xrealvnc) return 0 ;;
+  esac
+  return 1
+}
+x_server_claim() {  # x_server_claim <display> ⇒ 印**认领该号**的 X server pid（＝"Xvfb 进程 ＋ display 归属"）
   local d="$1" p pid cl
   for p in /proc/[0-9]*; do
     [ -r "$p/cmdline" ] || continue
     pid="${p#/proc/}"
     self_in_chain "$pid" && continue
+    is_x_server "$pid" || continue
     cl="$(tr '\0' ' ' < "$p/cmdline" 2>/dev/null || true)"
     case "$cl" in *"$d"*) printf '%s' "$pid"; return 0 ;; esac
   done
   return 1
 }
+display_sock_present() {   # 该号在**规范目录**或 `WPF_X11_DIR` 里有 socket 件
+  [ -S "$CANON_XDIR/X${1#:}" ] && return 0
+  [ -n "${WPF_X11_DIR:-}" ] && [ -S "$WPF_X11_DIR/X${1#:}" ] && return 0
+  return 1
+}
+# ⚠️【`t157` 具名作废（**不许静默**）】曾试过"socket 件 inode ↔ `/proc/<pid>/fd` 的 `socket:[inode]` 反查持有者"
+#   —— 本机现取**不成立**：`stat -c %i /tmp/.X11-unix/X239` ＝ `4212990`，而活 `Xvfb` 的 fd 反链是
+#   `socket:[28854481]`（**sockfs inode ≠ 该路径件的 inode**）⇒ 该路**恒查不到**持有者（实测：真 Xvfb 在跑却判"无人持有"）。
+#   ⇒ 本轮**弃用 inode 反查**，占用判据改走契约允许的另一路：**X server 进程 ＋ 其 display 归属**。
+occupied_by() {   # occupied_by <display> ⇒ 印**真占用者** pid（stdout 空＝空闲；⏪ `t157` 修 `D-2`）
+  x_server_claim "$1" && return 0
+  return 1
+}
+CANON_XDIR="${CANON_XDIR:-/tmp/.X11-unix}"
 PTS_DISPLAY_BASE="${PTS_DISPLAY_BASE:-:231}"
 PTS_DISPLAY_SPAN="${PTS_DISPLAY_SPAN:-9}"
 PTS_DISPLAY_WAIT_SECS="${PTS_DISPLAY_WAIT_SECS:-30}"
@@ -160,6 +196,11 @@ _occ_of() { occupied_by "$1" 2>/dev/null || true; }
 if [ -n "${PTS_GUARD_DISPLAY:-}" ]; then
   DISPLAY_NUM="$PTS_GUARD_DISPLAY"
   PICK_RULE="caller-fixed(PTS_GUARD_DISPLAY)"
+elif [ -n "${W67_DISPLAY:-}" ]; then
+  # ⏪ `t157`（修 `D-1`）：`W67_DISPLAY` 是**消费端**（`session_inner.sh`）读的那个变量 ⇒
+  #   调用方给它 ＝ 显式点名同一个号（与 `PTS_GUARD_DISPLAY` 等价；**两个入口从此同源**）。
+  DISPLAY_NUM="$W67_DISPLAY"
+  PICK_RULE="caller-fixed(W67_DISPLAY)"
 else
   PICK_RULE="lowest-free(base=$PTS_DISPLAY_BASE span=$PTS_DISPLAY_SPAN)"
   base_num="${PTS_DISPLAY_BASE#:}"
@@ -188,6 +229,16 @@ while :; do
   sleep 0.5; _waited_ms=$((_waited_ms + 500))
 done
 echo "DISPLAY_PICK display=$DISPLAY_NUM rule=$PICK_RULE waited_ms=$_waited_ms（独占号：同一进程内多趟按"最小空闲"分配 ⇒ 不互相踩号）"
+# ── ⏪ `t157`（修 `D-1`）：**分配结果单向下传** ────────────────────────────────────────
+#   病灶：分配端把 Xvfb 起在 `$DISPLAY_NUM`，而消费端 `session_inner.sh` 的 `$D` 取 `W67_DISPLAY`（缺省 `:237`）
+#     ⇒ **两个入口各取各的** ⇒ 应用被喂错号 ⇒ `XOpenDisplay` 失败、`APP_RC=134`、`obtained=0 refused=2`（`t155` 实测）。
+#   修法：**同一个变量**（`W67_DISPLAY` = 分配结果）单向下传；下游不再有第二个默认值可猜。
+export W67_DISPLAY="$DISPLAY_NUM"
+echo "DISPLAY_HANDOFF display=$DISPLAY_NUM env=W67_DISPLAY rule=$PICK_RULE（⏪ t157 修 D-1：分配端与消费端**同源**）"
+# ── ⏪ `t157`（修 `D-2`）：**件在但无 X server 认领** ⇒ 具名一行，且**不算占用**（旧形态按字面扫号会在这里无谓等 30s）──
+if display_sock_present "$DISPLAY_NUM" && ! x_server_claim "$DISPLAY_NUM" >/dev/null; then
+  echo "DISPLAY_STALE_SOCKET display=$DISPLAY_NUM sock=$CANON_XDIR/X${DISPLAY_NUM#:} holder=none action=reclaim（件在但**无 X server 认领** ⇒ 不算占用；判据见上方「inode 反查弃用」具名段；⏪ t157 修 D-2）"
+fi
 
 # ── 前置 3：内存闸 ────────────────────────────────────────────────────────────
 avail_mb=$(( $(awk '/^MemAvailable:/{print $2}' /proc/meminfo) / 1024 ))

@@ -36,6 +36,27 @@ D="${W67_DISPLAY:-:237}"
 #   【防伪造】外人拿不到「你的祖先链」：`OWNER_PID` 必须是**本进程的祖先**，且那个 `Xvfb` 必须是它的**亲儿子**
 #     ⇒ 另起一个 `Xvfb` 占号、或把 `WPF_X11_DIR` 指到空目录，都**不**满足。
 #   【口径（`D-G188`）】可被环境变量**静默**改变判定的保护 ＝ 名义保护 ⇒ 一律 `NOINFO(reason=保护名义化)`。
+# ── ⏪ `t157`（修 `D-1`：**分配结果必须与消费者同源**）──────────────────────────────────
+#   病灶（`t155` 实测）：`run-pts-pages-legs.sh` 把 Xvfb 起在**它分配**的号上并写了 lease（`DISPLAY=:231`），
+#     而本脚本的 `$D` 取 `W67_DISPLAY`（缺省 `:237`）；两个号不一致、而 `:237` 又**没有 socket 件**时，
+#     旧形态走 `DISPLAY_LEASE=free display=:237` ⇒ 应用被喂错号 ⇒ `XOpenDisplay` 失败、`APP_RC=134`。
+#   新形态（两条，逐字）：① lease 在且其 `DISPLAY` ≠ `$D` ⇒ **具名拒跑**（不猜、不静默；`exit 3`）；
+#     ② `W67_DISPLAY` 未给而 lease 在 ⇒ **采用 lease 的分配结果**（单一来源；不再有 `:237` 兜底猜测）。
+#   下面那段既有判据（socket 双边检查 ＋ lease 五条）**一字未动**；本块只在它**之前**把"号从哪来"收成一处。
+_T157_L="${W67_DISPLAY_LEASE:-}"
+if [ -n "$_T157_L" ] && [ -f "$_T157_L" ] && [ ! -L "$_T157_L" ]; then
+  _T157_LD="$(sed -n 's/^DISPLAY=//p' "$_T157_L" | head -1)"
+  if [ -z "${W67_DISPLAY:-}" ] && [ -n "$_T157_LD" ]; then
+    # ② **采用 lease 的分配结果**（单一来源）：调用方没给号 ⇒ 用"这一次分配"的结果，不再拿 `:237` 兜底猜
+    D="$_T157_LD"
+    echo "DISPLAY_ADOPT display=$D from=lease（⏪ t157：消费端与分配端同源）" >&2
+  elif [ -n "$_T157_LD" ] && [ "$_T157_LD" != "$D" ]; then
+    # ① 调用方给了号、但与本次分配不一致 ⇒ **具名拒跑**
+    echo "DISPLAY_MISMATCH=$D lease_display=$_T157_LD lease=$_T157_L" >&2
+    echo "LEASE_REJECT reason=allocated-display-not-passed-through env_d=$D lease_display=$_T157_LD display=$D（⏪ t157 修 D-1：分配结果必须下传，不许两个入口各取各的）" >&2
+    exit 3
+  fi
+fi
 CANON_XDIR=/tmp/.X11-unix
 XDIR_OVERRIDE="${WPF_X11_DIR:-}"
 XN="${D#:}"

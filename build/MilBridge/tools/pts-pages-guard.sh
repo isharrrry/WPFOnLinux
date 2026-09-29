@@ -102,7 +102,35 @@ MAGENTA_FLOOR="${PTS_GUARD_MAGENTA_FLOOR:-20000}"
 #       真实载体在**仓外**：`~/t119-runner/bak/run-N3-runner-shots/g1/{k23,k24,last}.png`
 #       （三枚同值 `1a76488aa4a790b3`、各 `189742` B；本席现算）。⇒ **引用该成员时必须连带写明"仓外载体"**，
 #       不得当成"仓内可查"；复核命令：`sha256sum ~/t119-runner/bak/run-N3-runner-shots/g1/k23.png | cut -c1-16`。
-FRAME_EMPTY_SET="1a76488aa4a790b3,ef3fd6765f18f51b"
+# ── ⏪ `t157`（依据 `t152` 主表；**方向＝收紧**）**第三枚并入：β `b273ebecc332fc03`**（帧 `sha256` 前 16 位）──
+#   事实出处：`build/MilBridge/P1-frame-determinism2-report.md`（**本席 `t157` 现取**：247 行、
+#   件 `sha16=7bc694c16ecd0167`、末行自证复算 `0f0819a68e617710` ＝ 该行自declared 值 ⇒ 件完整）。
+#   单代 24 样本、零被拒零作废 ⇒ 帧面有**两个变体**（该件 `:98` 原文）：
+#     · **α** ＝ `ef3fd6765f18f51b`（`colors 383`／`ae_boot 15386`）—— 17/24（Wilson95 `[0.508,0.851]`）
+#     · **β** ＝ `b273ebecc332fc03`（`391`／`14775`）—— 7/24（`[0.149,0.492]`）
+#   且 β 与显示号、次序·时间、机械负载、探针闸**全无关**；`boot` 面 24/24 恒定 `b21eb530afd3c66c`
+#   ⇒ 变体**只出现在 `k23`／`k24` 那一面**（本席现取：该件 `:102/:104/:106` 三行 β 样本 `fr_sha` 同值）。
+#   🔴 **为什么必须并入（第三条假绿通道的具体路径）**：旧集 `{1a76488aa4a790b3,ef3fd6765f18f51b}` 里没有 β
+#     ⇒ **落在 β 的趟** `in_empty_set=no` ⇒ `N1` 要件①「帧身份 ∉ 空态参照集」被读成"成立"，
+#     **而 β 同样是空态画面** ⇒ 这正是裁定三十九第 (c) 条（"帧面不可复现 ⇒ `fr_sha` 类要件不可归因"）
+#     的实现路径。**现成读数**：`t152` 主表那三行 β 样本（`:102/:104/:106`）判词列原文＝ **`全绿`**
+#     ⇒ 假绿**已经发生过**，不是设想。
+#   **逐枚出处 ＋ 读时戳（三成员）**：
+#     · `1a76488aa4a790b3` —— 出处按 `t144` 已登记口径：⚠️ **仓内不可复现**，真实载体在**仓外**
+#       `~/t119-runner/bak/run-N3-runner-shots/g1/{k23,k24,last}.png`（**本席 `t157` 现取**：`k23.png`
+#       `sha16=1a76488aa4a790b3`、`189742` B；`t144` 读时 `2026-09-29T15:0x+0800`）。
+#       ⇒ **引用本成员时必须连带写"仓外载体"**，不得当成"仓内可查"。
+#     · `ef3fd6765f18f51b` —— 出处 `build/MilBridge/tests/PtsPagesProbe/evidence/shots/g1/{k23,k24,last}.png`
+#       三帧同值（**本席 `t157` 现取**：`k23.png`／`k24.png` 各 `sha16=ef3fd6765f18f51b`、各 `189716` B）；
+#       `t136` 读时 `2026-09-29T0x+0800`。
+#     · `b273ebecc332fc03` —— 出处 `build/MilBridge/P1-frame-determinism2-report.md`（`t152` 主表 7/24 样本
+#       的 `FRAME` 行同值；**本席 `t157` 现取**该件 `sha16=7bc694c16ecd0167`，读时 `2026-09-29T17:4x+0800`）。
+#   ⚠️ **不放松**（逐字）：`t136` 的「**必要非充分、永不单独发绿**」与 `t145` 的「**登记须附独立支撑**」照旧；
+#     **作废纪律**照旧（只有拿到 `N4` 正身份／内容锚正证据才准移出；"换了一版画面"不是理由）；
+#     **不设 env 旋钮**（判据只许收紧 ⇒ 不给"把现帧写进集合即绿"的路子；合成夹具靠**取值**两极化）。
+#   ⏪ `t157`**只增不改**：旧两成员行的**原文一字未删**（见上面 `t124`／`t136` 两段），**以本行为准**：
+#     旧值原文：`FRAME_EMPTY_SET="1a76488aa4a790b3,ef3fd6765f18f51b"`
+FRAME_EMPTY_SET="1a76488aa4a790b3,ef3fd6765f18f51b,b273ebecc332fc03"
 
 # ── ⏪ `t145`（`t142` 的 `C-A`）**色锚（颜色正身份）**：具名色 ＋ 定值 RGB ＋ 逐色出处 ─────────────
 #   出处（内容锚）：hc UI 定义 `FlowDocumentDemo.xaml` 的**具名色行**（`Background=GhostWhite`／`Paragraph Background=Beige
@@ -948,7 +976,9 @@ ENFE_EOF
   mk c36 23 yes 143 0 880 HandyControlDemo.UserControl.RichTextBoxDemo  - 0 - yes yes 12001 1a76488aa4a790b3 15385
   _o="$(bash "$_rz" --legs "$_f1" 2>&1 || true)"
   chk FAIL "$(out "$_o")" "realized·帧∈空态集 ⇒ 必红"
-  if grep -qF 'criterion=frame-identity' <<<"$_o" && grep -qF 'sha16=1a76488aa4a790b3∈{1a76488aa4a790b3,ef3fd6765f18f51b}' <<<"$_o"; then
+  # ⏪ `t157`：期望串里的**参照集文本从唯一登记处（`$FRAME_EMPTY_SET`）现取**（原来硬写两成员字面）
+  #   —— 判据本身**一字未松**：仍是"帧∈集 ⇒ 必红 **并点名**"的逐字子串断言，只是不再会随集合登记漂移。
+  if grep -qF 'criterion=frame-identity' <<<"$_o" && grep -qF "sha16=1a76488aa4a790b3∈{${FRAME_EMPTY_SET}}" <<<"$_o"; then
     npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "N1·点名(帧+要件+参照集)" "yes"
   else
     nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "N1·点名(帧+要件+参照集)" "no" "criterion=frame-identity…∈{…}"
@@ -994,11 +1024,23 @@ ENFE_EOF
   mk c40 23 yes 143 0 880 HandyControlDemo.UserControl.RichTextBoxDemo  - 0 - yes yes 12001 ef3fd6765f18f51b 15386
   _o="$(bash "$_rz" --legs "$_g1" 2>&1 || true)"
   chk FAIL "$(out "$_o")" "realized·累积集新成员 ⇒ 必红"
-  if grep -qF 'sha16=ef3fd6765f18f51b∈{1a76488aa4a790b3,ef3fd6765f18f51b}' <<<"$_o"; then
+  if grep -qF "sha16=ef3fd6765f18f51b∈{${FRAME_EMPTY_SET}}" <<<"$_o"; then
     npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "t136·新成员点名(累积集)" "yes"
   else
     nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "t136·新成员点名(累积集)" "no" "sha16=ef3f…∈{1a76…,ef3f…}"
   fi
+  # ── ⏪ `t157` 新极性腿：**第三成员 β `b273ebecc332fc03`（本件并入）⇒ 必红并点名**（三成员**逐枚**都在 selftest 里成腿）──
+  _g1b="$T/c44"; rm -rf "$_g1b"     # (a') β 形状（`colors 391`／`ae_boot 14775`）的 `FRAME` 行 ⇒ 必红
+  mk c44 24 yes 143 0 391 HandyControlDemo.UserControl.FlowDocumentDemo - 0 - yes yes 14775 b273ebecc332fc03 14775
+  mk c44 23 yes 143 0 391 HandyControlDemo.UserControl.RichTextBoxDemo  - 0 - yes yes 12001 b273ebecc332fc03 14775
+  _o="$(bash "$_rz" --legs "$_g1b" 2>&1 || true)"
+  chk FAIL "$(out "$_o")" "t157·β(第三成员)∈集 ⇒ 必红"
+  if grep -qF "sha16=b273ebecc332fc03∈{${FRAME_EMPTY_SET}}" <<<"$_o"; then
+    npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "t157·β 点名(三成员集)" "yes"
+  else
+    nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "t157·β 点名(三成员集)" "no" "sha16=b273…∈{…}"
+  fi
+
   _g2="$T/c41"; rm -rf "$_g2"     # (b) 只有必要件（两腿同帧 ⇒ 无 differ、无锚、无 N4）⇒ 必红并点名 reason
   mk c41 24 yes 143 0 900 HandyControlDemo.UserControl.FlowDocumentDemo - 0 - yes yes 12345 c0ffee1234abcd99 1234
   mk c41 23 yes 143 0 880 HandyControlDemo.UserControl.RichTextBoxDemo  - 0 - yes yes 12001 c0ffee1234abcd99 1234
