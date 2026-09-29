@@ -82,6 +82,7 @@ static const char *const k_pts_entries[] = {
     "LoSetDoc",
     "LoSetBreaking",
     "LoDisposePenaltyModule",
+    "FsCreatePageBottomless",
 };
 #define WPF_PTS_ENTRY_COUNT ((int)(sizeof(k_pts_entries) / sizeof(k_pts_entries[0])))
 
@@ -127,6 +128,107 @@ static int g_pts_doc_sets_c       = 0;   /* CreateDocContext：成功次数 */
 static int g_pts_doc_rejected_c   = 0;   /* CreateDocContext：被拒次数（NULL 入参/空出参） */
 static int g_pts_doc_destroys     = 0;   /* DestroyDocContext：成功销毁次数（**收尾面新可达性的机器读数**） */
 static int g_pts_doc_destroy_rej  = 0;   /* DestroyDocContext：被拒次数 */
+
+static void wpf_pts_jmp_push(const char *entry, const void *ploc, const void *dev, int addr_ok,
+                             int is_doc, int a0, int a1, int a2, int a3,
+                             const void *ptr0, const void *ptr1);
+
+/* ⏪ `t123`：台账面（`g_pts_seen[]`／`wpf_pts_index()`）在本文件里**声明得比本格晚** ⇒
+   本格需要它们（真实现按既有惯例只记"被问过"、不记缺口）⇒ 此处补**外前向声明**（定义在下方）。 */
+static int g_pts_seen[];
+static int g_pts_seq;
+static int wpf_pts_index(const char *entry);
+
+// ── 格 7（`t123`／P1-W46 · W8 第五步）：`FsCreatePageBottomless` 真实现（**Fs 族第一跳**）──────
+//   上游声明（`Pts.cs:3127-3132`，**裸名**；模块名经 `Pts.cs:25` 别名 → `RefAssemblyAttrs.cs:69`
+//   → `PresentationNative_cor3.dll` → `build/shims/Win32ShimResolver.cs:60/:92` → **`libwpfwin32.so`**
+//   ⇒ 与 PTS/LS 那几步**同一个域**）：
+//     int FsCreatePageBottomless(IntPtr pfscontext, IntPtr fsnmsect, out FSFMTRBL pfsfmtrbl, out IntPtr ppfspage);
+//   ⚠️ `FSFMTRBL` 是 **`int` 枚举**（4 字节出参）⇒ native 侧是 `int *`；`ppfspage` 是 `void **`。
+//   🔴 **本格的两种失败形态（判据 §2.2 的关键发现；决定本实现必须有"留痕"）**：
+//     (a) **符号不存在**（本步之前）⇒ CLR 在封送阶段抛 `EntryPointNotFoundException` ⇒ 托管侧
+//         `if (fserr != fserrNone)` **根本不执行** ⇒ 应用钩子记 1152 行；
+//     (b) **符号在而返非 0**（本步之后）⇒ `_ptsPage = IntPtr.Zero; PTS.ValidateAndTrace(fserr, …)`，
+//         而 `ErrorTrace`（`Pts.cs:83-128`）在"内层只有我方 PTS 异常／为 null"时**不抛**，且
+//         **只在 `TracePageFormatting.IsEnabled` 时**才记一行（上游注释逐字：
+//         "We shouldn't throw in this case but should log the error if debug tracing is enabled"）。
+//   ⇒ **若把本格做成"静默 stub（恒返 -10000）"，ENFE 会归零（`N2` 变绿）而排版并未发生、且很可能
+//     一行痕迹都没有** —— 这正是判据 C4／P4 要堵的**假绿通路**。
+//   ⇒ **留痕做在 native 侧**（**不改上游 `ValidateAndTrace` 的语义** —— 那是上游语义、且越域）：
+//     每次**返非 0**都打一行具名诊断到 `stderr`，并把计数暴露成只读口：
+//       `[FS_PAGE_GAP] rc=<err> reason=<token> ctx=<p> sect=<p> ok=<n> gap=<n>`
+//     ⇒ 于是"诚实 stub 的静默"在本模块**可机读地不成立**（P4 的反腿据此必红）。
+#define WPF_PTS_FSP_MAGIC 0x50545350u   /* "PTSP"：本模块自认的 page 对象魔数 */
+#define WPF_PTS_FSP_MAX   4096          /* 有界分配清单：**布局引擎会反复调**（现取一趟 1151 次）
+                                        ⇒ 上限必须远大于一趟的调用次数；每个对象 32 B ⇒ 满表约 128 KiB */
+#define WPF_PTS_FSFMTRBL_NOT_ACHIEVED 3 /* 不在上游枚举里的"未达成"值（失败面**不放残留/毒值**） */
+typedef struct {
+    unsigned int magic;
+    const void  *ctx;                   /* 本次调用的上下文句柄（**原样存，不 deref**） */
+    const void  *sect;                  /* 本次调用的 fsnmsect（**原样存，不 deref**） */
+    int          result;                /* 写回出参的 `FSFMTRBL` 值（**本次调用的结果**，非全局常量） */
+} wpf_pts_fsp;
+static wpf_pts_fsp *g_pts_fsp_live[WPF_PTS_FSP_MAX];
+static int g_pts_fsp_live_n     = 0;
+static int g_pts_fsp_ok         = 0;   /* 成功次数（C4 的"成功面"） */
+static int g_pts_fsp_gap        = 0;   /* **返非 0 次数**（C4 的"失败面"：诚实 stub 会让它 ≥1） */
+static int g_pts_fsp_rej        = 0;   /* 被拒次数（形状/身份校验失败；含在 gap 里） */
+static const char *g_pts_fsp_last_reason = "none";   /* 最后一次失败的原因 token（可独立读取） */
+
+// 【格 7 · 真实现】成功 ⇒ 0 ＋ `*ppfspage` = **本次真分配**的页对象（两次调用**互不相等**）；
+//   失败 ⇒ **返非 0** ＋ `*ppfspage = NULL`（**不许留半成品指针**）＋ `*pfsfmtrbl = 未达成`（**不许留毒值**）
+//   ＋ **一行具名留痕**（见上）。
+//   拒绝面：`ppfspage == NULL`（不给"写空也算成功"）／`pfsfmtrbl == NULL`／`pfscontext == NULL`／
+//   **`pfscontext` 不在册**（按**指针身份**查 `g_pts_doc_live[]`，**不 deref 未知句柄** —— 与
+//   `LoDestroyContext`／`DestroyDocContext` 同纪律）。
+int FsCreatePageBottomless(void *pfscontext, const void *fsnmsect, int *pfsfmtrbl, void **ppfspage)
+{
+    /* 失败路径先把两个出参置到"确定未达成"：清空指针 ＋ 未达成结果（**一个字节的残留都不留**） */
+    if (ppfspage)   *ppfspage   = NULL;
+    if (pfsfmtrbl)  *pfsfmtrbl  = WPF_PTS_FSFMTRBL_NOT_ACHIEVED;
+    const char *reason = NULL;
+    if (!ppfspage)          reason = "null-out";
+    else if (!pfsfmtrbl)    reason = "null-result-out";
+    else if (!pfscontext)   reason = "null-ctx";
+    else {
+        int found = 0;
+        for (int i = 0; i < g_pts_doc_live_n; i++) {          /* 按**指针身份**查在册上下文 */
+            if (g_pts_doc_live[i]->magic != WPF_PTS_DOC_MAGIC) continue;
+            if ((const void *)g_pts_doc_live[i] == (const void *)pfscontext) { found = 1; break; }
+        }
+        if (!found) reason = "unknown-ctx";
+    }
+    if (!reason && g_pts_fsp_live_n >= WPF_PTS_FSP_MAX) reason = "table-full";
+    if (!reason) {
+        wpf_pts_fsp *p = (wpf_pts_fsp *)calloc(1, sizeof(*p));
+        if (!p) reason = "alloc-fail";
+        else {
+            p->magic  = WPF_PTS_FSP_MAGIC;
+            p->ctx    = pfscontext;
+            p->sect   = fsnmsect;
+            p->result = 0;                     /* `fmtrblGoalReached`（本次调用的结果） */
+            g_pts_fsp_live[g_pts_fsp_live_n++] = p;
+            g_pts_fsp_ok++;
+            {   /* 观测镜（**镜像**，不是权威）：指针量一律走 `ptr0`／`ptr1` 专用域 */
+                wpf_pts_jmp_push("FsCreatePageBottomless", (void *)pfscontext,
+                                 (const void *)&p->result, 1, 0, p->result, 0, 0, 0,
+                                 (const void *)p, (const void *)p->ctx);
+            }
+            { int _i = wpf_pts_index("FsCreatePageBottomless"); if (_i >= 0) g_pts_seen[_i]++; }
+            g_pts_seq++;
+            *pfsfmtrbl = p->result;
+            *ppfspage  = (void *)p;
+            return 0;                          /* ← 改成别的值就是制造静默半通 */
+        }
+    }
+    /* ── 失败面：**必须留痕**（C4）；否则托管侧 `ValidateAndTrace` 可能一个字都不记（§2.2 形态 b） */
+    g_pts_fsp_gap++;
+    g_pts_fsp_rej++;
+    g_pts_fsp_last_reason = reason;
+    fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s ctx=%p sect=%p ok=%d gap=%d\n",
+            WPF_PTS_ERR_NOT_IMPLEMENTED, reason, pfscontext, fsnmsect, g_pts_fsp_ok, g_pts_fsp_gap);
+    return WPF_PTS_ERR_NOT_IMPLEMENTED;
+}
 
 
 static int g_pts_calls[WPF_PTS_ENTRY_COUNT];   // 逐入口**缺口**次数（只有走 `wpf_pts_gap()` 的 stub 会涨）
@@ -283,9 +385,6 @@ int DestroyInstalledObjectsInfo(void *pInstalledObjects)
 //     ④ **计数 ＋ 可独立读取**：`g_pts_doc_sets_c`／`g_pts_doc_rejected_c` ＋ 按对象的只读面
 //        （`WpfLinuxWin32_PtsDocFieldAt` 逐字段 + `…PtsDocLive`／`…PtsDocCreates`／`…PtsDocDestroys`）。
 //   ⚠️ **非目标**：不实现 PTS 排版语义（不建页、不断行），不 deref 任何传入指针。
-static void wpf_pts_jmp_push(const char *entry, const void *ploc, const void *dev, int addr_ok,
-                             int is_doc, int a0, int a1, int a2, int a3,
-                             const void *ptr0, const void *ptr1);
 int CreateDocContext(const void *fscontextinfo, void **pfscontext)
 {
     if (pfscontext) *pfscontext = NULL;                        /* 任何失败路径都保持"空" */
@@ -843,6 +942,21 @@ int WpfLinuxWin32_PtsDocCreates(void)   { return g_pts_doc_sets_c; }
 int WpfLinuxWin32_PtsDocDestroys(void)  { return g_pts_doc_destroys; }   /* 收尾面二值读数用 */
 int WpfLinuxWin32_PtsDocRejected(void)  { return g_pts_doc_rejected_c; }
 
+// ── 格 7 · 只读面（`t123`／P1-W46）：`FsCreatePageBottomless` 的**成功/失败面**（判据 C4 的承重口）──
+//   为什么要这几个口：判据 §2.2 形态 (b) 指出 **托管侧 `ValidateAndTrace` 在常见情形下不抛、且只在
+//   tracing 开时记一行** ⇒ 「返非 0 却没有任何痕迹」是**新开出来的假绿通路**。本模块把"痕迹"落在
+//   **native 侧**（计数器 ＋ `[FS_PAGE_GAP]` 具名行），本口就是它的机器可读面：
+//     · `…FsPageGap()`     **返非 0 的总次数**（诚实 stub ⇒ ≥1；真实现 ⇒ 0）
+//     · `…FsPageCreated()` 成功次数（真实现 ⇒ ≥1）
+//     · `…FsPageRejected()` 形状/身份校验被拒次数（含在 `gap` 里）
+//     · `…FsPageLastReason()` 最后一次失败的**原因 token**（`none` 表示尚无失败）
+//   语义边界（如实划界）：本口**只**证"该入口被调用过、结果如何"；**不**证"页面排版出来了"。
+int WpfLinuxWin32_PtsFsPageGap(void)     { return g_pts_fsp_gap; }
+int WpfLinuxWin32_PtsFsPageCreated(void) { return g_pts_fsp_ok; }
+int WpfLinuxWin32_PtsFsPageRejected(void){ return g_pts_fsp_rej; }
+int WpfLinuxWin32_PtsFsPageLive(void)    { return g_pts_fsp_live_n; }
+const char *WpfLinuxWin32_PtsFsPageLastReason(void) { return g_pts_fsp_last_reason; }
+
 // ══════════════════════════════════════════════════════════════════════════
 //  机器可读面（照 `WpfLinuxWin32_EscStringSelfCheck` / `ClassificationSelfCheck` 的形状）
 // ══════════════════════════════════════════════════════════════════════════
@@ -1385,6 +1499,95 @@ static int g_pts_selfcheck_f6_docctx(void)
     return 1;
 }
 
+// ── 格 7 夹具（`t123`／P1-W46）：`FsCreatePageBottomless` 的出参绑定 ＋ 失败必清 ＋ **失败必留痕** ──
+//   承重点（判据 C5）：**两个句柄不同只是必要条件**；"与这次调用绑定"由**字段读回**承担。
+//   ⚠️ 入参 `pfscontext` 必须**真在册**（本实现按指针身份校验）⇒ 夹具先真建一个 doc 上下文。
+//   ⚠️ 失败面（判据 C4）：每条失败路径都要断言 **返非 0 ∧ 出参被清 ∧ 结果格＝未达成**；
+//      "返非 0 却无痕迹"由 `g_pts_fsp_gap` ＋ `[FS_PAGE_GAP]` 行承担（本夹具断言 **成功路径下 gap 不涨**）。
+static int g_pts_selfcheck_f7_fspage(void)
+{
+    const int nb = g_pts_fsp_live_n;
+    const int f7_ok = g_pts_fsp_ok, f7_gap = g_pts_fsp_gap;
+    /* 🔴 `t123` 自查抓到的**假绿口**（同 `t103` 格 85 的教训）：本模块**不提供**页销毁入口（非目标）
+       ⇒ 本夹具每跑一次真建 2 个页对象 ⇒ 表（`WPF_PTS_FSP_MAX`）会**逐次逼近上限**；
+       若在此**静默 `return 1`（"不适用"）**，则表满之后本格**永远绿而不判** = 假绿。
+       ⇒ 口径写死：**表满 ⇒ 返 0（红）并点名该格**（这条**不计入**任何"通过"路径）。
+       根治办法（另派单）：加一条 `WpfLinuxWin32_PtsFsPageReleaseAll()` 只读口（**只增不改**），
+       或把本夹具的两个对象在出口释放 —— 两者都要新增导出，属另一步的体例决定。 */
+    if (nb + 2 > WPF_PTS_FSP_MAX) return 0;                       /* 表满 ⇒ **响亮红**，不静默当"不适用" */
+    wpf_pts_fsctx_probe s1; memset(&s1, 0, sizeof(s1));
+    s1.version = 0x00010001u; s1.fsffi = 0xDEADBEEFu; s1.c_installed_objects = 1;
+    void *ctx = NULL;
+    if (CreateDocContext(&s1, &ctx) != 0 || ctx == NULL) return 0; /* 真建上下文（本实现的入参前提） */
+    void *pg1 = (void *)0x71, *pg2 = (void *)0x72;
+    int   r1 = WPF_PTS_FSFMTRBL_NOT_ACHIEVED, r2 = WPF_PTS_FSFMTRBL_NOT_ACHIEVED;
+    /* ① 两次独立调用：都成功 ＋ 两个页句柄**互不相等**（只是必要条件） */
+    if (FsCreatePageBottomless(ctx, (const void *)0x41, &r1, &pg1) != 0 || pg1 == NULL) { DestroyDocContext(ctx); return 0; }
+    if (FsCreatePageBottomless(ctx, (const void *)0x42, &r2, &pg2) != 0 || pg2 == NULL) {
+        DestroyDocContext(ctx); return 0;
+    }
+    if (pg1 == pg2) { DestroyDocContext(ctx); return 0; }
+    /* ② **按对象绑定**（真承重格）：页对象上的 `ctx`／`sect`／`result` 逐项与**本次调用**相符 */
+    if (((wpf_pts_fsp *)pg1)->magic != WPF_PTS_FSP_MAGIC) { DestroyDocContext(ctx); return 0; }
+    if (((wpf_pts_fsp *)pg2)->magic != WPF_PTS_FSP_MAGIC) { DestroyDocContext(ctx); return 0; }
+    if (((wpf_pts_fsp *)pg1)->ctx != ctx)   { DestroyDocContext(ctx); return 0; }
+    if (((wpf_pts_fsp *)pg2)->ctx != ctx)   { DestroyDocContext(ctx); return 0; }
+    if (((wpf_pts_fsp *)pg1)->sect != (const void *)0x41) { DestroyDocContext(ctx); return 0; }
+    if (((wpf_pts_fsp *)pg2)->sect != (const void *)0x42) { DestroyDocContext(ctx); return 0; }
+    /* ③ 结果格是**本次调用**的结果（不是全局常量）：出参 == 对象上的 `result` */
+    if (r1 != ((wpf_pts_fsp *)pg1)->result) { DestroyDocContext(ctx); return 0; }
+    if (r2 != ((wpf_pts_fsp *)pg2)->result) { DestroyDocContext(ctx); return 0; }
+    /* ④ 观测镜对拍（指针量走**指针域** `ptr0`／`ptr1`；`t97`／`t103` 同口径） */
+    {
+        const void *p0 = NULL, *p1 = NULL;
+        if (WpfLinuxWin32_PtsJmpProbePtr("FsCreatePageBottomless", ctx, &p0, &p1) != 1) { DestroyDocContext(ctx); return 0; }
+        if (p0 != pg2) { DestroyDocContext(ctx); return 0; }   /* 镜记的页句柄 == 最后一次真出参 */
+        if (p1 != ctx) { DestroyDocContext(ctx); return 0; }   /* 镜记的上下文 == 本次入参 */
+    }
+    /* ⑤ 拒绝面（每条：**返非 0 ∧ 出参被清 ∧ 结果格＝未达成**） */
+    {
+        const int snap_live = g_pts_fsp_live_n;
+        const int snap_gap  = g_pts_fsp_gap;
+        int rr = 0; void *q = (void *)0x5B5B;
+        rr = 7;
+        if (FsCreatePageBottomless(NULL, (const void *)0x41, &rr, &q) != WPF_PTS_ERR_NOT_IMPLEMENTED) { DestroyDocContext(ctx); return 0; }
+        if (q != NULL) { DestroyDocContext(ctx); return 0; }
+        if (rr != WPF_PTS_FSFMTRBL_NOT_ACHIEVED) { DestroyDocContext(ctx); return 0; }
+        rr = 7; q = (void *)0x5B5B;
+        if (FsCreatePageBottomless((void *)0xdeadbeef, (const void *)0x41, &rr, &q) != WPF_PTS_ERR_NOT_IMPLEMENTED) { DestroyDocContext(ctx); return 0; }   /* **未登记上下文必被拒、不 deref** */
+        if (q != NULL || rr != WPF_PTS_FSFMTRBL_NOT_ACHIEVED) { DestroyDocContext(ctx); return 0; }
+        rr = 7; q = (void *)0x5B5B;
+        if (FsCreatePageBottomless(ctx, (const void *)0x41, &rr, NULL) != WPF_PTS_ERR_NOT_IMPLEMENTED) { DestroyDocContext(ctx); return 0; }   /* 空出参 ⇒ 不给"写空也算成功" */
+        if (rr != WPF_PTS_FSFMTRBL_NOT_ACHIEVED) { DestroyDocContext(ctx); return 0; }
+        q = (void *)0x5B5B;
+        if (FsCreatePageBottomless(ctx, (const void *)0x41, NULL, &q) != WPF_PTS_ERR_NOT_IMPLEMENTED) { DestroyDocContext(ctx); return 0; }
+        if (q != NULL) { DestroyDocContext(ctx); return 0; }
+        if (g_pts_fsp_live_n != snap_live) { DestroyDocContext(ctx); return 0; }        /* 被拒路径**不许**留对象 */
+        if (g_pts_fsp_gap != snap_gap + 4) { DestroyDocContext(ctx); return 0; }        /* **失败必留痕**：4 条拒绝 ⇒ gap 恰涨 4（C4 的牙） */
+    }
+    /* ⑥ 收尾：上下文收回；本格的对象由内核在进程结束时回收（本模块**不**提供页销毁入口 = 非目标） */
+    if (DestroyDocContext(ctx) != 0) return 0;
+    if (g_pts_fsp_live_n != nb + 2) return 0;                       /* 本格真建了 2 个页对象 */
+    /* 夹具**回收自己造的两个对象**（本模块**不提供**页销毁入口 = 非目标；这里是**夹具内部**的释放，
+       只为让自检**幂等**、不逐次逼近上限）：按 `pg1`／`pg2` 的指针身份从表里摘除后 `free`。 */
+    {
+        void *want[2]; want[0] = pg1; want[1] = pg2;
+        for (int w = 0; w < 2; w++) {
+            for (int i = 0; i < g_pts_fsp_live_n; i++) {
+                if ((void *)g_pts_fsp_live[i] != want[w]) continue;
+                g_pts_fsp_live[i]->magic = 0;
+                free(g_pts_fsp_live[i]);
+                g_pts_fsp_live[i] = g_pts_fsp_live[--g_pts_fsp_live_n];
+                g_pts_fsp_live[g_pts_fsp_live_n] = NULL;
+                break;
+            }
+        }
+    }
+    if (g_pts_fsp_live_n != nb) return 0;                           /* 回收后回到 base（自检幂等） */
+    g_pts_fsp_ok = f7_ok; g_pts_fsp_gap = f7_gap;                   /* 出口复原本格计数 */
+    return 1;
+}
+
 // ⚠️ 诊断面（给"诊断驱动"的开发阶段用，也留给后续 `t80` §5-NOINFO-4 那条"谁调它"的问题）：
 //   把这个 `int` 追加到 `WpfLinuxWin32_PtsGapReport()` 的行尾 ⇒ 自检红的时候**看得见是哪一格**。
 static int g_pts_selfcheck_rc = 0;
@@ -1410,6 +1613,9 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
     char rep_probe[512];
     int  rep_clean_len = WpfLinuxWin32_PtsGapReport(rep_probe, (int)sizeof(rep_probe));
     int save_doc_des = g_pts_doc_destroys, save_doc_desrej = g_pts_doc_destroy_rej;
+    /* ⏪ `t123`：格 7（`FsCreatePageBottomless`）的成败计数同办 —— 自检真调它 ⇒ 不 save/restore 就会让
+       "自检不许改变可观测状态"对新面变成假话（`t102` 的 `F-2` 同形）。 */
+    int save_fsp_ok = g_pts_fsp_ok, save_fsp_gap = g_pts_fsp_gap, save_fsp_rej = g_pts_fsp_rej;
     int save_brk_sets = g_pts_break_sets, save_brk_rej = g_pts_break_rejected;
     /* ⏪ **`t102`／P1-W28 · `F-2`（medium 真缺陷）**：`g_pts_pen_sets`／`g_pts_pen_rejected`（格 4 的
        成功/被拒计数）**原先没被保存/复原** ⇒ 每跑一次自检，**它自己新导出的**读口
@@ -1610,6 +1816,7 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
                 g_pts_doc_sets = save_doc_sets; g_pts_doc_rejected = save_doc_rej;
     g_pts_doc_sets_c = save_doc_c_sets; g_pts_doc_rejected_c = save_doc_c_rej;
     g_pts_doc_destroys = save_doc_des; g_pts_doc_destroy_rej = save_doc_desrej;
+    g_pts_fsp_ok = save_fsp_ok; g_pts_fsp_gap = save_fsp_gap; g_pts_fsp_rej = save_fsp_rej;   /* `t123`：格 7 计数一并复原 */
                 g_pts_break_sets = save_brk_sets; g_pts_break_rejected = save_brk_rej;
                 /* ⏪ `t102`／P1-W28 · `F-2` 的**第二处**（本趟实测抓到的）：
                    负极性夹具**自己也会真调** `LoAcquirePenaltyModule` ⇒ 它涨的 `g_pts_pen_sets`
@@ -1695,6 +1902,7 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
              ＋ 观测镜指针域对拍 ＋ 拒绝面不改状态 ＋ 收尾同侪四路拒绝 ＋ 夹具不带泄漏**。
                修前该入口是 stub ⇒ 出参恒 `NULL` ⇒ 本格**当场红**（可证伪）。 */
         else if (!g_pts_selfcheck_f6_docctx()) rc = 86;
+        else if (!g_pts_selfcheck_f7_fspage()) rc = 87;
     }
 
     /* ⏪ `t110` 实测教训（**必须留档**）：链跑完之后、**格 6 夹具之前**，观测镜要先**复原**。
@@ -1716,6 +1924,7 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
     g_pts_doc_sets = save_doc_sets; g_pts_doc_rejected = save_doc_rej;
     g_pts_doc_sets_c = save_doc_c_sets; g_pts_doc_rejected_c = save_doc_c_rej;
     g_pts_doc_destroys = save_doc_des; g_pts_doc_destroy_rej = save_doc_desrej;
+    g_pts_fsp_ok = save_fsp_ok; g_pts_fsp_gap = save_fsp_gap; g_pts_fsp_rej = save_fsp_rej;   /* `t123`：格 7 计数一并复原 */
     g_pts_break_sets = save_brk_sets; g_pts_break_rejected = save_brk_rej;
     g_pts_pen_sets = save_pen_sets; g_pts_pen_rejected = save_pen_rej;   /* `F-2`：格 4 计数一并复原 */
     g_pts_inth_sets = save_inth_sets; g_pts_inth_rejected = save_inth_rej;   /* `t103`：格 5 计数一并复原 */

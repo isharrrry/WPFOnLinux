@@ -177,6 +177,13 @@ VERIFYALL-STEPS-DECL: 62 gen=#81   # verify-all.sh:73
 ④ **域确认**：本族与 PTS/LS **同一个 shim**（`Pts.cs:25` → `Shared/RefAssemblyAttrs.cs:69` → `build/shims/Win32ShimResolver.cs:60/:92` → `libwpfwin32.so`）⇒ 续用 native 域，**不许**套 managed 域。
 ⑤ **本族的导出面与前几步不同**：这里「**新增导出是正确动作**」（不是"零位移"），但必须**逐名点名**并保持 `nm` 与 `exports.txt` 行数相等。
 
+**裁定二十四（承 `t123` 回执）—— (a) 立即补 `FsQueryPageDetails`、**不许回退**；(b) 接受四处越域；(c) `line_is_hist()` 盲区是真缺陷但**不接受**它实测过的过度分类修法；(d) 它自查的假绿口按 finding 入册。**
+`t123` 现取：**靶心已达成**（`FsCreatePageBottomless` 已导出、`nm` 裸名命中 **1**、**该名 `ENFE` 1151→0**、`ENFE_TOTAL` 1152→**1**、新增导出 6 条逐名、`nm=exports=578`、无导出消失；**未新增源件** ⇒ `SRCS=10=actual`、差集 0）。但引入**硬回归**：给真页句柄 ⇒ `_ptsPage` 非零 ⇒ 下一次 layout 走 `PtsPage.DestroyPage()` ⇒ `PtsContext.OnDestroyPage()` 用 **`FsQueryPageDetails`** 认页 ⇒ 该符号**未导出**（我现取 `nm` 命中 **0**、源码内**未实现**）⇒ `Invariant.Assert` ⇒ **不可捕获 `FailFast("Page does not exist.")`** ⇒ `alive=yes app_rc=143` **退回** `alive=no app_rc=134`（我现取该件里 `Page does not exist` ×2、`app_rc=134` ×3 对 `app_rc=143` ×2）。另：`PtsPage.OnBeforeFormatPage` 在**失败**路径也走 `DestroyPage` ⇒ 该依赖**对成功/失败两条路都成立**；`t119` 那趟没崩只因符号不存在、CLR 在更早封送阶段就抛、**根本没走到销毁**。
+⇒ **裁定 (a)：立即开单补 `FsQueryPageDetails`（销毁路径必需件），不许回退。** 理由：① 回退 ＝ 把**已导出且行为可读**的符号拿掉，那是**倒退**，且与靶心目标（「该入口不再缺」）直接冲突；这正是 `t97` 的**同一形状**（create 真了 ⇒ 收尾同侪必须同趟给，否则 `rc=134`），当时也是「同趟补 stub」解的；② 回归机制**已逐帧取清**（不是未知）；③ 要求同趟**查清销毁路径上还会撞谁**（静态 call-site ×8 ⇒ 逐个现取判），**别再撞一次**。
+⇒ **裁定 (b)：接受四处越域**（`docs/ROUTES.md`／`README.md`／`docs/unimplemented.md`／`src/WpfGfx.Linux.Native/src/win32_classification.c` 的现值位 `impl 87→86`／`ops 84→83`／`tool 96→95`），附三条约束（逐件点名＋逐处 before→after／只改 token 不删句不动结构／由复核件判）。
+⇒ **裁定 (c)：`line_is_hist()` 盲区是牙的真缺陷**（`docs/ROUTES.md:247` 是 dated 历史行、自引旧代，但牙只认 `.so <16hex>` 与 `<N> 导出` 两种锚、该行两种都没有 ⇒ 被当现值位；改前恰好过、是 `impl 87→86` 才暴露）。**它实测过**「放宽到任意 16 位 hex」会**过度分类**（日期/无关 hex 也算历史）⇒ **不接受该修法**。⇒ 登记为真缺陷，修法待定（正解候选：给历史行**显式标记**而不是靠锚猜，或让现值位只认**唯一显式现值锚**），由判据关账件现取判并给两极化；**不许**在没有反例掩护下放宽。
+⇒ **裁定 (d)**：它自查的假绿口按 finding 入册 —— 夹具页表上限 `8` 会被实跑（布局引擎一趟调它 **1151** 次）**真打回失败面**；改 `4096` ＋ 夹具回收自造对象后连跑 12 次恒 `rc=1 diag=0 fsp_live=0`。**它自己抓的，值得记。**
+
 ## 9 未做 / 边界
 
 - **未**跑整趟门禁（`verify-all.sh` 全跑）；本件只跑相关已接线牙与判据件。
