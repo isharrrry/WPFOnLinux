@@ -943,6 +943,17 @@ _Static_assert(sizeof(wpf_pts_fsparadesc)                   == 64, "sizeof(FSPAR
 _Static_assert(sizeof(wpf_pts_fsupdinf) == 8, "FSUPDATEINFO != 8 B");
 _Static_assert(sizeof(wpf_pts_fsbbox_t) == 20, "FSBBOX != 20 B");
 
+#ifndef WPF_PTS_FSP_PL_ENGINE_DRIVE
+/* ⏪ `t165`（P1-W85）**E2 副本专用驱动格**：缺省 **0** ⇒ 本块**不进主链产物一个字节**
+   （因此主链 `.so` 与 `exports.txt` 的 sha16 **逐字节不变** ⇒ 这是"副本专用"的成对证据）。 */
+#define WPF_PTS_FSP_PL_ENGINE_DRIVE 0
+#endif
+#ifndef WPF_PTS_FSP_PL_EDRIVE_BADNULL
+#define WPF_PTS_FSP_PL_EDRIVE_BADNULL 0    /* 反腿①：给 NULL（族 N） */
+#endif
+#ifndef WPF_PTS_FSP_PL_EDRIVE_BADSTACK
+#define WPF_PTS_FSP_PL_EDRIVE_BADSTACK 0   /* 反腿②：给栈地址（族 X，"看似真实则伪"） */
+#endif
 #ifndef WPF_PTS_FSP_PL_SELFRECYCLE
 #define WPF_PTS_FSP_PL_SELFRECYCLE 0   /* 只在**副本产物**上开：**P4 反腿**（本入口"返回前回收"） */
 #endif
@@ -1269,6 +1280,120 @@ static void wpf_pts_drive_probe2_oow(void *pfscontext, const char *where)
     }
 }
 
+#if WPF_PTS_FSP_PL_ENGINE_DRIVE
+/* ══ ⏪ `t165` E2 驱动格（**只在副本产物**）═════════════════════════════════════════════════
+   驱动 `FSIMETHODS` 槽 1（拿 `pfssobjc`）＋ 槽 3（`ObjFormatParaFinite`，让引擎侧造型产出 `pfspara`）。
+   · **作者性铁律**（`t164` §3）：只喂"本侧是作者"的值；逐项声明见载体 §1，日志行里逐项复述。
+   · **族匹配**（裁定五十 (d)）：**先分类再喂**；`nmp`／`pfsparaclient` 必须是族 **H**（托管句柄，本 run 产出），
+     否则**拒发**（`v=FAMILY-REFUSED`）—— 跨族必撞 `HandleToObject` 的 Assert（`t162` 的 `app_rc=134` 教训）。
+   · **零假值**：`NULL` 只用于**契约允许**处（`pfsobjbrk`：`Pts.cs:2711` 原文「use if !NULL」）；
+     `NULL`／栈地址进 **nmp** 两条属**反腿**，且**在族检查处就被拒**（不进回调）。
+   · 本侧自定的几何形状 ⇒ 具名 `NOINFO-FSGEOMETRY-LAYOUT`（与上游 ABI 不可比）；`pfscbkobj=NULL` ⇒
+     具名 `NOINFO-FSCBKOBJ-CONTRACT`（宿主不读 ⇒ 无仓内依据 ⇒ 本件只做实验、不断言）。 */
+typedef struct { int u, v, du, dv; int flags; int rsv[11]; } wpf_pts_fsgeom_guess;   /* 自定形状（64 B） */
+typedef int (*wpf_pts_fn_create_objctx)(const void *pfsclient, const void *pfsc, const void *pfscbkobj,
+                                        unsigned ffi, int idobj, void **pfssobjc);
+typedef int (*wpf_pts_fn_fmt_para_finite)(const void *pfssobjc, const void *pfsparaclient,
+                                          const void *pfsobjbrk, int f_br_from_prev,
+                                          const void *nmp, int i_area, const void *pftnrej,
+                                          const void *pfsgeom, int f_empty_ok, int f_suppress_top_space,
+                                          unsigned fswdir, void *rect_to_fill, const void *pmcs_in,
+                                          int fskclear_in, int f_suppress_hard_break, int f_break_inside,
+                                          int *out_fsfmtr, void **out_pfspara, void **out_pbrkrecpara,
+                                          int *out_dvr_used, void *out_fsbbox, void **out_pmcs_out,
+                                          int *out_fskclear_out, int *out_dvr_top_space,
+                                          int *out_break_inside_possible);
+
+static char wpf_pts_fam(const wpf_pts_doc *d, const void *p)
+{
+    if (!p) return 'N';
+    /* 族 **H** ＝ 本 run 由**托管回调**产出的句柄：段落句柄（`+136`）、客户端句柄（`+176`，三个来源
+       `fsp_pl_cur`／`fsp_pl_src_in`／`fsp_pl_src_out`）。⚠️ 首版漏了后两个 ⇒ 探针时刻的 `keep=0x5`
+       被误判成族 X（**这条误判本身是真读数，已入册**）。 */
+    if (p == (const void *)d->drive_nmp || p == (const void *)d->fsp_pl_cur
+        || p == (const void *)d->fsp_pl_src_in || p == (const void *)d->fsp_pl_src_out) return 'H';
+    if (wpf_pts_sub_claim(p, NULL)) return 'E';
+    return 'X';                       /* 未知/伪（含栈地址） */
+}
+static void wpf_pts_engine_drive(wpf_pts_doc *d, const void *where)
+{
+    const void *m = NULL;
+    for (int i = 0; i < g_pts_io_live_n; i++) {
+        if (g_pts_io_live[i]->subtrack_methods) { m = g_pts_io_live[i]->subtrack_methods; break; }
+    }
+    const void *nmp = (const void *)d->drive_nmp;
+    /* ⏪ `t165`：客户端句柄的**可用来源**＝探针在**窗内**用 `+176` 造出并保留的那一枚（`fsp_pl_src_in`，
+       族 **H**）；`fsp_pl_cur` 只在**后面的填充路径**才被赋值 ⇒ 探针时刻它是 `NULL`（实测：首版因此
+       被族检查拒掉，`reason=client-not-H` —— 这条拒绝本身是真读数，已入册）。 */
+    const void *cli = (const void *)(d->fsp_pl_src_in ? d->fsp_pl_src_in : d->fsp_pl_cur);
+#if WPF_PTS_FSP_PL_EDRIVE_BADNULL
+    nmp = NULL;                                   /* 反腿①：族 N */
+#endif
+#if WPF_PTS_FSP_PL_EDRIVE_BADSTACK
+    { static int stk = 0; nmp = (const void *)&stk; }   /* 反腿②：族 X（栈地址） */
+#endif
+    const char fn = wpf_pts_fam(d, nmp);
+    const char fc = wpf_pts_fam(d, cli);
+    fprintf(stderr, "[FSPARALIST-EDRIVE] where=%s methods=%p fam_nmp=%c fam_client=%c\n",
+            (const char *)where, (const void *)m, (int)fn, (int)fc);
+    /* 🔴 **族匹配铁律**：`nmp`／`pfsparaclient` 必须是 **H**；否则**拒发**（不进回调） */
+    if (!m || fn != 'H' || fc != 'H') {
+        fprintf(stderr, "[FSPARALIST-EDRIVE] v=FAMILY-REFUSED reason=%s nmp=%p(fam=%c) client=%p(fam=%c) "
+                        "calls=0（**未发出任何回调调用**，不许当绿）\n",
+                (!m ? "no-methods" : (fn != 'H' ? "nmp-not-H" : "client-not-H")), nmp, fn, cli, fc);
+        return;
+    }
+    const wpf_pts_fn_create_objctx f1 = *(const wpf_pts_fn_create_objctx *)(const void *)((const char *)m + 0);
+    const wpf_pts_fn_fmt_para_finite f3 = *(const wpf_pts_fn_fmt_para_finite *)(const void *)((const char *)m + 16);
+    /* ── 槽 1：拿 `pfssobjc`（**作者性**：`idobj`／`ffi` 本侧自选；产出由引擎槽 1 给出） ── */
+    void *sobjc = (void *)(unsigned long)0xA5A5A5A5A5A5A5A5ULL;      /* 毒值 */
+    void *sobjc_pre = sobjc;
+    unsigned ffi = 0x1u;  int idobj = 7000 + g_pts_sub_seq;
+    int rc1 = f1((const void *)d->p_fsclient, (const void *)d->info_addr, NULL /*NOINFO-FSCBKOBJ-CONTRACT*/,
+                 ffi, idobj, &sobjc);
+    fprintf(stderr, "[FSPARALIST-EDRIVE] phase=slot1 rc=%d sobjc=%p pre=%p rewritten=%d idobj=%d ffi=0x%x "
+                    "author=idobj,ffi(NOINFO-FSCBKOBJ-CONTRACT=pfscbkobj->NULL) v=%s\n",
+            rc1, sobjc, sobjc_pre, (sobjc != sobjc_pre && sobjc != NULL) ? 1 : 0, idobj, ffi,
+            (rc1 == 0 && sobjc != sobjc_pre) ? "OBJCTX-PRODUCED" : "OBJCTX-NOT-PRODUCED");
+    /* ── 槽 3：投毒全部 out ⇒ 驱动一次 ⇒ 四条断言 ─────────────────────────────── */
+    wpf_pts_fsgeom_guess geom; memset(&geom, 0, sizeof(geom));
+    geom.du = 768; geom.dv = 576;                  /* 本侧页几何（作者：本侧，`win32_pts.c:290/:352`） */
+    int rect[4] = { 0, 0, 768, 576 };              /* fsrcToFill：本侧矩形（作者：本侧） */
+    int o_fsfmtr = -0x5A5A, o_dvr_used = -0x5A5A, o_fskclear = -0x5A5A, o_dvrtop = -0x5A5A;
+    int o_breakpos = -0x5A5A;
+    void *o_pfspara = (void *)(unsigned long)0xA5A5A5A5A5A5A5A5ULL;
+    void *o_pbrkrec = (void *)0xA5A5A5A5A5A5A5A5ULL, *o_pmcs = (void *)0xA5A5A5A5A5A5A5A5ULL;
+    unsigned char o_fsbbox[20]; memset(o_fsbbox, 0xA5, sizeof(o_fsbbox));
+    void *pre_pfspara = o_pfspara;
+    int rc3 = f3(sobjc, cli, NULL /*契约允许（use if !NULL）*/, 0, nmp, 0, 0 /*pftnrej 实验值*/,
+                 &geom, 1 /*fEmptyOk*/, 0 /*fSuppressTopSpace*/, 0u /*fswdir 本侧自选*/,
+                 rect, 0 /*pmcsclientIn=0（托管显式允许）*/, 0 /*fskclearIn*/, 0, 0,
+                 &o_fsfmtr, &o_pfspara, &o_pbrkrec, &o_dvr_used, o_fsbbox, &o_pmcs, &o_fskclear,
+                 &o_dvrtop, &o_breakpos);
+    int rewritten = (o_pfspara != pre_pfspara);
+    int claimed = rewritten ? wpf_pts_sub_claim(o_pfspara, NULL) : 0;
+    fprintf(stderr, "[FSPARALIST-EDRIVE] phase=slot3 rc=%d nmp=%p client=%p geom=%p(self-defined) "
+                    "rect=%d,%d,%d,%d pfsobjbrk=NULL(contract) pmcsclientIn=0 pftnrej=0 fEmptyOk=1 "
+                    "fSuppressTopSpace=0 fswdir=0 iArea=0 pre_pfspara=%p pfspara=%p rewritten=%d claim=%d "
+                    "created=%d live=%d o_fsfmtr=%d o_dvrUsed=%d o_dvrTopSpace=%d o_breakpos=%d "
+                    "author=idobj,ffi,geom(self),rect,fswdir,fEmptyOk,fSuppressTopSpace,fskclearIn,iArea,"
+                    "fBreakInside | H=nmp,pfsparaclient | NULL-legal=pfsobjbrk | "
+                    "NOINFO=FSCBKOBJ-CONTRACT,FSGEOMETRY-LAYOUT | "
+                    "brk_content=alias(&c_paras)not-content | cparas_semantics=own-object-field-未造型 "
+                    "v=%s\n",
+            rc3, nmp, cli, (void *)&geom, rect[0], rect[1], rect[2], rect[3], pre_pfspara, o_pfspara,
+            rewritten, claimed, g_pts_sub_created, g_pts_sub_live_n, o_fsfmtr, o_dvr_used, o_dvrtop,
+            o_breakpos,
+            (rc3 == 0 && rewritten && claimed) ? "ENGINE-PRODUCED-CLAIMABLE"
+              : (rc3 != 0) ? "CALLBACK-ERR" : (rewritten ? "PRODUCED-NOT-CLAIMABLE" : "NOT-REWRITTEN"));
+    /* 断言逐条（A–D）留痕 */
+    fprintf(stderr, "[FSPARALIST-EDRIVE] asserts A_rc0=%d B_rewritten=%d C_claimable=%d "
+                    "D_one_new_entry=%d（D: created_now=%d）v=%s\n",
+            (rc3 == 0), rewritten, claimed, (claimed ? 1 : 0), g_pts_sub_created,
+            (rc3 == 0 && rewritten && claimed) ? "E2-ASSERTS-PASS" : "E2-ASSERTS-PARTIAL");
+}
+#endif   /* WPF_PTS_FSP_PL_ENGINE_DRIVE */
+
 static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *where)
 {
     if (!d) { wpf_pts_drive_probe_skip("null-doc"); return; }
@@ -1524,6 +1649,9 @@ static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *wh
                 where, (nmSeg1 == NULL) ? "no-nmseg" : "null-slot136", fp136, nmSeg1);
     }
 
+#if WPF_PTS_FSP_PL_ENGINE_DRIVE
+    if (g_pts_sub_live_n > 0 || 1) wpf_pts_engine_drive(d, where);   /* ⏪ t165 E2（副本专用） */
+#endif
     g_pts_dp_calls++;
     g_pts_dp_56_fserr = rc56a; g_pts_dp_56_fsuccess = fSuccess1; g_pts_dp_56_next = (const void *)nmsNext1;
     g_pts_dp_80_fserr = rc80a; g_pts_dp_80_segment = (const void *)nmSeg1;
