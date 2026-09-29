@@ -190,6 +190,14 @@ VERIFYALL-STEPS-DECL: 62 gen=#81   # verify-all.sh:73
 ⇒ **裁定 (b)：`--emit` 用法口径入册** —— 它**只往 stdout 吐**，写盘是**调用方**的事（在册用法 `--emit > "$TMP"`，且必须 `temp+rename`；**就地重写正是 `D-G101` 的现场形态**）；`DECLDRIFT` 只**诊断**、**不进 `rc`**。**队长认账（第 8 次）**：我此前三次**没重定向**、并据此判「`--emit` 不刷新戳」，是**用错命令**、不是工具缺陷；已按正确用法刷新（`DECL-GEN` 前进到 `2026-09-29 11:46:42 +0800`、`DECLDRIFT` **1→0**、两遍 `DEFREG=PASS declared=224 route_ids=224`）。
 ⇒ **裁定 (c)**：`N1` 接线带来的现值变化（旧格式腿在 `degraded` 期多 `cannot=…n1-frame-cell-missing…`；干净夹具 `PASS`⇒`NOINFO`；在册证据目录**颜色不变**只多两格 `cannot=`）**属有意收紧**，确认；`PTS_GUARD_SELFTEST=PASS pass=55 fail=0`（46→55）。
 
+**裁定二十六（承 `t123` in-flight 补充回执）—— (a) 下一跳 ＝ `FsQueryTrackDetails`＋`FsCreatePageFinite`（`FsQuerySubpageDetails` 不补）；(b) 接受越域；(c) 队长认账一处因果推断；(d) `line_is_hist()` 盲区仍待 `tools/**` 写者。**
+`t123` 的 in-flight 补充（载体 `build/MilBridge/P1-fs-destroy-report.md`，198 行，sha16 `d736949f3f9a3cd3`）**补了 `FsQueryPageDetails` ＋ `FsDestroyPage` 两条真实现，回归已解**：`alive=no app_rc=134` → **`alive=yes app_rc=143`**、`failfast 4→0`、`unrec 2→0`、三名 ENFE 全归零；`.so → e08167eef3c4a14e`、导出 **578→584**（逐名、无消失）；格 `88` 新增、旧格号 0–87 一个未动；未新增源件 ⇒ `SRCS` 完整性现核 `10=10` 差集 0。
+⇒ **裁定 (a)：下一跳 ＝ 补 `FsQueryTrackDetails`（当前唯一大额 ENFE：1101）＋ 同趟 `FsCreatePageFinite`（1 条）。`FsQuerySubpageDetails` **不补**（现取判明它**不在**销毁路径上 —— 调用点全集只在 `FigureParaClient`，属后续子页路径候选）。** 并沿用「别再撞一次」：同趟查清 `FsQueryTrackDetails` 的调用链，**分清「钥匙」（挡住后续注册/回调的那一步）与「其后要撞的」**（上一件正是靠这个区分才把真因定到 `FsQueryPageDetails`）。
+⇒ **裁定 (b)：接受四处越域**现值位（`tool 95→93`／`ops 83→81`／`impl 86→84`，落 `docs/ROUTES.md`／`README.md`／`docs/unimplemented.md`／`src/WpfGfx.Linux.Native/src/win32_classification.c` 与 `samples/**` 的**现值位**，历史行一字未动），附三条约束（同裁定七/十一/十五/二十四）。
+⇒ **裁定 (c)：队长认账（第 9 次）** —— 我在 `t125` 的 in-flight 注入里断言「`FsDestroyPage` 缺符号是那次 abort 的成因」，**不准**。采纳它现取的链条：`CreateBottomlessPage()` → `OnBeforeFormatPage(false,false)`（`PtsPage.cs:280/282`）→ `DestroyPage()`（`:735`）→ `OnDestroyPage` 的两道断言（`_pages.Contains(ptsPage)`，`:481/483`，其原文即崩溃文本 *"Page does not exist."*）→ 而**注册点 `OnPageCreated`（`:798`）之前**先跑 `OnAfterFormatPage`，其 `GetRect()`/`GetBoundingBox()` 都调 **`FsQueryPageDetails`** ⇒ 该符号缺失 ⇒ 抛 ⇒ **`OnPageCreated` 永不执行** ⇒ `_ptsPage` 非零却不在 `_pages` 里 ⇒ 下一趟撞断言。**两条独立佐证**：崩溃日志里 `FsCreatePageBottomless` 命中 **0**；崩点**在** `PtsContext.cs:490` 的 `FsDestroyPage` 调用**之前**。⇒ 「两条都要补」的方向不变，**理由改写**：`FsQueryPageDetails` 是**钥匙**、`FsDestroyPage` 是**其后**。
+⇒ **裁定 (d)：`line_is_hist()` 盲区仍待处置**（`docs/ROUTES.md:247` 的 dated 历史行缺 `.so` 世代锚 ⇒ 被当现值位 ⇒ `PTSGAP` 残留 1 条 `SITE-DRIFT`）；它实测过「放宽到任意 16 位 hex」会过度分类 ⇒ **不接受该修法**；交 `tools/**` 写者按裁定二十四 (c) 的候选方向（显式标记 / 唯一显式现值锚）现取判并给两极化。
+⇒ **(e)** 它报的两条**诚实红继续保留**：帧仍**逐字节相同**（`k23=k24=ef3fd6765f18f51b`）⇒ 按 `N3` 红、`C6` 不给绿、`C8` 保持 `NOINFO`；本步的绿**只准**读成「这两条入口不再缺且行为可读、回归已解」，**不是**「打通排版」（`ENFE_TOTAL` 仍 **1102**）。
+
 ## 9 未做 / 边界
 
 - **未**跑整趟门禁（`verify-all.sh` 全跑）；本件只跑相关已接线牙与判据件。
