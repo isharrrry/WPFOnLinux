@@ -15,6 +15,12 @@ SELF_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 BIN="${W67_BIN:-$SELF_DIR}"
 TAG="${1:?tag}"; shift
 [ $# -gt 0 ] || { echo "need >=1 group" >&2; exit 2; }
+# ── ⏪ `t159`：**工具换代**（会话端）—— 与 runner 侧 `LEGS_TOOLS` 同形；本行＝**新增行**（既有输出一字不动）──
+#   口径：`sha16` 取**本趟实际被执行的这一份**会话件（`${BASH_SOURCE[0]}`），**不是**"打包时"的值；
+#   `runner_sha16` 由 runner 经 `W67_RUNNER_SHA16` 下传（缺 ⇒ `none`，绝不猜）。放在**前置之前** ⇒ 拒跑趟也带此行。
+_SESSION_SHA16="$(sha256sum "${BASH_SOURCE[0]}" 2>/dev/null | cut -c1-16)"
+_SESSION_MTIME_EPOCH="$(stat -c %Y "${BASH_SOURCE[0]}" 2>/dev/null || echo 0)"
+echo "SESSION_TOOLS session_sha16=${_SESSION_SHA16:-none} session_mtime_epoch=${_SESSION_MTIME_EPOCH:-0} runner_sha16=${W67_RUNNER_SHA16:-none}" >&2
 D="${W67_DISPLAY:-:237}"
 # ⏪【`t14`／W2·B-9，读时 2026-09-28T16:02:39+0800】默认显示号**占用探测**（`D-G139` 同族：长跑自起的显示位必须按 PID 收净；**不许静默复用别人的号**）
 # ⏪【`t68`，读时 2026-09-28T20:54:02.855+0800】**修装置互斥 ＋ 占位保护名义化**（`D-G188`）。上一条判据的**原文逐字保留**在下面（一字未删），

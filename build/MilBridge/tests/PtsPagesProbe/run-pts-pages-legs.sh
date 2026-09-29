@@ -98,6 +98,29 @@ AUTH_PF16="$(sha256sum "$AUTH_PF" 2>/dev/null | cut -c1-16)"
 APP_SHIM16="$(sha256sum "$APPDIR/libwpfwin32.so" 2>/dev/null | cut -c1-16)"
 APP_PF16="$(sha256sum "$APPDIR/PresentationFramework.dll" 2>/dev/null | cut -c1-16)"
 echo "AUTHORITY: shim=$AUTH_SHIM16 pf=$AUTH_PF16 ｜ APPDIR: shim=$APP_SHIM16 pf=$APP_PF16"
+# ── ⏪ `t159`：**工具换代**的机读行（与代际指纹守卫**同形**；裁定四十三 (c) 采纳 `t156` 建议）──
+#   为什么要有它：代际指纹守卫记的是"**件**换代"（`auth_shim16`／`auth_pf16`），本行记的是"**工具**换代"
+#   （装置件自身的 `sha16`）。`D-1` 那次"装置版本跳变"（P 腿 `17:50:07` ⇒ `t157` 修于 `17:51:03`）
+#   当初是**人工 `grep`** 才发现的 ⇒ 有了本行，"**同一批内工具一致**"才成为**机器可核**。
+#   口径（写死）：sha16 取**当趟实际被执行的那份**文件（`$SESS` 就是本趟要执行的会话件；runner 取自身路径；
+#   guard 取 `$REPO/build/MilBridge/tools/pts-pages-guard.sh`）—— **不是**"打包时"的值。
+#   位置：放在**前置之前** ⇒ 连 `authority-missing`／`app-stale` 这类**拒跑**趟也带这一行（同批可比）。
+#   ⚠️ **只增不改**：本行是**新增行**；既有列（`CLICK`／`FAILLINE`／`FRAME`／`PHASE`／`FILE=`／`APP_RC=`／
+#   `LEGSCOUNT`／`LEGS_RUNNER` 等）**字段名与形状一字未动**（它们被门禁与守卫读）。
+_sha16_of() { sha256sum "$1" 2>/dev/null | cut -c1-16; }
+TOOL_RUNNER="$SELF_DIR/$(basename "${BASH_SOURCE[0]}")"
+TOOL_SESSION="$SESS"
+TOOL_GUARD="$REPO/build/MilBridge/tools/pts-pages-guard.sh"
+TOOLS_RUNNER16="$(_sha16_of "$TOOL_RUNNER")"
+TOOLS_SESSION16="$(_sha16_of "$TOOL_SESSION")"
+TOOLS_GUARD16="$(_sha16_of "$TOOL_GUARD")"
+TOOLS_MTIME=0
+for _tf in "$TOOL_RUNNER" "$TOOL_SESSION" "$TOOL_GUARD"; do
+  _tm="$(stat -c %Y "$_tf" 2>/dev/null || echo 0)"
+  [ "${_tm:-0}" -gt "$TOOLS_MTIME" ] && TOOLS_MTIME="$_tm"
+done
+echo "LEGS_TOOLS runner_sha16=${TOOLS_RUNNER16:-none} session_sha16=${TOOLS_SESSION16:-none} guard_sha16=${TOOLS_GUARD16:-none} mtime_max=$(date -d "@$TOOLS_MTIME" '+%Y-%m-%dT%H:%M:%S%z' 2>/dev/null || echo unknown) mtime_max_epoch=$TOOLS_MTIME"
+export W67_RUNNER_SHA16="${TOOLS_RUNNER16:-none}"   # ⏪ `t159`：交给会话端，让它也能印同批工具身份（新增行）
 if [ -z "$AUTH_SHIM16" ] || [ -z "$AUTH_PF16" ]; then
   echo "device=NOINFO reason=authority-missing shim=$AUTH_SHIM pf=$AUTH_PF"; exit 2
 fi
