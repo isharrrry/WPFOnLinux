@@ -1179,6 +1179,9 @@ static int g_pts_sub_destroyed = 0;
 static int g_pts_sub_seq       = 0;
 static int g_pts_sub_claim_ok  = 0;
 static int g_pts_sub_claim_bad = 0;
+/* ⏪ `t172`：台账**可读状态位**（红榜 `P8`：区分「真的 0 个活条目」与「没有读数」）。
+   0 = 未初始化（端口一律返 **-1**，**绝不返 0**）；1 = 可读（端口返台账真值）。 */
+static int g_pts_hc_reading      = 0;
 static int g_pts_sub_selftest_mask = -1;
 
 static wpf_pts_subtrack *wpf_pts_sub_new(const void *nmp, const void *client)
@@ -1190,6 +1193,7 @@ static wpf_pts_subtrack *wpf_pts_sub_new(const void *nmp, const void *client)
     o->nmp = nmp; o->pfsparaclient = client; o->seq = ++g_pts_sub_seq; o->live = 1;
     g_pts_sub_live[g_pts_sub_live_n++] = o;
     g_pts_sub_created++;
+    g_pts_hc_reading = 1;          /* ⏪ t172：台账一建即可读（此后再无"没取到"） */
     return o;
 }
 static void wpf_pts_sub_destroy(wpf_pts_subtrack *o)
@@ -1223,9 +1227,22 @@ static int wpf_pts_sub_claim(const void *p, wpf_pts_subtrack **out)
 }
 /* 台账/身份/销毁口径的**自检**（纯 native；只用自己的对象，不碰应用状态）：
    bit0 新建后可认领 ｜ bit1 NULL 被拒 ｜ bit2 栈地址被拒 ｜ bit3 销毁后不可认领 ｜ bit4 在册数复原 */
+/* ⏪ `t172`：聚合计敷口的前向声明（定义在下方端口区；自检要用它们**读台账**） */
+int WpfLinuxWin32_PtsHandleLiveCount(void);
+int WpfLinuxWin32_PtsHandleCreatedCount(void);
+int WpfLinuxWin32_PtsHandleDestroyedCount(void);
+int WpfLinuxWin32_PtsHandleReadingState(void);
+
 static int wpf_pts_sub_selftest(void)
 {
     int mask = 0;
+    /* ⏪ `t172`：**两腿成对夹具**（红榜 `P8`／`P10`）—— 先给"未初始化/没读到"的读数，再给两腿。 */
+    fprintf(stderr, "[HCOUNTLEDGER] read#0 state=%s live=%d created=%d destroyed=%d "
+                    "v=NO-READING-DISTINCT-FROM-ZERO（未初始化 ⇒ 端口返 -1，**不打成 0**）\n",
+            g_pts_hc_reading ? "READING" : "NO-READING",
+            g_pts_hc_reading ? g_pts_sub_live_n : -1,
+            g_pts_hc_reading ? g_pts_sub_created : -1,
+            g_pts_hc_reading ? g_pts_sub_destroyed : -1);
     const int live0 = g_pts_sub_live_n;
     wpf_pts_subtrack *o = wpf_pts_sub_new((const void *)0x3, (const void *)0x5);
     if (!o) return 0;
@@ -1237,12 +1254,51 @@ static int wpf_pts_sub_selftest(void)
     wpf_pts_sub_destroy(o);
     if (!wpf_pts_sub_claim(wpf_pts_sub_handle(o), NULL))         mask |= 8;
     if (g_pts_sub_live_n == live0)                               mask |= 16;
+    /* ── ⏪ `t172` 两腿成对读数（**只读台账**，与任何 `rc` 无关） ─────────────────────────── */
+    {
+        const int N = 3;
+        /* 腿 A：**只建不回收** */
+        const int lA0 = WpfLinuxWin32_PtsHandleLiveCount(), cA0 = WpfLinuxWin32_PtsHandleCreatedCount(),
+                  dA0 = WpfLinuxWin32_PtsHandleDestroyedCount();
+        wpf_pts_subtrack *keep[8];
+        for (int i = 0; i < N; i++) keep[i] = wpf_pts_sub_new((const void *)0x3, (const void *)0x5);
+        const int lA1 = WpfLinuxWin32_PtsHandleLiveCount(), cA1 = WpfLinuxWin32_PtsHandleCreatedCount(),
+                  dA1 = WpfLinuxWin32_PtsHandleDestroyedCount();
+        fprintf(stderr, "[HCOUNTLEDGER] leg=A_only-create n=%d live_before=%d live_after=%d "
+                        "delta=%d created_before=%d created_after=%d destroyed=%d "
+                        "eq_live_eq_created_minus_destroyed=%d state=%s v=%s\n",
+                N, lA0, lA1, lA1 - lA0, cA0, cA1, dA1,
+                (lA1 == cA1 - dA1) ? 1 : 0, g_pts_hc_reading ? "READING" : "NO-READING",
+                (lA1 - lA0 == N) ? "COUNTS-UP" : "NOT-COUNTING");
+        /* 腿 B：**建后回收**（同样的 N 条，全部销毁） */
+        for (int i = 0; i < N; i++) if (keep[i]) wpf_pts_sub_destroy(keep[i]);
+        const int lB1 = WpfLinuxWin32_PtsHandleLiveCount(), cB1 = WpfLinuxWin32_PtsHandleCreatedCount(),
+                  dB1 = WpfLinuxWin32_PtsHandleDestroyedCount();
+        fprintf(stderr, "[HCOUNTLEDGER] leg=B_create+destroy n=%d live_before=%d live_after=%d "
+                        "delta=%d created_after=%d destroyed_after=%d "
+                        "eq_live_eq_created_minus_destroyed=%d state=%s v=%s\n",
+                N, lA1, lB1, lB1 - lA1, cB1, dB1,
+                (lB1 == cB1 - dB1) ? 1 : 0, g_pts_hc_reading ? "READING" : "NO-READING",
+                (lB1 == lA0) ? "RETURNS-TO-BASE" : "DOES-NOT-RETURN");
+        fprintf(stderr, "[HCOUNTLEDGER] pair=distinct live_A_after=%d live_B_after=%d distinct=%d "
+                        "v=%s（两腿读数**必须不同**，否则＝报常量）\n",
+                lA1, lB1, (lA1 != lB1) ? 1 : 0,
+                (lA1 != lB1 && lA1 - lA0 == N && lB1 == lA0) ? "PAIR-DISTINCT-AND-SELF-CONSISTENT"
+                                                             : "PAIR-FAILED");
+    }
     return mask;
 }
 
-int WpfLinuxWin32_PtsSubLive(void)        { return g_pts_sub_live_n; }
-int WpfLinuxWin32_PtsSubCreated(void)     { return g_pts_sub_created; }
-int WpfLinuxWin32_PtsSubDestroyed(void)   { return g_pts_sub_destroyed; }
+int WpfLinuxWin32_PtsSubLive(void)        { return g_pts_hc_reading ? g_pts_sub_live_n : -1; }
+int WpfLinuxWin32_PtsSubCreated(void)     { return g_pts_hc_reading ? g_pts_sub_created : -1; }
+int WpfLinuxWin32_PtsSubDestroyed(void)   { return g_pts_hc_reading ? g_pts_sub_destroyed : -1; }
+/* ⏪ `t172`：**聚合只读计数口**（后续件复用的形态）：活条目数／累计创建／累计销毁／可读状态。
+   🔴 三者都**只读台账本体**，**不由任何 `rc` 推出**；未初始化时返 **-1**（`state=NO-READING`）⇒
+   红榜 `P8`：**"没取到"绝不打成 0**。 */
+int WpfLinuxWin32_PtsHandleLiveCount(void)      { return g_pts_hc_reading ? g_pts_sub_live_n : -1; }
+int WpfLinuxWin32_PtsHandleCreatedCount(void)   { return g_pts_hc_reading ? g_pts_sub_created : -1; }
+int WpfLinuxWin32_PtsHandleDestroyedCount(void) { return g_pts_hc_reading ? g_pts_sub_destroyed : -1; }
+int WpfLinuxWin32_PtsHandleReadingState(void)   { return g_pts_hc_reading; }   /* 1=READING 0=NO-READING */
 int WpfLinuxWin32_PtsSubClaimOk(void)     { return g_pts_sub_claim_ok; }
 int WpfLinuxWin32_PtsSubClaimBad(void)    { return g_pts_sub_claim_bad; }
 int WpfLinuxWin32_PtsSubSelfTestMask(void){ return g_pts_sub_selftest_mask; }
