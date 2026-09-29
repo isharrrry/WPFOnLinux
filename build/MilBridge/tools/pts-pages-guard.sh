@@ -82,7 +82,20 @@ MAGENTA_FLOOR="${PTS_GUARD_MAGENTA_FLOOR:-20000}"
 #   （屏幕换代 ⇒ 同值不再表示同一画面）。
 #   重登记触发（照 `t122` 的归属建议）：① 相位翻转包执行；② 三帧 `sha256` 任一变化 ⇒ **本件写者（守卫写者）**重登记。
 #   **不设 env 旋钮**（判据只许收紧：不给"把现帧写进集合即绿"的路子）；合成夹具靠**取值**两极化。
-FRAME_EMPTY_SET="1a76488aa4a790b3"
+# ── ⏪ `t136`（`t120` 的 `F-3`；**方向＝收紧**）**空态参照集：累积登记 ＋ 作废纪律**（帧 `sha256` 前 16 位）──
+#   **逐枚给来源与时刻（可复核）**：
+#     · `1a76488aa4a790b3` —— 出处 `build/MilBridge/tests/PtsPagesProbe/evidence/shots/g1/{k23,k24,last}.png`
+#       三帧同值；读时 `2026-09-29T04:1x+0800`（`t122` 重登记；本行**原样保留**其来源）。
+#     · `ef3fd6765f18f51b` —— 出处同路径三帧同值（`t119` 那趟 00:52 代照进在册证据；本席 `t136` 现取：
+#       两腿 `FRAME` 行 `fr_sha=ef3fd6765f18f51b`、三帧 `sha256` 前 16 位同为它、各 `189716` B）。
+#   ⚠️ **口径更正（dated，`t136`；上面 `t124` 段写的"旧登记 `ef3fd6765f18f51b` 作废"按 `F-3` 收回）**：
+#     它是**已发生**的空态回退指纹，**必须留在集合里**（**累积登记**）。上面 `t124` 那几句**原文一字未删**，
+#     以本段为准。
+#   ⚠️ **作废纪律（写死）**：**把一枚帧身份从本集合里"作废／移出"这个动作本身是危险的** ——
+#     **只有拿到 `N4` 正身份或内容锚正证据才准移出；只凭"换了一版画面"不得移出。**
+#     （依据 `t120` 现取：实况帧恰是被"作废"的那一枚 ⇒ `∉ 参照集` 被读成绿 ⇒ **假绿形态**。）
+#   **不设 env 旋钮**（判据只许收紧）；合成夹具靠**取值**两极化。
+FRAME_EMPTY_SET="1a76488aa4a790b3,ef3fd6765f18f51b"
 
 # ── 小工具 ───────────────────────────────────────────────────────────────────
 field() { printf '%s' "$1" | grep -o -m1 "[[:space:]]$2=[^[:space:]]*" | head -1 | sed "s/^[[:space:]]$2=//"; }
@@ -348,6 +361,8 @@ judge_legs() {
   fi
 
   local seen24=0 seen23=0
+  # ⏪ `t136`：`N1` 正证据闸的 per-leg 取值载体（每趟判读复位；**新闸只在 realized 期生效**）
+  N1_SHA_23=''; N1_SHA_24=''; N1_INK_23=''; N1_INK_24=''; N1_NECMISS=''
   local ev
   for k in 24 23; do
     ev="$dir/leg_$k.env"
@@ -414,7 +429,20 @@ judge_legs() {
     #     · **`degraded` 期**：只印 `PTS_N1=INFO …`（**照 `t122` 的做法**：**不动**本相位判词 —— 止损期的绿语义
     #       是"占位还在"，与帧身份不冲突）；
     #     · 取值缺／不可解析（旧格式腿、截图没落、`-`）⇒ `PTS_N1=NOINFO` ＋ `cannot+=`（**绝不当绿**）。
-    #   ⚠️ **只增不减**：不改任何既有要件、三态语义、阈值。
+    #   ⏪ **`t136`（`t120` 的 `F-1`／`F-3`／`O-2`；方向＝收紧）**：
+    #     · **要件①（`fr_sha` ∉ `FRAME_EMPTY_SET`）只是必要条件** —— 判词写死：**「∉ 参照集」不得单独作为
+    #       排版绿的依据**；它的绿必须**同时**附**正证据**（下列任一，且**必须点名是哪一种**）：
+    #         (a) `N4` **正身份**证据在场（今天 `NOINFO` ⇒ 不得给绿）；
+    #         (b) **内容锚**（`$PTS_CONTENT_ANCHOR_RE` 在 `<dir>/app_g1.log` 的命中数 `>0`）；
+    #         (c) **`AE(k23,k24) > 0`**（两页帧**真不同**：两腿 `fr_sha` 不等，或 `compare` 实测 `>0`）。
+    #     · **`N3` 例外支条件（写死）**：例外**仅当两页「内容定义」相同**（`$PTS_N3_SAME_CONTENT_PROOF` 非空
+    #       ＝该相同的**正证据声明**）**且两页都确已绘出内容**（两腿 `ink>0`）；**「两页都没绘出内容」不构成例外**
+    #       ⇒ **必红**。例外成立只**免红**（`PTS_N1_GATE=EXCEPTION`），**不冒充**排版正身份。
+    #     · **`O-2`（写死）**：凡引用 `N1` 的结论**必须写明相位** —— 本段每条判词行都带 `phase=`；
+    #       `degraded` 期只印 `INFO`、**不进 `rc`**。
+    #     · 今天三项正证据**一个都不在场**（现取：两腿 `fr_sha` 同值、`neptune` 类命中 `0`、`N4` 无载体）
+    #       ⇒ `realized` 期本闸**必须判红并点名**：`reason=only-necessary-condition-no-positive-evidence`。
+    #   ⚠️ **只增不减**：不改任何既有要件、三态语义、阈值（`t136` 只把"单独发绿"这一路堵死）。
     local ln1 fsha fae ffile in_set n1bad n1f
     ln1="$(grep -m1 '^FRAME ' "$ev" 2>/dev/null)"
     ffile="$(field "${ln1:-}" fr_file)"; fsha="$(field "${ln1:-}" fr_sha)"
@@ -423,8 +451,11 @@ judge_legs() {
     case "${fsha:-}" in ''|'-'|*[!0-9a-fA-F]*) n1bad="${n1bad:+$n1bad,}fr_sha";; esac
     case "${fae:-}"  in ''|'-'|*[!0-9]*)          n1bad="${n1bad:+$n1bad,}fr_ae_boot";; esac
     in_set=no; case ",$FRAME_EMPTY_SET," in *",${fsha:-},"*) in_set=yes;; esac
+    # ⏪ `t136`：把本腿取值交给循环后的正证据闸（`N1` 必要件是否齐、两腿帧是否真不同、ink 是否 >0）
+    case $k in 23) N1_SHA_23="${fsha:-}"; N1_INK_23="${ink:-}";; 24) N1_SHA_24="${fsha:-}"; N1_INK_24="${ink:-}";; esac
+    case "${fsha:-}" in ''|'-') N1_NECMISS="${N1_NECMISS:+$N1_NECMISS,}leg$k";; esac
     if [ -n "$n1bad" ]; then
-      echo "PTS_N1=NOINFO k=$k reason=frame-cell-missing-or-unparsable(missing=$n1bad file=${ffile:-none} fr_sha=${fsha:-none} fr_ae_boot=${fae:-none}) frame_line=${ln1:-absent}（旧格式腿／截图没落 ⇒ 帧身份与帧位移**不可算** ⇒ 绝不当绿 —— 口径见 t124 段）"
+      echo "PTS_N1=NOINFO k=$k phase=$PHASE reason=frame-cell-missing-or-unparsable(missing=$n1bad file=${ffile:-none} fr_sha=${fsha:-none} fr_ae_boot=${fae:-none}) frame_line=${ln1:-absent}（旧格式腿／截图没落 ⇒ 帧身份与帧位移**不可算** ⇒ 绝不当绿；相位写明口径见 t136 O-2 段）"
       cannot+=("leg$k(n1-frame-cell-missing=$n1bad)")
     elif [ "$PHASE" = realized ]; then
       n1f=""
@@ -440,12 +471,66 @@ judge_legs() {
         echo "PTS_N1=FAIL k=$k file=${ffile:-none} fr_sha=$fsha in_empty_set=$in_set fr_ae_boot=$fae set={$FRAME_EMPTY_SET} criterion=$n1f phase=realized reason=frame-identity-not-established"
         fails+=("leg$k-n1-frame-unestablished($n1f)")
       else
-        echo "PTS_N1=PASS k=$k file=${ffile:-none} fr_sha=$fsha in_empty_set=no fr_ae_boot=$fae criteria=frame-identity,frame-displacement phase=realized"
+        echo "PTS_N1=NECESSARY k=$k file=${ffile:-none} fr_sha=$fsha in_empty_set=no fr_ae_boot=$fae set={$FRAME_EMPTY_SET} criteria-satisfied=frame-identity,frame-displacement phase=realized（⏪ t136：**必要非充分** —— 「∉ 参照集 ∧ 位移>0」**不得单独作为排版绿的依据**；本腿是否给绿由循环后的**正证据闸**裁定）"
       fi
     else
       echo "PTS_N1=INFO k=$k file=${ffile:-none} fr_sha=$fsha in_empty_set=$in_set fr_ae_boot=$fae set={$FRAME_EMPTY_SET} phase=degraded（止损期不据此判红；相位翻转后本条生效 —— 口径见 t124 段）"
     fi
   done
+
+  # ── ⏪ `t136`（`t120` 的 `F-1`／`F-3`／`O-2`；**方向＝收紧**）：**`N1` 正证据闸 ＋ `N3` 例外支** ────────
+  #   为什么有这一段：`t124` 的 `N1` 段把「必要件（∉ 参照集 ∧ `AE(boot,帧)>0`）都成立」直接印成 `PASS`
+  #   ⇒ 这正是 `t120` 现取的**假绿形态**（实况帧恰是"曾被作废"的空态指纹；两页帧逐字节相同）。
+  #   口径（逐字）：
+  #     · **正证据三源**（互不替代；`PTS_N1_POS=` 行**点名是哪一种**）：
+  #         `n4`     ＝ env `PTS_N4_POSITIVE_FP="<k23 sha16>,<k24 sha16>"` 与两腿 `fr_sha` **逐位相同**
+  #                    （＝`N4` 正身份的**登记载体**；**未登记** ⇒ `NOINFO(no-registered-positive-identity)`，不给绿）；
+  #         `anchor` ＝ `$PTS_CONTENT_ANCHOR_RE`（默认 `[Nn]eptune`）在 `<dir>/app_g1.log` 的命中数 `>0`；
+  #         `differ` ＝ 两页帧**真不同**：两侧 `shots/g1/k23.png`／`k24.png` **都在** ⇒ `compare -metric AE`
+  #                    实测 `>0`（`via=compare`）；文件不在 ⇒ 两腿 `fr_sha` **不等**（`via=fr-sha-inequality`）。
+  #     · **`realized` 期**：两腿必要件齐（`N1_SHA_*` 可用、均 ∉ 参照集、`fr_ae_boot>0`）∧ **正证据为空**
+  #       ∧ **例外不成立** ⇒ **红并点名** `reason=only-necessary-condition-no-positive-evidence`。
+  #     · **`N3` 例外支（写死）**：**仅当两页「内容定义」相同**（`$PTS_N3_SAME_CONTENT_PROOF` 非空 ＝ 该相同的
+  #       **正证据声明**）**且两腿 `ink>0`**（＝**两页都确已绘出内容**）⇒ 才准免 `N3` 的"两页必须不同"红；
+  #       **「两页都没绘出内容」不构成例外**（⇒ 必红）。
+  #     · **`degraded` 期**：本闸**不参与**（只印 `PTS_N1_POS=` 由 `INFO` 行带出）；
+  #     · 取值缺（`N1_NECMISS` 非空）⇒ 本闸判 `NOINFO`（**绝不当绿**）。
+  if [ "$PHASE" = realized ]; then
+    local _pos="" _n4miss=0 _anchor=0 _differ=0 _via="" _exproof="${PTS_N3_SAME_CONTENT_PROOF:-}" _exgo=0
+    # (a) N4 正身份登记载体
+    if [ -n "${PTS_N4_POSITIVE_FP:-}" ]; then
+      if [ "${PTS_N4_POSITIVE_FP}" = "${N1_SHA_23},${N1_SHA_24}" ]; then _pos="${_pos:+$_pos,}n4"; else _n4miss=1; fi
+    else
+      _n4miss=1
+    fi
+    # (b) 内容锚
+    _anchor="$(grep -c -E "${PTS_CONTENT_ANCHOR_RE:-[Nn]eptune}" "$dir/app_g1.log" 2>/dev/null || true)"
+    case "${_anchor:-}" in ''|*[!0-9]*) _anchor=0;; esac
+    [ "$_anchor" -gt 0 ] && _pos="${_pos:+$_pos,}anchor(hits=$_anchor)"
+    # (c) 两页帧真不同
+    if [ -s "$dir/shots/g1/k23.png" ] && [ -s "$dir/shots/g1/k24.png" ] && command -v compare >/dev/null 2>&1; then
+      _ae="$(compare -metric AE "$dir/shots/g1/k23.png" "$dir/shots/g1/k24.png" null: 2>&1 | tr -dc '0-9' | head -c 9)"
+      _via="compare"; [ -n "${_ae:-}" ] && [ "$_ae" -gt 0 ] && _differ=1
+    elif [ -n "${N1_SHA_23:-}" ] && [ -n "${N1_SHA_24:-}" ] && [ "${N1_SHA_23}" != "${N1_SHA_24}" ]; then
+      _differ=1; _via="fr-sha-inequality"
+    fi
+    [ "$_differ" = 1 ] && _pos="${_pos:+$_pos,}differ(via=$_via)"
+    # N3 例外支：声明 ＋ 两页都确已绘出内容
+    if [ -n "$_exproof" ] && [ "${N1_INK_23:-}" -gt 0 ] 2>/dev/null && [ "${N1_INK_24:-}" -gt 0 ] 2>/dev/null; then _exgo=1; fi
+    echo "PTS_N1_POS=phase=$PHASE positive=${_pos:-none} n4=${PTS_N4_POSITIVE_FP:-absent} anchor_hits=$_anchor differ=$_differ via=${_via:-none} n4_unregistered=$_n4miss exception_proof=${_exproof:+declared} exception_applies=$_exgo（三源口径见 t136 段；「∉ 参照集」单独**不给绿**）"
+    if [ -n "${N1_NECMISS:-}" ]; then
+      echo "PTS_N1_GATE=NOINFO phase=$PHASE reason=necessary-input-missing($N1_NECMISS)（必要件取值缺 ⇒ 本闸不可算 ⇒ 绝不当绿）"
+      cannot+=("n1-gate(necessary-input-missing=$N1_NECMISS)")
+    elif [ -n "$_pos" ]; then
+      echo "PTS_N1_GATE=PASS phase=$PHASE positive=$_pos necessary=frame-identity,frame-displacement（正证据在场 ⇒ 必要件之上**重新**成立；这不改变既有四要件）"
+    elif [ "$_exgo" = 1 ]; then
+      echo "PTS_N1_GATE=EXCEPTION phase=$PHASE reason=n3-same-content-definition-declared（N3 例外支成立 ⇒ **免红**；⚠️ 这只是"不据此判红"，**不冒充**排版正身份）"
+    else
+      echo "  N1-ONLY-NECESSARY positive=none n4=absent anchor_hits=$_anchor differ=0 reason=only-necessary-condition-no-positive-evidence（realized 期**只有必要条件、缺正证据** ⇒ 不许给排版绿）"
+      echo "PTS_N1_GATE=FAIL phase=$PHASE positive=none sha23=${N1_SHA_23:-none} sha24=${N1_SHA_24:-none} reason=only-necessary-condition-no-positive-evidence"
+      fails+=("n1-only-necessary-condition-no-positive-evidence(sha23=${N1_SHA_23:-none},sha24=${N1_SHA_24:-none},anchor=0,n4=absent)")
+    fi
+  fi
 
   # G10 native 台账（**两腿合并判**：至少一条）
   local ngap_total=0
@@ -482,16 +567,18 @@ judge_legs() {
         *) _enonallow="${_enonallow}${_n}," ;;
       esac
     done
+    # ⏪ `t136`（`t120` 的 `F-2`）：**`ENFE_TOTAL` 的任何引用必须绑「哪一份日志 ＋ `sha16`」** ⇒ 每条判词行带 `log=`／`log_sha16=`
+    _esha="$(sha256sum "$_elog" 2>/dev/null | cut -c1-16)"; [ -n "${_esha:-}" ] || _esha='-'
     if [ "$PHASE" = realized ]; then
       if [ "$_etot" -gt 0 ] && [ -n "$_enonallow" ]; then
-        echo "  ENFE-UNHANDLED total=$_etot non_allow=${_enonallow%,}（realized 期**内容没画出来** ⇒ **不许给排版绿**） reason=enfe-present-after-phase-realized by_name=$_enames"
-        echo "PTS_ENFE=FAIL total=$_etot by_name=${_enames:-none} allow=${_enallow:-none} non_allow=${_enonallow%,} phase=realized reason=enfe-present-after-phase-realized"
+        echo "  ENFE-UNHANDLED total=$_etot non_allow=${_enonallow%,}（realized 期**内容没画出来** ⇒ **不许给排版绿**） reason=enfe-present-after-phase-realized by_name=$_enames log=${_elog} log_sha16=$_esha"
+        echo "PTS_ENFE=FAIL total=$_etot by_name=${_enames:-none} allow=${_enallow:-none} non_allow=${_enonallow%,} phase=realized log=${_elog} log_sha16=$_esha reason=enfe-present-after-phase-realized"
         fails+=("enfe-unhandled(total=$_etot,non_allow=${_enonallow%,})")
       else
-        echo "PTS_ENFE=PASS total=$_etot by_name=${_enames:-none} allow=${_enallow:-none} non_allow=none phase=realized"
+        echo "PTS_ENFE=PASS total=$_etot by_name=${_enames:-none} allow=${_enallow:-none} non_allow=none phase=realized log=${_elog} log_sha16=$_esha"
       fi
     else
-      echo "PTS_ENFE=INFO total=$_etot by_name=${_enames:-none} allow=${_enallow:-none} non_allow=${_enonallow:-none} phase=degraded（止损期不据此判红；相位翻转后本条生效 —— 口径见 t122 段）"
+      echo "PTS_ENFE=INFO total=$_etot by_name=${_enames:-none} allow=${_enallow:-none} non_allow=${_enonallow:-none} phase=degraded log=${_elog} log_sha16=$_esha（止损期不据此判红；相位翻转后本条生效 —— 口径见 t122 段；**引用必须连 log ＋ log_sha16 一起引**，见 t136 F-2）"
     fi
   else
     echo "PTS_ENFE=NOINFO reason=enfe-log-absent($_elog)（日志不在 ⇒ ENFE 面**不可算** ⇒ 绝不当绿）"
@@ -656,11 +743,13 @@ selftest() {
   # ⑮ realized 期：真实排版形态（magenta=0 ∧ 无具名行 ∧ native_gap=0 ∧ ink>0）⇒ PASS
   rm -rf "$T/c15"; mk c15 24 yes 143 0 900 HandyControlDemo.UserControl.FlowDocumentDemo - 0 - yes yes 12345
                   mk c15 23 yes 143 0 880 HandyControlDemo.UserControl.RichTextBoxDemo  - 0 - yes yes 12001
-                  rz c15 PASS "realized·真实形态"
+                  # ⏪ `t136`：期望由 `PASS` 收紧为 `FAIL`（必要件齐但**无正证据** ⇒ 不许给排版绿）
+                  rz c15 FAIL "realized·真实形态（必要件齐但无正证据 ⇒ 必红）"
   # ⑯ realized 期：**缺 ink 证据位** ⇒ NOINFO（不许因 magenta=0 判绿）
   rm -rf "$T/c16"; mk c16 24 yes 143 0 900 HandyControlDemo.UserControl.FlowDocumentDemo - 0 - yes yes
                   mk c16 23 yes 143 0 880 HandyControlDemo.UserControl.RichTextBoxDemo  - 0 - yes yes
-                  rz c16 NOINFO "realized·缺 ink ⇒ NOINFO"
+                  # ⏪ `t136`：期望由 `NOINFO` 收紧为 `FAIL`（同上；`cannot=` 仍印缺 ink 那一格）
+                  rz c16 FAIL "realized·缺 ink（且无正证据）⇒ 必红"
   # ⑰ realized 期：占位还在（magenta>0）⇒ FAIL
   rm -rf "$T/c17"; mk c17 24 yes 143 54454 851 HandyControlDemo.UserControl.FlowDocumentDemo -10000 1 -10000 yes yes 12345
                   mk c17 23 yes 143 49864 843 HandyControlDemo.UserControl.RichTextBoxDemo  -10000 1 -10000 yes yes 12001
@@ -692,7 +781,8 @@ ENFE_EOF
   fi
   _nfe2="$T/c33"; rm -rf "$_nfe2"; cp -a "$_nfe" "$_nfe2"
   _o="$(PTS_ENFE_ALLOWLIST=FsCreatePageBottomless,FsCreatePageFinite bash "$_rz" --legs "$_nfe2" 2>&1 || true)"
-  chk PASS "$(out "$_o")" "realized·ENFE 全在 allowlist ⇒ 本条不红"
+  # ⏪ `t136`：期望由 `PASS` 收紧为 `FAIL`（该夹具亦无 `N1` 正证据 ⇒ 由新闸点红；ENFE 那一条本身仍不红）
+  chk FAIL "$(out "$_o")" "realized·ENFE 全在 allowlist（但无 N1 正证据 ⇒ 整步红）"
   if grep -qF 'allow=FsCreatePageBottomless,FsCreatePageFinite' <<<"$_o" && grep -qF 'non_allow=none' <<<"$_o"; then
     npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "allowlist 逐名可核" "yes"
   else
@@ -723,7 +813,7 @@ ENFE_EOF
   mk c36 23 yes 143 0 880 HandyControlDemo.UserControl.RichTextBoxDemo  - 0 - yes yes 12001 1a76488aa4a790b3 15385
   _o="$(bash "$_rz" --legs "$_f1" 2>&1 || true)"
   chk FAIL "$(out "$_o")" "realized·帧∈空态集 ⇒ 必红"
-  if grep -qF 'criterion=frame-identity' <<<"$_o" && grep -qF 'sha16=1a76488aa4a790b3∈{1a76488aa4a790b3}' <<<"$_o"; then
+  if grep -qF 'criterion=frame-identity' <<<"$_o" && grep -qF 'sha16=1a76488aa4a790b3∈{1a76488aa4a790b3,ef3fd6765f18f51b}' <<<"$_o"; then
     npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "N1·点名(帧+要件+参照集)" "yes"
   else
     nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "N1·点名(帧+要件+参照集)" "no" "criterion=frame-identity…∈{…}"
@@ -731,7 +821,8 @@ ENFE_EOF
   _f2="$T/c37"; rm -rf "$_f2"; cp -a "$_f1" "$_f2"
   sed -i 's/fr_sha=1a76488aa4a790b3/fr_sha=c0ffee1234abcd99/' "$_f2/leg_23.env" "$_f2/leg_24.env"
   _o="$(bash "$_rz" --legs "$_f2" 2>&1 || true)"
-  chk PASS "$(out "$_o")" "realized·帧∉集∧位移>0 ⇒ 不因该条红"
+  # ⏪ `t136`：期望由 `PASS` 收紧为 `FAIL`（该腿原意＝"必要件齐即不红"，正是 `t120` 的**假绿形态**）
+  chk FAIL "$(out "$_o")" "realized·帧∉集∧位移>0 **但只有必要件** ⇒ 必红"
   if [ "$(diff <(sort "$_f1/leg_24.env") <(sort "$_f2/leg_24.env") | grep -c '^[<>]')" = 2 ]; then
     npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "N1·因果(只 fr_sha 变)" "yes"
   else
@@ -761,6 +852,62 @@ ENFE_EOF
   else
     nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "degraded·N1 只印 INFO" "no" "PTS_N1=INFO 且无 criterion=frame-identity"
   fi
+  # ── ⏪ `t136` 新极性腿：**累积登记集成员 ⇒ 红**／**只有必要件 ⇒ 红**／**例外支成立 ⇒ 不红**／
+  #    **同夹具去掉例外声明 ⇒ 红（因果对）**／**内容锚 ⇒ 正证据**／**`N4` 登记匹配 ⇒ 正证据** ──
+  _g1="$T/c40"; rm -rf "$_g1"     # (a) 新登记的成员 `ef3fd6765f18f51b`（旧"作废"值）⇒ 必红
+  mk c40 24 yes 143 0 900 HandyControlDemo.UserControl.FlowDocumentDemo - 0 - yes yes 12345 ef3fd6765f18f51b 15386
+  mk c40 23 yes 143 0 880 HandyControlDemo.UserControl.RichTextBoxDemo  - 0 - yes yes 12001 ef3fd6765f18f51b 15386
+  _o="$(bash "$_rz" --legs "$_g1" 2>&1 || true)"
+  chk FAIL "$(out "$_o")" "realized·累积集新成员 ⇒ 必红"
+  if grep -qF 'sha16=ef3fd6765f18f51b∈{1a76488aa4a790b3,ef3fd6765f18f51b}' <<<"$_o"; then
+    npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "t136·新成员点名(累积集)" "yes"
+  else
+    nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "t136·新成员点名(累积集)" "no" "sha16=ef3f…∈{1a76…,ef3f…}"
+  fi
+  _g2="$T/c41"; rm -rf "$_g2"     # (b) 只有必要件（两腿同帧 ⇒ 无 differ、无锚、无 N4）⇒ 必红并点名 reason
+  mk c41 24 yes 143 0 900 HandyControlDemo.UserControl.FlowDocumentDemo - 0 - yes yes 12345 c0ffee1234abcd99 1234
+  mk c41 23 yes 143 0 880 HandyControlDemo.UserControl.RichTextBoxDemo  - 0 - yes yes 12001 c0ffee1234abcd99 1234
+  _o="$(bash "$_rz" --legs "$_g2" 2>&1 || true)"
+  chk FAIL "$(out "$_o")" "realized·只有必要件 ⇒ 必红"
+  if grep -qF 'PTS_N1_GATE=FAIL' <<<"$_o" && grep -qF 'reason=only-necessary-condition-no-positive-evidence' <<<"$_o"      && grep -qF 'PTS_N1_POS=phase=realized positive=none' <<<"$_o"; then
+    npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "t136·缺正证据点名" "yes"
+  else
+    nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "t136·缺正证据点名" "no" "PTS_N1_GATE=FAIL+reason=only-necessary…"
+  fi
+  _g3="$T/c42"; rm -rf "$_g3"     # (c) 例外支成立（声明 ＋ 两腿 ink>0）⇒ **不红**（正极）
+  mk c42 24 yes 143 0 900 HandyControlDemo.UserControl.FlowDocumentDemo - 0 - yes yes 12345 c0ffee1234abcd99 1234
+  mk c42 23 yes 143 0 880 HandyControlDemo.UserControl.RichTextBoxDemo  - 0 - yes yes 12001 c0ffee1234abcd99 1234
+  _o="$(PTS_N3_SAME_CONTENT_PROOF='两页均为同一类型且内容定义相同（夹具声明）' bash "$_rz" --legs "$_g3" 2>&1 || true)"
+  chk PASS "$(out "$_o")" "t136·例外支成立 ⇒ 不红（正极）"
+  if grep -qF 'PTS_N1_GATE=EXCEPTION' <<<"$_o"; then
+    npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "t136·例外支点名" "yes"
+  else
+    nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "t136·例外支点名" "no" "PTS_N1_GATE=EXCEPTION"
+  fi
+  _o="$(bash "$_rz" --legs "$_g3" 2>&1 || true)"     # (因果对) 同一夹具**去掉**例外声明 ⇒ 必红
+  chk FAIL "$(out "$_o")" "t136·同夹具无例外声明 ⇒ 必红（因果对）"
+  _g4="$T/c44"; rm -rf "$_g4"     # (b′) 内容锚命中 >0 ⇒ 正证据 `anchor`
+  mk c44 24 yes 143 0 900 HandyControlDemo.UserControl.FlowDocumentDemo - 0 - yes yes 12345 c0ffee1234abcd99 1234
+  mk c44 23 yes 143 0 880 HandyControlDemo.UserControl.RichTextBoxDemo  - 0 - yes yes 12001 c0ffee1234abcd99 1234
+  printf 'neptune-anchor: content drawn (夹具在册锚)\n' >> "$_g4/app_g1.log"
+  _o="$(bash "$_rz" --legs "$_g4" 2>&1 || true)"
+  chk PASS "$(out "$_o")" "t136·内容锚 >0 ⇒ 正证据 anchor"
+  if grep -qF 'positive=anchor(hits=1)' <<<"$_o"; then
+    npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "t136·anchor 点名" "yes"
+  else
+    nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "t136·anchor 点名" "no" "positive=anchor(hits=1)"
+  fi
+  _g5="$T/c45"; rm -rf "$_g5"     # (a′) `N4` 正身份登记匹配 ⇒ 正证据 `n4`
+  mk c45 24 yes 143 0 900 HandyControlDemo.UserControl.FlowDocumentDemo - 0 - yes yes 12345 0a0b0c0d0e0f1011 1234
+  mk c45 23 yes 143 0 880 HandyControlDemo.UserControl.RichTextBoxDemo  - 0 - yes yes 12001 1213141516171819 1234
+  _o="$(PTS_N4_POSITIVE_FP='1213141516171819,0a0b0c0d0e0f1011' bash "$_rz" --legs "$_g5" 2>&1 || true)"
+  chk PASS "$(out "$_o")" "t136·N4 正身份登记匹配 ⇒ 正证据 n4"
+  if grep -qF 'positive=n4,differ' <<<"$_o"; then
+    npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "t136·n4 点名(含 differ)" "yes"
+  else
+    nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "t136·n4 点名(含 differ)" "no" "positive=n4,differ"
+  fi
+
   # ⑳ `phase` 位自身的反极性：把 `phase=` 删掉 ⇒ `PTS_DIRECTION=FAIL` ＋ 判词必红
   _pf="$T/guard-nophase.sh"
   sed 's/^\(# PTS-DIRECTION: .*\)phase=degraded/\1phase=/' "$0" > "$_pf"
