@@ -95,6 +95,13 @@ MAGENTA_FLOOR="${PTS_GUARD_MAGENTA_FLOOR:-20000}"
 #     **只有拿到 `N4` 正身份或内容锚正证据才准移出；只凭"换了一版画面"不得移出。**
 #     （依据 `t120` 现取：实况帧恰是被"作废"的那一枚 ⇒ `∉ 参照集` 被读成绿 ⇒ **假绿形态**。）
 #   **不设 env 旋钮**（判据只许收紧）；合成夹具靠**取值**两极化。
+#   ⏪ `t144`（`t139` `F-3`）**逐枚出处可复现性**（**取（乙）**：只登记出处、**不**往装置证据面塞非装置产物；理由见载体）：
+#     · `ef3fd6765f18f51b` —— **仓内可复现** ✓：`build/MilBridge/tests/PtsPagesProbe/evidence/shots/g1/k23.png`
+#       现势与 `git show HEAD:<同路径>` **同为**该值、各 `189716` B（本席 `2026-09-29T15:0x+0800` 现算）。
+#     · `1a76488aa4a790b3` —— ⚠️ **仓内不可复现**（该路径**仓内可达史 8 版均非它**，本席现算命中 **0**）；
+#       真实载体在**仓外**：`~/t119-runner/bak/run-N3-runner-shots/g1/{k23,k24,last}.png`
+#       （三枚同值 `1a76488aa4a790b3`、各 `189742` B；本席现算）。⇒ **引用该成员时必须连带写明"仓外载体"**，
+#       不得当成"仓内可查"；复核命令：`sha256sum ~/t119-runner/bak/run-N3-runner-shots/g1/k23.png | cut -c1-16`。
 FRAME_EMPTY_SET="1a76488aa4a790b3,ef3fd6765f18f51b"
 
 # ── 小工具 ───────────────────────────────────────────────────────────────────
@@ -363,11 +370,15 @@ judge_legs() {
   local seen24=0 seen23=0
   # ⏪ `t136`：`N1` 正证据闸的 per-leg 取值载体（每趟判读复位；**新闸只在 realized 期生效**）
   N1_SHA_23=''; N1_SHA_24=''; N1_INK_23=''; N1_INK_24=''; N1_NECMISS=''
+  # ⏪ `t144`（`t139` `F-1`）：**per-leg 必要件位**（要件① ∉ 参照集 ∧ 要件② 位移>0 ∧ 取值在位）—— 新闸的 FAIL 支拿它当前置
+  N1_NEC_23=''; N1_NEC_24=''
   local ev
   for k in 24 23; do
     ev="$dir/leg_$k.env"
     if [ ! -s "$ev" ]; then
       cannot+=("leg$k(env-absent)")
+      # ⏪ `t144`（`t139` `F-1`）：**缺整条 env** 也要让循环后的新闸知道"本腿必要件不可判"（否则新闸会拿默认值继续判 ⇒ 理由与事实相反）
+      N1_NECMISS="${N1_NECMISS:+$N1_NECMISS,}leg$k(env-absent)"
       continue
     fi
     local line; line="$(grep -m1 '^LEG ' "$ev" 2>/dev/null)"
@@ -454,6 +465,10 @@ judge_legs() {
     # ⏪ `t136`：把本腿取值交给循环后的正证据闸（`N1` 必要件是否齐、两腿帧是否真不同、ink 是否 >0）
     case $k in 23) N1_SHA_23="${fsha:-}"; N1_INK_23="${ink:-}";; 24) N1_SHA_24="${fsha:-}"; N1_INK_24="${ink:-}";; esac
     case "${fsha:-}" in ''|'-') N1_NECMISS="${N1_NECMISS:+$N1_NECMISS,}leg$k";; esac
+    # ⏪ `t144`（`t139` `F-1`）：本腿**必要件是否真的成立**（= 要件① ∉ `FRAME_EMPTY_SET` ∧ 要件② `fr_ae_boot>0`）
+    _nec=no
+    case "${fsha:-}" in ''|'-') _nec=no;; *) [ "$in_set" = no ] && [ "${fae:-0}" -gt 0 ] 2>/dev/null && _nec=yes;; esac
+    case $k in 23) N1_NEC_23="$_nec";; 24) N1_NEC_24="$_nec";; esac
     if [ -n "$n1bad" ]; then
       echo "PTS_N1=NOINFO k=$k phase=$PHASE reason=frame-cell-missing-or-unparsable(missing=$n1bad file=${ffile:-none} fr_sha=${fsha:-none} fr_ae_boot=${fae:-none}) frame_line=${ln1:-absent}（旧格式腿／截图没落 ⇒ 帧身份与帧位移**不可算** ⇒ 绝不当绿；相位写明口径见 t136 O-2 段）"
       cannot+=("leg$k(n1-frame-cell-missing=$n1bad)")
@@ -495,6 +510,12 @@ judge_legs() {
   #       **「两页都没绘出内容」不构成例外**（⇒ 必红）。
   #     · **`degraded` 期**：本闸**不参与**（只印 `PTS_N1_POS=` 由 `INFO` 行带出）；
   #     · 取值缺（`N1_NECMISS` 非空）⇒ 本闸判 `NOINFO`（**绝不当绿**）。
+  #     · ⏪ **`t144`（`t139` `F-1`）dated 追加**：**`FAIL` 支加了前置** —— 只有**两腿必要件都真的成立**
+  #       （per-leg `N1_NEC_23/24=yes`：要件① ∉ 参照集 ∧ 要件② 位移>0 ∧ 取值在位）**才**印
+  #       `reason=only-necessary-condition-no-positive-evidence`；**否则**印
+  #       `PTS_N1_GATE=NOINFO reason=necessary-not-satisfied(nec23=…,nec24=…)` 并折 `cannot`
+  #       （**不得**再出现「必要件未成立却以"只有必要条件"为由」的**机读理由与事实相反**；缺整条 `leg_*.env` 走
+  #       `N1_NECMISS` 支 ⇒ `reason=necessary-input-missing(leg…(env-absent))`，与前者**形态可分**）。
   if [ "$PHASE" = realized ]; then
     local _pos="" _n4miss=0 _anchor=0 _differ=0 _via="" _exproof="${PTS_N3_SAME_CONTENT_PROOF:-}" _exgo=0
     # (a) N4 正身份登记载体
@@ -525,10 +546,17 @@ judge_legs() {
       echo "PTS_N1_GATE=PASS phase=$PHASE positive=$_pos necessary=frame-identity,frame-displacement（正证据在场 ⇒ 必要件之上**重新**成立；这不改变既有四要件）"
     elif [ "$_exgo" = 1 ]; then
       echo "PTS_N1_GATE=EXCEPTION phase=$PHASE reason=n3-same-content-definition-declared（N3 例外支成立 ⇒ **免红**；⚠️ 这只是"不据此判红"，**不冒充**排版正身份）"
-    else
-      echo "  N1-ONLY-NECESSARY positive=none n4=absent anchor_hits=$_anchor differ=0 reason=only-necessary-condition-no-positive-evidence（realized 期**只有必要条件、缺正证据** ⇒ 不许给排版绿）"
-      echo "PTS_N1_GATE=FAIL phase=$PHASE positive=none sha23=${N1_SHA_23:-none} sha24=${N1_SHA_24:-none} reason=only-necessary-condition-no-positive-evidence"
+    elif [ "${N1_NEC_23:-no}" = yes ] && [ "${N1_NEC_24:-no}" = yes ]; then
+      echo "  N1-ONLY-NECESSARY positive=none n4=absent anchor_hits=$_anchor differ=0 reason=only-necessary-condition-no-positive-evidence（realized 期**两腿必要件都成立**、**只有必要条件、缺正证据** ⇒ 不许给排版绿）"
+      echo "PTS_N1_GATE=FAIL phase=$PHASE positive=none sha23=${N1_SHA_23:-none} sha24=${N1_SHA_24:-none} nec23=yes nec24=yes reason=only-necessary-condition-no-positive-evidence"
       fails+=("n1-only-necessary-condition-no-positive-evidence(sha23=${N1_SHA_23:-none},sha24=${N1_SHA_24:-none},anchor=0,n4=absent)")
+    else
+      # ⏪ `t144`（`t139` `F-1`；**加前置、消「机读理由与事实相反」**）：两腿**必要件并未成立**（要件① ∈ 参照集／要件② 位移=0／取值不在位）
+      #   ⇒ 本闸**不可算** ⇒ 印 `NOINFO reason=necessary-not-satisfied` 并折 `cannot`；
+      #   **不得**印 `only-necessary-condition-no-positive-evidence`（那句的前提是"必要件成立"，此处与事实相反）。
+      echo "  N1-NECESSARY-NOT-SATISFIED nec23=${N1_NEC_23:-absent} nec24=${N1_NEC_24:-absent} sha23=${N1_SHA_23:-none} sha24=${N1_SHA_24:-none}（realized 期**必要件并未成立** ⇒ 本闸**不可算** ⇒ 不得以"只有必要条件"为由判红/判绿）"
+      echo "PTS_N1_GATE=NOINFO phase=$PHASE reason=necessary-not-satisfied(nec23=${N1_NEC_23:-absent},nec24=${N1_NEC_24:-absent}) sha23=${N1_SHA_23:-none} sha24=${N1_SHA_24:-none}"
+      cannot+=("n1-gate(necessary-not-satisfied=nec23:${N1_NEC_23:-absent},nec24:${N1_NEC_24:-absent})")
     fi
   fi
 
@@ -548,6 +576,10 @@ judge_legs() {
   # ── ⏪ `t122`（`t118` 的 `N2` 接线；**方向＝收紧**）：**ENFE 面** —— "内容没画出来"不得读成"排版绿" ────────────
   #   口径（逐字）：`ENFE_TOTAL` ＝ `$dir/app_g1.log` 里 **`entry point named '<名>'`** 的**行数**
   #   （来源＝**应用日志**；与 `[HC-UNHANDLED]` 行**同源** —— 现取：二者计数相等）；`ENFE_BY_NAME` ＝ 按**入口名**直方图。
+  #   ⏪ **dated 更正（`t144`／`t139` `F-2`；上句**原文保留**，以本行为准）**：该「同源／计数相等」**今天已解耦** ——
+  #     两个量**各自定义、不得互相折算**：`ENFE_TOTAL` ＝ 日志里 `entry point named '<名>'` 的**行数**（**缺符号面**）；`[HC-UNHANDLED]`
+  #     ＝ 同名标记的行数（**托管未处理异常面**）。现取实况：`ENFE_TOTAL=0` 而 `[HC-UNHANDLED]` 族 **1123**（内容为 `PtsException: Page formatting
+  #     engine did not complete formatting operation …`）⇒ 二者**不可互折**。口径与 `build/MilBridge/P1-realized-criteria-report.md` 的 `t136` 段（`O-1`）**一致**。
   #   **非目标 allowlist** ＝ `PTS_ENFE_ALLOWLIST`（**逗号分隔的入口名**；**默认空** ⇒ "一个都不许"）；
   #   allowlist 里的名**逐名可核**（判词行打印 `allow=` 与 `non_allow=`，且红行**点名每一个** non_allow 名与计数）。
   #   **判据**：**`realized` 期**，`ENFE_TOTAL>0` ∧ `non_allow` 非空 ⇒ **红并点名**（名＋计数）；
@@ -1008,6 +1040,40 @@ ENFE_EOF
             else
               nfail=$((nfail+1)); printf '  %-34s => rc=%-3s ✗ 期望 %s\n' "G10c·真声明 ⇒ 绿＋点名" "$_rc31" "rc=0+dllimport-entry+decl=…"
             fi
+  # ── ⏪ `t144`（`t139` `F-1`）三条腿：**必要件成立 ⇒ 仍红（保持）**／**必要件不成立 ⇒ 闸 NOINFO 且 fails= 无相反 reason**／
+  #    **缺整条 leg_*.env ⇒ 第三态（形态可分）**；另给"拆掉新逻辑 ⇒ 该腿必 ✗"的**承重证明**（见载体）。 ──
+  _h7="$T/c46"; rm -rf "$_h7"
+  mk c46 24 yes 143 0 900 HandyControlDemo.UserControl.FlowDocumentDemo - 0 - yes yes 12345 c0ffee1234abcd99 1234
+  mk c46 23 yes 143 0 880 HandyControlDemo.UserControl.RichTextBoxDemo  - 0 - yes yes 12001 c0ffee1234abcd99 1234
+  _o="$(bash "$_rz" --legs "$_h7" 2>&1 || true)"
+  chk FAIL "$(out "$_o")" "t144·(a) 必要件成立＋无正证据 ⇒ 红（保持）"
+  if grep -qF 'PTS_N1_GATE=FAIL' <<<"$_o" && grep -qF 'nec23=yes nec24=yes' <<<"$_o" && grep -qF 'reason=only-necessary-condition-no-positive-evidence' <<<"$_o"; then
+    npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "t144·(a) 前置在成立时放行" "yes"
+  else
+    nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "t144·(a) 前置在成立时放行" "no" "GATE=FAIL+nec23=yes nec24=yes"
+  fi
+  _h8="$T/c47"; rm -rf "$_h8"
+  mk c47 24 yes 143 0 900 HandyControlDemo.UserControl.FlowDocumentDemo - 0 - yes yes 12345 1a76488aa4a790b3 15386
+  mk c47 23 yes 143 0 880 HandyControlDemo.UserControl.RichTextBoxDemo  - 0 - yes yes 12001 1a76488aa4a790b3 15386
+  _o="$(bash "$_rz" --legs "$_h8" 2>&1 || true)"
+  if grep -qF 'PTS_N1_GATE=NOINFO' <<<"$_o" && grep -qF 'reason=necessary-not-satisfied(nec23=no,nec24=no)' <<<"$_o"; then
+    npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "t144·(b) 要件①不成立 ⇒ 闸 NOINFO 具名" "yes"
+  else
+    nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "t144·(b) 要件①不成立 ⇒ 闸 NOINFO 具名" "no" "GATE=NOINFO+necessary-not-satisfied"
+  fi
+  if ! grep -qF 'only-necessary-condition-no-positive-evidence' <<<"$_o"; then
+    npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "t144·(b) fails= 无相反 reason" "yes"
+  else
+    nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "t144·(b) fails= 无相反 reason" "no" "不出现 only-necessary…"
+  fi
+  chk FAIL "$(out "$_o")" "t144·(b) 整步仍红（因 ∈ 参照集的腿级红）"
+  _h9="$T/c48"; rm -rf "$_h9"; cp -a "$_h7" "$_h9"; rm -f "$_h9/leg_23.env"
+  _o="$(bash "$_rz" --legs "$_h9" 2>&1 || true)"
+  if grep -qF 'reason=necessary-input-missing(leg23(env-absent))' <<<"$_o"; then
+    npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "t144·(c) 缺整条 env ⇒ 第三态可分" "yes"
+  else
+    nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "t144·(c) 缺整条 env ⇒ 第三态可分" "no" "reason=necessary-input-missing(leg23(env-absent))"
+  fi
   rm -rf "$T"
   printf 'PTS_GUARD_SELFTEST=%s pass=%d fail=%d\n' "$([ "$nfail" = 0 ] && echo PASS || echo FAIL)" "$npass" "$nfail"
   [ "$nfail" = 0 ]
@@ -1016,6 +1082,8 @@ ENFE_EOF
 
 # ══ ⏪ `t122`（`t118` 的 `N2`）**ENFE 面**：`realized` 期 `ENFE_TOTAL>0`（且不在 `PTS_ENFE_ALLOWLIST`）⇒ **红并点名**；
 #    口径：`ENFE_TOTAL` ＝ `<证据目录>/app_g1.log` 里 `entry point named '<名>'` 的行数（与 `[HC-UNHANDLED]` 同源）；
+#    ⏪ **dated 更正（`t144`／`t139` `F-2`；上句**原文保留**，以本行为准）**：**「同源」不等于"计数相等"** —— 两个量**各自定义、不得互相折算**
+#      （`ENFE_TOTAL`＝缺符号面；`[HC-UNHANDLED]`＝托管未处理异常面）；现取：**0** vs **1123**；与判据件 `P1-realized-criteria-report.md` 的 `t136` 段（`O-1`）**一致**。
 #    `degraded` 期只印 `PTS_ENFE=INFO`；日志缺 ⇒ `PTS_ENFE=NOINFO`（**绝不当绿**）。**只增不减、不动三态。**
 # ══ ⏪ `t124`（`t118` 的 `N1`）**帧身份 ＋ 帧位移**：`realized` 期「`fr_sha` ∉ `FRAME_EMPTY_SET`（件头**唯一登记处**）
 #     ∧ `fr_ae_boot>0`」两条**都要成立** ⇒ 任一不成立**红并点名**（哪一帧／哪个要件／实测值／参照集）；
