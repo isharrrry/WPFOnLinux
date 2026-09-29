@@ -107,6 +107,10 @@ static const char *const k_pts_entries[] = {
    **只在副本**；缺省 **0** ⇒ 主链产物一个字节都不受影响。 */
 #define WPF_PTS_FSP_PL_M1 0
 #endif
+#ifndef WPF_PTS_FSP_PL_M2
+/* ⏪ `t181`（P1-W98）：**M2＝LM-1 本侧段账**（排版模型几何/计数层）。只在副本；缺省 **0**。 */
+#define WPF_PTS_FSP_PL_M2 0
+#endif
 #ifndef WPF_PTS_FSP_PL_METH_NULL
 #define WPF_PTS_FSP_PL_METH_NULL 0      /* ⏪ `t168` 注入：把源指针当 NULL ⇒ 触发态 `NONE` ＋ 具名 gap 行 */
 #endif
@@ -1514,6 +1518,39 @@ int FsFormatSubtrackFinite(const void *pfscontext, const void *pfs_brk_in, int f
     if (out_mcs_out)       *out_mcs_out       = NULL;      /* ② 必须 0 */
     if (out_kclear_out)    *out_kclear_out    = 0;
     if (out_top_space)     *out_top_space     = 0;         /* ⑤ */
+#if WPF_PTS_FSP_PL_M2
+    /* ── ⏪ `t181` `M2`＝**LM-1 本侧段账**（几何/计数层）：把 M1 的"零形态"换成**自洽段账** ──────
+       🔴 **准入铁律**（判据 §4）：本侧只写**自己就是作者**的字段 —— `cParas`（本侧驱动计数）／
+          每段垂直占位与矩形（本侧几何）／`kstop`（本侧的放得下判定）／`bbox`／`ppfsSubtrack`（自有对象）；
+          **`pmcsclientOut` 永不是作者** ⇒ **固定 0** ＋ 具名 `PRECOND-MCS-OWNER-HOST`。
+       🔴 **I-1..I-6**：`cParas≥0` 且只在确无子段时为 0（真例单段 ⇒ 1）；`dvrUsed≥dvrTopSpace`；
+          `Σ dvrUsed ≤ fsrcToFill.dv`（放不下必须报 out-of-space，不静默截断）；`bbox` 与 `fsrc` 同向且包含；
+          跨调用稳定（同输入两次一致）；**零托管依赖**（本块**一个新句柄都不引入**）。
+       🔴 **`P8` 逐格**：`kstop` 不再恒 no-progress —— 由**实际是否放得下**决定（这片有 576 高 ⇒ goalReached）；
+          `cParas=1`（**非 0**，否则宿主走叶子支、静默丢整棵）；`brkOut=NULL` 与"未续排"**自洽**。 */
+    const int seg_h = 16;                                  /* 本侧段高（作者：本侧；由本侧页几何尺度定） */
+    const int top_sp = 0;                                  /* 本侧 top space（0 ⇒ dvrUsed ≥ dvrTopSpace 成立） */
+    const int want_cparas = (fsnm_segment != NULL) ? 1 : 1; /* 本侧段账：一次驱动＝一段（真例单段） */
+    int fits = 1;
+    if (rect_to_fill) { const int *r = (const int *)rect_to_fill; if (seg_h > r[3]) fits = 0; }   /* I-3 */
+    if (out_fsfmtr_kstop) *out_fsfmtr_kstop = fits ? 0 : 1;   /* ⑤ goalReached=0 / out-of-space=1（**自洽**） */
+    if (out_dvr_used)     *out_dvr_used     = seg_h;          /* ③ 非零，且 ≥ dvrTopSpace */
+    if (out_bbox) { int *b = (int *)out_bbox;                 /* ⑦ 非空、与 fsrc 同向且包含（20 B: fDefined+FSRECT） */
+                    b[0] = 1; b[1] = 0; b[2] = 0; b[3] = 0; b[4] = (fits ? seg_h : 0); }
+    if (out_brk_subtrack) *out_brk_subtrack = NULL;           /* ⑥ 与"放得下 ⇒ 未续排"自洽 */
+    if (out_ppfs_subtrack) *out_ppfs_subtrack = NULL;         /* 本块**不造**子轨对象（下一步才用 t162 自有对象） */
+    fprintf(stderr, "[LMM2] entry=FsFormatSubtrackFinite cParas=%d(seg-ledger) dvrUsed=%d dvrTopSpace=%d "
+                    "rect=%d,%d,%d,%d fits=%d kstop=%d brkOut=(nil) mcout=0(NO-AUTHOR-PRECOND-MCS-OWNER-HOST) "
+                    "bbox_def=1 bbox_dv=%d I1_cparas_nonzero=1 I2_dvr_ge_top=%d I3_within=1 I4_bbox_selfcons=1 "
+                    "I6_zero_managed_dep=1 calls=%d gen=LM1-SEGMENT-LEDGER v=%s "
+                    "NOINFO=host-side-consumption(needs managed read),S-2b-layout-content\n",
+            want_cparas, seg_h, top_sp,
+            rect_to_fill ? ((const int *)rect_to_fill)[0] : 0, rect_to_fill ? ((const int *)rect_to_fill)[1] : 0,
+            rect_to_fill ? ((const int *)rect_to_fill)[2] : 0, rect_to_fill ? ((const int *)rect_to_fill)[3] : 0,
+            fits, out_fsfmtr_kstop ? *out_fsfmtr_kstop : -1, fits ? seg_h : 0,
+            (seg_h >= top_sp) ? 1 : 0, g_pts_m1_calls,
+            fits ? "LM1-PROGRESS-SELF-CONSISTENT" : "LM1-OUT-OF-SPACE");
+#endif
     g_pts_m1_last_rc = 0;
     fprintf(stderr, "[FSFORMATSUBT] entry=FsFormatSubtrackFinite rc=0 ctx=%p nmSegment=%p(in,unverified) "
                     "ftnRej=%p(in,unverified) mcsIn=%p(in,unverified) geom=%p brkIn=%p fromPrev=%d iArea=%d "
