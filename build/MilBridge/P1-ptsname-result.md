@@ -432,6 +432,22 @@ VERIFYALL-STEPS-DECL: 62 gen=#81   # verify-all.sh:73
 
 **(e) 一条口径固化**：`FRAME_EMPTY_SET` 的**每个成员都必须带"它是哪一代／哪一趟的实测"**（本次 β 的出处直接锚到**主表三行判词**，是范本）；**只有指纹不能进出处的登记集**，等于给未来的自己留一个查不到的洞（与裁定四十 (a)、`t144` 的 `F-3` 同族）。
 
+**裁定四十五（承 `t158` 判据件，`ts=2026-09-29T18:1x+08:00`）—— (a) 四问判词入册；(b) 🔴 新缺口「**索引复用 ⇒ 静默错对象**」 ⇒ 采纳「`resolve=wrong-object` **一票红**」；(c) 立一条方法论「**凡"能拦"的断言，必须问它在什么条件下拦不住**」；(d) 禁用件清单入册；(e) 下一跳实现已派。原文与既有裁定一字未删。**
+
+**(a) 四问判词（`build/MilBridge/P1-paralist-wire-criteria.md` 289 行／full sha256 `dfe64c004a914a930566e5e891169f5afc89022f5f8ba1c6a7b665d2f07b19b9`／末行自证 `2e7c9d4613e7d658`；其四问与红榜/禁用件/哨兵表/零假值铁律/六条 `PRECOND-*` 全部入册）**：
+1. **持有期 ＝ 托管对象生存期，不是调用窗口**：链 `BaseParaClient.cs:21`（`: UnmanagedHandle`）→ `UnmanagedHandle.cs:28`（构造器 `CreateHandle(this)`）→ `UnmanagedHandle.cs:38`（`Dispose()` 内 `ReleaseHandle`，**全仓唯一调用点**）→ `PtsHost.cs:785`（`DestroyParaclient` 内 `paraClient.Dispose()`）⇒ **native `+192` 即回收触发者** ⇒ `Case I` 成立、可跨调用持有；`Case II`（调用期有效）**判红**。⇒ 这条把「与 `t141` 那类 use-after-return 的分野」讲清了：`t141` 的入参是**调用方栈上的字段地址**（只在调用期有效），而 `pfsparaclient` 是**托管表的活条目索引**（生存期由托管 `Dispose` 决定）。⚠️ 另记：**消费者含"查询帧"**（`ColumnResult.cs:151-165/:228-242` → `FlowDocumentPage.cs:529/:564`；其 `:410-445` 内**未见** `SetDocumentFormatContext`），与 `FormatFinite`（`:51/:199`）**不是同一帧**。
+2. **窗口非必要非充分** ⇒ 必须落**两腿实验**（W-1 窗内／W-2 窗外，用 `t151` 的 OOW 腿），**单腿只能 `NOINFO`**（诚实边界：仅局部观察 `:410-445`，未证全链）。
+3. **回收责任 ＝ 托管 `Dispose()`，触发点 `+192`；本入口不许自回收、不许"返回前回收"**（否则判 **P4**）。可证伪判据：**R-1 单次性**（第二次 ⇒ `ReleaseHandle:211` Assert ⇒ **`FailFast` 不可捕获**）／**R-2 不晚于上下文销毁**（`:209` Assert ＋ `StructuralCache.cs:181` 在册注释）／**R-3 与那一次 `+176` 绑定**／**R-4 ⇒ `PRECOND-NO-HANDLE-ACCOUNTING`／`NOINFO`**。⇒ 🔴 **严禁用 `rc=0` 冒充"回收正确"**。
+4. **绿 ＝ 7 条合取**（`rc=0`；`n>=1 ∧ n==cParas`；`src=managed-176`；`resolve=ok ∧ h0 与同 run 的 `+176` 同值`；`wrong-object`／`failfast`／`-100002`／`-10000` **各 0 次**；**≥2 独立样本一致**；**每条带纪律 30 三格 ＋ 探针闸状态**）；读数行逐字入册（`[FSPARALIST-FILL]`／`[FSPARALIST-CONSUME] i= h= resolve=… type=`）。
+
+**(b) 🔴 新缺口「索引复用 ⇒ **静默错对象**」（`t158` 现取、未见既有件；队长采纳其处置建议）**：机制 —— 活槽判据 `IsHandle() = Obj != null && Index == 0`（`PtsContext.cs:645-648`）；而 `ReleaseHandle:212-214` 把索引**压回自由链**、`CreateHandle` **复用之** ⇒ **已释放但尚未被复用**时 `:248` 的 Assert（`FailFast`）**拦得住**；**已被复用**时 `IsHandle()` 为**真** ⇒ `HandleToObject` 返回**另一个对象**、且 `as BaseParaClient` **成功** ⇒ **不报错、不崩、拿错对象继续排版**。⇒ 这是 **P4（use-after-recycle）** 的机制依据。⇒ **裁定采纳判据件的建议**：**`resolve=wrong-object` 单列为一票红**；**消费者行必须打印「身份 ＋ resolve 类别」**（不许只打"非零/成功"）。
+
+**(c) 立一条方法论口径（本条的价值超出本跳）**：该缺口的形态是「**拦得住一半**」—— 同一个断言，在**未被复用**时红、在**已被复用**时**静默放行**。⇒ **口径**：**凡"能拦"的断言（Assert／校验／身份检查），必须同时回答"它在什么条件下拦不住"**；只写"它能拦"＝**记了一半**。⇒ 同族（本会话已 3 例）：`t136` 的「必需非充分」（要件成立 ≠ 结论成立）、`t145` 的「登记即算」（有登记 ≠ 有支撑）、本条（**断言在场 ≠ 断言有效**）。
+
+**(d) 禁用件清单入册（判据件重申，队长照准）**：**`+200`**（不读字段的 stub ⇒ 恒定绿 ⇒ 用它判接受＝假绿）／**`+56`**（by-design 恒绿 ⇒ 对"能否拿到活句柄"零信息量）／**`fsbbox`／`dvrTopSpace`**（真排版前一律 `NOINFO`）／**今日已满足的网症格与死锚**。⇒ 另记 `FSPARADESCRIPTION.pfsparaclient` 的计算偏移 `+16`（`fsupdinf 8B` ＋ `pfspara 8B`）**只许实测**（计算值仅作预期），实测后须 `_Static_assert` 钉死（照 `t127` 前例）。
+
+**(e) 下一跳实现已派 `t160`（`runner`）**：把 `pfsparaclient` 接进 `FsQueryTrackParaList` 的段落列表 —— 判据（7 条合取 ＋ `resolve=wrong-object` 一票红 ＋ 两腿窗实验 ＋ R-1~R-4 回收判据 ＋ 红榜 `P1–P10` ＋ T3 哨兵表 ＋ 零假值铁律）**全部照 `t158`**。🔴 口径照旧：本件绿**只准**读成「native 能把一个**由托管产出、且在持有期内有效**的段落客户端句柄交给列表消费者，且**消费者解析到的是同一个对象**」；**不得**读成"段落模型已成／排版打通／三级链已存在／两页能排版／`TASK-0007` 可绿"。
+
 ## 9 未做 / 边界
 
 - **未**跑整趟门禁（`verify-all.sh` 全跑）；本件只跑相关已接线牙与判据件。
