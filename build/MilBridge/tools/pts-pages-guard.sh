@@ -113,6 +113,9 @@ FRAME_EMPTY_SET="1a76488aa4a790b3,ef3fd6765f18f51b"
 #   ⚠️ **`LightGray` 不入锚集**：它在空态帧里已有 44/51 px ＝ **死锚**（只有实测才知道，算不出来）。
 #   ⚠️ **`k=23` 无锚**（`RichTextBoxDemo.xaml` 只有 `Margin/Width/Height` 与三段 `Paragraph`，无具名色）
 #   ⇒ `k=23` 记具名 `NOINFO`，**严禁**用"k=24 有锚"推广过去。
+# ⏪ `t147`（P1-W67）：**判词文本里的反引号一律经本变量进双引号串** —— 直接写「双引号内裸反引号」会被 bash 当命令替换（`DQ-BACKTICK` 族）；
+#   本行是**单引号**变量，持有一个反引号字符；`"…${BT}x${BT}…"` 展开后与原来**逐字节相同**。
+BT='`'
 COLOR_ANCHOR_K24="GhostWhite=248,248,255 Beige=245,245,220 DarkGreen=0,100,0 LightGoldenrodYellow=250,250,210"
 COLOR_ANCHOR_MIN=200
 COLOR_ANCHOR_BASE_FRAME="boot.png"
@@ -629,10 +632,10 @@ judge_legs() {
   _ca_base="$dir/shots/g1/$COLOR_ANCHOR_BASE_FRAME"
   _ca_base_out="$(color_px_scan "$_ca_base" "$COLOR_ANCHOR_K24" 2>/dev/null || true)"
   for pair in $_ca_base_out; do v="${pair#*=}"; case "$v" in ''|*[!0-9]*) continue;; esac; [ "$v" -gt 0 ] && _ca_dead="${_ca_dead}${_ca_dead:+,}${pair%%=*}"; done
-  echo "PTS_COLORANCHOR_BASE=frame=$COLOR_ANCHOR_BASE_FRAME scan=${_ca_base_out:-unreadable} min=$COLOR_ANCHOR_MIN all_zero=$([ -z "$_ca_dead" ] && echo yes || echo no) dead=${_ca_dead:-none}（**阈值由本基线标定**：基线全 0 ⇒ 该计数能分开"有该色/没该色"；`LightGray` 不入集——它在空态帧里已有 44/51 px）"
+  echo "PTS_COLORANCHOR_BASE=frame=$COLOR_ANCHOR_BASE_FRAME scan=${_ca_base_out:-unreadable} min=$COLOR_ANCHOR_MIN all_zero=$([ -z "$_ca_dead" ] && echo yes || echo no) dead=${_ca_dead:-none}（**阈值由本基线标定**：基线全 0 ⇒ 该计数能分开"有该色/没该色"；${BT}LightGray${BT} 不入集——它在空态帧里已有 44/51 px）"
   for _caf in 24 23; do
     if [ "$_caf" = 23 ]; then
-      echo "PTS_COLORANCHOR=NOINFO k=23 reason=no-anchor-registered-for-k23 phase=$PHASE（`RichTextBoxDemo.xaml` 无具名色 ⇒ **本页无锚**；**严禁**用 k=24 的锚推广。⏪ `t145`：本支**只印具名 NOINFO 行、不折 `cannot`** —— 否则任何"没有 k=24 帧"的证据目录都会被整体读成不可判；**本面不给绿**这一点不变）"
+      echo "PTS_COLORANCHOR=NOINFO k=23 reason=no-anchor-registered-for-k23 phase=$PHASE（${BT}RichTextBoxDemo.xaml${BT} 无具名色 ⇒ **本页无锚**；**严禁**用 k=24 的锚推广。⏪ ${BT}t145${BT}：本支**只印具名 NOINFO 行、不折 ${BT}cannot${BT}** —— 否则任何"没有 k=24 帧"的证据目录都会被整体读成不可判；**本面不给绿**这一点不变）"
       continue
     fi
     if [ -n "$_ca_dead" ]; then
@@ -641,7 +644,7 @@ judge_legs() {
       continue
     fi
     if [ ! -s "$dir/shots/g1/k24.png" ]; then
-      echo "PTS_COLORANCHOR=NOINFO k=24 reason=frame-absent($dir/shots/g1/k24.png) phase=$PHASE（帧不在 ⇒ 本面不可算 ⇒ **不给绿**；⏪ `t145`：本支**不折 `cannot`**，理由同 k=23 支——而"登记即算"那条假绿通道**照样堵住**：没有帧 ⇒ `n4` 的**独立支撑**也取不到 ⇒ `n4` 不计证据）"
+      echo "PTS_COLORANCHOR=NOINFO k=24 reason=frame-absent($dir/shots/g1/k24.png) phase=$PHASE（帧不在 ⇒ 本面不可算 ⇒ **不给绿**；⏪ ${BT}t145${BT}：本支**不折 ${BT}cannot${BT}**，理由同 k=23 支——而"登记即算"那条假绿通道**照样堵住**：没有帧 ⇒ ${BT}n4${BT} 的**独立支撑**也取不到 ⇒ ${BT}n4${BT} 不计证据）"
       continue
     fi
     _ca_out="$(color_px_scan "$dir/shots/g1/k24.png" "$COLOR_ANCHOR_K24" 2>/dev/null || true)"
@@ -652,9 +655,9 @@ judge_legs() {
     fi
     _ca_hit="$(color_anchor_hits "$_ca_out")"
     if [ "${_ca_hit:-0}" -ge 2 ]; then
-      echo "PTS_COLORANCHOR=PASS k=24 scan=$_ca_out hits=$_ca_hit min=$COLOR_ANCHOR_MIN base=${_ca_base_out:-unreadable} phase=$PHASE（该页**具名色成片出现** ⇒ 该页内容至少部分真绘出；⚠️ **只准读成这一件事**，不得替代 `N1`/`N3`）"
+      echo "PTS_COLORANCHOR=PASS k=24 scan=$_ca_out hits=$_ca_hit min=$COLOR_ANCHOR_MIN base=${_ca_base_out:-unreadable} phase=$PHASE（该页**具名色成片出现** ⇒ 该页内容至少部分真绘出；⚠️ **只准读成这一件事**，不得替代 ${BT}N1${BT}/${BT}N3${BT}）"
     else
-      echo "  COLOR-ANCHOR-ABSENT k=24 expect>=${COLOR_ANCHOR_MIN}px&hits>=2 measured=$_ca_out hits=$_ca_hit baseline($COLOR_ANCHOR_BASE_FRAME)=${_ca_base_out:-unreadable} phase=$PHASE（`FlowDocumentDemo` 的具名色**应有而未现** ⇒ 该页**没绘出内容**）"
+      echo "  COLOR-ANCHOR-ABSENT k=24 expect>=${COLOR_ANCHOR_MIN}px&hits>=2 measured=$_ca_out hits=$_ca_hit baseline($COLOR_ANCHOR_BASE_FRAME)=${_ca_base_out:-unreadable} phase=$PHASE（${BT}FlowDocumentDemo${BT} 的具名色**应有而未现** ⇒ 该页**没绘出内容**）"
       echo "PTS_COLORANCHOR=FAIL k=24 scan=$_ca_out hits=$_ca_hit expect_min=$COLOR_ANCHOR_MIN expect_hits=2 baseline=${_ca_base_out:-unreadable} phase=$PHASE reason=declared-color-anchor-absent"
       fails+=("leg24-color-anchor-absent(hits=$_ca_hit<2,scan=$_ca_out)")
     fi
