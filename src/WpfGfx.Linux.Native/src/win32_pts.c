@@ -411,6 +411,124 @@ int DestroyInstalledObjectsInfo(void *pInstalledObjects)
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
 
+// ══════════════════════════════════════════════════════════════════════════════════════════
+// ⏪ `t133`（P1-W55）测量小单 —— `FSCONTEXTINFO.fscbk` / `FSCBKGEN` 槽偏移的**实测值**（native 只读回读）
+//
+//   **实测来源（同趟现取，两条独立证据）**：
+//     ① **托管侧仪器**（运行期布局 API）：在**真产物** `PresentationFramework.dll` 上取
+//        `Marshal.OffsetOf` / `Marshal.SizeOf` ⇒ `fscbk=40`、`FSCBK{cbkgen=0,cbktxt=256,cbkobj=504,
+//        cbkfig=568,cbkwrd=592}`、`SizeOf(FSCBK)=824=103×8`、`SizeOf(FSCONTEXTINFO)=872`。
+//     ② **本文件内的只读回读指纹**（`wpf_pts_fscbk_probe`）：按 ① 的偏移，在**真实**
+//        `FSCONTEXTINFO`（app 进程里由托管侧装配、CLR 封送出来的那一份）上逐 8 B 字回读，并把
+//        「观测到的空槽位置」与「由托管侧源码预言的空槽位置」逐项比对（**预言 vs 观测**）。
+//        ⚠️ 这两个偏移**不是**"按字段类型数出来"的：① 是运行期 API 的返回值，② 是现场字节。
+//
+//   **候选值 vs 实测值（成对对照）**：`t132` 只能"算"：`fscbk=+40`／`pfnGetNextSection=+56`／
+//     `pfnGetFirstPara=+136`／`pfnCreateParaclient=+176` —— 本件实测**逐项相同**（见载体 §1）。
+//   **纪律**：本文件**只**读、**不试调**（试调错槽会崩；拿伪造 `nms`/`nmp` 调真槽会让托管侧
+//     `HandleToObject` 触发 `Invariant.FailFast`（不可捕获））。**一个回调都不调**。
+// ══════════════════════════════════════════════════════════════════════════════════════════
+#define WPF_PTS_FSCBK_OFF            40     /* 实测① */
+#define WPF_PTS_FSCBK_SIZE           824    /* 实测①：103 槽 × 8 B */
+#define WPF_PTS_FSCBK_CBKGEN_OFF     0
+#define WPF_PTS_FSCBK_CBKTXT_OFF     256
+#define WPF_PTS_FSCBK_CBKOBJ_OFF     504
+#define WPF_PTS_FSCBK_CBKFIG_OFF     568
+#define WPF_PTS_FSCBK_CBKW_RD_OFF    592
+#define WPF_PTS_CBKGEN_SLOTS         32
+#define WPF_PTS_CBKTXT_SLOTS         31
+#define WPF_PTS_CBKOBJ_SLOTS         8
+#define WPF_PTS_CBKFIG_SLOTS         3
+#define WPF_PTS_CBKW_RD_SLOTS        29
+
+/* 编译期钉死：组基址必须**互为累加**（错一个就编不过）＋ 目标槽的绝对偏移必须是"组基址 + 槽序×8" */
+_Static_assert(WPF_PTS_FSCBK_CBKTXT_OFF  == WPF_PTS_FSCBK_CBKGEN_OFF + WPF_PTS_CBKGEN_SLOTS * 8, "cbktxt base != cbkgen base + 32*8");
+_Static_assert(WPF_PTS_FSCBK_CBKOBJ_OFF  == WPF_PTS_FSCBK_CBKTXT_OFF + WPF_PTS_CBKTXT_SLOTS * 8, "cbkobj base != cbktxt base + 31*8");
+_Static_assert(WPF_PTS_FSCBK_CBKFIG_OFF  == WPF_PTS_FSCBK_CBKOBJ_OFF + WPF_PTS_CBKOBJ_SLOTS * 8, "cbkfig base != cbkobj base + 8*8");
+_Static_assert(WPF_PTS_FSCBK_CBKW_RD_OFF == WPF_PTS_FSCBK_CBKFIG_OFF + WPF_PTS_CBKFIG_SLOTS * 8, "cbkwrd base != cbkfig base + 3*8");
+_Static_assert(WPF_PTS_FSCBK_SIZE == (WPF_PTS_CBKGEN_SLOTS + WPF_PTS_CBKTXT_SLOTS + WPF_PTS_CBKOBJ_SLOTS
+                                      + WPF_PTS_CBKFIG_SLOTS + WPF_PTS_CBKW_RD_SLOTS) * 8, "FSCBK 大小 != 103*8");
+_Static_assert(WPF_PTS_FSCBK_OFF % 8 == 0, "fscbk 基址未 8 字节对齐");
+_Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_FSCBK_CBKGEN_OFF + 16 == 56,  "pfnGetNextSection 绝对偏移 != 56");
+_Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_FSCBK_CBKGEN_OFF + 40 == 80,  "pfnGetMainTextSegment 绝对偏移 != 80");
+_Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_FSCBK_CBKGEN_OFF + 96 == 136, "pfnGetFirstPara 绝对偏移 != 136");
+_Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_FSCBK_CBKGEN_OFF + 104 == 144, "pfnGetNextPara 绝对偏移 != 144");
+_Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_FSCBK_CBKGEN_OFF + 128 == 168, "pfnGetParaProperties 绝对偏移 != 168");
+_Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_FSCBK_CBKGEN_OFF + 136 == 176, "pfnCreateParaclient 绝对偏移 != 176");
+_Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_FSCBK_CBKGEN_OFF + 152 == 192, "pfnDestroyParaclient 绝对偏移 != 192");
+
+/* 预言的空槽（**由托管侧源码**得来：`cbkobj` 的前三槽与整个 `cbkwrd` 声明为 `IntPtr` 且**未赋值**）
+   ⇒ 只读回读若在这些绝对偏移上读到非 0，说明偏移（或对齐/顺序）**另有其事** ⇒ 指纹判 FAIL。 */
+#define WPF_PTS_NULL_PRED_CBKOBJ_LEAD 3
+#define WPF_PTS_NULL_PRED_CBKW_RD     29
+#define WPF_PTS_NULL_PRED_TOTAL       (WPF_PTS_NULL_PRED_CBKOBJ_LEAD + WPF_PTS_NULL_PRED_CBKW_RD)
+
+static int g_pts_fscbk_probes   = 0;    /* 本进程内回读次数（仪器自身的调用计数，只读） */
+static int g_pts_fscbk_fp_pass  = 0;    /* 指纹 PASS 次数（观测 == 预言） */
+static int g_pts_fscbk_fp_fail  = 0;    /* 指纹 FAIL 次数（观测 != 预言） */
+static int g_pts_fscbk_fp_synth = 0;    /* 合成结构（全零窗口）次数 —— 夹具结构走这支，**不判 FAIL** */
+
+// ── 只读回读（**绝不试调**）：把 `FSCBK` 的 103 个 8 B 字逐字读出并打印 ＋ 指纹判定 ────────────
+//   安全性：窗口 ＝ `info + 40 .. info + 864`。**夹具结构**（`wpf_pts_fsctx_probe`）已按同一窗口
+//   **加宽**（见该结构处的 `probe_pad`）⇒ 即使在夹具路径上调用也**全程在界内**（改前那个 56 B 的
+//   结构若被回读 864 B 就是**越界读**，本件顺手把它堵掉）。
+//   **两支判词**：① 全零窗口 ⇒ `synthetic-all-zero` ⇒ `fingerprint=NOINFO`（夹具的合成结构，
+//   不是托管产物，**不许当红也不许当绿**）；② 有非零 ⇒ 与"预言的空槽位置"逐项比对（**预言 vs
+//   观测**）⇒ `fingerprint=PASS|FAIL`。观测到**多出的空槽**同样判 FAIL（收紧）。
+static void wpf_pts_fscbk_probe(const void *info, const char *where)
+{
+    if (!info) return;
+    const unsigned char *b = (const unsigned char *)info;
+    unsigned long long w[WPF_PTS_FSCBK_SIZE / 8];
+    int nulls = 0, nonnull = 0, pred_ok = 1;
+    for (int i = 0; i < WPF_PTS_FSCBK_SIZE / 8; i++) {
+        unsigned long long v = 0;
+        for (int k = 0; k < 8; k++) v |= ((unsigned long long)b[WPF_PTS_FSCBK_OFF + i * 8 + k]) << (8 * k);
+        w[i] = v;
+        if (v) nonnull++; else nulls++;
+    }
+    g_pts_fscbk_probes++;
+    if (nonnull == 0) {                       /* 全零窗口 ⇒ 夹具的合成结构 */
+        g_pts_fscbk_fp_synth++;
+        fprintf(stderr, "[FSCBK-PROBE] where=%s info=%p shape=synthetic-all-zero nulls=%d nonnull=%d "
+                        "fingerprint=NOINFO reason=synthetic-struct\n", where, info, nulls, nonnull);
+        return;
+    }
+    for (int k = 0; k < WPF_PTS_NULL_PRED_CBKOBJ_LEAD; k++) {         /* cbkobj 前三槽应为 0 */
+        if (w[(WPF_PTS_FSCBK_CBKOBJ_OFF + k * 8) / 8] != 0) pred_ok = 0;
+    }
+    for (int k = 0; k < WPF_PTS_NULL_PRED_CBKW_RD; k++) {             /* cbkwrd 全部应为 0 */
+        if (w[(WPF_PTS_FSCBK_CBKW_RD_OFF + k * 8) / 8] != 0) pred_ok = 0;
+    }
+    if (pred_ok && nulls != WPF_PTS_NULL_PRED_TOTAL) pred_ok = 0;     /* 多出的空槽也算不符（收紧） */
+    if (pred_ok) g_pts_fscbk_fp_pass++; else g_pts_fscbk_fp_fail++;
+    fprintf(stderr, "[FSCBK-PROBE] where=%s info=%p fscbk_off=%d window=%d nulls=%d nonnull=%d "
+                    "pred_nulls=%d fingerprint=%s probes=%d pass=%d fail=%d synth=%d\n",
+            where, info, WPF_PTS_FSCBK_OFF, WPF_PTS_FSCBK_SIZE, nulls, nonnull,
+            WPF_PTS_NULL_PRED_TOTAL, pred_ok ? "PASS" : "FAIL",
+            g_pts_fscbk_probes, g_pts_fscbk_fp_pass, g_pts_fscbk_fp_fail, g_pts_fscbk_fp_synth);
+    for (int i = 0; i < WPF_PTS_FSCBK_SIZE / 8; i++)
+        fprintf(stderr, "[FSCBK-WORD] off=%d val=0x%016llx\n", WPF_PTS_FSCBK_OFF + i * 8, w[i]);
+    {   /* 目标槽：绝对值 ＋ 它的 ±8 邻居 —— **两极化**就在这一行里可机读对拍 */
+        static const struct { const char *name; int abs; } t[] = {
+            { "pfnGetNextSection",      WPF_PTS_FSCBK_OFF + 16  },
+            { "pfnGetSectionProperties",WPF_PTS_FSCBK_OFF + 24  },
+            { "pfnGetMainTextSegment",  WPF_PTS_FSCBK_OFF + 40  },
+            { "pfnGetFirstPara",        WPF_PTS_FSCBK_OFF + 96  },
+            { "pfnGetNextPara",         WPF_PTS_FSCBK_OFF + 104 },
+            { "pfnGetParaProperties",   WPF_PTS_FSCBK_OFF + 128 },
+            { "pfnCreateParaclient",    WPF_PTS_FSCBK_OFF + 136 },
+            { "pfnTransferDisplayInfo", WPF_PTS_FSCBK_OFF + 144 },
+            { "pfnDestroyParaclient",   WPF_PTS_FSCBK_OFF + 152 },
+        };
+        for (unsigned k = 0; k < sizeof(t) / sizeof(t[0]); k++) {
+            int o = t[k].abs;
+            fprintf(stderr, "[FSCBK-SLOT] name=%s abs=%d val=0x%016llx val_m8=0x%016llx val_p8=0x%016llx\n",
+                    t[k].name, o, w[o / 8], w[(o - 8) / 8], w[(o + 8) / 8]);
+        }
+    }
+}
+
 // ── 格 6（`t110`／P1-W35 · W8 第四步）：`CreateDocContext` **真实现** ─────────────────
 //   分界句（沿用前三件，逐字）：**`return 0`（`fserrNone`）本身不是证据**；证据是「这次调用在本进程内
 //   留下了**与该对象绑定**、**可被独立读取**的状态变化」。四件套 ＋ 形状约束：
@@ -442,6 +560,10 @@ int CreateDocContext(const void *fscontextinfo, void **pfscontext)
     c->p_installed_objects = *(const void *const *)(const void *)(b + 16);
     c->p_fsclient          = *(const void *const *)(const void *)(b + 24);
     c->pts_penalty_module  = *(const void *const *)(const void *)(b + 32);
+    /* ⏪ `t133`（P1-W55）测量小单：**只读回读** `FSCBK` 窗口（**绝不试调**任何回调）。
+       ⚠️ 窗口 `b+40 .. b+864` 对**真实** `FSCONTEXTINFO`（872 B）在界内；夹具的合成结构也已按
+          同一窗口**加宽**（见 `wpf_pts_fsctx_probe.probe_pad`）⇒ 夹具路径同样在界内。 */
+    wpf_pts_fscbk_probe(fscontextinfo, "CreateDocContext");
     g_pts_doc_live[g_pts_doc_live_n++] = c;
     g_pts_doc_sets_c++;
     {   /* 观测镜（**镜像**，不是权威）：记下"哪个入参结构地址、落出什么句柄"；指针量走 `ptr0`/`ptr1` */
@@ -1478,10 +1600,25 @@ typedef struct {                    /* 只为夹具服务；字段序/布局与 
     void        *p_fsclient;
     void        *pts_penalty_module;
     void        *fscbk;             /* 占位：真身是委托（8 B）⇒ 保证前面各指针的偏移 */
+    /* ⏪ `t133`（P1-W55）dated 更正（**纯注释修正，不动任何行为**）：上面那句里的「真身是委托（8 B）」
+       **是错的**，会让后人误判结构布局 —— 真身是 `PTS.FSCBK` ＝
+         `{ cbkgen(32 槽), cbktxt(31), cbkobj(8), cbkfig(3), cbkwrd(29) }`
+       ＝ **103 个 8 B 槽 ＝ 824 B**（**按值**嵌在 `FSCONTEXTINFO` 里；整结构 872 B）。
+       以上三个数（824／103／872）是 `t133` 的**实测值**（托管侧运行期布局 API 在真产物上取值），
+       不是按字段类型数出来的。⚠️ 本占位**只**用于保证**前缀**（`version`…`pts_penalty_module`）
+       各字段的偏移；`fscbk` **之后**的字段（如 `pfnAssertFailed`）**不能**按本占位去定位。
+       （原文一字未删。） */
     void        *pfn_assert_failed;
+    /* ⏪ `t133`（P1-W55）：**只为**让"`FSCBK` 只读回读"（窗口 40..864，见 `wpf_pts_fscbk_probe`）
+       在**夹具路径**上同样**在界内** —— 改前这个结构只有 56 B，若被回读 864 B 就是**越界读**。
+       本数组**不参与**任何语义（夹具只用前面的前缀字段），且下面用 `offsetof(..., probe_pad) == 56`
+       把**同一条牙**（前缀大小）保住。 */
+    unsigned char probe_pad[1024];
 } wpf_pts_fsctx_probe;
-_Static_assert(sizeof(wpf_pts_fsctx_probe) == 56,
-               "probe struct size unexpected（前 4 个 4 B 标量 + 5 个指针；指针**不得**按 4 B 假设）");
+_Static_assert(offsetof(wpf_pts_fsctx_probe, probe_pad) == 56,
+               "probe struct prefix size unexpected（前 4 个 4 B 标量 + 5 个指针；指针**不得**按 4 B 假设）"
+               "；`t133` 把原 `sizeof(...) == 56` 换成 `offsetof(probe_pad) == 56`（**同一条牙**，"
+               "因为结构尾部加了 `probe_pad` 以容纳只读回读窗口）");
 _Static_assert(offsetof(wpf_pts_fsctx_probe, version) == 0,  "offset assumption broken: version");
 _Static_assert(offsetof(wpf_pts_fsctx_probe, fsffi) == 4,    "offset assumption broken: fsffi");
 _Static_assert(offsetof(wpf_pts_fsctx_probe, c_installed_objects) == 12, "offset assumption broken: cInstalledObjects");

@@ -1,30 +1,33 @@
-DISPLAY_LEASE=official-caller-owned display=:247 sock=/tmp/.X11-unix/X247 xvfb_pid=1501449 owner_pid=1500863 lease=/home/links-dev/netTest/GitProj/WPFOnLinux/build/MilBridge/tests/PtsPagesProbe/evidence/device/display-lease.txt（① 常规件 ② 模式 600 ③ DISPLAY 相符 ④ owner 在祖先链上 ⑤ 活 Xvfb 且是其亲儿子 ⇒ 放行）
-=============== GROUP 1 arm=A clicks=[24,23] 03:14:15 ===============
-shim_sha16=a131ea4e6f5cc4f5 pf_sha16=2988f5154ecac5dd
-five_pre: libwpfwin32.so=a131ea4e6f5cc4f5 wpfgfx_cor3.so=941e69902d82ef02 PresentationCore.dll=02f158868aa99df4 PresentationFramework.dll=2988f5154ecac5dd WindowsBase.dll=9e860cbeecb352e1 
-mem_avail_kB_start=4784620
-app_pid=1501544 timeout=200s
-boot_log_bytes=15292
+DISPLAY_LEASE=official-caller-owned display=:237 sock=/tmp/.X11-unix/X237 xvfb_pid=2573512 owner_pid=2572893 lease=build/MilBridge/tests/PtsPagesProbe/evidence/device/display-lease.txt（① 常规件 ② 模式 600 ③ DISPLAY 相符 ④ owner 在祖先链上 ⑤ 活 Xvfb 且是其亲儿子 ⇒ 放行）
+=============== GROUP 1 arm=A clicks=[24,23] 14:11:48 ===============
+shim_sha16=5ddc9d63b5232f96 pf_sha16=c52d9191feb5ba7c
+five_pre: libwpfwin32.so=5ddc9d63b5232f96 wpfgfx_cor3.so=941e69902d82ef02 PresentationCore.dll=02f158868aa99df4 PresentationFramework.dll=c52d9191feb5ba7c WindowsBase.dll=9e860cbeecb352e1 
+mem_avail_kB_start=6502012
+app_pid=2583715 timeout=200s
+boot_log_bytes=14977
   boot  FILE=/home/links-dev/w67-work/logs/evidence/shots/g1/boot.png 1280x1024 colors=386 magenta=0 total=1310720 ink=480000
 boot_alive=yes
---- G1 click 24  03:14:23 ---
-BEFORE item=24 nm=FlowDocument stable=no rect=28,410,203x27 point=127,423 expect=FlowDocumentDemo try=1
-BEFORE item=24 nm=FlowDocument stable=yes rect=28,410,203x27 point=127,423 expect=FlowDocumentDemo try=2
-AFTER  item=24 alive=yes ns=HandyControlDemo.UserControl.FlowDocumentDemo ns_delta=1 try=2 expect_hit=yes
+--- G1 click 24  14:11:56 ---
+BEFORE item=24 nm=FlowDocument stable=yes rect=28,410,203x27 point=127,423 expect=FlowDocumentDemo try=1
+AFTER  item=24 alive=yes ns=HandyControlDemo.UserControl.FlowDocumentDemo ns_delta=1 try=1 expect_hit=yes
   FILE=/home/links-dev/w67-work/logs/evidence/shots/g1/k24.png 1280x1024 colors=383 magenta=0 total=1310720 ink=480000
-CLICK k=24 alive=yes expect=FlowDocumentDemo AE=15386 pts_unavail=0 pts_gap=0 guard=187 fatal=0 unh=0 ns_last=HandyControlDemo.UserControl.FlowDocumentDemo
+CLICK k=24 alive=yes expect=FlowDocumentDemo AE=15386 pts_unavail=0 pts_gap=0 guard=184 fatal=0 unh=0 ns_last=HandyControlDemo.UserControl.FlowDocumentDemo
+FAILLINE k=24 failfast=0 unrec=0 src=app_g1.log:FailFast|Unrecoverable
+FRAME k=24 fr_file=k24.png fr_sha=ef3fd6765f18f51b fr_lsha=ef3fd6765f18f51b fr_ae_boot=15386
 PHASE k=24 c1_ep=- c2_pts_gap=- c3_pts_unavail=- c4_unrecoverable=- managed_err= native_err=
   c3_text: 
---- G1 click 23  03:14:33 ---
+--- G1 click 23  14:12:03 ---
 BEFORE item=23 nm=RichTextBox stable=yes rect=28,379,203x27 point=127,392 expect=RichTextBoxDemo try=1
 AFTER  item=23 alive=yes ns=HandyControlDemo.UserControl.RichTextBoxDemo ns_delta=1 try=1 expect_hit=yes
   FILE=/home/links-dev/w67-work/logs/evidence/shots/g1/k23.png 1280x1024 colors=383 magenta=0 total=1310720 ink=480000
-CLICK k=23 alive=yes expect=RichTextBoxDemo AE=0 pts_unavail=0 pts_gap=0 guard=828 fatal=0 unh=0 ns_last=HandyControlDemo.UserControl.RichTextBoxDemo
+CLICK k=23 alive=yes expect=RichTextBoxDemo AE=0 pts_unavail=0 pts_gap=0 guard=845 fatal=0 unh=0 ns_last=HandyControlDemo.UserControl.RichTextBoxDemo
+FAILLINE k=23 failfast=0 unrec=0 src=app_g1.log:FailFast|Unrecoverable
+FRAME k=23 fr_file=k23.png fr_sha=ef3fd6765f18f51b fr_lsha=ef3fd6765f18f51b fr_ae_boot=15386
 PHASE k=23 c1_ep=- c2_pts_gap=- c3_pts_unavail=- c4_unrecoverable=- managed_err= native_err=
   c3_text: 
 alive_after_seq=yes
 APP_RC=143
 rc_reading: SIGTERM(仪器收的)
-log_bytes=461567
+log_bytes=551555
 FIVE_STABLE_G1=YES
-ALL_GROUPS_DONE 03:14:41
+ALL_GROUPS_DONE 14:12:11

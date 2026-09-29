@@ -673,6 +673,88 @@ namespace MS.Internal.PtsHost
             contextInfo.fscbk.cbktxt.pfnGetAttachedObjectsInTextLine = new PTS.GetAttachedObjectsInTextLine(ptsHost.GetAttachedObjectsInTextLine);
             contextInfo.fscbk.cbktxt.pfnUpdGetAttachedObjectChange = new PTS.UpdGetAttachedObjectChange(ptsHost.UpdGetAttachedObjectChange);
             contextInfo.fscbk.cbktxt.pfnGetDurFigureAnchor = new PTS.GetDurFigureAnchor(ptsHost.GetDurFigureAnchor);
+            // ⏪ `t133`（P1-W55）测量小单 —— **托管侧只读仪器**（调用点）：装配**完成之后**打
+            //   `[FSCBK-CANARY] …` 机读行（实测偏移 ＋ 每个槽的真实封送值），供 native 侧按**同一
+            //   偏移**做**只读回读**、逐字节对拍。⚠️ **只打印**：不写任何字段、**不调用**任何回调。
+            T133DumpFscbkCanary(ref contextInfo);
+        }
+
+        // ════════════════════════════════════════════════════════════════════════════════
+        // ⏪ `t133`（P1-W55）测量小单 —— `FSCONTEXTINFO.fscbk` / `FSCBKGEN` 槽偏移的**托管侧仪器**
+        //
+        //   **为什么需要它**：`FSCONTEXTINFO.fscbk` 是一张 **103 槽、按值嵌入**的回调表（实测
+        //   `Marshal.SizeOf(FSCBK)` ＝ 824 ＝ 103×8）；它的**槽偏移**是本族"驱动链"的钥匙，而
+        //   **native 侧没有仪器**能测它（夹具＝自证循环；`dladdr` 分不出槽；试调错槽＝崩；拿伪造
+        //   `nms`/`nmp` 调真槽 ⇒ 托管侧 `HandleToObject` ⇒ **`Invariant.FailFast` 不可捕获**）。
+        //   ⇒ 由**托管侧**给出 ① 运行期布局 API 的**实测偏移**（`Marshal.OffsetOf`/`SizeOf`）
+        //     ② 每个槽的**真实封送值**（canary）：`cbkgen` 的槽是委托 ⇒ 打
+        //     `Marshal.GetFunctionPointerForDelegate`（＝本进程内该委托会被封送成的函数指针）；
+        //     `cbkobj` 的前三槽与整个 `cbkwrd` 声明为 `IntPtr` 且**未接线** ⇒ 打原始值（应为 0）。
+        //
+        //   **边界（写死）**：本仪器**只读**——不写 `contextInfo` 任何字段、**不调用**任何回调、
+        //   不改任何行为、不影响 `return`；失败（反射拿不到类型）只打 `NOINFO` 行，绝不静默。
+        //   **表述纪律**：这些读数的绿**只准**读成"偏移测量有了可复核的机器证据"，
+        //   **不许**读成"驱动链已通"或"排版打通"。
+        // ════════════════════════════════════════════════════════════════════════════════
+        private static void T133DumpFscbkCanary(ref PTS.FSCONTEXTINFO info)
+        {
+            try
+            {
+                int offFscbk  = T133Off(typeof(PTS.FSCONTEXTINFO), "fscbk");
+                int offCbkgen = T133Off(typeof(PTS.FSCBK), "cbkgen");
+                int offCbktxt = T133Off(typeof(PTS.FSCBK), "cbktxt");
+                int offCbkobj = T133Off(typeof(PTS.FSCBK), "cbkobj");
+                int offCbkfig = T133Off(typeof(PTS.FSCBK), "cbkfig");
+                int offCbkwrd = T133Off(typeof(PTS.FSCBK), "cbkwrd");
+                int szCtx = (int)Marshal.SizeOf(typeof(PTS.FSCONTEXTINFO));
+                int szFscbk = (int)Marshal.SizeOf(typeof(PTS.FSCBK));
+                System.Console.Error.WriteLine(
+                    "[FSCBK-CANARY] sizeof_ctx=" + szCtx + " sizeof_fscbk=" + szFscbk +
+                    " fscbk=" + offFscbk + " cbkgen=" + offCbkgen + " cbktxt=" + offCbktxt +
+                    " cbkobj=" + offCbkobj + " cbkfig=" + offCbkfig + " cbkwrd=" + offCbkwrd +
+                    " sizeof_gen=" + (int)Marshal.SizeOf(typeof(PTS.FSCBKGEN)) +
+                    " sizeof_obj=" + (int)Marshal.SizeOf(typeof(PTS.FSCBKOBJ)) +
+                    " sizeof_wrd=" + (int)Marshal.SizeOf(typeof(PTS.FSCBKWRD)));
+
+                Type gt = typeof(PTS.FSCBKGEN), ot = typeof(PTS.FSCBKOBJ), wt = typeof(PTS.FSCBKWRD);
+                T133Slot("cbkgen.pfnFSkipPage",          offFscbk + offCbkgen + T133Off(gt, "pfnFSkipPage"),          info.fscbk.cbkgen.pfnFSkipPage);
+                T133Slot("cbkgen.pfnGetNextSection",     offFscbk + offCbkgen + T133Off(gt, "pfnGetNextSection"),     info.fscbk.cbkgen.pfnGetNextSection);
+                T133Slot("cbkgen.pfnGetSectionProperties", offFscbk + offCbkgen + T133Off(gt, "pfnGetSectionProperties"), info.fscbk.cbkgen.pfnGetSectionProperties);
+                T133Slot("cbkgen.pfnGetMainTextSegment", offFscbk + offCbkgen + T133Off(gt, "pfnGetMainTextSegment"), info.fscbk.cbkgen.pfnGetMainTextSegment);
+                T133Slot("cbkgen.pfnGetFirstPara",       offFscbk + offCbkgen + T133Off(gt, "pfnGetFirstPara"),       info.fscbk.cbkgen.pfnGetFirstPara);
+                T133Slot("cbkgen.pfnGetNextPara",        offFscbk + offCbkgen + T133Off(gt, "pfnGetNextPara"),        info.fscbk.cbkgen.pfnGetNextPara);
+                T133Slot("cbkgen.pfnGetParaProperties",  offFscbk + offCbkgen + T133Off(gt, "pfnGetParaProperties"),  info.fscbk.cbkgen.pfnGetParaProperties);
+                T133Slot("cbkgen.pfnCreateParaclient",   offFscbk + offCbkgen + T133Off(gt, "pfnCreateParaclient"),   info.fscbk.cbkgen.pfnCreateParaclient);
+                T133Slot("cbkgen.pfnTransferDisplayInfo", offFscbk + offCbkgen + T133Off(gt, "pfnTransferDisplayInfo"), info.fscbk.cbkgen.pfnTransferDisplayInfo);
+                T133Slot("cbkgen.pfnDestroyParaclient",  offFscbk + offCbkgen + T133Off(gt, "pfnDestroyParaclient"),  info.fscbk.cbkgen.pfnDestroyParaclient);
+                // 「未接线槽」的位置指纹（声明是 IntPtr、源码里**未赋值** ⇒ 实测必须读到 0）
+                T133Ptr("cbkobj.pfnNewPtr",     offFscbk + offCbkobj + T133Off(ot, "pfnNewPtr"),     info.fscbk.cbkobj.pfnNewPtr);
+                T133Ptr("cbkobj.pfnDisposePtr", offFscbk + offCbkobj + T133Off(ot, "pfnDisposePtr"), info.fscbk.cbkobj.pfnDisposePtr);
+                T133Ptr("cbkobj.pfnReallocPtr", offFscbk + offCbkobj + T133Off(ot, "pfnReallocPtr"), info.fscbk.cbkobj.pfnReallocPtr);
+                T133Ptr("cbkwrd.pfnGetSectionHorizMargins", offFscbk + offCbkwrd + T133Off(wt, "pfnGetSectionHorizMargins"), info.fscbk.cbkwrd.pfnGetSectionHorizMargins);
+                System.Console.Error.Flush();
+            }
+            catch (Exception e)
+            {
+                System.Console.Error.WriteLine("[FSCBK-CANARY] NOINFO reason=" + e.GetType().Name + ":" + e.Message);
+            }
+        }
+
+        private static int T133Off(Type t, string f)
+        {
+            try { return (int)Marshal.OffsetOf(t, f); }
+            catch (Exception e) { System.Console.Error.WriteLine("[FSCBK-CANARY] NOINFO off_fail " + t.Name + "." + f + " " + e.GetType().Name); return -1; }
+        }
+
+        private static void T133Slot<T>(string name, int abs, T d) where T : Delegate
+        {
+            string fp = (d == null) ? "NULL" : ("0x" + Marshal.GetFunctionPointerForDelegate<T>(d).ToInt64().ToString("x16"));
+            System.Console.Error.WriteLine("[FSCBK-CANARY] slot=" + name + " abs=" + abs + " fp=" + fp + " wired=" + (d == null ? "no" : "yes"));
+        }
+
+        private static void T133Ptr(string name, int abs, IntPtr p)
+        {
+            System.Console.Error.WriteLine("[FSCBK-CANARY] slot=" + name + " abs=" + abs + " raw=0x" + p.ToInt64().ToString("x16") + " wired=no");
         }
 
         /// <summary>

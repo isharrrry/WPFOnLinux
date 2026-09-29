@@ -1,1 +1,1 @@
-X_UP=yes display=:247
+X_UP=yes display=:237

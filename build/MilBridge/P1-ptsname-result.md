@@ -198,6 +198,38 @@ VERIFYALL-STEPS-DECL: 62 gen=#81   # verify-all.sh:73
 ⇒ **裁定 (d)：`line_is_hist()` 盲区仍待处置**（`docs/ROUTES.md:247` 的 dated 历史行缺 `.so` 世代锚 ⇒ 被当现值位 ⇒ `PTSGAP` 残留 1 条 `SITE-DRIFT`）；它实测过「放宽到任意 16 位 hex」会过度分类 ⇒ **不接受该修法**；交 `tools/**` 写者按裁定二十四 (c) 的候选方向（显式标记 / 唯一显式现值锚）现取判并给两极化。
 ⇒ **(e)** 它报的两条**诚实红继续保留**：帧仍**逐字节相同**（`k23=k24=ef3fd6765f18f51b`）⇒ 按 `N3` 红、`C6` 不给绿、`C8` 保持 `NOINFO`；本步的绿**只准**读成「这两条入口不再缺且行为可读、回归已解」，**不是**「打通排版」（`ENFE_TOTAL` 仍 **1102**）。
 
+**裁定三十三（承 `t133` ＋ `t138` 双向回执，`ts=2026-09-29T14:3x+08:00`）—— (a) `PRECOND-MEASURED-FSCBK-SLOT-OFFSETS` **双路径交叉闭合**；(b) 认账第 10 次（`line_is_hist()` 盲区定位更正：`:247` → `:312`）；(c) 认账 `t132` 四候选是**两帧混用**的产物，操作帧 ＝ 帧 B；(d) 下一跳 ＝ **最小驱动探针**（判据预登记 `t140`，不直接进实现）；(e) `HANDOFF-MV` 的 `cell=#1` **暂缓**至 `tools/**` 写者停工后同趟对齐（暂缓 ≠ 豁免）。**
+
+**证据面（两条路径，互不依赖）**：① **运行期实测**＝`t133`／载体 `build/MilBridge/P1-fscbk-offsets-report.md`（205 行／sha256 `94ec8e09efd75e6065ceaabaf8847a131c77c20f175e9908bc1fe57dd613cefb`）：`sizeof(FSCONTEXTINFO)=872`、`sizeof(FSCBK)=824=103×8`、`fscbk=+40`，三条独立仪器（托管反射探针／托管 canary／native 只读回读 `wpf_pts_fscbk_probe`，**一个回调都不调**），`FSCBK_JOIN=PASS exact=10/10 polarity=10/10 unwired_zero=4/4`，13 条 `_Static_assert` 钉死。② **声明序静态**＝`t138`／载体 `build/MilBridge/P1-fscbk-slot-recon.md`（319 行／sha256 `614d60178dc44692a9940e60677fd395380c56a1774625631572be53257547f0`）：`FSCBK` 五子结构展平 **32+31+8+3+29 = 103** 零填充，`FrameA=8k`／**`FrameB=40+8k`**，判 `native` 拿到的入参是 `FSCONTEXTINFO*`（`Pts.cs:3091-3094` 的 `ref FSCONTEXTINFO`）⇒ **操作帧 ＝ 帧 B**。
+
+⇒ **(a) 交叉对拍（队长自比，8/8 逐项 MATCH，两路径完全独立）**：
+
+| 槽 | `t138` 帧 B（静态算式） | `t133` 运行期实测 | 判 |
+|---|---|---|---|
+| `pfnGetNextSection` | `+56` | `56` | MATCH |
+| `pfnGetMainTextSegment` | `+80` | `80` | MATCH |
+| `pfnGetFirstPara` | `+136` | `136` | MATCH |
+| `pfnGetNextPara` | `+144` | `144` | MATCH |
+| `pfnGetParaProperties` | `+168` | `168` | MATCH |
+| **`pfnCreateParaclient`** | **`+176`** | **`176`** | MATCH |
+| `pfnTransferDisplayInfo` | `+184` | `184` | MATCH |
+| `pfnDestroyParaclient` | `+192` | `192` | MATCH |
+
+⇒ **`PRECOND-MEASURED-FSCBK-SLOT-OFFSETS` 闭合**：不是"算出来的"、也不是"只有一处仪器说的"，而是**静态布局算式 与 运行期 canary＋只读回读**两条**互不依赖**的路径给出**同一张表**。`t132` 明确禁止把候选当结论，本条即其**合法解除**（解除方式是多出一条独立路径，不是把候选升格）。
+
+⇒ **(b) 队长认账（第 10 次）**：本册裁定二十六 (d) 把 `PTSGAP` 残留 1 条 `SITE-DRIFT` 的成因写成「`docs/ROUTES.md:247` 的 dated 历史行缺 `.so` 世代锚」——**定位错**。队长现取真因：命中行是 **`docs/ROUTES.md:312`**（「🆕 在册数已现算（主控 2026-09-26）」那条），它自带旧代锚 `` `win32shim fc60c34d51fd9247` ``／`` `exports=550` ``，而 `line_is_hist()` 现取的两种形状（`.<so> <16hex>`、`<N> 导出`）**都不匹配它** ⇒ 被当**现值位** ⇒ `impl want=81 got=87`。`:247` 是**另一行**（它在括号里已自带 `t81` 后现取的 `91` 指向）。⇒ 修法按裁定二十六 (d) 的方向不变（**拒绝** any-16-hex 过宽规则），但**锚族必须按具体形状扩**（裸件名＋16 hex、`exports=<N>`），并**加 dated 措辞要件**堵住"只加锚就免红"的伪装口子；已派 `t137` 执行并给四条两极化。
+
+⇒ **(c) 认账 `t132` 的候选**：`+40/+56/+136/+176` **不是同一帧下的四个槽**，而是**两帧混用** —— `+40` 是 `fscbk` 成员本体在 `FSCONTEXTINFO` 内的偏移（≡ 帧 B 基址本身）；`+136` 与 `+176` **是同一槽（`cbkgen` 子内序 17 `pfnCreateParaclient`）在相差 40 B 的两个基址下的两个数，不是两个槽**。⇒ 若四候选取自同一帧则**必有一个系统性偏 40 B**（偏哪一侧记 `NOINFO`，因 `t132` 未给出取帧）；**本条不据此改 `t132` 的判词**（它的判词是"光有通道不够"，与帧无关），只更正候选的**读法**。
+
+⇒ **(d) 下一跳 ＝ 「最小驱动探针」**（**先判据、后实现**）：靶心是 native **真调** `pfnGetNextSection`（帧 B `+56`）与 `pfnGetMainTextSegment`（`+80`），回答唯一未知量「这**两个回调在今天托管态下是否真能返回活句柄**」。**不直接进实现**：`t132` 已证「光有通道仍不够」（`nms`→`nmp`→`pfsparaclient` 三级全由 native 发起才存在；伪造 `nms`/`nmp` ⇒ 托管 `HandleToObject` ⇒ **`FailFast` 不可捕获**）⇒ 判据必须先写出**可行性与具名前置**（允许判"今天结构性做不到"）、`fserr` 与句柄身份的可证伪判据、假进度必红 `P1..Pn`、以及 `FailFast` 反腿**只在应用副本上跑**。判据件归 `scout`（`t140`）。
+⇒ **(d-附) 口径**：本探针绿**只准**读成「该回调返回了可检活的句柄」，**不得**读成"段落模型已成／排版打通／`pfsparaclient` 可用"。
+
+⇒ **(e) `cell=#1` 暂缓**：`t133` 在各自取值时刻的两次登记**当时都正确**（`ts=14:14:20` 值 `6d3ac906…`；`ts=14:15:3x` 值 `0d4ba945…`，当时复跑 `PASS`），其后 **`tools/**` 写者**（`t137` 在飞）又动覆盖面内件（现取 `tools/pts-pages-guard.sh mtime=14:14:30`、`tools/pts-gap-count-check.sh mtime=14:19:21`）⇒ 末采 `DIVERGED live=0f53c68a9b2cf5eb0…`。**裁定：`t133` 不追写（按 `t124` 口径正确）；队长在 `tools/**` 写者停工后一次性对齐**。⇒ **这是暂缓不是豁免**：凡本轮改了覆盖面内件的任务，其 `cell=#1` 义务由**队长在同代收口时统一履行**，不得因此被记成"已登记"。
+
+⇒ **(e-附) 一处澄清**：`t133` 收尾时把 `?? build/MilBridge/P1-fscbk-slot-recon.md` 记为「疑似同区并发」——**不是冲突**，那正是队长派的 `t138`（`scout`）的载体；`t138` 也如实披露它为回答"native 侧有没有自己的 `fscbk` 镜像"而**只读 grep 过** `src/**` 的在飞注释块，且**未转录其中任何实测值**（其 §5 右列全 `NOINFO`）——**该披露合规**（只读、未改一字节、未把他人读数当自己证据）。
+
+⇒ **(e-附二) 一处留待闭账**：`build/MilBridge/P1-realized-probe-report.md` 末行自证现取仍为字面 `PLACEHOLDER`（`HEAD` 版亦然，系 `t119` 的欠账）；`t136` 已算出插入后应填值 `ab2a7748b54a7b7b`（插入前 `ca38c9d5a569ed4c`，备份 `~/w281-scribe/t136/bak/P1-realized-probe-report.md.pre-t136` 可复算）⇒ **按族规由件主（`runner`）填写**，队长排在 `runner` 的下一单里同趟做。
+
 ## 9 未做 / 边界
 
 - **未**跑整趟门禁（`verify-all.sh` 全跑）；本件只跑相关已接线牙与判据件。
