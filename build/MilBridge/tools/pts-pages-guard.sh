@@ -408,6 +408,44 @@ judge_legs() {
     [ "$ngap_total" -ge 1 ] || fails+=("native-ledger-absent(PTS_GAP n=0)")
   fi
 
+  # ── ⏪ `t122`（`t118` 的 `N2` 接线；**方向＝收紧**）：**ENFE 面** —— "内容没画出来"不得读成"排版绿" ────────────
+  #   口径（逐字）：`ENFE_TOTAL` ＝ `$dir/app_g1.log` 里 **`entry point named '<名>'`** 的**行数**
+  #   （来源＝**应用日志**；与 `[HC-UNHANDLED]` 行**同源** —— 现取：二者计数相等）；`ENFE_BY_NAME` ＝ 按**入口名**直方图。
+  #   **非目标 allowlist** ＝ `PTS_ENFE_ALLOWLIST`（**逗号分隔的入口名**；**默认空** ⇒ "一个都不许"）；
+  #   allowlist 里的名**逐名可核**（判词行打印 `allow=` 与 `non_allow=`，且红行**点名每一个** non_allow 名与计数）。
+  #   **判据**：**`realized` 期**，`ENFE_TOTAL>0` ∧ `non_allow` 非空 ⇒ **红并点名**（名＋计数）；
+  #   `degraded` 期**不据此判红**（止损期的绿语义是"占位还在"，与 ENFE 不冲突）⇒ 只印 `PTS_ENFE=INFO …`（**可见**）。
+  #   日志取不到 ⇒ `PTS_ENFE=NOINFO` ＋ `cannot+=`（**绝不当绿**）。
+  #   ⚠️ 本条的**依据**：`t119` 现取 —— 渲染循环每次布局都抛 `FsCreatePageBottomless`，两页停在同一回退画面，
+  #   而当时的 `realized` 四要件（`magenta=0` ∧ 无具名行 ∧ `ink>0` ∧ `native_gap=0`）**全成立** ⇒ 会 `PASS`。
+  #   本接线**只增不减**：既不放松任何既有要件，也不改三态语义（`PASS`／`FAIL`／`NOINFO`）。
+  _elog="$dir/app_g1.log"; _etot=0; _enames=""; _enallow="${PTS_ENFE_ALLOWLIST:-}"; _enonallow=""
+  if [ -s "$_elog" ]; then
+    _etot="$(grep -c 'entry point named ' "$_elog" 2>/dev/null || true)"; _etot="${_etot:-0}"
+    _enames="$(grep -o "entry point named '[A-Za-z0-9_]*'" "$_elog" 2>/dev/null \
+                | sed "s/.*named '//;s/'$//" | LC_ALL=C sort | uniq -c | sort -rn | awk '{printf "%s:%s,", $2, $1}')"
+    for _n in $(grep -o "entry point named '[A-Za-z0-9_]*'" "$_elog" 2>/dev/null | sed "s/.*named '//;s/'$//" | LC_ALL=C sort -u); do
+      case ",$_enallow," in
+        *",$_n,"*) ;;                                   # 在 allowlist（非目标）里 ⇒ 不计入 non_allow
+        *) _enonallow="${_enonallow}${_n}," ;;
+      esac
+    done
+    if [ "$PHASE" = realized ]; then
+      if [ "$_etot" -gt 0 ] && [ -n "$_enonallow" ]; then
+        echo "  ENFE-UNHANDLED total=$_etot non_allow=${_enonallow%,}（realized 期**内容没画出来** ⇒ **不许给排版绿**） reason=enfe-present-after-phase-realized by_name=$_enames"
+        echo "PTS_ENFE=FAIL total=$_etot by_name=${_enames:-none} allow=${_enallow:-none} non_allow=${_enonallow%,} phase=realized reason=enfe-present-after-phase-realized"
+        fails+=("enfe-unhandled(total=$_etot,non_allow=${_enonallow%,})")
+      else
+        echo "PTS_ENFE=PASS total=$_etot by_name=${_enames:-none} allow=${_enallow:-none} non_allow=none phase=realized"
+      fi
+    else
+      echo "PTS_ENFE=INFO total=$_etot by_name=${_enames:-none} allow=${_enallow:-none} non_allow=${_enonallow:-none} phase=degraded（止损期不据此判红；相位翻转后本条生效 —— 口径见 t122 段）"
+    fi
+  else
+    echo "PTS_ENFE=NOINFO reason=enfe-log-absent($_elog)（日志不在 ⇒ ENFE 面**不可算** ⇒ 绝不当绿）"
+    cannot+=("enfe-log-absent")
+  fi
+
   # D3 假 stub 诊断（**不判红**）
   for k in 24 23; do
     ev="$dir/leg_$k.env"; [ -s "$ev" ] || continue
@@ -522,7 +560,9 @@ selftest() {
           mk c9 24 yes 143 54454 851 HandyControlDemo.UserControl.FlowDocumentDemo -10000 1 -10000 yes no
                                         chk NOINFO "$(out "$(judge_legs "$T/c9")")" "x_up=no"
   # ⑩ 证据目录空 ⇒ NOINFO（**响亮**，不许静默 PASS）
-  mkdir -p "$T/c10";                    chk NOINFO "$(out "$(judge_legs "$T/c10")")" "空证据目录"
+  mkdir -p "$T/c10"
+  # ⏪ `t122`：**夹具的 app 日志**由 `mk()` 自带的 `TAB entry=<在册名>` 行提供（`ENFE_TOTAL=0`）⇒ 既有腿的期望不受 `N2` 接线影响。
+                                        chk NOINFO "$(out "$(judge_legs "$T/c10")")" "空证据目录"
   # ⑪ 件跑动中被换 ⇒ NOINFO
   good c11; rm -f "$T/c11/leg_24.env";  mk c11 24 yes 143 54454 851 HandyControlDemo.UserControl.FlowDocumentDemo -10000 1 -10000 no yes
                                         chk NOINFO "$(out "$(judge_legs "$T/c11")")" "five_stable=no"
@@ -577,6 +617,46 @@ selftest() {
   rm -rf "$T/c19"; mk c19 24 yes 143 0 643 HandyControlDemo.UserControl.FlowDocumentDemo -10000 1 -10000 yes yes
                   mk c19 23 yes 143 0 641 HandyControlDemo.UserControl.RichTextBoxDemo  -10000 1 -10000 yes yes
                   chk FAIL "$(out "$(judge_legs "$T/c19")")" "I1/N2-b：只降级不画 ⇒ 必红"
+
+  # ── ⏪ `t122`（`N2` 接线）三条极性腿：**有 ENFE ⇒ 红并点名**／**干净 ⇒ 不因该条红**／**allowlist ⇒ 放行且逐名可核** ──
+  _nfe="$T/c32"; rm -rf "$_nfe"
+  mk c32 24 yes 143 0 900 HandyControlDemo.UserControl.FlowDocumentDemo - 0 - yes yes 12345
+  mk c32 23 yes 143 0 880 HandyControlDemo.UserControl.RichTextBoxDemo  - 0 - yes yes 12001
+  cat >>"$_nfe/app_g1.log" <<'ENFE_EOF'
+[HC-UNHANDLED] #1 EntryPointNotFoundException: Unable to find an entry point named 'FsCreatePageBottomless' in shared library 'libwpfwin32.so'.
+[HC-UNHANDLED] #2 EntryPointNotFoundException: Unable to find an entry point named 'FsCreatePageBottomless' in shared library 'libwpfwin32.so'.
+[HC-UNHANDLED] #3 EntryPointNotFoundException: Unable to find an entry point named 'FsCreatePageFinite' in shared library 'libwpfwin32.so'.
+ENFE_EOF
+  _o="$(bash "$_rz" --legs "$_nfe" 2>&1 || true)"
+  chk FAIL "$(out "$_o")" "realized·ENFE>0 ⇒ 必红"
+  if grep -qF 'non_allow=FsCreatePageBottomless,FsCreatePageFinite' <<<"$_o" && grep -qF 'total=3' <<<"$_o"; then
+    npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "realized·ENFE 点名(名+计数)" "yes"
+  else
+    nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "realized·ENFE 点名(名+计数)" "no" "non_allow=…,total=3"
+  fi
+  _nfe2="$T/c33"; rm -rf "$_nfe2"; cp -a "$_nfe" "$_nfe2"
+  _o="$(PTS_ENFE_ALLOWLIST=FsCreatePageBottomless,FsCreatePageFinite bash "$_rz" --legs "$_nfe2" 2>&1 || true)"
+  chk PASS "$(out "$_o")" "realized·ENFE 全在 allowlist ⇒ 本条不红"
+  if grep -qF 'allow=FsCreatePageBottomless,FsCreatePageFinite' <<<"$_o" && grep -qF 'non_allow=none' <<<"$_o"; then
+    npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "allowlist 逐名可核" "yes"
+  else
+    nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "allowlist 逐名可核" "no" "allow=… 且 non_allow=none"
+  fi
+  _nfe3="$T/c34"; rm -rf "$_nfe3"; cp -a "$_nfe" "$_nfe3"
+  _o="$(bash "$0" --legs "$_nfe3" 2>&1 || true)"      # degraded 期：不据此判红（只印 INFO）
+  if grep -qF 'PTS_ENFE=INFO' <<<"$_o"; then
+    npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "degraded·ENFE 只印 INFO" "yes"
+  else
+    nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "degraded·ENFE 只印 INFO" "no" "PTS_ENFE=INFO"
+  fi
+  # 反腿：**删掉 app 日志** ⇒ ENFE 面 NOINFO（**不当绿**）
+  _nfe4="$T/c35"; rm -rf "$_nfe4"; cp -a "$_nfe" "$_nfe4"; rm -f "$_nfe4/app_g1.log"
+  _o="$(bash "$_rz" --legs "$_nfe4" 2>&1 || true)"
+  if grep -qF 'PTS_ENFE=NOINFO reason=enfe-log-absent' <<<"$_o"; then
+    npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "日志缺 ⇒ ENFE 面 NOINFO" "yes"
+  else
+    nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "日志缺 ⇒ ENFE 面 NOINFO" "no" "PTS_ENFE=NOINFO"
+  fi
   # ⑳ `phase` 位自身的反极性：把 `phase=` 删掉 ⇒ `PTS_DIRECTION=FAIL` ＋ 判词必红
   _pf="$T/guard-nophase.sh"
   sed 's/^\(# PTS-DIRECTION: .*\)phase=degraded/\1phase=/' "$0" > "$_pf"
@@ -683,6 +763,9 @@ selftest() {
 }
 
 
+# ══ ⏪ `t122`（`t118` 的 `N2`）**ENFE 面**：`realized` 期 `ENFE_TOTAL>0`（且不在 `PTS_ENFE_ALLOWLIST`）⇒ **红并点名**；
+#    口径：`ENFE_TOTAL` ＝ `<证据目录>/app_g1.log` 里 `entry point named '<名>'` 的行数（与 `[HC-UNHANDLED]` 同源）；
+#    `degraded` 期只印 `PTS_ENFE=INFO`；日志缺 ⇒ `PTS_ENFE=NOINFO`（**绝不当绿**）。**只增不减、不动三态。**
 # ══ `t109`／`t105` `F-1`② · **C4 侧读法：定名改用「台账口径」**（与 `P1-ptsname-result.md` §8 **裁定十二补**一致）══
 #   口径（逐字）：判「**被撞入口／下一跳是谁**」**以台账为准** —— 现取 `<dir>/app_g1.log` 里 `^PTS_GAP entry=<名>` 行，
 #   取 `seq=` 排序后的**最早**那一条 ＝ **下一跳**（链上最早那一站）；**最晚**那一条 ＝ **最近一次缺口调用**。

@@ -144,3 +144,48 @@ HANDOFF_MV=PASS cells=9 equal=8 manual=1 mismatch=0 ｜ STATICJAWS=PASS n=32 exc
 件面（现取）：P1-realized-criteria-report.md 本载体（自报 fbe1898dea9aa6e1→见末行）｜P1-fontstack-fallback-criteria.md 449→**488 行**（自报 862166d879740fe0）｜P1-w8-step4-criteria.md 450→**459 行**（自报 b81ade4b7b809f2c）｜P1-w8-step4-verify.md 190→**197 行**（自报 597e1a901ee39c12）｜docs/ROUTES.md 910→**920 行**
 ```
 **本件自证（落盘后）**：`head -n -1 build/MilBridge/P1-realized-criteria-report.md | sha256sum | cut -c1-16` ＝ e5879a1c0863490e（末行不计入自身；上一行 fbe1898dea9aa6e1 系**补记前**全文值，原样保留）
+---
+
+## ⏪ `t122` dated 追加 —— `N2` **守卫接线**（收紧）＋ `N4` 正身份**三选一**（取（甲））＋ **空态参照集重登记与归属建议**（读时 `2026-09-29T04:1x–04:3x+0800`；上方原文**一字未删**，本段**只加行**）
+
+### `N2` 守卫接线（**方向＝收紧**；落点 `build/MilBridge/tools/pts-pages-guard.sh`）
+- **接线内容（逐字）**：`judge_legs` 在台账要件之后新增 **ENFE 面**：
+  - **口径**：`ENFE_TOTAL` ＝ `<证据目录>/app_g1.log` 里 **`entry point named '<名>'`** 的**行数**（**来源＝应用日志**；与 `[HC-UNHANDLED]` 行**同源** —— 现取二者计数相等，均 **1152**）；`ENFE_BY_NAME` ＝ 按**入口名**直方图。
+  - **allowlist**：`PTS_ENFE_ALLOWLIST`（**逗号分隔入口名**，**默认空** ⇒ 一个都不许）；判词行打印 `allow=` 与 `non_allow=`，红行**点名每一个** non_allow 名。
+  - **判据**：**`realized` 期**，`ENFE_TOTAL>0` ∧ `non_allow` 非空 ⇒ **红并点名**（名＋计数）＋ `reason=enfe-present-after-phase-realized`；**`degraded` 期**只印 `PTS_ENFE=INFO …`（**不据此判红** —— 止损期的绿语义是"占位还在"）；**日志取不到** ⇒ `PTS_ENFE=NOINFO` ＋ `cannot+=`（**绝不当绿**）。
+  - **只增不减**：未改任何既有要件、未改三态语义（`PASS`/`FAIL`/`NOINFO`）、未动阈值。
+- **成对读数（真证据副本，仓外；`ts≈04:1x`）**：
+```
+(degraded) 修前：PTS_GUARD=FAIL legs=2/2 fails=leg24-placeholder-missing(magenta=0<20000),leg24-named-line(missing-or-err=-),leg23-placeholder-missing(magenta=0<20000)
+(degraded) 修后：PTS_GUARD=FAIL legs=2/2 fails=（**同上三条，逐字相同**） ＋ 新增一行 PTS_ENFE=INFO（degraded 期不据此判红）
+(realized 副本) (a) 有 ENFE：PTS_ENFE=FAIL total=1152 by_name=FsCreatePageBottomless:1151,FsCreatePageFinite:1, non_allow=FsCreatePageBottomless,FsCreatePageFinite
+                PTS_GUARD=FAIL fails=enfe-unhandled(total=1152,non_allow=…)（**红并点名**）
+(realized 副本) (b) 同一夹具**只剥掉** log 里的 ENFE 行：PTS_ENFE=PASS total=0 ⇒ PTS_GUARD=PASS fails=-
+                ⇒ **两腿唯一的差别就是那批 ENFE 行** ⇒ 这条规则**确实**是 verdict 翻转的唯一原因（收紧有效、且不误红）
+(realized 副本) (c) allowlist ＝ 这两个名：PTS_ENFE=PASS total=1152 allow=FsCreatePageBottomless,FsCreatePageFinite non_allow=none ⇒ PTS_GUARD=PASS（**逐名可核**）
+(realized 副本) (d) 删掉 app 日志：PTS_ENFE=NOINFO reason=enfe-log-absent(…) ⇒ PTS_GUARD=NOINFO cannot=enfe-log-absent（**绝不当绿**）
+```
+- **自测（同趟）**：`pts-pages-guard.sh --selftest` ⇒ 从 `PASS pass=40 fail=0` ⇒ **`PASS pass=46 fail=0`**（新增 6 条断言：`c32` realized·ENFE>0 必红 ＋ 点名(名+计数)／`c33` allowlist 全列 ⇒ 不红 ＋ 逐名可核／`c34` degraded ⇒ 只印 INFO／`c35` 日志缺 ⇒ NOINFO）。
+- **相位翻转的硬前置（据此收紧为可执行）**：现在**可以**写成可判式 —— **`ENFE_TOTAL=0`（或全部在 allowlist 里）** 才允许翻 `phase=realized`；否则翻完第一个 `realized` 判词就是 `FAIL enfe-unhandled(…)`。**今天 `ENFE_TOTAL=1152` ∧ allowlist 为空 ⇒ 翻转即红**（这正是"不许为换绿而放宽"的可执行形态）。
+
+### `N4` 正身份：**取（甲）** —— 登记为「**待补**」，并写明补的条件与责任人
+- **理由（本席现取）**：**今天没有任何"已知良好渲染"的样本** —— 两页帧 `sha256` **逐字节相同**（`k23`＝`k24`＝`last`＝`1a76488aa4a790b3`）、渲染循环每次布局都抛 `FsCreatePageBottomless`、日志里 `neptune` 命中 **0** ⇒ **正身份读数今天不可得**。
+- **为什么不取（乙）**：今天**做不到**"该页专属的结构面读数"—— 要它就得先有"页面内可枚举的结构量"（`TabControl` 的 tab 数、`Figure/Floater/Table` 计数一类），而那需要**UI 侧仪器**（本仓今天没有；且两页帧相同 ⇒ 连"两页有各自结构"这件事都还没发生）⇒ 若把它写成判据，就是一条**今天不可判**的格（本仓禁"永不可能绿"的格）。**取其"未来候选"身份**：等真绘出后用**结构面**做正身份（比帧指纹更稳、对像素抖动不敏感）——记为**候选方案（乙′）**，不落判据。
+- **为什么不单取（丙）**：`t118` 已经把该格定为 `NOINFO(无正身份载体)`、不许折绿 ⇒ 本件**保留**该纪律，但**不**止于"留个问号"：按（甲）**登记待补 ＋ 写明补的条件与责任人**。
+- **补的条件与责任人（逐字）**：
+  - **条件**：`FsCreatePageBottomless`（及其后 `FsCreatePageFinite`）**真落地**、两页**首次各自绘出内容**之后（可判标志：`ENFE_TOTAL=0` **且** `k23.png` 与 `k24.png` 的 `sha256` **不相等**）。
+  - **责任人（建议）**：**当趟实现件的写者**（即让 `FsCreatePageBottomless` 落地的那位）**同趟**登记该页专属期望指纹（帧 `sha256` 或（乙′）的结构面读数），**落点**＝本件（`P1-realized-criteria-report.md`）的 dated 段；**复核方**（独立复核者）在下一件里独立复算该指纹是否可复现。
+  - **代价（如实记）**：在条件满足前，`N4` 的**正身份**一直 `NOINFO` ⇒ **相位翻转的"内容身份"要件不完整**（负身份由 `N1①` 承担；今天两页帧相同 ⇒ 连负身份也指着**同一个回退画面**）⇒ **`N4` 未闭是相位翻转的未闭项**（与 `N2` 的可执行前置并列）。
+
+### 空态参照集：**重登记**（本趟换版）＋ **归属建议**
+- **本席现取（`ts≈04:1x`）**：`shots/g1/k23.png` ＝ `k24.png` ＝ `last.png` ＝ **`1a76488aa4a790b3`**（各 189716 B）；`shots/g1/boot.png` ＝ **`b21eb530afd3c66c`**（190413 B）。
+- **重登记（逐字）**：**空态参照集（`N1①` 用）＝ `{1a76488aa4a790b3}`**（＝"回退画面"当前版；来源＝`build/MilBridge/tests/PtsPagesProbe/evidence/shots/g1/{k23,k24,last}.png`；取值时刻＝`2026-09-29T04:1x+0800`）；**`boot.png` 不入参照集**（它是启动帧，不是"回退画面"）。
+  **旧值作废**：`{ef3fd6765f18f51b}`（`t118` 登记的那一版）⇒ **已失效**（画面换版）⇒ 保留原句、以本段为准（只增不改）。
+- **归属建议（建议＋理由；不要只留问号）**：
+  - **建议归属**：**守卫的写者**（`build/MilBridge/tools/**` 属主）**为该参照集的唯一登记人**；**触发条件 ＝ 任一变化即须同趟重登记**：① 相位翻转包执行时（**必查**）；② `evidence/shots/g1/{k23,k24,last}.png` 三帧 `sha256` 与登记值**不等**时（装置重跑换代亦算）。
+  - **理由**：① 该集合的**唯一消费者是守卫**（`N1` 接线落在守卫里）⇒ 消费方持有登记值，读到"对不上"时能**当场红/请求重登记**，不必跨件追；② 相位翻转包本身也由守卫写者执行 ⇒ 触发点①与执行人重合；③ 装置侧（runner）只负责**把三帧 `sha256` 打出来**（今天腿 env **没有**帧 sha 格 ⇒ **装置侧缺口，另派单**），避免"登记人还要自己去找图"。
+  - **可跑检测（交给任何发现者；单行）**：
+```
+cd /home/links-dev/netTest/GitProj/WPFOnLinux && D=build/MilBridge/tests/PtsPagesProbe/evidence; sha256sum "$D"/shots/g1/k23.png "$D"/shots/g1/k24.png "$D"/shots/g1/last.png | awk '{print substr($1,1,16)}' | LC_ALL=C sort -u; echo "登记值=1a76488aa4a790b3（不等 ⇒ 触发重登记）"
+```
+**本件自证（`t122` dated 追加后）**：`head -n -1 build/MilBridge/P1-realized-criteria-report.md | sha256sum | cut -c1-16` ＝ 51c160413a32545c（末行不计入自身；上一行 e5879a1c0863490e 系**追加前**全文值，原样保留）
