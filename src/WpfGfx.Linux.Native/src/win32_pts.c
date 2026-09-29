@@ -144,6 +144,9 @@ static int g_pts_io_rejected= 0;         /* 拒绝的摧毁请求（未知名/�
 #define WPF_PTS_FSCBK_SNAP_ALLZERO    1
 #define WPF_PTS_FSCBK_SNAP_VALUE      2
 
+/* ⏪ `t162`：`pfspara` 的**自有子轨对象**（定义在后面的 (a) 段；此处先给不完整类型的前向声明） */
+typedef struct wpf_pts_subtrack_s wpf_pts_subtrack;
+
 typedef struct {
     unsigned int magic;
     /* ① 收到的是**哪个**入参结构地址（原样存，**不 deref**）——"与本次调用绑定"的第一半证据 */
@@ -186,6 +189,24 @@ typedef struct {
     const char  *fsp_pl_site;       /* 当前代**在哪造的**：`probe-in`／`probe-out`／`query-frame` */
     const void  *fsp_pl_aba_stale;  /* ABA 反腿：被回收后又拿来填充的**陈旧值** */
     int          fsp_pl_aba_seen;   /* ABA 反腿：是否已制造过 ABA */
+    /* ── ⏪ `t162`（P1-W82 · 下一跳对的 **(a)**）：`pfspara` 的**台账／持有期／销毁口径** ──
+       🔴 **唯一合法来源＝托管产出的段落实例**（`+136 pfnGetFirstPara` 交出的 `nmp`，即
+          `ContainerParagraph._firstChild`；`t151` 已现证 `+168 GetParaProperties` **接受**它）
+          ⇒ 本侧**只认领、不创建**（判据 §4(a)／§7.3 零假值）。
+       · 台账：`fsp_para_val`（值）＋ `fsp_para_src`（**哪一个产出行**）＋ 本 doc 身份
+       · 持有期：**托管对象生存期**（承 `t158` §2.1）——本侧只持**引用**，跨调用有效
+       · 销毁口径：**我们绝不回收**（它不是我们造的）；唯一回收触发者是托管 `Dispose()`（`+192` 之于
+         `BaseParaClient`；段落对象本身的销毁由托管决定）⇒ 台账随 **doc 注销**整体失效 */
+    const void  *fsp_para_val;      /* 已认领的 `pfspara` 值（本 run 产出） */
+    const char  *fsp_para_src;      /* 来源行标记（如 `+136.nmp@FsCreatePageBottomless`） */
+    int          fsp_para_claims;   /* 认领成功次数 */
+    int          fsp_para_rejected; /* **认领失败**次数（⇒ 判红/作废） */
+    int          fsp_para_acc_rc;   /* 下游接受（`+168 GetParaProperties`）的 rc */
+    int          fsp_para_hold_ok;  /* 跨调用持有：后续调动仍被接受 ⇒ 1 */
+    int          fsp_para_released; /* **我们**对 `pfspara` 的回收动作次数（恒 0＝不回收） */
+    wpf_pts_subtrack *sub;          /* ⏪ `t162`：本 doc 自有的**子轨对象**（`pfspara` 即它的字段地址） */
+    int          sub_created_seq;   /* 该对象的台账序号 */
+    int          sub_reused;        /* 跨调用复用它（持有期）的次数 */
 } wpf_pts_doc;
 static wpf_pts_doc *g_pts_doc_live[WPF_PTS_DOC_MAX];
 static int g_pts_doc_live_n       = 0;
@@ -953,6 +974,160 @@ void *WpfLinuxWin32_PtsFsParaListLastH(void)    { return (void *)g_pts_fsp_pl_la
 int WpfLinuxWin32_PtsFsParaListLastRc176(void)  { return g_pts_fsp_pl_last_rc176; }
 int WpfLinuxWin32_PtsFsParaListHeldAtExit(void) { return g_pts_fsp_pl_held_at_exit; }
 
+/* ⏪ `t162`：`pfspara` 的台账/接受面（逐 doc 记在 `wpf_pts_doc`，这里给**全局聚合**读数口）。 */
+static int          g_pts_fsp_pl_para_claims   = 0;
+static int          g_pts_fsp_pl_para_rejected = 0;
+static int          g_pts_fsp_pl_para_acc_ok   = 0;
+static int          g_pts_fsp_pl_para_acc_bad  = 0;
+static int          g_pts_fsp_pl_para_hold_ok  = 0;
+static int          g_pts_fsp_pl_para_released = 0;
+static const void  *g_pts_fsp_pl_para_last     = NULL;
+static const char  *g_pts_fsp_pl_para_last_src = "none";
+
+int WpfLinuxWin32_PtsFsParaListParaClaims(void)   { return g_pts_fsp_pl_para_claims; }
+int WpfLinuxWin32_PtsFsParaListParaRejected(void) { return g_pts_fsp_pl_para_rejected; }
+int WpfLinuxWin32_PtsFsParaListParaAccOk(void)    { return g_pts_fsp_pl_para_acc_ok; }
+int WpfLinuxWin32_PtsFsParaListParaAccBad(void)   { return g_pts_fsp_pl_para_acc_bad; }
+int WpfLinuxWin32_PtsFsParaListParaHoldOk(void)   { return g_pts_fsp_pl_para_hold_ok; }
+int WpfLinuxWin32_PtsFsParaListParaReleased(void) { return g_pts_fsp_pl_para_released; }
+void *WpfLinuxWin32_PtsFsParaListParaLast(void)   { return (void *)g_pts_fsp_pl_para_last; }
+const char *WpfLinuxWin32_PtsFsParaListParaLastSrc(void) { return g_pts_fsp_pl_para_last_src; }
+
+/* ── ⏪ `t162`（P1-W82 · (a)）：**本侧自有的"子轨对象"** ────────────────────────────────────────
+   🎯 靶心（队长 `t163` 指引 + 判据 §4(a)）：`FSPARADESCRIPTION.pfspara` **语义上就是子轨对象**
+      （`FsFormatSubtrackFinite` 的该出参在声明里叫 `ppfsSubtrack`，`Pts.cs:3318/:3337`），
+      而判据 §4(a) 明写「**native 必须自己拥有/分配一个对象**，把它填进 `+8`」。
+   ⇒ 本件按**本仓已落地的同形范式**（`FsQueryTrackDetails` ＋ `wpf_pts_fsp.c_paras`：**轨句柄＝
+      本对象内该字段的地址**、按对象记账、指针值比较不 deref）给 `pfspara` 一个**本侧自有对象**：
+        · **台账**：`g_pts_sub_live[]` ＋ `seq`（实例唯一）＋ `created/destroyed` 计数
+        · **持有期**：对象在册即有效（**托管对象生存期**口径的 native 对偶：本侧对象的生存期）
+        · **销毁口径**：**只有本侧**销毁它（`wpf_pts_sub_destroy`，接在 `DestroyDocContext` 上）；
+          **窗口内绝不销毁**、**填进列表后不销毁**（与 `t158` §2.3 同纪律）
+        · **身份可认领**：句柄＝`&obj->c_paras`，认领＝**指针等值于某在册对象的该字段地址**
+          （⇒ 判据 §5.4「只许靠来源证据」在本侧有了**可判**的形态：NULL／栈地址／外来值**必被拒**）
+   ⚠️ `formatted` **今天恒 0**：本对象**未被造型** ⇒ **`c_paras` 不是"0 个孩子"的断言**，
+      而是"**尚未造型**"；⇒ (b) 必须读 `formatted` 而**不得**据 `c_paras==0` 走叶子分支（判据 §5.2 的 P8 防线）。 */
+struct wpf_pts_subtrack_s {
+    unsigned int magic;
+    int          c_paras;       /* 子轨段落数（(b) 要答的那个数；**未造型时无意义**） */
+    int          formatted;     /* 是否已被造型（**今天恒 0**） */
+    const void  *nmp;           /* 来源段落句柄（**本 run** 由托管 `+136` 产出） */
+    const void  *pfsparaclient; /* 配对的客户端句柄 */
+    int          seq;           /* 台账序号（实例唯一） */
+    int          live;
+};
+#define WPF_PTS_SUB_MAGIC 0x57535054u     /* "WSPT" */
+#define WPF_PTS_SUB_MAX   16
+static wpf_pts_subtrack *g_pts_sub_live[WPF_PTS_SUB_MAX];
+static int g_pts_sub_live_n    = 0;
+static int g_pts_sub_created   = 0;
+static int g_pts_sub_destroyed = 0;
+static int g_pts_sub_seq       = 0;
+static int g_pts_sub_claim_ok  = 0;
+static int g_pts_sub_claim_bad = 0;
+static int g_pts_sub_selftest_mask = -1;
+
+static wpf_pts_subtrack *wpf_pts_sub_new(const void *nmp, const void *client)
+{
+    if (g_pts_sub_live_n >= WPF_PTS_SUB_MAX) return NULL;
+    wpf_pts_subtrack *o = (wpf_pts_subtrack *)calloc(1, sizeof(*o));
+    if (!o) return NULL;
+    o->magic = WPF_PTS_SUB_MAGIC; o->c_paras = 0; o->formatted = 0;
+    o->nmp = nmp; o->pfsparaclient = client; o->seq = ++g_pts_sub_seq; o->live = 1;
+    g_pts_sub_live[g_pts_sub_live_n++] = o;
+    g_pts_sub_created++;
+    return o;
+}
+static void wpf_pts_sub_destroy(wpf_pts_subtrack *o)
+{
+    if (!o || o->magic != WPF_PTS_SUB_MAGIC) return;
+    for (int i = 0; i < g_pts_sub_live_n; i++) {
+        if (g_pts_sub_live[i] != o) continue;
+        g_pts_sub_live[i] = g_pts_sub_live[--g_pts_sub_live_n];
+        g_pts_sub_live[g_pts_sub_live_n] = NULL;
+        o->magic = 0; o->live = 0;
+        free(o); g_pts_sub_destroyed++;
+        return;
+    }
+}
+static const void *wpf_pts_sub_handle(const wpf_pts_subtrack *o)
+{
+    return o ? (const void *)&o->c_paras : NULL;      /* **句柄＝本对象内该字段的地址**（承范式） */
+}
+/* 身份认领：`p` 必须**等值于**某个在册对象的字段地址；NULL／栈地址／外来值一律拒（判据 §5.4）。 */
+static int wpf_pts_sub_claim(const void *p, wpf_pts_subtrack **out)
+{
+    if (out) *out = NULL;
+    if (!p) { g_pts_sub_claim_bad++; return 0; }
+    for (int i = 0; i < g_pts_sub_live_n; i++) {
+        wpf_pts_subtrack *o = g_pts_sub_live[i];
+        if (o->magic != WPF_PTS_SUB_MAGIC) continue;
+        if ((const void *)&o->c_paras == p) { if (out) *out = o; g_pts_sub_claim_ok++; return 1; }
+    }
+    g_pts_sub_claim_bad++;
+    return 0;
+}
+/* 台账/身份/销毁口径的**自检**（纯 native；只用自己的对象，不碰应用状态）：
+   bit0 新建后可认领 ｜ bit1 NULL 被拒 ｜ bit2 栈地址被拒 ｜ bit3 销毁后不可认领 ｜ bit4 在册数复原 */
+static int wpf_pts_sub_selftest(void)
+{
+    int mask = 0;
+    const int live0 = g_pts_sub_live_n;
+    wpf_pts_subtrack *o = wpf_pts_sub_new((const void *)0x3, (const void *)0x5);
+    if (!o) return 0;
+    wpf_pts_subtrack *got = NULL;
+    if (wpf_pts_sub_claim(wpf_pts_sub_handle(o), &got) && got == o) mask |= 1;
+    if (!wpf_pts_sub_claim(NULL, NULL))                          mask |= 2;
+    int stack_local = 0;
+    if (!wpf_pts_sub_claim((const void *)&stack_local, NULL))    mask |= 4;
+    wpf_pts_sub_destroy(o);
+    if (!wpf_pts_sub_claim(wpf_pts_sub_handle(o), NULL))         mask |= 8;
+    if (g_pts_sub_live_n == live0)                               mask |= 16;
+    return mask;
+}
+
+int WpfLinuxWin32_PtsSubLive(void)        { return g_pts_sub_live_n; }
+int WpfLinuxWin32_PtsSubCreated(void)     { return g_pts_sub_created; }
+int WpfLinuxWin32_PtsSubDestroyed(void)   { return g_pts_sub_destroyed; }
+int WpfLinuxWin32_PtsSubClaimOk(void)     { return g_pts_sub_claim_ok; }
+int WpfLinuxWin32_PtsSubClaimBad(void)    { return g_pts_sub_claim_bad; }
+int WpfLinuxWin32_PtsSubSelfTestMask(void){ return g_pts_sub_selftest_mask; }
+
+/* ── ⏪ `t162` E1：`FSIMETHODS` **镜像 ＋ 断言**（判据/队长指引：槽序今天只能按托管声明推断 ⇒
+      **具名 `NOINFO-FSIMETHODS-ABI`**，但**偏移**必须钉死并**实测**槽指针是否在场）。 ── */
+typedef int (*wpf_pts_fnim)(void);
+typedef struct {
+    void *pfnCreateContext;                 /* 槽 1  @ +0   */
+    void *pfnDestroyContext;                /* 槽 2  @ +8   */
+    void *pfnFormatParaFinite;              /* 槽 3  @ +16  ← **engine-side 造型入口** */
+    void *pfnFormatParaBottomless;          /* 槽 4  @ +24  */
+    void *pfnUpdateBottomlessPara;          /* 槽 5  @ +32  */
+    void *pfnSynchronizeBottomlessPara;     /* 槽 6  @ +40  */
+    void *pfnComparePara;                   /* 槽 7  @ +48  */
+    void *pfnClearUpdateInfoInPara;         /* 槽 8  @ +56  */
+    void *pfnDestroyPara;                   /* 槽 9  @ +64  */
+    void *pfnDuplicateBreakRecord;          /* 槽 10 @ +72  */
+    void *pfnDestroyBreakRecord;            /* 槽 11 @ +80  */
+    void *pfnGetColumnBalancingInfo;        /* 槽 12 @ +88  */
+    void *pfnGetNumberFootnotes;            /* 槽 13 @ +96  */
+    void *pfnGetFootnoteInfo;               /* 槽 14 @ +104 */
+    void *pfnGetFootnoteInfoWord;           /* 槽 15 @ +112 */
+    void *pfnShiftVertical;                 /* 槽 16 @ +120 */
+    void *pfnTransferDisplayInfoPara;       /* 槽 17 @ +128 */
+} wpf_pts_fsimethods;
+_Static_assert(sizeof(wpf_pts_fsimethods) == 17 * 8, "FSIMETHODS 不是 17 × 8 B");
+_Static_assert(offsetof(wpf_pts_fsimethods, pfnCreateContext)          ==   0, "槽序偏移错：槽 1");
+_Static_assert(offsetof(wpf_pts_fsimethods, pfnFormatParaFinite)       ==  16, "槽序偏移错：槽 3");
+_Static_assert(offsetof(wpf_pts_fsimethods, pfnGetNumberFootnotes)     ==  96, "槽序偏移错：槽 13");
+_Static_assert(offsetof(wpf_pts_fsimethods, pfnTransferDisplayInfoPara)== 128, "槽序偏移错：槽 17");
+
+#ifndef WPF_PTS_FSP_PL_PARA_MADEUP
+#define WPF_PTS_FSP_PL_PARA_MADEUP 0      /* 只在**副本**：`pfspara` 填 NULL ⇒ 认领必拒 ⇒ 必红（E3-①） */
+#endif
+#ifndef WPF_PTS_FSP_PL_PARA_WRONGTYPE
+#define WPF_PTS_FSP_PL_PARA_WRONGTYPE 0   /* 只在**副本**：`pfspara` 填**栈地址**（看似真则伪）⇒ 认领必拒（E3-②） */
+#endif
+
 /* 每次运行的填充上限（`<=0` ⇒ **不限**）。旋钮 `WPF_PTS_FSP_PL_MAX`（缺省 0＝不限）。 */
 static int wpf_pts_fsp_pl_max(void)
 {
@@ -1122,6 +1297,33 @@ static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *wh
        `t146` 的短板：`FailFast` 发生在**首调内**，而 `[DRIVE-PROBE]` 行在**四次调用之后**才打
        ⇒ 反腿日志里 `probe=0`，归因强度只有"中"。本行把归因升为**强**：只要这条行在场，
        就能自证"这一调确实发生了"。 */
+    /* ⏪ `t162`：**台账／身份／销毁口径自检** ＋ **E1 槽表在场性**（门开时跑一次；缺省路径零影响）。
+       ⚠️ 纪律：托管给的 `FSIMETHODS` 表**原样存、一个字节都不 deref** ⇒ 槽序只能**按托管声明推断**
+       （镜像 ＋ `_Static_assert` 把**偏移**钉死），故**具名** `NOINFO-FSIMETHODS-ABI`。 */
+    if (g_pts_sub_selftest_mask < 0) {
+        g_pts_sub_selftest_mask = wpf_pts_sub_selftest();
+        fprintf(stderr, "[FSPARALIST-SUB-SELFTEST] mask=0x%02x new_claimable=%d null_rejected=%d "
+                        "stack_rejected=%d destroyed_unclaimable=%d live_restored=%d live=%d "
+                        "created=%d destroyed=%d\n",
+                g_pts_sub_selftest_mask, (g_pts_sub_selftest_mask & 1) ? 1 : 0,
+                (g_pts_sub_selftest_mask & 2) ? 1 : 0, (g_pts_sub_selftest_mask & 4) ? 1 : 0,
+                (g_pts_sub_selftest_mask & 8) ? 1 : 0, (g_pts_sub_selftest_mask & 16) ? 1 : 0,
+                g_pts_sub_live_n, g_pts_sub_created, g_pts_sub_destroyed);
+        {   const void *m = NULL;
+            for (int _i = 0; _i < g_pts_io_live_n; _i++) {
+                if (g_pts_io_live[_i]->subtrack_methods) { m = g_pts_io_live[_i]->subtrack_methods; break; }
+            }
+            if (m) {
+                fprintf(stderr, "[FSPARALIST-SLOT3] methods=%p present=1 slot3_offset=%d drive=SKIP "
+                                "reason=need-real-format-frame(pfssobjc/pfsgeom/pfsbrkrec 本侧都没有) "
+                                "have=nmp,pfsparaclient missing=4 abi=NOINFO-FSIMETHODS-ABI deref=none\n",
+                        m, (int)offsetof(wpf_pts_fsimethods, pfnFormatParaFinite));
+            } else {
+                fprintf(stderr, "[FSPARALIST-SLOT3] methods=(nil) present=0 drive=SKIP "
+                                "reason=no-subtrack-methods-table abi=NOINFO-FSIMETHODS-ABI deref=none\n");
+            }
+        }
+    }
     fprintf(stderr, "[DRIVE-PROBE-ENTER] where=%s nms=%p pfsclient=%p slot56=%p slot80=%p fake=%d "
                     "t3mode=%d window=%d n=%d\n",
             where, nms, pfsclient, fp56, fp80, WPF_PTS_DRIVE_PROBE_FAKE_NMS, t3mode, g_pts_dp_calls, wpf_pts_drive_probe_n());
@@ -1252,6 +1454,30 @@ static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *wh
                 const void *fp192k = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_DESTROYPARACLIENT);
                 if (fp192k) keep_extra_recycled = ((wpf_pts_fn_destroy_paraclient)fp192k)(
                                                      pfsclient, (const void *)hK);
+            }
+            /* ⏪ `t162`：`pfspara` **候选值**的**窗内**接受读数（判据 §5.5：可用接受者＝`+168`；`t151` 在册
+               `rc168=0 v168=BASE-PARA-ACCEPTED`）。⚠️ **零假值铁律**（判据 §7.3）：非 live 的候选值
+               **绝不**喂给会走 `HandleToObject` 的槽（到达即 `Invariant.Assert` ⇒ 不可捕获 `FailFast`）。 */
+            {
+                const void *para_cand = (const void *)nmp1;
+                const char *para_cand_src = "+136.nmp1";
+                int         cand_safe = 1;
+#if WPF_PTS_FSP_PL_PARA_MADEUP
+                para_cand = (const void *)(unsigned long)0x7;   /* 反腿①：非 live ⇒ 只记认领失败，**不喂接受者** */
+                para_cand_src = "self-made(反腿)"; cand_safe = 0;
+#elif WPF_PTS_FSP_PL_PARA_WRONGTYPE
+                para_cand = sect;                               /* 反腿②：live 但**错类型**（`Section`） */
+                para_cand_src = "sect(wrong-type 反腿)"; cand_safe = 1;
+#endif
+                int acc_in = -9999;
+                if (cand_safe && fp168 && para_cand) {
+                    int fspap[4] = { 0, 0, 0, 0 };
+                    acc_in = ((wpf_pts_fn_get_para_properties)fp168)(pfsclient, para_cand, (void *)fspap);
+                }
+                fprintf(stderr, "[FSPARALIST-PARA-IN] psub=%p src=%s same_value=%d acc_in=%d frame=in-window "
+                                "entry=FsCreatePageBottomless ctx_alive=1 calls=%d\n",
+                        para_cand, para_cand_src, (para_cand == (const void *)nmp1) ? 1 : 0, acc_in,
+                        g_pts_dp3_calls);
             }
             g_pts_dp3_176_a   = rc176a; g_pts_dp3_176_b = rc176b;
             g_pts_dp3_h1      = (const void *)h1; g_pts_dp3_h2 = (const void *)h2;
@@ -1413,6 +1639,12 @@ int DestroyDocContext(void *pfscontext)
     for (int i = 0; i < g_pts_doc_live_n; i++) {
         if ((void *)g_pts_doc_live[i] != pfscontext) continue;
         if (g_pts_doc_live[i]->magic != WPF_PTS_DOC_MAGIC) { g_pts_doc_destroy_rej++; return WPF_PTS_ERR_NOT_IMPLEMENTED; }
+        if (g_pts_doc_live[i]->sub) {                          /* ⏪ `t162` 销毁口径：**只有本侧**
+                                                                  销毁自有子轨对象（窗口内绝不销毁、
+                                                                  填进列表后不销毁） */
+            wpf_pts_sub_destroy(g_pts_doc_live[i]->sub);
+            g_pts_doc_live[i]->sub = NULL;
+        }
         g_pts_doc_live[i]->magic = 0;                          /* 先失效 ⇒ 重复销毁必被拒 */
         free(g_pts_doc_live[i]);
         g_pts_doc_live[i] = g_pts_doc_live[--g_pts_doc_live_n];
@@ -2955,10 +3187,84 @@ int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgPar
                 /* ⑤ **真填**（先清零 ⇒ 未初始化内存不许交给上级；**填完才置条数**，判据 §5-P2） */
                 if (!reason && dp->fsp_pl_cur) {
                     wpf_pts_fsparadesc *rg = (wpf_pts_fsparadesc *)rgParaDesc;
+                    /* ⏪ `t162`（队长 `t163` 指引 ＋ 判据 §4(a)）：`pfspara` 的合法来源＝**本侧自有的
+                       "子轨对象"**（本仓范式：句柄＝本对象内字段地址；`FsQueryTrackDetails` 同形）。
+                       **不是**自造常量、**不是**伪指针、**不**复用 `nmp` 当占位。 */
+                    if (!dp->sub) {
+                        dp->sub = wpf_pts_sub_new((const void *)dp->drive_nmp, (const void *)dp->fsp_pl_cur);
+                        if (dp->sub) dp->sub_created_seq = dp->sub->seq;
+                    } else {
+                        dp->sub_reused++;                     /* 跨调用持有 ⇒ 同一个在册对象服务多次填充 */
+                    }
+                    const void *para_val = wpf_pts_sub_handle(dp->sub);
+                    const char *para_src = "native-owned-subtrack";
+#if WPF_PTS_FSP_PL_PARA_MADEUP
+                    para_val = NULL;                              /* 反腿 E3-①：NULL */
+                    para_src = "NULL(E3-1 反腿)";
+#endif
+#if WPF_PTS_FSP_PL_PARA_WRONGTYPE
+                    { static int stack_dummy = 0;                  /* 反腿 E3-②："看似真实则伪"的栈地址 */
+                      para_val = (const void *)&stack_dummy;
+                      para_src = "stack-addr(E3-2 反腿)"; }
+#endif
+                    if (para_val == NULL && para_src[0] != 'N') { reason = "no-legal-pfspara-in-this-run"; }
+                    else {
+                    /* 台账认领（**身份**证据：指针必须等值于某在册对象的字段地址；判据 §5.4） */
+                    wpf_pts_subtrack *para_obj = NULL;
+                    int claimed = wpf_pts_sub_claim(para_val, &para_obj);
+#if WPF_PTS_FSP_PL_PARA_MADEUP
+                    g_pts_sub_claim_bad++;                        /* 反腿：NULL 额外记一次拒 */
+#endif
+                    if (!claimed) {
+                        /* 认领失败 ⇒ **拒绝整个填充**（绝不把认不了的值交给列表）⇒ 判红/作废 */
+                        reason = "para-claim-failed";
+                        fprintf(stderr, "[FSPARALIST-PARA] psub=%p pre=(nil) src=%s claim=0 acc=SKIP "
+                                        "claims=%d rejected=%d released=%d ctx=%p form=owned-subtrack "
+                                        "seq=%d live=%d created=%d destroyed=%d v=CLAIM-REJECTED\n",
+                                para_val, para_src, g_pts_fsp_pl_para_claims, g_pts_fsp_pl_para_rejected,
+                                g_pts_fsp_pl_para_released, (void *)dp,
+                                dp->sub_created_seq, g_pts_sub_live_n, g_pts_sub_created, g_pts_sub_destroyed);
+                    } else {
                     for (int i = 0; i < cParas; i++) {
+                        const void *para_pre = (const void *)rg[i].pfspara;
                         memset((void *)&rg[i], 0, sizeof(rg[i]));
+                        para_pre = (const void *)rg[i].pfspara;        /* memset 后该槽＝`nil`（成对证据的一半） */
+                        rg[i].pfspara       = (void *)para_val;
                         rg[i].pfsparaclient = (void *)dp->fsp_pl_cur;
                         rg[i].nmp           = (void *)dp->drive_nmp;
+                        /* 🔴 **下游接受者：本件无**（判据 §5.5 的在册接受者＝ `FsQuerySubtrackDetails`（`:271`）
+                           与 `FsQuerySubtrackParaList`（`PtsHelper.cs:633`），二者都属 **(b)**、**尚未实现**）。
+                           ⚠️ **实测教训（本件踩到并已修）**：曾拿 `+168 GetParaProperties` 当接受者 —— 它吃的是
+                           **托管句柄**（`HandleToObject(nmp) as BaseParagraph`），而本件 `pfspara` 是
+                           **本侧自有对象的字段地址（native 指针）** ⇒ 喂它会撞
+                           `Assert(handleLong < _unmanagedHandles.Length)` ⇒ **不可捕获 `FailFast`**
+                           （实测 `app_rc=134`、`LEG k=24 alive=no`）⇒ 本件**删掉**该调用并具名：
+                           `acc=NA(acceptor-is-(b))`。**这正是判据 §7.3／P7 要拦的形态。** */
+                        int acc_rc = -12345;   /* -12345 = **未调用**（不在册值，不冒充成功/失败） */
+                        if (i == 0) {
+                            dp->fsp_para_val = para_val; dp->fsp_para_src = para_src;
+                            dp->fsp_para_acc_rc = acc_rc;
+                            if (claimed) { dp->fsp_para_claims++; g_pts_fsp_pl_para_claims++; }
+                            else         { dp->fsp_para_rejected++; g_pts_fsp_pl_para_rejected++; }
+                            if (acc_rc == 0) { g_pts_fsp_pl_para_acc_ok++; }
+                            else             { g_pts_fsp_pl_para_acc_bad++; }
+                            /* 跨调用持有：本 doc 已有认领值且本次仍被接受 ⇒ 持有期成立 */
+                            if (claimed && acc_rc == 0 && dp->fsp_para_claims > 1) {
+                                dp->fsp_para_hold_ok = 1; g_pts_fsp_pl_para_hold_ok = 1;
+                            }
+                            g_pts_fsp_pl_para_last = para_val; g_pts_fsp_pl_para_last_src = para_src;
+                            fprintf(stderr, "[FSPARALIST-PARA] psub=%p pre=%p src=%s same_value=%d acc=%d "
+                                            "claims=%d rejected=%d hold=%d released=%d ctx=%p para_src_row=%s "
+                                            "off_pfspara=%d form=native-owned-subtrack seq=%d live=%d "
+                                            "created=%d destroyed=%d formatted=0 reused=%d v=%s\n",
+                                    para_val, para_pre, para_src, claimed, acc_rc,
+                                    g_pts_fsp_pl_para_claims, g_pts_fsp_pl_para_rejected,
+                                    g_pts_fsp_pl_para_hold_ok, g_pts_fsp_pl_para_released,
+                                    (void *)dp, (dp->drive_nmp ? "DRIVE-PROBE2.nmp1/DRIVE-PROBE3.nmp176" : "none"),
+                                    (int)offsetof(wpf_pts_fsparadesc, pfspara), dp->sub_created_seq,
+                                    g_pts_sub_live_n, g_pts_sub_created, g_pts_sub_destroyed, dp->sub_reused,
+                                    (acc_rc == 0) ? "PARA-ACCEPTED" : "ACCEPT-OTHER");
+                        }
                     }
                     *cParaDesc = cParas;                       /* ← **只在真填完成后**置（P2） */
                     g_pts_fsp_pl_fills++;
@@ -2975,6 +3281,8 @@ int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgPar
                             (dp->fsp_pl_prev != NULL) ? 1 : 0, (int)offsetof(wpf_pts_fsparadesc, pfsparaclient),
                             dump, g_pts_fsp_pl_ok + 1, g_pts_fsp_pl_gap);
                     g_pts_fsp_pl_ok++;
+                    }   /* ← 收 `claimed` 的 else 块（t162） */
+                    }   /* ← 收 `para_val != NULL` 的 else 块（t162） */
 #if WPF_PTS_FSP_PL_SELFRECYCLE
                     /* 🔴 **P4 反腿**（只在副本）：**返回前回收** ⇒ 交给消费者的句柄**到手就是死的** */
                     {
