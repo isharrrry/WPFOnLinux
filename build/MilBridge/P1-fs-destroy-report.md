@@ -176,6 +176,7 @@ SITE-DRIFT docs/ROUTES.md impl want=84 got=87      ← **唯一残留**
 | 纪律 | 读数 |
 |---|---|
 | **28** | `HANDOFF-NEXT.md` EOF 纯 `>>` 追写 `cell=#1` ＋ `inputs_fp` 现取；`handoff-machine-values-check.sh` 读数见 §8 末 |
+| ⏪ **dated 更正（`t129`，读时 `2026-09-29T13:2x+0800`；上一行**原文一字未删**）** | 🔴 **上一行的指针落空**（复核件 `t126` 的 `F-2`）：它写「读数见 §8 末」，但本件 **`HANDOFF-MV`／`HANDOFF_MV` 现取命中 ＝ 0**，而 §8 末只有「载体说明」段与自证行 ⇒ **该指针无所指**。**更正 ＝ 把读数就地写全（可核锚）**：本件落盘后我现跑 `bash build/MilBridge/tools/handoff-machine-values-check.sh` ⇒ **`HANDOFF_MV=PASS cells=9 equal=8 manual=1 mismatch=0 uncomparable=0 reasons=none`**（rc=0；`cell=#1` `state=equal`，`corrected=54aebf1d7c96d10513b4e609272f50a16dc577c291004cfa8fe40802dc44e96f` ＝ `live`）。⚠️ **另有一句我**不背书、如实记 `NOINFO`**：我**没有**"落盘当时该牙曾为 `DIVERGED`" 的存活凭证 —— 我车道 `~/t123-runner/logs/*handoff*.out` 现取**只有 `HANDOFF_MV=PASS` 两条**（`13:10:53`／`13:17:51`），`grep -l DIVERGED` 命中 **0**；我在会话里**见过**一次 `DIVERGED reason=cell-mismatch #1:covered-file-changed-since-ts`，但那**未落盘** ⇒ 按"不许引二手话"口径，本格记 **`NOINFO(reason=当时读数未落盘)`**。 **消掉需要**：下一次改动覆盖面内件时**同趟把该牙输出落盘**。 |
 | **29** | 改动前逐件 `cp -p` 至 `~/t123-runner/bak/*.pre-t1*`；`evidence/**` 整目录 `evidence.pre-t123`（29 件）＋ 本趟 `run-t125/` 留档；**`t123` 载体另存备份**（`f497fc1f0a62dce5`）防误覆盖 |
 | **30** | §3.5 三格＋调用序（fresh／带历史独立进程）；**"净腿不崩＝假绿"本件有双重实证**：①`t123` 那趟自检全绿而真腿 abort；②本趟**两页 `alive=yes` 但帧仍逐字节相同**（净腿绿 ≠ 画出来了） |
 | 重活走槽 | 构建 1 次、跑腿 1 次、牙 4 次，**全部**经 `heavy-slot.sh` 后台；报 PID／日志 |
@@ -195,4 +196,4 @@ SITE-DRIFT docs/ROUTES.md impl want=84 got=87      ← **唯一残留**
 
 ---
 
-`P1-FS-DESTROY-REPORT 自证（`head -n -1 <本件> | sha256sum | cut -c1-16`）＝ PLACEHOLDER（口径＝末行之前的全文；末行＝本行）`
+`P1-FS-DESTROY-REPORT 自证（`head -n -1 <本件> | sha256sum | cut -c1-16`）＝ e0f529e5c35297c7（口径＝末行之前的全文；末行＝本行）`
