@@ -199,6 +199,10 @@ static void wpf_pts_jmp_push(const char *entry, const void *ploc, const void *de
    `FsQueryPageDetails`／`FsDestroyPage` 复用。定义体放在 `g_pts_doc_live[]` 可见之后
    （本处先给声明）。 */
 static int wpf_pts_doc_find(const void *ctx);
+/* ⏪ `t146`：同上，但**返回对象指针**（驱动探针要用快照；查不到返回 NULL）。 */
+static wpf_pts_doc *wpf_pts_doc_ptr(const void *ctx);
+/* ⏪ `t146`：驱动探针本体（定义在 `格 6` 之前）；`FsCreatePage*` 两处**调用窗**在本文件里**更早** ⇒ 先给声明（内部助手一律 `static`）。 */
+static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *where);
 /* ⏪ `t127`：字段级诚实性的判据助手（定义在页表可见之后）——本处先给声明。 */
 static int wpf_pts_track_owned(const void *track);
 
@@ -298,6 +302,8 @@ int FsCreatePageBottomless(void *pfscontext, const void *fsnmsect, int *pfsfmtrb
             p->magic  = WPF_PTS_FSP_MAGIC;
             p->ctx    = pfscontext;
             p->sect   = fsnmsect;
+            /* ⏪ `t146`：调用窗已齐 ⇒ 真调两条回调（每进程只探第一个窗口；伪 nms 只在副本） */
+            wpf_pts_drive_probe(wpf_pts_doc_ptr(pfscontext), fsnmsect, "FsCreatePageBottomless");
             p->result = 0;                     /* `fmtrblGoalReached`（本次调用的结果） */
             p->pg_w = 768; p->pg_h = 576;     /* 页矩形：本模块自持（与装置窗口几何同源） */
             p->bbox_defined = 1;               /* 声明 bbox 有效（否则托管侧按"未定义"处理） */
@@ -633,6 +639,120 @@ static void wpf_pts_fscbk_snapshot(wpf_pts_doc *c, const void *info)
                 (nz == 0) ? "ALLZERO" : "VALUE", w56 ? "nonzero" : "zero", w80 ? "nonzero" : "zero",
                 g_pts_fscbk_snap_taken, g_pts_fscbk_snap_allzero, g_pts_fscbk_snap_gap);
     }
+}
+
+// ── ⏪ `t146`（P1-W66）**驱动探针本体**：真调 `pfnGetNextSection`(+56)／`pfnGetMainTextSegment`(+80) ──
+//   判据件 `P1-drive-probe-criteria.md` §1.3／§2.2／§7(a)：
+//     · **调用窗**＝`FsCreatePage*`：那里**同时**有「doc 对象（⇒ 回调表快照）」与「入站 `sect` 句柄」
+//       （`PRECOND-CALL-WINDOW` 的结论；`CreateDocContext` 有表无句柄、`FsCreatePage*` 有句柄无表
+//       ⇒ 快照把两者接上）。
+//     · **`+56` 的形状是 by-design**：上游 `Section.cs:171-177` **恒** `fSuccess=0`／`nmsNext=0`
+//       ⇒ 成功形状 ＝ `fserr=0 ∧ fSuccess=0 ∧ nmsNext=0`，判词 `NEXTSECTION-ABSENT(by-design)`；
+//       **不得**读成失败（假进度必红 `P5` 就是防这个方向）。它只能当"管道通不通"的对照腿。
+//     · **`+80` 是唯一有信息量的那条**：`Section.cs:234-242` 懒创建 `ContainerParagraph` 并返 `.Handle`
+//       ⇒ 成功形状 ＝ `fserr=0 ∧ nmSegment≠0`，判词 `MAINTEXTSEG-LIVE-HANDLE`。
+//     · `fserr` 值域：`0`＝`fserrNone`（唯一成功）／`-100002`＝`tserrCallbackException`／
+//       `-10000`＝`tserrNotImplemented`／**其它一律非成功** ⇒ 非 0 ⇒ `CALLBACK-ERR`，**不许当成功**。
+//     · **连调两次必须同值**（幂等）：`+80` 首调懒创建、次调走同一支 ⇒ 同值；`+56` 恒同值。
+//     · **零破坏**：主链**只**用**捕获到的真 `sect`**；**绝不**伪造 `nms`/`nmp`（那会让托管
+//       `HandleToObject` 触发 **`FailFast` 不可捕获**）。伪句柄反腿**只在应用副本上跑**。
+//     · ⚠️ **"非破坏性 ≠ 零副作用"**：`+80` 会**懒创建** `ContainerParagraph` ⇒ 向托管表**新增活条目**；
+//       本探针把**窗口预算设为 1**（每进程只探第一个窗口、每槽连调两次）以把副作用与日志都限住。
+typedef int (*wpf_pts_fn_get_next_section)(const void *pfsclient, const void *nms_cur, int *f_success, void **nms_next);
+typedef int (*wpf_pts_fn_get_main_text_segment)(const void *pfsclient, const void *nms_section, void **nm_segment);
+
+/* 快照里的槽下标（**由窗口起点推出**，并由下面的 `_Static_assert` 钉死）：
+     idx = (绝对偏移 − WPF_PTS_FSCBK_OFF) / 8    ⇒  +56 ⇒ 2 ／ +80 ⇒ 5                    */
+#define WPF_PTS_SNAP_IDX_GETNEXTSECTION      2
+#define WPF_PTS_SNAP_IDX_GETMAINTEXTSEGMENT  5
+#define WPF_PTS_DRIVE_PROBE_WINDOW_BUDGET    1     /* 每进程只探**一个**窗口（限副作用/日志） */
+#define WPF_PTS_DRIVE_PROBE_PRINT_SKIP_MAX   3     /* 跳过的具名行最多打几条（其余只计数） */
+/* ⚠️ **反腿开关**（默认 0）：置 1 时把 `nms` 换成**伪值 `0x1`** —— 只允许在
+   **应用副本**上以 `-DWPF_PTS_DRIVE_PROBE_FAKE_NMS=1` 单独编译，**绝不许**进主链产物。 */
+#ifndef WPF_PTS_DRIVE_PROBE_FAKE_NMS
+#define WPF_PTS_DRIVE_PROBE_FAKE_NMS 0
+#endif
+
+_Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_SNAP_IDX_GETNEXTSECTION * 8 == 56,
+               "快照下标 GETNEXTSECTION 对应的绝对偏移 != +56");
+_Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_SNAP_IDX_GETMAINTEXTSEGMENT * 8 == 80,
+               "快照下标 GETMAINTEXTSEGMENT 对应的绝对偏移 != +80");
+_Static_assert(sizeof(wpf_pts_fn_get_next_section) == 8 && sizeof(wpf_pts_fn_get_main_text_segment) == 8,
+               "回调指针不是 8 B（与快照的 8 B 字假设不符）");
+
+static int          g_pts_dp_calls      = 0;   /* 真正**发出**调用的窗口数 */
+static int          g_pts_dp_skips      = 0;   /* 被跳过的窗口数（每条都有具名 reason） */
+static const char  *g_pts_dp_last_skip  = "none";
+static int          g_pts_dp_56_fserr   = -1, g_pts_dp_56_fsuccess = -1;
+static const void  *g_pts_dp_56_next    = NULL;
+static int          g_pts_dp_80_fserr   = -1;
+static const void  *g_pts_dp_80_segment = NULL;
+static int          g_pts_dp_idem       = 0;   /* bit0：+56 两次同值；bit1：+80 两次同值 */
+
+static void wpf_pts_drive_probe_skip(const char *reason)
+{
+    g_pts_dp_skips++;
+    g_pts_dp_last_skip = reason;
+    if (g_pts_dp_skips <= WPF_PTS_DRIVE_PROBE_PRINT_SKIP_MAX)
+        fprintf(stderr, "[DRIVE-PROBE-SKIP] reason=%s skips=%d（**未发出任何回调调用**；不许当绿）\n",
+                reason, g_pts_dp_skips);
+}
+
+/* 只读：从快照里取第 idx 个 8 B 字（直接读值，**不 deref** 入参） */
+static const void *wpf_pts_snap_word(const wpf_pts_doc *d, int idx)
+{
+    unsigned long long v = 0;
+    for (int i = 0; i < 8; i++) v |= ((unsigned long long)d->fscbk_snap[idx * 8 + i]) << (8 * i);
+    return (const void *)(unsigned long)v;
+}
+
+static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *where)
+{
+    if (!d) { wpf_pts_drive_probe_skip("null-doc"); return; }
+    if (d->fscbk_snap_state == WPF_PTS_FSCBK_SNAP_NONE) { wpf_pts_drive_probe_skip("no-snapshot"); return; }
+    if (g_pts_dp_calls >= WPF_PTS_DRIVE_PROBE_WINDOW_BUDGET) { wpf_pts_drive_probe_skip("budget-exhausted"); return; }
+#if WPF_PTS_DRIVE_PROBE_FAKE_NMS
+    /* ★反腿：**伪 nms**（值＝编译期宏 `WPF_PTS_DRIVE_PROBE_FAKE_NMS`；只在**副本**产物里置非 0）
+       ⚠️ `t146` 现取：真实入参 `nms` **就是 `0x1`**（托管表槽下标）⇒ 伪值**取 `0x1` 不具分辨力**；
+          本件用 `4096`（越界 ⇒ 期望 T1 类 `Invariant.FailFast`）与 `2`（live 但错类型 ⇒ 期望可捕获
+          `fserr=-100002`）两种。 */
+    const void *nms = (const void *)(unsigned long)WPF_PTS_DRIVE_PROBE_FAKE_NMS;
+#else
+    const void *nms = sect;                        /* 主链：**只用捕获到的真句柄** */
+#endif
+    if (!nms) { wpf_pts_drive_probe_skip("null-sect"); return; }
+    const void *fp56 = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_GETNEXTSECTION);
+    const void *fp80 = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_GETMAINTEXTSEGMENT);
+    if (!fp56) { wpf_pts_drive_probe_skip("null-slot56"); return; }
+    if (!fp80) { wpf_pts_drive_probe_skip("null-slot80"); return; }
+
+    const void *pfsclient = (const void *)d->p_fsclient;   /* 判据 §2.4：从快照 +24 取并**如实记下** */
+    int fSuccess1 = -1, fSuccess2 = -1;
+    void *nmsNext1 = NULL, *nmsNext2 = NULL;
+    void *nmSeg1 = NULL; void *nmSeg2 = NULL;
+
+    int rc56a = ((wpf_pts_fn_get_next_section)fp56)(pfsclient, nms, &fSuccess1, &nmsNext1);
+    int rc56b = ((wpf_pts_fn_get_next_section)fp56)(pfsclient, nms, &fSuccess2, &nmsNext2);
+    int rc80a = ((wpf_pts_fn_get_main_text_segment)fp80)(pfsclient, nms, &nmSeg1);
+    int rc80b = ((wpf_pts_fn_get_main_text_segment)fp80)(pfsclient, nms, &nmSeg2);
+
+    g_pts_dp_calls++;
+    g_pts_dp_56_fserr = rc56a; g_pts_dp_56_fsuccess = fSuccess1; g_pts_dp_56_next = (const void *)nmsNext1;
+    g_pts_dp_80_fserr = rc80a; g_pts_dp_80_segment = (const void *)nmSeg1;
+    g_pts_dp_idem = ((rc56a == rc56b) && (fSuccess1 == fSuccess2) && (nmsNext1 == nmsNext2) ? 1 : 0)
+                  | ((rc80a == rc80b) && (nmSeg1 == nmSeg2) ? 2 : 0);
+
+    const char *v56 = (rc56a == 0 && fSuccess1 == 0 && nmsNext1 == NULL) ? "NEXTSECTION-ABSENT(by-design)"
+                    : (rc56a != 0 ? "CALLBACK-ERR" : "NEXTSECTION-OTHER");
+    const char *v80 = (rc80a == 0 && nmSeg1 != NULL) ? "MAINTEXTSEG-LIVE-HANDLE"
+                    : (rc80a != 0 ? "CALLBACK-ERR" : "MAINTEXTSEG-ZERO-HANDLE");
+    fprintf(stderr, "[DRIVE-PROBE] where=%s nms=%p pfsclient=%p slot56=%p slot80=%p fake=%d "
+                    "rc56a=%d fSuccess1=%d nmsNext1=%p rc56b=%d fSuccess2=%d nmsNext2=%p idem56=%d "
+                    "rc80a=%d nmSeg1=%p rc80b=%d nmSeg2=%p idem80=%d v56=%s v80=%s\n",
+            where, nms, pfsclient, fp56, fp80, WPF_PTS_DRIVE_PROBE_FAKE_NMS,
+            rc56a, fSuccess1, nmsNext1, rc56b, fSuccess2, nmsNext2,
+            ((g_pts_dp_idem & 1) ? 1 : 0), rc80a, nmSeg1, rc80b, nmSeg2,
+            ((g_pts_dp_idem & 2) ? 1 : 0), v56, v80);
 }
 
 // ── 格 6（`t110`／P1-W35 · W8 第四步）：`CreateDocContext` **真实现** ─────────────────
@@ -1248,6 +1368,24 @@ int WpfLinuxWin32_PtsDocFscbkSnapNonzero(int idx)
 int WpfLinuxWin32_PtsDocFscbkSnapGap(void)     { return g_pts_fscbk_snap_gap; }
 int WpfLinuxWin32_PtsDocFscbkSnapTaken(void)   { return g_pts_fscbk_snap_taken; }
 int WpfLinuxWin32_PtsDocFscbkSnapAllZero(void) { return g_pts_fscbk_snap_allzero; }
+
+/* ⏪ `t146`：**驱动探针的只读面**（判据件 §5.1 `R8`；值域/语义写死如下）
+     · `…PtsDriveProbeCalls()`  真正**发出过调用**的窗口数（=0 ⇒ 探针根本没跑 ⇒ **不许当绿**）
+     · `…PtsDriveProbeSkips()` + `…PtsDriveProbeLastSkip()`  被跳过的窗口数／原因 token
+     · `…PtsDriveProbe56Fserr()` / `…56Success()` / `…56Next()`   `+56` 那两条的**如实**读数
+     · `…PtsDriveProbe80Fserr()` / `…80Segment()`                 `+80` 那一条的**如实**读数
+     · `…PtsDriveProbeIdem()`  bit0 = `+56` 两次同值；bit1 = `+80` 两次同值
+   ⚠️ **语义边界（判据 §2.3）**：这些口**只**报“回调返回了什么”；**不**证“该句柄在托管表内且 live
+      且 `Obj is Section/ContainerParagraph`” —— 那一句**本探针证不了**，只能由**表主**给读数。 */
+int WpfLinuxWin32_PtsDriveProbeCalls(void)     { return g_pts_dp_calls; }
+int WpfLinuxWin32_PtsDriveProbeSkips(void)     { return g_pts_dp_skips; }
+const char *WpfLinuxWin32_PtsDriveProbeLastSkip(void) { return g_pts_dp_last_skip; }
+int WpfLinuxWin32_PtsDriveProbe56Fserr(void)   { return g_pts_dp_56_fserr; }
+int WpfLinuxWin32_PtsDriveProbe56Success(void) { return g_pts_dp_56_fsuccess; }
+void *WpfLinuxWin32_PtsDriveProbe56Next(void)  { return (void *)g_pts_dp_56_next; }
+int WpfLinuxWin32_PtsDriveProbe80Fserr(void)   { return g_pts_dp_80_fserr; }
+void *WpfLinuxWin32_PtsDriveProbe80Segment(void){ return (void *)g_pts_dp_80_segment; }
+int WpfLinuxWin32_PtsDriveProbeIdem(void)      { return g_pts_dp_idem; }
 int WpfLinuxWin32_PtsDocFscbkWordAt(int idx, int k, unsigned long long *out)
 {
     if (!out) return -1;
@@ -1983,6 +2121,17 @@ static int wpf_pts_doc_find(const void *ctx)
     return 0;
 }
 
+/* ⏪ `t146`：与 `wpf_pts_doc_find` 同谓词（**只按指针身份**、不 deref），但返回对象指针。 */
+static wpf_pts_doc *wpf_pts_doc_ptr(const void *ctx)
+{
+    if (!ctx) return NULL;
+    for (int i = 0; i < g_pts_doc_live_n; i++) {
+        if (g_pts_doc_live[i]->magic != WPF_PTS_DOC_MAGIC) continue;
+        if ((const void *)g_pts_doc_live[i] == ctx) return g_pts_doc_live[i];
+    }
+    return NULL;
+}
+
 // ── `t127`／裁定二十七 · **字段级诚实性**的统一判据（一对反腿共用**同一个**谓词）──────────
 //   族属（队长要求写明）：**与裁定二十三「不许静默 stub」同族** —— 两者都是
 //   「**账面（返回值/计数器）对了，而交出去的东西没用**」。裁定二十三管**入口**（返 0 却什么都不做），
@@ -2064,6 +2213,8 @@ int FsCreatePageFinite(void *pfscontext, void *pfsBRPageStart, const void *fsnmS
             p->magic = WPF_PTS_FSP_MAGIC;
             p->ctx   = pfscontext;
             p->sect  = fsnmSectStart;
+            /* ⏪ `t146`：第二处调用窗（预算已耗则记 `budget-exhausted`，不重复调） */
+            wpf_pts_drive_probe(wpf_pts_doc_ptr(pfscontext), fsnmSectStart, "FsCreatePageFinite");
             p->result = 0;
             p->pg_w = WPF_PTS_FSP_FIN_DU; p->pg_h = WPF_PTS_FSP_FIN_DV;
             p->bbox_defined = 1;
