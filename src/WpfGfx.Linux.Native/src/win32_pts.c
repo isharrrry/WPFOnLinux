@@ -665,7 +665,11 @@ typedef int (*wpf_pts_fn_get_main_text_segment)(const void *pfsclient, const voi
      idx = (绝对偏移 − WPF_PTS_FSCBK_OFF) / 8    ⇒  +56 ⇒ 2 ／ +80 ⇒ 5                    */
 #define WPF_PTS_SNAP_IDX_GETNEXTSECTION      2
 #define WPF_PTS_SNAP_IDX_GETMAINTEXTSEGMENT  5
-#define WPF_PTS_DRIVE_PROBE_WINDOW_BUDGET    1     /* 每进程只探**一个**窗口（限副作用/日志） */
+/* ⏪ `t150`（P1-W70）**调用强度旋钮**：每进程最多探几个窗口（每窗 2 调/槽 ⇒ 每窗 4 次调用）。
+   **缺省 1** ⇒ 与 `t148` 的现有行为**逐格一致**（`t148` 就是 1 窗）。`WPF_PTS_DRIVE_PROBE_N=<n>`
+   可调（仅当闸开时生效）；上限 = 入站 `FsCreatePage*` 的实际调用次数（日志会给 `budget-exhausted`）。 */
+#define WPF_PTS_DRIVE_PROBE_WINDOW_BUDGET_DEFAULT 1
+static int wpf_pts_drive_probe_n(void);   /* 定义见闸函数旁边（读一次并缓存） */
 #define WPF_PTS_DRIVE_PROBE_PRINT_SKIP_MAX   3     /* 跳过的具名行最多打几条（其余只计数） */
 /* ⚠️ **反腿开关**（默认 0）：置 1 时把 `nms` 换成**伪值 `0x1`** —— 只允许在
    **应用副本**上以 `-DWPF_PTS_DRIVE_PROBE_FAKE_NMS=1` 单独编译，**绝不许**进主链产物。 */
@@ -708,6 +712,20 @@ static int wpf_pts_drive_probe_enabled(void)
 }
 int WpfLinuxWin32_PtsDriveProbeGate(void) { return wpf_pts_drive_probe_enabled(); }
 
+/* ⏪ `t150`：**调用强度**（窗口预算）—— `WPF_PTS_DRIVE_PROBE_N`，**缺省 1**（与 `t148` 一致）。
+   取值口径：非空且能 `strtol` 成 ≥1 ⇒ 用它；否则缺省 1。**负值/0/非数字 ⇒ 缺省 1**（不放宽、不放任）。 */
+static int wpf_pts_drive_probe_n(void)
+{
+    static int cached = -1;
+    if (cached < 0) {
+        const char *v = getenv("WPF_PTS_DRIVE_PROBE_N");
+        long n = (v && v[0]) ? strtol(v, NULL, 10) : 0;
+        cached = (n >= 1 && n <= 64) ? (int)n : WPF_PTS_DRIVE_PROBE_WINDOW_BUDGET_DEFAULT;
+    }
+    return cached;
+}
+int WpfLinuxWin32_PtsDriveProbeN(void) { return wpf_pts_drive_probe_n(); }
+
 static void wpf_pts_drive_probe_skip(const char *reason)
 {
     g_pts_dp_skips++;
@@ -731,7 +749,7 @@ static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *wh
     if (d->fscbk_snap_state == WPF_PTS_FSCBK_SNAP_NONE) { wpf_pts_drive_probe_skip("no-snapshot"); return; }
     /* ⏪ `t148`：**运行期闸**（缺省关）—— 闸关 ⇒ **一次都不调**，并留一条具名行 */
     if (!wpf_pts_drive_probe_enabled()) { wpf_pts_drive_probe_skip("gate-off"); return; }
-    if (g_pts_dp_calls >= WPF_PTS_DRIVE_PROBE_WINDOW_BUDGET) { wpf_pts_drive_probe_skip("budget-exhausted"); return; }
+    if (g_pts_dp_calls >= wpf_pts_drive_probe_n()) { wpf_pts_drive_probe_skip("budget-exhausted"); return; }
     const void *fp56 = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_GETNEXTSECTION);
     const void *fp80 = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_GETMAINTEXTSEGMENT);
     if (!fp56) { wpf_pts_drive_probe_skip("null-slot56"); return; }
@@ -754,8 +772,8 @@ static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *wh
        ⇒ 反腿日志里 `probe=0`，归因强度只有"中"。本行把归因升为**强**：只要这条行在场，
        就能自证"这一调确实发生了"。 */
     fprintf(stderr, "[DRIVE-PROBE-ENTER] where=%s nms=%p pfsclient=%p slot56=%p slot80=%p fake=%d "
-                    "t3mode=%d window=%d\n",
-            where, nms, pfsclient, fp56, fp80, WPF_PTS_DRIVE_PROBE_FAKE_NMS, t3mode, g_pts_dp_calls);
+                    "t3mode=%d window=%d n=%d\n",
+            where, nms, pfsclient, fp56, fp80, WPF_PTS_DRIVE_PROBE_FAKE_NMS, t3mode, g_pts_dp_calls, wpf_pts_drive_probe_n());
 
     const void *nms56 = nms;
 #if WPF_PTS_DRIVE_PROBE_FAKE_NMS == -2
