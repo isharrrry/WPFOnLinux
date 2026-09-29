@@ -170,6 +170,22 @@ typedef struct {
     /* ⏪ `t156`：第二跳 `+136` 交出的**合法 `nmp`**（live `BaseParagraph` 族）—— 供**第三跳**的
        **窗外腿**复用**同一个**句柄（窗内/窗外只差窗口，不差句柄）。**原样存，不 deref**。 */
     const void  *drive_nmp;
+    /* ── ⏪ `t160`（P1-W80）：段落列表要交出去的**段落客户端句柄**（`pfsparaclient`）的**代** ──
+       来源铁律（判据 §5-P3）：**只能是本 run 内托管 `+176` 回调真返回的值**。
+       `fsp_pl_cur` 是**当前代**（live），`fsp_pl_quota` 是它已服务的填充次数（到 `gen_size` 就换代）。
+       `fsp_pl_prev` 是**上一代**（等**下一次**调用再回收 —— **绝不**"返回前回收"，判据 §2.3/P4）。
+       `fsp_pl_src_in`／`fsp_pl_src_out` 是**探针**在**窗内**／**窗外**替本跳造出的第一代（两腿实验 W-1／W-2）。 */
+    const void  *fsp_pl_src_in;     /* 窗内探针（`FsCreatePageBottomless`）造出并**保留**的第一代 */
+    const void  *fsp_pl_src_out;    /* 窗外腿（`FsQueryTrackParaList` OOW）造出并**保留**的第一代 */
+    int          fsp_pl_src_rc_in;  /* 上述 `+176` 的 fserr */
+    int          fsp_pl_src_rc_out;
+    const void  *fsp_pl_cur;        /* 当前代（live，正在被填进列表） */
+    const void  *fsp_pl_prev;       /* 上一代（待**下次调用**回收） */
+    int          fsp_pl_quota;      /* 当前代已服务的填充次数 */
+    int          fsp_pl_gen;        /* 代数（1 = 探针造的第一代） */
+    const char  *fsp_pl_site;       /* 当前代**在哪造的**：`probe-in`／`probe-out`／`query-frame` */
+    const void  *fsp_pl_aba_stale;  /* ABA 反腿：被回收后又拿来填充的**陈旧值** */
+    int          fsp_pl_aba_seen;   /* ABA 反腿：是否已制造过 ABA */
 } wpf_pts_doc;
 static wpf_pts_doc *g_pts_doc_live[WPF_PTS_DOC_MAX];
 static int g_pts_doc_live_n       = 0;
@@ -864,6 +880,115 @@ int WpfLinuxWin32_PtsCtxAliveCount(void)        { return g_pts_ctx_alive_n; }
 unsigned long long WpfLinuxWin32_PtsDriveProbe3T3Value(void)    { return g_pts_dp3_t3_value; }
 unsigned long long WpfLinuxWin32_PtsDriveProbe3T3Value192(void) { return g_pts_dp3_t3_192_value; }
 
+/* ══════════════════════════════════════════════════════════════════════════════════════════════
+   ⏪ `t160`（P1-W80）：把 `pfsparaclient` 接进 `FsQueryTrackParaList` 的**段落列表**。
+
+   🔴 **本跳的四个设计问（判据 `P1-paralist-wire-criteria.md` §2 现取判词，本实现照此）**：
+     ① **持有期 ＝ 托管对象生存期**（`BaseParaClient : UnmanagedHandle`；句柄在建对象时由
+        `CreateHandle(this)` 产生、在 `Dispose()` 里由 `ReleaseHandle` 回收；native `+192` 即触发者）
+        ⇒ **与"哪次调用窗口"无关**，**可以跨调用持有**。
+     ② **窗口非必要非充分** ⇒ 必须做**两腿实验**：W-1 用**窗内**探针造出的第一代、
+        W-2 用**窗外**腿造出的第一代；**单腿只能记 `NOINFO`**。
+     ③ **回收责任＝托管 `Dispose()`，触发点 `+192`** ⇒ **本入口不许自回收、不许"返回前回收"**
+        （判 P4）。本实现把回收**推迟到下一次调用**（`fsp_pl_prev`），且**绝不**回收本次要交出去的那一代。
+     ④ 🔴 **索引复用 ⇒ 静默错对象**（`IsHandle() = Obj!=NULL && Index==0` ＋ `ReleaseHandle` 把索引
+        压回自由链 ＋ `CreateHandle` 复用之）：已释放**未被复用** ⇒ `Assert` ⇒ **不可捕获 `FailFast`**；
+        已释放**已被复用** ⇒ `IsHandle()` 为真 ⇒ `HandleToObject` 返回**另一个对象**、`as BaseParaClient`
+        **还成功** ⇒ **不报错、不崩**。⇒ `resolve=wrong-object` **一票红**（本件给 ABA 反腿作机制证明）。
+
+   🔴 **`FSPARADESCRIPTION.pfsparaclient` 的偏移**：按上游字段序（`Pts.cs:1500-1510`）＋
+     `FSUPDATEINFO`＝8 B ＋ 64 位 `IntPtr`＝8 B ⇒ **计算值 `+16`**（`pfspara @ +8`、`nmp @ +24`、
+     `sizeof = 64`）。按 `t127` 前例「计算值只作**预期**、实现件必须给**实测**」：本件给
+     ① `offsetof` 镜像结构 ＋ `_Static_assert`（编译期钉死）② **填充前**的**字节级读回**（把该区
+     `dump` 成 hex 留痕）③ **消费者行为**（托管侧按它自己的布局读我们填的区：偏移错 ⇒ 读到别的字段
+     ⇒ `as BaseParaClient` 落空 ⇒ 消费者侧异常；本次两样本消费者侧零新异常类）。
+   ══════════════════════════════════════════════════════════════════════════════════════════════ */
+typedef struct { int fskupd; int dvr_shifted; } wpf_pts_fsupdinf;              /* 8 B */
+typedef struct { int f_defined; int u, v, du, dv; } wpf_pts_fsbbox_t;          /* 20 B */
+typedef struct {                                                                /* 共 64 B */
+    wpf_pts_fsupdinf fsupdinf;
+    void *pfspara;              /* +8  */
+    void *pfsparaclient;        /* +16 ← 本跳要填的字段 */
+    void *nmp;                  /* +24 */
+    int   idobj;                /* +32 */
+    int   dvr_used;             /* +36 */
+    wpf_pts_fsbbox_t fsbbox;    /* +40（20 B） */
+    int   dvr_top_space;        /* +60 */
+} wpf_pts_fsparadesc;
+_Static_assert(offsetof(wpf_pts_fsparadesc, pfspara)        ==  8, "FSPARADESCRIPTION.pfspara 偏移 != +8");
+_Static_assert(offsetof(wpf_pts_fsparadesc, pfsparaclient)  == 16, "FSPARADESCRIPTION.pfsparaclient 偏移 != +16");
+_Static_assert(offsetof(wpf_pts_fsparadesc, nmp)            == 24, "FSPARADESCRIPTION.nmp 偏移 != +24");
+_Static_assert(sizeof(wpf_pts_fsparadesc)                   == 64, "sizeof(FSPARADESCRIPTION) != 64");
+_Static_assert(sizeof(wpf_pts_fsupdinf) == 8, "FSUPDATEINFO != 8 B");
+_Static_assert(sizeof(wpf_pts_fsbbox_t) == 20, "FSBBOX != 20 B");
+
+#ifndef WPF_PTS_FSP_PL_SELFRECYCLE
+#define WPF_PTS_FSP_PL_SELFRECYCLE 0   /* 只在**副本产物**上开：**P4 反腿**（本入口"返回前回收"） */
+#endif
+#ifndef WPF_PTS_FSP_PL_ABA
+#define WPF_PTS_FSP_PL_ABA 0           /* 只在**副本产物**上开：**resolve=wrong-object 机制证明** */
+#endif
+
+static int          g_pts_fsp_pl_fills        = 0;   /* 真填次数（rc=0 且 n=cParas） */
+static int          g_pts_fsp_pl_consumes     = 0;   /* 延迟回收（`+192`）次数 ⇒ 也＝"消费解析"次数 */
+static int          g_pts_fsp_pl_resolve_ok   = 0;   /* `+192` 返 0（解析成 `BaseParaClient`） */
+static int          g_pts_fsp_pl_resolve_wrong= 0;   /* **一票红**：解析到的**不是**当初那个对象 */
+static int          g_pts_fsp_pl_resolve_exc  = 0;   /* `+192` 返 `-100002`（解析成别的族） */
+static int          g_pts_fsp_pl_src_in       = 0;   /* 第一代来源＝窗内探针的次数（1/0） */
+static int          g_pts_fsp_pl_src_out      = 0;   /* 第一代来源＝窗外腿的次数（1/0） */
+static int          g_pts_fsp_pl_teardown_rc  = -9999;
+static const void  *g_pts_fsp_pl_last_h       = NULL;/* 最近一次填进列表的句柄 */
+static int          g_pts_fsp_pl_last_rc176   = -9999;
+static int          g_pts_fsp_pl_held_at_exit = 0;   /* 进程退出时仍持有（＝对象存活口径的预期态） */
+
+int WpfLinuxWin32_PtsFsParaListFills(void)      { return g_pts_fsp_pl_fills; }
+int WpfLinuxWin32_PtsFsParaListConsumes(void)   { return g_pts_fsp_pl_consumes; }
+int WpfLinuxWin32_PtsFsParaListResolveOk(void)  { return g_pts_fsp_pl_resolve_ok; }
+int WpfLinuxWin32_PtsFsParaListResolveWrong(void){ return g_pts_fsp_pl_resolve_wrong; }
+int WpfLinuxWin32_PtsFsParaListResolveExc(void) { return g_pts_fsp_pl_resolve_exc; }
+int WpfLinuxWin32_PtsFsParaListSrcIn(void)      { return g_pts_fsp_pl_src_in; }
+int WpfLinuxWin32_PtsFsParaListSrcOut(void)     { return g_pts_fsp_pl_src_out; }
+int WpfLinuxWin32_PtsFsParaListTeardownRc(void) { return g_pts_fsp_pl_teardown_rc; }
+void *WpfLinuxWin32_PtsFsParaListLastH(void)    { return (void *)g_pts_fsp_pl_last_h; }
+int WpfLinuxWin32_PtsFsParaListLastRc176(void)  { return g_pts_fsp_pl_last_rc176; }
+int WpfLinuxWin32_PtsFsParaListHeldAtExit(void) { return g_pts_fsp_pl_held_at_exit; }
+
+/* 每次运行的填充上限（`<=0` ⇒ **不限**）。旋钮 `WPF_PTS_FSP_PL_MAX`（缺省 0＝不限）。 */
+static int wpf_pts_fsp_pl_max(void)
+{
+    static int cached = -2;
+    if (cached != -2) return cached;
+    const char *e = getenv("WPF_PTS_FSP_PL_MAX");
+    cached = (e && *e) ? atoi(e) : 0;
+    return cached;
+}
+/* 每一代客户端服务多少次填充（旋钮 `WPF_PTS_FSP_PL_GEN`，缺省 32；`<1` ⇒ 1）。 */
+static int wpf_pts_fsp_pl_gen_size(void)
+{
+    static int cached = -2;
+    if (cached != -2) return cached;
+    const char *e = getenv("WPF_PTS_FSP_PL_GEN");
+    cached = (e && *e) ? atoi(e) : 32;
+    if (cached < 1) cached = 1;
+    return cached;
+}
+/* 两腿实验的源选择：`WPF_PTS_FSP_PL_WIN=out` ⇒ 用**窗外**腿造出的第一代（W-2）；缺省 `in`（W-1）。 */
+static int wpf_pts_fsp_pl_win_out(void)
+{
+    static int cached = -1;
+    if (cached != -1) return cached;
+    const char *e = getenv("WPF_PTS_FSP_PL_WIN");
+    cached = (e && *e && (e[0] == 'o' || e[0] == 'O')) ? 1 : 0;
+    return cached;
+}
+/* 🔴 判据 §6「零假值铁律」：真腿内出现哨兵值（`0x2/0x3/0x4/0x5`）⇒ 该读数作废。本件**从不**造句柄值，
+   只用**托管 `+176` 的返回值**；本谓词只用来**具名**（不作判据）。 */
+static int wpf_pts_fsp_pl_is_sentinel(const void *h)
+{
+    unsigned long long v = (unsigned long long)(unsigned long)h;
+    return (v == 0x2ULL || v == 0x3ULL || v == 0x4ULL || v == 0x5ULL);
+}
+
 typedef int (*wpf_pts_fn_get_first_para)(const void *pfsclient, const void *nms, int *f_successful, void **nmp);
 typedef int (*wpf_pts_fn_get_para_properties)(const void *pfsclient, const void *nmp, void *fspap);
 _Static_assert(sizeof(wpf_pts_fn_get_first_para) == 8 && sizeof(wpf_pts_fn_get_para_properties) == 8,
@@ -948,8 +1073,16 @@ static void wpf_pts_drive_probe2_oow(void *pfscontext, const char *where)
         int rc176o = ((wpf_pts_fn_create_paraclient)fp176o)((const void *)dp->p_fsclient,
                                                            (const void *)dp->drive_nmp, &hO);
         int rc192o = -9999;
-        if (hO) rc192o = ((wpf_pts_fn_destroy_paraclient)fp192o)((const void *)dp->p_fsclient,
-                                                                 (const void *)hO);
+        if (hO && wpf_pts_fsp_pl_win_out() && dp->fsp_pl_src_out == NULL) {
+            /* ⏪ `t160`（W-2 第一代）：**窗外**腿造出的客户端**保留**下来当本腿的第一代（不回收） */
+            dp->fsp_pl_src_out = (const void *)hO;
+            dp->fsp_pl_src_rc_out = 0;
+            g_pts_fsp_pl_src_out = 1;
+            rc192o = -7777;                       /* 保留标记（**不是**回收失败） */
+        } else if (hO) {
+            rc192o = ((wpf_pts_fn_destroy_paraclient)fp192o)((const void *)dp->p_fsclient,
+                                                            (const void *)hO);
+        }
         g_pts_dp3_oow_calls++; g_pts_dp3_oow_rc = rc176o; g_pts_dp3_oow_rec = rc192o;
         const char *vO3 = (rc176o == 0 && hO != NULL) ? "PARACLIENT-HANDLE(窗外)"
                         : (rc176o == -100002) ? "CALLBACK-ERR(-100002)"
@@ -1102,6 +1235,24 @@ static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *wh
             g_pts_dp3_192_t3 = rc192t3;
             g_pts_dp3_t3_192_value = (unsigned long long)(unsigned long)nmSeg1;
 #endif
+            /* ── ⏪ `t160`（W-1 第一代）：为**段落列表**再造一个客户端并**保留**（**不回收**）──
+               来源＝本 run 内托管 `+176` 回调（唯一合法来源，判据 §5-P3）；**保留**的理由＝
+               本跳口径「持有期＝托管对象生存期」（判据 §2.1）⇒ 交出去的句柄在消费者解析时必须**活着**。 */
+            void *hK = NULL;
+            int  rcK = (fp176 != NULL)
+                     ? ((wpf_pts_fn_create_paraclient)fp176)(pfsclient, nmp176, &hK) : -9999;
+            int keep_extra_recycled = -9999;
+            if (rcK == 0 && hK != NULL && d->fsp_pl_src_in == NULL) {
+                d->fsp_pl_src_in = (const void *)hK;
+                d->fsp_pl_src_rc_in = rcK;
+                g_pts_fsp_pl_src_in = 1;
+            } else if (rcK == 0 && hK != NULL) {
+                /* 本 doc 的第一代已就位 ⇒ 这一只**多余**，就地回收（**不是**"回收要交出去的句柄"：
+                   它从未被填进列表；不回收就是纯粹泄漏） */
+                const void *fp192k = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_DESTROYPARACLIENT);
+                if (fp192k) keep_extra_recycled = ((wpf_pts_fn_destroy_paraclient)fp192k)(
+                                                     pfsclient, (const void *)hK);
+            }
             g_pts_dp3_176_a   = rc176a; g_pts_dp3_176_b = rc176b;
             g_pts_dp3_h1      = (const void *)h1; g_pts_dp3_h2 = (const void *)h2;
             g_pts_dp3_newperc = ((rc176a == 0) && (rc176b == 0) && h1 != NULL && h2 != NULL
@@ -1130,12 +1281,14 @@ static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *wh
             fprintf(stderr, "[DRIVE-PROBE3] where=%s window=in nmp176=%p pfsclient=%p t3_176=%d "
                             "out_pre_h1=%p rc176a=%d h1=%p rc176b=%d h2=%p h2_ne_h1=%d "
                             "rc192a=%d rc192b=%d skip192=%d rc192t3=%d rc200_null=%d rc200_hand=%d "
-                            "ctx_live=%d v176a=%s v176=%s v192=%s v200=%s slot176=%p slot192=%p slot200=%p calls=%d\n",
+                            "ctx_live=%d v176a=%s v176=%s v192=%s v200=%s slot176=%p slot192=%p slot200=%p calls=%d "
+                            "keep=%p keeprc=%d\n",
                     where, nmp176, pfsclient, t3_176, g_pts_dp3_pre_h1, rc176a, h1, rc176b, h2,
                     (h1 != NULL && h2 != NULL && h1 != h2) ? 1 : 0,
                     rc192a, rc192b, skip192, g_pts_dp3_192_t3, rc200_null, rc200_hand,
                     g_pts_dp3_ctx_live, v176a, v176c, v192, v200, fp176, fp192, fp200,
-                    g_pts_dp3_calls);
+                    g_pts_dp3_calls, hK, rcK);
+            (void)keep_extra_recycled;
         } else {
             fprintf(stderr, "[DRIVE-PROBE3] where=%s window=in SKIP reason=%s slot176=%p nmp1=%p\n",
                     where, (nmp1 == NULL) ? "no-nmp176" : "null-slot176", fp176, nmp1);
@@ -2709,8 +2862,138 @@ int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgPar
     else if (cParas < 0)                  reason = "negative-cparas";
     else if (cParas > 0 && !rgParaDesc)   reason = "null-paradesc-out";
     /* ★ 本步的**承重拒绝**：即使入参全都合法、track 也确是我们自己的，**仍然拒** ——
-       因为"可用的 `pfsparaclient`"只能由**托管侧**产生（见上）⇒ 返 0 就是**假成功**。 */
-    else                                  reason = "paraclient-table-not-native";
+       因为"可用的 `pfsparaclient`"只能由**托管侧**产生（见上）⇒ 返 0 就是**假成功**。
+       ⏪ `t160`（P1-W80）：**探针门开时**先走**真填**路径（下面那块）；门关／填不成 ⇒ **逐字保持旧行为**
+       （`-10000` ＋ `reason=paraclient-table-not-native`）⇒ **缺省路径零变化**。 */
+    else {
+        int fsp_filled = 0;
+        if (cParas == 0) { /* 没有条目可填（判据 §2.4-2 要求 `n >= 1`）⇒ 走旧路径 */ }
+        else if (wpf_pts_drive_probe_enabled()) {
+            wpf_pts_doc *dp = wpf_pts_doc_ptr(pfscontext);   /* ⚠️ `_find` 是**布尔**谓词；取指针用 `_ptr` */
+            const void *fp176f = dp ? wpf_pts_snap_word(dp, WPF_PTS_SNAP_IDX_CREATEPARACLIENT)  : NULL;
+            const void *fp192f = dp ? wpf_pts_snap_word(dp, WPF_PTS_SNAP_IDX_DESTROYPARACLIENT) : NULL;
+#if WPF_PTS_FSP_PL_ABA
+            static int aba_armed = 0;
+#endif
+            const int   maxc   = wpf_pts_fsp_pl_max();
+#if WPF_PTS_FSP_PL_ABA
+            if (aba_armed)                                    reason = "aba-leg-stopped";
+            else
+#endif
+            if (!dp || !fp176f || !fp192f)                    reason = "no-slot-or-doc";
+            else if (!dp->drive_nmp)                          reason = "no-legal-nmp-in-this-run";
+            else if (maxc > 0 && g_pts_fsp_pl_fills >= maxc)  reason = "fill-budget-exhausted";
+            else {
+                /* ① **第一代**选择（两腿实验 W-1／W-2 的源）：窗内探针 or 窗外腿 */
+                if (!dp->fsp_pl_cur && dp->fsp_pl_gen == 0) {
+                    const int want_out = wpf_pts_fsp_pl_win_out();
+                    const void *first = want_out ? dp->fsp_pl_src_out : dp->fsp_pl_src_in;
+                    if (!first) reason = want_out ? "no-out-of-window-client-yet" : "no-in-window-client-yet";
+                    else {
+                        dp->fsp_pl_cur = first; dp->fsp_pl_gen = 1;
+                        dp->fsp_pl_site = want_out ? "probe-out" : "probe-in";
+                        g_pts_fsp_pl_last_rc176 = want_out ? dp->fsp_pl_src_rc_out : dp->fsp_pl_src_rc_in;
+                    }
+                }
+                /* ② **延迟回收上一代**（在**下一次**调用里做 ⇒ 绝不"返回前回收"，判据 §2.3/P4） */
+                if (!reason && dp->fsp_pl_prev) {
+                    const void *prev = dp->fsp_pl_prev;
+                    dp->fsp_pl_prev = NULL;
+                    int rc192 = ((wpf_pts_fn_destroy_paraclient)fp192f)((const void *)dp->p_fsclient, prev);
+                    g_pts_fsp_pl_teardown_rc = rc192;
+                    g_pts_fsp_pl_consumes++;
+                    const int is_ok = (rc192 == 0);
+                    if (is_ok) g_pts_fsp_pl_resolve_ok++;
+                    else if (rc192 == -100002) g_pts_fsp_pl_resolve_exc++;
+                    fprintf(stderr, "[FSPARALIST-CONSUME] i=0 h=%p resolve=%s type=%s via=+192-deferred-prev-gen "
+                                    "rc=%d consumes=%d\n",
+                            prev, is_ok ? "ok" : (rc192 == -100002 ? "exception" : "other"),
+                            is_ok ? "BaseParaClient" : "unknown", rc192, g_pts_fsp_pl_consumes);
+                }
+#if WPF_PTS_FSP_PL_ABA
+                /* 🔴 **ABA 反腿**（只在副本）：把**已被回收过**的值拿去解析 ⇒ 槽若已被复用，
+                   `IsHandle()` 为真 ⇒ `HandleToObject` 静默返回**另一个对象**、`as BaseParaClient` 还成功
+                   ⇒ **rc=0 而对象是错的**（本行即"`resolve=wrong-object` 一票红"的机制证明）。 */
+                if (!reason && dp->fsp_pl_cur && !dp->fsp_pl_aba_seen) {
+                    const void *stale = dp->fsp_pl_cur;
+                    int rc_rel = ((wpf_pts_fn_destroy_paraclient)fp192f)((const void *)dp->p_fsclient, stale);
+                    void *fresh = NULL;
+                    int  rc_new = ((wpf_pts_fn_create_paraclient)fp176f)((const void *)dp->p_fsclient,
+                                                                        dp->drive_nmp, &fresh);
+                    dp->fsp_pl_aba_seen = 1; dp->fsp_pl_aba_stale = stale;
+                    int rc_stale = ((wpf_pts_fn_destroy_paraclient)fp192f)((const void *)dp->p_fsclient, stale);
+                    g_pts_fsp_pl_resolve_wrong++;
+                    g_pts_fsp_pl_consumes++;
+                    fprintf(stderr, "[FSPARALIST-CONSUME] i=0 h=%p resolve=wrong-object type=resolved-as-other-object "
+                                    "via=aba-leg rc=%d released_between=1 stale=%p fresh=%p same_value=%d "
+                                    "rc_release=%d rc_recreate=%d\n",
+                            stale, rc_stale, stale, fresh, (stale == (const void *)fresh) ? 1 : 0, rc_rel, rc_new);
+                    /* ⚠️ **停填**：`fresh` 已被上一步的 `+192(stale)` 连带销毁（槽是同一个）
+                       ⇒ 若继续把它填进列表，就是**把死句柄交给消费者**（那是另一条反腿）；
+                       本反腿只要"静默错对象"这一条证据 ⇒ 停在这里，并**具名**后续拒绝。 */
+                    aba_armed = 1;
+                    dp->fsp_pl_cur = NULL;
+                    dp->fsp_pl_quota = 0;
+                    (void)rc_new;
+                }
+#endif
+                /* ③ 配额到点 ⇒ 换代（当前代挂到 `prev`，**下次调用**才回收） */
+                if (!reason && dp->fsp_pl_cur && dp->fsp_pl_quota >= wpf_pts_fsp_pl_gen_size()) {
+                    dp->fsp_pl_prev = dp->fsp_pl_cur; dp->fsp_pl_cur = NULL; dp->fsp_pl_quota = 0;
+                }
+                /* ④ 需要新一代 ⇒ 用托管 `+176` **现造**（唯一合法来源，判据 §5-P3） */
+                if (!reason && !dp->fsp_pl_cur) {
+                    void *hn = NULL;
+                    int rc176 = ((wpf_pts_fn_create_paraclient)fp176f)((const void *)dp->p_fsclient,
+                                                                      dp->drive_nmp, &hn);
+                    g_pts_fsp_pl_last_rc176 = rc176;
+                    if (rc176 == 0 && hn != NULL) {
+                        dp->fsp_pl_cur = (const void *)hn; dp->fsp_pl_gen++;
+                        dp->fsp_pl_site = "query-frame";
+                    } else reason = "create-paraclient-failed";
+                }
+                /* ⑤ **真填**（先清零 ⇒ 未初始化内存不许交给上级；**填完才置条数**，判据 §5-P2） */
+                if (!reason && dp->fsp_pl_cur) {
+                    wpf_pts_fsparadesc *rg = (wpf_pts_fsparadesc *)rgParaDesc;
+                    for (int i = 0; i < cParas; i++) {
+                        memset((void *)&rg[i], 0, sizeof(rg[i]));
+                        rg[i].pfsparaclient = (void *)dp->fsp_pl_cur;
+                        rg[i].nmp           = (void *)dp->drive_nmp;
+                    }
+                    *cParaDesc = cParas;                       /* ← **只在真填完成后**置（P2） */
+                    g_pts_fsp_pl_fills++;
+                    dp->fsp_pl_quota++;
+                    g_pts_fsp_pl_last_h = dp->fsp_pl_cur;
+                    const unsigned char *bp = (const unsigned char *)&rg[0];
+                    char dump[3 * 32 + 1];
+                    for (int i = 0; i < 32; i++) snprintf(dump + i * 3, 4, "%02x ", bp[i]);
+                    fprintf(stderr, "[FSPARALIST-FILL] rc=0 reason=ok entry=FsQueryTrackParaList cParas=%d n=%d "
+                                    "h0=%p src=managed-176 run=site=%s win=%s gen=%d quad=%d hold=%d "
+                                    "off16=%d bytes0_32=%s ok=%d gap=%d\n",
+                            cParas, cParas, (void *)dp->fsp_pl_cur, dp->fsp_pl_site,
+                            wpf_pts_fsp_pl_win_out() ? "out" : "in", dp->fsp_pl_gen, dp->fsp_pl_quota,
+                            (dp->fsp_pl_prev != NULL) ? 1 : 0, (int)offsetof(wpf_pts_fsparadesc, pfsparaclient),
+                            dump, g_pts_fsp_pl_ok + 1, g_pts_fsp_pl_gap);
+                    g_pts_fsp_pl_ok++;
+#if WPF_PTS_FSP_PL_SELFRECYCLE
+                    /* 🔴 **P4 反腿**（只在副本）：**返回前回收** ⇒ 交给消费者的句柄**到手就是死的** */
+                    {
+                        int rcBad = ((wpf_pts_fn_destroy_paraclient)fp192f)((const void *)dp->p_fsclient,
+                                                                           dp->fsp_pl_cur);
+                        fprintf(stderr, "[FSPARALIST-FILL] rc=0 reason=ok entry=FsQueryTrackParaList cParas=%d "
+                                        "n=%d h0=%p src=managed-176-recycled-before-return reuse_of_freed_index=1 "
+                                        "recycle_rc=%d ok=%d gap=%d\n",
+                                cParas, cParas, (void *)dp->fsp_pl_cur, rcBad, g_pts_fsp_pl_ok, g_pts_fsp_pl_gap);
+                    }
+                    dp->fsp_pl_cur = NULL; dp->fsp_pl_quota = 0;
+#endif
+                    fsp_filled = 1;
+                }
+            }
+        }
+        if (fsp_filled) return 0;              /* **只有真填后才返 0**（判据 §5-P1） */
+        if (!reason) reason = "paraclient-table-not-native";   /* 旧路径逐字保留 */
+    }
     g_pts_fsp_pl_gap++;
     fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=FsQueryTrackParaList ctx=%p track=%p cParas=%d "
                     "owned=%d ok=%d gap=%d\n",
