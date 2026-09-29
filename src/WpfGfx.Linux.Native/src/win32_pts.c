@@ -87,6 +87,7 @@ static const char *const k_pts_entries[] = {
     "FsDestroyPage",
     "FsQueryTrackDetails",
     "FsCreatePageFinite",
+    "FsQueryTrackParaList",
 };
 #define WPF_PTS_ENTRY_COUNT ((int)(sizeof(k_pts_entries) / sizeof(k_pts_entries[0])))
 
@@ -207,6 +208,8 @@ static int g_pts_fsp_trk_ok   = 0;
 static int g_pts_fsp_trk_gap  = 0;
 static int g_pts_fsp_fin_ok   = 0;
 static int g_pts_fsp_fin_gap  = 0;
+static int g_pts_fsp_pl_ok   = 0;      /* `t129` `FsQueryTrackParaList`：成功次数（**本步恒 0**） */
+static int g_pts_fsp_pl_gap  = 0;      /* `t129`：返非 0 次数（**本步＝全部**） */
 
 // 【格 7 · 真实现】成功 ⇒ 0 ＋ `*ppfspage` = **本次真分配**的页对象（两次调用**互不相等**）；
 //   失败 ⇒ **返非 0** ＋ `*ppfspage = NULL`（**不许留半成品指针**）＋ `*pfsfmtrbl = 未达成`（**不许留毒值**）
@@ -1002,6 +1005,8 @@ int WpfLinuxWin32_PtsFsTrackOk(void)       { return g_pts_fsp_trk_ok; }
 int WpfLinuxWin32_PtsFsTrackGap(void)      { return g_pts_fsp_trk_gap; }
 int WpfLinuxWin32_PtsFsFiniteOk(void)      { return g_pts_fsp_fin_ok; }
 int WpfLinuxWin32_PtsFsFiniteGap(void)     { return g_pts_fsp_fin_gap; }
+int WpfLinuxWin32_PtsFsParaListOk(void)    { return g_pts_fsp_pl_ok; }
+int WpfLinuxWin32_PtsFsParaListGap(void)   { return g_pts_fsp_pl_gap; }
 /* ⏪ `t127`／裁定二十七 · **字段级诚实性**的独立读取面：**调用方要用的那个句柄**当前是否
    "**属于我们自己的对象**"（① 可身份校验）。**只做指针值比较，不 deref**。 */
 int WpfLinuxWin32_PtsTrackOwned(const void *track) { return wpf_pts_track_owned(track); }
@@ -1778,6 +1783,41 @@ int FsCreatePageFinite(void *pfscontext, void *pfsBRPageStart, const void *fsnmS
     fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=FsCreatePageFinite ctx=%p ok=%d gap=%d\n",
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason, pfscontext, g_pts_fsp_fin_ok, g_pts_fsp_fin_gap);
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
+}
+
+// ── `t129`／P1-W51 靶心：`FsQueryTrackParaList`（声明 `Pts.cs:3696-3701`；调用点 `PtsHelper.cs:614`）──
+//   签名：`int FsQueryTrackParaList(IntPtr pfsContext, IntPtr pTrack, int cParas,
+//                                  FSPARADESCRIPTION* rgParaDesc, out int cParaDesc);`
+//   🔴 **本入口的诚实上界（现取，见载体 §1.2）**：`FSPARADESCRIPTION.pfsparaclient` 会被拿去反查一个
+//      **托管对象**（`ContainerParaClient.cs:249/:289/:342/:386` ⇒ `PtsContext.HandleToObject(...)`），
+//      而 `HandleToObject`（`PtsContext.cs:243-249`）把该值当**托管表 `_unmanagedHandles` 的索引**：
+//        `Invariant.Assert(handleLong > 0 && handleLong < _unmanagedHandles.Length, "Invalid object handle.");`
+//      ⇒ 我方**无法**凭空造出可用值：写指针 ⇒ 越界 ⇒ `Invariant.FailFast`(**不可捕获**)；写 0 ⇒ 同一条；
+//        写小整数 ⇒ 槽里不是 `BaseParaClient` ⇒ `as` 得 null ⇒ NRE。**后者比 NULL 更危险**。
+//   ⇒ **本实现的选择（写死，防被读成"没做完"）**：**永不假成功** —— 一律**返非 0 ＋ 记数 ＋ 留痕**，
+//      **不写 `rgParaDesc` 一个字节**、`*cParaDesc = 0`。**不**为了让 `ENFE` 好看而填伪造句柄
+//      （那正是裁定二十三「不许静默 stub」＋ `t127`「字段级诚实性」两条都在禁的形态）。
+//   ⚠️ 拒绝面**在成功条件不具备时才是"诚实失败"**；一旦托管侧真建出段落客户端并可经表反查，
+//      本格应改为"真填"，届时其可用性由**同一个**字段级诚实性谓词判（`wpf_pts_track_owned` 那一族）。
+int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgParaDesc, int *cParaDesc)
+{
+    const char *reason = NULL;
+    if (cParaDesc) *cParaDesc = 0;                       /* 失败：出参先清成 0（不留残留） */
+    if (!cParaDesc)                       reason = "null-count-out";
+    else if (!pTrack)                     reason = "null-track";
+    else if ((const void *)pfscontext && !wpf_pts_doc_find(pfscontext)) reason = "unknown-ctx";
+    else if (!wpf_pts_track_owned(pTrack)) reason = "unknown-track-or-not-ours";
+    else if (cParas < 0)                  reason = "negative-cparas";
+    else if (cParas > 0 && !rgParaDesc)   reason = "null-paradesc-out";
+    /* ★ 本步的**承重拒绝**：即使入参全都合法、track 也确是我们自己的，**仍然拒** ——
+       因为"可用的 `pfsparaclient`"只能由**托管侧**产生（见上）⇒ 返 0 就是**假成功**。 */
+    else                                  reason = "paraclient-table-not-native";
+    g_pts_fsp_pl_gap++;
+    fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=FsQueryTrackParaList ctx=%p track=%p cParas=%d "
+                    "owned=%d ok=%d gap=%d\n",
+            WPF_PTS_ERR_NOT_IMPLEMENTED, reason, pfscontext, pTrack, cParas,
+            wpf_pts_track_owned(pTrack), g_pts_fsp_pl_ok, g_pts_fsp_pl_gap);
+    return WPF_PTS_ERR_NOT_IMPLEMENTED;                  /* ← 本步**永不**返 0（返 0 ＝ 假成功） */
 }
 
 // ── 格 7 夹具（`t123`／P1-W46）：`FsCreatePageBottomless` 的出参绑定 ＋ 失败必清 ＋ **失败必留痕** ──

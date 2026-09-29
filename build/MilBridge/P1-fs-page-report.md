@@ -284,4 +284,4 @@ SITE-DRIFT docs/ROUTES.md impl want=86 got=87      ← **唯一残留**
 
 ---
 
-`P1-FS-PAGE-REPORT 自证（`head -n -1 <本件> | sha256sum | cut -c1-16`）＝ PLACEHOLDER（口径＝末行之前的全文；末行＝本行）`
+`P1-FS-PAGE-REPORT 自证（`head -n -1 <本件> | sha256sum | cut -c1-16`）＝ 3110c7003e71bc69（口径＝末行之前的全文；末行＝本行）`
