@@ -612,11 +612,16 @@ namespace MS.Internal.PtsHost
             contextInfo.fscbk.cbkgen.pfnGetSectionColumnInfo = new PTS.GetSectionColumnInfo(ptsHost.GetSectionColumnInfo);
             contextInfo.fscbk.cbkgen.pfnGetSegmentDefinedColumnSpanAreaInfo = new PTS.GetSegmentDefinedColumnSpanAreaInfo(ptsHost.GetSegmentDefinedColumnSpanAreaInfo);
             contextInfo.fscbk.cbkgen.pfnGetHeightDefinedColumnSpanAreaInfo = new PTS.GetHeightDefinedColumnSpanAreaInfo(ptsHost.GetHeightDefinedColumnSpanAreaInfo);
-            contextInfo.fscbk.cbkgen.pfnGetFirstPara = new PTS.GetFirstPara(ptsHost.GetFirstPara);
-            contextInfo.fscbk.cbkgen.pfnGetNextPara = new PTS.GetNextPara(ptsHost.GetNextPara);
+            // ⏪ `t155` 测量小单：三个**读**槽改接**只读**仪器（透传原方法返回值；实现见文件末 `P1NmpTypeProbe`）
+            //    ⚠️ 记账（写死）：接线面的**封送指针**因此换代 ⇒ `[FSCBK-CANARY]` 的槽值只准**同趟内**互比。
+            contextInfo.fscbk.cbkgen.pfnGetFirstPara = new PTS.GetFirstPara(
+                (IntPtr p1, IntPtr p2, out int o1, out IntPtr o2) => P1NmpTypeProbe.GetFirstPara(ptsHost, p1, p2, out o1, out o2));
+            contextInfo.fscbk.cbkgen.pfnGetNextPara = new PTS.GetNextPara(
+                (IntPtr p1, IntPtr p2, IntPtr p3, out int o1, out IntPtr o2) => P1NmpTypeProbe.GetNextPara(ptsHost, p1, p2, p3, out o1, out o2));
             contextInfo.fscbk.cbkgen.pfnUpdGetFirstChangeInSegment = new PTS.UpdGetFirstChangeInSegment(ptsHost.UpdGetFirstChangeInSegment);
             contextInfo.fscbk.cbkgen.pfnUpdGetParaChange = new PTS.UpdGetParaChange(ptsHost.UpdGetParaChange);
-            contextInfo.fscbk.cbkgen.pfnGetParaProperties = new PTS.GetParaProperties(ptsHost.GetParaProperties);
+            contextInfo.fscbk.cbkgen.pfnGetParaProperties = new PTS.GetParaProperties(
+                (IntPtr p1, IntPtr p2, ref PTS.FSPAP o1) => P1NmpTypeProbe.GetParaProperties(ptsHost, p1, p2, ref o1));
             contextInfo.fscbk.cbkgen.pfnCreateParaclient = new PTS.CreateParaclient(ptsHost.CreateParaclient);
             contextInfo.fscbk.cbkgen.pfnTransferDisplayInfo = new PTS.TransferDisplayInfo(ptsHost.TransferDisplayInfo);
             contextInfo.fscbk.cbkgen.pfnDestroyParaclient = new PTS.DestroyParaclient(ptsHost.DestroyParaclient);
@@ -1441,6 +1446,213 @@ namespace MS.Internal.PtsHost
             {
                 // 打印失败不许改变行为（例如 stderr 已关闭）。
             }
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    //  ⏪ `t155`（P1-W71 第二跳·第三拍）测量小单 —— `nmp` **托管侧类型**的**只读**仪器
+    //
+    //  唯一问题：native 侧 `+136 → +168` 吃下的那个 `nmp`，在**托管侧**到底是**什么东西**？
+    //    `PtsContext.HandleToObject(nmp)` 的**实际类型**／是否 `BaseParagraph` 族／是否 `ISegment`。
+    //
+    //  形制照 `t133` 的 `[FSCBK-CANARY]`：**只读**——不写任何字段、不改任何行为、
+    //  真实委托的**返回值与 out/ref 参数逐位透传**；失败只打 `NOINFO` 行，绝不静默。
+    //
+    //  安全性（写死）：`PtsContext.HandleToObject` 内部是三条 `Invariant.Assert`
+    //  （`Invariant.FailFast` **不可捕获**）⇒ 本仪器**先**用 `IsValidHandle`
+    //  （有界检查、越界返回 false、**不断言**）把门，**只有**它说"活句柄"才查表 ⇒ 断言恒真。
+    //  查表与打印全程 `try/catch`；异常只打 `NOINFO`。
+    //
+    //  预算（写死）：甲＝`GetFirstPara`、乙＝`GetParaProperties`、丙＝`GetNextPara` 各 12 行，
+    //  到点打一行 `[NMP-TYPE-CAP]`（防日志过 MB）。`PTS_NMPTYPE_OFF=1` 关掉**打印**
+    //  （接线与透传不变）。
+    // ══════════════════════════════════════════════════════════════════
+    internal static class P1NmpTypeProbe
+    {
+        private static readonly object _lock = new object();
+        private static System.Reflection.PropertyInfo _ctxProp;
+        private static bool _ctxPropDone;
+        private static int _leftA = 12, _leftB = 12, _leftC = 12;
+        private static bool _capA, _capB, _capC;
+        private static bool _off, _offKnown;
+
+        private static bool Off()
+        {
+            if (!_offKnown)
+            {
+                _offKnown = true;
+                try { _off = System.Environment.GetEnvironmentVariable("PTS_NMPTYPE_OFF") == "1"; }
+                catch (Exception) { _off = false; }
+            }
+            return _off;
+        }
+
+        private static string Hex(IntPtr h) { return "0x" + ((long)h).ToString("x"); }
+
+        private static PtsContext ContextOf(PtsHost host)
+        {
+            try
+            {
+                if (_ctxProp == null && !_ctxPropDone)
+                {
+                    _ctxPropDone = true;
+                    _ctxProp = typeof(PtsHost).GetProperty("PtsContext",
+                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance
+                        | System.Reflection.BindingFlags.Public);
+                }
+                if (_ctxProp == null || host == null) return null;
+                return _ctxProp.GetValue(host, null) as PtsContext;
+            }
+            catch (Exception) { return null; }
+        }
+
+        private static object Lookup(PtsContext ctx, IntPtr h, out string why)
+        {
+            why = "no-context";
+            if (ctx == null) return null;
+            try
+            {
+                if (!ctx.IsValidHandle(h)) { why = "not-a-live-handle"; return null; }
+                object o = ctx.HandleToObject(h);
+                if (o == null) { why = "handle-obj-null"; return null; }
+                return o;
+            }
+            catch (Exception e) { why = "lookup-threw:" + e.GetType().Name; return null; }
+        }
+
+        private static System.Reflection.FieldInfo FindField(System.Type t, string name)
+        {
+            try
+            {
+                while (t != null)
+                {
+                    System.Reflection.FieldInfo fi = t.GetField(name,
+                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance
+                        | System.Reflection.BindingFlags.Public);
+                    if (fi != null) return fi;
+                    t = t.BaseType;
+                }
+            }
+            catch (Exception) { }
+            return null;
+        }
+
+        // 单个句柄的**只读**描述：实际类型 ＋ 两个"是不是" ＋（可达时）`_firstChild` 一格
+        private static string Desc(PtsContext ctx, IntPtr h, string tag)
+        {
+            if (h == IntPtr.Zero) return tag + "=(nil)";
+            string why;
+            object o = Lookup(ctx, h, out why);
+            if (o == null) return tag + "=" + Hex(h) + " TYPE=NOINFO reason=" + why;
+            System.Type t = o.GetType();
+            bool isSeg = false;
+            try
+            {
+                foreach (System.Type i in t.GetInterfaces())
+                {
+                    if (i.FullName == "System.Windows.Documents.ISegment" || i.Name == "ISegment") { isSeg = true; break; }
+                }
+            }
+            catch (Exception) { }
+            string s = tag + "=" + Hex(h) + " TYPE=" + t.FullName
+                + " " + tag + "_isBaseParagraph=" + (o is BaseParagraph ? "1" : "0")
+                + " " + tag + "_isISegment=" + (isSeg ? "1" : "0");
+            System.Reflection.FieldInfo fi = FindField(t, "_firstChild");
+            if (fi == null) return s + " " + tag + "_firstChild=FIELD-ABSENT";
+            object child = null;
+            try { child = fi.GetValue(o); } catch (Exception) { }
+            return s + " " + tag + "_firstChild=" + (child == null ? "null" : child.GetType().FullName);
+        }
+
+        // 成对读数：`nms`（段）与 `nmp`（段内首段）的**对象同一性**——回答"`nmp` 是不是 `_firstChild`"
+        private static string Pair(PtsContext ctx, IntPtr nms, IntPtr nmp)
+        {
+            if (nms == IntPtr.Zero || nmp == IntPtr.Zero) return " PAIR=NOINFO reason=handle-zero";
+            string w1, w2;
+            object seg = Lookup(ctx, nms, out w1);
+            object par = Lookup(ctx, nmp, out w2);
+            if (seg == null || par == null) return " PAIR=NOINFO reason=seg-or-para-not-live(" + w1 + "/" + w2 + ")";
+            System.Reflection.FieldInfo fi = FindField(seg.GetType(), "_firstChild");
+            if (fi == null) return " PAIR=NOINFO reason=firstchild-field-absent seg=" + seg.GetType().FullName;
+            object child = null;
+            try { child = fi.GetValue(seg); } catch (Exception) { }
+            return " PAIR seg=" + seg.GetType().FullName
+                + " seg_firstChild=" + (child == null ? "null" : child.GetType().FullName)
+                + " nmp_eq_seg_firstChild=" + (child != null && ReferenceEquals(child, par) ? "1" : "0");
+        }
+
+        private static bool Take(string which)
+        {
+            lock (_lock)
+            {
+                if (which == "A")
+                {
+                    if (_leftA > 0) { _leftA--; return true; }
+                    if (!_capA) { _capA = true; Emit("[NMP-TYPE-CAP] slot=GetFirstPara 打印预算到点（后续同槽不再打）"); }
+                    return false;
+                }
+                if (which == "B")
+                {
+                    if (_leftB > 0) { _leftB--; return true; }
+                    if (!_capB) { _capB = true; Emit("[NMP-TYPE-CAP] slot=GetParaProperties 打印预算到点（后续同槽不再打）"); }
+                    return false;
+                }
+                if (_leftC > 0) { _leftC--; return true; }
+                if (!_capC) { _capC = true; Emit("[NMP-TYPE-CAP] slot=GetNextPara 打印预算到点（后续同槽不再打）"); }
+                return false;
+            }
+        }
+
+        private static void Emit(string line)
+        {
+            try
+            {
+                System.Console.Error.WriteLine(line);
+                System.Console.Error.Flush();
+            }
+            catch (Exception) { }
+        }
+
+        private static void Print(PtsHost host, string which, string slot, string detail, IntPtr nms, IntPtr nmp)
+        {
+            if (Off()) return;
+            if (!Take(which)) return;
+            string line;
+            try
+            {
+                PtsContext ctx = ContextOf(host);
+                line = "[NMP-TYPE] slot=" + slot + " " + detail
+                    + " " + Desc(ctx, nms, "nms")
+                    + " " + Desc(ctx, nmp, "nmp")
+                    + Pair(ctx, nms, nmp);
+            }
+            catch (Exception e)
+            {
+                line = "[NMP-TYPE] slot=" + slot + " " + detail + " NOINFO reason=instrument-threw:" + e.GetType().Name;
+            }
+            Emit(line);
+        }
+
+        // ── 三个槽的**透传**包装（返回值/out/ref 参数与原方法逐位相同）──────────────
+        internal static int GetFirstPara(PtsHost host, IntPtr pfsclient, IntPtr nms, out int fSuccessful, out IntPtr nmp)
+        {
+            int fserr = host.GetFirstPara(pfsclient, nms, out fSuccessful, out nmp);
+            Print(host, "A", "GetFirstPara", "fserr=" + fserr + " fSucc=" + fSuccessful, nms, nmp);
+            return fserr;
+        }
+
+        internal static int GetNextPara(PtsHost host, IntPtr pfsclient, IntPtr nms, IntPtr nmpCur, out int fFound, out IntPtr nmpNext)
+        {
+            int fserr = host.GetNextPara(pfsclient, nms, nmpCur, out fFound, out nmpNext);
+            Print(host, "C", "GetNextPara", "fserr=" + fserr + " fFound=" + fFound + " nmpCur=" + Hex(nmpCur), nms, nmpNext);
+            return fserr;
+        }
+
+        internal static int GetParaProperties(PtsHost host, IntPtr pfsclient, IntPtr nmp, ref PTS.FSPAP fspap)
+        {
+            int fserr = host.GetParaProperties(pfsclient, nmp, ref fspap);
+            Print(host, "B", "GetParaProperties", "fserr=" + fserr, IntPtr.Zero, nmp);
+            return fserr;
         }
     }
 }
