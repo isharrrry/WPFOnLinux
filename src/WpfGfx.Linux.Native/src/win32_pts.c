@@ -164,6 +164,9 @@ typedef struct {
     unsigned char fscbk_snap[WPF_PTS_FSCBK_SIZE];  /* 103 × 8 B（大小由断言钉死） */
     int           fscbk_snap_state;                /* `WPF_PTS_FSCBK_SNAP_{NONE,ALLZERO,VALUE}` */
     int           fscbk_snap_nonzero;              /* 快照里**非 0** 的 8 B 字数（0..103） */
+    /* ⏪ `t151`：第一跳 `+80` 交出的 `nmSegment`（**live** 的 `ContainerParagraph` 句柄）——
+       供**窗外腿**复用**同一个** `nms`（窗外/窗内只差窗口，不差句柄）。**原样存，不 deref**。 */
+    const void  *drive_nmseg;
 } wpf_pts_doc;
 static wpf_pts_doc *g_pts_doc_live[WPF_PTS_DOC_MAX];
 static int g_pts_doc_live_n       = 0;
@@ -726,6 +729,67 @@ static int wpf_pts_drive_probe_n(void)
 }
 int WpfLinuxWin32_PtsDriveProbeN(void) { return wpf_pts_drive_probe_n(); }
 
+/* ══════════════════════════════════════════════════════════════════════════════════════════════
+   ⏪ `t151`（P1-W71）**驱动链第二跳**：`pfnGetFirstPara`(+136) 取 `nmp`（判据件
+   `P1-drive-probe2-criteria.md` §1.2／§2／§3／§8.2 逐条执行）
+     · **候选唯一**：三条候选里只有 `+136` 是「吃 `nms`、吐 `nmp`＋`out int fSuccessful`」；
+       `+144 GetNextPara` 入参含 `nmpCur`（循环依赖）⇒ 排除；`+168 GetParaProperties` 吃 `nmp` 吐
+       `FSPAP`（4×int，不产句柄）⇒ 排除，**改用为"下游接受性"判别器**（⚠️ **射程声明**：
+       `ContainerParagraph : BaseParagraph, ISegment` ⇒ `+168` **会接受** `ContainerParagraph` ⇒
+       它**只证"是 `BaseParagraph` 族"、不证"是 first para"**）。
+     · **可达性（三跳闭合，现取）**：`Section.cs:234-242` 第一跳 `+80` 产出的就是
+       `new ContainerParagraph(...)`；`ContainerParagraph.cs:19 : BaseParagraph, ISegment`；
+       `PtsHost.cs:595 HandleToObject(nms) as ISegment` ⇒ 命中 ⇒ `:596` 的 `ValidateHandle` 不抛。
+     · ⚠️ **`-100002` 有两种成因、只看 `rc` 分不开**（判据 §8.2）：(i) 句柄类型不对；
+       (ii) **在窗外调用** —— `ContainerParagraph.cs:151` **无条件**读
+       `StructuralCache.CurrentFormatContext.IncrementalUpdate`，而该字段**窗外为 `null`**
+       （`StructuralCache.cs:678` 进窗置位／`:686` 出窗清空）⇒ NRE 被 `catch` 吞成**同一个 `-100002`**。
+       ⇒ 本件做**「窗内 vs 窗外」成对实验**：**正腿**＝入站 hook 内（`FsCreatePage*`，天然在
+       `FlowDocumentPage.cs:136/:199` 的 `using(SetDocumentFormatContext)` 里）；
+       **反腿**＝`FsDestroyPage`（页**拆除**发生在 `using` 窗口关闭**之后** —— 该归类是**代码结构推断**，
+       实验本身即其检验；若反腿也返 `0` ⇒ 如实记"该处仍在窗内或调用本无问题"）。
+     ⚠️ `+136` **首次调用会创建**（`ContainerParagraph.cs:142 _firstChild = GetParagraph(...)`），
+       第二次走缓存支 ⇒ **连调必须同值**（`idem136`）。
+     ⚠️ **T3 模式**（编译期 `WPF_PTS_DRIVE_PROBE2_T3=1`，**只在副本产物**）：把 **真 `sect`**（`Section`
+       句柄）当 `nms` 喂 `+136` —— `Section : UnmanagedHandle`（**不是** `ISegment`）⇒ `as ISegment`
+       落空 ⇒ 期望 **`-100002` 且可捕获**。**本件不使用任何伪值**（T1/T2 一律 `FailFast`）。
+   ══════════════════════════════════════════════════════════════════════════════════════════════ */
+#define WPF_PTS_SNAP_IDX_GETFIRSTPARA      12   /* 40 + 12*8 = 136 */
+#define WPF_PTS_SNAP_IDX_GETPARAPROPERTIES 16   /* 40 + 16*8 = 168 */
+_Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_SNAP_IDX_GETFIRSTPARA * 8 == 136, "下标 GETFIRSTPARA 对应绝对偏移 != +136");
+_Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_SNAP_IDX_GETPARAPROPERTIES * 8 == 168, "下标 GETPARAPROPERTIES 对应绝对偏移 != +168");
+
+#ifndef WPF_PTS_DRIVE_PROBE2_T3
+#define WPF_PTS_DRIVE_PROBE2_T3 0
+#endif
+
+typedef int (*wpf_pts_fn_get_first_para)(const void *pfsclient, const void *nms, int *f_successful, void **nmp);
+typedef int (*wpf_pts_fn_get_para_properties)(const void *pfsclient, const void *nmp, void *fspap);
+_Static_assert(sizeof(wpf_pts_fn_get_first_para) == 8 && sizeof(wpf_pts_fn_get_para_properties) == 8,
+               "回调指针不是 8 B（与快照的 8 B 字假设不符）");
+
+static int          g_pts_dp2_136_a    = -1;   /* +136 首调 fserr */
+static int          g_pts_dp2_136_b    = -1;   /* +136 次调 fserr */
+static int          g_pts_dp2_136_succ = -1;   /* fSuccessful（首调） */
+static const void  *g_pts_dp2_136_nmp  = NULL; /* nmp（首调） */
+static int          g_pts_dp2_136_idem = 0;    /* 连调同值 ⇒ 1 */
+static int          g_pts_dp2_168_rc   = -9999;/* +168（下游接受性判别器；-9999 = 未调） */
+static int          g_pts_dp2_oow_rc   = -9999;/* 窗外腿（`FsDestroyPage`）的 +136 fserr */
+static int          g_pts_dp2_oow_succ = -1;
+static const void  *g_pts_dp2_oow_nmp  = NULL;
+static int          g_pts_dp2_oow_calls= 0;
+static unsigned long long g_pts_dp2_t3_value = 0;  /* T3 腿所用值（0 = 未走 T3） */
+
+int WpfLinuxWin32_PtsDriveProbe2Fserr136(void)  { return g_pts_dp2_136_a; }
+int WpfLinuxWin32_PtsDriveProbe2Fserr136b(void) { return g_pts_dp2_136_b; }
+int WpfLinuxWin32_PtsDriveProbe2Success136(void){ return g_pts_dp2_136_succ; }
+void *WpfLinuxWin32_PtsDriveProbe2Nmp136(void)  { return (void *)g_pts_dp2_136_nmp; }
+int WpfLinuxWin32_PtsDriveProbe2Idem136(void)   { return g_pts_dp2_136_idem; }
+int WpfLinuxWin32_PtsDriveProbe2Fserr168(void)  { return g_pts_dp2_168_rc; }
+int WpfLinuxWin32_PtsDriveProbe2OowFserr(void)  { return g_pts_dp2_oow_rc; }
+int WpfLinuxWin32_PtsDriveProbe2OowCalls(void)  { return g_pts_dp2_oow_calls; }
+unsigned long long WpfLinuxWin32_PtsDriveProbe2T3Value(void) { return g_pts_dp2_t3_value; }
+
 static void wpf_pts_drive_probe_skip(const char *reason)
 {
     g_pts_dp_skips++;
@@ -741,6 +805,33 @@ static const void *wpf_pts_snap_word(const wpf_pts_doc *d, int idx)
     unsigned long long v = 0;
     for (int i = 0; i < 8; i++) v |= ((unsigned long long)d->fscbk_snap[idx * 8 + i]) << (8 * i);
     return (const void *)(unsigned long)v;
+}
+
+
+/* ⏪ `t151`：**窗外腿**（判据 §8.2 的成对实验反腿）—— 用**同一个**真 `nms` 在**窗外**调 `+136`。
+   两处调用点：① `FsDestroyPage`（页拆除在 `using` 窗关闭之后）；② `FsQueryTrackParaList`
+   （日志可证**被调 1123 次**；它在 `PtsHelper.ParaListFromTrack` 里，被 `FlowDocumentPage` 的
+   列/段落结果查询路径调用 —— **该处是否在窗内属代码结构推断**，实验本身即其检验）。
+   ⚠️ **只在闸开且该 context 已缓存 `nms` 时**才发调；**绝不**伪值、**绝不**跨上下文用陈旧句柄。 */
+static void wpf_pts_drive_probe2_oow(void *pfscontext, const char *where)
+{
+    if (!wpf_pts_drive_probe_enabled()) return;
+    wpf_pts_doc *dp = wpf_pts_doc_ptr(pfscontext);
+    if (!dp || !dp->drive_nmseg) return;
+    const void *fp136o = wpf_pts_snap_word(dp, WPF_PTS_SNAP_IDX_GETFIRSTPARA);
+    if (!fp136o) return;
+    int fSuccO = -1; void *nmpO = NULL;
+    int rcO = ((wpf_pts_fn_get_first_para)fp136o)((const void *)dp->p_fsclient, dp->drive_nmseg,
+                                                  &fSuccO, &nmpO);
+    g_pts_dp2_oow_calls++;
+    g_pts_dp2_oow_rc = rcO; g_pts_dp2_oow_succ = fSuccO; g_pts_dp2_oow_nmp = (const void *)nmpO;
+    const char *vO = (rcO == 0 && fSuccO == 1 && nmpO != NULL) ? "FIRSTPARA-HANDLE"
+                   : (rcO == 0 && fSuccO == 0 && nmpO == NULL) ? "FIRSTPARA-ABSENT(by-design)"
+                   : (rcO == -100002) ? "CALLBACK-ERR(-100002)"
+                   : (rcO == -10000) ? "NOT-IMPLEMENTED" : "FIRSTPARA-OTHER";
+    fprintf(stderr, "[DRIVE-PROBE2-OOW] where=%s window=out nms136=%p rc136=%d fSucc=%d nmp=%p "
+                    "idem136=- v136=%s calls=%d\n", where, dp->drive_nmseg, rcO, fSuccO, nmpO, vO,
+            g_pts_dp2_oow_calls);
 }
 
 static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *where)
@@ -797,6 +888,50 @@ static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *wh
     int rc56b = ((wpf_pts_fn_get_next_section)fp56)(pfsclient, nms56, &fSuccess2, &nmsNext2);
     int rc80a = ((wpf_pts_fn_get_main_text_segment)fp80)(pfsclient, nms, &nmSeg1);
     int rc80b = ((wpf_pts_fn_get_main_text_segment)fp80)(pfsclient, nms, &nmSeg2);
+
+    /* ── ⏪ `t151` 第二跳（**窗内**）：`+136 pfnGetFirstPara` 取 `nmp` ─────────────────────────
+       `nms` ＝ 第一跳 `+80` 交出的 `nmSegment`（`ContainerParagraph : BaseParagraph, ISegment`）。
+       T3 模式（编译期）则改喂 **真 `sect`**（`Section : UnmanagedHandle`，**不是** `ISegment`）⇒ 期望
+       `-100002`。**本块不做任何伪值试验**（T1/T2 ⇒ `FailFast`，主链禁）。 */
+    const void *fp136 = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_GETFIRSTPARA);
+    const void *fp168 = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_GETPARAPROPERTIES);
+    if (nmSeg1 != NULL && fp136 != NULL) {
+        const void *nms136 = (const void *)nmSeg1;
+#if WPF_PTS_DRIVE_PROBE2_T3
+        nms136 = sect;                                   /* ★T3：真、live、类型不对（Section 非 ISegment） */
+        g_pts_dp2_t3_value = (unsigned long long)(unsigned long)sect;
+#endif
+        int fSucc1 = -1, fSucc2 = -1;
+        void *nmp1 = NULL; void *nmp2 = NULL;
+        int rc136a = ((wpf_pts_fn_get_first_para)fp136)(pfsclient, nms136, &fSucc1, &nmp1);
+        int rc136b = ((wpf_pts_fn_get_first_para)fp136)(pfsclient, nms136, &fSucc2, &nmp2);
+        int rc168 = -9999;
+        if (nmp1 != NULL && fp168 != NULL) {
+            int fspap[4] = { 0, 0, 0, 0 };               /* FSPAP = 4×int = 16 B（扁平，结构风险最低） */
+            rc168 = ((wpf_pts_fn_get_para_properties)fp168)(pfsclient, (const void *)nmp1, (void *)fspap);
+        }
+        g_pts_dp2_136_a = rc136a; g_pts_dp2_136_b = rc136b;
+        g_pts_dp2_136_succ = fSucc1; g_pts_dp2_136_nmp = (const void *)nmp1;
+        g_pts_dp2_136_idem = ((rc136a == rc136b) && (fSucc1 == fSucc2) && (nmp1 == nmp2)) ? 1 : 0;
+        g_pts_dp2_168_rc = rc168;
+        if (!((const void *)d->drive_nmseg)) d->drive_nmseg = (const void *)nmSeg1;  /* 供窗外腿复用 */
+
+        const char *v136 = (rc136a == 0 && fSucc1 == 1 && nmp1 != NULL) ? "FIRSTPARA-HANDLE"
+                         : (rc136a == 0 && fSucc1 == 0 && nmp1 == NULL) ? "FIRSTPARA-ABSENT(by-design)"
+                         : (rc136a == -100002) ? "CALLBACK-ERR(-100002)"
+                         : (rc136a == -10000)   ? "NOT-IMPLEMENTED" : "FIRSTPARA-OTHER";
+        const char *v168 = (rc168 == -9999) ? "NO-NMP(未喂)"
+                         : (rc168 == -100002) ? "CALLBACK-ERR(-100002)"
+                         : (rc168 == 0) ? "BASE-PARA-ACCEPTED" : "OTHER";
+        fprintf(stderr, "[DRIVE-PROBE2] where=%s window=in nms136=%p t3=%d rc136a=%d fSucc1=%d nmp1=%p "
+                        "rc136b=%d fSucc2=%d nmp2=%p idem136=%d rc168=%d v136=%s v168=%s "
+                        "slot136=%p slot168=%p\n",
+                where, nms136, WPF_PTS_DRIVE_PROBE2_T3, rc136a, fSucc1, nmp1,
+                rc136b, fSucc2, nmp2, g_pts_dp2_136_idem, rc168, v136, v168, fp136, fp168);
+    } else {
+        fprintf(stderr, "[DRIVE-PROBE2] where=%s window=in SKIP reason=%s slot136=%p nmseg=%p\n",
+                where, (nmSeg1 == NULL) ? "no-nmseg" : "null-slot136", fp136, nmSeg1);
+    }
 
     g_pts_dp_calls++;
     g_pts_dp_56_fserr = rc56a; g_pts_dp_56_fsuccess = fSuccess1; g_pts_dp_56_next = (const void *)nmsNext1;
@@ -2151,6 +2286,8 @@ int FsQueryPageDetails(void *pfscontext, void *pPage, void *pPageDetails)
 int FsDestroyPage(void *pfscontext, void *pfspage)
 {
     const char *reason = NULL;
+    /* ⏪ `t151` 窗外腿（调用点 ①）：页拆除在 `using` 窗关闭之后 */
+    wpf_pts_drive_probe2_oow(pfscontext, "FsDestroyPage");
     if (!pfspage)                     reason = "null-page";
     else if ((const void *)pfscontext && !wpf_pts_doc_find(pfscontext)) reason = "unknown-ctx";
     else {
@@ -2316,6 +2453,7 @@ int FsCreatePageFinite(void *pfscontext, void *pfsBRPageStart, const void *fsnmS
 int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgParaDesc, int *cParaDesc)
 {
     const char *reason = NULL;
+    wpf_pts_drive_probe2_oow(pfscontext, "FsQueryTrackParaList");   /* ⏪ `t151` 窗外腿（调用点 ②；该入口日志可证被调） */
     if (cParaDesc) *cParaDesc = 0;                       /* 失败：出参先清成 0（不留残留） */
     if (!cParaDesc)                       reason = "null-count-out";
     else if (!pTrack)                     reason = "null-track";
