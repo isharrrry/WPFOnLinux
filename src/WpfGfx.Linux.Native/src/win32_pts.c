@@ -98,11 +98,34 @@ static const char *const k_pts_entries[] = {
 //   真摧毁 + 逐项计数。⚠️ 它**不**让页面渲染 —— 前沿只位移一跳（idx0 ⇒ idx6 `LoCreateContext`）。
 #define WPF_PTS_IO_MAGIC   0x50545349u   /* "PTSI"：本模块自认的表头魔数 */
 #define WPF_PTS_IO_MAX     8             /* 有界分配清单（防被异常调用无限增长） */
+#ifndef WPF_PTS_FSP_PL_METHODS_SNAP
+/* ⏪ `t167`（P1-W87）：`FSIMETHODS` **窗内值化**（D1/D2/D3）。缺省 **0** ⇒ 本块不进主链产物。 */
+#define WPF_PTS_FSP_PL_METHODS_SNAP 0
+#endif
+#define WPF_PTS_METHOD_WORDS 17
+#define WPF_PTS_METHOD_SIZE  136          /* 17×8：**计算值**，下面用 `_Static_assert` 实测钉死 */
+#define WPF_PTS_METHOD_STATE_NONE     0   /* 未值化 */
+#define WPF_PTS_METHOD_STATE_ALLZERO  1   /* 值化了但 17 字全 0 */
+#define WPF_PTS_METHOD_STATE_VALUE    2   /* 真值 */
+_Static_assert(WPF_PTS_METHOD_WORDS * 8 == WPF_PTS_METHOD_SIZE, "17×8 != 136（计算值自洽）");
+
 typedef struct {
     unsigned int magic;
     const void  *subtrack_methods;       /* 托管传进来的指针，**原样存** */
     const void  *subpage_methods;
     int          entries;                /* 表长（真值：两槽） */
+#if WPF_PTS_FSP_PL_METHODS_SNAP
+    /* ⏪ `t167`：**窗内值化**副本（照 `fscbk` 方子；`136 B` 由断言钉死）＋三态面 */
+    unsigned char methods_snap[WPF_PTS_METHOD_SIZE];
+    int           methods_snap_state;    /* NONE / ALLZERO / VALUE */
+    int           methods_snap_nonzero;  /* 非 0 字数（0..17） */
+    const void   *methods_addr;          /* 值化时的源地址（＝封送缓冲基址） */
+    int           rb_calls;              /* 驱动点读回次数 */
+    int           rb_same;               /* 逐字相同 ⇒ 1（－1 = 未做） */
+    int           rb_first_diff;         /* 首个不同字的下标（－1 = 无） */
+    int           rb_zero_index_win;     /* 窗内副本的零位下标（－1 = 无零位） */
+    int           rb_zero_index_now;     /* 驱动点读回的零位下标 */
+#endif
 } wpf_pts_io_table;
 
 static wpf_pts_io_table *g_pts_io_live[WPF_PTS_IO_MAX];
@@ -475,6 +498,96 @@ static int wpf_pts_gap(const char *entry)
 // 【格 1 · 真实现】成功 ⇒ **返回 0**（`fserrNone`）；出参 = 真实表指针 + 真实表长（两槽）。
 //   ⚠️ 绝**不**返回 `-10000` 而同时给出非空句柄 —— 那是自相矛盾的假对象（本仓最忌讳的形态）。
 //   ⚠️ 两个入参指针只被**存下来**，一个字节都不 deref（沿用件头纪律）。
+#if WPF_PTS_FSP_PL_METHODS_SNAP
+/* ── ⏪ `t167`（P1-W87）：`FSIMETHODS` **窗内值化**（D1）＋**驱动点读回**（D1 的对照）＋**零位指纹**（D2）──
+   🔴 **D1 先行**：先把 17 字在**存储窗内**（本函数调用期内）值拷贝下来并打印；到**驱动点**再用
+      **同一个悬垂指针**读 17 字，**逐字比对** ⇒ 不同 ＝ **use-after-return 确证**（归因到此结束）。
+   🔴 **判据面照抄 `FSCBK`**：三态 `NONE/ALLZERO/VALUE` ＋ **具名 gap 行**（`[FSPARAMETH-SNAP-GAP]`）
+      ⇒ "未值化"与"值化后全 0"**判词不同**。
+   🔴 **`136 B` 只许实测**：`_Static_assert(sizeof(wpf_pts_fsimethods) == 136)`（镜像见下）＋运行时
+      `words=17 bytes=136` 逐趟打印。 */
+typedef struct {                        /* FSIMETHODS 镜像（**只用于尺寸/偏移实测**；不 deref 托管表） */
+    void *w[WPF_PTS_METHOD_WORDS];
+} wpf_pts_fsimethods_mirror;
+_Static_assert(WPF_PTS_METHOD_WORDS == 17, "FSIMETHODS 槽数 != 17");
+_Static_assert(sizeof(wpf_pts_fsimethods_mirror) == 136, "sizeof(FSIMETHODS) != 136（实测不符 ⇒ 计算值错）");
+_Static_assert(sizeof(((wpf_pts_io_table *)0)->methods_snap) == 136, "methods_snap 不是 136 B");
+
+static void wpf_pts_methods_snap_gap(const char *reason, const void *addr)
+{
+    fprintf(stderr, "[FSPARAMETH-SNAP-GAP] rc=%d reason=%s entry=CreateInstalledObjectsInfo addr=%p state=NONE\n",
+            WPF_PTS_ERR_NOT_IMPLEMENTED, reason, addr);
+}
+/* 窗内值化：**唯一合法时机**＝本函数的调用期内（此后再读同一地址就是悬垂） */
+static void wpf_pts_methods_snapshot(wpf_pts_io_table *t, const void *addr)
+{
+    t->methods_addr = addr;
+    if (!addr) { t->methods_snap_state = WPF_PTS_METHOD_STATE_NONE; wpf_pts_methods_snap_gap("null-methods", addr); return; }
+    memcpy(t->methods_snap, addr, WPF_PTS_METHOD_SIZE);
+    int nz = 0, zero_idx = -1;
+    for (int i = 0; i < WPF_PTS_METHOD_WORDS; i++) {
+        unsigned long long w = 0;
+        for (int b = 0; b < 8; b++) w |= ((unsigned long long)t->methods_snap[i * 8 + b]) << (8 * b);
+        if (w) nz++; else if (zero_idx < 0) zero_idx = i;
+    }
+    t->methods_snap_state   = (nz == 0) ? WPF_PTS_METHOD_STATE_ALLZERO : WPF_PTS_METHOD_STATE_VALUE;
+    t->methods_snap_nonzero = nz;
+    t->rb_zero_index_win    = zero_idx;
+    t->rb_same = -1; t->rb_first_diff = -1;
+    fprintf(stderr, "[FSPARAMETH-SNAP] entry=CreateInstalledObjectsInfo addr=%p words=%d bytes=%d state=%s "
+                    "nonzero=%d zero_index_win=%d w0=%p w1=%p w14=%p w15=%p w16=%p（**窗内值化**；此后该地址即悬垂）\n",
+            addr, WPF_PTS_METHOD_WORDS, WPF_PTS_METHOD_SIZE,
+            (t->methods_snap_state == WPF_PTS_METHOD_STATE_VALUE) ? "VALUE"
+              : (t->methods_snap_state == WPF_PTS_METHOD_STATE_ALLZERO) ? "ALLZERO" : "NONE",
+            nz, zero_idx,
+            (void *)(unsigned long)*(const unsigned long long *)(const void *)(t->methods_snap + 0),
+            (void *)(unsigned long)*(const unsigned long long *)(const void *)(t->methods_snap + 8),
+            (void *)(unsigned long)*(const unsigned long long *)(const void *)(t->methods_snap + 112),
+            (void *)(unsigned long)*(const unsigned long long *)(const void *)(t->methods_snap + 120),
+            (void *)(unsigned long)*(const unsigned long long *)(const void *)(t->methods_snap + 128));
+}
+/* D1 的对照面：**在驱动点**用**同一个悬垂指针**再读 17 字并逐字比对 */
+static int wpf_pts_methods_readback(wpf_pts_io_table *t, const char *where)
+{
+    if (t->methods_snap_state == WPF_PTS_METHOD_STATE_NONE) {
+        fprintf(stderr, "[FSPARAMETH-READBACK] at=%s v=NO-SNAPSHOT（未值化 ⇒ 无对照）\n", where);
+        return 0;
+    }
+    unsigned char now[WPF_PTS_METHOD_SIZE];
+    memcpy(now, t->methods_addr, WPF_PTS_METHOD_SIZE);      /* ← 这里可能 SIGSEGV：那就是 D1 的证据 */
+    int diff = -1;
+    for (int i = 0; i < WPF_PTS_METHOD_WORDS; i++) {
+        if (memcmp(t->methods_snap + i * 8, now + i * 8, 8) != 0) { diff = i; break; }
+    }
+    int zero_now = -1;
+    for (int i = 0; i < WPF_PTS_METHOD_WORDS; i++) {
+        unsigned long long w = 0;
+        for (int b = 0; b < 8; b++) w |= ((unsigned long long)now[i * 8 + b]) << (8 * b);
+        if (!w) { zero_now = i; break; }
+    }
+    t->rb_calls++; t->rb_same = (diff < 0) ? 1 : 0; t->rb_first_diff = diff;
+    t->rb_zero_index_now = zero_now;
+    fprintf(stderr, "[FSPARAMETH-READBACK] at=%s dangling=%p same=%d first_diff=%d zero_index_win=%d "
+                    "zero_index_now=%d win0=%p now0=%p win15=%p now15=%p calls=%d v=%s\n",
+            where, t->methods_addr, t->rb_same, diff, t->rb_zero_index_win, zero_now,
+            (void *)(unsigned long)*(const unsigned long long *)(const void *)(t->methods_snap + 0),
+            (void *)(unsigned long)*(const unsigned long long *)(const void *)(now + 0),
+            (void *)(unsigned long)*(const unsigned long long *)(const void *)(t->methods_snap + 120),
+            (void *)(unsigned long)*(const unsigned long long *)(const void *)(now + 120),
+            t->rb_calls, (diff < 0) ? "IDENTICAL" : "USE-AFTER-RETURN-CONFIRMED");
+    return (diff < 0) ? 1 : 0;
+}
+/* D2：零位指纹（**必须在 D1 判"副本有效"之后**才有意义） */
+static int wpf_pts_methods_d2(wpf_pts_io_table *t)
+{
+    const int ok = (t->rb_same == 1 && t->rb_zero_index_win == 15);
+    fprintf(stderr, "[FSPARAMETH-D2] zero_index_win=%d expect=15 zero_index_now=%d nonzero_win=%d d1_same=%d "
+                    "v=%s\n", t->rb_zero_index_win, t->rb_zero_index_now, t->methods_snap_nonzero, t->rb_same,
+            ok ? "SLOT-ORDER-OK(唯一零位=index 15)" : "SLOT-ORDER-MISMATCH-or-D1-FAILED");
+    return ok;
+}
+#endif   /* WPF_PTS_FSP_PL_METHODS_SNAP */
+
 int CreateInstalledObjectsInfo(const void *fssubtrackparamethods,
                                const void *fssubpageparamethods,
                                void **pInstalledObjects,
@@ -490,6 +603,9 @@ int CreateInstalledObjectsInfo(const void *fssubtrackparamethods,
     t->subtrack_methods = fssubtrackparamethods;        /* 原样存，不 deref */
     t->subpage_methods  = fssubpageparamethods;
     t->entries          = 2;                            /* subtrack + subpage 两槽（真值） */
+#if WPF_PTS_FSP_PL_METHODS_SNAP
+    wpf_pts_methods_snapshot(t, fssubtrackparamethods); /* ⏪ t167 D1：**窗内**值化（唯一合法时机） */
+#endif
     g_pts_io_live[g_pts_io_live_n++] = t;
     g_pts_io_creates++;
     { int _i = wpf_pts_index("CreateInstalledObjectsInfo"); if (_i >= 0) g_pts_seen[_i]++; }  /* 格3 */
@@ -1649,7 +1765,28 @@ static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *wh
                 where, (nmSeg1 == NULL) ? "no-nmseg" : "null-slot136", fp136, nmSeg1);
     }
 
+#if WPF_PTS_FSP_PL_METHODS_SNAP
+    /* ⏪ `t167` D1 → D2 →（都过才）D3。**顺序写死**：先证明"副本有效"，才谈槽序，再谈调用。 */
+    for (int _i = 0; _i < g_pts_io_live_n; _i++) {
+        wpf_pts_io_table *t = g_pts_io_live[_i];
+        if (t->magic != WPF_PTS_IO_MAGIC) continue;
+        const int d1_same = wpf_pts_methods_readback(t, where);   /* D1：驱动点读回 ＋ 逐字比对 */
+        const int d2_ok   = wpf_pts_methods_d2(t);                /* D2：零位指纹 */
 #if WPF_PTS_FSP_PL_ENGINE_DRIVE
+        if (d1_same && d2_ok) {
+            fprintf(stderr, "[FSPARAMETH-D3] gate=PASS（D1 same=1 ∧ D2 slot-order ok）⇒ 允许谈调用\n");
+            wpf_pts_engine_drive(d, where);
+        } else {
+            fprintf(stderr, "[FSPARAMETH-D3] gate=SKIP d1_same=%d d2_ok=%d v=D3-NOT-ATTEMPTED"
+                            "（调用了才谈调用失败）\n", d1_same, d2_ok);
+        }
+#else
+        (void)d1_same; (void)d2_ok;
+        fprintf(stderr, "[FSPARAMETH-D3] gate=DISABLED（本副本未开 ENGINE_DRIVE）\n");
+#endif
+    }
+#endif
+#if WPF_PTS_FSP_PL_ENGINE_DRIVE && !WPF_PTS_FSP_PL_METHODS_SNAP
     if (g_pts_sub_live_n > 0 || 1) wpf_pts_engine_drive(d, where);   /* ⏪ t165 E2（副本专用） */
 #endif
     g_pts_dp_calls++;
