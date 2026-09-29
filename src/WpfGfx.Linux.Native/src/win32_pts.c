@@ -102,6 +102,12 @@ static const char *const k_pts_entries[] = {
 /* ⏪ `t167`（P1-W87）：`FSIMETHODS` **窗内值化**（D1/D2/D3）。缺省 **0** ⇒ 本块不进主链产物。 */
 #define WPF_PTS_FSP_PL_METHODS_SNAP 0
 #endif
+#ifndef WPF_PTS_FSP_PL_METH_NULL
+#define WPF_PTS_FSP_PL_METH_NULL 0      /* ⏪ `t168` 注入：把源指针当 NULL ⇒ 触发态 `NONE` ＋ 具名 gap 行 */
+#endif
+#ifndef WPF_PTS_FSP_PL_METH_ALLZERO
+#define WPF_PTS_FSP_PL_METH_ALLZERO 0   /* ⏪ `t168` 注入：值化后把副本清 0 ⇒ 触发态 `ALLZERO` */
+#endif
 #define WPF_PTS_METHOD_WORDS 17
 #define WPF_PTS_METHOD_SIZE  136          /* 17×8：**计算值**，下面用 `_Static_assert` 实测钉死 */
 #define WPF_PTS_METHOD_STATE_NONE     0   /* 未值化 */
@@ -513,6 +519,7 @@ _Static_assert(WPF_PTS_METHOD_WORDS == 17, "FSIMETHODS 槽数 != 17");
 _Static_assert(sizeof(wpf_pts_fsimethods_mirror) == 136, "sizeof(FSIMETHODS) != 136（实测不符 ⇒ 计算值错）");
 _Static_assert(sizeof(((wpf_pts_io_table *)0)->methods_snap) == 136, "methods_snap 不是 136 B");
 
+static int g_pts_method_zero_cnt = 0;   /* ⏪ `t168`：窗内副本的零位计数（D2 重判用） */
 static void wpf_pts_methods_snap_gap(const char *reason, const void *addr)
 {
     fprintf(stderr, "[FSPARAMETH-SNAP-GAP] rc=%d reason=%s entry=CreateInstalledObjectsInfo addr=%p state=NONE\n",
@@ -521,15 +528,22 @@ static void wpf_pts_methods_snap_gap(const char *reason, const void *addr)
 /* 窗内值化：**唯一合法时机**＝本函数的调用期内（此后再读同一地址就是悬垂） */
 static void wpf_pts_methods_snapshot(wpf_pts_io_table *t, const void *addr)
 {
+#if WPF_PTS_FSP_PL_METH_NULL
+    addr = NULL;                       /* ⏪ t168 注入：触发 NONE 态（＋具名 gap 行） */
+#endif
     t->methods_addr = addr;
     if (!addr) { t->methods_snap_state = WPF_PTS_METHOD_STATE_NONE; wpf_pts_methods_snap_gap("null-methods", addr); return; }
     memcpy(t->methods_snap, addr, WPF_PTS_METHOD_SIZE);
-    int nz = 0, zero_idx = -1;
+#if WPF_PTS_FSP_PL_METH_ALLZERO
+    memset(t->methods_snap, 0, WPF_PTS_METHOD_SIZE);   /* ⏪ t168 注入：触发 ALLZERO 态 */
+#endif
+    int nz = 0, zero_idx = -1, zero_cnt = 0;
     for (int i = 0; i < WPF_PTS_METHOD_WORDS; i++) {
         unsigned long long w = 0;
         for (int b = 0; b < 8; b++) w |= ((unsigned long long)t->methods_snap[i * 8 + b]) << (8 * b);
-        if (w) nz++; else if (zero_idx < 0) zero_idx = i;
+        if (w) nz++; else { zero_cnt++; if (zero_idx < 0) zero_idx = i; }
     }
+    g_pts_method_zero_cnt = zero_cnt;      /* ⏪ t168：零位计数（D2 重判要用） */
     t->methods_snap_state   = (nz == 0) ? WPF_PTS_METHOD_STATE_ALLZERO : WPF_PTS_METHOD_STATE_VALUE;
     t->methods_snap_nonzero = nz;
     t->rb_zero_index_win    = zero_idx;
@@ -545,6 +559,8 @@ static void wpf_pts_methods_snapshot(wpf_pts_io_table *t, const void *addr)
             (void *)(unsigned long)*(const unsigned long long *)(const void *)(t->methods_snap + 112),
             (void *)(unsigned long)*(const unsigned long long *)(const void *)(t->methods_snap + 120),
             (void *)(unsigned long)*(const unsigned long long *)(const void *)(t->methods_snap + 128));
+    fprintf(stderr, "[FSPARAMETH-SNAP] zero_cnt_win=%d idx0_zero=%d slotN_zero=%d（1-based；判据写「第 15 槽」）\n",
+            zero_cnt, zero_idx, (zero_idx >= 0) ? zero_idx + 1 : -1);
 }
 /* D1 的对照面：**在驱动点**用**同一个悬垂指针**再读 17 字并逐字比对 */
 static int wpf_pts_methods_readback(wpf_pts_io_table *t, const char *where)
@@ -578,12 +594,23 @@ static int wpf_pts_methods_readback(wpf_pts_io_table *t, const char *where)
     return (diff < 0) ? 1 : 0;
 }
 /* D2：零位指纹（**必须在 D1 判"副本有效"之后**才有意义） */
+/* ⏪ `t168`（队长口径二）：**"有效副本" ＝ 窗内值化成功的那份拷贝**（`state=VALUE`），
+   **不是** `d1_same==1` —— `D1` 的 `same=0` 正是"悬垂确证"的**预期**结果，与副本有效性无关。
+   ⇒ `D2` 在**有效副本**上数零位：**零位恰一处** ∧ 该位＝**1-based 第 15 槽**（`idx0=14`）⇒ 槽序正确。 */
 static int wpf_pts_methods_d2(wpf_pts_io_table *t)
 {
-    const int ok = (t->rb_same == 1 && t->rb_zero_index_win == 15);
-    fprintf(stderr, "[FSPARAMETH-D2] zero_index_win=%d expect=15 zero_index_now=%d nonzero_win=%d d1_same=%d "
-                    "v=%s\n", t->rb_zero_index_win, t->rb_zero_index_now, t->methods_snap_nonzero, t->rb_same,
-            ok ? "SLOT-ORDER-OK(唯一零位=index 15)" : "SLOT-ORDER-MISMATCH-or-D1-FAILED");
+    const int valid = (t->methods_snap_state == WPF_PTS_METHOD_STATE_VALUE && t->methods_snap_nonzero > 0);
+    const int ok = valid && (g_pts_method_zero_cnt == 1) && (t->rb_zero_index_win == 14);
+    fprintf(stderr, "[FSPARAMETH-D2] copy_state=%s valid_copy=%d zero_cnt_win=%d idx0_zero=%d slotN_zero=%d "
+                    "expect_slotN=15 calib=both(idx0=0-based, slotN=1-based) nonzero_win=%d d1_same=%d "
+                    "v=%s\n",
+            (t->methods_snap_state == WPF_PTS_METHOD_STATE_VALUE) ? "VALUE"
+              : (t->methods_snap_state == WPF_PTS_METHOD_STATE_ALLZERO) ? "ALLZERO" : "NONE",
+            valid, g_pts_method_zero_cnt, t->rb_zero_index_win,
+            (t->rb_zero_index_win >= 0) ? t->rb_zero_index_win + 1 : -1,
+            t->methods_snap_nonzero, t->rb_same,
+            ok ? "SLOT-ORDER-OK(唯一零位=1-based 第 15 槽 ⇒ 与 PtsCache.cs:617 吻合)"
+               : (valid ? "SLOT-ORDER-MISMATCH(有效副本上零位不符)" : "NO-VALID-COPY"));
     return ok;
 }
 #endif   /* WPF_PTS_FSP_PL_METHODS_SNAP */
@@ -1431,11 +1458,13 @@ static char wpf_pts_fam(const wpf_pts_doc *d, const void *p)
     if (wpf_pts_sub_claim(p, NULL)) return 'E';
     return 'X';                       /* 未知/伪（含栈地址） */
 }
-static void wpf_pts_engine_drive(wpf_pts_doc *d, const void *where)
+static void wpf_pts_engine_drive_from(wpf_pts_doc *d, const void *methods_base, const char *where)
 {
-    const void *m = NULL;
-    for (int i = 0; i < g_pts_io_live_n; i++) {
-        if (g_pts_io_live[i]->subtrack_methods) { m = g_pts_io_live[i]->subtrack_methods; break; }
+    const void *m = methods_base;
+    if (!m) {
+        for (int i = 0; i < g_pts_io_live_n; i++) {
+            if (g_pts_io_live[i]->subtrack_methods) { m = g_pts_io_live[i]->subtrack_methods; break; }
+        }
     }
     const void *nmp = (const void *)d->drive_nmp;
     /* ⏪ `t165`：客户端句柄的**可用来源**＝探针在**窗内**用 `+176` 造出并保留的那一枚（`fsp_pl_src_in`，
@@ -1773,12 +1802,15 @@ static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *wh
         const int d1_same = wpf_pts_methods_readback(t, where);   /* D1：驱动点读回 ＋ 逐字比对 */
         const int d2_ok   = wpf_pts_methods_d2(t);                /* D2：零位指纹 */
 #if WPF_PTS_FSP_PL_ENGINE_DRIVE
-        if (d1_same && d2_ok) {
-            fprintf(stderr, "[FSPARAMETH-D3] gate=PASS（D1 same=1 ∧ D2 slot-order ok）⇒ 允许谈调用\n");
-            wpf_pts_engine_drive(d, where);
+        if (d2_ok) {
+            /* ⏪ `t168`（队长口径三）：**调用源 ＝ 值化副本**（`methods_snap` 里的 17 个指针值），
+               **不是**悬垂指针、**不是**原始缓冲 ⇒ 本条同时把 `THUNK-LIVENESS` 从"判定"升为读数。 */
+            fprintf(stderr, "[FSPARAMETH-D3] gate=PASS（D2 slot-order ok；**调用源＝值化副本**）"
+                            " src=methods_snap d1_same=%d v=THUNK-LIVENESS-TEST\n", d1_same);
+            wpf_pts_engine_drive_from(d, (const void *)t->methods_snap, where);
         } else {
-            fprintf(stderr, "[FSPARAMETH-D3] gate=SKIP d1_same=%d d2_ok=%d v=D3-NOT-ATTEMPTED"
-                            "（调用了才谈调用失败）\n", d1_same, d2_ok);
+            fprintf(stderr, "[FSPARAMETH-D3] gate=SKIP reason=slot-order-mismatch-or-no-valid-copy "
+                            "d1_same=%d d2_ok=%d v=D3-NOT-ATTEMPTED（调用了才谈调用失败）\n", d1_same, d2_ok);
         }
 #else
         (void)d1_same; (void)d2_ok;
@@ -1787,7 +1819,7 @@ static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *wh
     }
 #endif
 #if WPF_PTS_FSP_PL_ENGINE_DRIVE && !WPF_PTS_FSP_PL_METHODS_SNAP
-    if (g_pts_sub_live_n > 0 || 1) wpf_pts_engine_drive(d, where);   /* ⏪ t165 E2（副本专用） */
+    if (g_pts_sub_live_n > 0 || 1) wpf_pts_engine_drive_from(d, NULL, where);  /* ⏪ t165 E2（原始缓冲；t168 起有副本路径） */
 #endif
     g_pts_dp_calls++;
     g_pts_dp_56_fserr = rc56a; g_pts_dp_56_fsuccess = fSuccess1; g_pts_dp_56_next = (const void *)nmsNext1;
