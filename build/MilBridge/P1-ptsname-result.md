@@ -168,6 +168,15 @@ VERIFYALL-STEPS-DECL: 62 gen=#81   # verify-all.sh:73
 **③ 截图类证据**：`t117` 登记一处证据面不一致 —— 仓库内 `k24.png` 现取（03:03）已是 383 色、与 03:14 那趟**逐字节相同**，而 `02:48` 那趟自己的 `session.txt`／`leg_24.env` 写 `colors=1` ⇒ **仓库内截图当时不是那次崩溃跑的原样产物**（成因 `NOINFO`）。⇒ **裁定**：**凡以截图为承重件的判据，必须先自证「截图与日志同趟」**（照 `C7` 的做法），否则截图只能作辅助证据。
 **④ 队长认账**：我在 `t114` 之后转述「`k24` 真渲染（demo 占位图＋中文真实字形）」—— **那是空态页**（「敬请期待」），**不是** `FlowDocumentDemo` 的内容；我转述了实现者的判断而**没有独立核**。⇒ 更正入册；`t114` 的**正面结论收窄为**「**崩进程修好、页级洋红占位消失、两页都有本趟读数**」，**不含**「该页已画出应有内容」。
 
+**裁定二十三（承 `t121` 回执）—— 收进「静默 stub 假绿通路」并立三条铁律；`build-shim.sh` 的 `SRCS` 覆盖面洞只登记不扩面。**
+`t121`（`build/MilBridge/P1-fs-page-criteria.md`，452 行，sha256 `bcc42d5d50e45f48…`）现取：这两条入口**两种失败形态** —— **(a)** 符号不存在（今天）⇒ CLR 抛 ENFE、`if (fserr != fserrNone)` **根本不执行**、应用钩子记 1152 行；**(b)** 符号在而**返非 0**（补完之后）⇒ `_ptsPage = IntPtr.Zero; PTS.ValidateAndTrace(...)`，而 `ErrorTrace`（`Pts.cs:83-128`）在「内层只有我方 PTS 异常／为 null」时**不抛**，**且只在 `TracePageFormatting.IsEnabled` 时记一行**（原文逐字：`We shouldn't throw in this case but should log the error if debug tracing is enabled`）。
+⇒ **裁定**：
+① **禁止静默 stub**：把这两条做成「返 −10000 但无痕迹」会让 `ENFE` **归零**（`N2` 变绿）而排版并未发生、且很可能**一行痕迹都没有** ⇒ 判据 **C4（返非 0 必须留痕、失败面必须可读）** 与 **P4（诚实 stub 的静默 ⇒ 必红）** 有效；**留痕必须做在 native 侧**，**不许**去改上游 `ValidateAndTrace` 的静默语义（那是上游语义）。
+② **表述纪律**：全 PF 树 `PTS.Fs*` 调用点去重 ＝ **56 个入口名**（`FsQuerySubpageDetails`×23 等）⇒ `FsCreatePageBottomless` **只是第一个被撞的** ⇒ 本步的绿**只准**读成「**这一条入口不再缺、且行为可读**」，**不许**写成「打通排版／两页排版」。
+③ **`build-shim.sh` 的 `SRCS`（`:34`）不在 `fp_inputs()` 覆盖面** ⇒ 「新增 `.c` 未登记」在 `inputs_fp` 上**完全看不见**（症状 ＝ 源在库里、符号不在 `.so` 里）⇒ **不扩面**（扩面须动 `fp_inputs()` 与四处声明），但**要求**：实现件必须登记 `SRCS` 并给「符号确实进了 `.so`」的证据；判据自带该格（`C1③`）。
+④ **域确认**：本族与 PTS/LS **同一个 shim**（`Pts.cs:25` → `Shared/RefAssemblyAttrs.cs:69` → `build/shims/Win32ShimResolver.cs:60/:92` → `libwpfwin32.so`）⇒ 续用 native 域，**不许**套 managed 域。
+⑤ **本族的导出面与前几步不同**：这里「**新增导出是正确动作**」（不是"零位移"），但必须**逐名点名**并保持 `nm` 与 `exports.txt` 行数相等。
+
 ## 9 未做 / 边界
 
 - **未**跑整趟门禁（`verify-all.sh` 全跑）；本件只跑相关已接线牙与判据件。
