@@ -102,6 +102,11 @@ static const char *const k_pts_entries[] = {
 /* ⏪ `t167`（P1-W87）：`FSIMETHODS` **窗内值化**（D1/D2/D3）。缺省 **0** ⇒ 本块不进主链产物。 */
 #define WPF_PTS_FSP_PL_METHODS_SNAP 0
 #endif
+#ifndef WPF_PTS_FSP_PL_M1
+/* ⏪ `t173`（P1-W93）：**M1「诚实无进展」**＝只实现 `FsFormatSubtrackFinite` 的契约占位（`t169` §3 ③）。
+   **只在副本**；缺省 **0** ⇒ 主链产物一个字节都不受影响。 */
+#define WPF_PTS_FSP_PL_M1 0
+#endif
 #ifndef WPF_PTS_FSP_PL_METH_NULL
 #define WPF_PTS_FSP_PL_METH_NULL 0      /* ⏪ `t168` 注入：把源指针当 NULL ⇒ 触发态 `NONE` ＋ 具名 gap 行 */
 #endif
@@ -1478,6 +1483,50 @@ static void wpf_pts_drive_probe2_oow(void *pfscontext, const char *where)
                 vO3, g_pts_dp3_oow_calls);
     }
 }
+
+#if WPF_PTS_FSP_PL_M1
+/* ══ ⏪ `t173` M1：`FsFormatSubtrackFinite` 的**诚实无进展**占位（只在副本） ══════════════════════
+   六条必备形态（判据 ③；缺一 ⇒ S-1 不成立）：①`fsfmtr.kstop≠0`（零填充会被宿主读成"这段排完了"、
+   `ContainerParagraph.cs:565` 随即做 margin collapsing 并累加 `dvrUsed`）②`ppfsMcsClientOut=0`
+   （`:558` 会拿它 `HandleToObject`）③`dvrUsed=0` ④bbox 平空 ⑤`pTopSpace=0`（`:540`）⑥`pfsBRSubtrackOut=0`
+   ＋**具名留痕**。三条**不可当作者**的入参（`fsnmSegment`＝`this.Handle`／`pfsFtnRej`／`pfsMcsClientIn`）
+   **原样记、不校验**（家族码 `'H'` 只认两个具体值 ⇒ 引擎侧无能力校验）。
+   🔴 本函数**只**主张"契约占位成立"，**不得**据此产出任何"排版成功"判词。 */
+static int g_pts_m1_calls = 0, g_pts_m1_last_rc = -9999;
+int WpfLinuxWin32_PtsM1Calls(void)  { return g_pts_m1_calls; }
+int WpfLinuxWin32_PtsM1LastRc(void) { return g_pts_m1_last_rc; }
+
+int FsFormatSubtrackFinite(const void *pfscontext, const void *pfs_brk_in, int f_from_prev,
+                           const void *fsnm_segment, int i_area, const void *pfs_ftn_rej,
+                           const void *pfs_geom, int f_empty_ok, int f_suppress_top_space,
+                           unsigned fswdir, void *rect_to_fill, const void *pfs_mcs_in,
+                           int fskclear_in, int f_suppress_hard_break,
+                           int *out_fsfmtr_kstop, void **out_ppfs_subtrack, void **out_brk_subtrack,
+                           int *out_dvr_used, void *out_bbox, void **out_mcs_out,
+                           int *out_kclear_out, int *out_top_space)
+{
+    g_pts_m1_calls++;
+    if (out_fsfmtr_kstop)  *out_fsfmtr_kstop  = 1;         /* ① **非 0** ＝ 目标未达成 */
+    if (out_ppfs_subtrack) *out_ppfs_subtrack = NULL;
+    if (out_brk_subtrack)  *out_brk_subtrack  = NULL;      /* ⑥ */
+    if (out_dvr_used)      *out_dvr_used      = 0;         /* ③ */
+    if (out_bbox)          memset(out_bbox, 0, 20);        /* ④ 平空 */
+    if (out_mcs_out)       *out_mcs_out       = NULL;      /* ② 必须 0 */
+    if (out_kclear_out)    *out_kclear_out    = 0;
+    if (out_top_space)     *out_top_space     = 0;         /* ⑤ */
+    g_pts_m1_last_rc = 0;
+    fprintf(stderr, "[FSFORMATSUBT] entry=FsFormatSubtrackFinite rc=0 ctx=%p nmSegment=%p(in,unverified) "
+                    "ftnRej=%p(in,unverified) mcsIn=%p(in,unverified) geom=%p brkIn=%p fromPrev=%d iArea=%d "
+                    "fEmptyOk=%d fSuppressTopSpace=%d fswdir=%u fskclearIn=%d suppHardBreak=%d "
+                    "OUT kstop=1 ppfsSubtrack=(nil) brkOut=(nil) dvrUsed=0 bbox=flat mcOut=(nil) "
+                    "kclearOut=0 topSpace=0 v=HONEST-NO-PROGRESS calls=%d "
+                    "verify=NONE(NOINFO-HANDLE-VERIFY-AT-ENGINE)\n",
+            pfscontext, fsnm_segment, pfs_ftn_rej, pfs_mcs_in, pfs_geom, pfs_brk_in, f_from_prev,
+            i_area, f_empty_ok, f_suppress_top_space, fswdir, fskclear_in, f_suppress_hard_break,
+            g_pts_m1_calls);
+    return 0;
+}
+#endif   /* WPF_PTS_FSP_PL_M1 */
 
 #if WPF_PTS_FSP_PL_ENGINE_DRIVE
 /* ══ ⏪ `t165` E2 驱动格（**只在副本产物**）═════════════════════════════════════════════════
