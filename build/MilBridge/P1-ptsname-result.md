@@ -481,6 +481,21 @@ VERIFYALL-STEPS-DECL: 62 gen=#81   # verify-all.sh:73
 
 **(f) 认可其过程自陈**：本件**先实现后落载体**（**偏离**"先落最小载体"这条派单硬约束），它**在载体 §11 如实记录**、且**判据一条没放松**。⇒ **裁定：不判 `needs_revision`** —— 理由：该约束的目的是"防止容量耗尽后无载体"，而**实际结果是没有无载体**；**如实记偏差 ＞ 假装没发生**，这条自陈本身是有价值的（与裁定三十七 (d) 的族同调：**记录比完美更重要**）。但**口径重申**：下次仍须**先落最小载体**。
 
+**裁定四十八（承 `t161` 判据件，`ts=2026-09-29T18:4x+08:00`）—— (a) 三项判词入册；(b) 🔴 队长认账（第 13 次）：**哨兵口径被它更正**（数值也无判别力 ⇒ 「反常」必须由对照定义）；(c) 🔴 **`cParas=0` 是会改变控制流的语义断言** ⇒ **P8 恒绿陷阱**；(d) 已派 `t162`（`(a)`）＋ `t163`（`FSIMETHODS` 侦察）；(e) 一条保留。原文与既有裁定一字未删。**
+
+**(a) `t161` 三项判词（`build/MilBridge/P1-subtrack-criteria.md` 326 行／full sha256 `01b00c39ad6f1e8494bac8295b6098c6d21f0f63d95e5daa31ef0bcf21024f67`／末行自证 `7dcd11d7f0afa065`）**：
+1. **判「钥匙」（不是"其后"）**：八步链全现取 —— `PtsHelper.cs:179 paraClient.Arrange(arrayParaDesc[i].pfspara,…)` → `BaseParaClient.cs:65 _paraHandle=pfspara` → `FlowDocumentPage.cs:547`（`t160` 点位）→ `:549 GetTextContentRange()` → **`ContainerParaClient.cs:271 FsQuerySubtrackDetails`（该 body 里 Assert 之后**第一个实招**）** → `:278` 以 `cParas` 门控 → `:283 ParaListFromSubtrack` → `PtsHelper.cs:633 FsQuerySubtrackParaList` → `ContainerParaClient.cs:289`（`t160` 第二位）→ `:294` 递归。**三条独立指示**：控制流次序并门控 `:289`／`:271` 与 `:283` 是**成对入口**（与 `Pts.cs:3690-3700` 的 track 面对构，本格是**头**）／`t160` 的 ENFE 与填充数 **1:1**。
+2. 🔴 **native 现状 ＝ 符号不存在**（`src/WpfGfx.Linux.Native/src/*.c` **0 命中**），**既非 `#if NEVER` 也非 stub** ⇒ 失败发生在**封送阶段**（ENFE），`PTS.Validate` **根本不执行** ⇒ **「`rc=-10000` 的缺席」与「ENFE 归零」都不构成任何证据**。⇒ **口径（重要）**：**`N2` 面（缺符号）≠ 内容面（行为对不对）** —— 符号补上只说明"能进去了"，**不说明进去以后对**。
+3. **诚实边界判词：只靠上一跳的产出不够** ⇒ **真正下一跳是一对**：本入口实参只可能是 `_paraHandle`，其唯一来源是 `FSPARADESCRIPTION.pfspara`（链同上）；而**现取** `win32_pts.c:2957-2964` 的填充体 `memset` 后**只写 `pfsparaclient` 与 `nmp` ⇒ `pfspara` 恒 0**（与 `t160` §:90「`pfspara` 留 0」**同代互证**）⇒ **即使把符号补上，真腿收到的 `pSubTrack` 仍是 `NULL`，诚实实现只能拒绝**。⇒ `(a)` 让 `pfspara` 成为本侧**可认领的真对象**（台账／持有期／销毁口径）＋ `(b)` 本入口对 `(a)` 作答；其中 `cParas` 必须＝托管真值，**唯一诚实来源是回调面** —— 而**回调面已经在手**：`FSIMETHODS`（**17 槽**，`Pts.cs:1204-1223`）由托管在 `PtsCache.cs:600-603` 填好、经 `CreateInstalledObjectsInfo` 交给 native，native **现取原样存于 `win32_pts.c:469`（`t->subtrack_methods`，一个字节都不 deref）**。⚠️ 但表里**没有** "get para count" 槽 ⇒ **选槽本身是新设计缺口**（已写成合法终点 `PRECOND-NO-CPARAS-SOURCE`）。
+
+**(b) 🔴 队长认账（第 13 次）：我给的那条哨兵口径被它更正，而且它是对的**。我在派单里写的红榜口径含「**值命中 `0x1..0x5` 即作废**」（意图是"防伪值"）。它**另证数值也无判别力**：句柄**就是托管表下标**（`PtsCache.Linux.cs:523 InitGenericInfo(ptsHost, (IntPtr)(index+1),…)`），且 `PtsHost.cs:414/:596` 证明该族"名"参数**就是托管句柄** ⇒ **小整数 `0x1..0x5` 是"真值形态"，不是可疑特征**。⇒ 正确口径 ＝ **「与**同 run** 产出行同值对上」**（`[DRIVE-PROBE3] keep=`／`[FSPARALIST-FILL] h0=`）。⇒ **立口径**：**"反常"必须由对照（同 run 的产出行）定义，不能由"看起来奇怪"定义**。⇒ 这与 `t142` 的「`LightGray` 是**死锚**（空态帧里已有 44/51 px，**只有量才知道**）」**同族**：**凭直觉设的特征值往往是真值形态**；而我的错法比它更糟 —— 我把它写成了**判废条件**（会让真值被判作废 ⇒ **假红**）。⇒ 我此前已立「假绿须双向」（裁定三十九 (b)），本条是**假红**方向的同族实例：**判据写错方向，一样是判据不诚实**。
+
+**(c) 🔴 `cParas=0` 不是安全缺省，而是会改变控制流的语义断言（立为 P8 恒绿陷阱）**：`t161` 现取 `ContainerParaClient.cs:278 if (cParas==0 || (_isFirstChunk && _isLastChunk))` ⇒ **返回 0 会走叶子分支、不再递归** ⇒ **能让 `rc=0` 好看却静默丢掉整棵嵌套内容**。⇒ 本会话真腿**已证存在嵌套关系** ⇒ **`cParas=0` 直接判红**（不许当"没数据"）。⇒ **立口径**：**凡"缺省值"会改变控制流，它就不是缺省，而是断言** —— 这类"看起来安全"的缺省正是假绿的常见来源（同族：`t145` 的「登记即算」、`t136` 的「必要非充分」）。⇒ 已写进 `t162` 的反腿要求：**`pfspara` 的"非零"不等于"可用"**。
+
+**(d) 已派两件**：`t162`（`runner`，做 `(a)`：`pfspara` 可认领真对象 —— 台账／持有期／销毁口径／不许自造／P8 必红／并要求**回归** `t160` 的七条合取与 6 条 `_Static_assert`）；`t163`（`scout`，`FSIMETHODS` **17 槽逐槽可用性侦察**，为 `cParas` 找源，**判不出即落 `PRECOND-NO-CPARAS-SOURCE`**）。
+
+**(e) 一条保留（防后人误读）**：`FSIMETHODS` 那张表 native **只存不 deref** ⇒ 这是「**未使用**」，**不是**「不可用」（与裁定四十三 (e)「不得把'打不出来'当'通路不存在'」同族）。
+
 ## 9 未做 / 边界
 
 - **未**跑整趟门禁（`verify-all.sh` 全跑）；本件只跑相关已接线牙与判据件。
