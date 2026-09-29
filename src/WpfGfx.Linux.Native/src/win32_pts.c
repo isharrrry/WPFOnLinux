@@ -167,6 +167,9 @@ typedef struct {
     /* ⏪ `t151`：第一跳 `+80` 交出的 `nmSegment`（**live** 的 `ContainerParagraph` 句柄）——
        供**窗外腿**复用**同一个** `nms`（窗外/窗内只差窗口，不差句柄）。**原样存，不 deref**。 */
     const void  *drive_nmseg;
+    /* ⏪ `t156`：第二跳 `+136` 交出的**合法 `nmp`**（live `BaseParagraph` 族）—— 供**第三跳**的
+       **窗外腿**复用**同一个**句柄（窗内/窗外只差窗口，不差句柄）。**原样存，不 deref**。 */
+    const void  *drive_nmp;
 } wpf_pts_doc;
 static wpf_pts_doc *g_pts_doc_live[WPF_PTS_DOC_MAX];
 static int g_pts_doc_live_n       = 0;
@@ -204,6 +207,7 @@ static void wpf_pts_jmp_push(const char *entry, const void *ploc, const void *de
 static int wpf_pts_doc_find(const void *ctx);
 /* ⏪ `t146`：同上，但**返回对象指针**（驱动探针要用快照；查不到返回 NULL）。 */
 static wpf_pts_doc *wpf_pts_doc_ptr(const void *ctx);
+static int wpf_pts_ctx_is_live(const wpf_pts_doc *d);   /* ⏪ t156：该 doc 是否仍在册（未被 DestroyDocContext 移除） */
 /* ⏪ `t146`：驱动探针本体（定义在 `格 6` 之前）；`FsCreatePage*` 两处**调用窗**在本文件里**更早** ⇒ 先给声明（内部助手一律 `static`）。 */
 static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *where);
 /* ⏪ `t127`：字段级诚实性的判据助手（定义在页表可见之后）——本处先给声明。 */
@@ -763,6 +767,103 @@ _Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_SNAP_IDX_GETPARAPROPERTIES * 8 == 168
 #define WPF_PTS_DRIVE_PROBE2_T3 0
 #endif
 
+/* ══════════════════════════════════════════════════════════════════════════════════════════════
+   ⏪ `t156`（P1-W76）**第三跳**：窗内用**合法 `nmp`** 调 `+176 pfnCreateParaclient` 取
+   `pfsparaclient`，再用 `+192 pfnDestroyParaclient` **回收**（判据 `P1-drive-probe3-criteria.md` §2.4 五格）。
+
+   🔴 **本跳不是幂等的**（判据 §1.2 现取托管侧 **10 处覆写**，每一处都是
+     `new *ParaClient(this); handle = paraClient.Handle;`）⇒ **正腿口径与前两跳相反**：
+     两次调用必须**各自非零且互不相同**（`h1≠h2`）＋**两次都被 `+192` 成功回收**。
+     把 `h1≠h2` 读成"非确定性/失败"＝判据 **P8 反过读**（必红）。
+
+   🔴 **T3 在本跳必须换料**（判据 §3）：`nms`／`nmSeg` 都是 `ContainerParagraph : BaseParagraph`
+     ⇒ 对 `+176` 的 `as BaseParagraph` 是**对类型** ⇒ 必须换 **真 `sect`**（`Section : UnmanagedHandle`，
+     **不是** `BaseParagraph`）当"真错类型 live 句柄"；`+192` 的反腿用 `nmSeg1`（**不是** `BaseParaClient`）。
+
+   🔴 **`+200 FInterruptFormattingAfterPara` 禁用为判别器**（判据 §2.3／P9）：其实现是
+     `{ fInterruptFormatting = PTS.False; return PTS.fserrNone; }` 的 **stub**（形参含 client 却**不读**）
+     ⇒ 对**任何**值都返 `0` ⇒ **恒定绿**。本件**只**拿它做 **P9 负面对照**（对 `NULL` 与对真句柄
+     返**同值** ⇒ 证明它没有判别力）。
+
+   🔴 **`+176` 前的 `*out` 必须显式为 `0` 并留痕**（判据 §4-P3）：`+192` 的 `rc=0` 必须与
+     "`*out` **从 `0` 变为非零**"**成对**给出 —— 否则无法把"native 自造值"与"托管产出值"分开。
+
+   ⚠️ **两条不可捕获 `FailFast` 禁忌（主链禁）**：① **`NULL` 句柄绝不喂 `+192`**
+     （`HandleToObject` 的 `handleLong>0` 断言）；② **`h2 == h1` 时绝不二次回收**
+     （`IsHandle()` 断言）。两条都按判据 §8.3.3 处理：只在**副本**上做破坏性试错。
+   ══════════════════════════════════════════════════════════════════════════════════════════════ */
+#define WPF_PTS_SNAP_IDX_CREATEPARACLIENT  17   /* 40 + 17*8 = 176 */
+#define WPF_PTS_SNAP_IDX_DESTROYPARACLIENT 19   /* 40 + 19*8 = 192 */
+#define WPF_PTS_SNAP_IDX_FINTERRUPT        20   /* 40 + 20*8 = 200（**禁用为判别器**，只做 P9 负面对照） */
+_Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_SNAP_IDX_CREATEPARACLIENT  * 8 == 176, "下标 CREATEPARACLIENT 对应绝对偏移 != +176");
+_Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_SNAP_IDX_DESTROYPARACLIENT * 8 == 192, "下标 DESTROYPARACLIENT 对应绝对偏移 != +192");
+_Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_SNAP_IDX_FINTERRUPT         * 8 == 200, "下标 FINTERRUPT 对应绝对偏移 != +200");
+
+#ifndef WPF_PTS_DRIVE_PROBE3_T3
+#define WPF_PTS_DRIVE_PROBE3_T3 0        /* 只在**副本产物**上开：T3 反腿（真错类型 live 句柄） */
+#endif
+#ifndef WPF_PTS_DRIVE_PROBE3_CTXDEAD
+#define WPF_PTS_DRIVE_PROBE3_CTXDEAD 0   /* 只在**副本产物**上开：context 已销毁后的 `+176` 反腿 */
+#endif
+
+typedef int (*wpf_pts_fn_create_paraclient)(const void *pfsclient, const void *nmp, void **out);
+typedef int (*wpf_pts_fn_destroy_paraclient)(const void *pfsclient, const void *pfsparaclient);
+typedef int (*wpf_pts_fn_finterrupt_after_para)(const void *pfsclient, const void *pfsparaclient,
+                                                const void *nmp, int vr, int *f_interrupt);
+_Static_assert(sizeof(wpf_pts_fn_create_paraclient) == 8 && sizeof(wpf_pts_fn_destroy_paraclient) == 8
+               && sizeof(wpf_pts_fn_finterrupt_after_para) == 8,
+               "第三跳回调指针不是 8 B（与快照的 8 B 字假设不符）");
+
+static int          g_pts_dp3_176_a     = -9999;  /* +176 首调 fserr */
+static int          g_pts_dp3_176_b     = -9999;  /* +176 次调 fserr */
+static const void  *g_pts_dp3_h1        = NULL;   /* 首调产出 */
+static const void  *g_pts_dp3_h2        = NULL;   /* 次调产出 */
+static const void  *g_pts_dp3_pre_h1    = NULL;   /* **调用前** `*out` 的值（P3 成对证据的一半） */
+static int          g_pts_dp3_newperc   = 0;      /* h1,h2 皆非零且互不相同 ⇒ 1 */
+static int          g_pts_dp3_192_a     = -9999;  /* +192 首回收 */
+static int          g_pts_dp3_192_b     = -9999;  /* +192 次回收 */
+static int          g_pts_dp3_192_skip  = 0;      /* 0=都回收了 1=同值不二次回收 2=槽缺失 */
+static int          g_pts_dp3_192_t3    = -9999;  /* T3：+192 的**错类型**反腿 */
+static int          g_pts_dp3_200_null  = -9999;  /* P9 负面对照：+200 对 NULL */
+static int          g_pts_dp3_200_hand  = -9999;  /* P9 负面对照：+200 对真句柄 */
+static int          g_pts_dp3_oow_rc    = -9999;  /* 窗外腿 +176 */
+static int          g_pts_dp3_oow_rec   = -9999;  /* 窗外腿回收 */
+static int          g_pts_dp3_oow_calls = 0;
+static int          g_pts_dp3_calls     = 0;
+static int          g_pts_dp3_ctx_live  = -1;     /* 同趟现取：该 doc 是否仍在册 */
+static unsigned long long g_pts_dp3_t3_value     = 0;  /* T3 喂 +176 的值 */
+static unsigned long long g_pts_dp3_t3_192_value = 0;  /* T3 喂 +192 的值 */
+static int          g_pts_ctx_alive_n   = 0;      /* 现存活上下文数（**native 侧自记**） */
+#if WPF_PTS_DRIVE_PROBE3_CTXDEAD
+static const void  *g_pts_dp3_st_nmp    = NULL;
+static const void  *g_pts_dp3_st_client = NULL;
+static const void  *g_pts_dp3_st_fp176  = NULL;
+static const void  *g_pts_dp3_st_fp192  = NULL;
+static int          g_pts_ctx_dead_rc   = -9999;
+static int          g_pts_ctx_dead_calls= 0;
+#endif
+
+int WpfLinuxWin32_PtsDriveProbe3Fserr176A(void) { return g_pts_dp3_176_a; }
+int WpfLinuxWin32_PtsDriveProbe3Fserr176B(void) { return g_pts_dp3_176_b; }
+void *WpfLinuxWin32_PtsDriveProbe3H1(void)      { return (void *)g_pts_dp3_h1; }
+void *WpfLinuxWin32_PtsDriveProbe3H2(void)      { return (void *)g_pts_dp3_h2; }
+void *WpfLinuxWin32_PtsDriveProbe3PreOut(void)  { return (void *)g_pts_dp3_pre_h1; }
+int WpfLinuxWin32_PtsDriveProbe3NewPerCall(void){ return g_pts_dp3_newperc; }
+int WpfLinuxWin32_PtsDriveProbe3Fserr192A(void) { return g_pts_dp3_192_a; }
+int WpfLinuxWin32_PtsDriveProbe3Fserr192B(void) { return g_pts_dp3_192_b; }
+int WpfLinuxWin32_PtsDriveProbe3Skip192(void)   { return g_pts_dp3_192_skip; }
+int WpfLinuxWin32_PtsDriveProbe3Fserr192T3(void){ return g_pts_dp3_192_t3; }
+int WpfLinuxWin32_PtsDriveProbe3P200Null(void)  { return g_pts_dp3_200_null; }
+int WpfLinuxWin32_PtsDriveProbe3P200Hand(void)  { return g_pts_dp3_200_hand; }
+int WpfLinuxWin32_PtsDriveProbe3OowFserr(void)  { return g_pts_dp3_oow_rc; }
+int WpfLinuxWin32_PtsDriveProbe3OowRec(void)    { return g_pts_dp3_oow_rec; }
+int WpfLinuxWin32_PtsDriveProbe3OowCalls(void)  { return g_pts_dp3_oow_calls; }
+int WpfLinuxWin32_PtsDriveProbe3Calls(void)     { return g_pts_dp3_calls; }
+int WpfLinuxWin32_PtsDriveProbe3CtxLive(void)   { return g_pts_dp3_ctx_live; }
+int WpfLinuxWin32_PtsCtxAliveCount(void)        { return g_pts_ctx_alive_n; }
+unsigned long long WpfLinuxWin32_PtsDriveProbe3T3Value(void)    { return g_pts_dp3_t3_value; }
+unsigned long long WpfLinuxWin32_PtsDriveProbe3T3Value192(void) { return g_pts_dp3_t3_192_value; }
+
 typedef int (*wpf_pts_fn_get_first_para)(const void *pfsclient, const void *nms, int *f_successful, void **nmp);
 typedef int (*wpf_pts_fn_get_para_properties)(const void *pfsclient, const void *nmp, void *fspap);
 _Static_assert(sizeof(wpf_pts_fn_get_first_para) == 8 && sizeof(wpf_pts_fn_get_para_properties) == 8,
@@ -832,6 +933,32 @@ static void wpf_pts_drive_probe2_oow(void *pfscontext, const char *where)
     fprintf(stderr, "[DRIVE-PROBE2-OOW] where=%s window=out nms136=%p rc136=%d fSucc=%d nmp=%p "
                     "idem136=- v136=%s calls=%d\n", where, dp->drive_nmseg, rcO, fSuccO, nmpO, vO,
             g_pts_dp2_oow_calls);
+
+    /* ⏪ `t156` 第三跳**窗外腿**（判据 §8.3.3）：用**同一个合法 `nmp`** 在**窗外**调 `+176`。
+       代码级预判 ＝ 本槽**对窗不敏感**（`CreateParaclient` → `new *ParaClient(this)` →
+       `UnmanagedHandle(ptsContext)` → `PtsContext.CreateHandle`，**不读** `CurrentFormatContext`）
+       ⇒ 「窗内=0 ∧ 窗外=0」＝ `WINDOW-INSENSITIVE(有据)`，**不判红**（硬判"实验失败"是**假红**）。
+       ⚠️ **只在**"该 doc **仍在册**（native 侧自记）"且已缓存**合法** `nmp` 时才发调 ——
+         目的是**不**撞 `PtsContext.CreateHandle` 的 `!this.Disposed`（**不可捕获 `FailFast`**，主链禁）。
+       ⚠️ 上限 4 次（每调一次多一条托管活条目；回收紧跟其后）⇒ 不许无限发放。 */
+    const void *fp176o = wpf_pts_snap_word(dp, WPF_PTS_SNAP_IDX_CREATEPARACLIENT);
+    const void *fp192o = wpf_pts_snap_word(dp, WPF_PTS_SNAP_IDX_DESTROYPARACLIENT);
+    if (fp176o && fp192o && dp->drive_nmp && g_pts_dp3_oow_calls < 4 && wpf_pts_ctx_is_live(dp)) {
+        void *hO = NULL;
+        int rc176o = ((wpf_pts_fn_create_paraclient)fp176o)((const void *)dp->p_fsclient,
+                                                           (const void *)dp->drive_nmp, &hO);
+        int rc192o = -9999;
+        if (hO) rc192o = ((wpf_pts_fn_destroy_paraclient)fp192o)((const void *)dp->p_fsclient,
+                                                                 (const void *)hO);
+        g_pts_dp3_oow_calls++; g_pts_dp3_oow_rc = rc176o; g_pts_dp3_oow_rec = rc192o;
+        const char *vO3 = (rc176o == 0 && hO != NULL) ? "PARACLIENT-HANDLE(窗外)"
+                        : (rc176o == -100002) ? "CALLBACK-ERR(-100002)"
+                        : (rc176o == -10000)  ? "NOT-IMPLEMENTED" : "OTHER";
+        fprintf(stderr, "[DRIVE-PROBE3-OOW] where=%s window=out nmp176=%p pfsclient=%p rc176=%d h=%p "
+                        "rc192=%d ctx_live=1 v=%s calls=%d\n",
+                where, (const void *)dp->drive_nmp, (const void *)dp->p_fsclient, rc176o, hO, rc192o,
+                vO3, g_pts_dp3_oow_calls);
+    }
 }
 
 static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *where)
@@ -928,6 +1055,91 @@ static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *wh
                         "slot136=%p slot168=%p\n",
                 where, nms136, WPF_PTS_DRIVE_PROBE2_T3, rc136a, fSucc1, nmp1,
                 rc136b, fSucc2, nmp2, g_pts_dp2_136_idem, rc168, v136, v168, fp136, fp168);
+
+        /* ── ⏪ `t156` 第三跳（**窗内**）：`+176` **两次** ＋ `+192` **两次回收** ─────────────
+           入口条件：`nmp1` ＝ 第二跳交出的**合法** `BaseParagraph` 族句柄（判据 §6：本跳只要求
+           "合法 `BaseParagraph`"，**与"是不是 first para"无关**）。 */
+        const void *fp176 = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_CREATEPARACLIENT);
+        const void *fp192 = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_DESTROYPARACLIENT);
+        const void *fp200 = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_FINTERRUPT);
+        if (nmp1 != NULL && fp176 != NULL) {
+            const void *nmp176 = (const void *)nmp1;   /* 主链：**合法** `nmp` */
+            int t3_176 = 0;
+#if WPF_PTS_DRIVE_PROBE3_T3
+            nmp176 = sect;                             /* ★真错类型 live 句柄：`Section` 非 `BaseParagraph` */
+            t3_176 = 1;
+            g_pts_dp3_t3_value = (unsigned long long)(unsigned long)sect;
+#endif
+            /* 🔴 P3 成对证据的一半：**调用前**把 `*out` 显式置 0 并留痕（此后**不再改写**该记录） */
+            void *h1 = NULL;
+            g_pts_dp3_pre_h1 = (const void *)h1;
+            int rc176a = ((wpf_pts_fn_create_paraclient)fp176)(pfsclient, nmp176, &h1);
+            void *h2 = NULL;
+            int rc176b = ((wpf_pts_fn_create_paraclient)fp176)(pfsclient, nmp176, &h2);
+            /* 🔴 P9 负面对照：`+200` 对**非法值**（`NULL`）与**真句柄**返**同值** ⇒ 无判别力 ⇒ 禁用 */
+            int f_int = -1;
+            int rc200_null = (fp200 != NULL)
+                ? ((wpf_pts_fn_finterrupt_after_para)fp200)(pfsclient, NULL, nmp176, 0, &f_int) : -9999;
+            f_int = -1;
+            int rc200_hand = (fp200 != NULL && h1 != NULL)
+                ? ((wpf_pts_fn_finterrupt_after_para)fp200)(pfsclient, (const void *)h1, nmp176, 0, &f_int) : -9999;
+            /* 🔴 回收：**只在非 NULL 且不重复**时才调（否则撞两条不可捕获 `FailFast` 断言） */
+            int rc192a = -9999, rc192b = -9999, skip192 = 0;
+            if (fp192 != NULL) {
+                if (h1 != NULL)
+                    rc192a = ((wpf_pts_fn_destroy_paraclient)fp192)(pfsclient, (const void *)h1);
+                if (h2 != NULL) {
+                    if (h2 != h1)
+                        rc192b = ((wpf_pts_fn_destroy_paraclient)fp192)(pfsclient, (const void *)h2);
+                    else skip192 = 1;                  /* 同值 ⇒ **绝不**二次回收（`IsHandle()` 断言） */
+                }
+            } else skip192 = 2;
+#if WPF_PTS_DRIVE_PROBE3_T3
+            /* T3 第二处：`+192` 的**错类型**反腿 —— `nmSeg1` 是 `ContainerParagraph`（**不是** `BaseParaClient`）
+               ⇒ 期望 `-100002`（可捕获）。**该行即"判别器对已知非法值必红"的自证**（判据 §4-P9）。 */
+            int rc192t3 = (fp192 != NULL && nmSeg1 != NULL)
+                ? ((wpf_pts_fn_destroy_paraclient)fp192)(pfsclient, (const void *)nmSeg1) : -9999;
+            g_pts_dp3_192_t3 = rc192t3;
+            g_pts_dp3_t3_192_value = (unsigned long long)(unsigned long)nmSeg1;
+#endif
+            g_pts_dp3_176_a   = rc176a; g_pts_dp3_176_b = rc176b;
+            g_pts_dp3_h1      = (const void *)h1; g_pts_dp3_h2 = (const void *)h2;
+            g_pts_dp3_newperc = ((rc176a == 0) && (rc176b == 0) && h1 != NULL && h2 != NULL
+                                 && (h1 != h2)) ? 1 : 0;
+            g_pts_dp3_192_a   = rc192a; g_pts_dp3_192_b = rc192b; g_pts_dp3_192_skip = skip192;
+            g_pts_dp3_200_null= rc200_null; g_pts_dp3_200_hand = rc200_hand;
+            g_pts_dp3_calls++;
+            g_pts_dp3_ctx_live = wpf_pts_ctx_is_live(d);   /* 同趟现取：该 context 未被销毁 */
+            if (d->drive_nmp == NULL) d->drive_nmp = (const void *)nmp1;  /* 窗外腿复用**合法** nmp */
+#if WPF_PTS_DRIVE_PROBE3_CTXDEAD
+            g_pts_dp3_st_nmp = (const void *)nmp1; g_pts_dp3_st_client = pfsclient;
+            g_pts_dp3_st_fp176 = fp176; g_pts_dp3_st_fp192 = fp192;
+#endif
+            const char *v176a = (rc176a == 0 && h1 != NULL) ? "PARACLIENT-HANDLE"
+                             : (rc176a == 0 && h1 == NULL) ? "PARACLIENT-ZERO-HANDLE(未产出)"
+                             : (rc176a == -100002) ? "CALLBACK-ERR(-100002)"
+                             : (rc176a == -10000)  ? "NOT-IMPLEMENTED" : "OTHER";
+            const char *v176c = (g_pts_dp3_newperc) ? "PARACLIENT-NEW-PER-CALL(h1,h2)"
+                             : (rc176a == 0 && rc176b == 0 && h1 != NULL && h2 != NULL && h1 == h2)
+                                 ? "CACHED-SAME-HANDLE(须点名缓存支)" : "NOT-NEW-PER-CALL";
+            const char *v192 = (rc192a == 0 && rc192b == 0) ? "BOTH-RECYCLED"
+                             : (skip192 == 1) ? "SECOND-RECYCLE-SKIPPED(h2==h1)"
+                             : (rc192a == 0 || rc192b == 0) ? "PARTIAL-RECYCLE" : "RECYCLE-FAILED";
+            const char *v200 = (rc200_null == rc200_hand) ? "CONSTANT-GREEN(禁用为判别器)"
+                             : "DISCRIMINATES";
+            fprintf(stderr, "[DRIVE-PROBE3] where=%s window=in nmp176=%p pfsclient=%p t3_176=%d "
+                            "out_pre_h1=%p rc176a=%d h1=%p rc176b=%d h2=%p h2_ne_h1=%d "
+                            "rc192a=%d rc192b=%d skip192=%d rc192t3=%d rc200_null=%d rc200_hand=%d "
+                            "ctx_live=%d v176a=%s v176=%s v192=%s v200=%s slot176=%p slot192=%p slot200=%p calls=%d\n",
+                    where, nmp176, pfsclient, t3_176, g_pts_dp3_pre_h1, rc176a, h1, rc176b, h2,
+                    (h1 != NULL && h2 != NULL && h1 != h2) ? 1 : 0,
+                    rc192a, rc192b, skip192, g_pts_dp3_192_t3, rc200_null, rc200_hand,
+                    g_pts_dp3_ctx_live, v176a, v176c, v192, v200, fp176, fp192, fp200,
+                    g_pts_dp3_calls);
+        } else {
+            fprintf(stderr, "[DRIVE-PROBE3] where=%s window=in SKIP reason=%s slot176=%p nmp1=%p\n",
+                    where, (nmp1 == NULL) ? "no-nmp176" : "null-slot176", fp176, nmp1);
+        }
     } else {
         fprintf(stderr, "[DRIVE-PROBE2] where=%s window=in SKIP reason=%s slot136=%p nmseg=%p\n",
                 where, (nmSeg1 == NULL) ? "no-nmseg" : "null-slot136", fp136, nmSeg1);
@@ -997,6 +1209,7 @@ int CreateDocContext(const void *fscontextinfo, void **pfscontext)
           同一窗口**加宽**（见 `wpf_pts_fsctx_probe.probe_pad`）⇒ 夹具路径同样在界内。 */
     wpf_pts_fscbk_probe(fscontextinfo, "CreateDocContext");
     g_pts_doc_live[g_pts_doc_live_n++] = c;
+    g_pts_ctx_alive_n++;                    /* ⏪ t156：现存活上下文数（native 侧自记） */
     g_pts_doc_sets_c++;
     {   /* 观测镜（**镜像**，不是权威）：记下"哪个入参结构地址、落出什么句柄"；指针量走 `ptr0`/`ptr1` */
         int a_ok = 0;
@@ -1023,6 +1236,26 @@ int CreateDocContext(const void *fscontextinfo, void **pfscontext)
 //   （已失效 ＝ 重复销毁）／登记表为空。**只比对指针身份**，未知句柄的**内容一个字节都不读**。
 int DestroyDocContext(void *pfscontext)
 {
+#if WPF_PTS_DRIVE_PROBE3_CTXDEAD
+    /* ⏪ `t156`（**只在副本产物**，判据 §8.3.3）：**新 FailFast 通路**的反腿 —— 在 context 的
+       销毁点上调 `+176`，期望撞 `PtsContext.CreateHandle` 的 `!this.Disposed`
+       （"PtsContext is already disposed."）⇒ **不可捕获 `FailFast`**（`app_rc=134` 家族）。
+       **主链绝不开此开关**（P6：主链出现 `FailFast` 即红）。 */
+    if (g_pts_dp3_st_nmp && g_pts_dp3_st_fp176) {
+        void *hD = NULL;
+        g_pts_ctx_dead_calls++;
+        int rcD = ((wpf_pts_fn_create_paraclient)g_pts_dp3_st_fp176)(
+                      (const void *)g_pts_dp3_st_client, (const void *)g_pts_dp3_st_nmp, &hD);
+        g_pts_ctx_dead_rc = rcD;
+        fprintf(stderr, "[DRIVE-PROBE3-CTXDEAD] rc176=%d h=%p nmp=%p ctx=%p calls=%d\n",
+                rcD, hD, (const void *)g_pts_dp3_st_nmp, pfscontext, g_pts_ctx_dead_calls);
+        if (hD && g_pts_dp3_st_fp192) {
+            int rcR = ((wpf_pts_fn_destroy_paraclient)g_pts_dp3_st_fp192)(
+                          (const void *)g_pts_dp3_st_client, (const void *)hD);
+            fprintf(stderr, "[DRIVE-PROBE3-CTXDEAD] 回收 rc192=%d\n", rcR);
+        }
+    }
+#endif
     if (!pfscontext) { g_pts_doc_destroy_rej++; return WPF_PTS_ERR_NOT_IMPLEMENTED; }
     for (int i = 0; i < g_pts_doc_live_n; i++) {
         if ((void *)g_pts_doc_live[i] != pfscontext) continue;
@@ -1031,6 +1264,7 @@ int DestroyDocContext(void *pfscontext)
         free(g_pts_doc_live[i]);
         g_pts_doc_live[i] = g_pts_doc_live[--g_pts_doc_live_n];
         g_pts_doc_live[g_pts_doc_live_n] = NULL;
+        if (g_pts_ctx_alive_n > 0) g_pts_ctx_alive_n--;   /* ⏪ t156：现存活上下文数（native 侧自记） */
         g_pts_doc_destroys++;
         return 0;
     }
@@ -2323,6 +2557,19 @@ static int wpf_pts_doc_find(const void *ctx)
 }
 
 /* ⏪ `t146`：与 `wpf_pts_doc_find` 同谓词（**只按指针身份**、不 deref），但返回对象指针。 */
+/* ⏪ `t156`（判据 §8.3.3）：**"该 context 未被销毁"** 的同趟读数 ——
+   口径 ＝ **该 doc 仍在 `g_pts_doc_live[]` 里**（`DestroyDocContext` 成功时会把它移出并 `free`）。
+   ⚠️ **这是 native 侧自记面，不是托管侧读数**：它只能证明"我们的登记表里还有它"，
+   **不能**证明托管 `PtsContext.Disposed == false` ⇒ 判词里必须如实标注该口径。 */
+static int wpf_pts_ctx_is_live(const wpf_pts_doc *d)
+{
+    if (!d) return 0;
+    for (int i = 0; i < g_pts_doc_live_n; i++) {
+        if ((const wpf_pts_doc *)g_pts_doc_live[i] == d) return 1;
+    }
+    return 0;
+}
+
 static wpf_pts_doc *wpf_pts_doc_ptr(const void *ctx)
 {
     if (!ctx) return NULL;
