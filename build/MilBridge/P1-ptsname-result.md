@@ -516,6 +516,24 @@ VERIFYALL-STEPS-DECL: 62 gen=#81   # verify-all.sh:73
 
 **(f) 过程自陈（记名）**：它初稿有 **4 处行号/代际错误**（`PtsHost.cs` 两处 `HandleToObject` `:2701/:2703` → `:2695/:2697`；14 槽 stub `:2931-2932` → `:2933/:2935`；16 槽 return `:2946` → `:2945`；`SubtrackDestroyContext` `:2655` → `:2654`；`_Static_assert` 块旧代 `:905-920` → 新代 `:933-938`），**全部按现取自行更正**。⇒ 与裁定四十七 (f) 同调：**如实记偏差 ＞ 假装没发生**。
 
+**裁定五十（承 `t162` 回执，`ts=2026-09-29T19:0x+08:00`）—— (a) `(a)` 落地且 `t160` 回归未退化；(b) E1 落地形态正确（**把"没驱动"如实印出来**）；(c) 🔴 **E2 打不出来** ⇒ `PRECOND-NO-ENGINE-FORMAT-FRAME` ⇒ 已派轻量侦察 `t164`；(d) 🔴 采纳其纪律「**判别器必须与被判别物的族匹配**」；(e) 🔴 其第二条自陈升为口径「**未定的归因不得被当成"已排除该原因"**」；(f) 记名它本轮做到了"先落最小载体"。原文与既有裁定一字未删。**
+
+**(a) `t162` 的 `(a)` 落地（载体 `build/MilBridge/P1-pfspara-report.md` 155 行／末行自证 `e311486fee8fdb2e`；同代 `so16=291ef08a33f9b6e4`／`exports=665`、逐名**零消失**＋14 名）**：`pfspara` **不再复用 `nmp` 占位**，改为**本侧自有子轨对象**（句柄 ＝ **本对象内字段地址** —— 承本仓 `FsQueryTrackDetails` 范式）：
+- **台账**（`seq`／`live`／`created`／`destroyed` ＋ 6 个读数口）｜**持有期**（跨调用复用，现取 `reused=685／703`，填报后不销毁）｜**销毁口径**（唯一销毁点接在 `DestroyDocContext`；**自检直接读数** `[FSPARALIST-SUB-SELFTEST] mask=0x1f`：`new_claimable`／`null_rejected`／`stack_rejected`／`destroyed_unclaimable`／`live_restored` **全 1**）｜**身份可认领** ＝ 指针等值于某**在册**对象的字段地址（判据 §5.4 落成**可判**形态）。
+- **成对证据**：`pre=(nil)` → `psub=非零`（两个不同值）；`same_value=1`、`off_pfspara=8`；**字节读回** `+8..+15` ＝ 该地址、`+16=0x5`、`+24=0x3`。⇒ **下游接受 ＝ `NOINFO(acceptor-is-(b))`**，现取 `acc=-12345`（**未调用，不冒充**）—— 这条自限正确（接受者在 `(b)`）。
+- **`t160` 回归（两样本、同代）：未退化** —— `fill=1100／1123`、`consume=33／34` 全 `resolve=ok`、`entry=FsQueryTrackParaList` 的 `rc=-10000`／`rc=-100002` **各 0**、`h0==keep==0x5`、`off16=16`、症状门 `alive=yes app_rc=143 magenta=0 failfast=0 unrec=0`；**`t160` 的 6 条断言原样在册**。
+- **`P8`（`cParas=0` 恒绿陷阱）已落**：接口面**逐趟打 `formatted=0`**（**明告 `(b)` 不得据 `cParas==0` 走叶子分支**）；**两条副本反腿都红** —— `MADEUP`（`psub=(nil)`）与 `WRONGTYPE`（`psub=<栈地址>`）均 `claim=0`、逐字 `v=CLAIM-REJECTED`、**无任何 FILL 行**。
+
+**(b) E1 的落地形态正确（值得记名）**：`FSIMETHODS` 17 槽**镜像 ＋ 4 条断言**（`sizeof==17×8`／槽1@0／**槽3@16**／槽13@96／槽17@128）；现取 `[FSPARALIST-SLOT3] methods=… present=1 slot3_offset=16 **drive=SKIP** reason=need-real-format-frame(…) **abi=NOINFO-FSIMETHODS-ABI deref=none**`。⇒ **它把"没有驱动"与"ABI 未定"都如实印在读数里**，没有假装驱动过 —— 这正是"**先测后用**"应有的形态（与 `t132`「候选只能算、禁当结论」同族）。
+
+**(c) 🔴 E2 打不出来（如实具名，不硬做）**：**本侧没有真造型帧** —— `pfssobjc` 已被 `t163` 判为**伪指针**、`pfsgeom`／`pfsbrkrec` **本侧都没有**；要驱动就得**自造输入**，而那是判据 §7.3 **零假值明禁**的 ⇒ 具名 **`NOINFO ＋ PRECOND-NO-ENGINE-FORMAT-FRAME`**。⇒ **已派 `t164`（`scout`）做它建议的轻量侦察**：「真造型帧（geometry／break record／object context）**在本波能否合法获得**」；**得** ⇒ 接 E2；**不得** ⇒ 把 `(b)` 的 `cParas` 源**改判**。⇒ 并已在派单里写死：**不许**为了"看起来有下一步"而把"自造输入"包装成合法路径；且**不得**把"`pfssobjc` 是伪指针"推广成"所有 object context 都不可用"（红榜 `P9`）。
+
+**(d) 🔴 采纳它建议的纪律：「判别器必须与被判别物的族匹配」**：它**如实自陈**曾拿 `+168 GetParaProperties` 当 `pfspara` 的接受者 —— 而 `+168` 吃的是**托管句柄**、它给的是 **native 指针** ⇒ 撞 `HandleToObject` 的 Assert ⇒ **`Unrecoverable system error.: Invalid object handle.` ＋ `app_rc=134`**，并指出「**正是 §7.3／P7 要拦的形态**」。⇒ **立为纪律**：**判别器必须与"被判别物的族"匹配** —— 族按 `t163` 的现取分类为 **`H` 托管句柄／`E` 引擎自有对象／`P` 伪指针／`S` 结构指针／`I` 整数**；**跨族判别必撞 Assert**。⇒ 同族（本会话）：`t156` 的 **`+200` 恒定绿陷阱**（不读字段的 stub）／`t161` 的「**数值无判别力**」／本条（**族不匹配**）—— 三者共同形态：**判别器看起来能判，其实判的不是那件事**。
+
+**(e) 🔴 其第二条自陈升为口径（本条最通用）**：两条反腿在给出预期 `CLAIM-REJECTED` **之后**另有**同一条** `FailFast`（managed 栈顶 `PtsHelper.ArrangeParaList → PtsContext.HandleToObject`，`app_rc=134`），而该腿**同时** `[FS_PAGE_GAP]=0` 与 `[FSPARALIST-FILL]=0` ⇒ **它未能把这条 `FailFast` 与"拒填"路径严格分开** ⇒ 归因记 **`NOINFO(未定)`**、主链两样本未受影响、列 finding，**并明确写死「解释前『本入口已可安全拒填』不得入册」**。⇒ **立口径**：**归因未定 ⇒ 结论必须降级；不得把"未定"当成"已排除该原因"**（例如"没看到它导致 FILL"不等于"它不是 FILL 的原因"）。⇒ 这是「**不可归因须双向**」（裁定三十九 (b)）的**第三条**：第一条治**标绿不标红**、第二条治**只标红不标绿**、本条治**把"未定"读成"无"**。
+
+**(f) 记名**：它本轮**做到"先落最小载体再实现"**（先落 51 行、预登记 D1–D6、自证 `8cee877d6ba4ef53`，再原地追加）⇒ 上轮那次偏离（裁定四十七 (f)）**已纠正**。⇒ 与 (b)(c)(e) 合起来看：**这一件的形态正是本会话一直在要求的** —— 能做的做扎实、做不到的具名、做错的自陈、没驱动的如实印。
+
 ## 9 未做 / 边界
 
 - **未**跑整趟门禁（`verify-all.sh` 全跑）；本件只跑相关已接线牙与判据件。
