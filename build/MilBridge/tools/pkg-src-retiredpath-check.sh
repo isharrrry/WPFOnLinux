@@ -26,7 +26,7 @@
 #   | `comment`/`data` 命中**未声明** | **`FAIL rule=undeclared-retired-path-mention`** | 豁免走**声明式出处清单 ＋ 每件命中数上限**（逼后来者显式声明） |
 #   | 清单声明 `max_hits` `<` 现读命中数 | **`FAIL rule=provenance-tree-grown`** | 与 `repo-alias-allow.tsv`／`lane-path-provenance.tsv` 同口径：**上限＝现读数 ⇒ 树长大也红** |
 #   | 清单里 `registered=` 不在 declared 集 | **`FAIL rule=declaration-unregistered`** | 豁免必须挂在**已入册**的缺陷号上（"声明只能把『已知在册具名』的降成可见，不能把『未知』降成绿"） |
-#   | 射程面 `build`／`tests`／`src` **任一目录缺席**（仅 `tree` 面） | **`FAIL reason=tree-dir-missing dirs=<缺哪些>`** | 三目录**就是**射程面本身；缺席 ⇒ 该腿**根本没被判**。此前这种局面被并进 `reason=no-paths-file` 的 `NOINFO`（`path-field-empty` 还为空）⇒ **会被读成"没红"** —— 本行由 `t25` 收口（`D-G182`） |
+#   | 射程面 `build`／`tests`／`src`／`samples`／`tools` **任一目录缺席**（仅 `tree` 面） | **`FAIL reason=tree-dir-missing dirs=<缺哪些>`** | 这些目录**就是**射程面本身；缺席 ⇒ 该腿**根本没被判**。此前这种局面被并进 `reason=no-paths-file` 的 `NOINFO`（`path-field-empty` 还为空）⇒ **会被读成"没红"** —— 本行由 `t25` 收口（`D-G182`）；`T-W2`（`TASK-0758`）把射程面由三目录扩为五目录（＋`samples`／`tools`，见件头 `⏪ dated 扩射程`） |
 #
 #   ⚠️ **面①（`--paths-file`）例外约定（写死）**：该面**不认任何豁免**（连 `code-evidence-source` 也不认）——
 #      喂进来的件是**即将入仓**的件 ⇒ "默认值指向已撤除的树"就是要拦的东西本身。
@@ -58,6 +58,15 @@
 #      **唯一**允许出现 `path` 字段字面的地方是**判词发射端**（那一个字段，永不为空）。可现算不变量：
 #        · `EQ='='; grep -c "path$EQ" <本件>` ⇒ **恰 `1`**（＝发射端那一行）；判词**文本** ⇒ **`0`**。
 #        · 断言器口径：先剥「（…）」与反引号，再判「**真·空字段**」（字段名 `path` 后紧跟 `$EQ`、右侧为空／空白／引号／行尾）⇒ 正常态 **`0`**。
+# ⏪ **dated 扩射程（`T-W2`，读时 2026-09-30T06:47:12+0800；`TASK-0758`；真洞见侦察件 `build/MilBridge/P1-tail2-unclosed-recon.md` §1 `0758-②`）**：
+#   `tree` 面射程目录由 `build`／`tests`／`src` **三目录**扩为 **五目录**（＋`samples`／`tools`）——
+#   原洞＝「**根下一级源码目录未被判**」：沙箱成对读数（针在 `samples/Probe/Foo.cs` ⇒ `PASS`（**漏**）；
+#   针在 `build/Foo.cs` ⇒ `FAIL` 点名）证「射程目录未覆盖」才是真洞（`*.cs` 早已在射程，见 `0758-①`）。
+#   · **目录闸**（`run_check()` 内，`t25` 落）**同趟**纳入新目录 ⇒ 五目录缺一即 `FAIL reason=tree-dir-missing`
+#     （`--selftest` 的 `S9` 断言 `dirs=` 随之变长；`S10`／`S11` 夹具由三目录改五目录）。
+#   · `--selftest` 新增 `S12`（针在 `samples/` ⇒ 必红，**固化本条真洞**）／`S13`（针在 `tools/` ⇒ 必红）。
+#   · 现取（真树扩后）：`RETIREDPATH=PASS mode=tree files=593 hits=3 code=0 declared=3 self_skip=1`（**零假红**；
+#     经 `is_text_source()` 过滤后并入 **16 件**（`samples` 15 ＋ `tools` 1），含针 **0**）。
 # ═══════════════════════════════════════════════════════════════════════════════
 set -uo pipefail
 
@@ -118,8 +127,14 @@ collect_corpus() {   # 面②的仓内域（**排除**证据/台账/产物）
       git -C "$ROOT" diff --cached --name-only --diff-filter=ACMR 2>/dev/null | sed "s|^|$ROOT/|"
       ;;
     tree)
+      # ⏪ **dated 扩射程（`T-W2`，读时 2026-09-30T06:47:12+0800；`TASK-0758`；真洞见侦察件 `P1-tail2-unclosed-recon.md` §1 `0758-②`）**：
+      #   `build`／`tests`／`src` 三目录原为射程面，而**根下一级目录**里只覆盖了这三棵 ⇒
+      #   **`samples/**` 与 `tools/**` 的源码类件一律不被判**（沙箱实测：针在 `samples/Probe/Foo.cs` ⇒ `PASS`（**漏**），
+      #   而在 `build/Foo.cs` ⇒ `FAIL` 点名）⇒ 现把这两棵也纳入（**根下一级源码目录全集**：
+      #   `docs`／`home` 现取**零**源码类件、`upstream` 属第三方且 `is_text_source()` 已排除）。
+      #   ⚠️ **目录闸（`:171-178`）必须同趟纳入新目录**，否则又造一个「没被判」格。
       find "$ROOT" -maxdepth 1 -type f \( -name '*.sh' -o -name '*.py' -o -name '*.cs' \) 2>/dev/null
-      find "$ROOT/build" "$ROOT/tests" "$ROOT/src" -type f \
+      find "$ROOT/build" "$ROOT/tests" "$ROOT/src" "$ROOT/samples" "$ROOT/tools" -type f \
            \( -name '*.sh' -o -name '*.py' -o -name '*.c' -o -name '*.h' -o -name '*.cs' \) 2>/dev/null
       ;;
     paths)
@@ -170,9 +185,11 @@ run_check() {
   #   会把「这一腿根本没被判」读成「没红」＝假绿方向）。三目录齐 ⇒ 判定路径与改前一致。
   if [ "$MODE" = "tree" ]; then
     local miss='' d
-    for d in build tests src; do [ -d "$ROOT/$d" ] || miss="$miss${miss:+,}$d"; done
+    # ⏪ dated 扩射程（`T-W2`）：目录闸由三目录（`build`／`tests`／`src`）扩为**五目录**
+    #   （＋`samples`／`tools`）—— 与 `collect_corpus()` 的射程面**逐目录同宽**（缺一即点名，不许降 `NOINFO`）。
+    for d in build tests src samples tools; do [ -d "$ROOT/$d" ] || miss="$miss${miss:+,}$d"; done
     if [ -n "$miss" ]; then
-      echo "RETIREDPATH=FAIL reason=tree-dir-missing dirs=$miss root=$ROOT（射程面三目录必须齐；**不许**降成 NOINFO、**不许** path 字段取空值）"
+      echo "RETIREDPATH=FAIL reason=tree-dir-missing dirs=$miss root=$ROOT（射程面五目录必须齐；**不许**降成 NOINFO、**不许** path 字段取空值）"
       return $RC_FAIL
     fi
   fi
@@ -292,20 +309,33 @@ selftest() {
   # S8 反极：清单文件不存在 ⇒ NOINFO（不许当绿）
   set +e; out="$(bash "$SELF" --paths-file "$T/does-not-exist" --root "$T" 2>&1)"; rc=$?; set -e
   arm S8 "$([ "$rc" = "3" ] && echo 1 || echo 0)" "清单缺席 ⇒ NOINFO（rc=$rc）"
-  # S9 反极（`D-G182`／`t25`）：`tree` 面**只建 `build/`** ⇒ **必红并点名 `tests`／`src`**（不许 NOINFO、不许 path 字段取空值）
+  # S9 反极（`D-G182`／`t25`）：`tree` 面**只建 `build/`** ⇒ **必红并点名其余四目录 `tests`／`src`／`samples`／`tools`**（不许 NOINFO、不许 path 字段取空值）
   mkdir -p "$T/r9/build"; printf '#!/usr/bin/env bash\nR=/\n' > "$T/r9/build/ok.sh"
   set +e; out="$(bash "$SELF" --tree --root "$T/r9" --provenance "$T/none" 2>&1)"; rc=$?; set -e
-  arm S9 "$([ "$rc" = "1" ] && grep -q 'reason=tree-dir-missing' <<< "$out" && grep -q 'dirs=tests,src' <<< "$out" && ! grep -q 'no-paths-file' <<< "$out" && echo 1 || echo 0)" "tree 面只建 build/ ⇒ FAIL 点名 tests,src（rc=$rc）"
-  # S10 反极：三目录齐 ＋ 语料含针 ⇒ 照常 FAIL 点名 file:line
-  mkdir -p "$T/r10/build" "$T/r10/tests" "$T/r10/src"
+  arm S9 "$([ "$rc" = "1" ] && grep -q 'reason=tree-dir-missing' <<< "$out" && grep -q 'dirs=tests,src,samples,tools' <<< "$out" && ! grep -q 'no-paths-file' <<< "$out" && echo 1 || echo 0)" "tree 面只建 build/ ⇒ FAIL 点名 tests,src,samples,tools（rc=$rc）"
+  # S10 反极：五目录齐 ＋ 语料含针 ⇒ 照常 FAIL 点名 file:line
+  mkdir -p "$T/r10/build" "$T/r10/tests" "$T/r10/src" "$T/r10/samples" "$T/r10/tools"
   printf 'namespace P;\nclass C { string p = "wpf-linux-20260906"; }\n' > "$T/r10/build/Foo.cs"
   set +e; out="$(bash "$SELF" --tree --root "$T/r10" --provenance "$T/none" 2>&1)"; rc=$?; set -e
-  arm S10 "$([ "$rc" = "1" ] && grep -q 'build/Foo.cs:2' <<< "$out" && grep -q 'rule=code-retired-path' <<< "$out" && echo 1 || echo 0)" "三目录齐 ＋ 含针 .cs ⇒ FAIL 点名 build/Foo.cs:2（rc=$rc）"
-  # S11 正极：三目录齐 ＋ 语料干净 ⇒ PASS
-  mkdir -p "$T/r11/build" "$T/r11/tests" "$T/r11/src"
+  arm S10 "$([ "$rc" = "1" ] && grep -q 'build/Foo.cs:2' <<< "$out" && grep -q 'rule=code-retired-path' <<< "$out" && echo 1 || echo 0)" "五目录齐 ＋ 含针 .cs ⇒ FAIL 点名 build/Foo.cs:2（rc=$rc）"
+  # S11 正极：五目录齐 ＋ 语料干净 ⇒ PASS
+  mkdir -p "$T/r11/build" "$T/r11/tests" "$T/r11/src" "$T/r11/samples" "$T/r11/tools"
   printf '#!/usr/bin/env bash\nR=/\n' > "$T/r11/build/ok.sh"
   set +e; out="$(bash "$SELF" --tree --root "$T/r11" --provenance "$T/none" 2>&1)"; rc=$?; set -e
-  arm S11 "$([ "$rc" = "0" ] && grep -q 'RETIREDPATH=PASS' <<< "$out" && echo 1 || echo 0)" "三目录齐 ＋ 干净语料 ⇒ PASS（rc=$rc）"
+  arm S11 "$([ "$rc" = "0" ] && grep -q 'RETIREDPATH=PASS' <<< "$out" && echo 1 || echo 0)" "五目录齐 ＋ 干净语料 ⇒ PASS（rc=$rc）"
+  # S12 反极（`T-W2` 扩射程固化，`TASK-0758`；**这就是扩域前的真洞**）：针在 `samples/` ⇒ 必红点名
+  #   （扩域前此处**漏** ⇒ `RETIREDPATH=PASS`；沙箱成对读数见报告）
+  mkdir -p "$T/r12/build" "$T/r12/tests" "$T/r12/src" "$T/r12/samples/Probe" "$T/r12/tools"
+  printf 'namespace P;\nclass C { string p = "wpf-linux-20260906"; }\n' > "$T/r12/samples/Probe/Foo.cs"
+  printf '#!/usr/bin/env bash\nR=/\n' > "$T/r12/build/ok.sh"
+  set +e; out="$(bash "$SELF" --tree --root "$T/r12" --provenance "$T/none" 2>&1)"; rc=$?; set -e
+  arm S12 "$([ "$rc" = "1" ] && grep -q 'samples/Probe/Foo.cs:2' <<< "$out" && grep -q 'rule=code-retired-path' <<< "$out" && echo 1 || echo 0)" "五目录齐 ＋ 针在 samples/ ⇒ FAIL 点名（扩域前为漏，rc=$rc）"
+  # S13 反极（同族）：针在 `tools/` ⇒ 必红点名
+  mkdir -p "$T/r13/build" "$T/r13/tests" "$T/r13/src" "$T/r13/samples" "$T/r13/tools"
+  printf '#!/usr/bin/env bash\nSHIM_DEFAULT="/home/links-dev/netTest/wpf-linux-20260906/wpf-linux"\n' > "$T/r13/tools/bad.sh"
+  printf '#!/usr/bin/env bash\nR=/\n' > "$T/r13/build/ok.sh"
+  set +e; out="$(bash "$SELF" --tree --root "$T/r13" --provenance "$T/none" 2>&1)"; rc=$?; set -e
+  arm S13 "$([ "$rc" = "1" ] && grep -q 'tools/bad.sh:2' <<< "$out" && grep -q 'rule=code-retired-path' <<< "$out" && echo 1 || echo 0)" "五目录齐 ＋ 针在 tools/ ⇒ FAIL 点名（rc=$rc）"
   echo "RETIREDPATH_SELFTEST=$([ "$nfail" = 0 ] && echo PASS || echo FAIL) cases=$((npass+nfail)) pass=$npass fail=$nfail"
   [ "$nfail" = 0 ] && return $RC_PASS || return $RC_FAIL
 }
