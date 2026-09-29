@@ -625,6 +625,20 @@ VERIFYALL-STEPS-DECL: 62 gen=#81   # verify-all.sh:73
 
 **(i) 两处记名与小项入册**：① **它守住判据前置不抢跑**（`D2` 记 `NOINFO`、`D3` 记 `NOT-ATTEMPTED`，**没有硬凑**）—— 这是**对的**，只是定义要按 (c) 澄清。② **自陈**：**预登记（§A）在跑腿前定下、但与被载体一并落盘** ⇒ **未另落独立"最小载体"文件**（与 `t160` 同类偏离，已记）⇒ **我认可"如实记"**，**口径重申**下次先落。③ **两条小项入册**：**三态中的 `NONE`／`ALLZERO` 与 `gap` 行机制在册但本腿未触发**（需夹具或注入开关才能现取 —— `t168` 若能触发就给读数，不能就具名 `NOINFO`）；**`136 B` 已三断言 ＋ 运行期逐趟实测**（`words=17 bytes=136`，照 `t127`／`t160` 前例闭合）。
 
+**裁定五十五（承 `t168` 回执，`ts=2026-09-29T20:0x+08:00`）—— (a) `D2` 重判 ＝ `SLOT-ORDER-OK`（**我裁的口径直接解锁了一个结论**）；(b) 🔴 `THUNK-LIVENESS` **升为读数**（副本可调用 ⇒ 裁定五十三 (b) 的收窄被完全验证）；(c) 槽 3 **真被调用**但 E2 仍未成立，阻塞点定位为 **`PRECOND-NATIVE-FORMAT-ENTRY-MISSING`**（`PRECOND-NO-ENGINE-DRIVER` **解除**）；(d) **副本驱动不是无条件安全**；(e) 三态闭环；(f) 记名。原文与既有裁定一字未删。**
+
+**(a) `D2` 重判 ＝ `SLOT-ORDER-OK`（我的口径裁定直接解锁了一个结论）**：载体 `build/MilBridge/P1-fsimethods-drive-report.md`（107 行／末行自证 `a6d7a4bc641f3e80`；`REPORTID=PASS files=286`；两独立样本**逐字一致**）：`[FSPARAMETH-D2] copy_state=VALUE valid_copy=1 zero_cnt_win=1 **idx0_zero=14** **slotN_zero=15** expect_slotN=15 calib=both **nonzero_win=16** d1_same=0 **v=SLOT-ORDER-OK**`。逐格依据：副本有效（`state=VALUE ∧ nonzero=16`）｜零位**恰一处**｜零位 ＝ **1-based 第 15 槽**（`Pts.cs` 字段序第 15 个 ＝ `pfnGetFootnoteInfoWord`）｜其余 16 槽非空 ⇒ **槽序指纹支持"未错位"，`NOINFO-FSIMETHODS-ABI` 的槽序部分据此解除**（**仅"槽的语义映射"仍 `NOINFO`**）。⇒ **记名**：这是「**把前置定义写清**」**直接产出结论**的实例 —— 同一个读数，在定义含混时是 `NOINFO`、在定义澄清后是 `SLOT-ORDER-OK`。⇒ **口径**（与裁定五十四 (h) 配对）：**`NOINFO` 是"取不到"，不是"定义没写清"**；凡遇 `NOINFO`，第一件事是问**"是取不到，还是我没定义清楚"**。
+
+**(b) 🔴 `THUNK-LIVENESS` 由"判定"升为"读数"（本件最能定性的一条）**：**槽 1 调用成功** —— `rc=0 **sobjc=0x1b63** pre=0xa5a5… rewritten=1 **idobj=7001** ffi=0x1 v=OBJCTX-PRODUCED`，而 **`0x1b63` ＝ 7011 ＝ `idobj(7001) + _objectContextOffset(10)`**，与托管公式**逐值吻合**（双跑一致：第二次 `sobjc=0x1b64`／`idobj=7002`）。⇒ **副本里的 thunk 指针确实可调用** ⇒ **`t165` 崩的确实是"持有方式"，不是"表不可调用"** ⇒ **我裁定五十三 (b) 的收窄（"问题在是否在窗内值化"）被完全验证**。⇒ 这条的价值在于：它同时**证伪了 `t165` 那一次崩溃所能支持的最强结论**（"表不可用"），而**支撑了 `FSCBK` 方子的完整形态**（**窗内值化 → 此后只用自己的副本**）。
+
+**(c) 槽 3 **真被调用**，但 E2 仍未成立；阻塞点定位（排期依据）**：门 `gate=PASS（D2 ok；src=methods_snap）` ⇒ **`calls=1`（首驱动点）／`calls=2`（第二驱动点）**，与另两条副本腿的 `calls=0` **分开报**（红榜 `P10` 的正向执行）。**槽 3**：`rc=-100002 … pfspara=(nil) rewritten=1 claim=0 v=CALLBACK-ERR`，`asserts A_rc0=0 B_rewritten=1 C_claimable=0 D_one_new_entry=0 **v=E2-ASSERTS-PARTIAL**` ⇒ **被真正调用、但未产出可认领的 `pfspara`**。⇒ 它归因并立新前置：**`PRECOND-NATIVE-FORMAT-ENTRY-MISSING`** —— 托管槽 3 链（`SubtrackFormatParaFinite` → `ContainerParagraph.FormatParaFinite`）**回头要调 native 造型入口 `FsFormatSubtrackFinite` 一族**，**本波未实现** ⇒ 异常被 `catch` 成 `-100002`；⇒ **`(b)` 的 `cParas` 与 `pfspara` 在实现该入口前都拿不到**。⇒ **`PRECOND-NO-ENGINE-DRIVER` 已解除**。⚠️ **队长在此加一条约束（已写进 `t169`）**：**`-100002` 是"被 catch 的异常"，其具体异常类型仍是 `NOINFO`** ⇒ **不得**把"缺这个入口"当作**已验的因果**；下一件要**先侦察该族的入参契约与最小可行子集**，把这条因果**做出来**再谈推进。
+
+**(d) 🔴 副本驱动**不是无条件安全**（它如实记，我采纳为约束）**：**第二驱动点之后 `FailFast`**（`app_rc=134`、`failfast=1 unrec=2`），而**主链两腿 `failfast=0`**。⇒ 这**加强了"副本专用"的必要性**（不是放宽）：⇒ **口径**：**副本的意义不是"安全地做实验"，而是"把不安全的部分限制在可丢弃的产物里"** —— 它崩了，**主链仍然是干净的字节**（`MAIN_BYTE_IDENTICAL=yes`）。⇒ 这也解释了为什么 `t165`／`t168` 都把"**主链逐字节不变**"当作**默认要求**而不是加分项。
+
+**(e) 三态闭环（`t167` 的"未触发"被本件闭掉）**：新增两个**编译期注入开关（缺省 0）**⇒ **`NONE` 现取**（`snap=0 gap=2` ＋ 具名 `[FSPARAMETH-SNAP-GAP] rc=-10000 reason=null-methods … state=NONE`）／**`ALLZERO` 现取**（`nonzero=0 zero_cnt=17`）／**`VALUE`**（`nonzero=16 zero_cnt=1 slotN=15`）⇒ **三态判词互不相同** ✓。⇒ 这与 `t141` 的 `FSCBK` 三态面**同形齐备** ⇒ **"未触发"不是"不存在"**（与裁定四十三 (e) 同族）。
+
+**(f) 记名**：① **它做到"先落最小载体"**（21 行、预登记 `R1–R9`、自证 `3fba3dd9066134b7`，再实现）⇒ **未重复 `t167` 的偏离**；② 实现期一处语法自伤（中文字符串内未转义引号）**当场修**，未影响读数；③ 它把 `PRECOND-NO-ENGINE-DRIVER` 的处理做成"**解除 + 立新前置 + 归因现取**"三步，**没有把旧前置含糊地留着**，也没有**借新前置掩盖旧读数**。
+
 ## 9 未做 / 边界
 
 - **未**跑整趟门禁（`verify-all.sh` 全跑）；本件只跑相关已接线牙与判据件。
