@@ -11,6 +11,14 @@
           **口径**：`failfast=` ＝ 原始 app 日志里 `FailFast` 的行数（`Environment.FailFast` 位点标记）；
           `unrec=` ＝ 同日志里 `Unrecoverable system error` 的行数（**与 `session_inner.sh` 的 `fatal=` 同源同量**）。
           旧格式 session（没有 `FAILLINE` 行）⇒ 两格给 **`-`（＝"没测到"，不是 0）**，与 `ink=` 同一约定。
+    ⏪ `t124`（`t118` 的 `N1`）**新增第五段**（**只加行，前四段的字段一个不动**）：
+    FRAME k=<23|24> fr_file=<k<k>.png|-> fr_sha=<sha16|-> fr_lsha=<sha16|-> fr_ae_boot=<int|->
+          **口径**：`fr_file=` ＝ 本腿截图文件名；`fr_sha=` ＝ 该文件 `sha256sum` 的**前 16 位**（与 `shim=`／`pf=`
+          **同一算口径**）；`fr_lsha=` ＝ 同一时刻 `last.png` 的前 16 位（装置 `cp -f k$k.png last.png`
+          ⇒ 与 `fr_sha` **逐字相同是装配不变量**）；`fr_ae_boot=` ＝ `compare -metric AE boot.png k<k>.png`
+          （**该帧相对 `boot` 的像素位移**）。键名**不含数字**（region 扫描的键词法是 `[A-Za-z_]+`）。
+          旧格式 session（没有 `FRAME` 行）／值读不到 ⇒ 四格给 **`-`（＝"没测到"，不是 0）**，与 `FAILLINE`／`ink=` 同一约定。
+          守卫 `N1` 用 `fr_sha` 判「帧身份」（∉ 已登记空态参照集）、用 `fr_ae_boot` 判「帧位移」（>0）。
 另有 `<outdir>/device.txt`（X_UP=…）。
 
 纪律：**解析任一侧为空必须响亮失败**（不许把"空"读成 0）——
@@ -67,6 +75,13 @@ def parse_click(block, k, logfile=None):
     #   ⇒ 两格给 `-`（＝"没测到"，**不是 0**；与 `ink=` 同一约定，理由同 `t12` 的注释）。
     failfast = tok.get("failfast", "-")
     unrec = tok.get("unrec", "-")
+    # ⏪ `t124`（`t118` 的 `N1`）**新增四格（可选）**：来自 `session_inner.sh` 的 `FRAME` 行（与 `FAILLINE` 同一位置：
+    #   `CLICK` 与 `PHASE` 之间 ⇒ 上面的 region token 扫描已经带到 `tok` 里）。**旧格式 session 没有该行**
+    #   ⇒ 四格给 `-`（＝"没测到"，**不是 0**）。守卫 `N1` 见 `-` 一律 `NOINFO`（**绝不当绿**）。
+    fr_file = tok.get("fr_file", "-")
+    fr_sha = tok.get("fr_sha", "-")
+    fr_lsha = tok.get("fr_lsha", "-")
+    fr_ae_boot = tok.get("fr_ae_boot", "-")
     # 洋红/色数：取该组里该 k 的那一张截图的 shotstat 行
     shot = None
     for sm in re.finditer(r"^\s*FILE=(\S+\.png) (\d+)x(\d+) colors=(\d+) magenta=(\d+) total=(\d+)(?: ink=(\d+))?$",
@@ -124,7 +139,8 @@ def parse_click(block, k, logfile=None):
     return dict(alive=alive, app_rc=None, magenta=magenta, colors=colors, ns=ns, ae=ae, ink=ink,
                 managed_unavail=1 if punav_n else 0, err=merr, native_gap=ngap,
                 native_err=nerr, pts_unavail_n=punav_n, pts_gap_n=int(tok["pts_gap"]),
-                failfast=failfast, unrec=unrec)
+                failfast=failfast, unrec=unrec,
+                fr_file=fr_file, fr_sha=fr_sha, fr_lsha=fr_lsha, fr_ae_boot=fr_ae_boot)
 
 
 def main():
@@ -181,6 +197,9 @@ def main():
                 # ⏪ `t116`（`t115` 的 `F-1`）：**只加行** —— 既有三段（`LEG`／`NAMED`／`DEV`）字段一个不动。
                 f.write("FAILLINE k=%d failfast=%s unrec=%s src=app_g%s.log:FailFast|Unrecoverable\n"
                         % (k, d["failfast"], d["unrec"], gi))
+                # ⏪ `t124`（`t118` 的 `N1`）：**只加行** —— 既有四段（`LEG`／`NAMED`／`DEV`／`FAILLINE`）字段一个不动。
+                f.write("FRAME k=%d fr_file=%s fr_sha=%s fr_lsha=%s fr_ae_boot=%s\n"
+                        % (k, d["fr_file"], d["fr_sha"], d["fr_lsha"], d["fr_ae_boot"]))
                 f.write("# arm=%s group=%s\n" % (arm, gi))
             if p_primary:
                 with open(p_primary, "w", encoding="utf-8") as f2:

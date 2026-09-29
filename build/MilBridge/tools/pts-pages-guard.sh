@@ -75,6 +75,15 @@ set -uo pipefail
 
 MAGENTA_FLOOR="${PTS_GUARD_MAGENTA_FLOOR:-20000}"
 
+# ── ⏪ `t124`（`t118` 的 `N1`）**空态参照集**（帧 `sha256` 前 16 位；**唯一登记处**）──────────────────
+#   语义（逐字）：集合里的值 ＝ **已登记**的「空态回退画面」的**帧身份**（`k23.png`／`k24.png`／`last.png`
+#   三帧**同值**时的那一枚）；`realized` 期帧身份**落在这个集合里** ⇒ 该腿**必红**（`N1` 要件①）。
+#   现值 `1a76488aa4a790b3` ＝ `t122` **重登记**值（`t122` 现取：三帧同值）；**旧登记 `ef3fd6765f18f51b` 作废**
+#   （屏幕换代 ⇒ 同值不再表示同一画面）。
+#   重登记触发（照 `t122` 的归属建议）：① 相位翻转包执行；② 三帧 `sha256` 任一变化 ⇒ **本件写者（守卫写者）**重登记。
+#   **不设 env 旋钮**（判据只许收紧：不给"把现帧写进集合即绿"的路子）；合成夹具靠**取值**两极化。
+FRAME_EMPTY_SET="1a76488aa4a790b3"
+
 # ── 小工具 ───────────────────────────────────────────────────────────────────
 field() { printf '%s' "$1" | grep -o -m1 "[[:space:]]$2=[^[:space:]]*" | head -1 | sed "s/^[[:space:]]$2=//"; }
 
@@ -393,6 +402,49 @@ judge_legs() {
     case "${colors:-}" in ''|*[!0-9]*) diags+=("leg$k-colors=$colors");;
       *) if [ "$colors" -lt 800 ] || [ "$colors" -gt 1200 ]; then diags+=("leg$k-colors-out-of-band=$colors"); fi;; esac
     if [ "${ae:-}" = "0" ]; then diags+=("leg$k-AE=0(点击前后无像素差)"); fi
+
+    # ── ⏪ `t124`（`t118` 的 `N1`；**方向＝收紧**）：**帧身份 ＋ 帧位移** —— "两页停在同一张空态回退画面"不得读成绿 ──
+    #   依据：`t119` 现取 —— 两页**停在同一次回退渲染**（`k23=k24=last` 同值）而当时的 realized 四要件
+    #   （`magenta=0` ∧ 无具名行 ∧ `ink>0` ∧ `native_gap=0`）**全成立** ⇒ 旧判据会 `PASS`；`t122` 的 `N2` 只堵了
+    #   "入口缺失（`ENFE`）"那一面，**帧身份**这一面当时**没有装置侧取值格**（`t124` 第一件就是补它）。
+    #   口径（逐字）：取值来自 `leg_<k>.env` 的 `FRAME` 行（`t124` 新增段；键名不含数字 —— region 扫描词法所限）；
+    #     · **要件①（帧身份）**：`fr_sha` ∉ `FRAME_EMPTY_SET`（**已登记**空态帧身份集合，登记处见件头）；
+    #     · **要件②（帧位移）**：`fr_ae_boot` > 0（该帧相对 `boot` 的像素位移非零）；
+    #     · **`realized` 期**：任一不满足 ⇒ **红并点名**（点名**哪一帧／哪个要件／实测值／参照集**）；
+    #     · **`degraded` 期**：只印 `PTS_N1=INFO …`（**照 `t122` 的做法**：**不动**本相位判词 —— 止损期的绿语义
+    #       是"占位还在"，与帧身份不冲突）；
+    #     · 取值缺／不可解析（旧格式腿、截图没落、`-`）⇒ `PTS_N1=NOINFO` ＋ `cannot+=`（**绝不当绿**）。
+    #   ⚠️ **只增不减**：不改任何既有要件、三态语义、阈值。
+    local ln1 fsha fae ffile in_set n1bad n1f
+    ln1="$(grep -m1 '^FRAME ' "$ev" 2>/dev/null)"
+    ffile="$(field "${ln1:-}" fr_file)"; fsha="$(field "${ln1:-}" fr_sha)"
+    fae="$(field "${ln1:-}" fr_ae_boot)"
+    n1bad=""
+    case "${fsha:-}" in ''|'-'|*[!0-9a-fA-F]*) n1bad="${n1bad:+$n1bad,}fr_sha";; esac
+    case "${fae:-}"  in ''|'-'|*[!0-9]*)          n1bad="${n1bad:+$n1bad,}fr_ae_boot";; esac
+    in_set=no; case ",$FRAME_EMPTY_SET," in *",${fsha:-},"*) in_set=yes;; esac
+    if [ -n "$n1bad" ]; then
+      echo "PTS_N1=NOINFO k=$k reason=frame-cell-missing-or-unparsable(missing=$n1bad file=${ffile:-none} fr_sha=${fsha:-none} fr_ae_boot=${fae:-none}) frame_line=${ln1:-absent}（旧格式腿／截图没落 ⇒ 帧身份与帧位移**不可算** ⇒ 绝不当绿 —— 口径见 t124 段）"
+      cannot+=("leg$k(n1-frame-cell-missing=$n1bad)")
+    elif [ "$PHASE" = realized ]; then
+      n1f=""
+      if [ "$in_set" = yes ]; then
+        echo "  N1-EMPTY-FRAME k=$k file=${ffile:-none} fr_sha=$fsha in_empty_set=yes set={$FRAME_EMPTY_SET}（realized 期**这一帧还在已登记空态参照集里** ⇒ 不许给排版绿） reason=frame-identity-in-empty-state-set"
+        n1f="frame-identity(sha16=$fsha∈{$FRAME_EMPTY_SET})"
+      fi
+      if [ "$fae" -eq 0 ]; then
+        echo "  N1-NO-DISPLACEMENT k=$k file=${ffile:-none} fr_ae_boot=0（realized 期**该帧相对 boot 无任何像素位移** ⇒ 不许给排版绿） reason=frame-displacement-zero"
+        n1f="${n1f:+$n1f,}frame-displacement(ae_boot=0)"
+      fi
+      if [ -n "$n1f" ]; then
+        echo "PTS_N1=FAIL k=$k file=${ffile:-none} fr_sha=$fsha in_empty_set=$in_set fr_ae_boot=$fae set={$FRAME_EMPTY_SET} criterion=$n1f phase=realized reason=frame-identity-not-established"
+        fails+=("leg$k-n1-frame-unestablished($n1f)")
+      else
+        echo "PTS_N1=PASS k=$k file=${ffile:-none} fr_sha=$fsha in_empty_set=no fr_ae_boot=$fae criteria=frame-identity,frame-displacement phase=realized"
+      fi
+    else
+      echo "PTS_N1=INFO k=$k file=${ffile:-none} fr_sha=$fsha in_empty_set=$in_set fr_ae_boot=$fae set={$FRAME_EMPTY_SET} phase=degraded（止损期不据此判红；相位翻转后本条生效 —— 口径见 t124 段）"
+    fi
   done
 
   # G10 native 台账（**两腿合并判**：至少一条）
@@ -522,6 +574,10 @@ selftest() {
     printf 'NAMED managed_unavail=%s err=%s native_gap=%s native_err=%s\n' \
       "$([ "$8" = "-" ] && echo 0 || echo 1)" "$8" "$9" "${10}" >> "$d/leg_$2.env"
     printf 'DEV x_up=%s five_stable=%s shim=x pf=y\n' "${12}" "${11}" >> "$d/leg_$2.env"
+    # ⏪ `t124`（`N1` 接线）：夹具的 `FRAME` 行（**第五段**）。第 14 位 ＝ `fr_sha`（**缺省＝不在参照集里的一枚
+    #   形状合法 `sha16`** ⇒ 既有腿**不被 `N1` 扰动**）、第 15 位 ＝ `fr_ae_boot`（缺省 12345>0）。两条腿各自一条。
+    printf 'FRAME k=%s fr_file=k%s.png fr_sha=%s fr_lsha=%s fr_ae_boot=%s\n' \
+      "$2" "$2" "${14:-cafebabe12345678}" "${14:-cafebabe12345678}" "${15:-12345}" >> "$d/leg_$2.env"
   }
   good() { mk "$1" 24 yes 143 54454 851 HandyControlDemo.UserControl.FlowDocumentDemo -10000 1 -10000 yes yes
            mk "$1" 23 yes 143 49864 843 HandyControlDemo.UserControl.RichTextBoxDemo  -10000 0 -10000 yes yes; }
@@ -657,6 +713,54 @@ ENFE_EOF
   else
     nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "日志缺 ⇒ ENFE 面 NOINFO" "no" "PTS_ENFE=NOINFO"
   fi
+
+  # ── ⏪ `t124`（`N1` 接线）四条极性腿 ＋ 一条 `degraded` 反腿：**帧∈空态集 ⇒ 红点名**／**帧∉集∧位移>0 ⇒ 本条不红**／
+  #    **位移=0 ⇒ 红点名**／**取值缺 ⇒ NOINFO（不当绿）**／**`degraded` 期只印 `INFO` 且不判红** ──
+  #    夹具缺省（`mk` 第 14/15 位）＝ 不在参照集里的一枚形状合法 `sha16` ＋ `ae_boot=12345` ⇒ 既有腿**不被 `N1` 扰动**；
+  #    下面四条腿**只改 `FRAME` 行的取值**（`c36 → c37` 只动 `fr_sha` ⇒ **因果证明**：判词由 `FAIL` 翻成 `PASS`）。
+  _f1="$T/c36"; rm -rf "$_f1"
+  mk c36 24 yes 143 0 900 HandyControlDemo.UserControl.FlowDocumentDemo - 0 - yes yes 12345 1a76488aa4a790b3 15385
+  mk c36 23 yes 143 0 880 HandyControlDemo.UserControl.RichTextBoxDemo  - 0 - yes yes 12001 1a76488aa4a790b3 15385
+  _o="$(bash "$_rz" --legs "$_f1" 2>&1 || true)"
+  chk FAIL "$(out "$_o")" "realized·帧∈空态集 ⇒ 必红"
+  if grep -qF 'criterion=frame-identity' <<<"$_o" && grep -qF 'sha16=1a76488aa4a790b3∈{1a76488aa4a790b3}' <<<"$_o"; then
+    npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "N1·点名(帧+要件+参照集)" "yes"
+  else
+    nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "N1·点名(帧+要件+参照集)" "no" "criterion=frame-identity…∈{…}"
+  fi
+  _f2="$T/c37"; rm -rf "$_f2"; cp -a "$_f1" "$_f2"
+  sed -i 's/fr_sha=1a76488aa4a790b3/fr_sha=c0ffee1234abcd99/' "$_f2/leg_23.env" "$_f2/leg_24.env"
+  _o="$(bash "$_rz" --legs "$_f2" 2>&1 || true)"
+  chk PASS "$(out "$_o")" "realized·帧∉集∧位移>0 ⇒ 不因该条红"
+  if [ "$(diff <(sort "$_f1/leg_24.env") <(sort "$_f2/leg_24.env") | grep -c '^[<>]')" = 2 ]; then
+    npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "N1·因果(只 fr_sha 变)" "yes"
+  else
+    nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "N1·因果(只 fr_sha 变)" "no" "2 行差(每腿 1 行)"
+  fi
+  _f3="$T/c38"; rm -rf "$_f3"; cp -a "$_f2" "$_f3"
+  sed -i 's/fr_ae_boot=[0-9][0-9]*/fr_ae_boot=0/' "$_f3/leg_23.env" "$_f3/leg_24.env"
+  _o="$(bash "$_rz" --legs "$_f3" 2>&1 || true)"
+  chk FAIL "$(out "$_o")" "realized·位移=0 ⇒ 红"
+  if grep -qF 'criterion=frame-displacement(ae_boot=0)' <<<"$_o"; then
+    npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "N1·位移 0 点名" "yes"
+  else
+    nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "N1·位移 0 点名" "no" "criterion=frame-displacement(ae_boot=0)"
+  fi
+  _f4="$T/c39"; rm -rf "$_f4"; cp -a "$_f2" "$_f4"
+  sed -i '/^FRAME k=/d' "$_f4/leg_23.env" "$_f4/leg_24.env"
+  _o="$(bash "$_rz" --legs "$_f4" 2>&1 || true)"
+  chk NOINFO "$(out "$_o")" "realized·取值缺 ⇒ NOINFO"
+  if grep -qF 'reason=frame-cell-missing-or-unparsable' <<<"$_o"; then
+    npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "N1·缺格 ⇒ NOINFO(不当绿)" "yes"
+  else
+    nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "N1·缺格 ⇒ NOINFO(不当绿)" "no" "PTS_N1=NOINFO reason=frame-cell-missing"
+  fi
+  _o="$(bash "$0" --legs "$_f1" 2>&1 || true)"
+  if grep -qF 'PTS_N1=INFO' <<<"$_o" && ! grep -qF 'criterion=frame-identity' <<<"$_o"; then
+    npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "degraded·N1 只印 INFO" "yes"
+  else
+    nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "degraded·N1 只印 INFO" "no" "PTS_N1=INFO 且无 criterion=frame-identity"
+  fi
   # ⑳ `phase` 位自身的反极性：把 `phase=` 删掉 ⇒ `PTS_DIRECTION=FAIL` ＋ 判词必红
   _pf="$T/guard-nophase.sh"
   sed 's/^\(# PTS-DIRECTION: .*\)phase=degraded/\1phase=/' "$0" > "$_pf"
@@ -766,6 +870,11 @@ ENFE_EOF
 # ══ ⏪ `t122`（`t118` 的 `N2`）**ENFE 面**：`realized` 期 `ENFE_TOTAL>0`（且不在 `PTS_ENFE_ALLOWLIST`）⇒ **红并点名**；
 #    口径：`ENFE_TOTAL` ＝ `<证据目录>/app_g1.log` 里 `entry point named '<名>'` 的行数（与 `[HC-UNHANDLED]` 同源）；
 #    `degraded` 期只印 `PTS_ENFE=INFO`；日志缺 ⇒ `PTS_ENFE=NOINFO`（**绝不当绿**）。**只增不减、不动三态。**
+# ══ ⏪ `t124`（`t118` 的 `N1`）**帧身份 ＋ 帧位移**：`realized` 期「`fr_sha` ∉ `FRAME_EMPTY_SET`（件头**唯一登记处**）
+#     ∧ `fr_ae_boot>0`」两条**都要成立** ⇒ 任一不成立**红并点名**（哪一帧／哪个要件／实测值／参照集）；
+#    `degraded` 期只印 `PTS_N1=INFO`；`FRAME` 行缺／值不可解析 ⇒ `PTS_N1=NOINFO` ＋ `cannot`（**绝不当绿**）。
+#    装置侧取值格（`build/MilBridge/tests/PtsPagesProbe/session_inner.sh` 的 `FRAME` 行 → `legs-to-env.py` 的**第五段**）
+#    与判据**同趟**建立：`fr_file`／`fr_sha`／`fr_lsha`／`fr_ae_boot` 的口径见那两件的注释。**只增不减、不动三态。**
 # ══ `t109`／`t105` `F-1`② · **C4 侧读法：定名改用「台账口径」**（与 `P1-ptsname-result.md` §8 **裁定十二补**一致）══
 #   口径（逐字）：判「**被撞入口／下一跳是谁**」**以台账为准** —— 现取 `<dir>/app_g1.log` 里 `^PTS_GAP entry=<名>` 行，
 #   取 `seq=` 排序后的**最早**那一条 ＝ **下一跳**（链上最早那一站）；**最晚**那一条 ＝ **最近一次缺口调用**。

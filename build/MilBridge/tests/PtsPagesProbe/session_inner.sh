@@ -184,6 +184,34 @@ PY
     printf 'FAILLINE k=%s failfast=%s unrec=%s src=%s\n' \
       "$k" "$(cnt "FailFast" "$GLOG")" "$(cnt "Unrecoverable system error" "$GLOG")" \
       "app_g$gi.log:FailFast|Unrecoverable"
+    # ⏪ `t124`（`t118` 的 `N1`）**帧身份 ＋ 帧位移的机读格**（**既有 `CLICK`／`FAILLINE`／`PHASE` 行一字未动**）。
+    #   **口径（逐字）**：
+    #     · `fr_file=` ＝ 本腿截图的**文件名**（`k<k>.png`）；截图没落 ⇒ `-`。
+    #     · `fr_sha=`  ＝ 该文件的 `sha256sum` **前 16 位**（与 `five()`／`shim_sha16=` **同一算口径**）；读不到 ⇒ `-`。
+    #     · `fr_lsha=` ＝ **同一时刻** `last.png` 的前 16 位。本装置在该点之前刚做过 `cp -f k$k.png last.png`
+    #       ⇒ 二者**逐字相同**是**装配不变量**；不同即**装置异常**（如实印出、不掩盖）。
+    #     · `fr_ae_boot=` ＝ `compare -metric AE boot.png k$k.png`（**该帧相对 `boot` 的像素位移**，整数）；算不出 ⇒ `-`。
+    #   **为何是这一对**：`N1` 的两要件 ＝「帧身份」（`fr_sha` ∉ 已登记空态参照集）＋「帧位移」（`fr_ae_boot>0`）；
+    #     单看 `ink>0`／`alive=yes` **证不出**"这一帧不是那张空态回退画面"（`t119` 的现场：两页停在同一回退画面）。
+    #   **`-` 的语义** ＝ **没测到**（不是 0、不是绿）；键名**不含数字**（转换器 region 扫描的键词法是 `[A-Za-z_]+`）。
+    #   位置：落在 `CLICK` 与 `PHASE` 之间 ⇒ 转换器 `legs-to-env.py` 的既有 region token 扫描**自动带走**（不新增解析器）。
+    _fr_sha="$(sha256sum "$GSHOTS/k$k.png" 2>/dev/null | cut -c1-16)"
+    _fr_lsha="$(sha256sum "$GSHOTS/last.png" 2>/dev/null | cut -c1-16)"
+    _fr_ae="$(python3 - "$GSHOTS/boot.png" "$GSHOTS/k$k.png" <<'PY'
+import subprocess, sys
+r = subprocess.run(['compare','-metric','AE',sys.argv[1],sys.argv[2],'null:'],capture_output=True,text=True)
+o = ((r.stderr or '') + (r.stdout or '')).strip().split()
+print(o[0] if o else 'NA')
+PY
+)"
+    [ -n "${_fr_sha:-}" ] || _fr_sha='-'
+    [ -n "${_fr_lsha:-}" ] || _fr_lsha='-'
+    case "${_fr_ae:-}" in ''|*[!0-9]*) _fr_ae='-';; esac
+    [ -f "$GSHOTS/k$k.png" ] || _fr_sha='-'
+    [ -f "$GSHOTS/last.png" ] || _fr_lsha='-'
+    printf 'FRAME k=%s fr_file=%s fr_sha=%s fr_lsha=%s fr_ae_boot=%s\n' \
+      "$k" "$([ -f "$GSHOTS/k$k.png" ] && printf 'k%s.png' "$k" || printf '-')" \
+      "$_fr_sha" "$_fr_lsha" "$_fr_ae"
     n1="$(firstline "$GLOG" "EntryPointNotFoundException: Unable to find an entry point named 'CreateInstalledObjectsInfo'")"
     n2="$(firstline "$GLOG" "PTS_GAP entry=")"
     n3="$(firstline "$GLOG" "\[PTS-UNAVAILABLE\] site=")"
