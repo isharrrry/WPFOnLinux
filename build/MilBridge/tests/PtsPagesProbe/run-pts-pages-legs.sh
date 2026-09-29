@@ -27,7 +27,7 @@ REPO="${PTS_GUARD_REPO:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." 
 APPDIR="${PTS_GUARD_APPDIR:-${W67_WORK:-$HOME/w67-work}/app}"
 DISPLAY_NUM="${PTS_GUARD_DISPLAY:-:237}"
 SELF_DIR="$(cd "$(dirname "$0")" && pwd)"
-SESS="$SELF_DIR/session_inner.sh"          # 私有腿跑器（与判据同目录）
+SESS="${PTS_INNER:-$SELF_DIR/session_inner.sh}"   # 私有腿跑器（与判据同目录）；⏪ `t153`：`PTS_INNER` 可注入**桩**（测试缝；默认值不变）
 TOENV="$SELF_DIR/legs-to-env.py"
 # ⚠️【落仓参数化（纪律 34）】原值 = 某**外来车道**工作目录下的 dlls（**硬编码**）。
 #   现在：**不设 PTS_GUARD_ARMS ⇒ 不换件** —— A 臂的语义就是*现权威五件*，
@@ -46,6 +46,34 @@ ALL_ARMS=0
 [ "${1:-}" = "--all-arms" ] && ALL_ARMS=1
 mkdir -p "$OUTDIR"
 mkdir -p "$OUTDIR/device"
+
+# ⏪ `t153`：**计数必须无条件印**（前置拒绝／转换失败／中途退出都要印）⇒ 用 `EXIT` trap 兜底（`_LEGSCOUNT_DONE` 防重印；
+#   `$?` 在 trap 里就是退出码，打印不改 rc）。`requested` ＝ 请求样本数；`obtained` ＝ 真产出 `leg_<k>.env` 的样本数。
+CONV_RC="-"; SESS_RC="-"; DISPLAY_NUM=""
+REQ_N=2; [ "$ALL_ARMS" = 1 ] && REQ_N=5   # ⏪ t153：请求样本数（A:24,23 = 2；--all-arms = 5）—— **前置拒绝路径的计数行也要有它**
+_LEGSCOUNT_DONE=0
+_legs_count() {
+  local rc=$?; [ "${_LEGSCOUNT_DONE:-0}" = 1 ] && return $rc; _LEGSCOUNT_DONE=1
+  local n=0 d _n miss rs=""
+  for d in "$OUTDIR"/arm_*; do [ -d "$d" ] || continue; _n=$(ls "$d"/leg_*.env 2>/dev/null | wc -l); n=$((n + _n)); done
+  [ "$n" = 0 ] && n=$(ls "$OUTDIR"/leg_*.env 2>/dev/null | wc -l)
+  miss=$(grep -c 'MISSING-SHIM' "$OUTDIR/session.txt" 2>/dev/null || true); miss="${miss:-0}"
+  [ -s "$OUTDIR/session.txt" ] || rs="${rs}session-missing=1,"
+  [ "$SESS_RC" = "-" ] || [ "$SESS_RC" = 0 ] || rs="${rs}session-rc=$SESS_RC,"
+  [ "$CONV_RC" = "-" ] || [ "$CONV_RC" = 0 ] || rs="${rs}converter-rc=$CONV_RC,"
+  [ "$miss" = 0 ] || rs="${rs}missing-shim=$miss,"
+  [ "$n" -gt 0 ] || rs="${rs}no-leg-env=1,"
+  [ "$rc" = 0 ] || rs="${rs}runner-rc=$rc,"
+  echo "LEGSCOUNT requested=${REQ_N:-?} obtained=$n refused=$(( ${REQ_N:-0} - n )) reasons=${rs:-none} display=${DISPLAY_NUM:-none} rc=$rc session_rc=$SESS_RC conv_rc=$CONV_RC outdir=$OUTDIR"
+  if [ "${REQ_N:-0}" -gt 0 ] && [ "$n" -ge "${REQ_N:-0}" ] && [ "$rc" = 0 ]; then
+    echo "LEGS_RUNNER=PASS requested=${REQ_N} obtained=$n refused=0 display=${DISPLAY_NUM:-none}"
+  else
+    echo "LEGS_RUNNER=FAIL requested=${REQ_N:-?} obtained=$n refused=$(( ${REQ_N:-0} - n )) reasons=${rs:-unaccounted} display=${DISPLAY_NUM:-none}"
+  fi
+  return $rc
+}
+trap '_legs_count' EXIT
+HAS_TRAP=1
 
 # ── 前置 1：应用目录必须与权威一致（否则测的是陈旧件）─────────────────────────
 if [ -x "$REPO/build/MilBridge/tools/sync-applocal.sh" ]; then
@@ -103,15 +131,63 @@ self_chain_pids() {
 }
 SELF_CHAIN="$(self_chain_pids | tr '\n' ' ')"
 self_in_chain() { case " $SELF_CHAIN " in *" $1 "*) return 0 ;; esac; return 1; }
-for p in /proc/[0-9]*; do
-  [ -r "$p/cmdline" ] || continue
-  pid="${p#/proc/}"
-  self_in_chain "$pid" && continue
-  cl="$(tr '\0' ' ' < "$p/cmdline" 2>/dev/null || true)"
-  case "$cl" in
-    *"$DISPLAY_NUM"*) echo "device=NOINFO reason=display-occupied display=$DISPLAY_NUM pid=$pid"; exit 2 ;;
-  esac
+# ── 前置 2（⏪ `t153`，**修"静默少样本"**）：**独占号分配 ＋ 有界等待** ────────────────────────
+#   旧形态（现取 `t150` 上报的病灶）：号被**上一趟自己的 Xvfb**（未即时收净）占着 ⇒ 立刻
+#     `device=NOINFO reason=display-occupied` ⇒ `exit 2` ⇒ **调用方拿到的像"跑过了"、实际 0 样本**（静默少样本）。
+#   新形态（三条，逐字）：
+#     · **可复现的分配规则**：候选号 ＝ `$PTS_DISPLAY_BASE`（默认 `:231`）起、`$PTS_DISPLAY_SPAN`（默认 9）个
+#       （`:231`..`:239`）；**取最小空闲号** ⇒ 同一进程内**连续多趟不会互相踩号**（`t150` 手工用 `:231`..`:239` 拿到 9/9 的规则，现在自动化）。
+#       调用方**显式**给 `PTS_GUARD_DISPLAY=:<n>` ⇒ **只用该号**（向后兼容；被占时走下面的等待/失败）。
+#     · **"空"的判据**：没有**非本链**进程的 `cmdline` 含该号 token（`self_in_chain` 跳过本进程链，避免把自己判成占用者）。
+#     · **有界等待**：被占 ⇒ 每 0.5s 重扫、最多 `$PTS_DISPLAY_WAIT_SECS`（默认 30）秒（**先等上一趟自己的 Xvfb 收净**）；
+#       **等不到 ⇒ 显式失败并点名**（`DISPLAY_WAIT … state=timeout` ＋ `device=NOINFO reason=display-not-free …` ＋
+#       **计数行** ＋ `LEGS_RUNNER=FAIL` ＋ `exit 2`）—— **绝不静默继续**。
+occupied_by() {   # occupied_by <display> ⇒ 印占用者 pid（stdout 空＝空闲）
+  local d="$1" p pid cl
+  for p in /proc/[0-9]*; do
+    [ -r "$p/cmdline" ] || continue
+    pid="${p#/proc/}"
+    self_in_chain "$pid" && continue
+    cl="$(tr '\0' ' ' < "$p/cmdline" 2>/dev/null || true)"
+    case "$cl" in *"$d"*) printf '%s' "$pid"; return 0 ;; esac
+  done
+  return 1
+}
+PTS_DISPLAY_BASE="${PTS_DISPLAY_BASE:-:231}"
+PTS_DISPLAY_SPAN="${PTS_DISPLAY_SPAN:-9}"
+PTS_DISPLAY_WAIT_SECS="${PTS_DISPLAY_WAIT_SECS:-30}"
+_occ_of() { occupied_by "$1" 2>/dev/null || true; }
+if [ -n "${PTS_GUARD_DISPLAY:-}" ]; then
+  DISPLAY_NUM="$PTS_GUARD_DISPLAY"
+  PICK_RULE="caller-fixed(PTS_GUARD_DISPLAY)"
+else
+  PICK_RULE="lowest-free(base=$PTS_DISPLAY_BASE span=$PTS_DISPLAY_SPAN)"
+  base_num="${PTS_DISPLAY_BASE#:}"
+  DISPLAY_NUM=""
+  i=0
+  while [ "$i" -lt "$PTS_DISPLAY_SPAN" ]; do
+    cand=":$((base_num + i))"
+    if [ -z "$(_occ_of "$cand")" ]; then DISPLAY_NUM="$cand"; break; fi
+    i=$((i+1))
+  done
+  [ -n "$DISPLAY_NUM" ] || DISPLAY_NUM=":$base_num"   # 全都占着 ⇒ 用首个候选走"等待 ⇒ 超时显式失败"路径（**不静默跳过**）
+fi
+_waited_ms=0
+while :; do
+  occ="$(_occ_of "$DISPLAY_NUM")"
+  [ -z "$occ" ] && break
+  if [ "$_waited_ms" -ge $((PTS_DISPLAY_WAIT_SECS * 1000)) ]; then
+    echo "DISPLAY_WAIT display=$DISPLAY_NUM state=timeout waited_ms=$_waited_ms occupant_pid=$occ rule=$PICK_RULE"
+    echo "device=NOINFO reason=display-not-free display=$DISPLAY_NUM waited_ms=$_waited_ms occupant_pid=$occ"
+    echo "LEGSCOUNT requested=$REQ_N obtained=0 refused=$REQ_N reasons=display-not-free=$REQ_N display=$DISPLAY_NUM rule=$PICK_RULE"
+    echo "LEGS_RUNNER=FAIL reason=display-not-free display=$DISPLAY_NUM occupant_pid=$occ"
+    _LEGSCOUNT_DONE=1   # ⏪ `t153`：本路径已印过计数 ⇒ 不让 EXIT trap 再印一遍（防重复行）
+    exit 2
+  fi
+  [ "$_waited_ms" = 0 ] && echo "DISPLAY_WAIT display=$DISPLAY_NUM state=waiting occupant_pid=$occ rule=$PICK_RULE（先等上一趟自己的 Xvfb 收净，最多 ${PTS_DISPLAY_WAIT_SECS}s）"
+  sleep 0.5; _waited_ms=$((_waited_ms + 500))
 done
+echo "DISPLAY_PICK display=$DISPLAY_NUM rule=$PICK_RULE waited_ms=$_waited_ms（独占号：同一进程内多趟按"最小空闲"分配 ⇒ 不互相踩号）"
 
 # ── 前置 3：内存闸 ────────────────────────────────────────────────────────────
 avail_mb=$(( $(awk '/^MemAvailable:/{print $2}' /proc/meminfo) / 1024 ))
@@ -169,6 +245,7 @@ LEG_GROUPS=("A:24,23")
 echo "LEGS: ${LEG_GROUPS[*]}"
 bash "$SESS" "$(basename "$OUTDIR")" "${LEG_GROUPS[@]}" 2>&1 | tee "$OUTDIR/session.txt"
 rc_sess=${PIPESTATUS[0]}
+SESS_RC="$rc_sess"   # ⏪ `t153`：交给 EXIT trap 的计数行（**新增**；既有变量与用法未动）
 
 # ── 收装置（**只按 PID**）────────────────────────────────────────────────────
 for f in xfwm.pid xvfb.pid; do [ -s "$OUTDIR/device/$f" ] && kill "$(cat "$OUTDIR/device/$f")" 2>/dev/null; done
@@ -177,6 +254,17 @@ for f in xfwm.pid xvfb.pid; do
   [ -s "$OUTDIR/device/$f" ] && { kill -9 "$(cat "$OUTDIR/device/$f")" 2>/dev/null; rm -f "$OUTDIR/device/$f"; }
 done
 rm -f "$OUTDIR/device/display-lease.txt"   # ⏪【`t68`】显示位 lease 随装置收尾一并撤（不留可被复用的旧 lease）
+# ⏪ `t153`：收尾**自证**（残留 ⇒ 点名并按 PID 再收一次；**不**用 pkill/pgrep -f）
+for _pair in "xvfb:$XVFB" "xfwm:$XFWM"; do
+  _k="${_pair%%:*}"; _p="${_pair#*:}"
+  if [ -n "${_p:-}" ] && kill -0 "$_p" 2>/dev/null; then
+    kill -9 "$_p" 2>/dev/null
+    sleep 0.3
+    if kill -0 "$_p" 2>/dev/null; then echo "DEVICE_REAP state=STILL-ALIVE who=$_k pid=$_p display=$DISPLAY_NUM"; else echo "DEVICE_REAP state=reaped-on-retry who=$_k pid=$_p display=$DISPLAY_NUM"; fi
+  else
+    echo "DEVICE_REAP state=clean who=$_k pid=${_p:-none} display=$DISPLAY_NUM"
+  fi
+done
 
 # ── 转证据契约 ───────────────────────────────────────────────────────────────
 # ⚠️【落仓加（实测需要）】session_inner.sh 把 session.txt 与原始日志写在
@@ -195,7 +283,9 @@ for _f in "$SESS_LOGDIR"/app_g*.log "$SESS_LOGDIR"/five_pre_g*.txt "$SESS_LOGDIR
   [ -f "$_f" ] && cp -a --remove-destination "$_f" "$OUTDIR/$(basename "$_f")"
 done
 [ -d "$SESS_LOGDIR/shots" ] && cp -a "$SESS_LOGDIR/shots/." "$OUTDIR/shots/" 2>/dev/null
-python3 "$TOENV" "$OUTDIR/session.txt" "$OUTDIR/device.txt" "$OUTDIR/shots" "$OUTDIR" || exit 1
+python3 "$TOENV" "$OUTDIR/session.txt" "$OUTDIR/device.txt" "$OUTDIR/shots" "$OUTDIR"
+CONV_RC=$?   # ⏪ `t153`：**不再 `|| exit 1` 静默退出** —— 记 rc、印具名行，由 EXIT trap 的计数行收口（"没拿到"必须可数）
+[ "$CONV_RC" = 0 ] || echo "LEGS_TO_ENV_FAIL rc=$CONV_RC outdir=$OUTDIR（转换器失败 ⇒ 该趟**样本不可用**；计数行会点名）"
 POST_SHIM16="$(sha256sum "$APPDIR/libwpfwin32.so" 2>/dev/null | cut -c1-16)"
 POST_PF16="$(sha256sum "$APPDIR/PresentationFramework.dll" 2>/dev/null | cut -c1-16)"
 if [ "$POST_SHIM16" != "$AUTH_SHIM16" ] || [ "$POST_PF16" != "$AUTH_PF16" ]; then
@@ -205,4 +295,5 @@ if [ "$POST_SHIM16" != "$AUTH_SHIM16" ] || [ "$POST_PF16" != "$AUTH_PF16" ]; the
   exit 2
 fi
 echo "POSTSHIM: shim=$POST_SHIM16 pf=$POST_PF16（== authority ⇒ 读数可归因）"
+
 LEGS_RUNNER=OK rc_session=$rc_sess outdir=$OUTDIR
