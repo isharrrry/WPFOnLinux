@@ -263,7 +263,34 @@ selftest() {
   cp -a "$SITES/docs/WAVE66-PREREGISTRATION.md" "$h3/docs/" 2>/dev/null || true   # W66 锚取自 $SITES ⇒ 夹具须同备，否则 live 不可读 ⇒ 假红
   leg "H3 某字段只剩历史行（必须 NOINFO、**绝不当绿**）" NOINFO "reason=current-site-absent" "$h3" "$fx/decl.txt"
 
-  printf 'PTSGAP_SELFTEST=%s pass=%d fail=%d legs=12 must_red=7\n' \
+  # ── ⏪ `t137` 新增三腿（锚族按形状扩 ＋ dated 必要件的两极化）：
+  #    H4 **正极**：dated ＋ 裸件名锚（`win32shim <16hex>` ≠ 现盘）＋ `exports=<N>`（≠ 现盘）⇒ 历史行 ⇒ **不红**；
+  #    H5 **反极（伪装）**：**现值行**（无 dated 措辞）但**人为加**同形状裸件名锚 ⇒ **必须仍然红**；
+  #    H6 **反极（现值位写错）**：现值位 `impl` 改成 `999` ⇒ **必红并点名** `SITE-DRIFT … impl want=… got=999`。
+  local h4="$TMPD/fx9"; rm -rf "$h4"; cp -a "$fx" "$h4"
+  {
+    local sobare='win32shim'
+    local soold16='0000000000000000'
+    printf -- '- 🆕 **在册数已现算（主控 2026-09-26，只读车道 W174A）** ｜**实现口径 %s**（锚 %s %s／exports=%s）；**可操作缺口 %s 条**\n' \
+      "$((IMPL+1))" "$sobare" "$soold16" "$((EXPORTS+2))" "$((OPS+1))"
+  } >>"$h4/docs/ROUTES.md"
+  leg "H4 自引旧代 dated 锚行（裸件名 ＋ exports=）**不得假红**" PASS "" "$h4" "$fx/decl.txt"
+
+  local h5="$TMPD/fx10"; rm -rf "$h5"; cp -a "$fx" "$h5"
+  {
+    local sobare5='win32shim'
+    local soold5='0000000000000000'
+    printf -- '- 现值出处（现盘）｜**实现口径 %s**（只加假锚：件 %s %s）；**可操作缺口 %s 条**\n' \
+      "$((IMPL+1))" "$sobare5" "$soold5" "$OPS"
+  } >>"$h5/docs/ROUTES.md"
+  leg "H5 现值行只加假锚（**无 dated 措辞**）⇒ 仍必红" FAIL "SITE-DRIFT docs/ROUTES.md impl" "$h5" "$fx/decl.txt"
+
+  local h6="$TMPD/fx11"; rm -rf "$h6"; cp -a "$fx" "$h6"
+  sed -i "s/｜\*\*实现口径 $IMPL\*\*／｜\*\*实现口径 999**／" "$h6/docs/ROUTES.md" 2>/dev/null || true
+  sed -i "s/\*\*实现口径 $IMPL\*\*/**实现口径 999**/g" "$h6/docs/ROUTES.md"
+  leg "H6 现值位 impl 写错 999（**必红并点名 want/got**）" FAIL "SITE-DRIFT docs/ROUTES.md impl want=$IMPL got=999" "$h6" "$fx/decl.txt"
+
+  printf 'PTSGAP_SELFTEST=%s pass=%d fail=%d legs=15 must_red=9\n' \
       "$([ "$nfail" -eq 0 ] && echo PASS || echo FAIL)" "$npass" "$nfail"
   [ "$nfail" -eq 0 ] || return 1
   return 0
@@ -295,6 +322,17 @@ done
 #   ⇒ 这类行**只描述它引用的那一代**（裁定九），其数字**不参与现值判定**（**在场不红**）；
 #   **其余命中行一律参与**（现值出处写错 ⇒ **必红并点名** `SITE-DRIFT <件> <字段> want=… got=…`）。
 #   ⚠️ **没有**放宽到"整件不扫"：本件对**每一处命中**逐处分类（同一件可同时有历史行与现值行）；
+  #   ⏪ **`t137` dated 追加（锚族按具体形状扩 ＋ 加 dated 必要件；t106 原句一字未删）**：
+  #     · **锚族（四条形状，全部"具体形状"、不用任意 16 hex）**：① `.<so> <16hex>`（t106）｜② `<N> 导出`（t106）｜
+  #       **③ 裸件名 ＋ 16 hex**（白名单 `HIST_ARTIFACT_RE`：`win32shim`／`libwpfwin32`／`wpfgfx_cor3`／
+  #       `PresentationCore`／`PresentationFramework`／`WindowsBase`）｜**④ `exports=<N>`**。
+  #     · **新增必要条件：行内须带「dated 措辞」**（`HIST_DATED_RE`：`读时`／`dated`／`⏪`／`历史`／`YYYY-MM-DD`）
+  #       —— 锚形状 **且** dated 措辞**同时**成立才判历史行（**堵"只加锚即免红"的伪装口子**）。
+  #     · 两条理由：① 真因现取 —— `docs/ROUTES.md` 那条「在册数已现算（主控 2026-09-26 …）」自带
+  #       `win32shim fc60c34d51fd9247`／`exports=550` 却**不在旧锚族**里 ⇒ 被误当现值位（假红）；
+  #       ② `:247` 那类行（含"实现口径 87 条"）**也不是**现值位，须由自引旧代锚 ＋ dated 措辞共同界定。
+  #     · **残留口子（如实记）**：锚 ＋ 日期戳同时伪造仍可免红（本件只堵"只加锚"这一路）。
+  #   ⚠️ **没有**放宽到"整件不扫"：本件对**每一处命中**逐处分类（同一件可同时有历史行与现值行）；
 #   且**每个字段都必须至少有一处现值位**，否则 ⇒ `SITE-HISTORICAL-ONLY …` ＋
 #   `PTSGAP=NOINFO reason=current-site-absent`（**响亮、`rc=3`、绝不当绿**）。
 #   ⚠️ 也不采用"只扫第一处"这类脆弱口径（那会让"第二处写错"漏网）。
@@ -305,13 +343,48 @@ CURSEEN=""           # 出现过现值位的**字段标签**集合（空格分�
 lab_add() { case " ${!1} " in *" $2 "*) ;; *) eval "$1=\"${!1} $2\"" ;; esac; }   # `${!1}`＝按名取现值（去重靠它）
 
 # 该行是否"自引旧代工件"（⇒ 历史行）：$1 ＝ 行文本
+# ⏪ `t137`（**锚族按具体形状扩到"自引旧代锚行"**；真因现取：`docs/ROUTES.md` 里那条
+#   「🆕 在册数已现算（主控 2026-09-26，只读车道 W174A）… ⇒ **实现口径 87** ＝ 88 ＋ …（锚 `win32shim
+#   fc60c34d51fd9247`／`exports=550`）」是**自引旧代的 dated 陈述**，却因**裸件名锚**不在旧锚族里而被判现值位）。
+#   **白名单＝本族实测出现过的写法**（**不用**"命中任意 16 hex 即历史行"那种**过宽**规则 —— 它会过分类）：
+#   `win32shim`｜`libwpfwin32`（含 `.so` 写法由旧锚 ① 覆盖）｜`wpfgfx_cor3`｜`PresentationCore`｜
+#   `PresentationFramework`｜`WindowsBase`；锚形 ＝ 件名 ＋ **≤3 个非 16 进制字符** ＋ 16 hex。
+#    ⚠️ 间隔参数**按实测**取 `{0,5}`：`so16` 键在 `docs/ROUTES.md` 的记法是 「`so16` **`<16hex>`」
+#      ⇒ 键与 hex 之间**恰 5 个非 hex 字符**（反引号／空格／两个星号／反引号）⇒ 取 5 才盖得住；
+#      **仍**不是「命中任意 16 hex」（前缀必须是白名单件名／`so16` 键，且后随 ≤5 非 hex 字符）。
+HIST_ARTIFACT_RE='(win32shim|libwpfwin32|wpfgfx_cor3|PresentationCore|PresentationFramework|WindowsBase|so16)[^0-9a-f]{0,5}[0-9a-f]{16}'
+#    ⏪ `t137` 追加一枚：**`so16` 键 ＋ 16 hex**（真因现取：`docs/ROUTES.md` 那条 `⏪ dated 结论 · W7` 行里写的是
+#      `so16 **6825dd7071387a46 → 2a5165700a8c8579**` —— 它是**自引旧代的锚**（≠ 现盘 `so16`），但键名不带 `.so`
+#      ⇒ 旧锚族与裸件名白名单都盖不住 ⇒ 与本件同族、按**具体形状**一并纳入）。
+
+# ⏪ `t137`：**dated 措辞**（＝"这是一句自引旧代的陈述"的第二个必要件）——
+#   只有它**与**锚形状**同时**成立才判历史行；否则任何人都能给现值行加个假锚来免红（**伪装口子**）。
+#   本族逐条（并给理由）：① `读时`（`t14` 起在册的 dated 措辞）；② `dated`（英文同义）；
+#   ③ `⏪`（本波 dated 追加的通用记号）；④ `历史`（`t106` 自测夹具与本族文书的既有写法）；
+#   ⑤ **裸日期戳** `YYYY-MM-DD`（现值行的写法是"现值出处（现盘）"，不带日期戳）。
+#   ⚠️ **残留口子（如实记）**：同时伪造"锚 ＋ 日期戳/历史字样"仍可免红 —— 本件只堵"只加锚"这一路。
+#   ⑥ `世代`（现取动因：`samples/WpfFeatureProbe/KNOWN-DEFECTS.md` 的 `t134` dated 块自述句「**口径世代仍为**
+#      `libwpfwin32.so fc60c34d51fd9247`／`550 导出`」—— 它**明写**自己所引的是哪一代 ⇒ 属自引旧代陈述；
+#      这一枚是本件**唯一**为覆盖既有真历史行而加的措辞，逐条留证）。
+HIST_DATED_RE='读时|dated|⏪|历史|[12][0-9]{3}-[0-9]{2}-[0-9]{2}|世代'
+
 line_is_hist() {
-  local L="$1" h e
+  local L="$1" h e hb eb
   # ⚠️ 本行的 ERE **故意不含反引号**（双引号内的反引号会被 shell 当命令替换 ⇒ `D-G186` 同族坑）
+  # ⏪ `t137`：**必要条件之一：dated 措辞**（先判，成本最低且在"伪装"测试里最先挡住）
+  printf '%s' "$L" | grep -qE "$HIST_DATED_RE" 2>/dev/null || return 1
+  # ① `.<so> <16hex>`（既有，未动）
   h=$(printf '%s' "$L" | LC_ALL=C grep -oE '[.]so[^0-9a-f]{0,3}[0-9a-f]{16}' 2>/dev/null | grep -oE '[0-9a-f]{16}' | head -1)
   if [ -n "$h" ] && [ "$h" != "$SO16" ]; then return 0; fi
+  # ② `<N> 导出`（既有，未动）
   e=$(printf '%s' "$L" | grep -oE '[0-9]+ 导出' 2>/dev/null | grep -oE '[0-9]+' | head -1)
   if [ -n "$e" ] && [ "$e" != "$EXPORTS" ]; then return 0; fi
+  # ③ ⏪ `t137` 新增：**裸件名 ＋ 16 hex**（白名单见上）
+  hb=$(printf '%s' "$L" | LC_ALL=C grep -oE "$HIST_ARTIFACT_RE" 2>/dev/null | grep -oE '[0-9a-f]{16}' | head -1)
+  if [ -n "$hb" ] && [ "$hb" != "$SO16" ]; then return 0; fi
+  # ④ ⏪ `t137` 新增：`exports=<N>`
+  eb=$(printf '%s' "$L" | grep -oE 'exports=[0-9]+' 2>/dev/null | grep -oE '[0-9]+' | head -1)
+  if [ -n "$eb" ] && [ "$eb" != "$EXPORTS" ]; then return 0; fi
   return 1
 }
 
