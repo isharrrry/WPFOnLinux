@@ -3888,3 +3888,12 @@ SELFDESC_WIRING=FAIL examined=1 wired=1 unwired=0 undeclared=0 fails=1 run_step=
 - **判据（机器，四格 ＋ 零漏）**：① 注释假声明 ⇒ 必红点名 ② 注释掉的声明 ⇒ 必红点名 ③ 块注释里的声明 ⇒ 必红点名 ④ 真声明 ⇒ 绿并点名声明位；**零漏证据**：现盘 `upstream/wpf` 全树 `^\s*\[\s*DllImport\s*\(…EntryPoint="…"` 的 **548** 行（**452** 个去重入口名）在新锚下**逐名命中**（把全部 452 名一次塞进一条腿跑落盘件 ⇒ `PASS domains=…`）；`--selftest` `PASS pass=40 fail=0`。
 - **归属理由（为什么不新立号）**：这是 `D-G189` 的**同一处判据**（非 PTS 域归因）的**强度不足**面，与本条第一面（域取值域未声明假设）**同源同件**：第一面讲「**域认错了**」，本面讲「**认的方法太松**」；两者共用同一条口径句（「判据引用一个观测量之前，必须把它『由谁产生、取值域是什么』写进判据件」）与同一条修法路径（域分格）。⇒ 并入既有号，**不**另立新号（立新号会让两处对同一函数的分工分叉）。
 - **责任归属（如实）**：`F1` 由 `t77`（独立复核）**独立造夹具发现**，在 `P1-g10-domain-verify.md` 里判 **medium**；修法与登记在 `t82`；`G10b`（PTS 域）**一格未动**。
+
+## P1 尾波 2 登记批（2026-09-30；**一条入册**：`T-A2` 撞到的产品既存缺陷；读数全部现取）
+
+### D-G190（产品缺陷 · native 写越界 ⇒ fortify `abort()`）
+- **现象**：`WpfLinuxWin32_PumpOnce(timeout_ms>0)` 在 `wake_read` 与 `xfd` **双双有效**时，往 `struct pollfd fds[1]` 写入**第 2 项** ⇒ glibc `__poll_chk` 判 `*** buffer overflow detected ***` 并 `abort()`（本机 fortify 构建；实测核心转储）。
+- **出处**：`src/WpfGfx.Linux.Native/src/win32_pts.c`（现取 `57a80e0bb51d17ea`）之 `WpfLinuxWin32_PumpOnce`；`bt`：#8 `__poll_chk` ← #9 `WpfLinuxWin32_PumpOnce`。
+- **取证**：`build/MilBridge/tests/E3ReplayProbe/T-A2-report.md` §③-2（**未改产品**、只挂账；探针改用自己的 `poll(xfd)` ＋ `PeekMessageW` 绕开）。
+- **修法（未做）**：`fds[]` 容量与实际 fd 数不符 ⇒ 按实际 fd 数扩容量（或分两次 `poll`）。
+- **边界 `NOINFO`**：未量化触发频率；未跑修法。

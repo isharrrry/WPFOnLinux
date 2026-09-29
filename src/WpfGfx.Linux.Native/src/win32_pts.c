@@ -107,6 +107,27 @@ static const char *const k_pts_entries[] = {
    **只在副本**；缺省 **0** ⇒ 主链产物一个字节都不受影响。 */
 #define WPF_PTS_FSP_PL_M1 0
 #endif
+#ifndef WPF_PTS_FSP_PL_LMWIT
+/* ⏪ `t194`（P1-W107）：LM-1 第 4 条的**降级见证**（到达＋算术）。缺省 **0** ⇒ 主链零影响。 */
+#define WPF_PTS_FSP_PL_LMWIT 0
+#endif
+#ifndef WPF_PTS_FSP_PL_LMWIT_NODVR
+#define WPF_PTS_FSP_PL_LMWIT_NODVR 0    /* 反腿①：`dvrUsed=0` ⇒ 算术不成立 ⇒ **必红** */
+#endif
+#ifndef WPF_PTS_FSP_PL_LMWIT_NOARR
+#define WPF_PTS_FSP_PL_LMWIT_NOARR 0    /* 反腿②：到达见证=0（不填列表）⇒ **必红** */
+#endif
+#ifndef WPF_PTS_FSP_PL_DVR
+/* ⏪ `t198`（P1-W107 重修）：(甲) **描述符字段求真值** —— `FSPARADESCRIPTION.dvr_used(+36)`／
+   `dvr_top_space(+60)` 的值**只**取自本侧段账（LM-1 段账 `g_pts_lm1_led[]`，由 M1 每次段账写入）
+   ⇒ 通路＝**段账 → 描述符**（与"出参 → 托管"同源同操作数）。缺省 **0** ⇒ 主链产物零影响。 */
+#define WPF_PTS_FSP_PL_DVR 0
+#endif
+#ifndef WPF_PTS_FSP_PL_DVR_NODVR
+/* ⏪ `t198` 反腿（修正 `t195` `F-NODVR-WRONG-TARGET`）：把**描述符**（宿主 `PtsHelper.cs:177`
+   真读的操作数）打成 0 ⇒ **描述符层**算术必红。旧反腿只打**出参**，射程不含 `:177`。缺省 **0**。 */
+#define WPF_PTS_FSP_PL_DVR_NODVR 0
+#endif
 #ifndef WPF_PTS_FSP_PL_M2
 /* ⏪ `t181`（P1-W98）：**M2＝LM-1 本侧段账**（排版模型几何/计数层）。只在副本；缺省 **0**。 */
 #define WPF_PTS_FSP_PL_M2 0
@@ -1114,6 +1135,9 @@ _Static_assert(sizeof(wpf_pts_fsbbox_t) == 20, "FSBBOX != 20 B");
 #endif
 
 static int          g_pts_fsp_pl_fills        = 0;   /* 真填次数（rc=0 且 n=cParas） */
+#if WPF_PTS_FSP_PL_LMWIT
+static int g_pts_lmwit_dvr_used = -1, g_pts_lmwit_dvr_top = -1;   /* ⏪ t194：算术部分的两操作数 */
+#endif
 static int          g_pts_fsp_pl_consumes     = 0;   /* 延迟回收（`+192`）次数 ⇒ 也＝"消费解析"次数 */
 static int          g_pts_fsp_pl_resolve_ok   = 0;   /* `+192` 返 0（解析成 `BaseParaClient`） */
 static int          g_pts_fsp_pl_resolve_wrong= 0;   /* **一票红**：解析到的**不是**当初那个对象 */
@@ -1489,6 +1513,47 @@ static void wpf_pts_drive_probe2_oow(void *pfscontext, const char *where)
 }
 
 #if WPF_PTS_FSP_PL_M1
+#if WPF_PTS_FSP_PL_LMWIT || WPF_PTS_FSP_PL_DVR
+/* ⏪ `t198` 配置入册（纪律三十三格：门/旋钮变量随读数声明）—— 读数行必须能区分
+   「旋钮**未声明**（走缺省）」与「旋钮已声明且等于某值」。 */
+static int wpf_pts_fsp_pl_gen_declared(void)
+{
+    const char *e = getenv("WPF_PTS_FSP_PL_GEN");
+    return (e && *e) ? 1 : 0;
+}
+/* ⏪ `t198`：描述符侧读数（**由本侧写点**置值，读的人能区分"没写"与"写成 0"）。 */
+static int g_pts_lmwit_desc_dvr_used = -1, g_pts_lmwit_desc_dvr_top = -1;
+static int g_pts_lmwit_desc_led_ok   = 0;
+static const char *g_pts_lmwit_desc_src = "NOT-WRITTEN(no-DVR-leg)";
+#endif
+#if WPF_PTS_FSP_PL_DVR
+/* ── ⏪ `t198` (甲)：**LM-1 段账 → 描述符字段** 的承载体 ────────────────────────────────────
+   作者性（逐字段，写死）：`dvr_used` ＝ 本侧段账里 M1 为**同一段**算出的段高（`:1544 seg_h`，
+   「由本侧页几何尺度定」）；`dvr_top_space` ＝ 同一段账的 top space（`:1545 top_sp`）。
+   🔴 **两条通路同源**：同一操作数既走出参（→ 托管 `ContainerParagraph`）也走段账（→ 描述符）。
+   🔴 **不得**填"为凑 `dv>0`"的常数：本写点**只**读 `g_pts_lm1_led[]`；段账条数不足 ⇒ **不写**并具名。 */
+#define WPF_PTS_LM1_LED_MAX 64
+typedef struct { int seq; int dvr_used; int dvr_top_space; int fits; } wpf_pts_lm1_led_t;
+static wpf_pts_lm1_led_t g_pts_lm1_led[WPF_PTS_LM1_LED_MAX];
+static int g_pts_lm1_led_n     = 0;   /* 已入账条数（本 run 累计） */
+static int g_pts_lm1_led_pushes= 0;   /* 入账调用次数（含溢出被拒） */
+static int g_pts_lm1_led_short = 0;   /* 段账条数 < 本次 cParas ⇒ 具名降级次数 */
+static void wpf_pts_lm1_led_add(int dvr_used, int dvr_top_space, int fits)
+{
+    g_pts_lm1_led_pushes++;
+    if (g_pts_lm1_led_n >= WPF_PTS_LM1_LED_MAX) return;
+    {
+        wpf_pts_lm1_led_t *e = &g_pts_lm1_led[g_pts_lm1_led_n];
+        e->seq = g_pts_lm1_led_pushes - 1; e->dvr_used = dvr_used;
+        e->dvr_top_space = dvr_top_space; e->fits = fits;
+        g_pts_lm1_led_n++;
+    }
+}
+int WpfLinuxWin32_PtsLm1LedN(void)     { return g_pts_lm1_led_n; }
+int WpfLinuxWin32_PtsLm1LedPush(void)  { return g_pts_lm1_led_pushes; }
+int WpfLinuxWin32_PtsLm1LedShort(void) { return g_pts_lm1_led_short; }
+#endif
+
 /* ══ ⏪ `t173` M1：`FsFormatSubtrackFinite` 的**诚实无进展**占位（只在副本） ══════════════════════
    六条必备形态（判据 ③；缺一 ⇒ S-1 不成立）：①`fsfmtr.kstop≠0`（零填充会被宿主读成"这段排完了"、
    `ContainerParagraph.cs:565` 随即做 margin collapsing 并累加 `dvrUsed`）②`ppfsMcsClientOut=0`
@@ -1535,6 +1600,20 @@ int FsFormatSubtrackFinite(const void *pfscontext, const void *pfs_brk_in, int f
     if (rect_to_fill) { const int *r = (const int *)rect_to_fill; if (seg_h > r[3]) fits = 0; }   /* I-3 */
     if (out_fsfmtr_kstop) *out_fsfmtr_kstop = fits ? 0 : 1;   /* ⑤ goalReached=0 / out-of-space=1（**自洽**） */
     if (out_dvr_used)     *out_dvr_used     = seg_h;          /* ③ 非零，且 ≥ dvrTopSpace */
+#if WPF_PTS_FSP_PL_DVR
+    /* ⏪ `t198` (甲)：段账入册 —— **同一操作数**（`seg_h`／`top_sp`）的第二条通路（→ 描述符 +36/+60） */
+    wpf_pts_lm1_led_add(seg_h, top_sp, fits);
+#endif
+#if WPF_PTS_FSP_PL_LMWIT
+    {   /* 算术部分（本侧作者的两个操作数 ⇒ rcPara.dv 由算术唯一确定；上游 PtsHelper.cs:177） */
+        const int dvr_u = WPF_PTS_FSP_PL_LMWIT_NODVR ? 0 : seg_h;   /* 反腿①把 dvrUsed 打成 0 */
+        if (out_dvr_used) *out_dvr_used = dvr_u;
+        g_pts_lmwit_dvr_used = dvr_u; g_pts_lmwit_dvr_top = top_sp;
+        fprintf(stderr, "[LMWIT] part=arithmetic dvrUsed=%d dvrTopSpace=%d rcpara_dv=%d upstream=PtsHelper.cs:177 "
+                        "v=%s\n", dvr_u, top_sp, dvr_u - top_sp,
+                (dvr_u - top_sp > 0) ? "ARITHMETIC-OK(dv>0)" : "ARITHMETIC-FAIL(dv<=0,NODVR-REVERSE-LEG)");
+    }
+#endif
     if (out_bbox) { int *b = (int *)out_bbox;                 /* ⑦ 非空、与 fsrc 同向且包含（20 B: fDefined+FSRECT） */
                     b[0] = 1; b[1] = 0; b[2] = 0; b[3] = 0; b[4] = (fits ? seg_h : 0); }
     if (out_brk_subtrack) *out_brk_subtrack = NULL;           /* ⑥ 与"放得下 ⇒ 未续排"自洽 */
@@ -3538,6 +3617,10 @@ int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgPar
        （`-10000` ＋ `reason=paraclient-table-not-native`）⇒ **缺省路径零变化**。 */
     else {
         int fsp_filled = 0;
+#if WPF_PTS_FSP_PL_LMWIT_NOARR
+        if (1) { reason = "lmwit-noarr-reverse-leg(不填列表 ⇒ 到达见证恒 0)"; }
+        else
+#endif
         if (cParas == 0) { /* 没有条目可填（判据 §2.4-2 要求 `n >= 1`）⇒ 走旧路径 */ }
         else if (wpf_pts_drive_probe_enabled()) {
             wpf_pts_doc *dp = wpf_pts_doc_ptr(pfscontext);   /* ⚠️ `_find` 是**布尔**谓词；取指针用 `_ptr` */
@@ -3573,6 +3656,31 @@ int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgPar
                     int rc192 = ((wpf_pts_fn_destroy_paraclient)fp192f)((const void *)dp->p_fsclient, prev);
                     g_pts_fsp_pl_teardown_rc = rc192;
                     g_pts_fsp_pl_consumes++;
+#if WPF_PTS_FSP_PL_LMWIT
+                    {   /* ⏪ `t198`：**去掉静默阈值**（`t196` §6 条款）—— 回收一到就打，且**必打**。 */
+                        const int arr_ok = (g_pts_fsp_pl_consumes > 0 && g_pts_fsp_pl_resolve_ok > 0);
+                        const int ar_out = (g_pts_lmwit_dvr_used - g_pts_lmwit_dvr_top > 0);
+                        const int d_desc = g_pts_lmwit_desc_dvr_used - g_pts_lmwit_desc_dvr_top;
+                        const int ar_desc = (g_pts_lmwit_desc_led_ok && d_desc > 0);
+                        fprintf(stderr, "[LMWIT] part=arrival consumes=%d resolve_ok=%d | "
+                                        "arith_outparam_dv=%d(dvrUsed=%d,dvrTopSpace=%d) "
+                                        "arith_descriptor_dv=%d(dvr_used=%d,dvr_top_space=%d,led_ok=%d,src=%s) | "
+                                        "config gen_size_knob=%d declared=%d | joint arrival_ok=%d "
+                                        "arith_descriptor_ok=%d granularity=single-call+counting-port "
+                                        "(NOT-direct-host-read) v=%s\n",
+                                g_pts_fsp_pl_consumes, g_pts_fsp_pl_resolve_ok,
+                                g_pts_lmwit_dvr_used - g_pts_lmwit_dvr_top,
+                                g_pts_lmwit_dvr_used, g_pts_lmwit_dvr_top,
+                                d_desc, g_pts_lmwit_desc_dvr_used, g_pts_lmwit_desc_dvr_top,
+                                g_pts_lmwit_desc_led_ok, g_pts_lmwit_desc_src,
+                                wpf_pts_fsp_pl_gen_size(), wpf_pts_fsp_pl_gen_declared(),
+                                arr_ok, ar_desc,
+                                (arr_ok && ar_desc) ? "S2A-4-WITNESS-OK"
+                                  : (arr_ok ? "NOT-GREEN(descriptor-arithmetic-fail)"
+                                            : (ar_desc ? "NOT-GREEN(arrival-missing/NOARR-REVERSE-LEG)"
+                                                       : "NOT-GREEN(both)")));
+                    }
+#endif
                     const int is_ok = (rc192 == 0);
                     if (is_ok) g_pts_fsp_pl_resolve_ok++;
                     else if (rc192 == -100002) g_pts_fsp_pl_resolve_exc++;
@@ -3671,6 +3779,26 @@ int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgPar
                         rg[i].pfspara       = (void *)para_val;
                         rg[i].pfsparaclient = (void *)dp->fsp_pl_cur;
                         rg[i].nmp           = (void *)dp->drive_nmp;
+#if WPF_PTS_FSP_PL_DVR
+                        /* ⏪ `t198` (甲)：**描述符字段求真值** —— 值只从 LM-1 段账取（作者性见 `wpf_pts_lm1_led_add`）。
+                           🔴 段账条数不足（`led_n < cParas`）⇒ **不写**（保持 `memset` 后的 0）＋具名降级，
+                           **绝不**用常数补位；`DVR_NODVR` 反腿**只**打这一对（射程＝宿主 `PtsHelper.cs:177`）。 */
+                        if (g_pts_lm1_led_n >= cParas) {
+                            const wpf_pts_lm1_led_t *le = &g_pts_lm1_led[i];
+                            rg[i].dvr_used      = WPF_PTS_FSP_PL_DVR_NODVR ? 0 : le->dvr_used;
+                            rg[i].dvr_top_space = WPF_PTS_FSP_PL_DVR_NODVR ? 0 : le->dvr_top_space;
+                            g_pts_lmwit_desc_dvr_used = rg[i].dvr_used;
+                            g_pts_lmwit_desc_dvr_top  = rg[i].dvr_top_space;
+                            g_pts_lmwit_desc_led_ok   = 1;
+                            g_pts_lmwit_desc_src      = WPF_PTS_FSP_PL_DVR_NODVR
+                                                      ? "LM1-LEDGER(zeroed-by-DVR_NODVR-reverse-leg)"
+                                                      : "LM1-SEGMENT-LEDGER";
+                        } else {
+                            if (i == 0) g_pts_lm1_led_short++;
+                            g_pts_lmwit_desc_led_ok = 0;
+                            g_pts_lmwit_desc_src    = "NOINFO(lm1-ledger-short:led_n<cParas)";
+                        }
+#endif
                         /* 🔴 **下游接受者：本件无**（判据 §5.5 的在册接受者＝ `FsQuerySubtrackDetails`（`:271`）
                            与 `FsQuerySubtrackParaList`（`PtsHelper.cs:633`），二者都属 **(b)**、**尚未实现**）。
                            ⚠️ **实测教训（本件踩到并已修）**：曾拿 `+168 GetParaProperties` 当接受者 —— 它吃的是
@@ -3720,6 +3848,32 @@ int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgPar
                             (dp->fsp_pl_prev != NULL) ? 1 : 0, (int)offsetof(wpf_pts_fsparadesc, pfsparaclient),
                             dump, g_pts_fsp_pl_ok + 1, g_pts_fsp_pl_gap);
                     g_pts_fsp_pl_ok++;
+#if WPF_PTS_FSP_PL_LMWIT || WPF_PTS_FSP_PL_DVR
+                    {   /* ⏪ `t198`：**每次成功填充必打的到达读数行**（`t196` §6：禁静默阈值）
+                           —— 没有它，"回收没发生(0)"与"行没打(=没取到)"不可分（`t194` 的自伤形态）。 */
+#if WPF_PTS_FSP_PL_DVR
+                        const int led_n = g_pts_lm1_led_n;
+#else
+                        const int led_n = -1;   /* -1 = 本副本未编入 (甲) 腿 */
+#endif
+                        const int arr_ok = (g_pts_fsp_pl_consumes > 0 && g_pts_fsp_pl_resolve_ok > 0);
+                        const int d_desc = g_pts_lmwit_desc_dvr_used - g_pts_lmwit_desc_dvr_top;
+                        const int ar_desc = (g_pts_lmwit_desc_led_ok && d_desc > 0);
+                        fprintf(stderr, "[LMWIT-ARRIVAL] port=counting-entry fills=%d consumes=%d resolve_ok=%d "
+                                        "gen=%d quota=%d gen_size_knob=%d declared=%d led_n=%d "
+                                        "desc_dvr_used=%d desc_dvr_top_space=%d desc_dv=%d desc_src=%s "
+                                        "arrival_ok=%d arith_descriptor_ok=%d joint=%s "
+                                        "granularity=single-call+counting-port v=%s\n",
+                                g_pts_fsp_pl_fills, g_pts_fsp_pl_consumes, g_pts_fsp_pl_resolve_ok,
+                                dp->fsp_pl_gen, dp->fsp_pl_quota,
+                                wpf_pts_fsp_pl_gen_size(), wpf_pts_fsp_pl_gen_declared(), led_n,
+                                g_pts_lmwit_desc_dvr_used, g_pts_lmwit_desc_dvr_top, d_desc,
+                                g_pts_lmwit_desc_src, arr_ok, ar_desc,
+                                (arr_ok && ar_desc) ? "S2A-4-WITNESS-OK" : "NOT-GREEN",
+                                (arr_ok && ar_desc) ? "S2A-4-WITNESS-OK(single-call+counting-port)"
+                                                    : "NOT-GREEN(see arrival_ok/arith_descriptor_ok)");
+                    }
+#endif
                     }   /* ← 收 `claimed` 的 else 块（t162） */
                     }   /* ← 收 `para_val != NULL` 的 else 块（t162） */
 #if WPF_PTS_FSP_PL_SELFRECYCLE
@@ -3738,6 +3892,29 @@ int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgPar
                 }
             }
         }
+#if WPF_PTS_FSP_PL_LMWIT || WPF_PTS_FSP_PL_DVR
+        if (!fsp_filled) {
+            /* ⏪ `t198`：**具名缺省行**（`t196` §6 / `t195` W-2①：禁静默阈值）——
+               「没取到」＝本行（`NOINFO(reason=…)`）；「真发生 0 次」＝填充行里的 `consumes=0`。
+               两者形态**可区分**，不再靠"行没打"去回显推断。 */
+#if WPF_PTS_FSP_PL_DVR
+            const int led_n0 = g_pts_lm1_led_n;
+#else
+            const int led_n0 = -1;             /* -1 ＝ 本副本未编入 (甲) 腿 */
+#endif
+            fprintf(stderr, "[LMWIT-ARRIVAL] port=counting-entry fills=%d consumes=NOINFO(reason=%s) "
+                            "resolve_ok=NOINFO(reason=%s) gen_size_knob=%d declared=%d led_n=%d "
+                            "desc_dvr_used=%d desc_dvr_top_space=%d desc_dv=%d desc_src=%s arrival_ok=0 "
+                            "arith_descriptor_ok=%d joint=NOT-GREEN granularity=single-call+counting-port "
+                            "v=NOINFO(no-fill-in-this-leg)\n",
+                    g_pts_fsp_pl_fills, reason ? reason : "unknown", reason ? reason : "unknown",
+                    wpf_pts_fsp_pl_gen_size(), wpf_pts_fsp_pl_gen_declared(), led_n0,
+                    g_pts_lmwit_desc_dvr_used, g_pts_lmwit_desc_dvr_top,
+                    g_pts_lmwit_desc_dvr_used - g_pts_lmwit_desc_dvr_top, g_pts_lmwit_desc_src,
+                    (g_pts_lmwit_desc_led_ok
+                     && (g_pts_lmwit_desc_dvr_used - g_pts_lmwit_desc_dvr_top) > 0) ? 1 : 0);
+        }
+#endif
         if (fsp_filled) return 0;              /* **只有真填后才返 0**（判据 §5-P1） */
         if (!reason) reason = "paraclient-table-not-native";   /* 旧路径逐字保留 */
     }

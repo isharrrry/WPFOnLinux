@@ -4,6 +4,7 @@
 #           → PC 侧行对拍（`TextLine.Start` 列）→ **帧列（`FrameProbe`，帧原点机制）**。
 #
 # ⚠️ **步数口径（引用前必读；三个数不能互相引用）**：
+#   **`#82` 收官起 = 64 步**（⏪ 本行**取代**紧邻下方那条 `62 步`（`T-D2` **加两步**：62 → 64 —— 第 `[+]` 步 `SJC-FIELD-ID`（`build/MilBridge/tools/sjc-field-id-check.sh`：判「证据行是否**同给**『结构偏移 ＋ 写点』两要素」的**弱版**）与第 `[+]` 步 `SILENT-THRESHOLD`（`build/MilBridge/tools/silent-threshold-ban-check.sh`：`R-7` 静默阈值禁令，**只扫源码**）；覆盖面**同趟 +2 行** ⇒ 234 → 236；第 `[42]` 步 `FP-MANIFEST-TEETH` 的 `--expect 234 → 236`。⚠️ 两牙的**步骤自身信息**（射程／豁免／极性）见预登记 `docs/WAVE82-PREREGISTRATION.md` §3。）；**历史行只作留档**。）
 #   **`#81` 收官起 = 62 步**（⏪ 本行**取代**紧邻下方那条 `61 步`（`t62` **加一步**：61 → 62 —— 第 `[+]` 步 `STATIC-JAWS`：把「静态牙全景体检」从**临时命令**固化成常设牙）；它又取代 `58 步`／`55 步`／`53 步` 各条 —— **历史行只作留档**。）
 #   **`#81` 收官起 = 61 步**（⏪ 本行**取代**紧邻下方那条 `58 步`（`t48`／W4b **合波加三步**：58 → 61）：`HANDOFF-MV`／`PUSH-MARKER`／`PROVIDER-REPRO` 三条同趟接线 ＋ 四处声明 ＋ 覆盖面 **229 → 233** ＋ `[42] --expect 229 → 233`。读时 `ts=2026-09-28T17:47:13.849+0800`）
 #   **`#81` 收官起 = 58 步**（⏪ 本行**取代**紧邻下方那条 `55 步`（`t47`／W4a **加三步**：55 → 58）：三颗交付牙接线（`sentinel-spec-check.sh` 真跑生产哨兵／`wave-push.sh --dry-run` 预演／`timestamp-order-check.sh` 戳序）＋ 四处声明同趟 ＋ 覆盖面 **226 → 229** ＋ `[42] --expect 226 → 229`。⚠️ **派单写「55 → 56」系算术笔误**（`55 ＋ 3 ＝ 58`）。读时 `ts=2026-09-28T17:34:10.732+0800`）
@@ -70,6 +71,7 @@
 #   ⚠️ 本块**故意放在同一个文件里**：跨文件的手工声明在本仓**已经失败过一次**（`docs/CURRENT-STATE.md`
 #      那句"当前期望是 N 步"在 `#26`/`#27` 连加 3 步时毫无反应、全程零红）⇒ 声明必须与本体同趟改、同趟审。
 #   ⚠️ **不许**用 `echo "====="` 当接线锚（它在本文件里有 **4** 处）；锚用 `run_step "DEFECT-REGISTRY" …`。
+# VERIFYALL-STEPS-DECL: 64 gen=#82   ← ⏪ `T-D2` **加两步**（62 → 64）：`TASK-0756` 落 `SJC-FIELD-ID` 弱版（`build/MilBridge/tools/sjc-field-id-check.sh`：判「证据行是否**同给**『结构偏移 ＋ 写点』两要素」，射程 `build/MilBridge/*.md`，**强版记 `NOINFO`**（需 `field-write-registry.tsv`））／`TASK-0757` 落 `SILENT-THRESHOLD`（`build/MilBridge/tools/silent-threshold-ban-check.sh`：`R-7` 判据命中即红，**射程＝源码** `*.c/*.h/*.sh/*.py`（**不扫 `*.md`**），`wic_proxy.c` 三处有界 trace 预算走**具名豁免**并上屏）。**同趟**：覆盖面 **234 → 236**（`fp_inputs()` **+2 行**，**件路径身份**、不用 glob）＋ 第 `[42]` 步 `FP-MANIFEST-TEETH` 的 `--expect 234 → 236` ＋ 头注释口径句 ＋ `STEP-NAMES`（62 → 64 项）＋ 预登记 `docs/WAVE82-PREREGISTRATION.md`。
 # VERIFYALL-STEPS-DECL: 62 gen=#81   ← ⏪ `t62` **加一步**（61 → 62）：第 `[+]` 步 `STATIC-JAWS`（`build/MilBridge/tools/static-jaws-check.sh`：把「临时静态牙全景体检」固化成**常设牙** —— 逐颗**捕获式**跑已接线的裸静态牙，`rc≠0` 逐条点名，超时/不可判记 `NOINFO`）；覆盖面**同趟 +1 行** ⇒ 233 → 234。
 # VERIFYALL-STEPS-DECL: 61 gen=#81   ← ⏪ `t48`／W4b **合波加三步**（58 → 61）：三条共用一次加步窗口 —— 第 `[+]` 步 `HANDOFF-MV`（`build/MilBridge/tools/handoff-machine-values-check.sh`：HANDOFF 机器值 9 格**逐格现跑**对拍）／第 `[+]` 步 `PUSH-MARKER`（`build/MilBridge/tools/push-marker-check.sh`：推送标记三字段 —— 写入端集成腿 ＋ 空值/缺行两反极**必红点名**）／第 `[+]` 步 `PROVIDER-REPRO`（`build/MilBridge/tools/provider-repro-check.sh`：同输入复现性留痕，`no` 也**必上屏、不许静默**）。**同趟**：覆盖面 **229 → 233**（`fp_inputs()` **+4 行**：三件新件 ＋ 写入端 `push-marker-write.sh`，全部**件路径身份**、无 glob）＋ 第 `[42]` 步 `FP-MANIFEST-TEETH` 的 `--expect 229 → 233` ＋ 头注释口径句 ＋ `STEP-NAMES`（58 → 61 项）＋ 预登记 `docs/WAVE81-PREREGISTRATION.md`。步数：**58 → 61**（读时 `ts=2026-09-28T17:47:13.849+0800`）
 # VERIFYALL-STEPS-DECL: 58 gen=#81   ← ⏪ `t47`／W4a **加三步**（55 → 58）：三颗交付牙**同趟**接线 —— 第 `[+]` 步 `SENTINEL-SPEC`（`build/MilBridge/tools/sentinel-spec-check.sh`：哨兵「键序／字节格式」11 键规范，默认跑**生产两枚哨兵**）／第 `[+]` 步 `WAVE-PUSH`（`build/MilBridge/tools/wave-push.sh --dry-run`：推送**预演**，13 键上屏、**不写盘**）／第 `[+]` 步 `TS-ORDER`（`build/MilBridge/tools/timestamp-order-check.sh`：戳序判据，默认件 `build/MilBridge/P1-w1-close-verify.md`）。**同趟**：覆盖面 **226 → 229**（`fp_inputs()` **+3 行**：三颗牙的**件路径身份**，不用 glob）＋ 第 `[42]` 步 `FP-MANIFEST-TEETH` 的 `--expect 226 → 229` ＋ 头注释口径句 ＋ `STEP-NAMES`（55 → 58 项）＋ 预登记 `docs/WAVE81-PREREGISTRATION.md`。⚠️ **派单写的是「55 → 56」＝算术笔误**（`55 ＋ 3 ＝ 58`；「三颗新牙**各接一步**」与判据「`grep -c '^run_step "'` == 声明数」二者只能取 `58`），本行逐字记之（读时 `ts=2026-09-28T17:34:10.732+0800`）。步数：**55 → 58**）
@@ -123,7 +125,7 @@
 # VERIFYALL-STEPS-DECL: 18 gen=#30   ← **史实行**（`#30` 收官当时的步数 —— 那一波**一步未加**）
 #   ⚠️ 读者 `decl_line()` 取**第一条**（`sed -n … | head -1`）⇒ **最上面那条才是当前口径**；
 #   下面两条只为「本波从哪一代起、加了几步」留机读痕迹。⚠️ **史实行只许追加、不许改**（纪律 61 同族）。
-# VERIFYALL-STEP-NAMES: 主工程 WpfGfx.Linux | wpf-linux.sln | Commands.Tests | Rendering.Tests | Windowing.Tests | HelloMil.Tests | ManagedLayer.Tests | Presentation.Tests | verify-cmd-layout.py | tline-gate（五臂） | PcLineOracle·Start 列 | FrameProbe-frame | BASELINE-SHA | ARM-LOG-SHA | BUILD-HYGIENE | DEFECT-REGISTRY | VERIFYALL-SELF | FP-INPUTS-HYGIENE | HIDDEN-ONLY | COLUMN-FLOOR | QUOTE-TRAP | PRODUCT-ENTRY | FRAME-PRESENCE | PIPEFAIL-SIGPIPE | THIRD-PARTY | R-GATE（连续交互） | NUL-BYTES | HYGIENE | REGRESSION-DECISION | UIA-DOOR | IME-LANDING | GEOM-BEAT | GEOM-RESEND | PREREG-FOUR-REQ | PROC-PATTERN-GUARD | REGIME-IDENTITY | BASELINE-RATE-GATE | PTS-PAGES | SILENT-HIT-V2 | BAK-COMPLETENESS | REPO-ALIAS | FP-MANIFEST-TEETH | SELFDESC-WIRING | LANE-PATH | ROWS-IDENTITY | X-CENSUS | BOUNDARY-DECL | WIRING-COVERAGE | PARSER-GUARD | PROTO-ATTR | APPBAR-STARTUP | ROOT-ENTRIES | WIRING-CLOSURE | RETIRED-PATH | REPORT-ID-DOMAIN | SENTINEL-SPEC | WAVE-PUSH | TS-ORDER | HANDOFF-MV | PUSH-MARKER | PROVIDER-REPRO | STATIC-JAWS
+# VERIFYALL-STEP-NAMES: 主工程 WpfGfx.Linux | wpf-linux.sln | Commands.Tests | Rendering.Tests | Windowing.Tests | HelloMil.Tests | ManagedLayer.Tests | Presentation.Tests | verify-cmd-layout.py | tline-gate（五臂） | PcLineOracle·Start 列 | FrameProbe-frame | BASELINE-SHA | ARM-LOG-SHA | BUILD-HYGIENE | DEFECT-REGISTRY | VERIFYALL-SELF | FP-INPUTS-HYGIENE | HIDDEN-ONLY | COLUMN-FLOOR | QUOTE-TRAP | PRODUCT-ENTRY | FRAME-PRESENCE | PIPEFAIL-SIGPIPE | THIRD-PARTY | R-GATE（连续交互） | NUL-BYTES | HYGIENE | REGRESSION-DECISION | UIA-DOOR | IME-LANDING | GEOM-BEAT | GEOM-RESEND | PREREG-FOUR-REQ | PROC-PATTERN-GUARD | REGIME-IDENTITY | BASELINE-RATE-GATE | PTS-PAGES | SILENT-HIT-V2 | BAK-COMPLETENESS | REPO-ALIAS | FP-MANIFEST-TEETH | SELFDESC-WIRING | LANE-PATH | ROWS-IDENTITY | X-CENSUS | BOUNDARY-DECL | WIRING-COVERAGE | PARSER-GUARD | PROTO-ATTR | APPBAR-STARTUP | ROOT-ENTRIES | WIRING-CLOSURE | RETIRED-PATH | REPORT-ID-DOMAIN | SENTINEL-SPEC | WAVE-PUSH | TS-ORDER | HANDOFF-MV | PUSH-MARKER | PROVIDER-REPRO | STATIC-JAWS | SJC-FIELD-ID | SILENT-THRESHOLD
 #   **`#28` 收官起 = 17 步**（`#28` 加第 `[11]` 步 `VERIFYALL-SELF`）｜**`#29` 收官起 = 18 步**
 #   （`#29` 加第 `[12]` 步 `FP-INPUTS-HYGIENE`：核对 `fp_inputs()` 的覆盖面里**不许出现产物路径**）｜
 #   **`#30` 收官起 = 18 步**（**仪器加固波、步数一步未加**）｜**`#31` 收官起 = 21 步**（`#31` 加第 `[13]` 步
@@ -1198,7 +1200,7 @@ run_step "REPO-ALIAS" bash build/MilBridge/tools/repo-alias-check.sh --allow bui
 #   ∧ `sha256sum` `stderr` 空。它**不**判「清单**内容正确**」—— 判不了"该收的没收"（覆盖面缺项）。
 echo
 echo "[42] 指纹清单的牙（清单逐行形状 ＋ 件数对账；D-G120②；NOINFO 不算绿；#70 加）"
-run_step "FP-MANIFEST-TEETH" bash build/MilBridge/tools/fp-manifest-step.sh --expect 234
+run_step "FP-MANIFEST-TEETH" bash build/MilBridge/tools/fp-manifest-step.sh --expect 236
 run_step "SELFDESC-WIRING" bash build/MilBridge/tools/selfdescription-wiring-check.sh
 run_step "LANE-PATH" bash build/MilBridge/tools/lane-path-check.sh
 run_step "ROWS-IDENTITY" bash build/MilBridge/tools/rows-identity-check.sh
@@ -1232,6 +1234,9 @@ run_step "PUSH-MARKER" bash build/MilBridge/tools/push-marker-check.sh
 run_step "PROVIDER-REPRO" bash build/MilBridge/tools/provider-repro-check.sh
 #   `#81` 补 `t62`：静态牙全景体检（把「改了件却漏跑受影响的已接线牙」从**临时做法**变成**每次门禁都跑**的机器动作；纯读/零 `dotnet`；射程外步（构建/显示位/腿批/带参）**具名排除**，超时与不可判记 `NOINFO`）⇒ 覆盖面（`fp_inputs()`）**同趟 +1 行** ⇒ 233 → 234。
 run_step "STATIC-JAWS" bash build/MilBridge/tools/static-jaws-check.sh
+#   `T-D2` 接线：两颗判据牙（`TASK-0756` 字段身份证据两要素 · 弱版 ／ `TASK-0757` `R-7` 静默阈值禁令）。**纯读、秒级、零 dotnet**；覆盖面（`fp_inputs()`）**同趟 +2 行**（件路径身份）⇒ 234 → 236；第 `[42]` 步 `--expect` 同趟改。⚠️ 步号不写死（以现场步序为准）。
+run_step "SJC-FIELD-ID" bash build/MilBridge/tools/sjc-field-id-check.sh
+run_step "SILENT-THRESHOLD" bash build/MilBridge/tools/silent-threshold-ban-check.sh
 # W168A-0724-END
 # W160A-0721-END
 # W154A-0714-END

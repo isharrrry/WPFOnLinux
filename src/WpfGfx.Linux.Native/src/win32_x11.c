@@ -304,6 +304,55 @@ static const char *wpf_xevent_name(int type)
 static HWND g_x_focus_want = NULL;
 static int  g_x_focus_want_pending = 0;
 
+/* ══ 【波 59 · E3】抓取重放去重（判据 `t203` §⑤ ／ `t204` §⑤ 的 **③′** 路线）══
+   **③′ 为主**＝ 同 button ∧ 自首条 press 起**未见过同 button 的 release** ∧ **序关系**
+        （`time` 不倒退：**不是**"时间戳相等"那条已被反证的判据）∧ 间隔 ≤ 界
+        （`WPF_E3_REPLAY_DT_MS`，缺省 250；**逐条读数打印 `dt_ms=`**，界本身不是判据的一部分）。
+   **② 限窗**＝ `g_x_e3_live_button` 仅在"首条 press 已交付且尚未 release"期间非 0。
+   **① 仅作排除**＝ 本闸**只作用于客户区路径**（NC 按下在 `:1286` 已 `break`，不在射程内；
+        本侧唯一显式抓取 `wpf_x11_pointer_grab()` 的用途＝NC 拖动 ⇒ 拖动中的 press 永不被本闸丢）。
+   🔴 **不得以"丢弃真点击"换"下拉不被关"**：三条任一不满足 ⇒ **照常交付**并打 `e3=DELIVER(…)`。
+   🔴 读数行**无条件**打印（`t196` §6 条款「读数类行禁静默阈值」）。
+   🔴 与既有焦点回送修复**无关**（那族状态 `g_x_focus_want*` 一字未动）。 */
+static int    g_x_e3_live_button = 0;      /* 0＝无按键按住；否则＝按住中的 button（② 与 ③ 共用一个变量） */
+static unsigned long g_x_e3_live_time   = 0;   /* 首条 press 的 X `time`（序关系基准） */
+static unsigned long g_x_e3_click_no    = 0;   /* 本次点击（press→release）序号 */
+static unsigned long g_x_e3_press       = 0, g_x_e3_deliver = 0, g_x_e3_drop = 0, g_x_e3_cand = 0;
+static unsigned long g_x_e3_replay_set  = 0, g_x_e3_drop_set = 0;   /* 位图：bit(button) */
+static int    g_x_e3_dt_bound_declared  = -1;
+
+static int wpf_e3_dedup_on(void)
+{
+    const char *e = getenv("WPF_E3_REPLAY_DEDUP");
+    return !(e && *e && e[0] == '0');            /* 缺省**开**（产品修复）；`0` ＝ 关（反腿对照） */
+}
+static int wpf_e3_dt_bound_ms(void)
+{
+    const char *e = getenv("WPF_E3_REPLAY_DT_MS");
+    int v = (e && *e) ? atoi(e) : 250;
+    g_x_e3_dt_bound_declared = (e && *e) ? 1 : 0;
+    if (v < 1) v = 1;
+    return v;
+}
+/* 读数行（**无条件**）：把「本次点击内交付了几条 press」与「丢弃集合 ⊆ 重放集合」印成机器可验形态。 */
+static void wpf_e3_note(const char *evname, int button, unsigned long h, unsigned long xtime,
+                        int dt_ms, int cand, int dropped, const char *why)
+{
+    const unsigned long mask = 0xFFFFFFFFu;
+    const int bound = wpf_e3_dt_bound_ms();      /* ⏪ 先取值再打印：`bound_declared` 在实参表里求值序不定（读数须确定） */
+    const int bound_declared = g_x_e3_dt_bound_declared;
+    fprintf(stderr, "[E3-REPLAY] ev=%s btn=%d win=0x%llx x_time=%lu click=%lu press=%lu deliver=%lu "
+                    "drop=%lu cand=%lu replay_set=0x%lx drop_set=0x%lx subset_ok=%d dt_ms=%d "
+                    "bound_ms=%d bound_declared=%d dedup=%s live_btn=%d e3=%s gran=single-click "
+                    "via=client-path(motion+release-grab-out-of-range) noinfo=REPLAY-SOURCE,TOUCHPAD-SYNTH\n",
+            evname, button, (unsigned long long)h, xtime, g_x_e3_click_no, g_x_e3_press, g_x_e3_deliver,
+            g_x_e3_drop, g_x_e3_cand, g_x_e3_replay_set & mask, g_x_e3_drop_set & mask,
+            ((g_x_e3_drop_set & ~g_x_e3_replay_set) == 0) ? 1 : 0, dt_ms,
+            bound, bound_declared, wpf_e3_dedup_on() ? "on" : "off",
+            g_x_e3_live_button, why);
+    (void)cand; (void)dropped;
+}
+
 static void wpf_x11_focus_note_request(HWND hwnd)
 {
     wpf_lock(); g_x_focus_want = hwnd; g_x_focus_want_pending = 1; pthread_mutex_unlock(&g_wpf.lock);
@@ -1305,6 +1354,44 @@ int wpf_x11_pump_into_queue(wpf_thread *t)
                 break;
             }
 
+            /* ⏪ 【波 59 · E3】客户区路径的**抓取重放去重闸**（三项合取 ③′＋②＋①；见文件头注释） */
+            {
+                const int is_btn123 = (b == Button1 || b == Button2 || b == Button3);
+                if (is_btn123 && down) {
+                    const int dt = (g_x_e3_live_button == (int)b)
+                                 ? (int)(ev.xbutton.time - g_x_e3_live_time) : -1;
+                    g_x_e3_press++;
+                    if (g_x_e3_live_button == 0) {          /* 新点击：② 开窗（首条 press 即将交付） */
+                        g_x_e3_click_no++;
+                        g_x_e3_live_button = (int)b; g_x_e3_live_time = ev.xbutton.time;
+                        g_x_e3_deliver++;
+                        wpf_e3_note("press", (int)b, (unsigned long)(uintptr_t)h, ev.xbutton.time,
+                                    dt, 0, 0, "DELIVER(first-press)");
+                    } else if (g_x_e3_live_button == (int)b && dt >= 0 && dt <= wpf_e3_dt_bound_ms()) {
+                        /* ③′ 命中：同 button ∧ 无中间 release ∧ 序关系（time 不倒退）∧ 间隔 ≤ 界 */
+                        g_x_e3_cand++; g_x_e3_replay_set |= (1UL << (b & 31));
+                        if (wpf_e3_dedup_on()) {
+                            g_x_e3_drop++; g_x_e3_drop_set |= (1UL << (b & 31));
+                            wpf_e3_note("press", (int)b, (unsigned long)(uintptr_t)h, ev.xbutton.time,
+                                        dt, 1, 1, "DROP(replay:same-button+no-release+ordered)");
+                            break;                          /* ← **不交付**：本条的 `produced` 不涨 */
+                        }
+                        g_x_e3_deliver++;
+                        wpf_e3_note("press", (int)b, (unsigned long)(uintptr_t)h, ev.xbutton.time,
+                                    dt, 1, 0, "DELIVER(replay-cand-but-dedup=off)");
+                    } else {
+                        /* ③′ 不成立（异 button／间隔过大／无活窗）⇒ **照常交付**并重置基准 */
+                        g_x_e3_live_button = (int)b; g_x_e3_live_time = ev.xbutton.time;
+                        g_x_e3_deliver++;
+                        wpf_e3_note("press", (int)b, (unsigned long)(uintptr_t)h, ev.xbutton.time,
+                                    dt, 0, 0, "DELIVER(other-button-or-dt-too-big)");
+                    }
+                } else if (is_btn123 && !down) {            /* 抬起：关窗（②的窗口在 release 处结束） */
+                    if (g_x_e3_live_button == (int)b) g_x_e3_live_button = 0;
+                    wpf_e3_note("release", (int)b, (unsigned long)(uintptr_t)h, ev.xbutton.time,
+                                -1, 0, 0, "DELIVER(release)");
+                }
+            }
             push(t, h, m, mk, xy_lparam(ev.xbutton.x, ev.xbutton.y),
                  ev.xbutton.x, ev.xbutton.y);
             produced++;
