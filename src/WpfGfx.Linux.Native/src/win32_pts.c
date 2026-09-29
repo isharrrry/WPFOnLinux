@@ -688,6 +688,25 @@ static const void  *g_pts_dp_56_next    = NULL;
 static int          g_pts_dp_80_fserr   = -1;
 static const void  *g_pts_dp_80_segment = NULL;
 static int          g_pts_dp_idem       = 0;   /* bit0：+56 两次同值；bit1：+80 两次同值 */
+static int          g_pts_dp_gate       = 0;   /* 闸状态（1 开／0 关；**缺省 0**） */
+
+/* ⏪ `t148`（P1-W68）**运行期闸**（裁定三十六 (b)：**缺省关**）──────────────────────────────────
+   为什么必须有：`t146` 现取证明 `+80` 会**懒创建** `ContainerParagraph` ⇒ **改渲染**
+   （帧 `ef3fd6765f18f51b → b273ebecc332fc03`、`colors 383 → 391`，症状门未变）；若让探针**常开**，
+   则"帧变了"这一**纯副作用**会把 `N1` 要件①（帧 ∉ 空态集）**凑成"成立"** ⇒ 与 `N4`「登记即算」
+   **同族**的第二个假绿通道（裁定三十六 (c)）。⇒ 缺省**一次都不调**；只有显式
+   `WPF_PTS_DRIVE_PROBE=1`（非 `0`、非空）才开。**闸关时的状态必须可见**（`reason=gate-off` 具名行）。
+   语义边界：本闸**只**控"是否发起那两条回调调用"；不影响任何其它入口（回读快照／只读口照旧可读）。 */
+static int wpf_pts_drive_probe_enabled(void)
+{
+    static int cached = -1;                      /* −1 未取；0 关；1 开（本进程内取一次） */
+    if (cached < 0) {
+        const char *v = getenv("WPF_PTS_DRIVE_PROBE");
+        cached = (v && v[0] && strcmp(v, "0") != 0) ? 1 : 0;
+    }
+    return cached;
+}
+int WpfLinuxWin32_PtsDriveProbeGate(void) { return wpf_pts_drive_probe_enabled(); }
 
 static void wpf_pts_drive_probe_skip(const char *reason)
 {
@@ -710,29 +729,54 @@ static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *wh
 {
     if (!d) { wpf_pts_drive_probe_skip("null-doc"); return; }
     if (d->fscbk_snap_state == WPF_PTS_FSCBK_SNAP_NONE) { wpf_pts_drive_probe_skip("no-snapshot"); return; }
+    /* ⏪ `t148`：**运行期闸**（缺省关）—— 闸关 ⇒ **一次都不调**，并留一条具名行 */
+    if (!wpf_pts_drive_probe_enabled()) { wpf_pts_drive_probe_skip("gate-off"); return; }
     if (g_pts_dp_calls >= WPF_PTS_DRIVE_PROBE_WINDOW_BUDGET) { wpf_pts_drive_probe_skip("budget-exhausted"); return; }
-#if WPF_PTS_DRIVE_PROBE_FAKE_NMS
-    /* ★反腿：**伪 nms**（值＝编译期宏 `WPF_PTS_DRIVE_PROBE_FAKE_NMS`；只在**副本**产物里置非 0）
-       ⚠️ `t146` 现取：真实入参 `nms` **就是 `0x1`**（托管表槽下标）⇒ 伪值**取 `0x1` 不具分辨力**；
-          本件用 `4096`（越界 ⇒ 期望 T1 类 `Invariant.FailFast`）与 `2`（live 但错类型 ⇒ 期望可捕获
-          `fserr=-100002`）两种。 */
-    const void *nms = (const void *)(unsigned long)WPF_PTS_DRIVE_PROBE_FAKE_NMS;
-#else
-    const void *nms = sect;                        /* 主链：**只用捕获到的真句柄** */
-#endif
-    if (!nms) { wpf_pts_drive_probe_skip("null-sect"); return; }
     const void *fp56 = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_GETNEXTSECTION);
     const void *fp80 = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_GETMAINTEXTSEGMENT);
     if (!fp56) { wpf_pts_drive_probe_skip("null-slot56"); return; }
     if (!fp80) { wpf_pts_drive_probe_skip("null-slot80"); return; }
-
     const void *pfsclient = (const void *)d->p_fsclient;   /* 判据 §2.4：从快照 +24 取并**如实记下** */
+#if WPF_PTS_DRIVE_PROBE_FAKE_NMS == -2
+    const void *nms = sect;                  /* T3 模式：第一调仍用**真** nms（见下方 T3 段） */
+    const int    t3mode = 1;
+#elif WPF_PTS_DRIVE_PROBE_FAKE_NMS
+    const void *nms = (const void *)(unsigned long)WPF_PTS_DRIVE_PROBE_FAKE_NMS;  /* T1/T2 反腿 */
+    const int    t3mode = 0;
+#else
+    const void *nms = sect;                  /* 主链：**只用捕获到的真句柄** */
+    const int    t3mode = 0;
+#endif
+    if (!nms) { wpf_pts_drive_probe_skip("null-sect"); return; }
+
+    /* ⏪ `t148`（判据 ②）**入口留痕：必须在首次回调调用之前** ────────────────────────────────
+       `t146` 的短板：`FailFast` 发生在**首调内**，而 `[DRIVE-PROBE]` 行在**四次调用之后**才打
+       ⇒ 反腿日志里 `probe=0`，归因强度只有"中"。本行把归因升为**强**：只要这条行在场，
+       就能自证"这一调确实发生了"。 */
+    fprintf(stderr, "[DRIVE-PROBE-ENTER] where=%s nms=%p pfsclient=%p slot56=%p slot80=%p fake=%d "
+                    "t3mode=%d window=%d\n",
+            where, nms, pfsclient, fp56, fp80, WPF_PTS_DRIVE_PROBE_FAKE_NMS, t3mode, g_pts_dp_calls);
+
+    const void *nms56 = nms;
+#if WPF_PTS_DRIVE_PROBE_FAKE_NMS == -2
+    {   /* **T3 构造**：先用**真** `sect` 调 `+80`，拿到一个 **live 的 `ContainerParagraph` 句柄**，
+           再拿它（live 但**类型不对**）去调 `+56` ⇒ 期望托管侧 `as Section` 得 null ⇒
+           `ValidateHandle(null)` 抛 ⇒ **可捕获** ⇒ `fserr = -100002`（`tserrCallbackException`）。 */
+        void *tmpSeg = NULL;
+        int rc8 = ((wpf_pts_fn_get_main_text_segment)fp80)(pfsclient, sect, &tmpSeg);
+        fprintf(stderr, "[DRIVE-PROBE-T3] stage=create-live-wrong-type rc80=%d seg=%p nms_substitute=%p\n",
+                rc8, tmpSeg, tmpSeg);
+        if (!tmpSeg) { wpf_pts_drive_probe_skip("t3-no-seg"); return; }
+        nms56 = (const void *)tmpSeg;
+    }
+#endif
+
     int fSuccess1 = -1, fSuccess2 = -1;
     void *nmsNext1 = NULL, *nmsNext2 = NULL;
     void *nmSeg1 = NULL; void *nmSeg2 = NULL;
 
-    int rc56a = ((wpf_pts_fn_get_next_section)fp56)(pfsclient, nms, &fSuccess1, &nmsNext1);
-    int rc56b = ((wpf_pts_fn_get_next_section)fp56)(pfsclient, nms, &fSuccess2, &nmsNext2);
+    int rc56a = ((wpf_pts_fn_get_next_section)fp56)(pfsclient, nms56, &fSuccess1, &nmsNext1);
+    int rc56b = ((wpf_pts_fn_get_next_section)fp56)(pfsclient, nms56, &fSuccess2, &nmsNext2);
     int rc80a = ((wpf_pts_fn_get_main_text_segment)fp80)(pfsclient, nms, &nmSeg1);
     int rc80b = ((wpf_pts_fn_get_main_text_segment)fp80)(pfsclient, nms, &nmSeg2);
 
@@ -741,19 +785,21 @@ static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *wh
     g_pts_dp_80_fserr = rc80a; g_pts_dp_80_segment = (const void *)nmSeg1;
     g_pts_dp_idem = ((rc56a == rc56b) && (fSuccess1 == fSuccess2) && (nmsNext1 == nmsNext2) ? 1 : 0)
                   | ((rc80a == rc80b) && (nmSeg1 == nmSeg2) ? 2 : 0);
+    g_pts_dp_gate = wpf_pts_drive_probe_enabled();
 
     const char *v56 = (rc56a == 0 && fSuccess1 == 0 && nmsNext1 == NULL) ? "NEXTSECTION-ABSENT(by-design)"
                     : (rc56a != 0 ? "CALLBACK-ERR" : "NEXTSECTION-OTHER");
     const char *v80 = (rc80a == 0 && nmSeg1 != NULL) ? "MAINTEXTSEG-LIVE-HANDLE"
                     : (rc80a != 0 ? "CALLBACK-ERR" : "MAINTEXTSEG-ZERO-HANDLE");
-    fprintf(stderr, "[DRIVE-PROBE] where=%s nms=%p pfsclient=%p slot56=%p slot80=%p fake=%d "
+    fprintf(stderr, "[DRIVE-PROBE] where=%s nms=%p pfsclient=%p slot56=%p slot80=%p fake=%d t3mode=%d "
                     "rc56a=%d fSuccess1=%d nmsNext1=%p rc56b=%d fSuccess2=%d nmsNext2=%p idem56=%d "
                     "rc80a=%d nmSeg1=%p rc80b=%d nmSeg2=%p idem80=%d v56=%s v80=%s\n",
-            where, nms, pfsclient, fp56, fp80, WPF_PTS_DRIVE_PROBE_FAKE_NMS,
+            where, nms56, pfsclient, fp56, fp80, WPF_PTS_DRIVE_PROBE_FAKE_NMS, t3mode,
             rc56a, fSuccess1, nmsNext1, rc56b, fSuccess2, nmsNext2,
             ((g_pts_dp_idem & 1) ? 1 : 0), rc80a, nmSeg1, rc80b, nmSeg2,
             ((g_pts_dp_idem & 2) ? 1 : 0), v56, v80);
 }
+
 
 // ── 格 6（`t110`／P1-W35 · W8 第四步）：`CreateDocContext` **真实现** ─────────────────
 //   分界句（沿用前三件，逐字）：**`return 0`（`fserrNone`）本身不是证据**；证据是「这次调用在本进程内
