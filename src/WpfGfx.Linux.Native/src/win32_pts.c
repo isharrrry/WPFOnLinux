@@ -5592,12 +5592,33 @@ int FsQueryLineCompositeElementList(void *pfscontext, void *pLine, int cElements
 #define WPF_PTS_ATT_FIG_DV 15000     /* Figure 高  50 DIP */
 #define WPF_PTS_ATT_FLO_DU 85500     /* Floater 宽 285 DIP */
 #define WPF_PTS_ATT_FLO_DV 30000     /* Floater 高 100 DIP */
+// ── ⏪ `T-A42`：内容段**入站几何自洽** —— 附属对象页矩形锚的 `v` 与视口**同参照** ────────────────
+//   算式（可复算，两行都逐字取自上/下游）：
+//     · 托管 `FigureParaClient.OnArrange`：`_contentRect.v = _rect.v + mbp.BPTop`，`_rect = fsrcFlowAround`
+//       （＝**本函数**给出的页矩形）；
+//     · 托管 `FigureParaClient.UpdateViewport`：`viewportSubpage.v = viewport.v − ContentRect.v`；
+//     · 托管 `TextParaClient.IntersectsWithRectOnV` 的两操作数 ＝ 内容段 `_rect.v`（子页内，由
+//       `PtsHelper.ArrangeParaList(rcTrackContent = 子页轨 fsrc.v)` 定）与 `viewportSubpage.v`。
+//   ⇒ **自洽（缺省）**：`v = 0` ⇒ `ContentRect.v = BPTop = 0`（Figure/Floater 无 Border/Padding）
+//      ⇒ `viewportSubpage.v = viewport.v − 0 = viewport.v` ⇒ 与视口**同一参照**（页面 v 原点）。
+//   ⇒ **反极性**（显式 `WPF_PTS_ATT_VSELF=0`）：逐字回原值 `20000 + (idx/4)*40000`
+//      ⇒ `ContentRect.v = 20000`（＝ 66.67 DIP ≠ 视口原点）⇒ 两操作数**不同参照**。
+//   ⇒ **远锚腿**（显式 `WPF_PTS_ATT_VSELF=f`）：`v = 200000`（＝ 666.67 DIP）⇒ `ContentRect.v > viewport.v + viewport.dv`
+//      ⇒ `IntersectsWithRectOnV` **必假** ⇒ 用「门真／门假」两极判「门是不是该门」（`T-A39` 仪器 B 同向）。
+//   两态在**同一产物**上可切 ⇒ 成对读数无需第二次构建（承 `T-A41` 的反极性形态）。
+static int wpf_pts_att_page_anchor_v(int idx)
+{
+    const char *s = getenv("WPF_PTS_ATT_VSELF");
+    if (s && s[0] == '0') return 20000 + (idx / 4) * 40000;   /* 缺失腿①：原值（ContentRect.v=20000 ≠ 视口原点） */
+    if (s && s[0] == 'f') return 200000;                      /* 缺失腿②：远锚（ContentRect.v=200000 > 视口 v+dv ⇒ 相交门**必假**） */
+    return 0;                                                 /* 自洽（缺省）：页面 v 原点 ⇒ 与视口**同参照** */
+}
 static void wpf_pts_att_geometry(int idx, int is_figure, wpf_pts_fsrect *out)
 {
     out->du = is_figure ? WPF_PTS_ATT_FIG_DU : WPF_PTS_ATT_FLO_DU;
     out->dv = is_figure ? WPF_PTS_ATT_FIG_DV : WPF_PTS_ATT_FLO_DV;
     out->u  = 30000 + (idx % 4) * 30000;
-    out->v  = 20000 + (idx / 4) * 40000;
+    out->v  = wpf_pts_att_page_anchor_v(idx);
 }
 // `FsQueryAttachedObjectList`：按**文本段落**认领，返回该段附属对象描述数组（`Figure`/`Floater`）。
 int FsQueryAttachedObjectList(void *pfscontext, void *pPara, int cAttachedObject,

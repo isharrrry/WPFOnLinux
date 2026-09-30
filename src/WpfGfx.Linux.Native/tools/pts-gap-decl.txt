@@ -31,7 +31,20 @@
 #   并**断言相等**（不等即 `rc=9` 停手 = 基底漂移），再把 `tool/dead/artifact/ops/impl`
 #   交给牙**现算对账**（不等即牙红 —— 那才是"数漂了"，与基底漂移是两回事，分开报）。
 # ══════════════════════════════════════════════════════════════════════════════════
-# PTSGAP-DECL: tool=76 dead=11 artifact=1 ops=64 impl=67 so16=dd9865c38e18ed81 exports=683 w66pre16=bf6b683d94549087
+# PTSGAP-DECL: tool=76 dead=11 artifact=1 ops=64 impl=67 so16=5b7d0ac101673900 exports=683 w66pre16=bf6b683d94549087
+#   ⚠️ 波 `T-A42` 重锚（`TASK-0302` 增量：native「内容段入站几何自洽」`NATIVE-PTS-CONTENT-VIEWPORT-V-SELFREF`；
+#     `D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
+#     `src/WpfGfx.Linux.Native/src/win32_pts.c` —— 附属对象页矩形锚的 `v`（决定托管 `FigureParaClient.ContentRect.v`）
+#     由「`20000 + (idx/4)*40000`」改为「**页面 v 原点 `0`**」（缺省），使
+#     `viewportSubpage.v = viewport.v − ContentRect.v = viewport.v`（**与视口同参照**）；
+#     反极性 `WPF_PTS_ATT_VSELF=0` ⇒ 逐字回原值（**同一产物**）。
+#     **导出面一字未动**（`exports=683` 不变，`nm -D --defined-only` 行数 == `exports.txt` 行数 == 683；
+#     逐名 `diff` 零差异）；不新增/不删除任何 `wpf_pts_gap(...)` stub ⇒ `tool=76`／`dead=11`／`artifact=1`／
+#     `ops=64`／`impl=67` 全未动，**只有 `so16` 跟权威件换**：`dd9865c38e18ed81→5b7d0ac101673900`。
+#     ⚠️ **计数未动 ≠ 能力未动**（件头第 ① 条同口径）：本增量改的是**附属对象页矩形的 v 参照**；
+#     腿现取：`k=24` 帧 `fr_sha 1487caf78fd88886→2d89d393157b0df6`（几何**真进渲染面**：`GhostWhite`
+#     `bbox y 223→153`），但**余 3 具名色仍 0 px**（`PTS_COLORANCHOR hits=1` 未变）⇒ 判据 ② **未达**
+#     ⇒ 见载体 `build/MilBridge/P1-tail2-vgeom-impl-report.md`。
 #   ⚠️ 波 `T-A37` 重锚（`TASK-0302` 增量：native「附属对象内容排版」`NATIVE-PTS-ATTACHED-CONTENT-LAYOUT`；
 #     `D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
 #     `src/WpfGfx.Linux.Native/src/win32_pts.c` —— **窗内**驱动附属对象**内容排版**（照 `T-A33` 回填体例）：
