@@ -1,4 +1,5 @@
 TAB_LINES_PROBE sha256=c78ed88fc1fd34f41ba69bf0a1dee5a4160511a43f854736693c93fa74a81cdc path=build/MilBridge/tests/CoverageProbe/Program.cs
+[FONT_FALLBACK] requested=LIBERATION SANS fallback=no resolved=LIBERATION SANS
 TAB_LINES CASE he-notab@w40@em24@RTL@default 臂=RTL 跳过=面缺字形5
 TAB_LINES OVERFLOWED he-notab@w40@em24@RTL@default 行=2 NOINFO=面缺字形(本列依赖字形)5
 TAB_LINES CASE he-notab@w40@em24@RTL@tab0 臂=RTL 跳过=面缺字形5
@@ -79,6 +80,7 @@ TAB_LINES CASE he-tab-adj@w320@em24@RTL@default 臂=RTL 跳过=面缺字形2
 TAB_LINES OVERFLOWED he-tab-adj@w320@em24@RTL@default 行=1 NOINFO=面缺字形(本列依赖字形)2
 TAB_LINES CASE he-tab-adj@w320@em24@RTL@tab0 臂=RTL 跳过=面缺字形2
 TAB_LINES OVERFLOWED he-tab-adj@w320@em24@RTL@tab0 行=1 NOINFO=面缺字形(本列依赖字形)2
+[FONT_FALLBACK] requested=PHETSARATH OT fallback=no resolved=PHETSARATH OT
 TAB_LINES Q2 he-tab-only@w40@em24@RTL@default 行#0 行宽=40.0000 tab左xfl=0.0000 P-xfl=40.0000 间隔=96.0 商=0.416667
 TAB_LINES Q2 he-tab-only@w40@em24@RTL@default 行#1 行宽=40.0000 tab左xfl=0.0000 P-xfl=40.0000 间隔=96.0 商=0.416667
 TAB_LINES CASE he-tab-only@w40@em24@RTL@default 臂=RTL wrap=1 结构=PASS 位置=PASS

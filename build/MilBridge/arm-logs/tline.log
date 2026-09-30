@@ -1,18 +1,16 @@
-HEAVYSLOT=ACQUIRED waited=0s cmd=bash build/MilBridge/run.sh tline
-HEAVYSLOT=MEMOK avail=7610MB min_avail=2500MB
 == T1b/B2 · HbTextLine 对拍 harness（**驱动真 shim 源**：73 例 CJK + 真机 oracle 614 例）==
 被测文件 = build/shims/PresentationCore.HbTextLine.cs
-           sha256=921ba9c65e9fb3be9e31d402fd98568ee78639063d75bb4e656b20201b30dc2b  大小=293165 B  行数=4865
-           mtime=2026-09-21 12:32:47
+           sha256=e2fa9ec9be1a6cf15736c97712721110f732a4e9c45466b010e71fc0cd3d33c0  大小=300974 B  行数=4961
+           mtime=2026-09-30 15:45:16
 
 -- [1/3] 直构分支编译闸门 + 默认值语义自检（TEXTLINE_SHIM_DIRECT，PC 内形态）--
-  [applocal] DirectWriteForwarder.dll：已与权威一致（c83be96f18759edc）
-  [applocal] DirectWrite.Linux.Provider.dll：已与权威一致（7e8a217b4165a6b9）
-  [applocal] PresentationCore.dll：已与权威一致（5b6cfda3e12b84fc）
-  [applocal] WindowsBase.dll：已与权威一致（9e860cbeecb352e1）
+  [applocal] DirectWriteForwarder.dll：已与权威一致（e07e5d99fa103c3c）
+  [applocal] DirectWrite.Linux.Provider.dll：已与权威一致（a1a720ab64555eb7）
+  [applocal] PresentationCore.dll：已与权威一致（5902d3aff84467a9）
+  [applocal] WindowsBase.dll：已与权威一致（b5404875125a4b19）
   [applocal] 汇总：4/4 权威产物均已就位并与副本一致/已同步
 
-已用时间 00:00:01.09
+已用时间 00:00:01.31
 == T1b · 直构分支（PC 内形态）+ 默认值语义自检 ==
   PASS  D1 编的是直构分支（Direct == true）
         IsDirect=True
@@ -42,31 +40,38 @@ ICU      = 70.1.0.0；HB = 2.7.4
   ✅ T0.3 shim 源文件里的 Tag 与 harness 预期逐字相同（换文件/换 stub 会在这里炸）
        实际="T1b/B2 · 2026-09-11 · break-engine + TextLineBreak + Collapse"
   ✅ T0.4 真 shim 源文件在磁盘上存在（能算出 sha256）
-       build/shims/PresentationCore.HbTextLine.cs sha256=921BA9C65E9FB3BE9E31D402FD98568EE78639063D75BB4E656B20201B30DC2B
-      [T0.7] PresentationCore.dll             副本=5B6CFDA3E12B84FC  权威=5B6CFDA3E12B84FC  ✓ 一致
-      [T0.7] WindowsBase.dll                  副本=9E860CBEECB352E1  权威=9E860CBEECB352E1  ✓ 一致
-      [T0.7] DirectWriteForwarder.dll         副本=C83BE96F18759EDC  权威=C83BE96F18759EDC  ✓ 一致
-      [T0.7] DirectWrite.Linux.Provider.dll   副本=7E8A217B4165A6B9  权威=7E8A217B4165A6B9  ✓ 一致
+       build/shims/PresentationCore.HbTextLine.cs sha256=E2FA9EC9BE1A6CF15736C97712721110F732A4E9C45466B010E71FC0CD3D33C0
+      [T0.7] PresentationCore.dll             副本=5902D3AFF84467A9  权威=5902D3AFF84467A9  ✓ 一致
+      [T0.7] WindowsBase.dll                  副本=B5404875125A4B19  权威=B5404875125A4B19  ✓ 一致
+      [T0.7] DirectWriteForwarder.dll         副本=E07E5D99FA103C3C  权威=E07E5D99FA103C3C  ✓ 一致
+      [T0.7] DirectWrite.Linux.Provider.dll   副本=A1A720AB64555EB7  权威=A1A720AB64555EB7  ✓ 一致
   ✅ T0.7 **探针目录里实际加载的 4 个副本 sha 与权威件逐一相同**（测量对象被钉住）
-       一致 4/4（权威 PC=5B6CFDA3E12B84FC cfg=Release）
+       一致 4/4（权威 PC=5902D3AFF84467A9 cfg=Release）
   ✅ T0.6 **被测文件的 sha256 == run.sh 固定的 sha256**（编译进本 harness 的那一份）
-       固定=921ba9c65e9fb3be9e31d402fd98568ee78639063d75bb4e656b20201b30dc2b 实读=921BA9C65E9FB3BE9E31D402FD98568EE78639063D75BB4E656B20201B30DC2B
+       固定=e2fa9ec9be1a6cf15736c97712721110f732a4e9c45466b010e71fc0cd3d33c0 实读=E2FA9EC9BE1A6CF15736C97712721110F732A4E9C45466B010E71FC0CD3D33C0
   ✅ T0.5 ICU 断行引擎可用（不是 '?'）
        u_getVersion=70.1.0.0
 
 ──────── T1 · 73 例 CJK（DWrite oracle）逐行全等 —— 驱动真 HbTextLine ────────
+[FONT_FALLBACK] requested=NOTO SANS fallback=no resolved=none
+[FONT_FALLBACK] requested=GLOBAL USER INTERFACE fallback=yes resolved=none
+[FONT_FALLBACK] requested=MITRA fallback=no resolved=none
+[FONT_FALLBACK] requested=GLOBAL USER INTERFACE fallback=yes resolved=none
+[FONT_FALLBACK] requested=NOTO SANS CJK JP fallback=no resolved=NOTO SANS CJK JP
    用例 73；**逐行全等 73 / 不同 0**
   ✅ T1.73 73 例 CJK 逐行全等（判据：必须 0 不同）
        exact=73 diff=0 cases=73
 
 ──────── T2/T3/T4 · 真机 oracle（layout-b34）对拍 —— 驱动真 HbTextLine ────────
 [ROWD] 开关：T1B_ROW_DUMP 未设/为空 ⇒ 逐字符 dump **关闭**（本趟不产生 [ROWD] 读数）
+[FONT_FALLBACK] requested=PHETSARATH OT fallback=no resolved=PHETSARATH OT
+[FONT_FALLBACK] requested=DEJAVU SANS fallback=no resolved=DEJAVU SANS
    [对拍面] 可逐位比用例 315（file 字体 + Ideal 模式 + 非 RTL）；其余 299 例只统计不给结论（zh/ja = 无 YaHei/Yu Gothic；Display = 本实现无该模式（advance 未按整像素对齐）；RTL = 本轮无 bidi）
    [逐行记账·结构] Length+NewlineLength+TrailingWhitespaceLength+(WITW−W) ⇒ 全等 1298 / 1298
    [口径·宽度分桶] 0=173 / ≤0.34DIP=1125 / >0.34DIP=0 行（三桶和==1298 机检：OK）最大差 0.333333 @ A1_long_word_w150
    [隔离矩阵] 族 × >0.34 红数：（无）    各和=0 == 总数 0 : OK
    [隔离矩阵] 允许变化的族（其余族**一位不动**）：A1_nbsp_zwsp / B_nbsp_zwsp / B_nbsp_zwsp_trim / F_nbsp_zwsp / F_lat_words / M_modifier
-   [隔离矩阵] before（上一趟 artifact gen/t2d-width-diff.txt sha16=7B4289AD3B56DBE3 mtime=2026-09-24 00:21:34（本文件即上一趟跑的产物 ⇒ 它就是「上一趟的族表」））：（无）
+   [隔离矩阵] before（上一趟 artifact gen/t2d-width-diff.txt sha16=42C413A029A5A472 mtime=2026-09-28 11:05:23（本文件即上一趟跑的产物 ⇒ 它就是「上一趟的族表」））：（无）
    [隔离矩阵] after ：（无）
    [隔离矩阵] 逐族 diff：一位未动（全部族计数与基线逐位相同）
    [隔离矩阵] 已写 /home/links-dev/netTest/GitProj/WPFOnLinux/build/MilBridge/gen/t2d-family-matrix.txt
@@ -144,7 +149,7 @@ ICU      = 70.1.0.0；HB = 2.7.4
   ❌ T3b 折叠明细**契约级**断言（① 判别式 `ours<0 ⇒ truth<0` ② 起止==真机 ③ |cr.Width−真机| < 0.34）
        ① 判别式红 0/236（**真违反**）；裸形式红 0/236（多出的 0 条 = 两侧同为负 0 条的**假红**：真机自己在 oracle 的 430 条折叠区间里有 7 条 Width<0）；② 红 4/236；③ 红 2/236（容差 0.34，**未放宽**）
    [完整明细] 折叠不符 4 条（样例上限 24 ⇒ 未截断）；记账不一致 5 条（用例样例上限 80）；Extent 余差 1242 条（控制台样例上限 45）
-   [记账行级清单] 0 条（无上限 ⇒ 未截断）⇒ 已写 /home/links-dev/netTest/GitProj/WPFOnLinux/build/MilBridge/gen/tline-ledger-lines-20260928-1105.txt
+   [记账行级清单] 0 条（无上限 ⇒ 未截断）⇒ 已写 /home/links-dev/netTest/GitProj/WPFOnLinux/build/MilBridge/gen/tline-ledger-lines-20260930-2130.txt
    [完整明细] 已写 /home/links-dev/netTest/GitProj/WPFOnLinux/build/MilBridge/gen/tline-detail-full.txt（1263 行；含 3 段：折叠 4 / Extent 1242 / 记账 5）
   ✅ T2d-lh **T2d 的 LineHeight 覆盖不再为 0**（真值来源 cases-cd2.json；口径见输出）
        LineHeight 用例 10 例 / 40 行（Height 10/10、Baseline 6/10）
@@ -227,6 +232,5 @@ ICU      = 70.1.0.0；HB = 2.7.4
   ✓ nm -D：LoAcquireBreakRecord **未定义**（与日志 MISS 一致）
 
 ⇒ 装置自证 **未通过**
-  原始日志保留在 /tmp/tmp.zhJDWBzy6s/（未删，供复核）
+  原始日志保留在 /tmp/tmp.k5hNur9fmi/（未删，供复核）
 ST_ATTEST=PASS self=/home/links-dev/netTest/GitProj/WPFOnLinux/build/MilBridge/tools/t1b-ls-tripwire.sh sha16=82f6a05afb1f9db9（自测期间本件未变 ⇒ 读数可归因）
-HEAVYSLOT=RELEASED rc=1 held=123s max_hold=1800s

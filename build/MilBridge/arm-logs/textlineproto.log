@@ -8,6 +8,8 @@ WindowsBase      = WindowsBase, Version=4.0.0.1, Culture=neutral, PublicKeyToken
   FAIL  P1  new GlyphTypeface(new Uri(file://…))
         FileFormatException: File 'file:///home/links-dev/netTest/GitProj/WPFOnLinux/build/fonts/NotoSans-Bold.ttf' has an invalid file format.
         栈: at System.Windows.Media.GlyphTypeface.Initialize(Uri typefaceSource, StyleSimulations styleSimulations) in /home/links-dev/netTest/GitProj/WPFOnLinux/upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationCore/System/Windows/Media/GlyphTypeface.cs:line 145 | at System.Windows.Media.GlyphTypeface..ctor(Uri typefaceSource, StyleSimulations styleSimulations) in /home/links-dev/netTest/GitProj/WPFOnLinux/upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationCore/System/Windows/Media/GlyphTypeface.cs:line 66 | at System.Windows.Media.GlyphTypeface..ctor(Uri typefaceSource) in /home/links-dev/netTest/GitProj/WPFOnLinux/upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationCore/System/Windows/Media/GlyphTypeface.cs:line 55 | 
+[FONT_FALLBACK] requested=NOTO SANS fallback=no resolved=none
+[FONT_FALLBACK] requested=GLOBAL USER INTERFACE fallback=yes resolved=none
   PASS  P2  new FontFamily("Noto Sans") + Typeface 解析
         解析到 GlyphTypeface，GlyphCount=6196
       TextBounds: public ctor=0  non-public ctor=1
@@ -48,6 +50,9 @@ text        = "Hello WPF on Linux — AVATAR To office ffi"  emSize=24  ppd=1
         非白像素 = 3954 / 51200（7.72%）；PNG = 4722 字节
       [IGR] run#0 cp=[0,41) FontUri=file:///home/links-dev/netTest/GitProj/WPFOnLinux/build/fonts/NotoSans-Bold.ttf GlyphIndices=[43,72,79,79,82,3,58,51,41,3,82,81,3,47,76,81,88,91,3,513,3,36,57,36,55,36,53,3,55,82,3,82,1656,70,72,3,1656] AdvanceWidths=[18.36,14.328000000000001,7.152,7.152,15,6.24,23.208000000000002,14.904,13.176,6.24,15,15.6,6.24,13.416,7.176,15.6,15.6,13.872,6.24,24,6.24,15.648,14.64,14.928,12.168000000000001,16.608,15.744,6.24,12.168000000000001,15,6.24,15,25.704,12.384,14.328000000000001,6.24,25.704] (notdef=-1)
       [IGR] 共 1 个 run
+[FONT_FALLBACK] requested=NOTO SANS fallback=no resolved=none
+[FONT_FALLBACK] requested=GLOBAL USER INTERFACE fallback=yes resolved=none
+[FONT_FALLBACK] requested=NOTO SANS CJK JP fallback=no resolved=NOTO SANS CJK JP
       [IGR-FB] run#0 cp=[0,2) FontUri=file:///usr/share/fonts/truetype/dejavu/DejaVuSans.ttf GlyphIndices=[36,37] (notdef=-1)
       [IGR-FB] run#1 cp=[2,3) FontUri=file:///usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc GlyphIndices=[9498] (notdef=-1)
       [IGR-FB] run#2 cp=[3,5) FontUri=file:///usr/share/fonts/truetype/dejavu/DejaVuSans.ttf GlyphIndices=[38,39] (notdef=-1)

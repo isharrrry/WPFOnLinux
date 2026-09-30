@@ -1,4 +1,5 @@
 TAB_LINES_PROBE sha256=c78ed88fc1fd34f41ba69bf0a1dee5a4160511a43f854736693c93fa74a81cdc path=build/MilBridge/tests/CoverageProbe/Program.cs
+[FONT_FALLBACK] requested=LIBERATION SANS fallback=no resolved=LIBERATION SANS
 TAB_LINES CASE notab-control@w40@em24@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
 TAB_LINES OVERFLOWED notab-control@w40@em24@LTR@tab0 行=2 NOINFO=对齐非Left(NOINFO)
 TAB_LINES CASE notab-control@w40@em24@RTL@tab0 臂=RTL wrap=1 结构=FAIL 位置=PASS
@@ -16,6 +17,7 @@ TAB_LINES CASE notab-control@w320@em24@LTR@tab0 臂=LTR wrap=1 结构=PASS 位�
 TAB_LINES OVERFLOWED notab-control@w320@em24@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
 TAB_LINES CASE notab-control@w320@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=PASS
 TAB_LINES OVERFLOWED notab-control@w320@em24@RTL@tab0 行=1 NOINFO=对齐非Left(NOINFO)
+[FONT_FALLBACK] requested=PHETSARATH OT fallback=no resolved=PHETSARATH OT
 TAB_LINES CASE tab-single@w40@em24@LTR@tab0 臂=LTR wrap=1 结构=PASS 位置=PASS
 TAB_LINES OVERFLOWED tab-single@w40@em24@LTR@tab0 行=1 NOINFO=对齐非Left(NOINFO)
 TAB_LINES CASE tab-single@w40@em24@RTL@tab0 臂=RTL wrap=1 结构=PASS 位置=跳过(bidi 重排)

@@ -1,4 +1,6 @@
 TAB_LINES_PROBE sha256=c78ed88fc1fd34f41ba69bf0a1dee5a4160511a43f854736693c93fa74a81cdc path=build/MilBridge/tests/CoverageProbe/Program.cs
+[FONT_FALLBACK] requested=LIBERATION SANS fallback=no resolved=LIBERATION SANS
+[FONT_FALLBACK] requested=PHETSARATH OT fallback=no resolved=PHETSARATH OT
 TAB_LINES CASE A-anchor/lat-a-t-b@w96@LTR@i0@default 臂=LTR wrap=1 结构=PASS 位置=PASS
 TAB_LINES START A-anchor/lat-a-t-b@w96@LTR@i0@default 行=3 红=0 绿=3
 TAB_LINES OVERFLOWED A-anchor/lat-a-t-b@w96@LTR@i0@default 行=3 红=0 绿=3
@@ -84,6 +86,7 @@ TAB_LINES CASE A-anchor/lat-ab-t-c@w260@LTR@i0@tab0 臂=LTR wrap=1 结构=PASS �
 TAB_LINES START A-anchor/lat-ab-t-c@w260@LTR@i0@tab0 行=1 红=0 绿=1
 TAB_LINES OVERFLOWED A-anchor/lat-ab-t-c@w260@LTR@i0@tab0 行=1 红=0 绿=1
 TAB_LINES CASE A-anchor/he-a-t-b@w96@RTL@i0@default 臂=RTL 跳过=面缺字形2
+[FONT_FALLBACK] requested=DEJAVU SANS fallback=no resolved=DEJAVU SANS
 TAB_LINES START A-anchor/he-a-t-b@w96@RTL@i0@default 行=3 红=0 绿=3
 TAB_LINES OVERFLOWED A-anchor/he-a-t-b@w96@RTL@i0@default 行=3 NOINFO=面缺字形(本列依赖字形)2
 TAB_LINES CASE A-anchor/he-a-t-b@w96@RTL@i0@tab0 臂=RTL 跳过=面缺字形2
