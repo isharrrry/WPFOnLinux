@@ -324,13 +324,24 @@ REPLACEMENT_3 = r"""    /// <summary>
         /// 【形参带默认值】⇒ 既有调用点零改动（照 `indentDip`/`paragraphIndentDip` 先例）；
         ///   ⚠️ 但这**也正是"半接线"能静默通过的原因** ⇒ 必须靠**调用点计数牙齿**（本应用器的
         ///   `n_default_src == 2`）把"两个站点真的传了"钉死，见 WAVE25 §2 反极性③。
+        ///
+        /// ★ **T-A30（`PRECOND-LINEMODEL-ELEMENT-SAFE-STARTS`）**：新增 `out TextRun eolRun` —— 段末取到的
+        ///   那个 EOL run（宿主 PtsHost 给 `ParagraphBreakRun : TextEndOfParagraph`）。
+        ///   【为什么必须由**收集层**交出来】`Line.FormattingResult`（`Line.cs:928-936`）**只认**
+        ///   `ParagraphBreakRun`／`LineBreakRun`（`PresentationFramework` 的 internal 类型，shim 编在
+        ///   `PresentationCore` **造不出来**）⇒ shim 在段末行只能**把源给的那个对象原样放回** span 里。
+        ///   【不传的后果】段末行照样报 `fsflrOutOfSpace` ⇒ 驱动把行宽里那 1 个合成位也累加进 `dcp` ⇒
+        ///   下一跳探到**下一个 Block 的 `ElementStart`** ⇒ `Invariant.FailFast`（`LineBase.cs:137`，不可捕获）。
         /// </summary>
         private static bool CollectLenient(TextSource src, int cpFirst,
                                            out string text, out TextRunProperties props,
                                            out int modifierOpenIndex, out int modifierScopeEnd, out int modifierCloseIndex,
+                                           out TextRun eolRun,
                                            TextRunProperties paragraphDefault = null)
         {
             text = null; props = null;
+            // ★T-A30：段末 EOL run（缺省 null ⇒ 与修前逐位相同：shim 侧就地造 `TextEndOfParagraph(1)`）。
+            eolRun = null;
             // ── T1c/#13：只**记位置**，不改平铺/len 口径 ──────────────────────────
             //   ⭐ **`D-T2-c`（WAVE32 §1 W32A 本波修）**：**零宽跨度**的终点 `modifierScopeEnd` 现在真的被收集。
             //   两个**互不相同**的量（分工见 `build/MilBridge/T1d-tab-and-modifier.md:1058` 逐字）：
@@ -376,6 +387,10 @@ REPLACEMENT_3 = r"""    /// <summary>
                     {
                         try { props = run.Properties; } catch (Exception) { }
                     }
+                    // ★T-A30：**只认"段末"那一种** EOL。宿主 PtsHost 造的是
+                    //   `ParagraphBreakRun : TextEndOfParagraph`（`RunClient.cs:203`）；`LineBreakRun`（硬断）
+                    //   **不算段末** ⇒ 不取，免把"段中间的软断"当成"排到段尾"（那会让驱动提前收束 = 假成功方向）。
+                    eolRun = (run is TextEndOfParagraph) ? run : null;
                     break;                            // EOL / EOP（它的字符不属于段落正文）
                 }
 
@@ -512,7 +527,9 @@ REPLACEMENT_3 = r"""    /// <summary>
 
                 string text; TextRunProperties props;
                 int modOpen, modScopeEnd, modClose;
+                TextRun eolRun;
                 if (!CollectLenient(textSource, cpFirst, out text, out props, out modOpen, out modScopeEnd, out modClose,
+                                    out eolRun,
                                     paragraphDefault: paragraphDefault)) { ++s_failed; return null; }
 
                 if (s_substitutedBlank)
@@ -537,7 +554,13 @@ REPLACEMENT_3 = r"""    /// <summary>
                             //   帧（= 真机 `cases[].lines[].startChar` / `GetTextBounds` 第一参数）是**段落系绝对**
                             //   下标 ⇒ 原点必须 = `cpFirst`（`#22` 实测：不传 ⇒ 宽松档 133 行帧红）。
                             //   尾随可选形参 ⇒ 其它调用点零改动、逐位等价。
-                            paragraphOrigin: cpFirst);
+                            paragraphOrigin: cpFirst,
+                            // ── ★T-A30（`PRECOND-LINEMODEL-ELEMENT-SAFE-STARTS`）：**段末 EOL run** 透给工厂 ──
+                            //   `eolRun` = 收集层在段末取到的**源自己的**那个 run（宿主 PtsHost 给
+                            //   `ParagraphBreakRun : TextEndOfParagraph`）⇒ 段末行的末 span 用它 ⇒
+                            //   `Line.FormattingResult`（`Line.cs:928-936`，**只认** `ParagraphBreakRun`／
+                            //   `LineBreakRun`）报 `fsflrEndOfParagraph` ⇒ 驱动在段末收束、**不再越界探 Block**。
+                            eopRun: eolRun);
 
                 if (lines == null || lines.Count == 0) { ++s_failed; s_lastFail = "工厂返回 0 行"; return null; }
 
@@ -568,7 +591,9 @@ REPLACEMENT_3 = r"""    /// <summary>
                 s_substitutedBlank = false;
                 string text; TextRunProperties props;
                 int modOpen2, modScopeEnd2, modClose2;
+                TextRun eolRun2;   // ★T-A30：段末 EOL run（min/max 只量宽，但**三个站点同一把尺子**）
                 if (!CollectLenient(textSource, 0, out text, out props, out modOpen2, out modScopeEnd2, out modClose2,
+                                    out eolRun2,
                                     paragraphDefault: paragraphDefault)) { ++s_failed; return false; }
 
                 if (s_substitutedBlank)
@@ -588,7 +613,8 @@ REPLACEMENT_3 = r"""    /// <summary>
                     WpfLinux.Shims.PresentationCore.HbTextLineFactory.FormatParagraph(
                         text, fontPath, props.FontRenderingEmSize, double.MaxValue, gt, (float)pixelsPerDip,
                         props, false, false, 0, out c1,
-                            modifierOpenIndex: modOpen2, modifierScopeEnd: modScopeEnd2, modifierCloseIndex: modClose2);
+                            modifierOpenIndex: modOpen2, modifierScopeEnd: modScopeEnd2, modifierCloseIndex: modClose2,
+                            eopRun: eolRun2);   // ★T-A30：与宽松档**同一对**（三站点同尺）
                 for (int i = 0; i < wide.Count; ++i) if (wide[i].Width > maxWidth) maxWidth = wide[i].Width;
 
                 // ── WAVE17 §1 P3（`D-T2` **真身**）：min 探针必须与 max 探针**用同一把尺子** ──
@@ -605,7 +631,8 @@ REPLACEMENT_3 = r"""    /// <summary>
                     WpfLinux.Shims.PresentationCore.HbTextLineFactory.FormatParagraph(
                         text, fontPath, props.FontRenderingEmSize, 0.0, gt, (float)pixelsPerDip,
                         props, false, false, 0, out c2,
-                            modifierOpenIndex: modOpen2, modifierScopeEnd: modScopeEnd2, modifierCloseIndex: modClose2);
+                            modifierOpenIndex: modOpen2, modifierScopeEnd: modScopeEnd2, modifierCloseIndex: modClose2,
+                            eopRun: eolRun2);
                 for (int i = 0; i < narrow.Count; ++i) if (narrow[i].Width > minWidth) minWidth = narrow[i].Width;
 
                 ++s_handled;
@@ -749,8 +776,10 @@ REQUIRED_IN_OUTPUT = [
     ("P2：两个槽分别送 shim 的两个形参（不是同一个量送两次）",
      "indentDip: indentDip, paragraphIndentDip: paragraphIndentDip,"),
     # ---- WAVE23 §2 P2（`D-T6-b`）的**正向**断言（射程一旦缩到零必须当场报错）----
+    #   ⚠️ ★T-A30：本站点实参表**尾**又追加了 `eopRun: eolRun`（见 `T-A30` 计数牙齿）⇒ 本 needle 的
+    #      收尾从 `…cpFirst);` 改为 `…cpFirst,`（**射程一字未减**：仍是"段落原点 = `cpFirst`"）。
     ("W23-B：宽松兜底把**段落原点**透给工厂（= `cpFirst`；缺它则帧恒 0）",
-     "paragraphOrigin: cpFirst);"),
+     "paragraphOrigin: cpFirst,"),
     ("P2：站点1 从宿主对象取**原始 DIP** 的 Indent",
      "indentDip: paragraphProperties.Indent,"),
     ("P2：站点1 从宿主对象取**原始 DIP** 的 ParagraphIndent",
@@ -759,7 +788,7 @@ REQUIRED_IN_OUTPUT = [
     ("P3：min 探针也收了 modifier 作用域实参（调用行尾）",
      "props, false, false, 0, out c2,"),
     ("P3：min 探针传的是**同一个** `modOpen2/modScopeEnd2/modClose2`（与 max 同源）",
-     "modifierOpenIndex: modOpen2, modifierScopeEnd: modScopeEnd2, modifierCloseIndex: modClose2);"),
+     "modifierOpenIndex: modOpen2, modifierScopeEnd: modScopeEnd2, modifierCloseIndex: modClose2,"),
     # ---- WAVE32 §1 W32A（`D-T2-c`）的**正向**断言（射程一旦缩到零必须当场报错）----
     #   【为什么必须是"每个站点"】`modifierScopeEnd` 是**尾随可选形参** ⇒ 漏传一个站点**编译得过**
     #   而那条路径的零宽跨度照旧是"到段末"（= 修前的错），**其它路径却会绿** ⇒ 这正是
@@ -1050,12 +1079,49 @@ def generate(check_only):
     #   "参数对等"这件事必须是**数出来的**，不是"看起来像"：少一处 = 退回不对称，多一处 = 多了一个站点。
     #   ⚠️ WAVE32 §1 W32A（`D-T2-c`）把这条 needle 的**尾巴加长**为同时带 `modifierScopeEnd`：
     #      射程**只增不减**（它现在同时钉住"min 与 max 用的是**同一组三个**实参"）。
-    n_mod_args = _count(out, "modifierOpenIndex: modOpen2, modifierScopeEnd: modScopeEnd2, modifierCloseIndex: modClose2);")
+    #   ⚠️ ★T-A30：两处实参表**尾**新增了 `eopRun: eolRun2`（见下面 `T-A30 站点计数牙齿`）⇒ 本 needle
+    #      的收尾从 `…modClose2);` 改为 `…modClose2,`（**射程一字未减**：仍是"同一组三个实参"）。
+    n_mod_args = _count(out, "modifierOpenIndex: modOpen2, modifierScopeEnd: modScopeEnd2, modifierCloseIndex: modClose2,")
     if n_mod_args != 2:
         print(f"[失败] P3 计数牙齿：modifier 作用域实参出现 {n_mod_args} 处"
               "（要求 2 = max 探针 + min 探针）")
         return 1
     print(f"[断言] P3 参数对等：modifier 作用域实参 {n_mod_args} 处（max + min）✅")
+
+    # ---- ★T-A30（`PRECOND-LINEMODEL-ELEMENT-SAFE-STARTS`）的**计数 + 顺序**牙齿 ----
+    #   【为什么必须数】`CollectLenient` 的 `out TextRun eolRun` 与 `FormatParagraph` 的 `eopRun:` 都是
+    #   **尾随可选** ⇒ "形参加了、站点不传"**编译得过**、行为与修前**逐位相同**（段末行照旧报
+    #   `fsflrOutOfSpace` ⇒ 驱动越界探到下一个 Block ⇒ `FailFast`）⇒ 只能靠站点数把"接全了"钉死。
+    #   ⚠️ 三个 `FormatParagraph` 站点（宽松档 + max + min）与本文件的既有口径同源。
+    #   ⚠️ needle **不跨行**（形参/实参在生成物里是分行的）⇒ 分别钉"出口"与"实参"两半。
+    n_eop_def = _count(out, "out TextRun eolRun,")
+    n_eop_out1 = _count(out, "out eolRun,")
+    n_eop_out23 = _count(out, "out eolRun2,")
+    n_eop_arg1 = _count(out, "eopRun: eolRun);")
+    n_eop_arg23 = _count(out, "eopRun: eolRun2);")
+    n_eop_cap = _count(out, "eolRun = (run is TextEndOfParagraph) ? run : null;")
+    n_eop_uses = _count(out, "eopRun:")
+    if (n_eop_def, n_eop_out1, n_eop_out23, n_eop_arg1, n_eop_arg23, n_eop_cap) != (1, 1, 1, 1, 2, 1):
+        print(f"[失败] T-A30 计数牙齿：形参定义 {n_eop_def}（要求 1）、站点1 出口 {n_eop_out1}（要求 1）、"
+              f"min/max 出口 {n_eop_out23}（要求 1）、站点1 实参 {n_eop_arg1}（要求 1）、"
+              f"min/max 实参 {n_eop_arg23}（要求 2）、段末取值语句 {n_eop_cap}（要求 1）"
+              "—— 漏传 = 段末行照旧报 `fsflrOutOfSpace` ⇒ 驱动越界 ⇒ `Invariant.FailFast`（`LineBase.cs:137`）")
+        return 1
+    if n_eop_uses != 3:
+        print(f"[失败] T-A30 计数牙齿：`eopRun:` 合计 {n_eop_uses}（要求 3 = 工厂站点数）")
+        return 1
+    print(f"[断言] T-A30 段末 EOL run 接线：形参 {n_eop_def}、出口 {n_eop_out1}+{n_eop_out23}、"
+          f"工厂站点 {n_eop_arg1}+{n_eop_arg23}（共 {n_eop_uses}）、段末取值语句 {n_eop_cap} ✅")
+
+    #   【负断言】"取值语句落在收集循环**之后**"是**顺序**要求：段末取值必须在 `break` 之前、且在
+    #     循环体内（否则收集层根本拿不到段末那个对象）。
+    i_eop_cap = out.find("eolRun = (run is TextEndOfParagraph) ? run : null;")
+    i_eop_brk = out.find("break;                            // EOL / EOP（它的字符不属于段落正文）")
+    if i_eop_cap < 0 or i_eop_brk < 0 or not (i_eop_cap < i_eop_brk):
+        print(f"[失败] T-A30 顺序牙齿：段末取值（下标 {i_eop_cap}）**没有**落在 `break;`（下标 {i_eop_brk}）之前"
+              "—— 那样 `eolRun` 恒 null，段末行照旧报 `fsflrOutOfSpace`（半接线）")
+        return 1
+    print(f"[断言] T-A30 顺序：段末取值 @{i_eop_cap} < `break;` @{i_eop_brk} ✅")
 
     # ---- WAVE32 §1 W32A（`D-T2-c`）的**站点计数**牙齿：`modifierScopeEnd` 必须**恰好传 3 处** ----
     #   【为什么必须数】`n_default_src` 那条只钉**兜底形参**，与"覆盖终点"无关；而本件新增的形参
@@ -1172,9 +1238,13 @@ def generate(check_only):
     elif up_to_date:
         print(f"[生成] {os.path.relpath(GENERATED, ROOT)}：内容已是最新（未重写）")
     else:
-        with open(GENERATED, "w", encoding="utf-8") as f:
+        # ★T-A30：**生成件用 `temp+rename` 重产**（同目录 `os.replace` 是原子的）—— 就地截断写会在
+        #   写入中途失败时留下**半件**（而"半件"看上去与"没生成过"一样，正是本仓 `D-G56` 那一族的来源形态）。
+        _tmp = GENERATED + ".tmp-tA30"
+        with open(_tmp, "w", encoding="utf-8") as f:
             f.write(output)
-        print(f"[生成] {os.path.relpath(GENERATED, ROOT)}：已从上游重生成（2 处 D3 修改）")
+        os.replace(_tmp, GENERATED)
+        print(f"[生成] {os.path.relpath(GENERATED, ROOT)}：已从上游重生成（2 处 D3 修改；temp+rename）")
 
     # ---- csproj 接线 ----
     with open(CSPROJ, encoding="utf-8-sig") as f:

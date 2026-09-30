@@ -2662,6 +2662,21 @@ namespace WpfLinux.Shims.PresentationCore
         private readonly int _visibleLength;        // 可见文本长度（不含硬断字符）
         private readonly int _hardBreakLen;         // 本行末尾硬断字符个数（0/1/2）
         private readonly bool _hasEop;              // 末行 ⇒ EOP 字符（Length +1）
+        /// <summary>
+        /// T-A30（`PRECOND-LINEMODEL-ELEMENT-SAFE-STARTS`）：段末行的末 span **交回源自己的那个** EOL run
+        /// （收集时在段末取到的那个对象），而不是就地新造一个 `TextEndOfParagraph(1)`。
+        ///
+        /// 【为什么这是承重的】宿主 `Line.FormattingResult`（`Line.cs:928-936`）**只认** `ParagraphBreakRun`／
+        ///   `LineBreakRun`（两者都是 `PresentationFramework` 的 internal 类型，本 shim 编在 `PresentationCore`
+        ///   造不出来）⇒ 修前段末行恒报 `fsflrOutOfSpace` ⇒ 驱动收不到"段末"，把行宽里那 1 个合成位也累加进
+        ///   `dcp`，下一跳就探到**下一个 Block 的 `ElementStart`** ⇒ `Invariant.FailFast`（`LineBase.cs:137`，
+        ///   不可捕获）。交回源对象则 `Line.EndOfParagraph`（`Line.cs:841-853`）成立、`FormattingResult` 报
+        ///   `fsflrEndOfParagraph` ⇒ 驱动在段末收束，**不越界**。
+        /// 【类型安全】`ParagraphBreakRun : TextEndOfParagraph`（`RunClient.cs:203`）⇒ 既有消费者
+        ///   `TextBoxLine.EndOfParagraph`（`:362-371`，判 `is TextEndOfParagraph`）**不受影响**。
+        /// `null` ⇒ 退回旧行为（合成 run），逐位相同。
+        /// </summary>
+        private readonly TextRun _eopRun;
         private readonly double[] _charAdvances;    // 可见文本逐字 advance
         private readonly double _startPenX;         // 内容起点（container 系）= **`Indent + ParagraphIndent`**（件 2 起；旧注只写 `Indent`，与代码不符 ⇒ 本次改正）
         // D-O1：**行盒原点** = `ParagraphIndent`。`_width` 是**盒坐标系**的宽（= `Indent` + 内容宽，不含 PI）
@@ -2759,7 +2774,9 @@ namespace WpfLinux.Shims.PresentationCore
                            double startPenX = 0, double boxOriginX = 0, double paragraphIndentDip = 0,
                            // ★`#23` P2（`D-T6-b`）：段落在**调用方 `TextSource`** 里的原点（= 收集时的 `cpFirst`）。
                            //   尾随可选、缺省 0 ⇒ **既有调用点零改动、逐位等价**（0 = "段落原点就是 0"，与修前同）。
-                           int paragraphOrigin = 0)
+                           int paragraphOrigin = 0,
+                           // T-A30：段末行要交回**源自己的** EOL run（见 `_eopRun` 的说明）；缺省 null ⇒ 逐位不变。
+                           TextRun eopRun = null)
         {
             _plan = plan;
             _paragraphWidth = paragraphWidth;
@@ -2784,6 +2801,7 @@ namespace WpfLinux.Shims.PresentationCore
             _fontPath = fontPath;
             _hardBreakLen = hardBreakLen;
             _hasEop = hasEop;
+            _eopRun = eopRun;
             _glyphTypeface = glyphTypeface;
             _pixelsPerDip = pixelsPerDip;
             _runProperties = run != null ? run.Props : null;
@@ -2916,7 +2934,9 @@ namespace WpfLinux.Shims.PresentationCore
             double paragraphIndentDip = 0,   // D-T2/(C)：尾随可选，默认 0 ⇒ 既有调用点零改动
             // ★`#23` P2（`D-T6-b`）：**段落原点** = 本段落在调用方 `TextSource` 里的起点（= `FormatParagraph`
             //   收进来的那个串在 source 里的 `cpFirst`。尾随可选、缺省 0 ⇒ 既有调用点零改动、逐位等价。
-            int paragraphOrigin = 0)
+            int paragraphOrigin = 0,
+            // T-A30：段末行的末 span 交回**源自己的** EOL run（缺省 null ⇒ 就地造 `TextEndOfParagraph(1)`，逐位不变）。
+            TextRun eopRun = null)
         {
             int visibleLen = range.VisibleLength;
             string visible = text.Substring(range.Start, visibleLen);
@@ -2978,7 +2998,9 @@ namespace WpfLinux.Shims.PresentationCore
                                       paragraphIndentDip,   // 末三=startPenX(合量)、末二=boxOriginX(盒原点=PI)、末=`TextLine.Start` 的 PI（`#21` 新增）
                                       // ★`#23` P2：第 26 个实参 = **段落原点**（帧的绝对系 = 原点 + `range.Start`）。
                                       //   这里是本 ctor 的**唯一**行构造点 ⇒ 原点只在此接线（折叠路径另有透传）。
-                                      paragraphOrigin);
+                                      paragraphOrigin,
+                                      // T-A30：段末行带源自己的 EOL run（`range.HasEop` 为假时该行不产 EOP span ⇒ 无用）
+                                      eopRun);
             if (range.Forced) HbTextLineScaffold.NoteForcedBreakLine();
             if (range.KinsokuPull > 0) HbTextLineScaffold.NoteKinsokuPull(range.KinsokuPull);
             return line;
@@ -3103,7 +3125,18 @@ namespace WpfLinux.Shims.PresentationCore
             if (_visibleLength > 0)
                 spans.Add(new TextSpan<TextRun>(_visibleLength, _run));
             if (_hasEop)
-                spans.Add(new TextSpan<TextRun>(1, new TextEndOfParagraph(1)));
+            {
+                // ── T-A30（`PRECOND-LINEMODEL-ELEMENT-SAFE-STARTS`）：段末行**交回源自己的那个 EOL run** ──
+                //   修前恒造 `TextEndOfParagraph(1)`，而宿主 `Line.FormattingResult`（`Line.cs:928-936`）**只认**
+                //   `ParagraphBreakRun`／`LineBreakRun` ⇒ 末行恒报 `fsflrOutOfSpace` ⇒ 驱动把行宽里那 1 个合成位
+                //   也累加进 `dcp` ⇒ 下一跳探到**下一个 Block 的 ElementStart** ⇒ `Invariant.FailFast`
+                //   （`LineBase.cs:137`，不可捕获）；交回源对象后 `Line.EndOfParagraph` 成立、`FormattingResult`
+                //   报 `fsflrEndOfParagraph`（=2）⇒ 驱动在段末收束，**不再越界**。
+                //   `Length != 1`（非 `_syntheticCharacterLength` 契约）⇒ 本行的 `Length` 记账对不上 ⇒ **不用**，
+                //   退回合成 run（保守，绝不静默改字长）。
+                spans.Add(new TextSpan<TextRun>(1,
+                    (_eopRun != null && _eopRun.Length == 1) ? _eopRun : new TextEndOfParagraph(1)));
+            }
             if (spans.Count == 0)
                 spans.Add(new TextSpan<TextRun>(_length, _run));   // 兜底：空行且无 EOP（不应发生）
             return spans;
@@ -3921,7 +3954,16 @@ namespace WpfLinux.Shims.PresentationCore
     internal static class HbTextLineFactory
     {
         /// <summary>
-        /// 排一段文本。返回的行按顺序；`consumedLength` = 各行 `Length` 之和
+        /// ★T-A30（`PRECOND-LINEMODEL-ELEMENT-SAFE-STARTS`）：**段末行真的带上了"源自己的" EOL run 的段数**。
+        /// 缺它则本改动会落进本项目反复栽的那一类"**接了但没生效**"（`#17` 族）：`eopRun` 是个**尾随可选形参**，
+        /// 收集层不传也**编译得过**、且行为与修前**逐位相同**却**看不出来** ⇒ 计数把它变成运行期可读读数。
+        /// 出口：`WPF_LINUX_TEXTLINE_LSEM=1` 的具名行 `[TEXTLINE_LSEM]`（有界：前 12 条），另见 `SummaryLine`。
+        /// </summary>
+        internal static long ParagraphEndRuns;
+        private const string LsemEnvVar = "WPF_LINUX_TEXTLINE_LSEM";
+        private static int s_lsemLeft = 12;
+
+        /// <summary>排一段文本。返回的行按顺序；`consumedLength` = 各行 `Length` 之和
         /// （真机实测 = 文本长度 + 1，那个 +1 就是末行 EOP）。
         /// </summary>
         /// <summary>D-F1b：`HbFaceRef` → `GlyphTypeface`（**唯一造面入口**）。面号语义照抄上游
@@ -4005,7 +4047,11 @@ namespace WpfLinux.Shims.PresentationCore
             // ★`#23` P2（`D-T6-b`）：本段落在**调用方 `TextSource`** 里的原点（= 收集 `text` 时的 `cpFirst`；
             //   缺省 0 ⇒ **既有调用点零改动、逐位等价**）。它只喂 `HbTextLine._paragraphOrigin`
             //   （帧的绝对系），**不参与**任何度量/整形/断行计算。
-            int paragraphOrigin = 0)
+            int paragraphOrigin = 0,
+            // ★T-A30（`PRECOND-LINEMODEL-ELEMENT-SAFE-STARTS`）：**段末行的末 span 用哪个 run** ——
+            //   收集层在段末取到的那个对象（宿主 PtsHost 给的是 `ParagraphBreakRun`）；缺省 null ⇒
+            //   与修前逐位相同（就地造 `TextEndOfParagraph(1)`）。
+            TextRun eopRun = null)
         {
             text = text ?? string.Empty;
             // D-F1（2026-09-15 主控派单）：**单面路径也先构造计划**（`allowFallback:true`）。
@@ -4079,13 +4125,46 @@ namespace WpfLinux.Shims.PresentationCore
                     alwaysCollapsible, lineHasModifier, lineHeight, plan, segmentFaces, paragraphWidthDip, runProps,
                     indentDip, defaultIncrementalTab, wrap,      // 波 `#16` `D-T2`/(B)：原为 `lines.Count == 0 ? indentDip : 0`
                     modifierOpenIndex, modifierScopeEnd, modifierCloseIndex, paragraphIndentDip,
-                    paragraphOrigin);   // ★`#23` P2：段落原点透到行构造（帧的绝对系 = 原点 + range.Start）
+                    paragraphOrigin,   // ★`#23` P2：段落原点透到行构造（帧的绝对系 = 原点 + range.Start）
+                    // ★T-A30：**只有段末行**（`HasEop`）才带源自己的 EOL run —— 其余行没有 EOP span，传了也用不上。
+                    //   有界 ＋ 具名留痕：只用在同一段上算一次计数与（前 12 条）具名行，**绝不静默**。
+                    r.HasEop ? NoteParagraphEndRun(eopRun, paragraphOrigin, ranges.Count, r.Start) : null);
                 lines.Add(line);
                 consumedLength += line.Length;
                 HbLineTrace.SiteA(r.Start, line);          // 只读插桩（缺省关）
             }
             HbTextLineScaffold.NoteParagraphFormatted();
             return lines;
+        }
+
+        /// <summary>
+        /// ★T-A30：**段末行带上源自己的 EOL run** 这件事的**具名留痕 ＋ 计数**（`eopRun == null` ⇒ 什么都没发生，
+        /// 退回修前行为，此时**不**计数）。
+        ///
+        /// 【为什么必须有】`eopRun` 是尾随可选形参 ⇒ "形参加了、收集层没传"会**编译得过**、行为与修前逐位相同，
+        /// 却看不出来（本项目 `#17` 族的形态）。⇒ 把"真的带上了"做成运行期可读：`[TEXTLINE_LSEM]` 具名行
+        /// （`WPF_LINUX_TEXTLINE_LSEM=1`；**有界**：前 12 条）＋ 计数 `ParagraphEndRuns`。
+        /// `type` 是**运行时对象类型名**（宿主 PtsHost 给 `ParagraphBreakRun`，`TextBox` 一族给
+        /// `TextEndOfParagraph`）—— 两者都合法，本行把**实际是谁**印出来，不做归一化。
+        /// </summary>
+        private static TextRun NoteParagraphEndRun(TextRun eopRun, int paraOrigin, int lineCount, int lastLineStart)
+        {
+            if (eopRun == null) return null;
+            ++ParagraphEndRuns;
+            if (s_lsemLeft > 0
+                && HbTextLineScaffold.ParseOnOff(Environment.GetEnvironmentVariable(LsemEnvVar)))
+            {
+                --s_lsemLeft;
+                try
+                {
+                    Console.Error.WriteLine("[TEXTLINE_LSEM] paraOrigin=" + paraOrigin
+                        + " lines=" + lineCount + " lastLineStart=" + lastLineStart
+                        + " eopRunType=" + eopRun.GetType().Name + " eopRunLen=" + eopRun.Length
+                        + " paraEndRuns=" + System.Threading.Interlocked.Read(ref ParagraphEndRuns));
+                }
+                catch (Exception) { }
+            }
+            return eopRun;
         }
     }
 
@@ -4455,12 +4534,15 @@ namespace WpfLinux.Shims.PresentationCore
         private static bool TryBuildPlan(TextSource textSource, int cpFirst,
                                          out string text, out HbFontPlan plan, out GlyphTypeface[] faces,
                                          out RunFace primary, out TextRunProperties primaryProps, out double emSize,
-                                         out TextRunProperties[] runProps)
+                                         out TextRunProperties[] runProps, out TextRun eolRun)
         {
             text = null; plan = null; faces = null; primary = null; primaryProps = null; emSize = 0; runProps = null;
+            // ★T-A30：段末取到的那个 EOL run（宿主 PtsHost 给 `ParagraphBreakRun`）⇒ 交给 `FormatParagraph`
+            //   放到段末行的末 span 上，让 `Line.FormattingResult` 报 `fsflrEndOfParagraph`（§`_eopRun`）。
+            eolRun = null;
 
             List<CollectedRun> runs;
-            if (!TryCollect(textSource, cpFirst, out text, out runs)) return false;
+            if (!TryCollect(textSource, cpFirst, out text, out runs, out eolRun)) return false;
             if (!ResolveRunFace(runs[0].Props, out primary)) return false;   // 与今天一样：第一个 run 的面解析不到就交回
             primaryProps = runs[0].Props;
             emSize = runs[0].Props.FontRenderingEmSize;
@@ -4575,9 +4657,11 @@ namespace WpfLinux.Shims.PresentationCore
         /// R1/T1d：**每个 run 的 props 都留下**（今天只留第一个 ⇒ 后续 run 的字体信息直接丢）。
         /// 非 `TextCharacters` 仍然**原样 bail**（形状不变："不确定就交回"）。
         /// </summary>
-        private static bool TryCollect(TextSource src, int cpFirst, out string text, out List<CollectedRun> runs)
+        private static bool TryCollect(TextSource src, int cpFirst, out string text, out List<CollectedRun> runs,
+                                       out TextRun eolRun)
         {
             text = null; runs = null;
+            eolRun = null;
             var sb = new StringBuilder();
             var list = new List<CollectedRun>();
             int cp = cpFirst;
@@ -4600,7 +4684,14 @@ namespace WpfLinux.Shims.PresentationCore
                     if (sb.Length > MaxParagraphChars) { Bail(ref BailLong, "段落 > " + MaxParagraphChars + " 字符"); return false; }
                     continue;
                 }
-                if (run is TextEndOfLine) break;                       // EOL / EOP（TextEndOfParagraph : TextEndOfLine）
+                if (run is TextEndOfLine)
+                {
+                    // ★T-A30：**只认"段末"那一种** EOL（`TextEndOfParagraph` 族 —— 宿主 PtsHost 造的是
+                    //   `ParagraphBreakRun : TextEndOfParagraph`）。`LineBreakRun`（硬断）**不算段末** ⇒ 不取，
+                    //   免把"段中间的软断"当成"排到段尾"（那会让驱动提前收束 = 假成功方向）。
+                    eolRun = (run is TextEndOfParagraph) ? run : null;
+                    break;                                                 // EOL / EOP（TextEndOfParagraph : TextEndOfLine）
+                }
                 Bail(ref BailRunType, "run 类型 " + run.GetType().Name + " 不支持");
                 return false;
             }
@@ -4615,7 +4706,8 @@ namespace WpfLinux.Shims.PresentationCore
         private static bool TryCollect(TextSource src, int cpFirst, out string text, out TextRunProperties props)
         {
             List<CollectedRun> runs;
-            if (!TryCollect(src, cpFirst, out text, out runs)) { props = null; return false; }
+            TextRun ignoredEol;
+            if (!TryCollect(src, cpFirst, out text, out runs, out ignoredEol)) { props = null; return false; }
             props = runs[0].Props;
             return props != null;
         }
@@ -4677,9 +4769,9 @@ namespace WpfLinux.Shims.PresentationCore
                 }
 
                 string text; HbFontPlan plan; GlyphTypeface[] faces; RunFace primaryRun; TextRunProperties primaryProps;
-                TextRunProperties[] runProps; double emSize;
+                TextRunProperties[] runProps; double emSize; TextRun eolRun;
                 if (!TryBuildPlan(textSource, cpFirst, out text, out plan, out faces, out primaryRun,
-                                  out primaryProps, out emSize, out runProps))
+                                  out primaryProps, out emSize, out runProps, out eolRun))
                     return null;
 
                 int consumed;
@@ -4696,7 +4788,11 @@ namespace WpfLinux.Shims.PresentationCore
                     //   `text` 是 `TryBuildPlan` 从 `cpFirst` 起收集出来的 ⇒ 行内 `range.Start` 是**相对**下标，
                     //   而帧（`GetTextBounds` 第一参数 / 真机 `startChar`）是**段落系绝对**下标
                     //   ⇒ 原点 = `cpFirst`。不传的话缓存未命中/原点≠0 时整段帧错（`#22` §3.4 的 `--prefix 40` 即此）。
-                    paragraphOrigin: cpFirst);
+                    paragraphOrigin: cpFirst,
+                    // ── ★T-A30（`PRECOND-LINEMODEL-ELEMENT-SAFE-STARTS`）：**严格档**也把段末 EOL run 透到工厂 ──
+                    //   `eolRun` = `TryCollect` 在段末取到的**源自己的**那个 run（宿主 PtsHost 给 `ParagraphBreakRun`）
+                    //   ⇒ 段末行的末 span 用它 ⇒ `Line.FormattingResult` 报 `fsflrEndOfParagraph` ⇒ 驱动在段末收束。
+                    eopRun: eolRun);
                 s_cache = new ParaCache { Source = textSource, Start = cpFirst, Lines = lines };
                 HbTextLine first = s_cache.LineAt(cpFirst);
                 if (first == null) { Bail(ref BailException, "缓存里没有该行"); return null; }
@@ -4757,9 +4853,9 @@ namespace WpfLinux.Shims.PresentationCore
             try
             {
                 string text; HbFontPlan plan; GlyphTypeface[] faces; RunFace primaryRun; TextRunProperties primaryProps;
-                TextRunProperties[] runProps; double emSize;
+                TextRunProperties[] runProps; double emSize; TextRun eolRun;
                 if (!TryBuildPlan(textSource, 0, out text, out plan, out faces, out primaryRun,
-                                  out primaryProps, out emSize, out runProps)) { ++MinMaxBailed; return false; }
+                                  out primaryProps, out emSize, out runProps, out eolRun)) { ++MinMaxBailed; return false; }
 
                 int c1, c2;
                 List<HbTextLine> wide = HbTextLineFactory.FormatParagraph(text, primaryRun.FontPath, emSize,

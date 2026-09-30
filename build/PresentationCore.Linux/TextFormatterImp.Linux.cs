@@ -166,13 +166,24 @@ namespace MS.Internal.TextFormatting
         /// 【形参带默认值】⇒ 既有调用点零改动（照 `indentDip`/`paragraphIndentDip` 先例）；
         ///   ⚠️ 但这**也正是"半接线"能静默通过的原因** ⇒ 必须靠**调用点计数牙齿**（本应用器的
         ///   `n_default_src == 2`）把"两个站点真的传了"钉死，见 WAVE25 §2 反极性③。
+        ///
+        /// ★ **T-A30（`PRECOND-LINEMODEL-ELEMENT-SAFE-STARTS`）**：新增 `out TextRun eolRun` —— 段末取到的
+        ///   那个 EOL run（宿主 PtsHost 给 `ParagraphBreakRun : TextEndOfParagraph`）。
+        ///   【为什么必须由**收集层**交出来】`Line.FormattingResult`（`Line.cs:928-936`）**只认**
+        ///   `ParagraphBreakRun`／`LineBreakRun`（`PresentationFramework` 的 internal 类型，shim 编在
+        ///   `PresentationCore` **造不出来**）⇒ shim 在段末行只能**把源给的那个对象原样放回** span 里。
+        ///   【不传的后果】段末行照样报 `fsflrOutOfSpace` ⇒ 驱动把行宽里那 1 个合成位也累加进 `dcp` ⇒
+        ///   下一跳探到**下一个 Block 的 `ElementStart`** ⇒ `Invariant.FailFast`（`LineBase.cs:137`，不可捕获）。
         /// </summary>
         private static bool CollectLenient(TextSource src, int cpFirst,
                                            out string text, out TextRunProperties props,
                                            out int modifierOpenIndex, out int modifierScopeEnd, out int modifierCloseIndex,
+                                           out TextRun eolRun,
                                            TextRunProperties paragraphDefault = null)
         {
             text = null; props = null;
+            // ★T-A30：段末 EOL run（缺省 null ⇒ 与修前逐位相同：shim 侧就地造 `TextEndOfParagraph(1)`）。
+            eolRun = null;
             // ── T1c/#13：只**记位置**，不改平铺/len 口径 ──────────────────────────
             //   ⭐ **`D-T2-c`（WAVE32 §1 W32A 本波修）**：**零宽跨度**的终点 `modifierScopeEnd` 现在真的被收集。
             //   两个**互不相同**的量（分工见 `build/MilBridge/T1d-tab-and-modifier.md:1058` 逐字）：
@@ -218,6 +229,10 @@ namespace MS.Internal.TextFormatting
                     {
                         try { props = run.Properties; } catch (Exception) { }
                     }
+                    // ★T-A30：**只认"段末"那一种** EOL。宿主 PtsHost 造的是
+                    //   `ParagraphBreakRun : TextEndOfParagraph`（`RunClient.cs:203`）；`LineBreakRun`（硬断）
+                    //   **不算段末** ⇒ 不取，免把"段中间的软断"当成"排到段尾"（那会让驱动提前收束 = 假成功方向）。
+                    eolRun = (run is TextEndOfParagraph) ? run : null;
                     break;                            // EOL / EOP（它的字符不属于段落正文）
                 }
 
@@ -354,7 +369,9 @@ namespace MS.Internal.TextFormatting
 
                 string text; TextRunProperties props;
                 int modOpen, modScopeEnd, modClose;
+                TextRun eolRun;
                 if (!CollectLenient(textSource, cpFirst, out text, out props, out modOpen, out modScopeEnd, out modClose,
+                                    out eolRun,
                                     paragraphDefault: paragraphDefault)) { ++s_failed; return null; }
 
                 if (s_substitutedBlank)
@@ -379,7 +396,13 @@ namespace MS.Internal.TextFormatting
                             //   帧（= 真机 `cases[].lines[].startChar` / `GetTextBounds` 第一参数）是**段落系绝对**
                             //   下标 ⇒ 原点必须 = `cpFirst`（`#22` 实测：不传 ⇒ 宽松档 133 行帧红）。
                             //   尾随可选形参 ⇒ 其它调用点零改动、逐位等价。
-                            paragraphOrigin: cpFirst);
+                            paragraphOrigin: cpFirst,
+                            // ── ★T-A30（`PRECOND-LINEMODEL-ELEMENT-SAFE-STARTS`）：**段末 EOL run** 透给工厂 ──
+                            //   `eolRun` = 收集层在段末取到的**源自己的**那个 run（宿主 PtsHost 给
+                            //   `ParagraphBreakRun : TextEndOfParagraph`）⇒ 段末行的末 span 用它 ⇒
+                            //   `Line.FormattingResult`（`Line.cs:928-936`，**只认** `ParagraphBreakRun`／
+                            //   `LineBreakRun`）报 `fsflrEndOfParagraph` ⇒ 驱动在段末收束、**不再越界探 Block**。
+                            eopRun: eolRun);
 
                 if (lines == null || lines.Count == 0) { ++s_failed; s_lastFail = "工厂返回 0 行"; return null; }
 
@@ -410,7 +433,9 @@ namespace MS.Internal.TextFormatting
                 s_substitutedBlank = false;
                 string text; TextRunProperties props;
                 int modOpen2, modScopeEnd2, modClose2;
+                TextRun eolRun2;   // ★T-A30：段末 EOL run（min/max 只量宽，但**三个站点同一把尺子**）
                 if (!CollectLenient(textSource, 0, out text, out props, out modOpen2, out modScopeEnd2, out modClose2,
+                                    out eolRun2,
                                     paragraphDefault: paragraphDefault)) { ++s_failed; return false; }
 
                 if (s_substitutedBlank)
@@ -430,7 +455,8 @@ namespace MS.Internal.TextFormatting
                     WpfLinux.Shims.PresentationCore.HbTextLineFactory.FormatParagraph(
                         text, fontPath, props.FontRenderingEmSize, double.MaxValue, gt, (float)pixelsPerDip,
                         props, false, false, 0, out c1,
-                            modifierOpenIndex: modOpen2, modifierScopeEnd: modScopeEnd2, modifierCloseIndex: modClose2);
+                            modifierOpenIndex: modOpen2, modifierScopeEnd: modScopeEnd2, modifierCloseIndex: modClose2,
+                            eopRun: eolRun2);   // ★T-A30：与宽松档**同一对**（三站点同尺）
                 for (int i = 0; i < wide.Count; ++i) if (wide[i].Width > maxWidth) maxWidth = wide[i].Width;
 
                 // ── WAVE17 §1 P3（`D-T2` **真身**）：min 探针必须与 max 探针**用同一把尺子** ──
@@ -447,7 +473,8 @@ namespace MS.Internal.TextFormatting
                     WpfLinux.Shims.PresentationCore.HbTextLineFactory.FormatParagraph(
                         text, fontPath, props.FontRenderingEmSize, 0.0, gt, (float)pixelsPerDip,
                         props, false, false, 0, out c2,
-                            modifierOpenIndex: modOpen2, modifierScopeEnd: modScopeEnd2, modifierCloseIndex: modClose2);
+                            modifierOpenIndex: modOpen2, modifierScopeEnd: modScopeEnd2, modifierCloseIndex: modClose2,
+                            eopRun: eolRun2);
                 for (int i = 0; i < narrow.Count; ++i) if (narrow[i].Width > minWidth) minWidth = narrow[i].Width;
 
                 ++s_handled;
