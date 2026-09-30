@@ -2640,6 +2640,21 @@ static int wpf_pts_qtp_create_safe(const wpf_pts_doc *d)
     if (!wpf_pts_qtp_inwin_gate()) return 1;    /* 闸关 ⇒ 不拦（回落改前） */
     return d->in_win ? 1 : 0;
 }
+/* ⏪ `T-A47`（`QTP-LIVE-NARROW`）：页销毁后**仍可服务**的充要条件 —— 见 `FsQueryTrackParaList`
+   填充支里那条 `drive-handles-released(page-destroyed)` 拒因的**收窄**说明（该处给全套现取证据）。
+   ⚠️ 闸门变量：`WPF_PTS_QTP_LIVE_NARROW`（缺省 `1`＝收窄生效；显式 `0` ⇒ 逐字回改前，反极性腿）。 */
+#ifndef WPF_PTS_QTP_LIVE_NARROW_DEFAULT
+#define WPF_PTS_QTP_LIVE_NARROW_DEFAULT 1
+#endif
+static int wpf_pts_qtp_live_narrow(void)
+{
+    static int cached = -1;
+    if (cached < 0) {
+        const char *e = getenv("WPF_PTS_QTP_LIVE_NARROW");
+        cached = e ? atoi(e) : WPF_PTS_QTP_LIVE_NARROW_DEFAULT;
+    }
+    return cached;
+}
 /* ⏪ `T-A37`：附属对象**内容排版驱动**的运行期闸（缺省 **开**；显式 `WPF_PTS_ATT_CONTENT=0` 关 ⇒
    反极性腿：不调内容回调、不造子页 ⇒ 三色必回 0）。 */
 #ifndef WPF_PTS_ATT_CONTENT_DEFAULT
@@ -6150,8 +6165,28 @@ int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgPar
             /* ⏪ `T-A17`：**句柄 liveness 判据** —— 页销毁后（`drive_handles_live==0`）该 doc 的
                `drive_nmp`（以及复用的 `fsp_pl_cur`）均已被托管释放 ⇒ 再调 `+176 CreateParaclient`
                必撞 `PtsContext.HandleToObject` 的 `Invariant.Assert`（**不可捕获 `FailFast`**）
-               ⇒ **拒填**（出参一字不写 ＋ 具名 `reason`；成功路径逐字不变）。 */
-            else if (WPF_PTS_DRIVEPROBE_OOW_LIVE_GUARD && !dp->drive_handles_live) reason = "drive-handles-released(page-destroyed)";
+               ⇒ **拒填**（出参一字不写 ＋ 具名 `reason`；成功路径逐字不变）。
+               ⏪ `T-A47`（`QTP-LIVE-NARROW`）：该拒因**收窄**为"**下一次填充必然要发 `+176`** 时才拒"。
+                 🔴 **现取证据（`T-A47` 双腿 `~/tA47-work/{fix1,pol1}`，同一 `.so 5b7d0ac101673900`／
+                 同一 `pf 189e3704cbf4f031`／同一装置 `:231`／同批工具，只差一个 env）**：
+                 本条在 `pol1`（`WPF_PTS_QTP_LIVE_NARROW=0`）上**照旧拒** ⇒ `[FS_PAGE_GAP] rc=-10000
+                 reason=drive-handles-released(page-destroyed) entry=FsQueryTrackParaList`（`pol1` 第 2121 行
+                 一带）⇒ 上级 `PTS.Validate` 抛 ⇒ `[HC-UNHANDLED] #1 PtsException … '-10000'`。
+                 ⇒ 即：**这条闩把"页销毁"读成了"本 doc 此后一律不可服务"**，而 `drive_handles_live`
+                 只在 `FsDestroyPage` 置 0、只在 `wpf_pts_drive_probe` 置 1（而后者每 doc 只跑一次，
+                 `drive_done`）⇒ **单向闩**。
+                 🔴 **但那条理由只对"要发 `+176`"成立**：`+176` 吃的是**托管句柄**（`drive_nmp`／
+                 `children[]`），页销毁后它们确已被托管释放 ⇒ 发调必 `FailFast`。
+                 ⚠️ **而窗外（查询期）本入口本就不发 `+176`**：③ 换代要求 `wpf_pts_qtp_create_safe(dp)`
+                 （`in_win`）、④ 造新一代要求 `!dp->fsp_pl_cur`；**手上已有 `fsp_pl_cur`**（本侧自持、
+                 由 `+176` 真造出、只由 `+192` 回收而其**从不回收**当前代）**时，本次填充一个托管句柄都不碰**
+                 ⇒ 拒填**过宽**。
+                 ⇒ 收窄：`(!drive_handles_live ∧ !fsp_pl_cur)` 才拒（＝"必发 `+176`"）。
+                 ⚠️ **绝不假成功**：出参仍是**真值**（`pfsparaclient` ＝ `fsp_pl_cur` 的真句柄；
+                 `pfspara` ＝ 本侧自有子轨对象字段地址；`cParaDesc` ＝ `cParas`）；**其它任何拒因**
+                 （`no-legal-nmp-in-this-run`／`fill-budget-exhausted`／`para-claim-failed` …）**逐字不变**。 */
+            else if (WPF_PTS_DRIVEPROBE_OOW_LIVE_GUARD && !dp->drive_handles_live
+                     && !(wpf_pts_qtp_live_narrow() && dp->fsp_pl_cur)) reason = "drive-handles-released(page-destroyed)";
             else if (!dp->drive_nmp)                          reason = "no-legal-nmp-in-this-run";
             else if (maxc > 0 && g_pts_fsp_pl_fills >= maxc)  reason = "fill-budget-exhausted";
             else {
@@ -6653,8 +6688,19 @@ int FsQuerySubtrackParaList(void *pfscontext, void *pSubTrack, int cParas,
         else if (!wpf_pts_ctx_is_live(dp)) reason = "ctx-not-live";
         /* ⏪ `T-A17`：**句柄 liveness 判据** —— 页销毁后 `obj->children[]`（窗内枚举出的托管段落实例）
            已被托管释放 ⇒ 再调 `+176 CreateParaclient` 必撞 `HandleToObject` 的 `Invariant.Assert`
-           ⇒ **拒填**（出参一字不写 ＋ 具名 `reason`；成功路径逐字不变）。 */
-        else if (WPF_PTS_DRIVEPROBE_OOW_LIVE_GUARD && !dp->drive_handles_live)  reason = "drive-handles-released(page-destroyed)";
+           ⇒ **拒填**（出参一字不写 ＋ 具名 `reason`；成功路径逐字不变）。
+           ⏪ `T-A47`（`QTP-LIVE-NARROW`）：**同一收窄**（与 `FsQueryTrackParaList` 填充支同形、同一 env 闸）。
+             🔴 **现取证据（`T-A47` 腿 `~/tA47-work/{fix2,pol2}`）**：仅收窄 `FsQueryTrackParaList` 时，
+             残留**换到本条** —— `[FSQSPL] rc=-10000 reason=drive-handles-released(page-destroyed)
+             entry=FsQuerySubtrackParaList`（`fix2` 第 2021 行）⇒ 同一 `PtsException`。
+             ⚠️ 本条**确实**会发 `+176`（`obj->children[i]` ＝ 托管段句柄）—— 但**只在
+             `obj->child_clients_made < cParas` 时**（`for (i = child_clients_made; i < cParas; i++)`）。
+             客户端一旦造出即**跨调用复用**（`obj->child_clients[]`；本侧**从不**对它发 `+192`）⇒
+             **已造满 ⇒ 本次一个托管句柄都不碰** ⇒ 此时拒填同样**过宽**。
+             ⇒ 收窄：`(!drive_handles_live ∧ child_clients_made < cParas)` 才拒（＝"必发 `+176`"）。 */
+        else if (WPF_PTS_DRIVEPROBE_OOW_LIVE_GUARD && !dp->drive_handles_live
+                 && !(wpf_pts_qtp_live_narrow() && obj->child_clients_made >= cParas))
+            reason = "drive-handles-released(page-destroyed)";
         else {
             /* ⏪ `T-A25`：**每个子段必须已有本侧对象**（窗内建树时建 ⇒ 补其缺失）——缺失 ⇒ **拒绝整个填充**
                （**绝不**退回托管段句柄 ⇒ 那正是要消掉的 `unclaimable-*`；也**绝不**伪造指针）。 */

@@ -1,9 +1,9 @@
 // ⚠️ 本文件由 build/PresentationFramework.Linux/reapply-patches.py **生成**，不要手改。
 //
-// 内容 = 上游 `upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/PtsHelper.cs` 逐字复制 + 4 处 W86A（`TASK-0304`/`TASK-0305`）改动。
+// 内容 = 上游 `upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/PtsHelper.cs` 逐字复制 + 5 处 W86A（`TASK-0304`/`TASK-0305`）改动。
 // 每次运行该脚本都会从上游重读重生成；needle 找不到 / 命中数不符时**报错退出**
 // （不会静默产出未打补丁的副本）。改动逐处见：
-//   E1 ／ E2 ／ E3 ／ E4
+//   E1 ／ E2 ／ E3 ／ E4 ／ E5
 //
 // 背景（`D-G70`/`D-G78`）：本移植没有 PTS/原生 LineServices ⇒ 切「富文本」/「流文档」页
 // 曾**整进程 `rc=134`**。本件把它变成「**具名、可判、可见的能力边界**」：
@@ -101,6 +101,20 @@ namespace MS.Internal.PtsHost
 
                     if(visualIndex == visualChildren.Count)
                     {
+                        // ── `T-A47`（`FLOAT-REPARENT`）：**浮层视觉的换父** ────────────────────────
+                        //  见生成器内该块的说明；`WPF_FLOAT_REPARENT=0` ⇒ 逐字回上游（反极性腿）。
+                        if (WpfLinuxChainProbe.EnvOn("WPF_FLOAT_REPARENT"))
+                        {
+                            Visual t47Parent = VisualTreeHelper.GetParent(paraVisual) as Visual;
+                            if (t47Parent != null)
+                            {
+                                ContainerVisual t47Cv = t47Parent as ContainerVisual;
+                                Invariant.Assert(t47Cv != null, "parent should always derives from ContainerVisual");
+                                t47Cv.Children.Remove(paraVisual);
+                                WpfLinuxChainProbe.Hit("PH.FloatingReparent", "idx=" + index
+                                    + " from=" + t47Parent.GetType().Name + " to=" + visual.GetType().Name);
+                            }
+                        }
                         visualChildren.Add(paraVisual);
                     }
 

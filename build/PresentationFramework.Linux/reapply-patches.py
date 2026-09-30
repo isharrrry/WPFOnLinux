@@ -2092,6 +2092,26 @@ CHAIN_FILES = [
             if (!IsEmpty)
 """, 1),
     ]),
+# ── `T-A47`（`FLOAT-REPARENT`）：浮层视觉**换父** ─────────────────────────────────
+#  【现取断点（`T-A47` 诊断腿 `~/tA47-work/diag1`，全栈探针 ＋ 逐 `Add` 身份探针）】：
+#    残留 1 条 `[HC-UNHANDLED] ArgumentException: Specified Visual is already a child …`，
+#    首帧 `VisualCollection.Add`；抛出点 ＝ **`PtsHelper.UpdateFloatingElementVisuals`** 的
+#    `visualChildren.Add(paraVisual)`（本树内唯一"非新建视觉"的 `.Add`；其余 `.Add` 全是 `new …`）。
+#    实测身份：**同一个 `FigureParaClient` 实例**先被页 B 的浮层收纳（其 `Visual` 的父＝页 B 的
+#    `ContainerVisual`），随后页 C（**另一个 `PtsPage` 对象**）的浮层再 `.Add` 同一 `Visual`
+#    ⇒ `_parent != null` ⇒ 抛。
+#  【为什么本移植会这样（根因在 native 侧，如实点名）】上游 WPF 里每个页的 `FsQueryAttachedObjectList`
+#    交回的是**该页对象图所属**的 `pfsparaclient`（页销毁 ⇒ `Dispose()` ⇒ `RemoveFloatingParaClient`）
+#    ⇒ "一个 `BaseParaClient` 同时活在两页的 `FloatingElementList` 里"这一形态**不会出现**；
+#    而本移植的附属对象台账（`win32_pts.c` 的 `fl_att[].obj_client`）是 **doc 级、跨页复用**的
+#    ⇒ 同一客户端先后在**两个页上下文**里被 `ArrangeFigure/Floater`（`AddFloatingParaClient` 各加一次）
+#    ⇒ 其唯一 `Visual` 被两个浮层争用。**native 侧的"页级客户端"是具名下一靶**（不改；见载体 §6）。
+#  【修法】**照上游自己的同形先例做换父**：`PtsHelper.UpdateParaListVisuals` 在 `fskupdNew` 支里
+#    就**先**把 `paraClient.Visual` 从其旧父摘掉（含同款 `Invariant.Assert(parent is ContainerVisual)`）
+#    再 `Insert` —— 本块把**同一个惯用法**补到浮层支上（上游浮层支**假定**"不会换父"）。
+#    ⚠️ **不是**把失败吞掉：若旧父**不是** `ContainerVisual`，本块与上游一样**响亮断言**；
+#      视觉确实被**搬到**当前正在构建的那一层的语义下（旧页随即 `FsDestroyPage`）。
+#  【零假值】`WPF_FLOAT_REPARENT=0` ⇒ **整块不发生**（逐字回上游 ⇒ 反极性腿上残留必回 `[HC-UNHANDLED]=1`）。
     ("MS/Internal/PtsHost/PtsHelper.cs", "PtsHelper.Linux.cs", [
         ("""        internal static void UpdateTrackVisuals(
             PtsContext ptsContext,
@@ -2158,6 +2178,44 @@ CHAIN_FILES = [
         {
             WpfLinuxChainProbe.Hit("PH.UpdateViewportParaList", "n=" + arrayParaDesc.Length);
             for (int index = 0; index < arrayParaDesc.Length; index++)
+""", 1),
+        ("""                    Visual paraVisual = floatingElementList[index].Visual;
+
+                    while(visualIndex < visualChildren.Count && visualChildren[visualIndex] != paraVisual)
+                    {
+                        visualChildren.RemoveAt(visualIndex);
+                    }
+
+                    if(visualIndex == visualChildren.Count)
+                    {
+                        visualChildren.Add(paraVisual);
+                    }
+""",
+         """                    Visual paraVisual = floatingElementList[index].Visual;
+
+                    while(visualIndex < visualChildren.Count && visualChildren[visualIndex] != paraVisual)
+                    {
+                        visualChildren.RemoveAt(visualIndex);
+                    }
+
+                    if(visualIndex == visualChildren.Count)
+                    {
+                        // ── `T-A47`（`FLOAT-REPARENT`）：**浮层视觉的换父** ────────────────────────
+                        //  见生成器内该块的说明；`WPF_FLOAT_REPARENT=0` ⇒ 逐字回上游（反极性腿）。
+                        if (WpfLinuxChainProbe.EnvOn("WPF_FLOAT_REPARENT"))
+                        {
+                            Visual t47Parent = VisualTreeHelper.GetParent(paraVisual) as Visual;
+                            if (t47Parent != null)
+                            {
+                                ContainerVisual t47Cv = t47Parent as ContainerVisual;
+                                Invariant.Assert(t47Cv != null, "parent should always derives from ContainerVisual");
+                                t47Cv.Children.Remove(paraVisual);
+                                WpfLinuxChainProbe.Hit("PH.FloatingReparent", "idx=" + index
+                                    + " from=" + t47Parent.GetType().Name + " to=" + visual.GetType().Name);
+                            }
+                        }
+                        visualChildren.Add(paraVisual);
+                    }
 """, 1),
     ]),
     ("MS/Internal/PtsHost/FigureParaClient.cs", "FigureParaClient.Linux.cs", [

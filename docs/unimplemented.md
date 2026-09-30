@@ -617,3 +617,12 @@ channel.CommittedCommands    // 成功解码执行的命令数
 - **PTS/LineServices 条（按 `pts` 波真实结果）**：**可操作缺口 87／实现口径 93／工具口径 100**（`D-G70`；`PTSGAP=PASS tool=100 dead=11 artifact=1 ops=88 impl=95 so16=6825dd7071387a46 exports=556`，现取）；**在册旧数 `111` 已证 `TOOL-UNSOUND`**（`TASK-0720`），另 §本文 `:555` 已把工具口径「110」那条分解式作废 —— 本块**不重复那些结论**，只钉"用哪个数"。
 - **进度口径（逐字）**：**「进度 ＝ 具名前沿跳数，不是缺口条数」** —— 现取证据：在册 `evidence/app_g1.log`（`eb6af2e16ba2bcfb`）**`3× entry=LoCreateContext`／`0× CreateInstalledObjectsInfo`**（前沿跳数 **0 → 1**）；⚠️ 门禁步 `PTS-PAGES`（`verify-all.sh:1174`）**只读 `leg_*.env` 的列、不读 `entry=`** ⇒ 它的绿**对"前沿位移"零证据力**。
 - 🔴 **九位产物是本地物件**（`git ls-files` ＝ 0）⇒ 本文档凡涉及"产物"的段落都须按**重建**读。
+
+---
+
+## ⏪ **dated 落地（`T-A47`／`TASK-0302` 增量；读时 `2026-09-30T20:2x+0800`；上文一字未动）**
+
+- **前沿跳（"失败面"这一维）**：缺省路径残留的 1 条 **`[HC-UNHANDLED]`**（改前＝`ArgumentException: Specified Visual is already a child …`，首帧 `VisualCollection.Add`；抛出点 ＝ 生成件 `PtsHelper.Linux.cs` 的 `UpdateFloatingElementVisuals`）⇒ **`[HC-UNHANDLED]=0`**。
+- **本增量改的是"失败面"，不是"在册数"**：`PTSGAP=PASS tool=76 dead=11 artifact=1 ops=64 impl=67 so16=1dbea9026dd7d3d7 exports=683`（**`tool`／`dead`／`artifact`／`ops`／`impl` 五位全未动**；只有 `so16` 跟权威件换 —— 即：**可操作缺口 64／实现口径 67 不变**）。⇒ 与本文档上文各条**不冲突**（它们描述的是缺口/能力面）。
+- **两极化（同一 `.so 1dbea9026dd7d3d7`／同一 `pf 189e3704cbf4f031`／同一装置 `:231`／同批工具，只差一个 env）**：`WPF_FLOAT_REPARENT=0` ⇒ 残留回 `ArgumentException`；`WPF_PTS_QTP_LIVE_NARROW=0` ⇒ 残留回 `PtsException … '-10000'`（具名 `[FS_PAGE_GAP] rc=-10000 reason=drive-handles-released(page-destroyed) entry=FsQueryTrackParaList`）。
+- **载体**：`build/MilBridge/P1-tail2-hcres-impl-report.md`（本席新建）。
