@@ -92,6 +92,7 @@ static const char *const k_pts_entries[] = {
     "FsQuerySubtrackParaList",
     "FsClearUpdateInfoInPage",
     "FsUpdateBottomlessPage",
+    "FsQueryTextDetails",
 };
 #define WPF_PTS_ENTRY_COUNT ((int)(sizeof(k_pts_entries) / sizeof(k_pts_entries[0])))
 
@@ -445,6 +446,21 @@ static int g_pts_fsp_upd_gap = 0;      /* 返非 0 次数（失败面：`NULL` �
    （假成功腿 ⇒ 伪页句柄亦返 0）。**只在副本**以 `-DWPF_PTS_UPDPSP_FAKE=1` 单独编译，**绝不进主链**。 */
 #ifndef WPF_PTS_UPDPSP_FAKE
 #define WPF_PTS_UPDPSP_FAKE 0
+#endif
+/* ⏪ `T-A20`：`FsQueryTextDetails` 的成败面（`[FSQTD]`／`[FS_PAGE_GAP]` 的计数只读口）。 */
+static int g_pts_fsqtd_calls       = 0;   /* 进入次数（含重复） */
+static int g_pts_fsqtd_gap         = 0;   /* 返非 0 次数（**本形态＝全部**：无成功分支） */
+static int g_pts_fsqtd_nullout     = 0;   /* 路①：`pTextDetails==NULL` */
+static int g_pts_fsqtd_nullpara    = 0;   /* 路②：`pPara==NULL` */
+static int g_pts_fsqtd_unclaim     = 0;   /* 路③：`pPara` 不可认领（外来值／栈地址） */
+static int g_pts_fsqtd_unknown_ctx = 0;   /* 路④：`pfscontext` 非空但不在册 */
+static int g_pts_fsqtd_nomodel     = 0;   /* 路⑤：认领成功但**出参无源**（本侧无文本行模型） */
+/* ⏪ `T-A20`：**反腿开关**（默认 `0` ⇒ 主链产物**零影响**）。`1` ⇒ `FsQueryTextDetails` **假成功**：
+   返 0 并把出参写成**捏造的** `fsktdCached` —— 用来证明「不可认领的 `pPara` 必被拒」这条断言
+   **真的会红**（假腿 ⇒ 伪值亦"过关"）。**只在副本**以 `-DWPF_PTS_FSQTD_FAKE=1` 单独编译，
+   **绝不进主链**（照 `T-A16`／`T-A19` 的反腿形制）。 */
+#ifndef WPF_PTS_FSQTD_FAKE
+#define WPF_PTS_FSQTD_FAKE 0
 #endif
 /* ⏪ `T-A15`：**"查询组"毗邻判定**（见 `FsQueryPageDetails` 的语义注释）。
    上一条 native 调用是否也是**对同一页**的 `FsQueryPageDetails`；由下游入口（轨/子轨的查询）清空。 */
@@ -3856,6 +3872,70 @@ int FsUpdateBottomlessPage(void *pfscontext, void *pfspage, const void *fsnmsect
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason, pfscontext, pfspage, fsnmsect,
             g_pts_fsp_upd_ok, g_pts_fsp_upd_gap);
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
+}
+
+// ── `T-A20`／`TASK-0302` 增量：`FsQueryTextDetails`（声明 `Pts.cs:3749-3753`；调用点
+//    `TextParaClient.cs` 十余处，首个是 `ValidateVisual` 的 `:56`）──
+//   签名（上游逐字，`Pts.cs:3750-3753`）：`int FsQueryTextDetails(IntPtr pfsContext, IntPtr pPara,
+//     out FSTEXTDETAILS pTextDetails);`（`pfsContext` IN／`pPara` IN＝**文本段落句柄**／
+//     `pTextDetails` **OUT**＝文本细节）
+//   🔴 **为什么必须补它（现取的因果链）**：`T-A15`…`T-A19` 把缺省路径三级链推进到"页视觉帧 ＋
+//     页自持状态"之后，`TextParaClient.ValidateVisual`（`TextParaClient.cs:55-56`）会调本入口 ——
+//     该符号本侧**未导出** ⇒ `T-A19` 现读 `EntryPointNotFoundException: … 'FsQueryTextDetails'
+//     in shared library 'PresentationNative_cor3.dll'`（`[HC-UNHANDLED]` 现面：**53 条，全部同名**）。
+//     补上符号 ⇒ 该名**离开**"会 `EntryPointNotFoundException` 的缺口"名单（`ENFE` 归零）。
+//   🔴 **诚实形态（本轮＝"诚实导出面"；`rc=0` 一次都不给）**：
+//     · **入参按对象身份认领**：`pPara` 必须能被 `wpf_pts_sub_claim` **唯一认领**（＝本侧自有子轨/
+//       段落对象内字段的地址；承 `FsQuerySubtrackDetails`／`FsQueryTrackDetails` 范式）。
+//       认领**只**用于**分离失败原因**（"参数认不了" vs "出参无源"），**不**用于伪造成功。
+//     · 🔴 **出参 `FSTEXTDETAILS` 本侧无源**（`Pts.cs:1486-1498`：判别联合 `fsktdFull`／`fsktdCached`，
+//       两者都要**文本行模型** —— `cLines`／`dcpFirst`／`dcpLim`／`cAttachedObjects`／逐行 dvr 等）：
+//       本侧**没有**那一层 ⇒ **永不写该出参**（一个字都不写；`out` 由调用方零初始化 ⇒ 不留毒值）。
+//       ⚠️ **为什么"返 0 ＋ 写零值"就是假成功**：`fsktdFull` 支（`TextParaClient.cs:62`）会被读成
+//       "本段有 0 行"、`fsktdCached` 支会被读成"缓存段无内容" ⇒ 消费者据此**静默丢掉整段文本**
+//       （与 `cParas=0` 的 `P8` 恒绿陷阱同族，`P1-ptsname-result.md` 裁定四十八 (c)）⇒ **本条禁止**。
+//     · **永不假成功**：本入口**没有**成功分支 ⇒ **恒返 `-10000`** ＋ 具名 `[FS_PAGE_GAP]` 留痕，
+//       且**出参一字不写**。`rc=0` 的出现**只能**来自反腿（`WPF_PTS_FSQTD_FAKE=1`），**绝不进主链**。
+//   ⚠️ **射程边界（如实划界，防被读宽）**：本增量**只**把"缺符号"变成"有符号的诚实拒绝" ——
+//     它**不**声称"文本细节已可得"、**不**声称"页会可见变化"、**更不**构成"排版前进"的证据
+//     （`P1-ptsname-result.md` 裁定：**"`ENFE` 归零"本身不构成任何证据**；`N2` 面 ≠ 内容面）。
+//     具名 `NOINFO-fsquerytextdetails-out-param-source`（**射程＝"出参"这一面没源**，
+//     **不是**"没有源"—— 入参面已认领；文本行模型面见 `P1-ptsname-result.md` 裁定四十九 (a)(c)）。
+//   ⚠️ **反腿**（`WPF_PTS_FSQTD_FAKE=1`，**只在副本**）：恒假成功 ⇒「不可认领的 `pPara` 必被拒」当场红。
+//   【本入口＝**查询**，无配对销毁入口；导出即改生成件 `bin/exports.txt`（同趟逐名对拍零消失）。】
+int FsQueryTextDetails(void *pfscontext, void *pPara, void *pTextDetails)
+{
+    g_pts_fsqtd_calls++;
+    { int _i = wpf_pts_index("FsQueryTextDetails"); if (_i >= 0) g_pts_seen[_i]++; }
+    g_pts_qpd_prev_page = NULL;   /* 下游入口 ⇒ 断开"查询组"毗邻位（与同族查询同办） */
+#if WPF_PTS_FSQTD_FAKE == 1
+    /* 反腿（**只在副本**）：**假成功** —— 返 0 并把出参写成**捏造的** `fsktdCached`（`Pts.cs:1482`）。
+       目的：证明「不可认领的 `pPara` 必被拒」这条断言**真的会红**（假腿 ⇒ 伪值亦"过关"）。 */
+    if (pTextDetails) ((int *)pTextDetails)[0] = 0;   /* fsktd = fsktdCached（**捏造**，非任何源） */
+    fprintf(stderr, "[FSQTD] rc=0 para=%p out=FAKE-WRITTEN basis=FAKE-UNCHECKED-PARA "
+                    "NOINFO=fsquerytextdetails-out-param-source\n", pPara);
+    return 0;
+#else
+    const char *reason = NULL;
+    wpf_pts_subtrack *obj = NULL;
+    if (!pTextDetails)                        { reason = "null-details-out";   g_pts_fsqtd_nullout++; }
+    else if (!pPara)                          { reason = "null-para";          g_pts_fsqtd_nullpara++; }
+    else if (!wpf_pts_sub_claim(pPara, &obj)) { reason = "unclaimable-para";   g_pts_fsqtd_unclaim++; }
+    else if ((const void *)pfscontext && !wpf_pts_doc_find(pfscontext))
+                                              { reason = "unknown-ctx";        g_pts_fsqtd_unknown_ctx++; }
+    else                                      { reason = "no-text-line-model"; g_pts_fsqtd_nomodel++; }
+    (void)obj;                    /* 认领结果只用于**分离失败原因**，不参与任何写入 */
+    (void)pTextDetails;           /* 刻意只收不用（机器可读形态：参数在册但**零写入**） */
+    /* ── 拒绝面（**零假值／出参一字不写**）：`pTextDetails` **绝不触碰**。 */
+    g_pts_fsqtd_gap++;
+    fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=FsQueryTextDetails ctx=%p para=%p "
+                    "calls=%d gap=%d nullout=%d nullpara=%d unclaim=%d unknown_ctx=%d nomodel=%d "
+                    "out=UNWRITTEN bytes=0\n",
+            WPF_PTS_ERR_NOT_IMPLEMENTED, reason, pfscontext, pPara,
+            g_pts_fsqtd_calls, g_pts_fsqtd_gap, g_pts_fsqtd_nullout, g_pts_fsqtd_nullpara,
+            g_pts_fsqtd_unclaim, g_pts_fsqtd_unknown_ctx, g_pts_fsqtd_nomodel);
+    return WPF_PTS_ERR_NOT_IMPLEMENTED;   /* ← 无真值时改成 0 就是制造静默半通／伪成功 */
+#endif
 }
 
 /* ⏪ `t125`：`wpf_pts_doc_find` 的定义体（**只比指针身份**，不 deref 入参）。 */

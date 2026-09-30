@@ -31,7 +31,7 @@
 #   并**断言相等**（不等即 `rc=9` 停手 = 基底漂移），再把 `tool/dead/artifact/ops/impl`
 #   交给牙**现算对账**（不等即牙红 —— 那才是"数漂了"，与基底漂移是两回事，分开报）。
 # ══════════════════════════════════════════════════════════════════════════════════
-# PTSGAP-DECL: tool=86 dead=11 artifact=1 ops=74 impl=77 so16=43ec9cd1bbd96582 exports=673 w66pre16=bf6b683d94549087
+# PTSGAP-DECL: tool=85 dead=11 artifact=1 ops=73 impl=76 so16=51fe76de3d8613de exports=674 w66pre16=bf6b683d94549087
 #   ⚠️ 波 W8·`t103` 重锚（`D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
 #   `LoGetPenaltyModuleInternalHandle` 由诚实缺口 stub 升为真实现 ⇒ `so16` `4e999451e9ab137e`→`5c2097d35cd89749`、
 #   导出 **565→567**，**逐名二条**（新加的两个**独立读取面**，与 `t97` 同形制）：
@@ -138,6 +138,24 @@
 #     `dead/artifact/w66pre16` 未动。
 #     ⚠️ **计数下降 ≠ 能力前进**（件头第 ① 条同口径）：本增量只把**缺符号**变成**有符号**，
 #        并把"页对象自持状态的刷新"落成**可现取**；页仍**未绘出内容**（症状门由腿读数给）。
+#     ⚠️ **正文复述位本趟已随动**（`docs/ROUTES.md` 三处／`README.md`／`build/MilBridge/HANDOFF-NEXT.md`／
+#        `samples/WpfFeatureProbe/KNOWN-DEFECTS.md`／`docs/unimplemented.md`／
+#        `src/WpfGfx.Linux.Native/src/win32_classification.c`）⇒ 本牙现取 **`PTSGAP=PASS`**（零 `SITE-DRIFT`）。
+#   ⚠️ 波 `T-A20` 重锚（`TASK-0302` 增量：**新增导出 `FsQueryTextDetails`**；`D-G70` 形态又一实例；
+#     **产品改动 ⇒ 在册数必须跟随权威件**）：
+#     `src/WpfGfx.Linux.Native/src/win32_pts.c` 新增**导出** `FsQueryTextDetails`（声明 `Pts.cs:3749-3753`；
+#     调用点 `TextParaClient.cs` 十余处、首个 `ValidateVisual:56`；**诚实形态**：该名原为
+#     `[HC-UNHANDLED]` 里**唯一**的 `EntryPointNotFoundException`（现读 **53 条、全部同名**）⇒
+#     导出符号后该名**离开**"会 `EntryPointNotFoundException` 的缺口"名单；入参按**对象身份**认领
+#     （`pPara` 须能被 `wpf_pts_sub_claim` 唯一认领；`pfscontext` 非空须在册）；**出参 `FSTEXTDETAILS`
+#     本侧无源**（需文本行模型）⇒ **恒返 `-10000` ＋ 具名留痕 ＋ 出参一字不写**（永不假成功））⇒
+#     `exports 673→674`（**逐名 +1，无消失**；`nm -D --defined-only` 行数 == `exports.txt` 行数 == 674）；
+#     `tool 86→85`／`ops 74→73`／`impl 77→76`（该名由「会 `EntryPointNotFoundException` 的缺口」变为
+#     「已导出可用」⇒ 缺口计数**下降** 1；不新增/不删除任何 `wpf_pts_gap(...)` stub ⇒ `impl−ops` 仍 3）；
+#     `so16 43ec9cd1bbd96582→51fe76de3d8613de`；`dead/artifact/w66pre16` 未动。
+#     ⚠️ **计数下降 ≠ 能力前进**（件头第 ① 条同口径；`P1-ptsname-result.md` 裁定：**"`ENFE` 归零"
+#        本身不构成任何证据**）：本增量只把**缺符号**变成**有符号的诚实拒绝**；页仍**未绘出内容**
+#        （症状门由腿读数给）。
 #     ⚠️ **正文复述位本趟已随动**（`docs/ROUTES.md` 三处／`README.md`／`build/MilBridge/HANDOFF-NEXT.md`／
 #        `samples/WpfFeatureProbe/KNOWN-DEFECTS.md`／`docs/unimplemented.md`／
 #        `src/WpfGfx.Linux.Native/src/win32_classification.c`）⇒ 本牙现取 **`PTSGAP=PASS`**（零 `SITE-DRIFT`）。
