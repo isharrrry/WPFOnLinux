@@ -359,6 +359,8 @@ static wpf_pts_doc *wpf_pts_doc_ptr(const void *ctx);
 static int wpf_pts_ctx_is_live(const wpf_pts_doc *d);   /* ⏪ t156：该 doc 是否仍在册（未被 DestroyDocContext 移除） */
 /* ⏪ `t146`：驱动探针本体（定义在 `格 6` 之前）；`FsCreatePage*` 两处**调用窗**在本文件里**更早** ⇒ 先给声明（内部助手一律 `static`）。 */
 static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *where);
+/* ⏪ `T-A37`：内容排版驱动的运行期闸（定义见 `wpf_pts_qtp_create_safe` 之后）。 */
+static int wpf_pts_att_content_gate(void);
 /* ⏪ `t127`：字段级诚实性的判据助手（定义在页表可见之后）——本处先给声明。 */
 static int wpf_pts_track_owned(const void *track);
 
@@ -901,6 +903,28 @@ _Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_SNAP_IDX_GETNUMATTACHLINE * 8 == 512,
 _Static_assert(WPF_PTS_SNAP_IDX_GETATTACHLINE == 60, "pfnGetAttachedObjectsInTextLine 快照下标 != 60");
 _Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_SNAP_IDX_GETATTACHLINE * 8 == 520,
                "pfnGetAttachedObjectsInTextLine 绝对偏移 != 520（cbktxt 第 29 槽）");
+/* ── ⏪ `T-A37`（`NATIVE-PTS-ATTACHED-CONTENT-LAYOUT`）：附属对象**内容排版回调**的**唯一偏移定义处** ──
+   上游声明（`upstream/…/PtsHost/Pts.cs`，`StructLayout.Sequential`，指针宽 8）：
+     · `FSCBKF:CBKFIG.pfnGetFigureProperties`（`Pts.cs:562`，`FSCBKFIG` 第 1 槽）：
+       `cbkfig` 组基（相对 `fscbk` ＋568）＋ 0×8 ⇒ 绝对 ＝ 40 ＋ 568 ＝ **`+608`** ⇒ 快照下标 ＝ 568/8 ＝ **71**。
+     · `FSCBKOBJ.pfnGetObjectHandlerInfo`（`Pts.cs:659`，`FSCBKOBJ` 第 8 槽）：
+       `cbkobj` 组基（相对 `fscbk` ＋504）＋ 7×8 ⇒ 绝对 ＝ 40 ＋ 504 ＋ 56 ＝ **`+600`** ⇒ 快照下标 ＝ 560/8 ＝ **70**。
+   ⚠️ 这两个槽**只读捕获**（快照里已含）；本增量**不 deref** 托管结构，只用函数指针值发调（同 `pfnFormatLine` 体例）。 */
+#define WPF_PTS_SNAP_IDX_GETOBJHANDLERINFO    (WPF_PTS_FSCBK_CBKOBJ_OFF / 8 + 7)                 /* 70 */
+#define WPF_PTS_SNAP_IDX_GETFIGUREPROPERTIES  (WPF_PTS_FSCBK_CBKFIG_OFF / 8 + 0)                 /* 71 */
+_Static_assert(WPF_PTS_SNAP_IDX_GETOBJHANDLERINFO == 70, "pfnGetObjectHandlerInfo 快照下标 != 70");
+_Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_SNAP_IDX_GETOBJHANDLERINFO * 8 == 600,
+               "pfnGetObjectHandlerInfo 绝对偏移 != 600（cbkobj 第 8 槽）");
+_Static_assert(WPF_PTS_SNAP_IDX_GETFIGUREPROPERTIES == 71, "pfnGetFigureProperties 快照下标 != 71");
+_Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_SNAP_IDX_GETFIGUREPROPERTIES * 8 == 608,
+               "pfnGetFigureProperties 绝对偏移 != 608（cbkfig 第 1 槽）");
+/* 内容排版回调（`pfnGetFigureProperties`）的 C 侧原型（照 `PtsHost.GetFigureProperties` ＋ `FigureParagraph.GetFigureProperties` 逐参）。
+   `FSFIGUREPROPS` ＝ 8×int ＝ 32 B（`Pts.cs:585`）；出参一律指针。 */
+typedef int (*wpf_pts_fn_get_figure_properties)(
+    const void *pfsclient, const void *pfsparaclient, const void *nmpfigure,
+    int f_in_text_line, unsigned int fswdir, int f_bottom_undefined,
+    int *dur, int *dvr, void *fsfigprops, int *c_polygons, int *c_vertices,
+    int *dur_dist_text_left, int *dur_dist_text_right, int *dvr_dist_text_top, int *dvr_dist_text_bottom);
 /* 预言的空槽（**由托管侧源码**得来：`cbkobj` 的前三槽与整个 `cbkwrd` 声明为 `IntPtr` 且**未赋值**）
    ⇒ 只读回读若在这些绝对偏移上读到非 0，说明偏移（或对齐/顺序）**另有其事** ⇒ 指纹判 FAIL。 */
 #define WPF_PTS_NULL_PRED_CBKOBJ_LEAD 3
@@ -1443,6 +1467,9 @@ struct wpf_pts_subtrack_s {
     int          fl_att_capped;         /* 撞 `WPF_PTS_FL_ATT_MAX` 上界的次数（失败必留痕） */
     const void  *owner_doc;             /* ⏪ `T-A36`：本对象被**驱**时的 doc（消歧：同一逻辑段落
                                            可有两代对象，附属对象托管句柄**相同** ⇒ 按 doc 归属消歧） */
+    /* ── ⏪ `T-A37`：本对象是否属**附属对象内容子页**树（几何取子页的声明值，而非顶层页约定）── */
+    int          in_subpage;
+    int          sp_du, sp_dv;
     struct {
         const void *nmp_obj;            /* 附属对象段落句柄（托管 `FigureParagraph`/`FloaterParagraph`） */
         const void *obj_client;         /* 为其在**窗内**现造的 `FigureParaClient`/`FloaterParaClient`（`+176`） */
@@ -1450,6 +1477,11 @@ struct wpf_pts_subtrack_s {
         int         idobj;              /* `fsidobjFigure(-2)` 或 `FloaterParagraphId`（**回调原值**） */
         int         dcp_anchor;         /* 锚点 dcp（**回调原值**） */
         int         line_idx;           /* 所属行 index（诊断用） */
+        /* ── ⏪ `T-A37`：**附属对象内容排版**的窗内结果（Figure 支）──────────────────────────
+           `content_rc` ＝ 内容排版回调（`pfnGetFigureProperties`，`+608`）的 fserr；
+           `subpage` ＝ 该回调内 `FsCreateSubpageFinite` 真造出的子页句柄（NULL ＝ 未造出）。 */
+        int         content_rc;
+        struct wpf_pts_subpage_s *sub_obj;   /* 子页对象（native 侧，按身份认领用） */
     } fl_att[WPF_PTS_FL_ATT_MAX];
 };
 #define WPF_PTS_SUB_MAGIC 0x57535054u     /* "WSPT" */
@@ -1518,6 +1550,79 @@ static int wpf_pts_sub_claim(const void *p, wpf_pts_subtrack **out)
     }
     g_pts_sub_claim_bad++;
     return 0;
+}
+/* ── ⏪ `T-A37`（`NATIVE-PTS-ATTACHED-CONTENT-LAYOUT`）：**PTS 子页对象**（附属对象内容排版的落点） ────
+   `Figure`/`Floater` 的**内容**由托管在"附属对象内容排版"回调里**现造**：该回调（`FigureParagraph.
+   GetFigureProperties`／`FloaterParagraph.FormatFloaterContentFinite`）**无条件** `PTS.Validate(
+   PTS.FsCreateSubpageFinite(...))`（`Pts.cs:3169`）⇒ 本侧必须提供该 native 入口，并把它交回的
+   `pSubPage` 句柄与**内容轨**接上（否则托管侧 `SubpageHandle` 恒 0 ⇒ 内容不绘）。
+   本对象即那条链的 native 侧载体（**零假值**：只有在窗内**真枚举**出内容段并**真造**出客户端才算成立）。 */
+#define WPF_PTS_SP_MAGIC 0x57535031u   /* "WSP1" */
+#define WPF_PTS_SP_MAX   64
+struct wpf_pts_subpage_s {
+    unsigned int magic;
+    const void  *ctx;
+    const void  *nseg;            /* 内容段句柄（托管交回的 `nSeg`，原样存、不 deref） */
+    int          c_paras;         /* 子页**单轨**的段数（0/1）—— **句柄** ＝ 本字段的地址 */
+    int          brk;             /* 断页记录句柄字段（交出地址用；本侧**不**产生记录 ⇒ 托管的销毁发调不发生） */
+    int          dvr_used;
+    int          fsrc_u, fsrc_v, fsrc_du, fsrc_dv;
+    const void  *cont_client;     /* 窗内为 `nseg`（内容容器段）造的客户端（`+176` 真返回） */
+    wpf_pts_subtrack *cont_obj;   /* `nseg` 的本侧子轨对象（内容树的根；子段序窗内枚举） */
+    int          live, seq;
+};
+static struct wpf_pts_subpage_s *g_pts_sp_live[WPF_PTS_SP_MAX];
+static int g_pts_sp_live_n = 0, g_pts_sp_created = 0, g_pts_sp_seq = 0;
+static int g_pts_sp_ok = 0, g_pts_sp_gap = 0;          /* `FsCreateSubpageFinite` 成败面 */
+static int g_pts_spquery_ok = 0;                       /* `FsQuerySubpageDetails` 子页支成功次数 */
+static int g_pts_sptrack_ok = 0, g_pts_sptrack_gap = 0;/* `FsQueryTrackParaList` 子页轨支成败 */
+
+static struct wpf_pts_subpage_s *wpf_pts_sp_new(const void *ctx, const void *nseg)
+{
+    if (g_pts_sp_live_n >= WPF_PTS_SP_MAX) return NULL;
+    struct wpf_pts_subpage_s *s = (struct wpf_pts_subpage_s *)calloc(1, sizeof(*s));
+    if (!s) return NULL;
+    s->magic = WPF_PTS_SP_MAGIC; s->ctx = ctx; s->nseg = nseg;
+    s->seq = ++g_pts_sp_seq; s->live = 1;
+    g_pts_sp_live[g_pts_sp_live_n++] = s;
+    g_pts_sp_created++;
+    return s;
+}
+static const void *wpf_pts_sp_handle(const struct wpf_pts_subpage_s *s)
+{
+    return s ? (const void *)&s->c_paras : NULL;      /* **句柄 ＝ 本对象内该字段的地址**（承范式） */
+}
+static int wpf_pts_sp_claim_track(const void *p, struct wpf_pts_subpage_s **out)
+{
+    if (out) *out = NULL;
+    if (!p) return 0;
+    for (int i = 0; i < g_pts_sp_live_n; i++) {
+        if (g_pts_sp_live[i]->magic != WPF_PTS_SP_MAGIC) continue;
+        if ((const void *)&g_pts_sp_live[i]->c_paras == p) { if (out) *out = g_pts_sp_live[i]; return 1; }
+    }
+    return 0;
+}
+static void wpf_pts_sp_destroy(struct wpf_pts_subpage_s *s)
+{
+    if (!s || s->magic != WPF_PTS_SP_MAGIC) return;
+    for (int i = 0; i < g_pts_sp_live_n; i++) {
+        if (g_pts_sp_live[i] != s) continue;
+        g_pts_sp_live[i] = g_pts_sp_live[--g_pts_sp_live_n];
+        g_pts_sp_live[g_pts_sp_live_n] = NULL;
+        s->magic = 0; s->live = 0;
+        if (s->cont_obj) { wpf_pts_sub_destroy(s->cont_obj); s->cont_obj = NULL; }
+        free(s);
+        return;
+    }
+}
+/* ⏪ `T-A37`：把"内容子页树"标到整棵子树上（几何取子页声明值 —— `ContainerParaClient.cs:61` 等
+   位置把 `fsrc` 当排版矩形用；顶层页的 `768x576` 约定在子页里不成立）。 */
+static void wpf_pts_sub_mark_subpage(wpf_pts_subtrack *o, int du, int dv)
+{
+    if (!o || o->magic != WPF_PTS_SUB_MAGIC) return;
+    o->in_subpage = 1; o->sp_du = du; o->sp_dv = dv;
+    for (int k = 0; k < WPF_PTS_SUB_CHILD_MAX; k++)
+        if (o->child_objs[k]) wpf_pts_sub_mark_subpage(o->child_objs[k], du, dv);
 }
 /* 台账/身份/销毁口径的**自检**（纯 native；只用自己的对象，不碰应用状态）：
    bit0 新建后可认领 ｜ bit1 NULL 被拒 ｜ bit2 栈地址被拒 ｜ bit3 销毁后不可认领 ｜ bit4 在册数复原 */
@@ -2250,6 +2355,12 @@ static int wpf_pts_format_one_para(wpf_pts_doc *d, wpf_pts_subtrack *leaf,
         {
             const void *fpNum = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_GETNUMATTACHLINE);
             const void *fpObj = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_GETATTACHLINE);
+            const void *fpFigProps = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_GETFIGUREPROPERTIES);
+            /* ⏪ `T-A37`：内容排版**只在 Finite 页窗**驱动 —— 托管 `FigureParagraph.GetFigureProperties`
+               第 113 行有 `Invariant.Assert(StructuralCache.CurrentFormatContext.FinitePage)`（不可捕获
+               `FailFast`）⇒ 在 Bottomless 窗发调必 abort。`where` 即窗名（唯一来源）。 */
+            const int win_finite = (strcmp(where, "FsCreatePageFinite") == 0);
+            const int rcf_enabled = wpf_pts_att_content_gate();
             int cAtt = -1, rcNum = -9999, rcObj = -9999;
             leaf->fl_att_calls++;
             if (fpNum && pfsline)
@@ -2275,12 +2386,42 @@ static int wpf_pts_format_one_para(wpf_pts_doc *d, wpf_pts_subtrack *leaf,
                         leaf->fl_att[slot].line_idx   = i;
                         leaf->fl_att[slot].obj_client = NULL;
                         leaf->fl_att[slot].obj_rc     = -9999;
+                        leaf->fl_att[slot].content_rc = -9999;
+                        leaf->fl_att[slot].sub_obj    = NULL;
                         if (objs[a] && fp176 && d->in_win) {
                             void *oc = NULL;
                             int rco = ((wpf_pts_fn_create_paraclient)fp176)(
                                 (const void *)d->p_fsclient, (const void *)objs[a], &oc);
                             leaf->fl_att[slot].obj_client = oc;
                             leaf->fl_att[slot].obj_rc     = rco;
+                            /* ── ⏪ `T-A37`：**驱动附属对象内容排版**（照 `T-A33` 回填体例）──────────
+                               `+176` 造出客户端之后，**同窗内**调内容排版回调（`pfnGetFigureProperties`，
+                               `+608`）—— 该回调**无条件** `PTS.Validate(PTS.FsCreateSubpageFinite(...))`
+                               （`FigureParagraph.cs:168/211`），本侧由 `FsCreateSubpageFinite` 真造子页
+                               （窗内枚举内容段 ＋ `+176` 造容器段客户端）。**零假值**：`rc≠0` ⇒ 不记子页。 */
+                            if (rcf_enabled && rco == 0 && oc && win_finite && idobjs[a] == -2 && fpFigProps) {
+                                const int sp_before = g_pts_sp_created;
+                                int dur = 0, dvr = 0, cpoly = 0, cvert = 0, d1 = 0, d2 = 0, d3 = 0, d4 = 0;
+                                unsigned char figprops[32];
+                                memset(figprops, 0, sizeof(figprops));
+                                int rcf = ((wpf_pts_fn_get_figure_properties)fpFigProps)(
+                                    (const void *)d->p_fsclient, (const void *)oc, (const void *)objs[a],
+                                    1 /*fInTextLine*/, 0u /*fswdir*/, 0 /*fBottomUndefined*/,
+                                    &dur, &dvr, (void *)figprops, &cpoly, &cvert, &d1, &d2, &d3, &d4);
+                                leaf->fl_att[slot].content_rc = rcf;
+                                if (g_pts_sp_created > sp_before && g_pts_sp_live_n > 0)
+                                    leaf->fl_att[slot].sub_obj = g_pts_sp_live[g_pts_sp_live_n - 1];
+                                fprintf(stderr, "[FSATT-CONTENT] where=%s figure=%p client=%p rc=%d dur=%d dvr=%d "
+                                                "cPolygons=%d cVertices=%d subpage=%p sp_created=%d v=%s\n",
+                                        where, (void *)objs[a], oc, rcf, dur, dvr, cpoly, cvert,
+                                        (void *)(leaf->fl_att[slot].sub_obj
+                                                 ? wpf_pts_sp_handle(leaf->fl_att[slot].sub_obj) : NULL),
+                                        g_pts_sp_created,
+                                        (rcf == 0 && leaf->fl_att[slot].sub_obj) ? "SUBPAGE-CREATED"
+                                          : (rcf == 0) ? "RC0-NO-SUBPAGE"
+                                          : (rcf == -100002) ? "CALLBACK-ERR(-100002)"
+                                          : (rcf == -10000) ? "NOT-IMPLEMENTED" : "OTHER");
+                            }
                         } else if (objs[a]) {
                             leaf->fl_att[slot].obj_rc = -7777;   /* 窗外 ⇒ 拒发（具名；不撞 FailFast） */
                         }
@@ -2339,6 +2480,27 @@ static int wpf_pts_fl_walk(wpf_pts_doc *d, wpf_pts_subtrack *o, const void *fpFL
     return n;
 }
 
+/* ⏪ `T-A37`：**附属对象内容子树**的窗内行驱动（预算与主树**分开** ⇒ 不挤占主树配额）。 */
+#define WPF_PTS_FL_MAX_PARA_C 24
+static int g_pts_fl_win_paras_c = 0;
+static int wpf_pts_fl_walk_c(wpf_pts_doc *d, wpf_pts_subtrack *o, const void *fpFL,
+                             const void *fp176, const void *fp192, const char *where, int depth)
+{
+    if (!o || o->magic != WPF_PTS_SUB_MAGIC || depth > WPF_PTS_SUB_MAX_DEPTH) return 0;
+    if (o->enum_ok == 0) {
+        if (g_pts_fl_win_paras_c >= WPF_PTS_FL_MAX_PARA_C) return 0;
+        g_pts_fl_win_paras_c++;
+        return wpf_pts_format_one_para(d, o, fpFL, fp176, fp192, where);
+    }
+    int n = 0;
+    for (int k = 0; k < WPF_PTS_SUB_CHILD_MAX; k++) {
+        if (!o->child_objs[k]) continue;
+        if (g_pts_fl_win_paras_c >= WPF_PTS_FL_MAX_PARA_C) break;
+        n += wpf_pts_fl_walk_c(d, o->child_objs[k], fpFL, fp176, fp192, where, depth + 1);
+    }
+    return n;
+}
+
 /* 窗内驱动入口（**只**从 `wpf_pts_drive_probe` 调；窗内 ＝ `FsCreatePage*` 调用期）。 */
 static void wpf_pts_formatline_drive(wpf_pts_doc *d, const char *where)
 {
@@ -2365,6 +2527,23 @@ static void wpf_pts_formatline_drive(wpf_pts_doc *d, const char *where)
         if (g_pts_fl_win_attempt > 0) { g_pts_fl_paras += g_pts_fl_win_attempt; g_pts_fl_last_v = "DRIVEN"; }
         else                          { g_pts_fl_nopara++; g_pts_fl_last_v = "NO-TEXT-PARA-IN-WINDOW"; }
     }
+    /* ⏪ `T-A37`：**附属对象内容子树**的行排版驱动（窗内；预算与主树分开）—— 主树驱动**之后**做，
+       因为子页对象是在主树驱动的附属对象循环里现造的（`FsCreateSubpageFinite`）。 */
+    int c_driven = 0;
+    if (fpFL && fp176) {
+        g_pts_fl_win_paras_c = 0;
+        for (int i = 0; i < g_pts_sp_live_n; i++) {
+            struct wpf_pts_subpage_s *s = g_pts_sp_live[i];
+            if (!s || s->magic != WPF_PTS_SP_MAGIC) continue;
+            if (s->ctx != (const void *)d) continue;
+            if (!s->cont_obj) continue;
+            c_driven += wpf_pts_fl_walk_c(d, s->cont_obj, fpFL, fp176, fp192, where, 1);
+        }
+    }
+    if (c_driven > 0 || g_pts_sp_live_n > 0)
+        fprintf(stderr, "[FORMATLINE-CONTENT] where=%s c_driven=%d c_paras=%d sp_live=%d sp_created=%d v=%s\n",
+                where, c_driven, g_pts_fl_win_paras_c, g_pts_sp_live_n, g_pts_sp_created,
+                c_driven > 0 ? "CONTENT-LINES-DRIVEN" : "NO-CONTENT-LEAF-DRIVEN");
     fprintf(stderr, "[FORMATLINE] where=%s window=in gate=1 slot=%p attempted=%d ok_n=%d paras_total=%d calls=%d "
                     "ok=%d gap=%d incomplete=%d nopara=%d v=%s geo=NOINFO-FSGEOMETRY-LAYOUT\n",
             where, fpFL, g_pts_fl_win_attempt, driven, g_pts_fl_paras, g_pts_fl_calls, g_pts_fl_ok,
@@ -2403,6 +2582,20 @@ static int wpf_pts_qtp_create_safe(const wpf_pts_doc *d)
     if (!d) return 0;
     if (!wpf_pts_qtp_inwin_gate()) return 1;    /* 闸关 ⇒ 不拦（回落改前） */
     return d->in_win ? 1 : 0;
+}
+/* ⏪ `T-A37`：附属对象**内容排版驱动**的运行期闸（缺省 **开**；显式 `WPF_PTS_ATT_CONTENT=0` 关 ⇒
+   反极性腿：不调内容回调、不造子页 ⇒ 三色必回 0）。 */
+#ifndef WPF_PTS_ATT_CONTENT_DEFAULT
+#define WPF_PTS_ATT_CONTENT_DEFAULT 1
+#endif
+static int wpf_pts_att_content_gate(void)
+{
+    static int cached = -1;
+    if (cached < 0) {
+        const char *e = getenv("WPF_PTS_ATT_CONTENT");
+        cached = e ? atoi(e) : WPF_PTS_ATT_CONTENT_DEFAULT;
+    }
+    return cached;
 }
 
 static void wpf_pts_drive_probe2_oow(void *pfscontext, const char *where)
@@ -5393,6 +5586,94 @@ int FsQueryAttachedObjectList(void *pfscontext, void *pPara, int cAttachedObject
             g_pts_att_list_ok, g_pts_att_list_gap);
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
+// ── ⏪ `T-A37`（`NATIVE-PTS-ATTACHED-CONTENT-LAYOUT`）：`FsCreateSubpageFinite`／`FsDestroySubpage` ────
+//   声明（上游逐字）：`FsCreateSubpageFinite`（`Pts.cs:3169`，**29 参**）／`FsDestroySubpage`（`Pts.cs` 同族）。
+//   调用方（**唯一**）：托管"附属对象内容排版"回调 —— `FigureParagraph.CreateSubpageFiniteHelper`
+//     （`FigureParagraph.cs:707`）／`FloaterParagraph.CreateSubpageFiniteHelper`（`FloaterParagraph.cs:707`）
+//     ⇒ 二者**无条件** `PTS.Validate(PTS.FsCreateSubpageFinite(...))`（`Pts.cs:3169`）。**改前该符号未导出**
+//     ⇒ 托管抛 `EntryPointNotFoundException` ⇒ 被 `PtsHost` 包裹捕 ⇒ 回调返 `-100002` ⇒ `SubpageHandle`
+//     **永不设** ⇒ 附属对象**内容**（`Beige`／`DarkGreen`／`LightGoldenrodYellow`）**不绘**。
+//   🔴 **本实现的诚实形态**：`pSubPage` ＝ **本侧真对象**（`wpf_pts_subpage`，句柄 ＝ 该对象内 `c_paras` 字段
+//     地址）；内容段序**窗内真枚举**（`+136`／`+144`）；容器段客户端**窗内**由托管 `+176` **真造**
+//     （**唯一合法来源**）。**未枚举成功／未造出客户端** ⇒ `c_paras=0`（**真 0**，不是伪值）。
+//   🔴 **几何（如实划界）**：`fsrc`／`dvrUsed` 取**入参**（`lWidth`／`lHeight`，托管按 `Figure.Width` 算）；
+//     `fsBBox.fDefined=0` ⇒ 托管**跳过**二次排版与 `FsDestroySubpage` 支（`FigureParagraph.cs:185/193`）。
+//     `ppBRSubPageOut` **恒 NULL** ⇒ 托管不调 `FsDestroySubpageBreakRecord`（本侧不产生断页记录）。
+//   ⚠️ **射程**：本入口**只**解"内容子页这一层"——**不是**"PTS 真实现"、**不是**"该页内容全绘出"。
+int FsCreateSubpageFinite(void *pfscontext, void *pBRSubPageStart, int fFromPreviousPage,
+                          const void *nSeg, const void *pFtnRej, int fEmptyOk, int fSuppressTopSpace,
+                          unsigned int fswdir, int lWidth, int lHeight, void *rcMargin,
+                          int cColumns, const void *rgColumnInfo, int fApplyColumnBalancing,
+                          int cSegmentAreas, const void *rgnSegmentForArea, const void *rgSpanForSegmentArea,
+                          int cHeightAreas, const void *rgHeightForArea, const void *rgSpanForHeightArea,
+                          int fAllowOverhangBottom, int fsksuppress, void *pfsfmtrOut,
+                          void **ppSubPageOut, void **ppBRSubPageOut, int *pdvrUsed, void *pfsBBoxOut,
+                          void **ppfsMcsClient, int *ptopSpace)
+{
+    (void)pBRSubPageStart; (void)fFromPreviousPage; (void)pFtnRej; (void)fEmptyOk; (void)fSuppressTopSpace;
+    (void)fswdir; (void)rcMargin; (void)cColumns; (void)rgColumnInfo; (void)fApplyColumnBalancing;
+    (void)cSegmentAreas; (void)rgnSegmentForArea; (void)rgSpanForSegmentArea; (void)cHeightAreas;
+    (void)rgHeightForArea; (void)rgSpanForHeightArea; (void)fAllowOverhangBottom; (void)fsksuppress;
+    const char *reason = NULL;
+    if (pfsfmtrOut)        memset(pfsfmtrOut, 0, 12);   /* `FSFMTR` ＝ 3×int ⇒ `kstop=GoalReached(0)`（**真值**） */
+    if (pfsBBoxOut)        memset(pfsBBoxOut, 0, 20);   /* `FSBBOX` ⇒ `fDefined=0`（托管跳过二次排版／销毁） */
+    if (ppSubPageOut)      *ppSubPageOut = NULL;
+    if (ppBRSubPageOut)    *ppBRSubPageOut = NULL;      /* 恒 NULL ⇒ 托管不调销毁断页记录 */
+    if (pdvrUsed)          *pdvrUsed = 0;
+    if (ppfsMcsClient)     *ppfsMcsClient = NULL;
+    if (ptopSpace)         *ptopSpace = 0;
+    if (!ppSubPageOut || !pfsfmtrOut) reason = "null-out";
+    else if (!pfscontext)             reason = "null-ctx";
+    else {
+        wpf_pts_doc *d = wpf_pts_doc_ptr(pfscontext);
+        if (!d)                                   reason = "unknown-ctx";
+        else if (!nSeg)                           reason = "null-nseg";
+        else if (g_pts_sp_live_n >= WPF_PTS_SP_MAX) reason = "table-full";
+        else {
+            struct wpf_pts_subpage_s *s = wpf_pts_sp_new(pfscontext, nSeg);
+            if (!s) reason = "alloc-fail";
+            else {
+                s->fsrc_u = 0; s->fsrc_v = 0; s->fsrc_du = lWidth; s->fsrc_dv = lHeight;
+                s->dvr_used = lHeight;
+                /* 内容树：**窗内**枚举 `nSeg` 的段序（`+136`／`+144`）＋递归建本侧对象。 */
+                s->cont_obj = wpf_pts_sub_new(nSeg, NULL);
+                if (s->cont_obj) {
+                    wpf_pts_sub_enum_into(d, nSeg, s->cont_obj, "FsCreateSubpageFinite", 0);
+                    wpf_pts_sub_mark_subpage(s->cont_obj, lWidth, lHeight);   /* ⏪ T-A37：内容树几何 */
+                }
+                /* 内容容器段客户端：**窗内** `+176` **真造**（托管回调交回，唯一合法来源）。 */
+                const void *fp176 = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_CREATEPARACLIENT);
+                if (fp176 && d->in_win) {
+                    void *h = NULL;
+                    int rc = ((wpf_pts_fn_create_paraclient)fp176)((const void *)d->p_fsclient,
+                                                                   (const void *)nSeg, &h);
+                    if (rc == 0 && h) s->cont_client = (const void *)h;
+                }
+                s->c_paras = (s->cont_obj && s->cont_obj->enum_ok) ? 1 : 0;
+                *ppSubPageOut = (void *)wpf_pts_sp_handle(s);
+                if (pdvrUsed) *pdvrUsed = lHeight;
+                g_pts_sp_ok++;
+                fprintf(stderr, "[SUBPAGE] rc=0 entry=FsCreateSubpageFinite seg=%p w=%d h=%d cParas=%d "
+                                "cont_children=%d cont_client=%p hand=%p tok=in-window-enum(+136/+144)+managed-176\n",
+                        nSeg, lWidth, lHeight, s->c_paras,
+                        s->cont_obj ? s->cont_obj->c_paras : -1, s->cont_client, wpf_pts_sp_handle(s));
+                return 0;
+            }
+        }
+    }
+    g_pts_sp_gap++;
+    fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=FsCreateSubpageFinite ctx=%p seg=%p ok=%d gap=%d\n",
+            WPF_PTS_ERR_NOT_IMPLEMENTED, reason ? reason : "unknown", pfscontext, nSeg, g_pts_sp_ok, g_pts_sp_gap);
+    return WPF_PTS_ERR_NOT_IMPLEMENTED;
+}
+// `FsDestroySubpage`：按**本侧对象身份**认领后销毁（未命中 ⇒ 拒，出参无）。
+int FsDestroySubpage(void *pfscontext, void *pSubPage)
+{
+    (void)pfscontext;
+    struct wpf_pts_subpage_s *s = NULL;
+    if (pSubPage && wpf_pts_sp_claim_track(pSubPage, &s)) { wpf_pts_sp_destroy(s); return 0; }
+    return WPF_PTS_ERR_NOT_IMPLEMENTED;
+}
 // `FsQuerySubpageDetails`：按**附属对象段落句柄**认领，返回**空子页**（本侧不排附属对象内容）。
 //   🔴 `pSubPage`（＝托管 `FigureParaClient.SubpageHandle`）**由托管在"附属对象内容排版"回调里**设
 //     （`FigureParagraph.cs:284`／`FloaterParagraph.cs:355/523` 的 `SubpageHandle = pfs*Content`）。
@@ -5402,9 +5683,33 @@ int FsQueryAttachedObjectList(void *pfscontext, void *pPara, int cAttachedObject
 int FsQuerySubpageDetails(void *pfscontext, void *pSubPage, void *pSubPageDetails)
 {
     wpf_pts_subtrack *obj = NULL; int idx = -1;
+    struct wpf_pts_subpage_s *sp = NULL;
     const char *reason = NULL;
     if (!pSubPageDetails) reason = "null-out";
     else if ((const void *)pfscontext && !wpf_pts_doc_find(pfscontext)) reason = "unknown-ctx";
+    else if (pSubPage && wpf_pts_sp_claim_track(pSubPage, &sp)) {
+        /* ── ✅ ⏪ `T-A37`：**内容子页支**（`pSubPage` ＝ 本侧 `FsCreateSubpageFinite` 交出的真对象句柄）──
+           托管 `FigureParaClient.ValidateVisual`（`FigureParaClient.cs:346`）据此走 `fSimple` 支
+           ⇒ `PtsHelper.UpdateTrackVisuals` ⇒ 内容轨的段列表 ⇒ 内容**段落真绘出**。 */
+        wpf_pts_fssubpagedetails *d = (wpf_pts_fssubpagedetails *)pSubPageDetails;
+        memset((void *)d, 0, sizeof(*d));
+        d->f_simple = 1;                                     /* simple（单轨） */
+        d->u.simple.fswdir = 0;
+        d->u.simple.trackdescr.fsupdinf.fskupd       = WPF_PTS_FSKUPD_NEW;   /* 首报 ⇒ New */
+        d->u.simple.trackdescr.fsupdinf.dvr_shifted  = 0;
+        d->u.simple.trackdescr.nms                   = (void *)sp->nseg;
+        d->u.simple.trackdescr.fsrc.u = sp->fsrc_u; d->u.simple.trackdescr.fsrc.v  = sp->fsrc_v;
+        d->u.simple.trackdescr.fsrc.du = sp->fsrc_du; d->u.simple.trackdescr.fsrc.dv = sp->fsrc_dv;
+        d->u.simple.trackdescr.fsbbox.f_defined      = 0;
+        d->u.simple.trackdescr.f_track_relative_to_rect = 0;
+        d->u.simple.trackdescr.pfstrack              = (void *)wpf_pts_sp_handle(sp);
+        g_pts_spquery_ok++; g_pts_subpage_ok++;
+        fprintf(stderr, "[FS_ATT] rc=0 entry=FsQuerySubpageDetails subpage=%p fSimple=1 cParas=%d "
+                        "track=%p fsrc=(%d,%d,%d,%d) src=owned-subpage NOINFO=subpage-geometry-declared(lWidth/lHeight)\n",
+                pSubPage, sp->c_paras, (void *)wpf_pts_sp_handle(sp),
+                sp->fsrc_u, sp->fsrc_v, sp->fsrc_du, sp->fsrc_dv);
+        return 0;
+    }
     else if (pSubPage && !wpf_pts_att_claim(pSubPage, pfscontext, &obj, &idx)) reason = "unclaimable-subpage";
     else {
         wpf_pts_fssubpagedetails *d = (wpf_pts_fssubpagedetails *)pSubPageDetails;
@@ -5561,12 +5866,21 @@ static int wpf_pts_track_owned(const void *track)
 //     ⇒ 本步**同趟**修两处：`FsQueryPageDetails` 回填真句柄（见上）＋ 本入口按身份认它。
 int FsQueryTrackDetails(void *pfscontext, void *pTrack, void *pTrackDetails)
 {
+    struct wpf_pts_subpage_s *sp = NULL;
     const char *reason = NULL;
     g_pts_qpd_prev_page = NULL;   /* `T-A15`：下游入口 ⇒ 断开"查询组"（页视觉帧的查询在它之后另起一组）*/
     if (pTrackDetails) *(int *)pTrackDetails = 0;          /* 失败路径：先清成 0（不留残留） */
     if (!pTrackDetails)               reason = "null-details-out";
     else if (!pTrack)                 reason = "null-track";
     else if ((const void *)pfscontext && !wpf_pts_doc_find(pfscontext)) reason = "unknown-ctx";
+    else if (wpf_pts_sp_claim_track(pTrack, &sp)) {
+        /* ── ✅ ⏪ `T-A37`：**内容子页的轨**（`pTrack` ＝ `wpf_pts_sp_handle(sp)`）—— 按对象回答段数。 */
+        *(int *)pTrackDetails = sp->c_paras;
+        g_pts_sptrack_ok++;
+        { int _i = wpf_pts_index("FsQueryTrackDetails"); if (_i >= 0) g_pts_seen[_i]++; }
+        g_pts_seq++;
+        return 0;
+    }
     else if (!wpf_pts_track_owned(pTrack)) reason = "unknown-track-or-not-ours";
     else {
         for (int i = 0; i < g_pts_fsp_live_n; i++) {
@@ -5651,6 +5965,7 @@ int FsCreatePageFinite(void *pfscontext, void *pfsBRPageStart, const void *fsnmS
 //      本格应改为"真填"，届时其可用性由**同一个**字段级诚实性谓词判（`wpf_pts_track_owned` 那一族）。
 int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgParaDesc, int *cParaDesc)
 {
+    struct wpf_pts_subpage_s *sp = NULL;
     const char *reason = NULL;
     wpf_pts_drive_probe2_oow(pfscontext, "FsQueryTrackParaList");   /* ⏪ `t151` 窗外腿（调用点 ②；该入口日志可证被调）。
        ⏪ `T-A17`：是否驱由 `dp->drive_handles_live` 判（**只在页销毁后**拒驱 ⇒ 之前读数与改前成对） */
@@ -5690,6 +6005,35 @@ int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgPar
     if (!cParaDesc)                       reason = "null-count-out";
     else if (!pTrack)                     reason = "null-track";
     else if ((const void *)pfscontext && !wpf_pts_doc_find(pfscontext)) reason = "unknown-ctx";
+    else if (wpf_pts_sp_claim_track(pTrack, &sp)) {
+        /* ── ✅ ⏪ `T-A37`：**内容子页轨支** ─────────────────────────────────────────────────
+           托管 `PtsHelper.UpdateTrackVisuals`（`PtsHelper.cs:218/:225`）对子页轨先问 `FsQueryTrackDetails`
+           （本侧已答 `cParas`），再问本入口取段列表。**真填**：`pfspara` ＝ 本侧自有子轨对象句柄
+           （`wpf_pts_sub_handle(sp->cont_obj)`），`pfsparaclient` ＝ 窗内 `+176` 真造的内容容器客户端。
+           **零假值**：未枚举成功／未造出客户端 ⇒ 拒（出参一字不写）。 */
+        if (!sp->cont_client || !sp->cont_obj)      reason = "subpage-content-not-laid-out";
+        else if (cParas != sp->c_paras)             reason = "cparas-mismatch";
+        else if (cParas > 0 && !rgParaDesc)         reason = "null-paradesc-out";
+        else {
+            wpf_pts_fsparadesc *rg = (wpf_pts_fsparadesc *)rgParaDesc;
+            for (int i = 0; i < cParas; i++) {
+                memset((void *)&rg[i], 0, sizeof(rg[i]));
+                rg[i].fsupdinf.fskupd = WPF_PTS_FSKUPD_NEW;
+                rg[i].pfspara       = (void *)wpf_pts_sub_handle(sp->cont_obj);
+                rg[i].pfsparaclient = (void *)sp->cont_client;
+                rg[i].nmp           = (void *)sp->nseg;
+                rg[i].dvr_used      = sp->dvr_used;
+                rg[i].dvr_top_space = 0;
+            }
+            *cParaDesc = cParas;
+            g_pts_sptrack_ok++;
+            fprintf(stderr, "[FSPARALIST-FILL-SP] rc=0 reason=ok entry=FsQueryTrackParaList track=%p cParas=%d "
+                            "pfspara=%p client=%p src=owned-subpage(cont_obj+managed-176) ok=%d gap=%d\n",
+                    pTrack, cParas, (void *)wpf_pts_sub_handle(sp->cont_obj), sp->cont_client,
+                    g_pts_sptrack_ok, g_pts_sptrack_gap);
+            return 0;
+        }
+    }
     else if (!wpf_pts_track_owned(pTrack)) reason = "unknown-track-or-not-ours";
     else if (cParas < 0)                  reason = "negative-cparas";
     else if (cParas > 0 && !rgParaDesc)   reason = "null-paradesc-out";
@@ -6145,7 +6489,8 @@ int FsQuerySubtrackDetails(void *pfscontext, void *pSubTrack, void *pSubTrackDet
         o->dvr_shifted = 0;                       /* NOINFO-FSUPDINF-SEMANTICS：本侧无更新/位移状态可读 */
         o->nms         = dpx ? (void *)dpx->drive_nmseg : NULL;   /* 透传：同 run `+80` 的 live nmSegment */
         o->u  = 0; o->v = 0;
-        o->du = WPF_PTS_FSP_FIN_DU; o->dv = WPF_PTS_FSP_FIN_DV;   /* 本侧声明几何（NOINFO-FSGEOMETRY-LAYOUT） */
+        o->du = obj->in_subpage ? obj->sp_du : WPF_PTS_FSP_FIN_DU;
+        o->dv = obj->in_subpage ? obj->sp_dv : WPF_PTS_FSP_FIN_DV;   /* 内容树 ⇒ 子页声明几何；否则本侧页约定 */
 #if WPF_PTS_SUB_CPARAS_FAKE == 1
         int cp_out = 999;                          /* 反腿①：伪真值（恒定） */
 #elif WPF_PTS_SUB_CPARAS_FAKE == 2
@@ -6256,6 +6601,14 @@ int FsQuerySubtrackParaList(void *pfscontext, void *pSubTrack, int cParas,
             rg[i].pfspara       = (void *)wpf_pts_sub_handle(obj->child_objs[i]);
             rg[i].pfsparaclient = (void *)obj->child_clients[i];  /* 本 run `+176` 真返回 */
             rg[i].nmp           = (void *)obj->children[i];
+            /* ⏪ `T-A37`：**内容子页树**里，段高取该段**真行台账**的 `Σ(ascent+descent)`（否则为 0 ⇒
+               零高矩形 ⇒ 内容不可见）；非内容树逐字保持 `0` ＋ 既有 `NOINFO`。 */
+            if (obj->in_subpage && obj->child_objs[i] && obj->child_objs[i]->fl_ok) {
+                int hh = 0;
+                for (int k = 0; k < obj->child_objs[i]->fl_nlines; k++)
+                    hh += obj->child_objs[i]->fl_line[k].dvr_ascent + obj->child_objs[i]->fl_line[k].dvr_descent;
+                rg[i].dvr_used = hh;
+            }
             /* ⏪ `T-A22`（`N1`）：**本侧真把该段句柄交出去过**（写进 `FSPARADESCRIPTION.pfspara`）
                ⇒ 记进来源证据（强化面；托管随后把它当 `_paraHandle` 送回时即可**按来源证据认领**）。 */
             wpf_pts_prov_mark_written((const void *)dp, 'S', (const void *)obj->children[i]);

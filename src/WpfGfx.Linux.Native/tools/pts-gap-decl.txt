@@ -31,7 +31,28 @@
 #   并**断言相等**（不等即 `rc=9` 停手 = 基底漂移），再把 `tool/dead/artifact/ops/impl`
 #   交给牙**现算对账**（不等即牙红 —— 那才是"数漂了"，与基底漂移是两回事，分开报）。
 # ══════════════════════════════════════════════════════════════════════════════════
-# PTSGAP-DECL: tool=78 dead=11 artifact=1 ops=66 impl=69 so16=21ad5f39ef3c4034 exports=681 w66pre16=bf6b683d94549087
+# PTSGAP-DECL: tool=76 dead=11 artifact=1 ops=64 impl=67 so16=606dad49ae7b34a1 exports=683 w66pre16=bf6b683d94549087
+#   ⚠️ 波 `T-A37` 重锚（`TASK-0302` 增量：native「附属对象内容排版」`NATIVE-PTS-ATTACHED-CONTENT-LAYOUT`；
+#     `D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
+#     `src/WpfGfx.Linux.Native/src/win32_pts.c` —— **窗内**驱动附属对象**内容排版**（照 `T-A33` 回填体例）：
+#     ① `+176` 造客户端之后，**同窗内**调内容排版回调 `pfnGetFigureProperties`（`cbkfig` 第 1 槽／绝对 `+608`）；
+#     ② 新增 native 入口 `FsCreateSubpageFinite`（声明 `Pts.cs:3169`，**29 参**）—— 该回调**无条件**
+#        `PTS.Validate(PTS.FsCreateSubpageFinite(...))`（`FigureParagraph.cs:168/211`），改前**该符号未导出**
+#        ⇒ 托管抛 `EntryPointNotFoundException` ⇒ `SubpageHandle` 恒 0 ⇒ 内容不绘；
+#     ③ 新增 `FsDestroySubpage`（配对销毁；托管 `FigureParaClient.Dispose` 调它）；
+#     ④ `FsQuerySubpageDetails` 新增**内容子页支**（`fSimple=1` ＋ `trackdescr.pfstrack` ＝ 本侧子页轨）；
+#     ⑤ `FsQueryTrackDetails`／`FsQueryTrackParaList` 新增**子页轨支**（真填 `pfspara`／`pfsparaclient`）；
+#     ⑥ 内容子树行驱动（`wpf_pts_fl_walk_c`）。
+#     ⇒ `exports 681→683`、`so16 21ad5f39ef3c4034→606dad49ae7b34a1`；**缺口计数下降** `ops 66→64`／
+#     `impl 69→67`／`tool 78→76`（每新增一个真实现入口，该入口即离开缺口名单；`tool = ops + dead + artifact` 恒式保持）。
+#     ⚠️ **计数下降 ≠ 能力前进**（件头第 ① 条同口径）：本增量的前沿是"附属对象**内容排版链首次跑通**"——
+#       全链 `rc=0`（`[SUBPAGE]`／`[FSATT-CONTENT]`／`[FSPARALIST-FILL-SP]`／`[FSQSTD]` 逐条现取）且**零回归**；
+#       但 `k=24` 帧上**余 3 具名色（`Beige`／`DarkGreen`／`LightGoldenrodYellow`）仍 0 px**（帧 `sha16` 与
+#       `T-A36` 逐字节相同 ⇒ `PTS_COLORANCHOR hits=1` 未变）⇒ 见载体 `build/MilBridge/P1-tail2-attachcontent-impl-report.md`。
+#     ⚠️ **正文复述位随动**：`docs/ROUTES.md`／`README.md`／`docs/unimplemented.md`／
+#       `samples/WpfFeatureProbe/KNOWN-DEFECTS.md`／`build/MilBridge/HANDOFF-NEXT.md`／
+#       `src/WpfGfx.Linux.Native/src/win32_classification.c` 的现值位（`工具口径`／`可操作`／`实现口径`）
+#       本趟**同改**（`tool 76`／`ops 64`／`impl 67`／`exports=683`／`so16=606dad49ae7b34a1`）⇒ `PTSGAP=PASS`。
 #   ⚠️ 波 `T-A36` 重锚（`TASK-0302` 增量：native「PTS 附属对象回填」`NATIVE-PTS-ATTACHED-OBJECTS-BACKFILL`；
 #     `D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
 #     `src/WpfGfx.Linux.Native/src/win32_pts.c` —— 为 `Figure`/`Floater`（PTS 附属对象）建台账（窗内调
