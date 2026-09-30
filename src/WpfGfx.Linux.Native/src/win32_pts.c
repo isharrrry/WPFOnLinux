@@ -42,6 +42,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>     // getenv / atoi
+#include <pthread.h>    /* ⏪ `T-A33`：`pthread_self()` —— 格式窗所在线程（跨线程拒驱判据） */
 #include <stddef.h>          /* offsetof：格 6 夹具的**编译期**偏移假设自证 */
 #include <string.h>
 
@@ -261,6 +262,16 @@ typedef struct {
     const char  *fsp_pl_site;       /* 当前代**在哪造的**：`probe-in`／`probe-out`／`query-frame` */
     const void  *fsp_pl_aba_stale;  /* ABA 反腿：被回收后又拿来填充的**陈旧值** */
     int          fsp_pl_aba_seen;   /* ABA 反腿：是否已制造过 ABA */
+    /* ── ⏪ `T-A33`：**格式窗所在线程**（`FsCreatePage*` 内由 `wpf_pts_drive_probe` 记下）──────
+       托管回调 `+176 CreateParaclient` 需 `PtsHost._ptsContext != null`；该上下文**只在格式线程**
+       的窗口有效 ⇒ 从**别的线程**（实测：后台分页 `OnBackgroundPagination`）发调必撞
+       `Invariant.FailFast`（**不可捕获**）⇒ 本侧以它作**跨线程**拒驱判据（承 `T-A17` 的 liveness
+       守卫形制：**只在确认发调安全时**才发）。0 ＝尚未记录过窗口。 */
+    unsigned long win_tid;
+    unsigned long win_tid_calls;    /* 记录次数（诊断；只增） */
+    /* ⏪ `T-A33`：**格式窗进行中**（`wpf_pts_drive_probe` 体内置 1／出口置 0）——
+       托管 `+176 CreateParaclient` 只在窗内可安全发调（见 `wpf_pts_qtp_create_safe`）。 */
+    int          in_win;
     /* ── ⏪ `t162`（P1-W82 · 下一跳对的 **(a)**）：`pfspara` 的**台账／持有期／销毁口径** ──
        🔴 **唯一合法来源＝托管产出的段落实例**（`+136 pfnGetFirstPara` 交出的 `nmp`，即
           `ContainerParagraph._firstChild`；`t151` 已现证 `+168 GetParaProperties` **接受**它）
@@ -427,6 +438,9 @@ static int g_pts_fsp_qpd_ok   = 0;      /* `t125` `FsQueryPageDetails`：成功�
 static int g_pts_fsp_qpd_gap  = 0;      /* `t125`：返非 0 次数（失败面） */
 static int g_pts_fsp_des_ok   = 0;      /* `t125` `FsDestroyPage`：真销毁次数 */
 static int g_pts_fsp_des_gap  = 0;      /* `t125`：返非 0 次数（失败面） */
+/* ⏪ `T-A33`：`FsDestroyPage` **摘表但不 `free`** 的累计数（页对象内存一次性让渡 ⇒ 句柄地址
+   **永不复用**；防"断页记录句柄撞车"的托管不可捕 `FailFast`）。只增，诊断用。 */
+static int g_pts_fsp_retired_n = 0;
 /* ⏪ `t127`／裁定二十七：`FsQueryTrackDetails`／`FsCreatePageFinite` 的成败面。 */
 static int g_pts_fsp_trk_ok   = 0;
 static int g_pts_fsp_trk_gap  = 0;
@@ -1389,7 +1403,15 @@ struct wpf_pts_subtrack_s {
     struct {
         int dcp_first, dcp_lim, dvr_ascent, dvr_descent, ur_bbox, dur_bbox;
         int fsflres, f_forced;
-        const void *pfsline;
+        const void *pfsline;     /* `pfnFormatLine` 交回的行句柄（`lineHandle`，真返回值） */
+        /* ⏪ `T-A33`：**回填所需的断行记录**（`LineBreakRecord` 真句柄，非伪造）——
+           `pbr_in` ＝ 造型本行时**传入**的 `pbrlineIn`（第 0 行为 NULL）；托管消费者
+           （`TextParaClient.RenderSimpleLines`）把 `FSLINEDESCRIPTIONSINGLE.pfsbreakreclineclient`
+           原样送进 `TextParagraph.FormatLineCore` ⇒ 必须是**同一趟真产出的断行记录**，否则
+           `PtsContext.HandleToObject` 取不到 ⇒ `PtsException`。`pbr_out` ＝ 本行**产出**的
+           `ppbrlineOut`（已随台账接管；**不**调 `DestroyLineBreakRecord` ⇒ 句柄保持有效）。 */
+        const void *pbr_in;
+        const void *pbr_out;
     } fl_line[WPF_PTS_FL_MAXLINE];
 };
 #define WPF_PTS_SUB_MAGIC 0x57535054u     /* "WSPT" */
@@ -2153,6 +2175,8 @@ static int wpf_pts_format_one_para(wpf_pts_doc *d, wpf_pts_subtrack *leaf,
         leaf->fl_line[i].fsflres     = fslres;
         leaf->fl_line[i].f_forced    = fforced;
         leaf->fl_line[i].pfsline     = pfsline;
+        leaf->fl_line[i].pbr_in      = pbrin;      /* ⏪ `T-A33`：本行**入参**断行记录（回填源） */
+        leaf->fl_line[i].pbr_out     = ppbr;       /* ⏪ `T-A33`：本行**产出**断行记录（真返回值） */
         leaf->fl_nlines++;
         dcp += dcpLine;
         i++;
@@ -2234,6 +2258,34 @@ static void wpf_pts_formatline_drive(wpf_pts_doc *d, const char *where)
      窗外（查询期）**只做汇总/拒绝并留痕**（`[WINDOW-SPLIT] window=out`），**窗内**（`FsCreatePage*`）
      才真枚举/真填（`[WINDOW-SPLIT] window=in`）。原形态（窗外真调 `+136` ⇒ `rc=-100002` ×576，
      `v136=CALLBACK-ERR(-100002)`）属"**注定失败的发调**"，该形态**不可判** ⇒ 本件改为**可判**的成对读数。 */
+/* ⏪ `T-A33`：**托管 `+176 CreateParaclient` 的发调闸**。`+176` 是**托管回调** ⇒ 需
+   `PtsHost._ptsContext != null`；该上下文只在**格式窗**（`FsCreatePage*` ⇒ `wpf_pts_drive_probe`）
+   里有效。实测（`T-A33` 腿 `legs-tlb` `app_rc=134` / `failfast=4`）：`FlowDocumentPaginator.
+   OnBackgroundPagination` → `FlowDocumentPage.GetTextContentRangeFromColumn` → `PtsHelper.
+   ParaListFromTrack` → 本侧 `FsQueryTrackParaList` 的"查询期 `+176`"支撞 `MS.Internal.Invariant.
+   FailFast`（**不可捕获**）⇒ 整进程 `abort`。**同一线程**、只是**不在窗内**（`T-A33` 现取：
+   `cur_tid == win_tid`）⇒ 判据**不是线程**、是**窗**。
+   ⇒ 口径（承 `T-A17` liveness 守卫 ＋ `t151`「注定失败的发调不照发」两条先例）：
+   **`+176` 只在格式窗内发调**；窗外（查询期）⇒ 本侧**拒发**（具名留痕、出参一字不写）——
+   这消掉"查询期照发托管回调"这一族不可捕 `FailFast`。
+   闸门变量：`WPF_PTS_QTP_INWIN`（缺省 `1`＝生效；显式 `0` ⇒ 关，回落改前，用作反极性腿）。 */
+#ifndef WPF_PTS_QTP_INWIN_DEFAULT
+#define WPF_PTS_QTP_INWIN_DEFAULT 1
+#endif
+static int wpf_pts_qtp_inwin_gate(void)
+{
+    static int cached = -1;
+    if (cached < 0) { const char *e = getenv("WPF_PTS_QTP_INWIN"); cached = e ? atoi(e) : WPF_PTS_QTP_INWIN_DEFAULT; }
+    return cached;
+}
+/* 返 1 ＝ 当前**可以**发托管 `+176`（在格式窗内，或闸关时不拦）。 */
+static int wpf_pts_qtp_create_safe(const wpf_pts_doc *d)
+{
+    if (!d) return 0;
+    if (!wpf_pts_qtp_inwin_gate()) return 1;    /* 闸关 ⇒ 不拦（回落改前） */
+    return d->in_win ? 1 : 0;
+}
+
 static void wpf_pts_drive_probe2_oow(void *pfscontext, const char *where)
 {
     if (!wpf_pts_drive_probe_enabled()) return;
@@ -2279,7 +2331,17 @@ static void wpf_pts_drive_probe2_oow(void *pfscontext, const char *where)
        ⚠️ 上限 4 次（每调一次多一条托管活条目；回收紧跟其后）⇒ 不许无限发放。 */
     const void *fp176o = wpf_pts_snap_word(dp, WPF_PTS_SNAP_IDX_CREATEPARACLIENT);
     const void *fp192o = wpf_pts_snap_word(dp, WPF_PTS_SNAP_IDX_DESTROYPARACLIENT);
-    if (fp176o && fp192o && dp->drive_nmp && g_pts_dp3_oow_calls < 4 && wpf_pts_ctx_is_live(dp)) {
+    /* ⏪ `T-A33`：**跨线程发调闸** —— 不在格式线程 ⇒ **拒发** `+176`（具名留痕，不撞 FailFast）。 */
+    if (fp176o && fp192o && dp->drive_nmp && g_pts_dp3_oow_calls < 4 && wpf_pts_ctx_is_live(dp)
+        && !wpf_pts_qtp_create_safe(dp)) {
+        g_pts_dp3_oow_calls++;
+        fprintf(stderr, "[DRIVE-PROBE3-OOW] where=%s window=out nmp176=%p pfsclient=%p rc176=-9999 h=%p "
+                        "rc192=-9999 ctx_live=1 cur_tid=%lu win_tid=%lu in_win=%d v=%s calls=%d\n",
+                where, (const void *)dp->drive_nmp, (const void *)dp->p_fsclient, (void *)NULL,
+                (unsigned long)pthread_self(), dp->win_tid, dp->in_win,
+                "OUT-OF-WINDOW-REFUSED(PtsContext-null-risk)", g_pts_dp3_oow_calls);
+    }
+    else if (fp176o && fp192o && dp->drive_nmp && g_pts_dp3_oow_calls < 4 && wpf_pts_ctx_is_live(dp)) {
         void *hO = NULL;
         int rc176o = ((wpf_pts_fn_create_paraclient)fp176o)((const void *)dp->p_fsclient,
                                                            (const void *)dp->drive_nmp, &hO);
@@ -2564,6 +2626,11 @@ static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *wh
        免得同一 doc 的多个窗口把有限预算吃光、其余 doc 拿不到 `drive_nmp`。 */
     if (d->drive_done) { wpf_pts_drive_probe_skip("doc-already-driven"); return; }
     if (g_pts_dp_calls >= wpf_pts_drive_probe_n()) { wpf_pts_drive_probe_skip("budget-exhausted"); return; }
+    /* ⏪ `T-A33`：记下**格式窗所在线程**（本函数只在 `FsCreatePage*` 窗内被调）—— 供热路径
+       （`FsQueryTrackParaList` 的 `+176` 支）判定"是否仍在格式线程 ⇒ 发调是否安全"。 */
+    d->win_tid = (unsigned long)pthread_self(); d->win_tid_calls++;
+    fprintf(stderr, "[WIN-TID] where=%s win_tid=%lu calls=%lu v=FORMAT-WINDOW-THREAD-RECORDED\n",
+            where, d->win_tid, d->win_tid_calls);
     const void *fp56 = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_GETNEXTSECTION);
     const void *fp80 = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_GETMAINTEXTSEGMENT);
     if (!fp56) { wpf_pts_drive_probe_skip("null-slot56"); return; }
@@ -2640,6 +2707,9 @@ static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *wh
     int fSuccess1 = -1, fSuccess2 = -1;
     void *nmsNext1 = NULL, *nmsNext2 = NULL;
     void *nmSeg1 = NULL; void *nmSeg2 = NULL;
+    /* ⏪ `T-A33`：**进入格式窗**（本函数只在 `FsCreatePage*` 窗内被调）—— 其内发的托管
+       `+176 CreateParaclient` 才安全（`PtsHost._ptsContext` 在窗内成立）。出口置 0。 */
+    d->in_win = 1;
 
     int rc56a = ((wpf_pts_fn_get_next_section)fp56)(pfsclient, nms56, &fSuccess1, &nmsNext1);
     int rc56b = ((wpf_pts_fn_get_next_section)fp56)(pfsclient, nms56, &fSuccess2, &nmsNext2);
@@ -2873,6 +2943,7 @@ static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *wh
             rc56a, fSuccess1, nmsNext1, rc56b, fSuccess2, nmsNext2,
             ((g_pts_dp_idem & 1) ? 1 : 0), rc80a, nmSeg1, rc80b, nmSeg2,
             ((g_pts_dp_idem & 2) ? 1 : 0), v56, v80);
+    d->in_win = 0;   /* ⏪ `T-A33`：**退出格式窗**（此后 `+176` 一律不发调；见 `wpf_pts_qtp_create_safe`） */
 }
 
 
@@ -4303,7 +4374,15 @@ int FsDestroyPage(void *pfscontext, void *pfspage)
             if ((void *)g_pts_fsp_live[i] != pfspage) continue;
             if (g_pts_fsp_live[i]->magic != WPF_PTS_FSP_MAGIC) { reason = "already-destroyed"; break; }
             g_pts_fsp_live[i]->magic = 0;             /* 先失效 ⇒ 重复销毁必被拒 */
-            free(g_pts_fsp_live[i]);
+            /* ⏪ `T-A33`：**摘表但不 `free`**。断页记录句柄＝本对象内字段的地址（`FsCreatePageFinite`
+               的 `ppfsBRPageOut == &p->c_paras`，承"字段级诚实性"口径）；若在此 `free`，后续
+               `calloc` 可能**复用同一地址** ⇒ 两个 `PageBreakRecord` 撞同一句柄 ⇒ 托管
+               `PtsContext.OnPageBreakRecordCreated` 的 `Invariant.Assert("Break record already
+               exists.")`（**不可捕获**）⇒ `app_rc=134`（实测：`T-A33` 腿 `legs-tlb3`）。
+               ⇒ 页对象**内存**改为**一次性让渡**（地址**永不复用**；摘表口径与计数字段**逐字不变**
+               ⇒ 格 8／格 9 自检的 `live_n` 断言不受影响）。代价＝每页约 `sizeof(wpf_pts_fsp)` 字节
+               ／进程生命周期，**如实登记**。 */
+            g_pts_fsp_retired_n++;
             g_pts_fsp_live[i] = g_pts_fsp_live[--g_pts_fsp_live_n];
             g_pts_fsp_live[g_pts_fsp_live_n] = NULL;
             g_pts_fsp_des_ok++;
@@ -4314,8 +4393,10 @@ int FsDestroyPage(void *pfscontext, void *pfspage)
         reason = "unknown-page";
     }
     g_pts_fsp_des_gap++;
-    fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=FsDestroyPage ctx=%p page=%p des_ok=%d des_gap=%d\n",
-            WPF_PTS_ERR_NOT_IMPLEMENTED, reason, pfscontext, pfspage, g_pts_fsp_des_ok, g_pts_fsp_des_gap);
+    fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=FsDestroyPage ctx=%p page=%p des_ok=%d des_gap=%d "
+                    "retired=%d\n",
+            WPF_PTS_ERR_NOT_IMPLEMENTED, reason, pfscontext, pfspage, g_pts_fsp_des_ok, g_pts_fsp_des_gap,
+            g_pts_fsp_retired_n);
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
 
@@ -4469,6 +4550,243 @@ int FsUpdateBottomlessPage(void *pfscontext, void *pfspage, const void *fsnmsect
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
 
+/* ══ ⏪ `T-A33`（`TASK-0302` 增量）：native「查询期文本行回填」＝ `NATIVE-QUERY-PHASE-TEXT-LINE-BACKFILL` ══
+   【这一格要解决什么】`T-A32` 现取：行模型**已录台账**（`[FORMATLINE-LINE]` 42 行）却**没有回查接线**
+   ⇒ `FsQueryTextDetails` 恒拒 `reason=no-text-line-model`（`rc=-10000`，`out=UNWRITTEN`）⇒ 托管
+   `TextParaClient.ValidateVisual` 抛 `PtsException(-10000)` ⇒ 该页内容区**零像素**。本格把
+   `T-A27` 路 (丙) 的**第 3 步「回查」**接起来：查询期从本侧**行记录台账**
+   （`wpf_pts_subtrack::fl_line[]`，内容**只**来自 `pfnFormatLine` 真返回值）**回填**四个入口的出参。
+
+   【硬边界（承 `T-A32` ③ 的 4 条判据 ＋ 反极性）】
+     · **D1 零假值／出参纪律**：**只有** `wpf_pts_fl_usable(obj)` 成立（＝已录 ∧ 收束于段尾 ∧ 未撞界
+       ∧ ≥1 行）才写；否则**出参一字不写**（`out=UNWRITTEN`）—— **不写 0**、**不写常量**。
+     · **D2 永不假成功**：`cLines`／`dcpFirst`／`dcpLim`／行盒字段**逐项取自台账**（＝`pfnFormatLine`
+       真返回值）；`Σ dcpLine` 由造型循环本身守恒（`dcp` 累计），末行 `fsflres∈{2,3,4,5}` 收束。
+     · **D3 失败必留痕 ＋ 计数恰涨 1**：任何拒绝**必**打具名行且 `gap` 恰涨 1（承 `[FS_PAGE_GAP]`）。
+     · **D4 帧面必须长像素**：本格不改绘制层；判据在跑腿面（内容区色锚/`AE(content)`）。
+   【几何来源（如实划界）】行盒里 `dur` ＝ 造型时用的页宽（`WPF_PTS_FL_DU`，**本侧约定**）；
+     `urStart`／`urBBox`／`durBBox`／`dvrAscent`／`dvrDescent` ＝ `pfnFormatLine` 真返回值；
+     `vrStart` ＝ 本侧按**台账逐行 ascent/descent 累加**得到的行顶（**非**上游 ABI 几何）⇒ 具名
+     `NOINFO-FSGEOMETRY-LAYOUT`（承 `T-A28`／`T-A31`，**未消**）。`pfslineclient`＝台账行句柄（真值）。
+   【反极性（该红必红）】显式 `WPF_PTS_FL_DRIVE=0` ⇒ 造型不驱 ⇒ 台账恒空 ⇒ `wpf_pts_fl_usable` 恒假
+     ⇒ 四入口**逐字回改前**（`no-text-line-model` 计数复原、`out=UNWRITTEN`）。 */
+/* 出参结构镜像（照上游逐字契约；**只用于尺寸/偏移自证**，不 deref 托管结构）。 */
+typedef struct {                                   /* FSLINEDESCRIPTIONSINGLE 镜像（72 B） */
+    void *pfslineclient;                           /* @ +0  */
+    void *pfsbreakreclineclient;                   /* @ +8  */
+    int   dcp_first, dcp_lim;                      /* @ +16 */
+    int   ur_start, dur, f_allow_hyph;             /* @ +24 */
+    int   ur_bbox, dur_bbox;                       /* @ +36 */
+    int   vr_start;                                /* @ +44 */
+    int   dvr_ascent, dvr_descent;                 /* @ +48 */
+    int   f_clear_left, f_clear_right;             /* @ +56 */
+    int   f_treated_as_first, f_force_broken;      /* @ +64 */
+} wpf_pts_fslds;
+_Static_assert(sizeof(wpf_pts_fslds) == 72, "sizeof(FSLINEDESCRIPTIONSINGLE) != 72");
+_Static_assert(offsetof(wpf_pts_fslds, pfsbreakreclineclient) ==  8, "FSLDS.pfsbreakreclineclient != +8");
+_Static_assert(offsetof(wpf_pts_fslds, dcp_first)             == 16, "FSLDS.dcpFirst != +16");
+_Static_assert(offsetof(wpf_pts_fslds, dcp_lim)               == 20, "FSLDS.dcpLim != +20");
+_Static_assert(offsetof(wpf_pts_fslds, ur_start)             == 24, "FSLDS.urStart != +24");
+_Static_assert(offsetof(wpf_pts_fslds, dur)                   == 28, "FSLDS.dur != +28");
+_Static_assert(offsetof(wpf_pts_fslds, ur_bbox)               == 36, "FSLDS.urBBox != +36");
+_Static_assert(offsetof(wpf_pts_fslds, dur_bbox)              == 40, "FSLDS.durBBox != +40");
+_Static_assert(offsetof(wpf_pts_fslds, vr_start)             == 44, "FSLDS.vrStart != +44");
+_Static_assert(offsetof(wpf_pts_fslds, dvr_ascent)            == 48, "FSLDS.dvrAscent != +48");
+_Static_assert(offsetof(wpf_pts_fslds, dvr_descent)           == 52, "FSLDS.dvrDescent != +52");
+_Static_assert(offsetof(wpf_pts_fslds, f_treated_as_first)    == 64, "FSLDS.fTreatedAsFirst != +64");
+_Static_assert(offsetof(wpf_pts_fslds, f_force_broken)        == 68, "FSLDS.fForceBroken != +68");
+typedef struct {                                   /* FSLINEDESCRIPTIONCOMPOSITE 镜像（48 B） */
+    void *pline;                                   /* @ +0  */
+    int   c_elements;                              /* @ +8  */
+    int   vr_start, dvr_ascent, dvr_descent;       /* @ +12 */
+    int   f_treated_as_first, f_treated_as_last;   /* @ +24 */
+    int   dvr_avail_forced_line;                   /* @ +32 */
+    int   f_used_word_format_line_in_chain;        /* @ +36 */
+    int   f_first_line_in_word_lr;                 /* @ +40 */
+} wpf_pts_fsldc;
+_Static_assert(sizeof(wpf_pts_fsldc) == 48, "sizeof(FSLINEDESCRIPTIONCOMPOSITE) != 48");
+_Static_assert(offsetof(wpf_pts_fsldc, pline)                     ==  0, "FSLDC.pline != +0");
+_Static_assert(offsetof(wpf_pts_fsldc, c_elements)                ==  8, "FSLDC.cElements != +8");
+_Static_assert(offsetof(wpf_pts_fsldc, f_first_line_in_word_lr)   == 40, "FSLDC.fFirstLineInWordLr != +40");
+typedef struct {                                   /* FSLINEELEMENT 镜像（88 B） */
+    void *pfslineclient;                           /* @ +0  */
+    int   dcp_first;                               /* @ +8  */
+    void *pfsbreakreclineclient;                   /* @ +16 */
+    int   dcp_lim;                                 /* @ +24 */
+    int   ur_start, dur, f_allow_hyph;             /* @ +28 */
+    int   ur_bbox, dur_bbox;                       /* @ +40 */
+    int   ur_lr_word, dur_lr_word;                 /* @ +48 */
+    int   dvr_ascent, dvr_descent;                 /* @ +56 */
+    int   f_clear_left, f_clear_right;             /* @ +64 */
+    int   f_hit_by_polygon, f_force_broken;        /* @ +72 */
+    int   f_clear_left_lr_word, f_clear_right_lr_word; /* @ +80 */
+} wpf_pts_fslineel;
+_Static_assert(sizeof(wpf_pts_fslineel) == 88, "sizeof(FSLINEELEMENT) != 88");
+_Static_assert(offsetof(wpf_pts_fslineel, pfsbreakreclineclient) == 16, "FSLE.pfsbreakreclineclient != +16");
+_Static_assert(offsetof(wpf_pts_fslineel, dcp_lim)               == 24, "FSLE.dcpLim != +24");
+_Static_assert(offsetof(wpf_pts_fslineel, ur_lr_word)            == 48, "FSLE.urLrWord != +48");
+_Static_assert(offsetof(wpf_pts_fslineel, f_clear_right_lr_word) == 84, "FSLE.fClearRightLrWord != +84");
+typedef struct {                                   /* FSTEXTDETAILSFULL 镜像（104 B） */
+    int   fswdir;                                  /* @ +0  */
+    int   fsklines;                                /* @ +4  */
+    int   f_lines_composite;                       /* @ +8  */
+    int   c_lines;                                 /* @ +12 */
+    int   c_attached_objects;                      /* @ +16 */
+    int   dcp_first, dcp_lim;                      /* @ +20 */
+    int   f_dropcap_present;                       /* @ +28 */
+    int   fsupd_fskupd, fsupd_dvr_shifted;         /* @ +32 FSUPDATEINFO(8) */
+    int   dc_u, dc_v, dc_du, dc_dv;                /* @ +40 FSDROPCAPDETAILS.fsrcDropCap */
+    int   dc_suppress_top;                         /* @ +56 */
+    int   dc_pad;                                  /* @ +60 */
+    void *dc_pdcclient;                            /* @ +64 */
+    int   f_suppress_top_line_spacing;             /* @ +72 */
+    int   f_update_info_for_lines_present;         /* @ +76 */
+    int   c_lines_before_change;                   /* @ +80 */
+    int   dvr_shift_before_change;                 /* @ +84 */
+    int   c_lines_changed;                         /* @ +88 */
+    int   dc_lines_changed;                        /* @ +92 */
+    int   dvr_shift_after_change;                  /* @ +96 */
+    int   ddcp_after_change;                       /* @ +100 */
+} wpf_pts_fstextdetailsfull;
+_Static_assert(sizeof(wpf_pts_fstextdetailsfull) == 104, "sizeof(FSTEXTDETAILSFULL) != 104");
+_Static_assert(offsetof(wpf_pts_fstextdetailsfull, f_lines_composite) ==  8, "FULL.fLinesComposite != +8");
+_Static_assert(offsetof(wpf_pts_fstextdetailsfull, c_lines)           == 12, "FULL.cLines != +12");
+_Static_assert(offsetof(wpf_pts_fstextdetailsfull, dcp_first)         == 20, "FULL.dcpFirst != +20");
+_Static_assert(offsetof(wpf_pts_fstextdetailsfull, dcp_lim)           == 24, "FULL.dcpLim != +24");
+_Static_assert(offsetof(wpf_pts_fstextdetailsfull, f_suppress_top_line_spacing)     == 72, "FULL.fSuppressTopLineSpacing != +72");
+_Static_assert(offsetof(wpf_pts_fstextdetailsfull, f_update_info_for_lines_present) == 76, "FULL.fUpdateInfoForLinesPresent != +76");
+_Static_assert(offsetof(wpf_pts_fstextdetailsfull, ddcp_after_change) == 100, "FULL.ddcpAfterChange != +100");
+typedef struct {                                   /* FSTEXTDETAILS 镜像（112 B） */
+    int fsktd;                                     /* @ +0  FSKTEXTDETAILS（0=cached／1=full） */
+    int _pad;                                      /* @ +4  （联合体 8 字节对齐） */
+    wpf_pts_fstextdetailsfull full;                /* @ +8  union u */
+} wpf_pts_fstextdetails;
+_Static_assert(sizeof(wpf_pts_fstextdetails) == 112, "sizeof(FSTEXTDETAILS) != 112");
+_Static_assert(offsetof(wpf_pts_fstextdetails, full) == 8, "FSTEXTDETAILS.u != +8");
+/* 回填面计数（**只增**；与既有 `[FS_PAGE_GAP]` 计数分开，判据 ② 的成对面）。 */
+static int g_pts_fsqtd_ok      = 0;   /* `FsQueryTextDetails` 回填成功次数（D2 的"真源"面） */
+static int g_pts_tlb_ok        = 0;   /* 四入口回填成功合计 */
+static int g_pts_tlb_single_ok = 0;
+static int g_pts_tlb_comp_ok   = 0;
+static int g_pts_tlb_elem_ok   = 0;
+/* 台账可用性判据（**唯一**真值来源）：已录 ∧ 收束于段尾 ∧ 未撞界 ∧ ≥1 行。
+   🔴 **零假值**：不满足 ⇒ **不许**回填（未造型／不完整／撞界一律走诚实拒绝）。 */
+static int wpf_pts_fl_usable(const wpf_pts_subtrack *o)
+{
+    return (o && o->magic == WPF_PTS_SUB_MAGIC && o->fl_ok == 1 &&
+            o->fl_nlines > 0 && o->fl_complete && !o->fl_truncated);
+}
+/* 行顶（`vrStart`）：按台账逐行 `dvrAscent+dvrDescent` 累加（**本侧约定**，具名 `NOINFO-FSGEOMETRY-LAYOUT`）。 */
+static int wpf_pts_fl_vr_start(const wpf_pts_subtrack *o, int idx)
+{
+    int vr = 0;
+    for (int k = 0; k < idx && k < o->fl_nlines; k++)
+        vr += o->fl_line[k].dvr_ascent + o->fl_line[k].dvr_descent;
+    return vr;
+}
+/* 回填 `FSTEXTDETAILS`（唯一成功路径；**调用者已核** `wpf_pts_fl_usable`）。 */
+static void wpf_pts_tlb_fill_details(wpf_pts_subtrack *o, void *pOut)
+{
+    wpf_pts_fstextdetails *e = (wpf_pts_fstextdetails *)pOut;
+    memset((void *)e, 0, sizeof(*e));           /* 先清零再逐字段写（未初始化内存不交上级） */
+    e->fsktd = 1;                               /* `fsktdFull` */
+    e->full.fswdir = 0;                         /* 本侧恒 ltr（同 `pfnFormatLine` 入参 fswdir=0） */
+    e->full.fsklines = 0;                       /* `fsklinesNormal`（真调的就是 `pfnFormatLine`） */
+    e->full.f_lines_composite = 0;              /* simple lines（台账行来自 `pfnFormatLine`） */
+    e->full.c_lines = o->fl_nlines;             /* ← **承重格**（真值＝台账行数） */
+    e->full.c_attached_objects = 0;             /* 无 attached-object 台账（NOINFO-TLB-ATTACHED-OBJECTS） */
+    e->full.dcp_first = o->fl_line[0].dcp_first;                 /* ← 真值 */
+    e->full.dcp_lim   = o->fl_line[o->fl_nlines - 1].dcp_lim;    /* ← 真值 */
+    e->full.f_dropcap_present = 0;
+    e->full.f_suppress_top_line_spacing = 0;
+    e->full.f_update_info_for_lines_present = 0;/* 0 ⇒ 消费者整段重建（不做增量位移） */
+}
+/* 回填 `FSLINEDESCRIPTIONSINGLE` 数组（第 i 条 ← 台账第 i 行）。 */
+static void wpf_pts_tlb_fill_single(wpf_pts_subtrack *o, wpf_pts_fslds *rg, int n)
+{
+    for (int i = 0; i < n; i++) {
+        memset((void *)&rg[i], 0, sizeof(rg[i]));
+        rg[i].pfslineclient         = (void *)o->fl_line[i].pfsline;     /* 台账行句柄（真返回值） */
+        rg[i].pfsbreakreclineclient = (void *)o->fl_line[i].pbr_in;      /* 断行记录（真值；首行 NULL） */
+        rg[i].dcp_first             = o->fl_line[i].dcp_first;
+        rg[i].dcp_lim               = o->fl_line[i].dcp_lim;
+        rg[i].ur_start              = o->fl_line[i].ur_bbox;             /* 本侧约定：urStartLine=0 ⇒ =urBBox */
+        rg[i].dur                   = WPF_PTS_FL_DU;                     /* 造型时用的页宽（本侧约定） */
+        rg[i].f_allow_hyph          = 0;                                 /* 造型入参 fAllowHyphenation=0 */
+        rg[i].ur_bbox               = o->fl_line[i].ur_bbox;
+        rg[i].dur_bbox              = o->fl_line[i].dur_bbox;
+        rg[i].vr_start              = wpf_pts_fl_vr_start(o, i);         /* 本侧累加（NOINFO-FSGEOMETRY-LAYOUT） */
+        rg[i].dvr_ascent            = o->fl_line[i].dvr_ascent;
+        rg[i].dvr_descent           = o->fl_line[i].dvr_descent;
+        rg[i].f_clear_left          = 0;                                 /* 造型入参 fClearOnLeft=0 */
+        rg[i].f_clear_right         = 0;                                 /* 造型入参 fClearOnRight=0 */
+        rg[i].f_treated_as_first    = (i == 0) ? 1 : 0;                  /* 造型入参 fTreatAsFirstInPara */
+        rg[i].f_force_broken        = o->fl_line[i].f_forced;
+    }
+}
+/* 回填 `FSLINEDESCRIPTIONCOMPOSITE` 数组（本侧一行＝一元素；`pline`＝台账行句柄）。 */
+static void wpf_pts_tlb_fill_composite(wpf_pts_subtrack *o, wpf_pts_fsldc *rg, int n)
+{
+    for (int i = 0; i < n; i++) {
+        memset((void *)&rg[i], 0, sizeof(rg[i]));
+        rg[i].pline        = (void *)o->fl_line[i].pfsline;    /* 供 `QueryLineElements` 按行句柄认领 */
+        rg[i].c_elements   = 1;                                /* 本侧一行＝一元素 */
+        rg[i].vr_start     = wpf_pts_fl_vr_start(o, i);
+        rg[i].dvr_ascent   = o->fl_line[i].dvr_ascent;
+        rg[i].dvr_descent  = o->fl_line[i].dvr_descent;
+        rg[i].f_treated_as_first = (i == 0) ? 1 : 0;
+        rg[i].f_treated_as_last  = (i == n - 1) ? 1 : 0;
+        rg[i].dvr_avail_forced_line = 0;
+        rg[i].f_used_word_format_line_in_chain = 0;
+        rg[i].f_first_line_in_word_lr = 0;
+    }
+}
+/* 按**行句柄**（台账 `pfsline`）在册认领：唯一定位（歧义／未命中 ⇒ 0）。 */
+static int wpf_pts_tlb_claim_line(const void *pLine, wpf_pts_subtrack **outObj, int *outIdx)
+{
+    int found = 0;
+    if (outObj) *outObj = NULL;
+    if (outIdx) *outIdx = -1;
+    if (!pLine) return 0;
+    for (int i = 0; i < g_pts_sub_live_n; i++) {
+        wpf_pts_subtrack *o = g_pts_sub_live[i];
+        if (o->magic != WPF_PTS_SUB_MAGIC) continue;
+        if (!wpf_pts_fl_usable(o)) continue;       /* 只认**可用**台账的行（零假值） */
+        for (int k = 0; k < o->fl_nlines; k++) {
+            if (o->fl_line[k].pfsline != pLine) continue;
+            if (found) return 0;                   /* 歧义 ⇒ 拒（不猜） */
+            found = 1;
+            if (outObj) *outObj = o;
+            if (outIdx) *outIdx = k;
+        }
+    }
+    return found;
+}
+/* 回填单个 `FSLINEELEMENT`（第 `idx` 行）；`pLine` 已由 `wpf_pts_tlb_claim_line` 认领。 */
+static void wpf_pts_tlb_fill_element(wpf_pts_subtrack *o, int idx, wpf_pts_fslineel *e)
+{
+    memset((void *)e, 0, sizeof(*e));
+    e->pfslineclient         = (void *)o->fl_line[idx].pfsline;
+    e->dcp_first             = o->fl_line[idx].dcp_first;
+    e->pfsbreakreclineclient = (void *)o->fl_line[idx].pbr_in;
+    e->dcp_lim               = o->fl_line[idx].dcp_lim;
+    e->ur_start              = o->fl_line[idx].ur_bbox;
+    e->dur                   = WPF_PTS_FL_DU;
+    e->f_allow_hyph          = 0;
+    e->ur_bbox               = o->fl_line[idx].ur_bbox;
+    e->dur_bbox              = o->fl_line[idx].dur_bbox;
+    e->ur_lr_word            = 0;
+    e->dur_lr_word           = 0;
+    e->dvr_ascent            = o->fl_line[idx].dvr_ascent;
+    e->dvr_descent           = o->fl_line[idx].dvr_descent;
+    e->f_clear_left          = 0;
+    e->f_clear_right         = 0;
+    e->f_hit_by_polygon      = 0;
+    e->f_force_broken        = o->fl_line[idx].f_forced;
+    e->f_clear_left_lr_word  = 0;
+    e->f_clear_right_lr_word = 0;
+}
+
 // ── `T-A20`／`TASK-0302` 增量：`FsQueryTextDetails`（声明 `Pts.cs:3749-3753`；调用点
 //    `TextParaClient.cs` 十余处，首个是 `ValidateVisual` 的 `:56`）──
 //   签名（上游逐字，`Pts.cs:3750-3753`）：`int FsQueryTextDetails(IntPtr pfsContext, IntPtr pPara,
@@ -4544,6 +4862,29 @@ int FsQueryTextDetails(void *pfscontext, void *pPara, void *pTextDetails)
     }
     else if ((const void *)pfscontext && !wpf_pts_doc_find(pfscontext))
                                               { reason = "unknown-ctx";        g_pts_fsqtd_unknown_ctx++; }
+    else if (wpf_pts_fl_usable(obj)) {
+        /* ── ✅ **回填成功分支**（⏪ `T-A33`）：`obj` 是本侧自有段落对象且**台账可用**
+           （`fl_ok ∧ fl_complete ∧ !fl_truncated ∧ fl_nlines>0`，≠"未造型/未收束/撞界"）⇒ 逐字段
+           取台账真值写入 `FSTEXTDETAILS`（先清零）。**这是唯一**会让本入口返回 `rc=0` 的主链路径
+           （反腿 `WPF_PTS_FSQTD_FAKE` 除外）；未满足 ⇒ 走下方**诚实拒绝**（出参一字不写）。 */
+        wpf_pts_tlb_fill_details(obj, pTextDetails);
+        g_pts_fsqtd_ok++; g_pts_tlb_ok++;
+        fprintf(stderr, "[FSQTD] rc=0 reason=ok entry=FsQueryTextDetails ctx=%p parah=%p "
+                        "calls=%d ok=%d gap=%d nomodel=%d fsktd=1 cLines=%d dcpFirst=%d dcpLim=%d "
+                        "fl_ok=%d out=WRITTEN bytes=112 src=ledger:fl_line[]"
+                        "(pfnFormatLine+fsflres-end)\n",
+                pfscontext, pPara, g_pts_fsqtd_calls, g_pts_fsqtd_ok, g_pts_fsqtd_gap,
+                g_pts_fsqtd_nomodel, obj->fl_nlines, obj->fl_line[0].dcp_first,
+                obj->fl_line[obj->fl_nlines - 1].dcp_lim, obj->fl_ok);
+        fprintf(stderr, "[FS_TLB] entry=FsQueryTextDetails parah=%p cLines=%d dcpFirst=%d dcpLim=%d "
+                        "fl_calls=%d fl_ok=%d complete=%d truncated=%d "
+                        "NOINFO=fsgeometry-layout(vrStart=self-accum),attached-objects(none)\n",
+                pPara, obj->fl_nlines, obj->fl_line[0].dcp_first,
+                obj->fl_line[obj->fl_nlines - 1].dcp_lim, obj->fl_calls, obj->fl_ok,
+                obj->fl_complete, obj->fl_truncated);
+        (void)dpt;
+        return 0;
+    }
     else                                      { reason = "no-text-line-model"; g_pts_fsqtd_nomodel++; }
     (void)obj;                    /* 认领结果只用于**分离失败原因**，不参与任何写入 */
     (void)dpt;                    /* ⏪ `T-A22`：同上（只作**对象身份核验**的入参） */
@@ -4604,14 +4945,22 @@ static int g_pts_fsqll_nomodel    = 0;   /* 路⑤：认领成功但**出参无�
 #ifndef WPF_PTS_FSQLL_FAKE
 #define WPF_PTS_FSQLL_FAKE 0
 #endif
-/* 三入口共用的**诚实拒绝**实现。`objkind`＝`"para"`／`"line"`（只影响具名 reason 的词）。 */
+/* 三入口共用的**进入记账**（计数 ＋ 断开"查询组"）。⏪ `T-A33`：从 `wpf_pts_line_reject` 里提出 ——
+   使**回填成功路径**与**诚实拒绝路径**共用同一套 `calls=` 记账（不重复计、不漏计）。 */
+static int g_pts_fsqll_ok = 0;   /* 三入口回填成功次数（⏪ `T-A33`；D2 的"真源"面） */
+static void wpf_pts_line_enter(void)
+{
+    g_pts_fsqll_calls++;
+    g_pts_qpd_prev_page = NULL;   /* 下游入口 ⇒ 断开"查询组"（与同族查询同办） */
+}
+/* 三入口共用的**诚实拒绝**实现。`objkind`＝`"para"`／`"line"`（只影响具名 reason 的词）。
+   ⚠️ ⏪ `T-A33`：**不再**自增 `g_pts_fsqll_calls`（已由 `wpf_pts_line_enter` 计）⇒ 调用者必须先
+   `wpf_pts_line_enter()`；本函数只做判词 ＋ 留痕 ＋ `gap` 恰涨 1。 */
 static int wpf_pts_line_reject(const char *entry, const char *objkind, void *pfscontext,
                                void *pObj, int cIn, void *cOutPtr)
 {
     char rbuf[48];
     const char *reason = NULL;
-    g_pts_fsqll_calls++;
-    g_pts_qpd_prev_page = NULL;   /* 下游入口 ⇒ 断开"查询组"（与同族查询同办） */
     if (!cOutPtr)                                  { reason = "null-count-out"; g_pts_fsqll_nullout++; }
     else if (!pObj)  { snprintf(rbuf, sizeof rbuf, "null-%s", objkind); reason = rbuf; g_pts_fsqll_nullobj++; }
     else if (!wpf_pts_sub_claim(pObj, NULL)) {
@@ -4633,10 +4982,10 @@ static int wpf_pts_line_reject(const char *entry, const char *objkind, void *pfs
     /* ── 拒绝面（**零假值／出参一字不写**）：`cOutPtr` 与行盒数组**绝不触碰**。 */
     g_pts_fsqll_gap++;
     fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=%s ctx=%p obj=%p c=%d "
-                    "calls=%d gap=%d nullout=%d nullobj=%d unclaim=%d unknown_ctx=%d nomodel=%d "
+                    "calls=%d ok=%d gap=%d nullout=%d nullobj=%d unclaim=%d unknown_ctx=%d nomodel=%d "
                     "out=UNWRITTEN bytes=0\n",
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason, entry, pfscontext, pObj, cIn,
-            g_pts_fsqll_calls, g_pts_fsqll_gap, g_pts_fsqll_nullout, g_pts_fsqll_nullobj,
+            g_pts_fsqll_calls, g_pts_fsqll_ok, g_pts_fsqll_gap, g_pts_fsqll_nullout, g_pts_fsqll_nullobj,
             g_pts_fsqll_unclaim, g_pts_fsqll_unknownctx, g_pts_fsqll_nomodel);
     return WPF_PTS_ERR_NOT_IMPLEMENTED;   /* ← 无真值时改成 0 就是制造静默半通／伪成功 */
 }
@@ -4649,7 +4998,24 @@ int FsQueryLineListSingle(void *pfscontext, void *pPara, int cLines, void *rgLin
                     "basis=FAKE-UNCHECKED-PARA NOINFO=text-line-model-source\n", cLines);
     return 0;
 #else
-    (void)rgLineDesc;   /* 刻意只收不用（机器可读形态：参数在册但**零写入**） */
+    /* ⏪ `T-A33` 回填：入参身份可认领 ∧ 台账可用 ∧ 计数与台账**自洽** ∧ 出参非空 ⇒ 真填。 */
+    wpf_pts_subtrack *obj = NULL;
+    wpf_pts_line_enter();
+    if (cLineDesc && pPara && wpf_pts_sub_claim(pPara, &obj) && wpf_pts_fl_usable(obj) &&
+        rgLineDesc && cLines == obj->fl_nlines) {
+        wpf_pts_tlb_fill_single(obj, (wpf_pts_fslds *)rgLineDesc, cLines);
+        *cLineDesc = cLines;
+        g_pts_fsqll_ok++; g_pts_tlb_ok++; g_pts_tlb_single_ok++;
+        fprintf(stderr, "[FSQLL] rc=0 reason=ok entry=FsQueryLineListSingle ctx=%p parah=%p cLines=%d "
+                        "calls=%d ok=%d gap=%d nomodel=%d fl_ok=%d out=WRITTEN bytes=%d "
+                        "src=ledger:fl_line[]←pfnFormatLine\n",
+                pfscontext, pPara, cLines, g_pts_fsqll_calls, g_pts_fsqll_ok, g_pts_fsqll_gap,
+                g_pts_fsqll_nomodel, obj->fl_ok, (int)(cLines * (int)sizeof(wpf_pts_fslds)));
+        fprintf(stderr, "[FS_TLB] entry=FsQueryLineListSingle parah=%p lines=%d dcpFirst=%d dcpLim=%d "
+                        "NOINFO=fsgeometry-layout(vrStart=self-accum,urStart=urBBox,dur=self-page-width)\n",
+                pPara, cLines, obj->fl_line[0].dcp_first, obj->fl_line[cLines - 1].dcp_lim);
+        return 0;
+    }
     return wpf_pts_line_reject("FsQueryLineListSingle", "para", pfscontext, pPara, cLines, (void *)cLineDesc);
 #endif
 }
@@ -4662,7 +5028,20 @@ int FsQueryLineListComposite(void *pfscontext, void *pPara, int cElements, void 
                     "basis=FAKE-UNCHECKED-PARA NOINFO=text-line-model-source\n", cElements);
     return 0;
 #else
-    (void)rgLineDescription;
+    wpf_pts_subtrack *obj = NULL;
+    wpf_pts_line_enter();
+    if (cLineElements && pPara && wpf_pts_sub_claim(pPara, &obj) && wpf_pts_fl_usable(obj) &&
+        rgLineDescription && cElements == obj->fl_nlines) {
+        wpf_pts_tlb_fill_composite(obj, (wpf_pts_fsldc *)rgLineDescription, cElements);
+        *cLineElements = cElements;
+        g_pts_fsqll_ok++; g_pts_tlb_ok++; g_pts_tlb_comp_ok++;
+        fprintf(stderr, "[FSQLL] rc=0 reason=ok entry=FsQueryLineListComposite ctx=%p parah=%p cElements=%d "
+                        "calls=%d ok=%d gap=%d nomodel=%d fl_ok=%d out=WRITTEN bytes=%d "
+                        "src=ledger:fl_line[]←pfnFormatLine\n",
+                pfscontext, pPara, cElements, g_pts_fsqll_calls, g_pts_fsqll_ok, g_pts_fsqll_gap,
+                g_pts_fsqll_nomodel, obj->fl_ok, (int)(cElements * (int)sizeof(wpf_pts_fsldc)));
+        return 0;
+    }
     return wpf_pts_line_reject("FsQueryLineListComposite", "para", pfscontext, pPara, cElements, (void *)cLineElements);
 #endif
 }
@@ -4675,7 +5054,20 @@ int FsQueryLineCompositeElementList(void *pfscontext, void *pLine, int cElements
                     "basis=FAKE-UNCHECKED-LINE NOINFO=text-line-model-source\n", cElements);
     return 0;
 #else
-    (void)rgLineElement;
+    /* ⏪ `T-A33`：`pLine`＝台账行句柄（`pfsline`）⇒ **按行句柄在册认领**（唯一定位；歧义／未命中 ⇒ 拒）。 */
+    wpf_pts_subtrack *obj = NULL; int idx = -1;
+    wpf_pts_line_enter();
+    if (cLineElements && wpf_pts_tlb_claim_line(pLine, &obj, &idx) && rgLineElement && cElements == 1) {
+        wpf_pts_tlb_fill_element(obj, idx, (wpf_pts_fslineel *)rgLineElement);
+        *cLineElements = 1;
+        g_pts_fsqll_ok++; g_pts_tlb_ok++; g_pts_tlb_elem_ok++;
+        fprintf(stderr, "[FSQLL] rc=0 reason=ok entry=FsQueryLineCompositeElementList ctx=%p pline=%p "
+                        "cElements=%d calls=%d ok=%d gap=%d nomodel=%d out=WRITTEN bytes=%d "
+                        "src=ledger:fl_line[%d]←pfnFormatLine\n",
+                pfscontext, pLine, cElements, g_pts_fsqll_calls, g_pts_fsqll_ok, g_pts_fsqll_gap,
+                g_pts_fsqll_nomodel, (int)sizeof(wpf_pts_fslineel), idx);
+        return 0;
+    }
     return wpf_pts_line_reject("FsQueryLineCompositeElementList", "line", pfscontext, pLine, cElements, (void *)cLineElements);
 #endif
 }
@@ -4988,20 +5380,28 @@ int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgPar
                     (void)rc_new;
                 }
 #endif
-                /* ③ 配额到点 ⇒ 换代（当前代挂到 `prev`，**下次调用**才回收） */
-                if (!reason && dp->fsp_pl_cur && dp->fsp_pl_quota >= wpf_pts_fsp_pl_gen_size()) {
+                /* ③ 配额到点 ⇒ 换代（当前代挂到 `prev`，**下次调用**才回收）
+                   ⏪ `T-A33`：**只在格式窗内**换代 —— 换代后 ④ 会发托管 `+176`；窗外发调必撞
+                   `PtsContext` 的 `Invariant.FailFast`（实测 `app_rc=134`）⇒ 窗外**沿用当前代**。 */
+                if (!reason && dp->fsp_pl_cur && dp->fsp_pl_quota >= wpf_pts_fsp_pl_gen_size()
+                    && wpf_pts_qtp_create_safe(dp)) {
                     dp->fsp_pl_prev = dp->fsp_pl_cur; dp->fsp_pl_cur = NULL; dp->fsp_pl_quota = 0;
                 }
-                /* ④ 需要新一代 ⇒ 用托管 `+176` **现造**（唯一合法来源，判据 §5-P3） */
+                /* ④ 需要新一代 ⇒ 用托管 `+176` **现造**（唯一合法来源，判据 §5-P3）
+                   ⏪ `T-A33`：**只在格式窗内**发调 —— 窗外（查询期）发调必撞 `PtsContext` 的
+                   `Invariant.FailFast`（实测 `app_rc=134`）⇒ 窗外**具名拒绝**（不发调）。 */
                 if (!reason && !dp->fsp_pl_cur) {
-                    void *hn = NULL;
-                    int rc176 = ((wpf_pts_fn_create_paraclient)fp176f)((const void *)dp->p_fsclient,
-                                                                      dp->drive_nmp, &hn);
-                    g_pts_fsp_pl_last_rc176 = rc176;
-                    if (rc176 == 0 && hn != NULL) {
-                        dp->fsp_pl_cur = (const void *)hn; dp->fsp_pl_gen++;
-                        dp->fsp_pl_site = "query-frame";
-                    } else reason = "create-paraclient-failed";
+                    if (!wpf_pts_qtp_create_safe(dp)) reason = "out-of-window-create-paraclient-refused(PtsContext-null-risk)";
+                    else {
+                        void *hn = NULL;
+                        int rc176 = ((wpf_pts_fn_create_paraclient)fp176f)((const void *)dp->p_fsclient,
+                                                                          dp->drive_nmp, &hn);
+                        g_pts_fsp_pl_last_rc176 = rc176;
+                        if (rc176 == 0 && hn != NULL) {
+                            dp->fsp_pl_cur = (const void *)hn; dp->fsp_pl_gen++;
+                            dp->fsp_pl_site = "query-frame";
+                        } else reason = "create-paraclient-failed";
+                    }
                 }
                 /* ⑤ **真填**（先清零 ⇒ 未初始化内存不许交给上级；**填完才置条数**，判据 §5-P2） */
                 if (!reason && dp->fsp_pl_cur) {
@@ -5137,11 +5537,12 @@ int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgPar
                     for (int i = 0; i < 32; i++) snprintf(dump + i * 3, 4, "%02x ", bp[i]);
                     fprintf(stderr, "[FSPARALIST-FILL] rc=0 reason=ok entry=FsQueryTrackParaList cParas=%d n=%d "
                                     "h0=%p src=managed-176 run=site=%s win=%s gen=%d quad=%d hold=%d "
-                                    "off16=%d bytes0_32=%s ok=%d gap=%d\n",
+                                    "off16=%d bytes0_32=%s ok=%d gap=%d cur_tid=%lu win_tid=%lu\n",
                             cParas, cParas, (void *)dp->fsp_pl_cur, dp->fsp_pl_site,
                             wpf_pts_fsp_pl_win_out() ? "out" : "in", dp->fsp_pl_gen, dp->fsp_pl_quota,
                             (dp->fsp_pl_prev != NULL) ? 1 : 0, (int)offsetof(wpf_pts_fsparadesc, pfsparaclient),
-                            dump, g_pts_fsp_pl_ok + 1, g_pts_fsp_pl_gap);
+                            dump, g_pts_fsp_pl_ok + 1, g_pts_fsp_pl_gap,
+                            (unsigned long)pthread_self(), dp->win_tid);
                     g_pts_fsp_pl_ok++;
 #if WPF_PTS_FSP_PL_LMWIT || WPF_PTS_FSP_PL_DVR
                     {   /* ⏪ `t198`：**每次成功填充必打的到达读数行**（`t196` §6：禁静默阈值）
@@ -5214,10 +5615,14 @@ int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgPar
         if (!reason) reason = "paraclient-table-not-native";   /* 旧路径逐字保留 */
     }
     g_pts_fsp_pl_gap++;
-    fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=FsQueryTrackParaList ctx=%p track=%p cParas=%d "
-                    "owned=%d ok=%d gap=%d\n",
-            WPF_PTS_ERR_NOT_IMPLEMENTED, reason, pfscontext, pTrack, cParas,
-            wpf_pts_track_owned(pTrack), g_pts_fsp_pl_ok, g_pts_fsp_pl_gap);
+    {   /* ⏪ `T-A33`：**跨线程判据**的现取读数（`cur_tid` vs 格式窗 `win_tid`；只读，不改行为）。 */
+        const wpf_pts_doc *dptid = wpf_pts_doc_ptr(pfscontext);
+        fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=FsQueryTrackParaList ctx=%p track=%p cParas=%d "
+                        "owned=%d ok=%d gap=%d cur_tid=%lu win_tid=%lu\n",
+                WPF_PTS_ERR_NOT_IMPLEMENTED, reason, pfscontext, pTrack, cParas,
+                wpf_pts_track_owned(pTrack), g_pts_fsp_pl_ok, g_pts_fsp_pl_gap,
+                (unsigned long)pthread_self(), dptid ? dptid->win_tid : 0ul);
+    }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;                  /* ← 本步**永不**返 0（返 0 ＝ 假成功） */
 }
 

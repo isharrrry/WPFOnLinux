@@ -31,7 +31,34 @@
 #   并**断言相等**（不等即 `rc=9` 停手 = 基底漂移），再把 `tool/dead/artifact/ops/impl`
 #   交给牙**现算对账**（不等即牙红 —— 那才是"数漂了"，与基底漂移是两回事，分开报）。
 # ══════════════════════════════════════════════════════════════════════════════════
-# PTSGAP-DECL: tool=82 dead=11 artifact=1 ops=70 impl=73 so16=ac002caa324a496f exports=677 w66pre16=bf6b683d94549087
+# PTSGAP-DECL: tool=82 dead=11 artifact=1 ops=70 impl=73 so16=04f6d354b0a71888 exports=677 w66pre16=bf6b683d94549087
+#   ⚠️ 波 `T-A33` 重锚（`TASK-0302` 增量：native「查询期文本行回填」`NATIVE-QUERY-PHASE-TEXT-LINE-BACKFILL`；
+#     `D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
+#     `src/WpfGfx.Linux.Native/src/win32_pts.c` 四处：
+#     **(甲) 行记录台账扩列**：`fl_line[]` 增 `pbr_in`／`pbr_out`（`pfnFormatLine` 的 `pbrlineIn`／
+#       `ppbrlineOut` **真返回值**；回填 `FSLINEDESCRIPTIONSINGLE.pfsbreakreclineclient` 所需的断行记录）。
+#     **(乙) 查询期回填**：`FsQueryTextDetails` 新增**成功分支** —— 认领到的本侧段对象若**台账可用**
+#       （`fl_ok ∧ fl_complete ∧ !fl_truncated ∧ fl_nlines>0`）⇒ 写 `FSTEXTDETAILS`（`fsktdFull`；
+#       `cLines`／`dcpFirst`／`dcpLim` 逐项取自台账）⇒ **返 0**；不满足 ⇒ 逐字保持**诚实拒绝**（出参一字不写）。
+#       同趟 `FsQueryLineListSingle`／`FsQueryLineListComposite`／`FsQueryLineCompositeElementList` 三入口
+#       也从台账**真填行盒/元素**（`cLines` 与台账自洽 ∧ 出参非空 ⇒ 返 0；否则诚实拒绝）。
+#     **(丙) `+176` 发调闸**（`WPF_PTS_QTP_INWIN`，缺省 `1`）：托管 `+176 CreateParaclient` 需
+#       `PtsHost._ptsContext != null`（只在格式窗内成立）⇒ 本侧**只在格式窗内**发调（`FsQueryTrackParaList`
+#       的查询期 `+176` 支与 `FsQueryTrackParaList` OOW 第三跳）—— 修本增量**新暴露**的不可捕 `FailFast`
+#       （后台分页路径，`app_rc=134`）。
+#     **(丁) 断页记录句柄地址永不复用**：`FsDestroyPage` 由 `free` 改为**摘表但不 free**（页对象内存一次性
+#       让渡）—— 断页记录句柄＝页对象字段地址（`&p->c_paras`）；`free` 后 `calloc` 复用地址会让两个
+#       `PageBreakRecord` 撞同一句柄 ⇒ 托管 `PtsContext.OnPageBreakRecordCreated` 的
+#       `Invariant.Assert("Break record already exists.")`（不可捕）⇒ `app_rc=134`（实测腿 `legs-tlb3`）。
+#     **导出面一字未动**（`exports=677` 不变，`nm -D --defined-only` 行数 == `exports.txt` 行数 == 677；
+#     逐名 `diff` 零差异）；不新增/不删除任何 `wpf_pts_gap(...)` stub ⇒ `tool=82`／`dead=11`／`artifact=1`／
+#     `ops=70`／`impl=73` 全未动，**只有 `so16` 跟权威件换**：`ac002caa324a496f→04f6d354b0a71888`。
+#     ⚠️ **计数未动 ≠ 能力未动**（件头第 ① 条同口径）：本增量把**查询期文本行模型**从"恒拒"推进为
+#       "按台账回填"；帧面成对读数（改前/反极性：占位 129792 px／`AE(content)=0`；改后：占位 **0** px／
+#       `AE(content)=203949`）见载体 `build/MilBridge/P1-tail2-backfill-impl-report.md`。
+#     ⚠️ **正文复述位本趟已随动**（`docs/ROUTES.md`／`README.md`／`docs/unimplemented.md`／
+#       `samples/WpfFeatureProbe/KNOWN-DEFECTS.md`／`build/MilBridge/HANDOFF-NEXT.md`／
+#       `src/WpfGfx.Linux.Native/src/win32_classification.c`）
 #   ⚠️ 波 `T-A28` 重锚（`TASK-0302` 增量：native 侧**驱动 `cbktxt.pfnFormatLine`**；`D-G70` 形态又一实例；
 #     **产品改动 ⇒ 在册数必须跟随权威件**）：
 #     `src/WpfGfx.Linux.Native/src/win32_pts.c` 新增（**不新增任何导出**）：
