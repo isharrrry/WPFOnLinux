@@ -289,6 +289,17 @@ typedef struct {
     int          sub_enum_rc136;    /* `+136`（首子段）的 fserr（-9999＝未调） */
     int          sub_enum_rc144;    /* `+144`（后继）的**末次** fserr（-9999＝未调） */
     const char  *sub_enum_v;        /* 判词 token（具名） */
+    /* ── ⏪ `T-A25`（`NATIVE-QUERY-PHASE-CONTENT-MODEL`）：**窗内为每个子段建的本侧对象** ────────
+       承 `T-A21` §5.3 设计（乙）＋（丙‑1）：`FsQuerySubtrackParaList` 的 `pfspara` 改交回**本侧
+       自有对象**（不是托管段句柄）⇒ 托管随后回问 `FsQuerySubtrackDetails(child_obj)` 时
+       `wpf_pts_sub_claim` **可认领**（今天是 `unclaimable-subtrack`）。每个对象在**窗内**递归
+       枚举它自己的子段序（`wpf_pts_sub_enum_into`）⇒ 回问时 `cParas` 是**真枚举计数**。
+       · `sub_child_objs[j]` 与 `sub_children[j]` **一一对应**（同一子段）；`NULL` ＝ 该子段的对象
+         **未建成**（表满）⇒ 交回时**拒绝**（**绝不**退回托管句柄 ⇒ 那正是要消掉的 `unclaimable-*`）。
+       · 持有期＝**托管对象生存期**（本侧对象的对偶）；销毁＝随 `dp->sub` 的树整体销毁。 */
+    wpf_pts_subtrack *sub_child_objs[WPF_PTS_SUB_CHILD_MAX];
+    int          sub_child_objs_n;      /* 已建子对象条数（本窗） */
+    int          sub_child_objs_fail;   /* 建对象失败（表满）条数 —— 失败必留痕 */
     /* ⏪ `T-A9`（S2）：**每 doc 只驱一窗**的记账位 —— 缺省路径下 `FsCreatePage*` 可能对同一 doc
        被调多次 ⇒ 无常驻位就会反复驱（且把有限预算耗在同 doc 上）。置位时机＝**已提交驱这一窗**
        （在首条回调之前），与"该窗是否成功"无关 ⇒ 每 doc 至多驱一次、不同 doc 各驱一次。 */
@@ -1337,9 +1348,21 @@ struct wpf_pts_subtrack_s {
     const void  *children[WPF_PTS_SUB_CHILD_MAX];
     const void  *child_clients[WPF_PTS_SUB_CHILD_MAX];
     int          child_clients_made;
+    /* ── ⏪ `T-A25`（本增量）：**本对象的每个子段各自的本侧对象** ──────────────────────────────
+       `child_objs[j]` 与 `children[j]` 一一对应：`FsQuerySubtrackParaList` 交回 `pfspara` 时
+       填的就是 `wpf_pts_sub_handle(child_objs[j])`（**本侧自有对象的字段地址**）⇒ 托管回问
+       `FsQuerySubtrackDetails`／`FsQueryTextDetails` 时可按**对象身份**认领。`NULL` ＝ 未建成。 */
+    struct wpf_pts_subtrack_s *child_objs[WPF_PTS_SUB_CHILD_MAX];
+    int          depth;                 /* 本对象在窗内建树里的深度（0＝`dp->sub` 的顶层容器） */
+    int          obj_no;                /* 台账序号（诊断用；与 `seq` 同源） */
 };
 #define WPF_PTS_SUB_MAGIC 0x57535054u     /* "WSPT" */
-#define WPF_PTS_SUB_MAX   16
+/* ⏪ `T-A25`：台账上限（窗内建树 ⇒ 一个容器对象 ＋ 每子段一个对象，**递归**）
+   ⇒ 从 16 提到 512（每对象约 0.8 KiB ⇒ 满表约 400 KiB）。表满 ⇒ `wpf_pts_sub_new` 返 NULL
+   ⇒ 调用方**拒绝交回**（具名 `no-child-object`），**绝不**退回托管句柄。 */
+#define WPF_PTS_SUB_MAX   512
+/* ⏪ `T-A25`：窗内递归枚举的**深度上界**（防失控；到界即**不再往下建对象**并具名计数）。 */
+#define WPF_PTS_SUB_MAX_DEPTH 8
 static wpf_pts_subtrack *g_pts_sub_live[WPF_PTS_SUB_MAX];
 static int g_pts_sub_live_n    = 0;
 static int g_pts_sub_created   = 0;
@@ -1359,14 +1382,21 @@ static wpf_pts_subtrack *wpf_pts_sub_new(const void *nmp, const void *client)
     if (!o) return NULL;
     o->magic = WPF_PTS_SUB_MAGIC; o->c_paras = 0; o->formatted = 0;
     o->nmp = nmp; o->pfsparaclient = client; o->seq = ++g_pts_sub_seq; o->live = 1;
+    o->obj_no = g_pts_sub_created + 1;
     g_pts_sub_live[g_pts_sub_live_n++] = o;
     g_pts_sub_created++;
     g_pts_hc_reading = 1;          /* ⏪ t172：台账一建即可读（此后再无"没取到"） */
     return o;
 }
+/* ⏪ `T-A25`：销毁口径扩为**整棵树**（先递归销毁子对象，再销毁自己）。
+   🔴 为什么必须递归：子对象是父对象**拥有**的（`child_objs[]`），父对象一没，子孙就再也无人回收
+      ⇒ 若不递归，注销后仍留在 `g_pts_sub_live[]` 里，是**活条目泄漏**（台账读数失真）。 */
 static void wpf_pts_sub_destroy(wpf_pts_subtrack *o)
 {
     if (!o || o->magic != WPF_PTS_SUB_MAGIC) return;
+    for (int k = 0; k < WPF_PTS_SUB_CHILD_MAX; k++) {
+        if (o->child_objs[k]) { wpf_pts_sub_destroy(o->child_objs[k]); o->child_objs[k] = NULL; }
+    }
     for (int i = 0; i < g_pts_sub_live_n; i++) {
         if (g_pts_sub_live[i] != o) continue;
         g_pts_sub_live[i] = g_pts_sub_live[--g_pts_sub_live_n];
@@ -1470,6 +1500,45 @@ int WpfLinuxWin32_PtsHandleReadingState(void)   { return g_pts_hc_reading; }   /
 int WpfLinuxWin32_PtsSubClaimOk(void)     { return g_pts_sub_claim_ok; }
 int WpfLinuxWin32_PtsSubClaimBad(void)    { return g_pts_sub_claim_bad; }
 int WpfLinuxWin32_PtsSubSelfTestMask(void){ return g_pts_sub_selftest_mask; }
+
+/* ── ⏪ `T-A25`（`NATIVE-QUERY-PHASE-CONTENT-MODEL`）：**子段对象（子树）谓词的判別力自检** ────────
+   本增量把 `FsQuerySubtrackParaList` 交回的 `pfspara` 从**托管段句柄**换成**本侧自有子段对象** ⇒
+   判据 D2 的两条"该红必红"必须由**同一谓词**判（照 `wpf_pts_sub_selftest`／`wpf_pts_prov_selftest` 形制）：
+     bit0 正腿：子对象的句柄**可**从台账认领（托管回问 `FsQuerySubtrackDetails(child)` 可过）；
+     bit1 **反腿（改前形态）**：**托管段句柄** `0x4` **不可**认领 ⇒ 正是改前 `unclaimable-subtrack` 的来源；
+     bit2 **反腿（`P8` 陷阱）**：`c_paras=1` 而**缺** `child_objs[0]` ⇒ 交回时**必须拒**（`no-child-object`），
+          **不得**退回托管句柄（退回就是"账面有内容、交出去没用"）；
+     bit3 销毁**递归**：销毁父对象 ⇒ 子对象也离册（不再可认领）⇒ 回收口径成立；
+     bit4 在册数**复原**（无泄漏）。 */
+static int g_pts_subtree_selftest_mask = -1;
+static int wpf_pts_subtree_selftest(void)
+{
+    int mask = 0;
+    const int live0 = g_pts_sub_live_n;
+    wpf_pts_subtrack *p = wpf_pts_sub_new((const void *)0x3, NULL);
+    wpf_pts_subtrack *c = wpf_pts_sub_new((const void *)0x4, NULL);
+    if (!p || !c) { if (p) wpf_pts_sub_destroy(p); if (c) wpf_pts_sub_destroy(c); return 0; }
+    /* 照**窗内建树**的口径建父子边：`child_objs[k]` 与 `children[k]` 一一对应 */
+    p->enum_ok = 1; p->formatted = 1; p->c_paras = 1;
+    p->children[0] = (const void *)0x4; p->child_objs[0] = c; c->depth = 1;
+    wpf_pts_subtrack *got = NULL;
+    if (wpf_pts_sub_claim(wpf_pts_sub_handle(c), &got) && got == c) mask |= 1;   /* bit0 正腿 */
+    if (!wpf_pts_sub_claim((const void *)0x4, NULL))               mask |= 2;   /* bit1 反腿：段句柄不可认领 */
+    p->child_objs[0] = NULL;                                                     /* bit2 反腿：缺子对象 */
+    { int missing = 0; for (int i = 0; i < p->c_paras; i++) if (!p->child_objs[i]) { missing = 1; break; }
+      if (missing) mask |= 4; }
+    p->child_objs[0] = c;                                                        /* 复原（供 bit3 用） */
+    wpf_pts_sub_destroy(p);
+    if (!wpf_pts_sub_claim(wpf_pts_sub_handle(c), NULL))           mask |= 8;   /* bit3 递归销毁 */
+    if (g_pts_sub_live_n == live0)                                 mask |= 16;  /* bit4 无泄漏 */
+    fprintf(stderr, "[SUBTREE-SELFTEST] mask=0x%02x child_claimable=%d stub_handle_rejected=%d "
+                    "missing_child_rejected=%d destroy_recursive=%d live_restored=%d live=%d created=%d "
+                    "v=%s（反极性两类必红：托管段句柄不可认领／缺子对象不得退回）\n",
+            mask, (mask & 1) ? 1 : 0, (mask & 2) ? 1 : 0, (mask & 4) ? 1 : 0,
+            (mask & 8) ? 1 : 0, (mask & 16) ? 1 : 0, g_pts_sub_live_n, g_pts_sub_created,
+            (mask == 0x1f) ? "SUBTREE-IDENTITY-OK(5/5)" : "SUBTREE-IDENTITY-DEFECT(see-mask)");
+    return mask;
+}
 
 /* ── ⏪ `T-A22`（`N1`：`PRECOND-NATIVE-CLAIMS-CALLBACK-HANDLES`）：**来源证据台账** ──────────────
    🎯 裁定四十七 (c)：身份判据**不得依赖 `rc`／数值形态**，须**独立可读的身份证据**。
@@ -1751,6 +1820,65 @@ static int g_pts_sub_enum_gap   = 0;
 static int g_pts_win_in_enum      = 0;
 static int g_pts_win_out_summary  = 0;
 static int g_pts_win_out_refused  = 0;
+/* ── ⏪ `T-A25`（`NATIVE-QUERY-PHASE-CONTENT-MODEL`）：**窗内递归建树**的成对计数 ────────────────
+   `g_pts_subtree_nodes` ＝ 本次建树创建的**对象总数**（含根）；`g_pts_subtree_fail` ＝ 因**表满／到界**
+   未建成的子对象数（**失败必留痕**，且交回时按 `no-child-object` 拒绝）。 */
+static int g_pts_subtree_nodes  = 0;
+static int g_pts_subtree_fail   = 0;
+static int g_pts_subtree_depthmax = 0;
+
+/* ⏪ `T-A25`：**把某个容器对象的子段序枚举出来**（窗内），填进 `obj`；并为每个子段建**本侧对象**、
+   递归下去（深度到 `WPF_PTS_SUB_MAX_DEPTH` 即停）。
+   🔴 口径（承 `wpf_pts_sub_enum`，一字不改）：① 只在窗内；② 计数只来自回调真返回；③ 穷尽才算成功
+      （`rc≠0`／超界／成环 ⇒ `enum_ok=0`，`c_paras` 保持 0）；④ 有界；⑤ 失败必留痕。
+   🔴 **为什么可以对本侧不能当 `ISegment` 的子段（`TextParagraph` 等）发调**：`PtsHost.GetFirstPara`
+      /`GetNextPara` 把整个体包在 `try/catch` 里（`as ISegment` 落空 ⇒ `ValidateHandle(null)` ⇒
+      **普通异常** ⇒ 捕 ⇒ `fserrCallbackException(-100002)`），**不碰** `HandleToObject` 的
+      `Invariant.Assert` ⇒ **可捕获、无 `FailFast`**（`PtsHost.cs:586-612/:613-…` 现取）。 */
+static int wpf_pts_sub_enum_into(wpf_pts_doc *d, const void *container, wpf_pts_subtrack *obj,
+                                 const char *where, int depth)
+{
+    if (!obj) return 0;
+    obj->depth = depth;
+    obj->nmp   = container;
+    obj->enum_ok = 0; obj->c_paras = 0; obj->formatted = 0;
+    const void *fp136 = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_GETFIRSTPARA);
+    const void *fp144 = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_GETNEXTPARA);
+    if (!container || !fp136 || !fp144) return 0;
+    int n = 0; const void *first = NULL;
+    int fSucc = -1; void *nmp = NULL;
+    int rc136 = ((wpf_pts_fn_get_first_para)fp136)((const void *)d->p_fsclient, container, &fSucc, &nmp);
+    if (rc136 != 0) return 0;
+    if (fSucc == 0 || !nmp) { obj->enum_ok = 1; obj->c_paras = 0; obj->formatted = 1; return 1; }
+    first = (const void *)nmp;
+    obj->children[n++] = first;
+    while (1) {
+        int fFound = -1; void *nx = NULL;
+        if (n >= WPF_PTS_SUB_CHILD_MAX) return 0;          /* 超界 ⇒ **不成**（不许给 cParas） */
+        int rc144 = ((wpf_pts_fn_get_next_para)fp144)((const void *)d->p_fsclient, container,
+                                                      (const void *)obj->children[n - 1], &fFound, &nx);
+        if (rc144 != 0) return 0;
+        if (fFound == 0 || !nx) break;                      /* 穷尽 ⇒ 计数可信 */
+        {   int dup = 0;
+            for (int j = 0; j < n; j++) if (obj->children[j] == (const void *)nx) { dup = 1; break; }
+            if (dup) return 0;
+        }
+        obj->children[n++] = (const void *)nx;
+    }
+    obj->enum_ok = 1; obj->c_paras = n; obj->formatted = 1;
+    if (depth > g_pts_subtree_depthmax) g_pts_subtree_depthmax = depth;
+    if (depth >= WPF_PTS_SUB_MAX_DEPTH) return 1;           /* 到界 ⇒ **不再往下建**（本层计数仍有效） */
+    for (int k = 0; k < n; k++) {
+        wpf_pts_subtrack *co = wpf_pts_sub_new(obj->children[k], NULL);
+        if (!co) { g_pts_subtree_fail++; obj->child_objs[k] = NULL; continue; }
+        obj->child_objs[k] = co;
+        g_pts_subtree_nodes++;
+        wpf_pts_sub_enum_into(d, obj->children[k], co, where, depth + 1);
+    }
+    (void)first;
+    return 1;
+}
+
 static void wpf_pts_sub_enum(wpf_pts_doc *d, const void *container, const char *where)
 {
     g_pts_sub_enum_calls++;
@@ -1802,6 +1930,32 @@ out:
     if (d->sub_enum_ok && d->sub_cparas > 0) {
         for (int j = 0; j < d->sub_cparas && j < WPF_PTS_SUB_CHILD_MAX; j++)
             wpf_pts_prov_register((const void *)d, d->sub_children[j], 'S', where, j, d->prov_gen);
+    }
+    /* ── ⏪ `T-A25`（`NATIVE-QUERY-PHASE-CONTENT-MODEL`）：**窗内建子树**（每个子段一个本侧对象）──
+       · 只在 `d->sub_enum_ok && d->sub_cparas > 0` 时建（枚举成功才有可信的子段序）；
+       · 每个子段对象由 `wpf_pts_sub_enum_into` **递归**填入它自己的子段序（`TextParagraph` 之类
+         非 `ISegment` ⇒ `+136` 返 `-100002` ⇒ `enum_ok=0`；若托管回问 `FsQuerySubtrackDetails`
+         则按 `no-layout-content-model` **诚实拒绝**，若回问 `FsQueryTextDetails` 则按
+         `no-text-line-model` **诚实拒绝**）；
+       · `d->sub_child_objs_n == 0` 才建（本 doc 只驱一窗 ⇒ 不会覆盖；见 `drive_done`）；
+       · **失败必留痕**：`fail=` 给出建不成的子对象数（表满）。 */
+    if (d->sub_enum_ok && d->sub_cparas > 0 && d->sub_child_objs_n == 0) {
+        d->sub_child_objs_fail = 0;
+        for (int j = 0; j < d->sub_cparas && j < WPF_PTS_SUB_CHILD_MAX; j++) {
+            wpf_pts_subtrack *co = wpf_pts_sub_new(d->sub_children[j], NULL);
+            if (!co) { d->sub_child_objs_fail++; g_pts_subtree_fail++; continue; }
+            d->sub_child_objs[j] = co;
+            g_pts_subtree_nodes++;
+            wpf_pts_sub_enum_into(d, d->sub_children[j], co, where, 1);
+        }
+        d->sub_child_objs_n = d->sub_cparas;
+        fprintf(stderr, "[SUBTREE] where=%s root=%p n_children=%d child_objs=%d fail=%d nodes_total=%d "
+                        "depth_max=%d live=%d created=%d depth_lim=%d v=%s\n",
+                where, container, d->sub_cparas, d->sub_child_objs_n, d->sub_child_objs_fail,
+                g_pts_subtree_nodes, g_pts_subtree_depthmax, g_pts_sub_live_n, g_pts_sub_created,
+                WPF_PTS_SUB_MAX_DEPTH,
+                (d->sub_child_objs_fail == 0) ? "IN-WINDOW-SUBTREE-BUILT"
+                                              : "IN-WINDOW-SUBTREE-PARTIAL(table-full)");
     }
     if (d->sub_enum_ok) g_pts_sub_enum_ok_c++; else g_pts_sub_enum_gap++;
     /* 失败必留痕（具名 ＋ 计数；**不静默**）：`cParas` 的源是否成立，看这一行的 `ok=`／`v=`。 */
@@ -2210,6 +2364,9 @@ static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *wh
     /* ⏪ `T-A22`（`N1`）：**来源证据认领谓词**的自检（每进程一次）—— 正腿 ＋ 三条反极性必红
        （`wrong-object`／`ABA`／`stale-gen`）。⚠️ 本行只证明**谓词的判别力**，不参与任何主链认领。 */
     if (g_pts_prov_selftest_mask < 0) g_pts_prov_selftest_mask = wpf_pts_prov_selftest();
+    /* ⏪ `T-A25`：**子段对象（子树）谓词**的自检（每进程一次）—— 正腿 ＋ 两条反极性必红
+       （托管段句柄不可认领／缺子对象不得退回托管句柄）。 */
+    if (g_pts_subtree_selftest_mask < 0) g_pts_subtree_selftest_mask = wpf_pts_subtree_selftest();
     fprintf(stderr, "[DRIVE-PROBE-ENTER] where=%s nms=%p pfsclient=%p slot56=%p slot80=%p fake=%d "
                     "t3mode=%d window=%d n=%d\n",
             where, nms, pfsclient, fp56, fp80, WPF_PTS_DRIVE_PROBE_FAKE_NMS, t3mode, g_pts_dp_calls, wpf_pts_drive_probe_n());
@@ -2559,9 +2716,18 @@ int DestroyDocContext(void *pfscontext)
         if (g_pts_doc_live[i]->sub) {                          /* ⏪ `t162` 销毁口径：**只有本侧**
                                                                   销毁自有子轨对象（窗口内绝不销毁、
                                                                   填进列表后不销毁） */
-            wpf_pts_sub_destroy(g_pts_doc_live[i]->sub);
+            wpf_pts_sub_destroy(g_pts_doc_live[i]->sub);       /* ⏪ `T-A25`：**递归**销毁整棵子树 */
             g_pts_doc_live[i]->sub = NULL;
         }
+        /* ⏪ `T-A25`：若本窗建的**子段对象**还没被过继给 `dp->sub`（例如该 doc 没有走到
+           `FsQueryTrackParaList` 的填充点）⇒ 在此**顺手回收**（否则是活条目泄漏）。 */
+        for (int _k = 0; _k < WPF_PTS_SUB_CHILD_MAX; _k++) {
+            if (g_pts_doc_live[i]->sub_child_objs[_k]) {
+                wpf_pts_sub_destroy(g_pts_doc_live[i]->sub_child_objs[_k]);
+                g_pts_doc_live[i]->sub_child_objs[_k] = NULL;
+            }
+        }
+        g_pts_doc_live[i]->sub_child_objs_n = 0;
         /* ⏪ `T-A22`（`N1`）：该 doc 名下的**来源证据**随 doc 注销**整体失效**（持有期＝托管对象
            生存期的 native 对偶：上下文一没，来源事实就无从核验 ⇒ 此后任何同值入参**必被拒**）。 */
         wpf_pts_prov_retire((const void *)g_pts_doc_live[i], 0, "doc-destroyed");
@@ -4479,6 +4645,16 @@ int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgPar
                                 dp->sub->formatted = 1;
                                 for (int k = 0; k < dp->sub_cparas && k < WPF_PTS_SUB_CHILD_MAX; k++)
                                     dp->sub->children[k] = dp->sub_children[k];
+                                /* ⏪ `T-A25`：把**窗内为每个子段建的**本侧对象**过继到 `dp->sub`
+                                   （`child_objs[k]` 与 `children[k]` 一一对应）⇒ 托管回问
+                                   `FsQuerySubtrackDetails`／`FsQueryTextDetails` 时可按**对象身份**认领。
+                                   **所有权转移**：过继后 `d->sub_child_objs[k]=NULL` ⇒ 只由
+                                   `wpf_pts_sub_destroy(dp->sub)` 的递归回收（**不双销**）。 */
+                                for (int k = 0; k < dp->sub_cparas && k < WPF_PTS_SUB_CHILD_MAX; k++) {
+                                    dp->sub->child_objs[k] = dp->sub_child_objs[k];
+                                    dp->sub_child_objs[k] = NULL;
+                                }
+                                dp->sub_child_objs_n = 0;
                             }
                         }
                     } else {
@@ -4840,6 +5016,13 @@ int FsQuerySubtrackParaList(void *pfscontext, void *pSubTrack, int cParas,
            ⇒ **拒填**（出参一字不写 ＋ 具名 `reason`；成功路径逐字不变）。 */
         else if (WPF_PTS_DRIVEPROBE_OOW_LIVE_GUARD && !dp->drive_handles_live)  reason = "drive-handles-released(page-destroyed)";
         else {
+            /* ⏪ `T-A25`：**每个子段必须已有本侧对象**（窗内建树时建 ⇒ 补其缺失）——缺失 ⇒ **拒绝整个填充**
+               （**绝不**退回托管段句柄 ⇒ 那正是要消掉的 `unclaimable-*`；也**绝不**伪造指针）。 */
+            int missing = 0;
+            for (int i = 0; i < cParas && i < WPF_PTS_SUB_CHILD_MAX; i++)
+                if (!obj->child_objs[i]) { missing = 1; break; }
+            if (missing) reason = "no-child-object";
+            else {
             /* 客户端：**只造缺的那些**（跨调用复用 ⇒ 不重复造／不泄漏／不换手） */
             for (int i = obj->child_clients_made; i < cParas; i++) {
                 void *h = NULL;
@@ -4854,13 +5037,18 @@ int FsQuerySubtrackParaList(void *pfscontext, void *pSubTrack, int cParas,
                 wpf_pts_prov_register((const void *)dp, (const void *)h, 'C',
                                       "+176.CreateParaclient@FsQuerySubtrackParaList", i, dp->prov_gen);
             }
+            }
         }
     }
     if (!reason) {
         wpf_pts_fsparadesc *rg = (wpf_pts_fsparadesc *)rgParaDesc;
         for (int i = 0; i < cParas; i++) {
             memset((void *)&rg[i], 0, sizeof(rg[i]));  /* 先清零再逐字段写（未初始化内存不交上级） */
-            rg[i].pfspara       = (void *)obj->children[i];       /* 窗内枚举出的子段句柄 */
+            /* ⏪ `T-A25`（`NATIVE-QUERY-PHASE-CONTENT-MODEL`）：`pfspara` 改交回**本侧自有的子段对象**
+               （句柄＝该对象内 `c_paras` 字段的地址，承 `FsQueryTrackDetails` 范式）——**不是**托管段句柄。
+               托管随后把它当 `_paraHandle` 回问 `FsQuerySubtrackDetails`／`FsQueryTextDetails` 时，
+               `wpf_pts_sub_claim` 按**对象身份**认领（改前这里是托管段句柄 `0x4` ⇒ `unclaimable-*`）。 */
+            rg[i].pfspara       = (void *)wpf_pts_sub_handle(obj->child_objs[i]);
             rg[i].pfsparaclient = (void *)obj->child_clients[i];  /* 本 run `+176` 真返回 */
             rg[i].nmp           = (void *)obj->children[i];
             /* ⏪ `T-A22`（`N1`）：**本侧真把该段句柄交出去过**（写进 `FSPARADESCRIPTION.pfspara`）
