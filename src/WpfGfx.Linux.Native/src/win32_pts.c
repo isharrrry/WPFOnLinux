@@ -361,6 +361,8 @@ static int wpf_pts_ctx_is_live(const wpf_pts_doc *d);   /* ⏪ t156：该 doc �
 static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *where);
 /* ⏪ `T-A37`：内容排版驱动的运行期闸（定义见 `wpf_pts_qtp_create_safe` 之后）。 */
 static int wpf_pts_att_content_gate(void);
+/* ⏪ `T-A52`：Floater 内容排版驱动的运行期闸（缺省关；定义在 `wpf_pts_att_content_gate` 之后）。 */
+static int wpf_pts_floater_cbk_gate(void);
 /* ⏪ `t127`：字段级诚实性的判据助手（定义在页表可见之后）——本处先给声明。 */
 static int wpf_pts_track_owned(const void *track);
 
@@ -982,6 +984,39 @@ typedef int (*wpf_pts_fn_get_figure_properties)(
     int f_in_text_line, unsigned int fswdir, int f_bottom_undefined,
     int *dur, int *dvr, void *fsfigprops, int *c_polygons, int *c_vertices,
     int *dur_dist_text_left, int *dur_dist_text_right, int *dvr_dist_text_top, int *dvr_dist_text_bottom);
+/* ── ⏪ `T-A52`（`NATIVE-PTS-FLOATERCBK`）：附属对象**内容排版表**（`FSFLOATERCBK`）的**唯一形状/偏移定义处** ──
+   上游声明（`upstream/…/PtsHost/Pts.cs:1028`，`FSCBKOBJ` 同族；`StructLayout.Sequential`，指针宽 8）：
+     · `FSFLOATERCBK` 16 槽（`Pts.cs:1028-1046`）；槽序逐字：`0 pfnGetFloaterProperties`／
+       `1 pfnFormatFloaterContentFinite`／`2 pfnFormatFloaterContentBottomless`／`3 pfnUpdateBottomlessFloaterContent`／…
+     · `FSFLOATERINIT`（`Pts.cs:1074`）＝ `{ FSFLOATERCBK fsfloatercbk; }`（**只此一字段**）。
+   该表由托管在 `PTS.GetFloaterHandlerInfo(ref FSFLOATERINIT, pObjectInfo)`（`Pts.cs:3065`，调用点
+     `PtsCache.cs:259`／现取生成件 `PtsCache.Linux.cs:345`）里交出 —— `InitFloaterObjInfo`
+     （`PtsCache.Linux.cs:823-838` 逐槽赋 `ptsHost.FormatFloaterContent*`）⇒ 本侧在
+     `GetFloaterHandlerInfo` 里**只读捕获函数指针值**（同 `pfnFormatLine` 体例：**不 deref** 托管结构）。
+   驱动入口 `FloaterParagraphId`（`PtsHost.cs:81`）＝ `SubpageParagraphId + 1`；现取本移植 = **2**
+     （见 `[FSATT-PROBE] … att0_id=2`，与 `PtsHost.FloaterParagraphId` 同值）。 */
+#define WPF_PTS_FLOATERCBK_SLOTS          16
+#define WPF_PTS_FLOATER_ID                2
+#define WPF_PTS_FLOATER_IDX_FMT_FINITE    1
+/* 发调 `pfnFormatFloaterContentFinite` 时的**可用空间**（＝ `durAvailable`／`dvrAvailable`）。
+   取本侧附属对象几何约定（`T-A36`：`WPF_PTS_ATT_FLO_DU/DV`，285×100 DIP）**同值** —— 该约定的
+   定义处在本文件更下方，此处先落一组同名值以免前置声明次序问题（两处数值必须一致）。 */
+#define WPF_PTS_FLOATER_AVAIL_DU          85500
+#define WPF_PTS_FLOATER_AVAIL_DV          30000
+typedef int (*wpf_pts_fn_get_object_handler_info)(const void *pfsclient, int idobj, void *pobjectinfo);
+/* `pfnFormatFloaterContentFinite` 的 C 侧原型（照 `Pts.cs:2581-2603` 逐参）。
+   `FSFMTR` ＝ 3×int ＝ 12 B；`FSBBOX` ＝ `FSRECT(4×int)` ＋ `int fDefined` ＝ 20 B（`Pts.cs` 同族）；出参一律指针。 */
+typedef int (*wpf_pts_fn_format_floater_content_finite)(
+    const void *pfsclient, const void *pfsparaclient, const void *pfsbrk_in, int f_br_from_prev,
+    const void *nmfloater, const void *pftnrej, int f_empty_ok, int f_suppress_top_space,
+    unsigned int fswdir, int f_at_max_width, int dur_available, int dvr_available, int fsksuppress,
+    void *fsfmtr_out, void **pfsbrk_content_out, void **pbrkrecpara_out,
+    int *dur_floater_width, int *dvr_floater_height, void *fsbbox_out,
+    int *c_polygons, int *c_vertices);
+/* `GetFloaterHandlerInfo` 的**只读捕获位**（本侧持有最近一次交出的托管回调表；同 `pfnFormatLine` 体例）。 */
+static const void *g_pts_floater_cbk[WPF_PTS_FLOATERCBK_SLOTS];
+static int g_pts_floater_cbk_ok = 0, g_pts_floater_cbk_gap = 0;
+static int g_pts_floater_drv_calls = 0, g_pts_floater_drv_ok = 0, g_pts_floater_drv_gap = 0;
 /* 预言的空槽（**由托管侧源码**得来：`cbkobj` 的前三槽与整个 `cbkwrd` 声明为 `IntPtr` 且**未赋值**）
    ⇒ 只读回读若在这些绝对偏移上读到非 0，说明偏移（或对齐/顺序）**另有其事** ⇒ 指纹判 FAIL。 */
 #define WPF_PTS_NULL_PRED_CBKOBJ_LEAD 3
@@ -2413,6 +2448,10 @@ static int wpf_pts_format_one_para(wpf_pts_doc *d, wpf_pts_subtrack *leaf,
             const void *fpNum = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_GETNUMATTACHLINE);
             const void *fpObj = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_GETATTACHLINE);
             const void *fpFigProps = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_GETFIGUREPROPERTIES);
+            /* ⏪ `T-A52`：`pfnGetObjectHandlerInfo`（`Pts.cs:659`，`cbkobj` 第 8 槽／快照下标 70）——
+               本增量用它**按对象身份**向托管索取 Floater 的 handler（`idobj==FloaterParagraphId`）
+               ⇒ 托管转调 `GetFloaterHandlerInfo` ⇒ 本侧捕获 `FSFLOATERCBK`（后续发调源）。 */
+            const void *fpObjHandler = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_GETOBJHANDLERINFO);
             /* ⏪ `T-A37`：内容排版**只在 Finite 页窗**驱动 —— 托管 `FigureParagraph.GetFigureProperties`
                第 113 行有 `Invariant.Assert(StructuralCache.CurrentFormatContext.FinitePage)`（不可捕获
                `FailFast`）⇒ 在 Bottomless 窗发调必 abort。`where` 即窗名（唯一来源）。 */
@@ -2478,6 +2517,62 @@ static int wpf_pts_format_one_para(wpf_pts_doc *d, wpf_pts_subtrack *leaf,
                                           : (rcf == 0) ? "RC0-NO-SUBPAGE"
                                           : (rcf == -100002) ? "CALLBACK-ERR(-100002)"
                                           : (rcf == -10000) ? "NOT-IMPLEMENTED" : "OTHER");
+                            }
+                            /* ── ⏪ `T-A52`（`NATIVE-PTS-FLOATERCBK`）：**驱动 Floater 内容排版** ──────────
+                               `+176` 造出 `FloaterParaClient` 之后，**同窗内**：① 调 `pfnGetObjectHandlerInfo`
+                               （`idobj == FloaterParagraphId`）⇒ 托管转调 `GetFloaterHandlerInfo` ⇒ 本侧捕获
+                               `FSFLOATERCBK`；② 调 `pfnFormatFloaterContentFinite`（槽 1）—— 该回调内
+                               `FloaterParagraph.CreateSubpageFiniteHelper` **无条件**
+                               `PTS.Validate(PTS.FsCreateSubpageFinite(...))`（`FloaterParagraph.cs:237/287`），
+                               本侧由 `FsCreateSubpageFinite` 真造内容子页并把句柄交回（托管置
+                               `FloaterParaClient.SubpageHandle` ⇒ `_paraHandle`）。
+                               **零假值**：`rch≠0` 或槽 1 空 ⇒ **不发调**（具名留痕）；`rc≠0` ⇒ **不记子页**。 */
+                            else if (rcf_enabled && wpf_pts_floater_cbk_gate() && rco == 0 && oc && win_finite &&
+                                     idobjs[a] == WPF_PTS_FLOATER_ID && fpObjHandler) {
+                                g_pts_floater_drv_calls++;
+                                unsigned char objinfo[WPF_PTS_FLOATERCBK_SLOTS * 8];
+                                memset(objinfo, 0, sizeof(objinfo));
+                                int rch = ((wpf_pts_fn_get_object_handler_info)fpObjHandler)(
+                                    (const void *)d->p_fsclient, WPF_PTS_FLOATER_ID, (void *)objinfo);
+                                int rcf2 = -9999;
+                                if (rch == 0 && g_pts_floater_cbk[WPF_PTS_FLOATER_IDX_FMT_FINITE]) {
+                                    const int sp_before = g_pts_sp_created;
+                                    int fsfmtr[3] = { 0, 0, 0 };
+                                    unsigned char fsbbox[20];
+                                    void *pfsc = NULL, *pbrk = NULL;
+                                    int durw = 0, dvrh = 0, cpoly = 0, cvert = 0;
+                                    memset(fsbbox, 0, sizeof(fsbbox));
+                                    rcf2 = ((wpf_pts_fn_format_floater_content_finite)
+                                            g_pts_floater_cbk[WPF_PTS_FLOATER_IDX_FMT_FINITE])(
+                                        (const void *)d->p_fsclient, (const void *)oc, NULL, 0,
+                                        (const void *)objs[a], NULL, 1 /*fEmptyOk*/, 0 /*fSuppressTopSpace*/,
+                                        0u /*fswdir*/, 1 /*fAtMaxWidth*/, WPF_PTS_FLOATER_AVAIL_DU, WPF_PTS_FLOATER_AVAIL_DV,
+                                        0 /*fsksuppress*/, (void *)fsfmtr, &pfsc, &pbrk,
+                                        &durw, &dvrh, (void *)fsbbox, &cpoly, &cvert);
+                                    leaf->fl_att[slot].content_rc = rcf2;
+                                    if (g_pts_sp_created > sp_before && g_pts_sp_live_n > 0)
+                                        leaf->fl_att[slot].sub_obj = g_pts_sp_live[g_pts_sp_live_n - 1];
+                                    if (rcf2 == 0 && leaf->fl_att[slot].sub_obj) g_pts_floater_drv_ok++;
+                                    else g_pts_floater_drv_gap++;
+                                    fprintf(stderr, "[FSFLOATER-CONTENT] where=%s floater=%p client=%p "
+                                                    "rch=%d rc=%d kstop=%d durW=%d dvrH=%d cPoly=%d cVert=%d "
+                                                    "pfsFloatContent=%p subpage=%p sp_created=%d v=%s\n",
+                                            where, (void *)objs[a], oc, rch, rcf2, fsfmtr[0], durw, dvrh,
+                                            cpoly, cvert, pfsc,
+                                            (void *)(leaf->fl_att[slot].sub_obj
+                                                     ? wpf_pts_sp_handle(leaf->fl_att[slot].sub_obj) : NULL),
+                                            g_pts_sp_created,
+                                            (rcf2 == 0 && leaf->fl_att[slot].sub_obj) ? "SUBPAGE-CREATED"
+                                              : (rcf2 == 0) ? "RC0-NO-SUBPAGE"
+                                              : (rcf2 == -100002) ? "CALLBACK-ERR(-100002)"
+                                              : (rcf2 == -10000) ? "NOT-IMPLEMENTED" : "OTHER");
+                                } else {
+                                    g_pts_floater_drv_gap++;
+                                    fprintf(stderr, "[FSFLOATER-CONTENT] where=%s floater=%p client=%p "
+                                                    "rch=%d rc=%d v=%s\n",
+                                            where, (void *)objs[a], oc, rch, rcf2,
+                                            (rch != 0) ? "HANDLER-ERR" : "NO-CBK");
+                                }
                             }
                         } else if (objs[a]) {
                             leaf->fl_att[slot].obj_rc = -7777;   /* 窗外 ⇒ 拒发（具名；不撞 FailFast） */
@@ -2666,6 +2761,28 @@ static int wpf_pts_att_content_gate(void)
     if (cached < 0) {
         const char *e = getenv("WPF_PTS_ATT_CONTENT");
         cached = e ? atoi(e) : WPF_PTS_ATT_CONTENT_DEFAULT;
+    }
+    return cached;
+}
+/* ── ⏪ `T-A52`（`NATIVE-PTS-FLOATERCBK`）：Floater **内容排版驱动**的运行期闸（缺省 **关**）──────────────
+   🔴 **为什么缺省关是现场读数逼出来的**（不是保守）：
+     Floater（`<Floater>`）的内容在本页是一个 `<Table>`（`LightGoldenrodYellow` ＝ 其 `<TableRow Background>`）。
+     一旦驱动 `pfnFormatFloaterContentFinite` 把内容子页真造出，托管 `FloaterParaClient.ValidateVisual`
+     ⇒ `PtsHelper.UpdateTrackVisuals` **会下到 Table 段落** ⇒ `TableParaClient.QueryTableDetails`
+     ⇒ `PTS.FsQueryTableObjDetails`（本移植**未导出**）⇒ `EntryPointNotFoundException`（**不可捕**）
+     ⇒ `FlowDocumentView.ArrangeOverride` 抛（现取 `[FSVIEW] … outcome=exception type=System.EntryPointNotFoundException`）
+     ⇒ 整页**空白**（现取 `k24 colors 905→383`、`fr_sha 791696291d51470b→ef3fd6765f18f51b`（空态参照成员）、
+     `[HC-UNHANDLED] 0→392`）。⇒ 该驱动**只在** Table 族落地后才准缺省开（下一增量 `NATIVE-PTS-TABLEOBJ`）。
+   闸：显式 `WPF_PTS_FLOATER_CBK=1` ⇒ 开（供**前沿取证腿**用）；缺省 `0` ⇒ 关（缺省路径零变化）。 */
+#ifndef WPF_PTS_FLOATER_CBK_DEFAULT
+#define WPF_PTS_FLOATER_CBK_DEFAULT 0
+#endif
+static int wpf_pts_floater_cbk_gate(void)
+{
+    static int cached = -1;
+    if (cached < 0) {
+        const char *e = getenv("WPF_PTS_FLOATER_CBK");
+        cached = e ? atoi(e) : WPF_PTS_FLOATER_CBK_DEFAULT;
     }
     return cached;
 }
@@ -3455,11 +3572,38 @@ int DestroyDocContext(void *pfscontext)
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
 
+// ── ⏪ `T-A52`（`NATIVE-PTS-FLOATERCBK`）：`GetFloaterHandlerInfo` 由**具名 GAP** 升为**真实现** ─────────
+//   上游语义（`Pts.cs:3065`；调用链 `PtsHost.GetObjectHandlerInfo`（`PtsHost.cs:1092`，`idobj==FloaterParagraphId`）
+//     → `PtsCache.GetFloaterHandlerInfoCore`（`:248`）→ `PTS.GetFloaterHandlerInfo(ref FloaterInit, pobjectinfo)`）：
+//     托管把 `FSFLOATERINIT.fsfloatercbk`（16 个**已赋值的**托管回调）逐槽交给 native 的 `pObjectInfo`。
+//   🔴 **本实现的诚实形态**：入参 `pfsfloaterinit` 即 `FSFLOATERINIT*`（**唯一**字段 ＝ `FSFLOATERCBK`，128 B）
+//      ⇒ 逐槽**只读捕获函数指针值**（**不 deref** 托管结构；同 `pfnFormatLine` 体例）到本侧持有位
+//      `g_pts_floater_cbk[]`（后续 `pfnFormatFloaterContentFinite` 的发调源）；出参 `pFloaterObjectInfo`
+//      非空时**逐槽原样转写**（真实语义：native 对象信息 ＝ 该回调表），为空则只捕获（**不越界写**）。
+//   **零假值 / 永不假成功**：`pfsfloaterinit == NULL` ⇒ **拒**（返 `-10000` ＋ 具名 `[FS_PAGE_GAP]`，出参一字不写）。
 int GetFloaterHandlerInfo(const void *pfsfloaterinit, void *pFloaterObjectInfo)
 {
-    (void)pfsfloaterinit;
-    (void)pFloaterObjectInfo;
-    return wpf_pts_gap("GetFloaterHandlerInfo");
+    if (!pfsfloaterinit) {
+        g_pts_floater_cbk_gap++;
+        fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=null-init entry=GetFloaterHandlerInfo init=%p out=%p "
+                        "out=UNWRITTEN bytes=0\n",
+                WPF_PTS_ERR_NOT_IMPLEMENTED, pfsfloaterinit, pFloaterObjectInfo);
+        return WPF_PTS_ERR_NOT_IMPLEMENTED;
+    }
+    const void *const *src = (const void *const *)pfsfloaterinit;
+    if (pFloaterObjectInfo) {
+        const void **dst = (const void **)pFloaterObjectInfo;
+        for (int i = 0; i < WPF_PTS_FLOATERCBK_SLOTS; i++) dst[i] = src[i];
+    }
+    for (int i = 0; i < WPF_PTS_FLOATERCBK_SLOTS; i++) g_pts_floater_cbk[i] = src[i];
+    g_pts_floater_cbk_ok++;
+    fprintf(stderr, "[FSFLOATER-CBK] rc=0 entry=GetFloaterHandlerInfo init=%p out=%p slots=%d "
+                    "fmtFinite=%p fmtBottomless=%p out=%s bytes=%d src=managed-FSFLOATERINIT\n",
+            pfsfloaterinit, pFloaterObjectInfo, WPF_PTS_FLOATERCBK_SLOTS,
+            g_pts_floater_cbk[WPF_PTS_FLOATER_IDX_FMT_FINITE], g_pts_floater_cbk[2],
+            pFloaterObjectInfo ? "WRITTEN" : "skipped(null-out)",
+            pFloaterObjectInfo ? (int)(WPF_PTS_FLOATERCBK_SLOTS * (int)sizeof(void *)) : 0);
+    return 0;
 }
 
 int GetTableObjHandlerInfo(const void *pfstableobjinit, void *pTableObjectInfo)
@@ -7070,7 +7214,7 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
        ② 出口断言"登记表回到 base"（新增格 `83`，见报告块）—— 把"不带泄漏"这件事**变成可证伪的断言**。 */
     int base = g_pts_loc_live_n;
 
-    char sb[64] = { 0 }, sp[64] = { 0 };
+    char sb[256] = { 0 }, sp[256] = { 0 };
     void *p1 = NULL; int c1 = 0;   /* 格1：真实现 ⇒ 期望被填成 **非空** 且表长 2 */
     void *p2 = (void *)0x2;
     // 【`#66` W158A 修订】3 个新入口**各自一个先被投毒的出参**：否则链条走到这里时 `p1`
@@ -7123,7 +7267,14 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
     else if (CreateDocContext(NULL, &p2) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 35;       /* `NULL` 入参必被拒 */
     else if (p2 != NULL) rc = 36;                                                       /*   且出参清空（不许留残留） */
     else if (CreateDocContext(sb, NULL) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 37;        /* 空出参必被拒（不许"写空也算成功"） */
-    else if (GetFloaterHandlerInfo(sb, sp) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 7;
+    /* ⏪ `T-A52`：`GetFloaterHandlerInfo` 已由**具名缺口 stub** 升为**真实现**
+          ⇒ 旧断言（`GetFloaterHandlerInfo(sb, sp)` 必须返 `-10000`）**必须跟着改**
+          （不改就是自检恒红），且**不是**把断言删掉：改成**成对断言**——
+          `NULL` init 必被拒（返 `-10000`）／有效 init、空 out ⇒ 真实现**必须成功**（返 0）。
+          ⚠️ `sb`／`sp` 同趟由 64 B 加到 256 B：真实现按契约读 `FSFLOATERINIT`（16×8＝128 B）
+          ⇒ 旧 64 B 夹具上那次调用**越界**（本步顺手堵掉）。 */
+    else if (GetFloaterHandlerInfo(NULL, sp) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 7;
+    else if (GetFloaterHandlerInfo(sb, NULL) != 0) rc = 72;
     else if (GetTableObjHandlerInfo(sb, sp) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 8;
     /* ── 格 2：三参形 · 必须**成功** ─────────────────────────────────────────── */
     else if (LoCreateContext(sb, sp, &loc) != 0) rc = 11;                              /* 真实现 ⇒ 0 */
@@ -7203,8 +7354,9 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
                 /* ⏪ `t97`／W8-2：`LoAcquirePenaltyModule` 已由**诚实缺口 stub** 变成**真实现**
                       ⇒ 本链里"它必须返 -10000 且清出参"那两条断言**必须跟着改**（不改就是自检恒红），
                       且**不是**把断言删掉：它改成**格 4 的成对断言**（见 `g_pts_selfcheck_f4_binding()`）。
-                      四条 stub 断言（`CreateDocContext`／`DestroyDocContext`／`GetFloater*`／`GetTableObj*`）
-                      与**仍属 stub 的** `LoGetPenaltyModuleInternalHandle` 一字未动。 */
+                      四条 stub 断言里的三条（`CreateDocContext`／`DestroyDocContext`／`GetTableObj*`）
+                      与**仍属 stub 的** `LoGetPenaltyModuleInternalHandle` 一字未动；
+                      `GetFloater*` 那条已由 `T-A52` 同趟改成成对断言（见下）。 */
                 /* ⚠️ 本条**要有一次真调用**（本趟实测的坑）：只写"投毒值必须已被改写"是**恒假**的
                       —— 没有任何一次调用，`q2` 就**还是**毒值 `0x34` ⇒ 自检当场报 `diag=14`
                       （那不是实现坏、是**断言写成了恒假**）。正确形制＝**先真调用（成功）**→ 断言出参

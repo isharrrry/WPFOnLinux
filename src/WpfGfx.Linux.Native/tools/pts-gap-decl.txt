@@ -31,7 +31,37 @@
 #   并**断言相等**（不等即 `rc=9` 停手 = 基底漂移），再把 `tool/dead/artifact/ops/impl`
 #   交给牙**现算对账**（不等即牙红 —— 那才是"数漂了"，与基底漂移是两回事，分开报）。
 # ══════════════════════════════════════════════════════════════════════════════════
-# PTSGAP-DECL: tool=76 dead=11 artifact=1 ops=64 impl=67 so16=1dbea9026dd7d3d7 exports=683 w66pre16=bf6b683d94549087
+# PTSGAP-DECL: tool=76 dead=11 artifact=1 ops=64 impl=66 so16=1067da454b7ef114 exports=683 w66pre16=bf6b683d94549087
+#   ⚠️ 波 `T-A52` 重锚（`TASK-0302` 增量：native `NATIVE-PTS-FLOATERCBK`（`FSFLOATERCBK`／`GetFloaterHandlerInfo`）；
+#     `D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
+#     `src/WpfGfx.Linux.Native/src/win32_pts.c` 两处：
+#     ① **`GetFloaterHandlerInfo` 由具名缺口 stub 升为真实现** —— 按上游语义（`Pts.cs:3065`；调用链
+#        `PtsHost.GetObjectHandlerInfo`（`:1092`，`idobj==FloaterParagraphId`）→ `PtsCache.GetFloaterHandlerInfoCore`
+#        （`:248`）→ `PTS.GetFloaterHandlerInfo(ref FSFLOATERINIT, pObjectInfo)`）**逐槽只读捕获**托管交出的
+#        `FSFLOATERCBK`（16 槽／128 B）到本侧持有位（发调源）；出参非空时**逐槽原样转写**，`NULL` init ⇒ **拒**
+#        （`-10000` ＋ 具名留痕）。⇒ 实现口径的 `stubs` 少 1（该名不再 `return wpf_pts_gap(...)`）。
+#     ② **Floater 内容排版驱动**（照 `T-A37` 对 `Figure` 的同形体例）：窗内（`FsCreatePageFinite`）对
+#        `idobj==FloaterParagraphId(2)` 调 `pfnGetObjectHandlerInfo` ＋ `pfnFormatFloaterContentFinite`（槽 1）
+#        ⇒ 托管 `FloaterParagraph.CreateSubpageFiniteHelper` 内 `FsCreateSubpageFinite` 真造内容子页。
+#        **运行期闸 `WPF_PTS_FLOATER_CBK` 缺省关**（见下「为什么缺省关」）。
+#     **导出面一字未动**（`exports=683` 不变，`nm -D --defined-only` 行数 == `exports.txt` 行数 == 683；
+#     逐名 `diff` 零差异）；不新增/不删除任何**其它** `wpf_pts_gap(...)` stub ⇒ `tool=76`／`dead=11`／`artifact=1`／
+#     `ops=64` 全未动，`impl 67→66`（＝ `GetFloaterHandlerInfo` 离开"恒 `-10000`"名单的**事实**），
+#     `so16 1dbea9026dd7d3d7→1067da454b7ef114`。
+#     🔴 **为什么缺省关（现场读数，不是保守）**：Floater（`<Floater>`）的内容在本页是一个 `<Table>`
+#     （`LightGoldenrodYellow` ＝ 其 `<TableRow Background>`，见 `P1-tail2-coloranchor-recon.md` §口径）。
+#     驱动内容子页后托管 `FloaterParaClient.ValidateVisual` ⇒ `PtsHelper.UpdateTrackVisuals` **下到 Table 段落**
+#     ⇒ `TableParaClient.QueryTableDetails` ⇒ `PTS.FsQueryTableObjDetails`（本移植**未导出**）
+#     ⇒ `EntryPointNotFoundException` ⇒ `FlowDocumentView.ArrangeOverride` 抛
+#     ⇒ 整页**空白**（成对现取，同一 `.so 1067da454b7ef114`／同装置 `:231`／只差 `WPF_PTS_FLOATER_CBK`：
+#       缺省 `0` ⇒ `k24 fr_sha=791696291d51470b colors=905`（`Beige=910 DarkGreen=44` 未退）`[HC-UNHANDLED]=0`；
+#       显式 `1` ⇒ `FSFLOATER-CBK=2`／`FSFLOATER-CONTENT=2 v=SUBPAGE-CREATED`（**Floater 内容真造出**）
+#       但 `entry point named 'FsQueryTableObjDetails'` **394 条**、`k24 fr_sha=ef3fd6765f18f51b colors=383`（空态参照成员）、
+#       `[HC-UNHANDLED]=394` ⇒ **整页空白**）。
+#     🔴 **判据 ① 未达（如实）**：`LightGoldenrodYellow` 仍 `0 px` ⇒ `PTS_COLORANCHOR=PASS hits=2`（未退）。
+#     具名下一靶 ＝ **`NATIVE-PTS-TABLEOBJ`**（`FsQueryTableObjDetails`／`FsQueryTableObjTableProperDetails`／
+#     `FsQueryTableObjRowList`／`FsQueryTableObjRowDetails`／`FsQueryTableObjCellList` 五入口 ＋
+#     `GetTableObjHandlerInfo`／`FSTABLEOBJCBK`）。⇒ 见载体 `build/MilBridge/P1-tail2-floatercbk-impl-report.md`。
 #   ⚠️ 波 `T-A47` 重锚（`TASK-0302` 增量：`FLOAT-REPARENT`（托管）＋ `QTP-LIVE-NARROW`（native）；
 #     `D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
 #     ① `build/PresentationFramework.Linux/reapply-patches.py`（生成器）⇒ 生成件
