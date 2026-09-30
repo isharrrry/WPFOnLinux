@@ -31,7 +31,7 @@
 #   并**断言相等**（不等即 `rc=9` 停手 = 基底漂移），再把 `tool/dead/artifact/ops/impl`
 #   交给牙**现算对账**（不等即牙红 —— 那才是"数漂了"，与基底漂移是两回事，分开报）。
 # ══════════════════════════════════════════════════════════════════════════════════
-# PTSGAP-DECL: tool=89 dead=11 artifact=1 ops=77 impl=80 so16=a1403ea71c2bf487 exports=670 w66pre16=bf6b683d94549087
+# PTSGAP-DECL: tool=89 dead=11 artifact=1 ops=77 impl=80 so16=33c3bb7e8365835d exports=670 w66pre16=bf6b683d94549087
 #   ⚠️ 波 W8·`t103` 重锚（`D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
 #   `LoGetPenaltyModuleInternalHandle` 由诚实缺口 stub 升为真实现 ⇒ `so16` `4e999451e9ab137e`→`5c2097d35cd89749`、
 #   导出 **565→567**，**逐名二条**（新加的两个**独立读取面**，与 `t97` 同形制）：
@@ -62,3 +62,11 @@
 #     ⚠️ **正文复述位（`docs/ROUTES.md` 等，现值 `ops=78`／`impl=81`）本趟未同改** —— 那些件在 `T-A4` 写域
 #        （黑名单 `docs/**`）之外 ⇒ `pts-gap-count-check.sh` 会因此报 `SITE-DRIFT`（**已如实记、待裁决**）；
 #        本行只保证**声明行 vs 现算**逐字段一致（`tool/dead/artifact/ops/impl/so16/exports/w66pre16` 全等）。
+#   ⚠️ 波 `T-A9` 重锚（`T-A8` 设计草案 S1–S5 的落地；`D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
+#     `src/WpfGfx.Linux.Native/src/win32_pts.c` 的**运行期闸**由「**缺省关**」改为「**缺省开**」（队长裁定
+#     撤销「裁定三十六 (b)」的"默认关"；射程仅"缺省路径驱动三级链"，显式 `WPF_PTS_DRIVE_PROBE=0` 保留为反极性腿），
+#     并给驱动窗加**每 doc 一次**的记账 ＋ 预算缺省提到 `WPF_PTS_DOC_MAX`。**导出面一字未动**（`exports=670` 不变，
+#     `nm -D --defined-only` 行数 == `exports.txt` 行数 == 670）；`tool/dead/artifact/ops/impl/stubs` 亦**全未动**
+#     （本增量不新增/不删除任何 `return wpf_pts_gap(...)` stub）⇒ **只有 `so16` 跟权威件换**：
+#     `so16 a1403ea71c2bf487→33c3bb7e8365835d`。⚠️ **计数未动 ≠ 能力未动**，也**计数下降 ≠ 能力前进**：本增量改变的是
+#     「**缺省路径**是否发起三级链」这一**行为**，不在缺口条数上体现（`pts-gap-count-check.sh` 件头第 ① 条同口径）。

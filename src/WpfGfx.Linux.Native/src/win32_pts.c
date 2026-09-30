@@ -267,6 +267,10 @@ typedef struct {
     wpf_pts_subtrack *sub;          /* ⏪ `t162`：本 doc 自有的**子轨对象**（`pfspara` 即它的字段地址） */
     int          sub_created_seq;   /* 该对象的台账序号 */
     int          sub_reused;        /* 跨调用复用它（持有期）的次数 */
+    /* ⏪ `T-A9`（S2）：**每 doc 只驱一窗**的记账位 —— 缺省路径下 `FsCreatePage*` 可能对同一 doc
+       被调多次 ⇒ 无常驻位就会反复驱（且把有限预算耗在同 doc 上）。置位时机＝**已提交驱这一窗**
+       （在首条回调之前），与"该窗是否成功"无关 ⇒ 每 doc 至多驱一次、不同 doc 各驱一次。 */
+    int          drive_done;
 } wpf_pts_doc;
 static wpf_pts_doc *g_pts_doc_live[WPF_PTS_DOC_MAX];
 static int g_pts_doc_live_n       = 0;
@@ -884,9 +888,11 @@ typedef int (*wpf_pts_fn_get_main_text_segment)(const void *pfsclient, const voi
 #define WPF_PTS_SNAP_IDX_GETNEXTSECTION      2
 #define WPF_PTS_SNAP_IDX_GETMAINTEXTSEGMENT  5
 /* ⏪ `t150`（P1-W70）**调用强度旋钮**：每进程最多探几个窗口（每窗 2 调/槽 ⇒ 每窗 4 次调用）。
-   **缺省 1** ⇒ 与 `t148` 的现有行为**逐格一致**（`t148` 就是 1 窗）。`WPF_PTS_DRIVE_PROBE_N=<n>`
-   可调（仅当闸开时生效）；上限 = 入站 `FsCreatePage*` 的实际调用次数（日志会给 `budget-exhausted`）。 */
-#define WPF_PTS_DRIVE_PROBE_WINDOW_BUDGET_DEFAULT 1
+   ⏪ `T-A9`（S2）：**缺省由 `1` 提到 `WPF_PTS_DOC_MAX`** —— 缺省路径下每个 doc（≤ 8）
+   各需一窗把 `drive_nmp` 落进 doc；配合"每 doc 只驱一次"的记账 ⇒ 缺省 `1` 会让「只有第 1 个
+   doc 拿到 `drive_nmp`」而其余 doc 的 `FsQueryTrackParaList` **仍拒**。`WPF_PTS_DRIVE_PROBE_N=<n>`
+   可调；上限 = 入站 `FsCreatePage*` 的实际调用次数（日志会给 `budget-exhausted`）。 */
+#define WPF_PTS_DRIVE_PROBE_WINDOW_BUDGET_DEFAULT WPF_PTS_DOC_MAX
 static int wpf_pts_drive_probe_n(void);   /* 定义见闸函数旁边（读一次并缓存） */
 #define WPF_PTS_DRIVE_PROBE_PRINT_SKIP_MAX   3     /* 跳过的具名行最多打几条（其余只计数） */
 /* ⚠️ **反腿开关**（默认 0）：置 1 时把 `nms` 换成**伪值 `0x1`** —— 只允许在
@@ -924,7 +930,11 @@ static int wpf_pts_drive_probe_enabled(void)
     static int cached = -1;                      /* −1 未取；0 关；1 开（本进程内取一次） */
     if (cached < 0) {
         const char *v = getenv("WPF_PTS_DRIVE_PROBE");
-        cached = (v && v[0] && strcmp(v, "0") != 0) ? 1 : 0;
+        /* ⏪ `T-A9`（队长裁定：**撤销**「裁定三十六 (b)」的"运行期闸默认关"）：**缺省开** ——
+           仅当 `WPF_PTS_DRIVE_PROBE` **显式**为 `"0"` 时关；未设／空／其它值皆开。
+           原由（防帧面副作用／保 `N1`/`N3` 可比）已因 `PRECOND-FRAME-DETERMINISM` 未满足而失效，
+           射程仅"缺省路径驱动三级链"。显式 `"0"` 保留为**反极性腿**开关（该红必红）。 */
+        cached = (v && strcmp(v, "0") == 0) ? 0 : 1;
     }
     return cached;
 }
@@ -1765,8 +1775,12 @@ static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *wh
 {
     if (!d) { wpf_pts_drive_probe_skip("null-doc"); return; }
     if (d->fscbk_snap_state == WPF_PTS_FSCBK_SNAP_NONE) { wpf_pts_drive_probe_skip("no-snapshot"); return; }
-    /* ⏪ `t148`：**运行期闸**（缺省关）—— 闸关 ⇒ **一次都不调**，并留一条具名行 */
+    /* ⏪ `t148`：**运行期闸** —— ⏪ `T-A9` 起**缺省开**（队长裁定撤销「裁定三十六 (b)」的"默认关"）；
+       仅**显式** `WPF_PTS_DRIVE_PROBE=0` 才关（保留为反极性腿开关）。闸关 ⇒ **一次都不调**，留具名行。 */
     if (!wpf_pts_drive_probe_enabled()) { wpf_pts_drive_probe_skip("gate-off"); return; }
+    /* ⏪ `T-A9`（S2）：**每 doc 只驱一窗** —— 预算是**进程级**的，这里再加**doc 级**记账，
+       免得同一 doc 的多个窗口把有限预算吃光、其余 doc 拿不到 `drive_nmp`。 */
+    if (d->drive_done) { wpf_pts_drive_probe_skip("doc-already-driven"); return; }
     if (g_pts_dp_calls >= wpf_pts_drive_probe_n()) { wpf_pts_drive_probe_skip("budget-exhausted"); return; }
     const void *fp56 = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_GETNEXTSECTION);
     const void *fp80 = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_GETMAINTEXTSEGMENT);
@@ -1784,6 +1798,7 @@ static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *wh
     const int    t3mode = 0;
 #endif
     if (!nms) { wpf_pts_drive_probe_skip("null-sect"); return; }
+    d->drive_done = 1;   /* ⏪ `T-A9`：本 doc 的驱窗名额已用（在首条回调之前置位 ⇒ 无论成否都不重驱） */
 
     /* ⏪ `t148`（判据 ②）**入口留痕：必须在首次回调调用之前** ────────────────────────────────
        `t146` 的短板：`FailFast` 发生在**首调内**，而 `[DRIVE-PROBE]` 行在**四次调用之后**才打
