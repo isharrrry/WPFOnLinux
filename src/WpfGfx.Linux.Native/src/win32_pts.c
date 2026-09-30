@@ -89,6 +89,7 @@ static const char *const k_pts_entries[] = {
     "FsCreatePageFinite",
     "FsQueryTrackParaList",
     "FsQuerySubtrackDetails",
+    "FsQuerySubtrackParaList",
 };
 #define WPF_PTS_ENTRY_COUNT ((int)(sizeof(k_pts_entries) / sizeof(k_pts_entries[0])))
 
@@ -206,6 +207,9 @@ static int g_pts_io_rejected= 0;         /* 拒绝的摧毁请求（未知名/�
 
 /* ⏪ `t162`：`pfspara` 的**自有子轨对象**（定义在后面的 (a) 段；此处先给不完整类型的前向声明） */
 typedef struct wpf_pts_subtrack_s wpf_pts_subtrack;
+/* ⏪ `T-A12`：**子段枚举**的上界（有界，防异常调用无限枚举；`cParas` 源即此计数）。
+   ⚠️ 这个界与**超界即拒绝**成对：枚举到界还没穷尽 ⇒ 记 `incomplete`（**不**给 cParas）。 */
+#define WPF_PTS_SUB_CHILD_MAX 32
 
 typedef struct {
     unsigned int magic;
@@ -267,6 +271,16 @@ typedef struct {
     wpf_pts_subtrack *sub;          /* ⏪ `t162`：本 doc 自有的**子轨对象**（`pfspara` 即它的字段地址） */
     int          sub_created_seq;   /* 该对象的台账序号 */
     int          sub_reused;        /* 跨调用复用它（持有期）的次数 */
+    /* ⏪ `T-A12`（本增量）：**子段枚举的现取结果**（`cParas` 的**源**）────────────────────────
+       在**窗内**（`FsCreatePage*` ⇒ `wpf_pts_drive_probe`）用托管回调 `+136`／`+144` **真枚举**
+       子轨段落实例 ⇒ `sub_cparas`＝计数、`sub_children[]`＝句柄序。**只有 `sub_enum_ok==1` 时**
+       这些值才是"真枚举成功"的读数；否则一律 `sub_cparas=0` 且**不许**据它给 `cParas>0`。 */
+    int          sub_enum_ok;       /* 1＝枚举穷尽成功（真调到回调并得到计数）；0＝未成/失败 */
+    int          sub_cparas;        /* 枚举出的子段数（＝`cParas` 源；仅 `sub_enum_ok==1` 时有效） */
+    const void  *sub_children[WPF_PTS_SUB_CHILD_MAX];  /* 枚举出的子段句柄序（原样存，不 deref） */
+    int          sub_enum_rc136;    /* `+136`（首子段）的 fserr（-9999＝未调） */
+    int          sub_enum_rc144;    /* `+144`（后继）的**末次** fserr（-9999＝未调） */
+    const char  *sub_enum_v;        /* 判词 token（具名） */
     /* ⏪ `T-A9`（S2）：**每 doc 只驱一窗**的记账位 —— 缺省路径下 `FsCreatePage*` 可能对同一 doc
        被调多次 ⇒ 无常驻位就会反复驱（且把有限预算耗在同 doc 上）。置位时机＝**已提交驱这一窗**
        （在首条回调之前），与"该窗是否成功"无关 ⇒ 每 doc 至多驱一次、不同 doc 各驱一次。 */
@@ -981,7 +995,11 @@ int WpfLinuxWin32_PtsDriveProbeN(void) { return wpf_pts_drive_probe_n(); }
    ══════════════════════════════════════════════════════════════════════════════════════════════ */
 #define WPF_PTS_SNAP_IDX_GETFIRSTPARA      12   /* 40 + 12*8 = 136 */
 #define WPF_PTS_SNAP_IDX_GETPARAPROPERTIES 16   /* 40 + 16*8 = 168 */
+/* ⏪ `T-A12`：`+144 pfnGetNextPara`（帧 B 偏移在册：`_Static_assert(… CBKGEN_OFF + 104 == 144)`）——
+   `cParas` 源的**枚举后继**回调（`+136` 取首、`+144` 取后继）。 */
+#define WPF_PTS_SNAP_IDX_GETNEXTPARA       13   /* 40 + 13*8 = 144 */
 _Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_SNAP_IDX_GETFIRSTPARA * 8 == 136, "下标 GETFIRSTPARA 对应绝对偏移 != +136");
+_Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_SNAP_IDX_GETNEXTPARA  * 8 == 144, "下标 GETNEXTPARA 对应绝对偏移 != +144");
 _Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_SNAP_IDX_GETPARAPROPERTIES * 8 == 168, "下标 GETPARAPROPERTIES 对应绝对偏移 != +168");
 
 #ifndef WPF_PTS_DRIVE_PROBE2_T3
@@ -1213,6 +1231,14 @@ struct wpf_pts_subtrack_s {
     const void  *pfsparaclient; /* 配对的客户端句柄 */
     int          seq;           /* 台账序号（实例唯一） */
     int          live;
+    /* ── ⏪ `T-A12`：**枚举出的子段**（`cParas` 的源快照；只在 `enum_ok==1` 时有效）───────────
+       · `children[]` ＝ `+136`／`+144` 在**窗内**枚举出的子段句柄序（原样存，不 deref）
+       · `child_clients[]` ＝ `FsQuerySubtrackParaList` 为每个子段现造的客户端句柄（托管 `+176` 产出）
+       · `child_clients_made` ＝ 已造客户端条数（**只增不重置**；跨调用复用以避免重复造／泄漏） */
+    int          enum_ok;
+    const void  *children[WPF_PTS_SUB_CHILD_MAX];
+    const void  *child_clients[WPF_PTS_SUB_CHILD_MAX];
+    int          child_clients_made;
 };
 #define WPF_PTS_SUB_MAGIC 0x57535054u     /* "WSPT" */
 #define WPF_PTS_SUB_MAX   16
@@ -1419,9 +1445,12 @@ static int wpf_pts_fsp_pl_is_sentinel(const void *h)
 }
 
 typedef int (*wpf_pts_fn_get_first_para)(const void *pfsclient, const void *nms, int *f_successful, void **nmp);
+typedef int (*wpf_pts_fn_get_next_para)(const void *pfsclient, const void *nms, const void *nmp_cur,
+                                        int *f_found, void **nmp_next);
 typedef int (*wpf_pts_fn_get_para_properties)(const void *pfsclient, const void *nmp, void *fspap);
 _Static_assert(sizeof(wpf_pts_fn_get_first_para) == 8 && sizeof(wpf_pts_fn_get_para_properties) == 8,
                "回调指针不是 8 B（与快照的 8 B 字假设不符）");
+_Static_assert(sizeof(wpf_pts_fn_get_next_para) == 8, "回调指针不是 8 B（与快照的 8 B 字假设不符）");
 
 static int          g_pts_dp2_136_a    = -1;   /* +136 首调 fserr */
 static int          g_pts_dp2_136_b    = -1;   /* +136 次调 fserr */
@@ -1460,6 +1489,68 @@ static const void *wpf_pts_snap_word(const wpf_pts_doc *d, int idx)
     unsigned long long v = 0;
     for (int i = 0; i < 8; i++) v |= ((unsigned long long)d->fscbk_snap[idx * 8 + i]) << (8 * i);
     return (const void *)(unsigned long)v;
+}
+
+/* ⏪ `T-A12`：**子段枚举**（`cParas` 的源）—— 在**窗内**用托管回调 `+136`（首）／`+144`（后继）
+   **真枚举**子轨段落（`container` 即本 doc 的 `drive_nmp`：`+136` 从主文本段取到的首子段，
+   而该句柄是真 `ContainerParagraph` ⇒ 对 `ISegment` 成立）⇒ 计数即 `cParas` 的**可信来源**。
+   🔴 口径（写死，防假绿）：① **只在窗内**（`FsCreatePage*` ⇒ `wpf_pts_drive_probe`；窗外腿
+      `+136` 实测 `-100002`，见 `[DRIVE-PROBE2-OOW]`）；② **不用任何伪值／常数** —— 计数只来自
+      回调真返回；③ **穷尽才算成功**：`rc≠0`／超界／成环 ⇒ `ok=0`、`cparas=0`，调用方**必须**拒绝；
+      ④ 有界（`WPF_PTS_SUB_CHILD_MAX`）＋ 成环守卫；⑤ **失败必留痕**（每趟一条具名 `[SUBENUM]`）。 */
+static int g_pts_sub_enum_calls = 0;
+static int g_pts_sub_enum_ok_c  = 0;
+static int g_pts_sub_enum_gap   = 0;
+static void wpf_pts_sub_enum(wpf_pts_doc *d, const void *container, const char *where)
+{
+    g_pts_sub_enum_calls++;
+    d->sub_enum_ok = 0; d->sub_cparas = 0;
+    d->sub_enum_rc136 = -9999; d->sub_enum_rc144 = -9999;
+    const char *v = "ENUM-NOT-RUN";
+    int n = 0; const void *first = NULL;
+    const void *fp136 = NULL, *fp144 = NULL;
+    if (!container) { v = "ENUM-FAIL(null-container)"; goto out; }
+    fp136 = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_GETFIRSTPARA);
+    fp144 = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_GETNEXTPARA);
+    if (!fp136 || !fp144) { v = "ENUM-FAIL(no-slot)"; goto out; }
+    {
+        int fSucc = -1; void *nmp = NULL;
+        int rc136 = ((wpf_pts_fn_get_first_para)fp136)((const void *)d->p_fsclient, container, &fSucc, &nmp);
+        d->sub_enum_rc136 = rc136;
+        if (rc136 != 0) { v = "ENUM-FAIL(rc136)"; goto out; }
+        if (fSucc == 0 || !nmp) {                       /* 真·无子段 ⇒ 诚实 cParas=0 */
+            d->sub_enum_ok = 1; d->sub_cparas = 0; v = "ENUM-EMPTY(true-zero-children)"; goto out;
+        }
+        first = (const void *)nmp;
+        d->sub_children[n++] = first;
+        while (1) {
+            int fFound = -1; void *nx = NULL;
+            int rc144;
+            if (n >= WPF_PTS_SUB_CHILD_MAX) { d->sub_enum_rc144 = -9999;
+                v = "ENUM-FAIL(incomplete-limit)"; goto out; }
+            rc144 = ((wpf_pts_fn_get_next_para)fp144)((const void *)d->p_fsclient, container,
+                                                      (const void *)d->sub_children[n - 1], &fFound, &nx);
+            d->sub_enum_rc144 = rc144;
+            if (rc144 != 0) { v = "ENUM-FAIL(rc144)"; goto out; }
+            if (fFound == 0 || !nx) {                   /* 穷尽 ⇒ 计数可信 */
+                d->sub_enum_ok = 1; d->sub_cparas = n; v = "ENUM-OK"; break;
+            }
+            {   int dup = 0;                            /* 成环守卫：重复句柄 ⇒ 不是链表 ⇒ 拒 */
+                for (int j = 0; j < n; j++) if (d->sub_children[j] == (const void *)nx) { dup = 1; break; }
+                if (dup) { v = "ENUM-FAIL(cycle)"; goto out; }
+            }
+            d->sub_children[n++] = (const void *)nx;
+        }
+    }
+out:
+    d->sub_enum_v = v;
+    if (d->sub_enum_ok) g_pts_sub_enum_ok_c++; else g_pts_sub_enum_gap++;
+    /* 失败必留痕（具名 ＋ 计数；**不静默**）：`cParas` 的源是否成立，看这一行的 `ok=`／`v=`。 */
+    fprintf(stderr, "[SUBENUM] where=%s container=%p first=%p cparas=%d ok=%d rc136=%d rc144=%d "
+                    "child_max=%d v=%s calls=%d ok_n=%d gap=%d window=in\n",
+            where, container, first, d->sub_enum_ok ? d->sub_cparas : 0, d->sub_enum_ok,
+            d->sub_enum_rc136, d->sub_enum_rc144, WPF_PTS_SUB_CHILD_MAX, v,
+            g_pts_sub_enum_calls, g_pts_sub_enum_ok_c, g_pts_sub_enum_gap);
 }
 
 
@@ -1995,6 +2086,10 @@ static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *wh
             g_pts_dp3_calls++;
             g_pts_dp3_ctx_live = wpf_pts_ctx_is_live(d);   /* 同趟现取：该 context 未被销毁 */
             if (d->drive_nmp == NULL) d->drive_nmp = (const void *)nmp1;  /* 窗外腿复用**合法** nmp */
+            /* ⏪ `T-A12`：**窗内**真枚举该子轨段落的子段 ⇒ `cParas` 的源（`nmp1` 是真
+               `ContainerParagraph` ⇒ 对 `ISegment` 成立；窗外调 `+136` 必 `-100002`，故此处
+               是**唯一**可枚举的窗）。计数与句柄序存进 doc，供 `FsQuerySubtrackDetails` 承重格用。 */
+            if (d->drive_nmp != NULL && !d->sub_enum_ok) wpf_pts_sub_enum(d, d->drive_nmp, where);
 #if WPF_PTS_DRIVE_PROBE3_CTXDEAD
             g_pts_dp3_st_nmp = (const void *)nmp1; g_pts_dp3_st_client = pfsclient;
             g_pts_dp3_st_fp176 = fp176; g_pts_dp3_st_fp192 = fp192;
@@ -3755,7 +3850,19 @@ int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgPar
                        **不是**自造常量、**不是**伪指针、**不**复用 `nmp` 当占位。 */
                     if (!dp->sub) {
                         dp->sub = wpf_pts_sub_new((const void *)dp->drive_nmp, (const void *)dp->fsp_pl_cur);
-                        if (dp->sub) dp->sub_created_seq = dp->sub->seq;
+                        if (dp->sub) {
+                            dp->sub_created_seq = dp->sub->seq;
+                            /* ⏪ `T-A12`：把**窗内枚举**的结果（`cParas` 的源）绑进该子轨对象。
+                               仅当 `sub_enum_ok==1`（真枚举穷尽）才置 `formatted=1`／`c_paras` ——
+                               否则**保持** `formatted=0` ⇒ `FsQuerySubtrackDetails` 仍按**未造型**拒。 */
+                            if (dp->sub_enum_ok) {
+                                dp->sub->enum_ok   = 1;
+                                dp->sub->c_paras   = dp->sub_cparas;
+                                dp->sub->formatted = 1;
+                                for (int k = 0; k < dp->sub_cparas && k < WPF_PTS_SUB_CHILD_MAX; k++)
+                                    dp->sub->children[k] = dp->sub_children[k];
+                            }
+                        }
                     } else {
                         dp->sub_reused++;                     /* 跨调用持有 ⇒ 同一个在册对象服务多次填充 */
                     }
@@ -3839,13 +3946,14 @@ int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgPar
                             fprintf(stderr, "[FSPARALIST-PARA] psub=%p pre=%p src=%s same_value=%d acc=%d "
                                             "claims=%d rejected=%d hold=%d released=%d ctx=%p para_src_row=%s "
                                             "off_pfspara=%d form=native-owned-subtrack seq=%d live=%d "
-                                            "created=%d destroyed=%d formatted=0 reused=%d v=%s\n",
+                                            "created=%d destroyed=%d formatted=%d reused=%d v=%s\n",
                                     para_val, para_pre, para_src, claimed, acc_rc,
                                     g_pts_fsp_pl_para_claims, g_pts_fsp_pl_para_rejected,
                                     g_pts_fsp_pl_para_hold_ok, g_pts_fsp_pl_para_released,
                                     (void *)dp, (dp->drive_nmp ? "DRIVE-PROBE2.nmp1/DRIVE-PROBE3.nmp176" : "none"),
                                     (int)offsetof(wpf_pts_fsparadesc, pfspara), dp->sub_created_seq,
-                                    g_pts_sub_live_n, g_pts_sub_created, g_pts_sub_destroyed, dp->sub_reused,
+                                    g_pts_sub_live_n, g_pts_sub_created, g_pts_sub_destroyed,
+                                    dp->sub ? dp->sub->formatted : -1, dp->sub_reused,
                                     (acc_rc == 0) ? "PARA-ACCEPTED" : "ACCEPT-OTHER");
                         }
                     }
@@ -3945,18 +4053,20 @@ int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgPar
 // ── 本增量靶心：`FsQuerySubtrackDetails`（声明 `Pts.cs:3735-3739`；调用点 `ContainerParaClient.cs` 9 处 ＋ `ListParaClient.cs` 1 处）──
 //   签名：`int FsQuerySubtrackDetails(IntPtr pfsContext, IntPtr pSubTrack, out FSSUBTRACKDETAILS pSubTrackDetails);`
 //   出参结构 `FSSUBTRACKDETAILS { FSUPDATEINFO fsupdinf; IntPtr nms; FSRECT fsrc; int cParas; }`（`Pts.cs:1527-1533`）。
-//   🔴 **本入口的诚实上界（现取，见 `build/MilBridge/P1-tail2-fsqsub-recon.md` §3.3／§4）**：出参面
-//      `cParas`（＝**托管孩子数真值**，属内容层 `S-2b`）与 `nms`（＝需**托管句柄**，native 无合法来源）
-//      **都无源** ⇒ `rc=0` **永远不可给**（判据 §4-D2）。
-//   ⇒ **本实现的选择（写死，防被读成"没做完"）**：**永不假成功** —— 三路一律**返非 0 ＋ 记数 ＋ 留痕**，
-//      **不写 `pSubTrackDetails` 一个字节**（判据 §4-D1：出参一字不写，**禁**"写 `cParas=0` 让 `rc=0` 好看"
-//      —— 那会让 `ContainerParaClient.cs:277` 走叶子分支、**静默丢整棵嵌套内容**）。
+//   🔴 **`T-A12` 现取更新（`cParas` 的源现已成立）**：窗内 `wpf_pts_sub_enum`（`+136`／`+144`）
+//      真枚举了子轨段落的子段 ⇒ `FSPARALIST` 交给消费者的那个**本侧自有子轨对象**带上了
+//      `c_paras`／`formatted`（＝**枚举计数**，非托管真值直传、亦非常数）。⇒ 本入口新增**成功分支**：
+//      当 `pSubTrack` 认领成功 ∧ `obj->formatted ∧ obj->enum_ok` ⇒ 写 `pSubTrackDetails` 并返 **0**。
+//      `cParas` 的**来源证据**＝同趟 `[SUBENUM] … cparas=N ok=1 v=ENUM-OK`（计数只来自回调真返回）。
+//   🔴 **仍不许假成功**（`T-A11` 判据 §4-D1／D2）：① 未认领／未造型／未枚举 ⇒ **返非 0 ＋ 留痕 ＋
+//      出参一字不写**；② **禁**写 `cParas=0` 让 `rc=0` 好看（`ContainerParaClient.cs:277` 叶子支、
+//      静默丢整棵嵌套）；③ `fsupdinf` **无源** ⇒ 固定 `fskupdInherited/0` 并具名 `NOINFO`；
+//      `nms`＝透传（`drive_nmseg`）；`fsrc`＝本侧声明几何（具名 `NOINFO-FSGEOMETRY-LAYOUT`）。
 //   🔴 **入参按对象身份认领**（判据 §4-D4）：`pSubTrack` 必须能被 `wpf_pts_sub_claim` **唯一认领**
 //      （＝本侧自有子轨对象内 `c_paras` 字段的地址，承 `FsQueryTrackDetails` 范式）；NULL／栈地址／
 //      外来值**必被拒** ⇒ 身份**只许靠来源证据**，不许靠 `rc`／数值大小。
-//   🔴 **闸关与闸开分开报**（判据 §4-D5，`P13` 反腿）：缺省路径 `pSubTrack==NULL`（`FSPARALIST.pfspara`
-//      的填充整块只在 `wpf_pts_drive_probe_enabled()` 内、缺省关）⇒ `reason=null-subtrack`；
-//      认领成功但未造型（`formatted==0`）⇒ `reason=no-layout-content-model`。**两路判词不同**。
+//   🔴 **闸关与闸开分开报**（判据 §4-D5，`P13` 反腿）：显式 `WPF_PTS_DRIVE_PROBE=0` ⇒ 链不驱、
+//      `pSubTrack==NULL` ⇒ `reason=null-subtrack`；缺省（链驱）⇒ 认领成功且已枚举。**两路判词不同**。
 typedef struct {                              /* FSSUBTRACKDETAILS 镜像（**只用于尺寸/偏移自证**；不 deref 托管结构） */
     int   fskupd;        /* FSUPDATEINFO.fskupd（FSKUPDATGE : int）        @ +0  */
     int   dvr_shifted;   /* FSUPDATEINFO.dvrShifted                        @ +4  */
@@ -3969,37 +4079,148 @@ _Static_assert(offsetof(wpf_pts_fssubtrackdetails, nms)     ==  8, "FSSUBTRACKDE
 _Static_assert(offsetof(wpf_pts_fssubtrackdetails, u)       == 16, "FSSUBTRACKDETAILS.fsrc 偏移 != +16");
 _Static_assert(offsetof(wpf_pts_fssubtrackdetails, c_paras) == 32, "FSSUBTRACKDETAILS.cParas 偏移 != +32");
 static int g_pts_fsqstd_calls       = 0;   /* 进入次数（含重复；判据 §4-D5 的 `calls=`） */
-static int g_pts_fsqstd_ok          = 0;   /* 成功（`rc=0`）次数 —— **今天结构性恒 0**（`rc=0` 永不可给） */
-static int g_pts_fsqstd_gap         = 0;   /* 返非 0 次数（今天＝全部；判据 §4-D3 的 `gap=`） */
-static int g_pts_fsqstd_null        = 0;   /* 路①：`pSubTrack==NULL`（缺省路径）被拒次数 */
+static int g_pts_fsqstd_ok          = 0;   /* 成功（`rc=0`）次数 —— `T-A12` 起仅当**认领 ∧ 已枚举** */
+static int g_pts_fsqstd_gap         = 0;   /* 返非 0 次数（判据 §4-D3 的 `gap=`） */
+static int g_pts_fsqstd_null        = 0;   /* 路①：`pSubTrack==NULL`（闸关路径）被拒次数 */
 static int g_pts_fsqstd_unclaim     = 0;   /* 路②：认领失败（NULL／栈地址／外来值）次数 */
-static int g_pts_fsqstd_unformatted = 0;   /* 路③：认领成功但未造型次数 */
-static const char *g_pts_fsqstd_last_reason = "none";   /* 最后一次失败的原因 token（可独立读取） */
+static int g_pts_fsqstd_unformatted = 0;   /* 路③：认领成功但**未枚举／未造型**次数 */
+static int g_pts_fsqstd_nullout     = 0;   /* 路④：已枚举但 `pSubTrackDetails==NULL` 被拒次数 */
+static const char *g_pts_fsqstd_last_reason = "none";   /* 最后一次判词 token（可独立读取） */
+/* ⚠️ **反腿开关**（默认 0）：**只在副本**以 `-DWPF_PTS_SUB_CPARAS_FAKE=<n>` 单独编译，**绝不进主链**。
+   `0`＝真值（枚举计数）｜`1`＝写**恒定 999**（伪真值）⇒ `FsQuerySubtrackParaList` 必 `cparas-mismatch`
+   （下游 `HandleToObject(0)` ⇒ `PtsException`，**不许静默通过**）｜`2`＝写 **0** ⇒ 消费者
+   `ContainerParaClient.cs:66` 走**叶子支**、**静默丢整棵嵌套**（`P8` 必红；本侧以 `true_cParas=` 留痕）。 */
+#ifndef WPF_PTS_SUB_CPARAS_FAKE
+#define WPF_PTS_SUB_CPARAS_FAKE 0
+#endif
 //   【本入口＝**查询**，无配对销毁入口；导出即改生成件 `bin/exports.txt`（同趟逐名对拍零消失）。】
 int FsQuerySubtrackDetails(void *pfscontext, void *pSubTrack, void *pSubTrackDetails)
 {
-    /* 🔴 **判据 §4-D1（零假值／出参纪律）**：本入口**绝不触碰** `pSubTrackDetails` ——
-       一个字节都不写（含"写 `cParas=0`"这种"看起来像答案"的缺省值）。下面**没有任何**对
-       `pSubTrackDetails` 的读写；反腿（给它补一句 `*(int*)((char*)out+32)=0`）必红。 */
     g_pts_fsqstd_calls++;
     { int _i = wpf_pts_index("FsQuerySubtrackDetails"); if (_i >= 0) g_pts_seen[_i]++; }
     const char *reason = NULL;
     wpf_pts_subtrack *obj = NULL;
+    wpf_pts_doc *dpx = wpf_pts_doc_ptr(pfscontext);
     if (!pSubTrack)                               { reason = "null-subtrack";           g_pts_fsqstd_null++; }
     else if (!wpf_pts_sub_claim(pSubTrack, &obj)) { reason = "unclaimable-subtrack";    g_pts_fsqstd_unclaim++; }
-    else                                          { reason = "no-layout-content-model"; g_pts_fsqstd_unformatted++; }
-    /* ⚠️ **没有成功分支**：`cParas`／`nms` 无源 ⇒ `rc=0` 永不可给 ⇒ `g_pts_fsqstd_ok` 恒 0。 */
-    (void)pfscontext;                        /* `pfsContext` 原样收下、**不 deref**（本入口无上下文消费） */
-    (void)pSubTrackDetails;                  /* **刻意**只收不用（D1 的机器可读形态：参数在册但零写入） */
-    (void)obj;
+    else if (!obj->formatted || !obj->enum_ok)    { reason = "no-layout-content-model"; g_pts_fsqstd_unformatted++; }
+    else if (!pSubTrackDetails)                   { reason = "null-details-out";        g_pts_fsqstd_nullout++; }
+    else {
+        /* ── ✅ **成功分支**（`T-A12`）：`cParas` ＝窗内 `+136`／`+144` **真枚举**的计数（来源在
+           `[SUBENUM]`）。**先清零再逐字段写**（判据 §4-D1：未初始化内存不许交给上级）。 */
+        wpf_pts_fssubtrackdetails *o = (wpf_pts_fssubtrackdetails *)pSubTrackDetails;
+        memset((void *)o, 0, sizeof(*o));
+        o->fskupd      = 0;                       /* `fskupdInherited`（NOINFO-FSUPDINF-CONSUMER：全树 0 消费者） */
+        o->dvr_shifted = 0;                       /* NOINFO-FSUPDINF-SEMANTICS：本侧无更新/位移状态可读 */
+        o->nms         = dpx ? (void *)dpx->drive_nmseg : NULL;   /* 透传：同 run `+80` 的 live nmSegment */
+        o->u  = 0; o->v = 0;
+        o->du = WPF_PTS_FSP_FIN_DU; o->dv = WPF_PTS_FSP_FIN_DV;   /* 本侧声明几何（NOINFO-FSGEOMETRY-LAYOUT） */
+#if WPF_PTS_SUB_CPARAS_FAKE == 1
+        int cp_out = 999;                          /* 反腿①：伪真值（恒定） */
+#elif WPF_PTS_SUB_CPARAS_FAKE == 2
+        int cp_out = 0;                            /* 反腿②：强行 0 ⇒ 消费者叶子支、静默丢嵌套 */
+#else
+        int cp_out = obj->c_paras;                 /* 主链：**枚举计数**（真值来源） */
+#endif
+        o->c_paras     = cp_out;                  /* ← **承重格**（`true_cParas=` 给出枚举真值以对拍） */
+        g_pts_fsqstd_ok++;
+        g_pts_fsqstd_last_reason = "ok";
+        fprintf(stderr, "[FSQSTD] rc=0 reason=ok entry=FsQuerySubtrackDetails ctx=%p psub=%p "
+                        "calls=%d ok=%d gap=%d null=%d unclaim=%d unformatted=%d out=WRITTEN bytes=40 "
+                        "cParas=%d true_cParas=%d nms=%p src=%s\n",
+                pfscontext, pSubTrack, g_pts_fsqstd_calls, g_pts_fsqstd_ok, g_pts_fsqstd_gap,
+                g_pts_fsqstd_null, g_pts_fsqstd_unclaim, g_pts_fsqstd_unformatted,
+                o->c_paras, obj->c_paras, (void *)o->nms, "SUBENUM(+136/+144)");
+        fprintf(stderr, "[FSQSTD-SRC] cParas=%d src=subenum(+136/+144) du=%d dv=%d nms=%p "
+                        "NOINFO=fsupdinf(no-source),fsrc(declared-geometry)\n",
+                o->c_paras, WPF_PTS_FSP_FIN_DU, WPF_PTS_FSP_FIN_DV, (void *)o->nms);
+        return 0;
+    }
+    /* ── 拒绝面（**零假值／出参一字不写**）：`pSubTrackDetails` **绝不触碰**（`T-A11` §4-D1）。 */
+    (void)pSubTrackDetails;                  /* 刻意只收不用（机器可读形态：参数在册但零写入） */
+    (void)dpx; (void)obj;
     g_pts_fsqstd_gap++;
     g_pts_fsqstd_last_reason = reason;
     fprintf(stderr, "[FSQSTD] rc=%d reason=%s entry=FsQuerySubtrackDetails ctx=%p psub=%p "
-                    "calls=%d ok=%d gap=%d null=%d unclaim=%d unformatted=%d out=UNWRITTEN bytes=0\n",
+                    "calls=%d ok=%d gap=%d null=%d unclaim=%d unformatted=%d nullout=%d out=UNWRITTEN bytes=0\n",
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason, pfscontext, pSubTrack,
             g_pts_fsqstd_calls, g_pts_fsqstd_ok, g_pts_fsqstd_gap,
-            g_pts_fsqstd_null, g_pts_fsqstd_unclaim, g_pts_fsqstd_unformatted);
-    return WPF_PTS_ERR_NOT_IMPLEMENTED;      /* ← 改成 0 就是制造静默半通／伪成功（判据 §4-D2） */
+            g_pts_fsqstd_null, g_pts_fsqstd_unclaim, g_pts_fsqstd_unformatted, g_pts_fsqstd_nullout);
+    return WPF_PTS_ERR_NOT_IMPLEMENTED;      /* ← 无真值时改成 0 就是制造静默半通／伪成功（判据 §4-D2） */
+}
+
+// ── `T-A12` 配对入口：`FsQuerySubtrackParaList`（声明 `Pts.cs:3741-3748`；唯一调用点
+//    `PtsHelper.cs:633 ParaListFromSubtrack`；调用序见 `ContainerParaClient.cs:70`)──
+//   签名：`int FsQuerySubtrackParaList(IntPtr pfsContext, IntPtr pSubTrack, int cParas,
+//           FSPARADESCRIPTION* rgParaDesc, out int cParaDesc);`
+//   🔴 **为何本波必须有它**：`FsQuerySubtrackDetails` 一返 `cParas>0`，消费者
+//      （`ContainerParaClient.cs:66` ⇒ `:70`）就**必**调本入口；若本入口不在产物里 ⇒ P/Invoke
+//      抛 `EntryPointNotFoundException`（＝把"缺口"变成"绑定失败"，见本文件件头）⇒ **这是把
+//      `cParas` 交出去的必要配对件**（`T-A11` §3 的具名前置之一）。
+//   🔴 填法（**唯一合法来源**）：`pfsparaclient` 一律由本 run 托管 `+176` **现造**（跨调用复用，
+//      **不**重复造、**不**返回前回收）；`pfspara`／`nmp` ＝**窗内枚举**得到的子段句柄
+//      （`obj->children[]`，来源行 `[SUBENUM]`）。`dvrUsed`／`dvrTopSpace`／`bbox` **本侧无几何源**
+//      ⇒ 保持 `memset` 后的 **0** ＋ 具名 `NOINFO-SUBTRACK-PARA-GEOMETRY`（**不**自造几何）。
+//   🔴 **失败必留痕**：任何拒绝**必**打具名行 ＋ `gap` 恰涨 1；**出参先清 0**。
+static int g_pts_fsqspl_calls = 0, g_pts_fsqspl_ok = 0, g_pts_fsqspl_gap = 0;
+static int g_pts_fsqspl_cli_made = 0;      /* 累计现造的客户端条数（**只增**） */
+int FsQuerySubtrackParaList(void *pfscontext, void *pSubTrack, int cParas,
+                            void *rgParaDesc, int *cParaDesc)
+{
+    const char *reason = NULL;
+    g_pts_fsqspl_calls++;
+    { int _i = wpf_pts_index("FsQuerySubtrackParaList"); if (_i >= 0) g_pts_seen[_i]++; }
+    if (cParaDesc) *cParaDesc = 0;                     /* 失败：出参先清成 0（不留残留） */
+    wpf_pts_subtrack *obj = NULL;
+    wpf_pts_doc *dp = wpf_pts_doc_ptr(pfscontext);
+    if (!cParaDesc)                                reason = "null-count-out";
+    else if (!pSubTrack)                           reason = "null-subtrack";
+    else if (!wpf_pts_sub_claim(pSubTrack, &obj))  reason = "unclaimable-subtrack";
+    else if (!obj->formatted || !obj->enum_ok)     reason = "no-layout-content-model";
+    else if (cParas != obj->c_paras)               reason = "cparas-mismatch";
+    else if (cParas > 0 && !rgParaDesc)            reason = "null-paradesc-out";
+    else if (!dp)                                  reason = "unknown-ctx";
+    else {
+        const void *fp176 = wpf_pts_snap_word(dp, WPF_PTS_SNAP_IDX_CREATEPARACLIENT);
+        if (!fp176)                        reason = "no-slot-176";
+        else if (!wpf_pts_ctx_is_live(dp)) reason = "ctx-not-live";
+        else {
+            /* 客户端：**只造缺的那些**（跨调用复用 ⇒ 不重复造／不泄漏／不换手） */
+            for (int i = obj->child_clients_made; i < cParas; i++) {
+                void *h = NULL;
+                int rc = ((wpf_pts_fn_create_paraclient)fp176)((const void *)dp->p_fsclient,
+                                                               (const void *)obj->children[i], &h);
+                if (rc != 0 || h == NULL) { reason = "create-paraclient-failed"; break; }
+                obj->child_clients[i] = (const void *)h;
+                obj->child_clients_made = i + 1;
+                g_pts_fsqspl_cli_made++;
+            }
+        }
+    }
+    if (!reason) {
+        wpf_pts_fsparadesc *rg = (wpf_pts_fsparadesc *)rgParaDesc;
+        for (int i = 0; i < cParas; i++) {
+            memset((void *)&rg[i], 0, sizeof(rg[i]));  /* 先清零再逐字段写（未初始化内存不交上级） */
+            rg[i].pfspara       = (void *)obj->children[i];       /* 窗内枚举出的子段句柄 */
+            rg[i].pfsparaclient = (void *)obj->child_clients[i];  /* 本 run `+176` 真返回 */
+            rg[i].nmp           = (void *)obj->children[i];
+            /* dvrUsed／dvrTopSpace／bbox／idobj：**本侧无几何源** ⇒ 0（NOINFO-SUBTRACK-PARA-GEOMETRY）*/
+        }
+        *cParaDesc = cParas;                              /* 只在**真填完后**置（与 cParas 自洽） */
+        g_pts_fsqspl_ok++;
+        fprintf(stderr, "[FSQSPL] rc=0 reason=ok entry=FsQuerySubtrackParaList ctx=%p psub=%p cParas=%d "
+                        "made=%d cli_total=%d src=SUBENUM(+136/+144)+managed-176 calls=%d ok=%d gap=%d "
+                        "NOINFO=subtrack-para-geometry(dvrUsed/dvrTopSpace/bbox=0)\n",
+                pfscontext, pSubTrack, cParas, obj->child_clients_made, g_pts_fsqspl_cli_made,
+                g_pts_fsqspl_calls, g_pts_fsqspl_ok, g_pts_fsqspl_gap);
+        return 0;
+    }
+    g_pts_fsqspl_gap++;
+    fprintf(stderr, "[FSQSPL] rc=%d reason=%s entry=FsQuerySubtrackParaList ctx=%p psub=%p cParas=%d "
+                    "calls=%d ok=%d gap=%d out=UNWRITTEN\n",
+            WPF_PTS_ERR_NOT_IMPLEMENTED, reason, pfscontext, pSubTrack, cParas,
+            g_pts_fsqspl_calls, g_pts_fsqspl_ok, g_pts_fsqspl_gap);
+    return WPF_PTS_ERR_NOT_IMPLEMENTED;      /* ← 无真值时改成 0 就是伪成功 */
 }
 
 // ── 格 7 夹具（`t123`／P1-W46）：`FsCreatePageBottomless` 的出参绑定 ＋ 失败必清 ＋ **失败必留痕** ──

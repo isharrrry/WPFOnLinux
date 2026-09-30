@@ -31,7 +31,7 @@
 #   并**断言相等**（不等即 `rc=9` 停手 = 基底漂移），再把 `tool/dead/artifact/ops/impl`
 #   交给牙**现算对账**（不等即牙红 —— 那才是"数漂了"，与基底漂移是两回事，分开报）。
 # ══════════════════════════════════════════════════════════════════════════════════
-# PTSGAP-DECL: tool=89 dead=11 artifact=1 ops=77 impl=80 so16=33c3bb7e8365835d exports=670 w66pre16=bf6b683d94549087
+# PTSGAP-DECL: tool=88 dead=11 artifact=1 ops=76 impl=79 so16=e887b27a86b275ff exports=671 w66pre16=bf6b683d94549087
 #   ⚠️ 波 W8·`t103` 重锚（`D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
 #   `LoGetPenaltyModuleInternalHandle` 由诚实缺口 stub 升为真实现 ⇒ `so16` `4e999451e9ab137e`→`5c2097d35cd89749`、
 #   导出 **565→567**，**逐名二条**（新加的两个**独立读取面**，与 `t97` 同形制）：
@@ -70,3 +70,19 @@
 #     （本增量不新增/不删除任何 `return wpf_pts_gap(...)` stub）⇒ **只有 `so16` 跟权威件换**：
 #     `so16 a1403ea71c2bf487→33c3bb7e8365835d`。⚠️ **计数未动 ≠ 能力未动**，也**计数下降 ≠ 能力前进**：本增量改变的是
 #     「**缺省路径**是否发起三级链」这一**行为**，不在缺口条数上体现（`pts-gap-count-check.sh` 件头第 ① 条同口径）。
+#   ⚠️ 波 `T-A12` 重锚（`TASK-0302` 增量：native **枚举子段** ⇒ `cParas` 源；`D-G70` 形态又一实例）：
+#     `src/WpfGfx.Linux.Native/src/win32_pts.c` (a) 新增导出 `FsQuerySubtrackParaList`（`PtsHelper.cs:633`
+#     `ParaListFromSubtrack` 的唯一调用点；`FsQuerySubtrackDetails` 返 `cParas>0` 后**必被调** ⇒ 缺它
+#     会退化成 `EntryPointNotFoundException`）＋ (b) `FsQuerySubtrackDetails` 新增**成功分支**（窗内
+#     `+136`／`+144` 真枚举穷尽 ⇒ `rc=0` 写出参；`[SUBENUM] … ok=1 v=ENUM-OK` 为来源行）。⇒
+#     `exports 670→671`（**逐名 +1，无消失**）；`tool 89→88`／`ops 77→76`／`impl 80→79`（`FsQuerySubtrackParaList`
+#     由「会 `EntryPointNotFoundException` 的缺口」变为「已导出可用」⇒ 缺口计数**下降** 1）；
+#     `so16 33c3bb7e8365835d→ef5b70eecd011d7f`；`dead/artifact/w66pre16` 未动。
+#     ⚠️ **计数下降 ≠ 能力前进**：本增量只把 `cParas` 的**源**建起来（枚举计数），页仍**未绘出内容**
+#        （`magenta=0`／`colors=383`／`ink=480000`／帧 `ef3fd6765f18f51b` **逐字段不变**）；缺口面只是
+#        **位移**（`[FSQSTD] rc=-10000` `1217→394`；新增 `[FSQSPL] rc=0 1012`）⇒ 同一口径（件头第 ① 条）。
+#     ⚠️ **正文复述位（`docs/ROUTES.md`／`README.md`／`build/MilBridge/HANDOFF-NEXT.md`／`samples/**`／
+#        `src/WpfGfx.Linux.Native/src/win32_classification.c` ∕ `docs/unimplemented.md`，现值 `ops=77`／`impl=80`／
+#        `tool=89`）本趟未同改** —— 那些件在 `T-A12` 写域（**黑名单** `docs/**`）之外 ⇒
+#        `pts-gap-count-check.sh` 会因此报 `SITE-DRIFT`（**已如实记、待裁决**，与 `T-A4` 同形态）；
+#        本行只保证**声明行 vs 现算**逐字段一致（`tool/dead/artifact/ops/impl/so16/exports/w66pre16` 全等）。
