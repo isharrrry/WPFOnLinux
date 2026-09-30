@@ -3908,3 +3908,11 @@ SELFDESC_WIRING=FAIL examined=1 wired=1 unwired=0 undeclared=0 fails=1 run_step=
 - **本增量改的是"失败面"**：缺省路径残留的 1 条 `[HC-UNHANDLED]`（`ArgumentException: Specified Visual is already a child …`，首帧 `VisualCollection.Add`）⇒ **`[HC-UNHANDLED]=0`**。修法两处：①托管（走生成器 `P8`）生成件 `PtsHelper.Linux.cs` 的 `UpdateFloatingElementVisuals` 补**浮层视觉换父**（照上游 `UpdateParaListVisuals` 同形先例；`WPF_FLOAT_REPARENT=0` 回改前）；②native `src/WpfGfx.Linux.Native/src/win32_pts.c` 的 `drive-handles-released(page-destroyed)` 两处拒因**收窄**为"下一次填充必然要发 `+176` 时才拒"（`WPF_PTS_QTP_LIVE_NARROW=0` 回改前）。
 - **根因归属（native 侧，具名下一靶）**：附属对象台账 `fl_att[].obj_client` 是 **doc 级、跨页复用** ⇒ 同一客户端活在两页的 `FloatingElementList` 里（上游靠页销毁 `Dispose` 不会出现）⇒ 具名 `PRECOND-NATIVE-PAGE-SCOPED-ATTACH-CLIENT`（本波不做）。
 - **零回归**：`PTS_COLORANCHOR=PASS k=24 hits=2`（`Beige=910`／`DarkGreen=44`）、`k24 fr_sha=791696291d51470b` 未变；症状门逐格同。载体：`build/MilBridge/P1-tail2-hcres-impl-report.md`。
+
+---
+
+### ⏪ `T-A49`／`T-A50`／`T-A51`（P1 尾波2 `#82` 收尾段）**dated 现值位**（读时 `2026-09-30T23:59+0800`；**只增不改**）
+
+- **`T-A49`（E5 重取臂 · 五臂换代）**：世代绑定项 `instr_shim` `921ba9c65e9fb3be → e2fa9ec9be1a6cf1`（`build/shims/PresentationCore.HbTextLine.cs`，提交 `fe4c471`）⇒ 五臂重取；`TLINE_GATE=PASS arms=5 red=2 green=3 noinfo_arm=0 drift=0 gone=0 unregistered=0 tree_gen=same`（`rc=0`）；**五臂红/绿结论与在册逐字相同**；`known-red.json 29219b6f071c6361 → dcc22fd3c80cfcac`。
+- **`T-A50`（重冻结 `# ARM-LOG-SHA` 五行）**：冻结块 `# RE-FROZEN #80` 内 5 行按现盘值重钉（只改 token）⇒ `COLUMN_FLOOR=FAIL → PASS`（`COLUMN_FLOOR_ARMLOG=PASS n_decl=5 n_ok=5`）；`ARMLOG_SHA=PASS`；基线件 `b27ff6332f263495 → bd64f2c1a3eaaa05`（**世代仍 `#80`**）。
+- **`T-A51`（收尾）**：**现取六闸逐条 `rc=0`**（`SSC`／`HANDOFF_MV`／`DEFREG=PASS declared=225 route_ids=225`／`REPORTID=PASS`／`COLUMN_FLOOR=PASS`／`ARMLOG_SHA=PASS`）；整波旁生件 `git checkout HEAD --` 归位；`declared.tsv` 重发 225 条。载体：`build/MilBridge/P1-tail2-closeout-report.md`。

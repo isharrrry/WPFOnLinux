@@ -626,3 +626,12 @@ channel.CommittedCommands    // 成功解码执行的命令数
 - **本增量改的是"失败面"，不是"在册数"**：`PTSGAP=PASS tool=76 dead=11 artifact=1 ops=64 impl=67 so16=1dbea9026dd7d3d7 exports=683`（**`tool`／`dead`／`artifact`／`ops`／`impl` 五位全未动**；只有 `so16` 跟权威件换 —— 即：**可操作缺口 64／实现口径 67 不变**）。⇒ 与本文档上文各条**不冲突**（它们描述的是缺口/能力面）。
 - **两极化（同一 `.so 1dbea9026dd7d3d7`／同一 `pf 189e3704cbf4f031`／同一装置 `:231`／同批工具，只差一个 env）**：`WPF_FLOAT_REPARENT=0` ⇒ 残留回 `ArgumentException`；`WPF_PTS_QTP_LIVE_NARROW=0` ⇒ 残留回 `PtsException … '-10000'`（具名 `[FS_PAGE_GAP] rc=-10000 reason=drive-handles-released(page-destroyed) entry=FsQueryTrackParaList`）。
 - **载体**：`build/MilBridge/P1-tail2-hcres-impl-report.md`（本席新建）。
+
+---
+
+## ⏪ **dated 收尾对齐（`T-A49`／`T-A50`／`T-A51`，读时 `2026-09-30T23:59+0800`；上文一字未动）**
+
+- **`T-A49`（E5 重取臂 · 五臂换代）**：世代绑定项 `instr_shim 921ba9c65e9fb3be → e2fa9ec9be1a6cf1` ⇒ 五臂重取；`TLINE_GATE=PASS arms=5 red=2 green=3 drift=0 gone=0 unregistered=0`（`rc=0`）；五臂红/绿结论与在册**逐字相同**（`known-red.json 29219b6f071c6361 → dcc22fd3c80cfcac`）。
+- **`T-A50`（重冻结 `# ARM-LOG-SHA` 五行）**：`COLUMN_FLOOR=FAIL → PASS`（`rc=0`）；基线件 `b27ff6332f263495 → bd64f2c1a3eaaa05`（**世代仍 `#80`**）；`ARMLOG_SHA=PASS`。
+- **`T-A51`（收尾）**：**现取六闸逐条 `rc=0`**（`SSC`／`HANDOFF_MV`／`DEFREG=PASS declared=225`／`REPORTID`／`COLUMN_FLOOR`／`ARMLOG_SHA`）；`declared.tsv` 重发 225 条。
+- **本增量不改"缺口/能力面"**：`PTSGAP` 五位未动（`tool=76 dead=11 artifact=1 ops=64 impl=67 so16=1dbea9026dd7d3d7 exports=683`）；`PTS_COLORANCHOR=PASS k=24 hits=2`。载体：`build/MilBridge/P1-tail2-closeout-report.md`。
