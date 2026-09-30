@@ -90,6 +90,7 @@ static const char *const k_pts_entries[] = {
     "FsQueryTrackParaList",
     "FsQuerySubtrackDetails",
     "FsQuerySubtrackParaList",
+    "FsClearUpdateInfoInPage",
 };
 #define WPF_PTS_ENTRY_COUNT ((int)(sizeof(k_pts_entries) / sizeof(k_pts_entries[0])))
 
@@ -415,6 +416,21 @@ static int g_pts_fsp_pl_gap  = 0;      /* `t129`：返非 0 次数（**本步＝
 static int g_pts_fsp_qpd_new  = 0;     /* `fskupd = fskupdNew(2)` 的次数（**首次**查询） */
 static int g_pts_fsp_qpd_nc   = 0;     /* `fskupd = fskupdNoChange(1)` 的次数（**稳态**查询） */
 static int g_pts_fsp_vis_ok   = 0;     /* 轨视觉"建起"的**下游见证**次数（`[VIS]`） */
+/* ⏪ `T-A16`：`FsClearUpdateInfoInPage` 的成败面（`[CLRUPD]`／`[FS_PAGE_GAP]` 的计数只读口）。 */
+static int g_pts_fsp_clr_ok   = 0;     /* **真清掉**该页增量状态的次数（成功 ⇒ 返 0） */
+static int g_pts_fsp_clr_gap  = 0;     /* 返非 0 次数（失败面：`NULL`／未知上下文／不在册的页） */
+/* ⏪ `T-A16`：**反腿开关**（默认 `0` ⇒ 主链产物**零影响**）。`1` ⇒ `FsClearUpdateInfoInPage`
+   **假成功**：返 0 但**一个字节都不清** —— 用来证明「`[CLRUPD]` 之后下一次查询必须是 `fskupdNew`」
+   这条断言**真的会红**（假成功腿 ⇒ 下一次查询仍是 `fskupdNoChange`）。
+   ⚠️ **只在副本**以 `-DWPF_PTS_CLRUPD_FAKE=1` 单独编译，**绝不进主链**（照 `T-A15` 的 `WPF_PTS_QPD_FSKUPD_FAKE` 形制）。 */
+#ifndef WPF_PTS_CLRUPD_FAKE
+#define WPF_PTS_CLRUPD_FAKE 0
+#endif
+#if WPF_PTS_CLRUPD_FAKE == 1
+#define WPF_PTS_CLRUPD_BASIS "FAKE-NO-CLEAR"
+#else
+#define WPF_PTS_CLRUPD_BASIS "reset-page-owned-incremental-state"
+#endif
 /* ⏪ `T-A15`：**"查询组"毗邻判定**（见 `FsQueryPageDetails` 的语义注释）。
    上一条 native 调用是否也是**对同一页**的 `FsQueryPageDetails`；由下游入口（轨/子轨的查询）清空。 */
 static const void *g_pts_qpd_prev_page = NULL;
@@ -3631,6 +3647,82 @@ int FsDestroyPage(void *pfscontext, void *pfspage)
     g_pts_fsp_des_gap++;
     fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=FsDestroyPage ctx=%p page=%p des_ok=%d des_gap=%d\n",
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason, pfscontext, pfspage, g_pts_fsp_des_ok, g_pts_fsp_des_gap);
+    return WPF_PTS_ERR_NOT_IMPLEMENTED;
+}
+
+// ── `T-A16`／`TASK-0302` 增量：`FsClearUpdateInfoInPage`（声明 `Pts.cs:3142`；调用点 `PtsPage.cs:598`）──
+//   签名：`int FsClearUpdateInfoInPage(IntPtr pfscontext, IntPtr pfspage);`（**无出参**）
+//   🔴 **为什么必须补它（现取的因果链）**：`T-A15` 让"页视觉帧"第一次走通之后，
+//     `FlowDocumentPage.UpdateVisual:871`（在 `GetPageVisual()` **之后**）与 `OnBeforeFormatPage:886`
+//     都会调 `_ptsPage.ClearUpdateInfo()` ⇒ `PtsPage.cs:598 PTS.FsClearUpdateInfoInPage(...)` ——
+//     该符号本侧**未导出** ⇒ 现取 `EntryPointNotFoundException: … 'FsClearUpdateInfoInPage'` `0→532`。
+//   上游语义（现取，行号仅本次有效）：
+//     · `PtsPage.ClearUpdateInfo()`（`PtsPage.cs:593-600`）：`if (!IsEmpty)` 时调它，注释逐字
+//       「Clear any incremental update state accumulated during update process.」；
+//     · `FlowDocumentPage.ForceReformat()`（`:246-253`）给出**因果**（逐字）：「Page update may be
+//       requested more than once before rendering is done. But PTS is not able to merge update info.
+//       To protect against loosing incremental changes delta, need to force full formatting for the
+//       conent.」＋ `:250` 就调 `_ptsPage.ClearUpdateInfo()` ⇒ **清增量 ⇒ 下一趟必须是全量重排**。
+//   ⇒ 本侧真语义（**可现取、可证伪**）：把该**页对象**的**本模块自持的增量更新状态**真的清掉 ——
+//     `qpd_vis_built`／`qpd_new_pending`／`qpd_fstd_since` 归 0，并**断开"查询组"毗邻位**
+//     ⇒ **下一次** `FsQueryPageDetails` 按**全量**给 `fskupdNew(2)`，而不是稳态 `fskupdNoChange(1)`。
+//     ⚠️ **为什么非这样不可**：`fskupdNoChange` 的语义就是"无变化 ⇒ 视觉仍有效"（`PtsPage.cs:999`
+//     提前返回、`PtsHelper.cs:210` 同样提前返回）⇒ 若"清"完之后下一次仍是 `NoChange`，本入口就成了
+//     **什么都没做的假成功**（那正是裁定二十三「不许静默 stub」与 `t127`「字段级诚实性」两条都在禁的形态）。
+//   ⚠️ **永不假成功**：只有**真清掉**（状态**从非零变零**或本就为空也照样如实报出 `*_before=`）才返 0；
+//     `pfspage == NULL`／`pfscontext` 非空但不在册／`pfspage` 不在册 ⇒ 返 `-10000` ＋ 具名 `[FS_PAGE_GAP]`
+//     留痕，且**一个字节也不改**（不改任何页对象的任何字段、不动毗邻位）。
+//   ⚠️ **射程边界（如实划界，防被读宽）**：本入口清的是**本模块自持**的增量状态（"该页的轨视觉是否
+//     已建起"这一下游见证面 ＋ 查询组毗邻位），**不是**托管/LineServices 的完整增量位图 —— 本侧**没有**
+//     那个源 ⇒ 具名 `NOINFO-FSCLEARUPDATEINFO-SCOPE-NATIVE-OWNED-STATE`。它**不**声称"页内容已重排"，
+//     也**不**声称"页会因此可见变化"（症状门由腿读数给）。
+int FsClearUpdateInfoInPage(void *pfscontext, void *pfspage)
+{
+    const char *reason = NULL;
+    if (!pfspage)                    reason = "null-page";
+    else if ((const void *)pfscontext && !wpf_pts_doc_find(pfscontext)) reason = "unknown-ctx";
+    else {
+        wpf_pts_fsp *pg = NULL;
+        for (int i = 0; i < g_pts_fsp_live_n; i++) {      /* **指针值比较**，不 deref 未知句柄 */
+            if (g_pts_fsp_live[i]->magic != WPF_PTS_FSP_MAGIC) continue;
+            if ((void *)g_pts_fsp_live[i] == pfspage) { pg = g_pts_fsp_live[i]; break; }
+        }
+        if (!pg) reason = "unknown-page";
+        else {
+            /* ── **真清**：把该页对象的增量状态归零。清前的值**先取**（留痕里现算、可对拍）── */
+            const int   vis_before  = pg->qpd_vis_built;
+            const int   pend_before = pg->qpd_new_pending;
+            const int   fstd_before = pg->qpd_fstd_since;
+            const int   grp_before  = ((const void *)g_pts_qpd_prev_page == (const void *)pfspage) ? 1 : 0;
+#if WPF_PTS_CLRUPD_FAKE == 1
+            /* 反腿（**只在副本**）：**假成功** —— 返 0、**一个字节都不清** ⇒
+               「清完之后下一次查询必须是 `fskupdNew`」那条断言**当场红**（仍是 `fskupdNoChange`）。 */
+            (void)vis_before; (void)pend_before; (void)fstd_before; (void)grp_before;
+#else
+            pg->qpd_vis_built   = 0;
+            pg->qpd_new_pending = 0;
+            pg->qpd_fstd_since  = 0;
+            /* 断开"查询组"毗邻位（与下游入口 `FsQueryTrackDetails` 等**同办**）：本入口**不是**页查询
+               ⇒ 它之后的下一次 `FsQueryPageDetails` 不得被读成"同组内后续查询"（那会给 `NoChange`）。 */
+            g_pts_qpd_prev_page = NULL;
+#endif
+            g_pts_fsp_clr_ok++;
+            { int _i = wpf_pts_index("FsClearUpdateInfoInPage"); if (_i >= 0) g_pts_seen[_i]++; }
+            fprintf(stderr, "[CLRUPD] rc=0 page=%p vis_built_before=%d new_pending_before=%d "
+                            "fstd_since_before=%d group_adjacent_before=%d page_qpd=%d "
+                            "clr_ok=%d clr_gap=%d seq=%d basis=%s "
+                            "NOINFO=fsclearupdateinfo-scope-native-owned-state\n",
+                    (void *)pg, vis_before, pend_before, fstd_before, grp_before, pg->qpd_calls,
+                    g_pts_fsp_clr_ok, g_pts_fsp_clr_gap, g_pts_seq, WPF_PTS_CLRUPD_BASIS);
+            g_pts_seq++;
+            return 0;
+        }
+    }
+    g_pts_fsp_clr_gap++;
+    fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=FsClearUpdateInfoInPage ctx=%p page=%p "
+                    "clr_ok=%d clr_gap=%d\n",
+            WPF_PTS_ERR_NOT_IMPLEMENTED, reason, pfscontext, pfspage,
+            g_pts_fsp_clr_ok, g_pts_fsp_clr_gap);
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
 

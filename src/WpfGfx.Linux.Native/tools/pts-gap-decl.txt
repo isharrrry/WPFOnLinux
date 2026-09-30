@@ -31,7 +31,7 @@
 #   并**断言相等**（不等即 `rc=9` 停手 = 基底漂移），再把 `tool/dead/artifact/ops/impl`
 #   交给牙**现算对账**（不等即牙红 —— 那才是"数漂了"，与基底漂移是两回事，分开报）。
 # ══════════════════════════════════════════════════════════════════════════════════
-# PTSGAP-DECL: tool=88 dead=11 artifact=1 ops=76 impl=79 so16=3cb3ad48ef27d13d exports=671 w66pre16=bf6b683d94549087
+# PTSGAP-DECL: tool=87 dead=11 artifact=1 ops=75 impl=78 so16=63f0eb7c4d2fc8cd exports=672 w66pre16=bf6b683d94549087
 #   ⚠️ 波 W8·`t103` 重锚（`D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
 #   `LoGetPenaltyModuleInternalHandle` 由诚实缺口 stub 升为真实现 ⇒ `so16` `4e999451e9ab137e`→`5c2097d35cd89749`、
 #   导出 **565→567**，**逐名二条**（新加的两个**独立读取面**，与 `t97` 同形制）：
@@ -95,3 +95,19 @@
 #     `tool/dead/artifact/ops/impl` 全未动，**只有 `so16` 跟权威件换**：`so16 e887b27a86b275ff→3cb3ad48ef27d13d`。
 #     ⚠️ **计数未动 ≠ 能力未动**（件头第 ① 条同口径）：本增量改的是**页视觉帧**的取值语义与留痕，
 #        不在缺口条数上体现。
+#   ⚠️ 波 `T-A16` 重锚（`TASK-0302` 增量：新增导出 `FsClearUpdateInfoInPage`；`D-G70` 形态又一实例；
+#     **产品改动 ⇒ 在册数必须跟随权威件**）：
+#     `src/WpfGfx.Linux.Native/src/win32_pts.c` 新增**导出** `FsClearUpdateInfoInPage`（声明 `Pts.cs:3142`；
+#     调用点 `PtsPage.cs:598`；**诚实形态**：导出符号 ⇒ 该名离开"会 `EntryPointNotFoundException` 的缺口"
+#     名单；入参按**对象身份**认领（`pfscontext` 非空须在册 ∧ `pfspage` 须在册）；**无出参**；
+#     **永不假成功** —— 只有**真清掉**该页的增量更新状态（`qpd_vis_built`／`qpd_new_pending`／
+#     `qpd_fstd_since` 归 0 ＋ 断开"查询组"毗邻位）才返 0，且**失败必留痕**（`[CLRUPD]`／`[FS_PAGE_GAP]`））⇒
+#     `exports 671→672`（**逐名 +1，无消失**；`nm -D --defined-only` 行数 == `exports.txt` 行数 == 672）；
+#     `tool 88→87`／`ops 76→75`／`impl 79→78`（该名由「会 `EntryPointNotFoundException` 的缺口」变为
+#     「已导出可用」⇒ 缺口计数**下降** 1；不新增/不删除任何 `wpf_pts_gap(...)` stub ⇒ `impl−ops` 仍 3）；
+#     `so16 3cb3ad48ef27d13d→63f0eb7c4d2fc8cd`；`dead/artifact/w66pre16` 未动。
+#     ⚠️ **计数下降 ≠ 能力前进**（件头第 ① 条同口径）：本增量只把**缺符号**变成**有符号**，
+#        并把"清增量"落成**可现取**的状态复位；页仍**未绘出内容**（症状门由腿读数给）。
+#     ⚠️ **正文复述位本趟已随动**（`docs/ROUTES.md` 三处／`README.md`／`build/MilBridge/HANDOFF-NEXT.md`／
+#        `samples/WpfFeatureProbe/KNOWN-DEFECTS.md`／`docs/unimplemented.md`／
+#        `src/WpfGfx.Linux.Native/src/win32_classification.c`）⇒ 本牙现取 **`PTSGAP=PASS`**（零 `SITE-DRIFT`）。
