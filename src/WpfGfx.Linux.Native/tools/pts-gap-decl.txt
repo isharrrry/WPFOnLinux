@@ -31,7 +31,7 @@
 #   并**断言相等**（不等即 `rc=9` 停手 = 基底漂移），再把 `tool/dead/artifact/ops/impl`
 #   交给牙**现算对账**（不等即牙红 —— 那才是"数漂了"，与基底漂移是两回事，分开报）。
 # ══════════════════════════════════════════════════════════════════════════════════
-# PTSGAP-DECL: tool=82 dead=11 artifact=1 ops=70 impl=73 so16=8ad9376305404ca2 exports=677 w66pre16=bf6b683d94549087
+# PTSGAP-DECL: tool=82 dead=11 artifact=1 ops=70 impl=73 so16=ac002caa324a496f exports=677 w66pre16=bf6b683d94549087
 #   ⚠️ 波 `T-A28` 重锚（`TASK-0302` 增量：native 侧**驱动 `cbktxt.pfnFormatLine`**；`D-G70` 形态又一实例；
 #     **产品改动 ⇒ 在册数必须跟随权威件**）：
 #     `src/WpfGfx.Linux.Native/src/win32_pts.c` 新增（**不新增任何导出**）：
@@ -52,6 +52,19 @@
 #     且**行记录台账真的装进了回调返回值**（`rc=0`／`pfsline` 句柄／`dcpLine`／`dvrAscent` 现场可读）；
 #     但**产品行为逐字不变**（两页仍**未绘出内容**）⇒ 见载体
 #     `build/MilBridge/P1-tail2-formatline-impl-report.md`。
+#   ⚠️ 波 `T-A31` 重锚（`TASK-0302` 增量：翻 `WPF_PTS_FL_DRIVE` 为**缺省开**；`D-G70` 形态又一实例；
+#     **产品改动 ⇒ 在册数必须跟随权威件**）：
+#     `src/WpfGfx.Linux.Native/src/win32_pts.c` 的**运行期闸缺省值**由 `WPF_PTS_FL_DEFAULT 0` 翻为 `1`
+#     （照 `T-A9` 体例撤销「缺省关」）；**仅显式 `WPF_PTS_FL_DRIVE=0` 才关**（反极性腿）。闸关留痕行
+#     文案随动（`（仅显式 WPF_PTS_FL_DRIVE=0 才关；缺省已开）`）。**导出面一字未动**（`exports=677` 不变，
+#     `nm -D --defined-only` 行数 == `exports.txt` 行数 == 677）；不新增/不删除任何 `wpf_pts_gap(...)`
+#     stub ⇒ `tool/dead/artifact/ops/impl` 全未动，**只有 `so16` 跟权威件换**：
+#     `so16 8ad9376305404ca2→ac002caa324a496f`（430736 B，**字节数不变** —— 仅常量 `0→1` ＋ 注释文案）。
+#     🔴 **翻闸的理由**：`T-A28` 当年缺省关的现场依据（驱动撞 `LineBase.HandleElementStartEdge` 的
+#     `Invariant.FailFast("We do not expect any Blocks inside Paragraphs")` ⇒ `app_rc=134`）已由
+#     `T-A30` 在**行模型写域**内解除（段末行交回源自己的 `ParagraphBreakRun` ⇒ 段末收束 `fsflres=2`、
+#     不再越界）；`T-A30` 闸开读数 `failfast=0 app_rc=143`、`[FORMATLINE] 7/7`。⇒ 本增量让**缺省路径**
+#     也驱动行模型（成对腿与症状门读数见载体 `build/MilBridge/P1-tail2-fldrive-impl-report.md`）。
 #   ⚠️ 波 `T-A26` 重锚（`TASK-0302` 增量：native「文本行模型」三入口；`D-G70` 形态又一实例；
 #     **产品改动 ⇒ 在册数必须跟随权威件**）：
 #     `src/WpfGfx.Linux.Native/src/win32_pts.c` 新增**导出** `FsQueryLineListSingle`（声明 `Pts.cs:3756-3761`；

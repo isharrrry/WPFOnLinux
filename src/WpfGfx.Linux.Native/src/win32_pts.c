@@ -2060,14 +2060,19 @@ out:
       `FsCreatePage*` 内自算；本移植的 `FsCreatePageFinite` 用的是**本侧页几何约定** `768×576`，
       见该入口的 `WPF_PTS_FSP_FIN_DU/DV`）⇒ 本格**沿用同一约定**并**具名** `NOINFO-FSGEOMETRY-LAYOUT`
       （**不**声称与上游 ABI 几何可比；`pbrlineIn` 首行传 `0`＝首行契约）。 */
-/* ⏪ `T-A28`：**运行期闸**（缺省 **关**）—— `WPF_PTS_FL_DRIVE=1` 才驱。
-   🔴 为什么缺省必须是**关**（不是"保守"，是**现场读数**）：本跳在**正确几何**（`600 DIP`）下
-      真被驱时，托管侧 `Line.GetTextRun` 会撞 **`Invariant.FailFast("We do not expect any Blocks
-      inside Paragraphs")`**（`LineBase.cs:137`）⇒ **不可捕获** ⇒ `app_rc=134`（载体 §3 的成对读数：
+/* ⏪ `T-A28`：**运行期闸**（原缺省 **关**）—— 曾以 `WPF_PTS_FL_DRIVE=1` 才驱。
+   🔴 当年缺省关的理由（不是"保守"，是**现场读数**）：本跳在**正确几何**（`600 DIP`）下真被驱时，
+      托管侧 `Line.GetTextRun` 会撞 **`Invariant.FailFast("We do not expect any Blocks inside
+      Paragraphs")`**（`LineBase.cs:137`）⇒ **不可捕获** ⇒ `app_rc=134`（载体 §3 的成对读数：
       `gate=on` ⇒ `alive=no/app_rc=134`；`gate=off` ⇒ `alive=yes/app_rc=143`，其余症状门逐字相同）。
-      ⇒ 缺省关 ＝ **不把已知会 abort 的调用放进主链**；驱与不驱都**留具名行**（零静默）。 */
+      ⇒ 当时缺省关 ＝ **不把已知会 abort 的调用放进主链**；驱与不驱都**留具名行**（零静默）。
+   ⏪ `T-A31`：该 abort 前置已由 `T-A30` 在行模型写域内解除
+      （`PRECOND-LINEMODEL-ELEMENT-SAFE-STARTS`：段末行交回源自己的那个 `ParagraphBreakRun`
+      ⇒ 段末收束 `fsflres=2`、不再越界撞 Block；闸开时 `failfast=0 app_rc=143`、`[FORMATLINE] 7/7`）
+      ⇒ 本增量照 `T-A9` 体例**把闸翻为缺省开**（撤销「缺省关」），使**缺省路径**也驱动行模型；
+      **仅显式 `WPF_PTS_FL_DRIVE=0` 才关**（反极性腿 `legs-polar0`）。 */
 #ifndef WPF_PTS_FL_DEFAULT
-#define WPF_PTS_FL_DEFAULT 0
+#define WPF_PTS_FL_DEFAULT 1
 #endif
 #define WPF_PTS_FL_DU 180000         /* 本侧页几何：**PTS 单位**（`TextDpi`：`300 单位 = 1 DIP`）
                                          ⇒ `180000 = 600 DIP`（`TextDpi.cs:201` 的 `_scale=28800/96=300`）。
@@ -2196,7 +2201,7 @@ static void wpf_pts_formatline_drive(wpf_pts_doc *d, const char *where)
 {
     if (!wpf_pts_fl_enabled()) {
         g_pts_fl_last_v = "GATE-OFF";
-        fprintf(stderr, "[FORMATLINE] where=%s window=in gate=0 v=GATE-OFF（缺省；`WPF_PTS_FL_DRIVE=1` 才驱）"
+        fprintf(stderr, "[FORMATLINE] where=%s window=in gate=0 v=GATE-OFF（仅显式 `WPF_PTS_FL_DRIVE=0` 才关；缺省已开）"
                         " calls=%d ok=%d gap=%d\n", where, g_pts_fl_calls, g_pts_fl_ok, g_pts_fl_gap);
         return;
     }
