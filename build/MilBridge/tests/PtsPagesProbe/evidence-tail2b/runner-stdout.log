@@ -1,0 +1,79 @@
+HEAVYSLOT=ACQUIRED waited=0s cmd=bash /home/links-dev/tA18-work/legs.sh /home/links-dev/netTest/GitProj/WPFOnLinux/build/MilBridge/tests/PtsPagesProbe/evidence-tail2b
+HEAVYSLOT=MEMOK avail=24539MB min_avail=2500MB
+=== 权威件现取 ===
+shim16=9c19dc0fef35cf4a
+pf16=1757d610a687777c
+=== sync-applocal --check（同步前）===
+   manifest=SKIPPED(mode=check 不写盘)
+SYNC-APPLOCAL=DRIFT target=/home/links-dev/tA18-work/app items=5 ok=4 synced=0 created=0 drift=1 noauth=0 same=0 rc=3
+=== sync-applocal（同步权威五件到私有 app）===
+   manifest=/home/links-dev/tA18-work/app/.applocal-sync.tsv（5 行）
+SYNC-APPLOCAL=PASS target=/home/links-dev/tA18-work/app items=5 ok=4 synced=1 created=0 drift=0 noauth=0 same=0 rc=0
+=== run-pts-pages-legs（A 臂）===
+APPSYNC: SYNC-APPLOCAL=PASS target=/home/links-dev/tA18-work/app items=5 ok=5 synced=0 created=0 drift=0 noauth=0 same=0 rc=0
+AUTHORITY: shim=9c19dc0fef35cf4a pf=1757d610a687777c ｜ APPDIR: shim=9c19dc0fef35cf4a pf=1757d610a687777c
+LEGS_TOOLS runner_sha16=330a90f1f0ac28e4 session_sha16=f1a582d9ea9788c9 guard_sha16=962fec114b2d0692 mtime_max=2026-09-29T17:59:07+0800 mtime_max_epoch=1790675947
+DISPLAY_PICK display=:231 rule=lowest-free(base=:231 span=9) waited_ms=0（独占号：同一进程内多趟按最小空闲分配 ⇒ 不互相踩号）
+DISPLAY_HANDOFF display=:231 env=W67_DISPLAY rule=lowest-free(base=:231 span=9)（⏪ t157 修 D-1：分配端与消费端**同源**）
+device=memok avail=24526MB
+X_UP=yes display=:231
+DISPLAY_LEASE_FILED=/home/links-dev/netTest/GitProj/WPFOnLinux/build/MilBridge/tests/PtsPagesProbe/evidence-tail2b/device/display-lease.txt owner_pid=2201176 xvfb_pid=2204782 display=:231 mode=600
+LEGS: A:24,23
+SESSION_TOOLS session_sha16=f1a582d9ea9788c9 session_mtime_epoch=1790675947 runner_sha16=330a90f1f0ac28e4
+DISPLAY_LEASE=official-caller-owned display=:231 sock=/tmp/.X11-unix/X231 xvfb_pid=2204782 owner_pid=2201176 lease=/home/links-dev/netTest/GitProj/WPFOnLinux/build/MilBridge/tests/PtsPagesProbe/evidence-tail2b/device/display-lease.txt（① 常规件 ② 模式 600 ③ DISPLAY 相符 ④ owner 在祖先链上 ⑤ 活 Xvfb 且是其亲儿子 ⇒ 放行）
+=============== GROUP 1 arm=A clicks=[24,23] 13:41:54 ===============
+shim_sha16=9c19dc0fef35cf4a pf_sha16=1757d610a687777c
+five_pre: libwpfwin32.so=9c19dc0fef35cf4a wpfgfx_cor3.so=941e69902d82ef02 PresentationCore.dll=e3f77c0fae3d006d PresentationFramework.dll=1757d610a687777c WindowsBase.dll=3886f61b0251140e 
+mem_avail_kB_start=25085124
+app_pid=2204885 timeout=200s
+boot_log_bytes=14978
+  boot  FILE=/home/links-dev/tA18-work/logs/evidence-tail2b/shots/g1/boot.png 1280x1024 colors=386 magenta=0 total=1310720 ink=480000
+boot_alive=yes
+--- G1 click 24  13:42:03 ---
+BEFORE item=24 nm=FlowDocument stable=yes rect=28,410,203x27 point=127,423 expect=FlowDocumentDemo try=1
+AFTER  item=24 alive=yes ns=HandyControlDemo.UserControl.FlowDocumentDemo ns_delta=1 try=1 expect_hit=yes
+  FILE=/home/links-dev/tA18-work/logs/evidence-tail2b/shots/g1/k24.png 1280x1024 colors=383 magenta=0 total=1310720 ink=480000
+CLICK k=24 alive=yes expect=FlowDocumentDemo AE=15386 pts_unavail=0 pts_gap=0 guard=174 fatal=0 unh=0 ns_last=HandyControlDemo.UserControl.FlowDocumentDemo
+FAILLINE k=24 failfast=0 unrec=0 src=app_g1.log:FailFast|Unrecoverable
+FRAME k=24 fr_file=k24.png fr_sha=ef3fd6765f18f51b fr_lsha=ef3fd6765f18f51b fr_ae_boot=15386
+PHASE k=24 c1_ep=- c2_pts_gap=- c3_pts_unavail=- c4_unrecoverable=- managed_err= native_err=
+  c3_text: 
+--- G1 click 23  13:42:10 ---
+BEFORE item=23 nm=RichTextBox stable=yes rect=28,379,203x27 point=127,392 expect=RichTextBoxDemo try=1
+AFTER  item=23 alive=yes ns=HandyControlDemo.UserControl.RichTextBoxDemo ns_delta=1 try=1 expect_hit=yes
+  FILE=/home/links-dev/tA18-work/logs/evidence-tail2b/shots/g1/k23.png 1280x1024 colors=383 magenta=0 total=1310720 ink=480000
+CLICK k=23 alive=yes expect=RichTextBoxDemo AE=0 pts_unavail=0 pts_gap=0 guard=705 fatal=0 unh=0 ns_last=HandyControlDemo.UserControl.RichTextBoxDemo
+FAILLINE k=23 failfast=0 unrec=0 src=app_g1.log:FailFast|Unrecoverable
+FRAME k=23 fr_file=k23.png fr_sha=ef3fd6765f18f51b fr_lsha=ef3fd6765f18f51b fr_ae_boot=15386
+PHASE k=23 c1_ep=- c2_pts_gap=- c3_pts_unavail=- c4_unrecoverable=- managed_err= native_err=
+  c3_text: 
+alive_after_seq=yes
+APP_RC=143
+rc_reading: SIGTERM(仪器收的)
+log_bytes=1259182
+FIVE_STABLE_G1=YES
+ALL_GROUPS_DONE 13:42:18
+DEVICE_REAP state=clean who=xvfb pid=2204782 display=:231
+DEVICE_REAP state=clean who=xfwm pid=2204794 display=:231
+SESS_LOGDIR=/home/links-dev/tA18-work/logs/evidence-tail2b（转换器要找的 app_g*.log 就在这里）
+WROTE /home/links-dev/netTest/GitProj/WPFOnLinux/build/MilBridge/tests/PtsPagesProbe/evidence-tail2b/arm_A/leg_24.env k=24 arm=A alive=yes app_rc=143 magenta=0 colors=383
+WROTE /home/links-dev/netTest/GitProj/WPFOnLinux/build/MilBridge/tests/PtsPagesProbe/evidence-tail2b/arm_A/leg_23.env k=23 arm=A alive=yes app_rc=143 magenta=0 colors=383
+LEGS_TO_ENV=OK wrote=2 outdir=/home/links-dev/netTest/GitProj/WPFOnLinux/build/MilBridge/tests/PtsPagesProbe/evidence-tail2b
+POSTSHIM: shim=9c19dc0fef35cf4a pf=1757d610a687777c（== authority ⇒ 读数可归因）
+LEGSCOUNT requested=2 obtained=2 refused=0 reasons=none display=:231 rc=0 session_rc=0 conv_rc=0 outdir=/home/links-dev/netTest/GitProj/WPFOnLinux/build/MilBridge/tests/PtsPagesProbe/evidence-tail2b
+LEGS_RUNNER=PASS requested=2 obtained=2 refused=0 display=:231
+=== evidence leg envs ===
+LEG k=23 alive=yes app_rc=143 magenta=0 colors=383 ns=HandyControlDemo.UserControl.RichTextBoxDemo ae=0 ink=480000
+NAMED managed_unavail=0 err=- native_gap=0 native_err=-
+DEV x_up=yes five_stable=yes shim=9c19dc0fef35cf4a pf=1757d610a687777c
+FAILLINE k=23 failfast=0 unrec=0 src=app_g1.log:FailFast|Unrecoverable
+FRAME k=23 fr_file=k23.png fr_sha=ef3fd6765f18f51b fr_lsha=ef3fd6765f18f51b fr_ae_boot=15386
+# arm=A group=1
+LEG k=24 alive=yes app_rc=143 magenta=0 colors=383 ns=HandyControlDemo.UserControl.FlowDocumentDemo ae=15386 ink=480000
+NAMED managed_unavail=0 err=- native_gap=0 native_err=-
+DEV x_up=yes five_stable=yes shim=9c19dc0fef35cf4a pf=1757d610a687777c
+FAILLINE k=24 failfast=0 unrec=0 src=app_g1.log:FailFast|Unrecoverable
+FRAME k=24 fr_file=k24.png fr_sha=ef3fd6765f18f51b fr_lsha=ef3fd6765f18f51b fr_ae_boot=15386
+# arm=A group=1
+HEAVYSLOT=RELEASED rc=0 held=34s max_hold=1800s
+LEGS-SLOT-RC=0
