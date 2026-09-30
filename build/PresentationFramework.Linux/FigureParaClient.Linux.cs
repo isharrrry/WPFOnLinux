@@ -1,9 +1,9 @@
 // ⚠️ 本文件由 build/PresentationFramework.Linux/reapply-patches.py **生成**，不要手改。
 //
-// 内容 = 上游 `upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/FigureParaClient.cs` 逐字复制 + 2 处 W86A（`TASK-0304`/`TASK-0305`）改动。
+// 内容 = 上游 `upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/FigureParaClient.cs` 逐字复制 + 3 处 W86A（`TASK-0304`/`TASK-0305`）改动。
 // 每次运行该脚本都会从上游重读重生成；needle 找不到 / 命中数不符时**报错退出**
 // （不会静默产出未打补丁的副本）。改动逐处见：
-//   E1 ／ E2
+//   E1 ／ E2 ／ E3
 //
 // 背景（`D-G70`/`D-G78`）：本移植没有 PTS/原生 LineServices ⇒ 切「富文本」/「流文档」页
 // 曾**整进程 `rc=134`**。本件把它变成「**具名、可判、可见的能力边界**」：
@@ -483,6 +483,13 @@ namespace MS.Internal.PtsHost
             floatingElementsVisual.Offset = new PTS.FSVECTOR(ContentRect.u, ContentRect.v).FromTextDpi();
 
             PTS.FSRECT clipRect = new PTS.FSRECT(_paddingRect.u - _contentRect.u, _paddingRect.v - _contentRect.v, _paddingRect.du, _paddingRect.dv);
+            ContainerVisual t45cv0 = (_visual.Children.Count > 0) ? (_visual.Children[0] as ContainerVisual) : null;
+            WpfLinuxChainProbe.Hit("FIG.Geom", "parah=" + WpfLinuxChainProbe.Hx(_paraHandle)
+                + " rect=" + _rect.u + "," + _rect.v + "," + _rect.du + "," + _rect.dv
+                + " content=" + _contentRect.u + "," + _contentRect.v + "," + _contentRect.du + "," + _contentRect.dv
+                + " padding=" + _paddingRect.u + "," + _paddingRect.v + "," + _paddingRect.du + "," + _paddingRect.dv
+                + " clip=" + clipRect.u + "," + clipRect.v + "," + clipRect.du + "," + clipRect.dv
+                + " off0=" + (t45cv0 == null ? "na" : (WpfLinuxChainProbe.N(t45cv0.Offset.X) + "," + WpfLinuxChainProbe.N(t45cv0.Offset.Y))));
             PtsHelper.ClipChildrenToRect(_visual, clipRect.FromTextDpi());
 
             PtsHelper.UpdateFloatingElementVisuals(floatingElementsVisual, _pageContextOfThisPage.FloatingElementList);

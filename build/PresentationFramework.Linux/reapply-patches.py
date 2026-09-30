@@ -1654,6 +1654,25 @@ TPC_E_VV_REPL = """            PTS.FSTEXTDETAILS textDetails;
                 IsDeferredVisualCreationSupported(ref textDetails.u.full) ? 1 : 0,
                 "fsktd=" + (int)textDetails.fsktd);
 
+            // ── `T-A45`（`LINEVIS-ON-SCREEN`）：**段落背景视觉的落位** ─────────────────
+            //  见生成器内该块的说明；`WPF_LINEVIS_ONSCREEN=0` ⇒ 逐字回上游（反极性腿）。
+            if (WpfLinuxChainProbe.EnvOn("WPF_LINEVIS_ONSCREEN"))
+            {
+                Brush t45BackgroundBrush = (Brush)Paragraph.Element.GetValue(TextElement.BackgroundProperty);
+                if (t45BackgroundBrush != null)
+                {
+                    MbpInfo t45Mbp = MbpInfo.FromElement(Paragraph.Element, Paragraph.StructuralCache.TextFormatterHost.PixelsPerDip);
+                    if (ThisFlowDirection != PageFlowDirection)
+                    {
+                        t45Mbp.MirrorBP();
+                    }
+                    _visual.DrawBackgroundAndBorder(t45BackgroundBrush, t45Mbp.BorderBrush, t45Mbp.Border,
+                                                    _rect.FromTextDpi(), IsFirstChunk, IsLastChunk);
+                    WpfLinuxChainProbe.Hit("TPC.ParaBackground", "parah=" + WpfLinuxChainProbe.Hx(_paraHandle)
+                        + " rect=" + _rect.u + "," + _rect.v + "," + _rect.du + "," + _rect.dv);
+                }
+            }
+
             VisualCollection visualChildren = _visual.Children;
             ContainerVisual lineContainerVisual = _visual;
 """
@@ -1674,6 +1693,25 @@ TPC_E_RSL_REPL = """            ErrorHandler.Assert(!PTS.ToBoolean(textDetails.f
 
             if (textDetails.cLines == 0)
                 return;
+"""
+
+TPC_E_LINEGEOM_NEEDLE = """            // Get list of simple lines.
+            PTS.FSLINEDESCRIPTIONSINGLE [] arrayLineDesc;
+            PtsHelper.LineListSimpleFromTextPara(PtsContext, _paraHandle, ref textDetails, out arrayLineDesc);
+"""
+TPC_E_LINEGEOM_REPL = """            // Get list of simple lines.
+            PTS.FSLINEDESCRIPTIONSINGLE [] arrayLineDesc;
+            PtsHelper.LineListSimpleFromTextPara(PtsContext, _paraHandle, ref textDetails, out arrayLineDesc);
+
+            // ── `T-A45` 只读几何判别器（**行盒落位**）──────────────────────────────
+            if (arrayLineDesc.Length > 0)
+            {
+                PTS.FSLINEDESCRIPTIONSINGLE lg0 = arrayLineDesc[0];
+                WpfLinuxLineVisProbe.Hit("RenderSimpleLines.Geom", _paraHandle, arrayLineDesc.Length, 0, 0, -1,
+                    "urStart=" + lg0.urStart + " vrStart=" + lg0.vrStart + " dur=" + lg0.dur
+                    + " asc=" + lg0.dvrAscent + " desc=" + lg0.dvrDescent
+                    + " rectU=" + _rect.u + " rectV=" + _rect.v + " rectDU=" + _rect.du + " rectDV=" + _rect.dv);
+            }
 """
 
 TPC_E_UVSL_NEEDLE = """            VisualCollection visualChildren = visual.Children;
@@ -1794,6 +1832,7 @@ TPC_EDITS = [
     (TPC_E_UV_NEEDLE, TPC_E_UV_REPL, 1),
     (TPC_E_VV_NEEDLE, TPC_E_VV_REPL, 1),
     (TPC_E_RSL_NEEDLE, TPC_E_RSL_REPL, 1),
+    (TPC_E_LINEGEOM_NEEDLE, TPC_E_LINEGEOM_REPL, 1),
     (TPC_E_UVSL_NEEDLE, TPC_E_UVSL_REPL, 1),
     (TPC_E_SUDLV_NEEDLE, TPC_E_SUDLV_REPL, 1),
     (TPC_E_TAIL_NEEDLE, TPC_E_TAIL_REPL, 1),
@@ -1896,6 +1935,87 @@ namespace MS.Internal.PtsHost
     }
 }
 '''
+
+# ── `T-A45`（`LINEVIS-ON-SCREEN`）**在屏页＝有限页**驱动 ────────────────────────────────
+#  【现取断点（见 `P1-tail2-onscreen-impl-report.md`）】在屏的是 `FlowDocumentScrollViewer`
+#    （`[GEO] TabItem hdr=流文档滚动视图 sel=True`；`[FSVIEW] scroll=1`）⇒ 它走的是**底流**
+#    （`FlowDocumentFormatter` → `FlowDocumentPage.FormatBottomless` → native `FsCreatePageBottomless`）。
+#    而**底流窗里** `<Figure>` 被 `TextParagraph.GetAttachedObjects`（条件
+#    `textElement is Figure && StructuralCache.CurrentFormatContext.FinitePage`）改判成
+#    `FloaterParagraph`（现取：`[FSATT-PROBE] where=FsCreatePageBottomless … att0_id=2`＝Floater），
+#    其内容只能经 native `FSFLOATERCBK`（`pfnFormatFloaterContentBottomless`）排版 —— 而
+#    `GetFloaterHandlerInfo` 在本移植是**具名 GAP**（`return wpf_pts_gap(...)`）⇒ 内容子页永不建
+#    ⇒ 在屏页的附属对象**只有背景**（`GhostWhite` 29667 px）、**内容色 0**。
+#    同一份文档的**有限页**（`FsCreatePageFinite`）**能**把 `Figure` 内容排出来（现取
+#    `[FSATT-CONTENT] where=FsCreatePageFinite … v=SUBPAGE-CREATED`）⇒ 在屏页改用有限页即可让
+#    内容视觉落在**在屏**的那一页上（`T-A44` 的驱动把行视觉建在**离屏**的分页器有限页上，帧面不动）。
+#  【驱动是什么】**只**把本 formatter 的 `FormatBottomless` 换成 `FormatFinite`（起始断行记录 `null`
+#    ＝第一页），页高取 `max(constraint.Height, 2000)`（本页内容约 320 DIP ⇒ 单页装得下）。
+#    · **不**改任何 native 几何；· **不**改 `fsupdinf`／`fUpdateInfoForLinesPresent`；
+#    · **不**删／**不**放宽任何 `Invariant.Assert`（若仍被走到，断言照旧响亮 —— 那是新缺陷）。
+#  【零假值】`WPF_LINEVIS_ONSCREEN=0` ⇒ **逐字回上游行为**（反极性腿；缺省＝开）。
+#
+#  ── 同趟第二处（在屏页的**段落背景视觉落位**，`TextParaClient.ValidateVisual`）────────────
+#  【现取】在屏页改成有限页之后（第一处驱动），`Figure` 内容段**确已**落到在屏视觉树
+#    （现取：`[CHAIN] FIG.ValidateVisual` 0→3、`DarkGreen` 0→44 px、帧 `2d89d393157b0df6`
+#    →`b99e402a49ea739e`）⇒「行视觉上屏」成立。但**四具名色的第三条**仍缺：`Beige`
+#    （＝`<Figure>` 内那个 `<Paragraph Background="Beige">` 的**背景**）恒 `0`。
+#  【为什么是 0（件:行）】`TextParaClient.ValidateVisual`（生成件 `:66`）**从不调**
+#    `ParagraphVisual.DrawBackgroundAndBorder` —— 全仓现取：该面**只**被 `Figure`／`Floater`／
+#    `List`／`Container`／`Subpage`／`Table`／`UIElement` 七个客户端调用（`grep -rn
+#    'DrawBackgroundAndBorder' upstream/**/PtsHost/` 逐条现取）⇒ **文本段落的 `Background`
+#    视觉没有任何挂点**（本移植的行渲染器也不画 run 背景）⇒ 该声明色**永不上屏**。
+#  【修法】**照 `FigureParaClient.ValidateVisual` 的同形调用**把它补在文本段落上（同一面、
+#    同一 `ParagraphVisual`，**只**在 `Background` 非空时调）⇒ `<Paragraph Background="Beige">`
+#    的背景**首次**落进在屏视觉树。**不**删／**不**放宽任何断言；`Background` 为空 ⇒ 零变化。
+#  【零假值】同一闸 `WPF_LINEVIS_ONSCREEN`：`=0` ⇒ 该调用整块不发生（逐字回上游）。
+ONS_FORMAT_NEEDLE = """                    _document.StructuralCache.BackgroundFormatInfo.ViewportHeight = constraint.Height;
+                    _documentPage.FormatBottomless(pageSize, pageMargin);
+"""
+ONS_FORMAT_REPL = """                    _document.StructuralCache.BackgroundFormatInfo.ViewportHeight = constraint.Height;
+                    // ── `T-A45`（`LINEVIS-ON-SCREEN`）：**把"在屏页"从底流改为有限页** ──────────────
+                    //  见生成器内该块的说明；`WPF_LINEVIS_ONSCREEN=0` ⇒ 逐字回上游（反极性腿）。
+                    WpfLinuxOnScreenDrive.Format(pageSize, constraint, pageMargin, _documentPage);
+"""
+ONS_TAIL_NEEDLE = """        #endregion IFlowDocumentFormatter Members
+    }
+}
+"""
+ONS_TAIL_REPL = """        #endregion IFlowDocumentFormatter Members
+    }
+
+    /// <summary>
+    /// `T-A45`（`LINEVIS-ON-SCREEN`）：**在屏页＝有限页**驱动（本移植的底流窗**排不出**附属对象内容，
+    /// 见 `reapply-patches.py` 内该块的说明）。零假值：显式 `WPF_LINEVIS_ONSCREEN=0` ⇒ 逐字回上游。
+    /// </summary>
+    internal static class WpfLinuxOnScreenDrive
+    {
+        private const double MinimumPageHeight = 2000.0;
+
+        internal static void Format(Size pageSize, Size constraint, Thickness pageMargin, FlowDocumentPage page)
+        {
+            if (!WpfLinuxChainProbe.EnvOn("WPF_LINEVIS_ONSCREEN"))
+            {
+                page.FormatBottomless(pageSize, pageMargin);
+                return;
+            }
+
+            Size finiteSize = pageSize;
+            double height = constraint.Height;
+            if (double.IsNaN(height) || double.IsInfinity(height) || height < MinimumPageHeight)
+            {
+                height = MinimumPageHeight;
+            }
+            finiteSize.Height = height;
+
+            WpfLinuxChainProbe.Hit("ONS.FormatFinite",
+                "w=" + WpfLinuxChainProbe.N(finiteSize.Width) + " h=" + WpfLinuxChainProbe.N(finiteSize.Height));
+            page.FormatFinite(finiteSize, pageMargin, null);
+        }
+    }
+}
+"""
+
 
 # 每跳的 (needle, repl, expect)。全部 **只增一行**。
 CHAIN_FILES = [
@@ -2061,6 +2181,20 @@ CHAIN_FILES = [
             WpfLinuxChainProbe.Hit("FIG.ValidateVisual", "parah=" + WpfLinuxChainProbe.Hx(_paraHandle) + " inh=" + (int)fskupdInherited);
             // Figure is always reported as NEW. Override PTS inherited value.
 """, 1),
+        # ── `T-A45` 只读几何判别器（**附属对象盒／剪裁盒**）──────────────────────────────
+        ("""            PTS.FSRECT clipRect = new PTS.FSRECT(_paddingRect.u - _contentRect.u, _paddingRect.v - _contentRect.v, _paddingRect.du, _paddingRect.dv);
+            PtsHelper.ClipChildrenToRect(_visual, clipRect.FromTextDpi());
+""",
+         """            PTS.FSRECT clipRect = new PTS.FSRECT(_paddingRect.u - _contentRect.u, _paddingRect.v - _contentRect.v, _paddingRect.du, _paddingRect.dv);
+            ContainerVisual t45cv0 = (_visual.Children.Count > 0) ? (_visual.Children[0] as ContainerVisual) : null;
+            WpfLinuxChainProbe.Hit("FIG.Geom", "parah=" + WpfLinuxChainProbe.Hx(_paraHandle)
+                + " rect=" + _rect.u + "," + _rect.v + "," + _rect.du + "," + _rect.dv
+                + " content=" + _contentRect.u + "," + _contentRect.v + "," + _contentRect.du + "," + _contentRect.dv
+                + " padding=" + _paddingRect.u + "," + _paddingRect.v + "," + _paddingRect.du + "," + _paddingRect.dv
+                + " clip=" + clipRect.u + "," + clipRect.v + "," + clipRect.du + "," + clipRect.dv
+                + " off0=" + (t45cv0 == null ? "na" : (WpfLinuxChainProbe.N(t45cv0.Offset.X) + "," + WpfLinuxChainProbe.N(t45cv0.Offset.Y))));
+            PtsHelper.ClipChildrenToRect(_visual, clipRect.FromTextDpi());
+""", 1),
     ]),
     ("MS/Internal/PtsHost/ContainerParaClient.cs", "ContainerParaClient.Linux.cs", [
         ("""        internal override void ValidateVisual(PTS.FSKUPDATE fskupdInherited)
@@ -2094,6 +2228,9 @@ CHAIN_FILES = [
         {
             WpfLinuxChainProbe.Hit("FDF.Arrange", "size=" + WpfLinuxChainProbe.N(arrangeSize.Width) + "x" + WpfLinuxChainProbe.N(arrangeSize.Height) + " vp=" + WpfLinuxChainProbe.N(viewport.X) + "," + WpfLinuxChainProbe.N(viewport.Y) + "," + WpfLinuxChainProbe.N(viewport.Width) + "," + WpfLinuxChainProbe.N(viewport.Height));
 """, 1),
+        # ── `T-A45`（`LINEVIS-ON-SCREEN`）**在屏页＝有限页**驱动 ＋ 其只读台账 ───────────────
+        (ONS_FORMAT_NEEDLE, ONS_FORMAT_REPL, 1),
+        (ONS_TAIL_NEEDLE, ONS_TAIL_REPL, 1),
     ]),
     # ── `T-A44` **驱动**（方案 3）：分页器这条宿主路径缺的"页视觉帧"那一跳 ────────────────────
     #  【现取断点】`FlowDocumentFormatter.Arrange`（另一条宿主路径）在 `Arrange` 之后**必**再调

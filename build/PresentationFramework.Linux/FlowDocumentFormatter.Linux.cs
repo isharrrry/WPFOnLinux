@@ -1,9 +1,9 @@
 // ⚠️ 本文件由 build/PresentationFramework.Linux/reapply-patches.py **生成**，不要手改。
 //
-// 内容 = 上游 `upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/documents/FlowDocumentFormatter.cs` 逐字复制 + 1 处 W86A（`TASK-0304`/`TASK-0305`）改动。
+// 内容 = 上游 `upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/documents/FlowDocumentFormatter.cs` 逐字复制 + 3 处 W86A（`TASK-0304`/`TASK-0305`）改动。
 // 每次运行该脚本都会从上游重读重生成；needle 找不到 / 命中数不符时**报错退出**
 // （不会静默产出未打补丁的副本）。改动逐处见：
-//   E1
+//   E1 ／ E2 ／ E3
 //
 // 背景（`D-G70`/`D-G78`）：本移植没有 PTS/原生 LineServices ⇒ 切「富文本」/「流文档」页
 // 曾**整进程 `rc=134`**。本件把它变成「**具名、可判、可见的能力边界**」：
@@ -110,7 +110,9 @@ namespace MS.Internal.Documents
                 try
                 {
                     _document.StructuralCache.BackgroundFormatInfo.ViewportHeight = constraint.Height;
-                    _documentPage.FormatBottomless(pageSize, pageMargin);
+                    // ── `T-A45`（`LINEVIS-ON-SCREEN`）：**把"在屏页"从底流改为有限页** ──────────────
+                    //  见生成器内该块的说明；`WPF_LINEVIS_ONSCREEN=0` ⇒ 逐字回上游（反极性腿）。
+                    WpfLinuxOnScreenDrive.Format(pageSize, constraint, pageMargin, _documentPage);
                 }
                 finally
                 {
@@ -385,5 +387,35 @@ namespace MS.Internal.Documents
         }
 
         #endregion IFlowDocumentFormatter Members
+    }
+
+    /// <summary>
+    /// `T-A45`（`LINEVIS-ON-SCREEN`）：**在屏页＝有限页**驱动（本移植的底流窗**排不出**附属对象内容，
+    /// 见 `reapply-patches.py` 内该块的说明）。零假值：显式 `WPF_LINEVIS_ONSCREEN=0` ⇒ 逐字回上游。
+    /// </summary>
+    internal static class WpfLinuxOnScreenDrive
+    {
+        private const double MinimumPageHeight = 2000.0;
+
+        internal static void Format(Size pageSize, Size constraint, Thickness pageMargin, FlowDocumentPage page)
+        {
+            if (!WpfLinuxChainProbe.EnvOn("WPF_LINEVIS_ONSCREEN"))
+            {
+                page.FormatBottomless(pageSize, pageMargin);
+                return;
+            }
+
+            Size finiteSize = pageSize;
+            double height = constraint.Height;
+            if (double.IsNaN(height) || double.IsInfinity(height) || height < MinimumPageHeight)
+            {
+                height = MinimumPageHeight;
+            }
+            finiteSize.Height = height;
+
+            WpfLinuxChainProbe.Hit("ONS.FormatFinite",
+                "w=" + WpfLinuxChainProbe.N(finiteSize.Width) + " h=" + WpfLinuxChainProbe.N(finiteSize.Height));
+            page.FormatFinite(finiteSize, pageMargin, null);
+        }
     }
 }

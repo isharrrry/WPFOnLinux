@@ -1,9 +1,9 @@
 // ⚠️ 本文件由 build/PresentationFramework.Linux/reapply-patches.py **生成**，不要手改。
 //
-// 内容 = 上游 `upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/TextParaClient.cs` 逐字复制 + 6 处 W86A（`TASK-0304`/`TASK-0305`）改动。
+// 内容 = 上游 `upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/TextParaClient.cs` 逐字复制 + 7 处 W86A（`TASK-0304`/`TASK-0305`）改动。
 // 每次运行该脚本都会从上游重读重生成；needle 找不到 / 命中数不符时**报错退出**
 // （不会静默产出未打补丁的副本）。改动逐处见：
-//   E1 ／ E2 ／ E3 ／ E4 ／ E5 ／ E6
+//   E1 ／ E2 ／ E3 ／ E4 ／ E5 ／ E6 ／ E7
 //
 // 背景（`D-G70`/`D-G78`）：本移植没有 PTS/原生 LineServices ⇒ 切「富文本」/「流文档」页
 // 曾**整进程 `rc=134`**。本件把它变成「**具名、可判、可见的能力边界**」：
@@ -74,6 +74,25 @@ namespace MS.Internal.PtsHost
                 PTS.ToBoolean(textDetails.u.full.fLinesComposite) ? 1 : 0, (int)textDetails.u.full.cAttachedObjects,
                 IsDeferredVisualCreationSupported(ref textDetails.u.full) ? 1 : 0,
                 "fsktd=" + (int)textDetails.fsktd);
+
+            // ── `T-A45`（`LINEVIS-ON-SCREEN`）：**段落背景视觉的落位** ─────────────────
+            //  见生成器内该块的说明；`WPF_LINEVIS_ONSCREEN=0` ⇒ 逐字回上游（反极性腿）。
+            if (WpfLinuxChainProbe.EnvOn("WPF_LINEVIS_ONSCREEN"))
+            {
+                Brush t45BackgroundBrush = (Brush)Paragraph.Element.GetValue(TextElement.BackgroundProperty);
+                if (t45BackgroundBrush != null)
+                {
+                    MbpInfo t45Mbp = MbpInfo.FromElement(Paragraph.Element, Paragraph.StructuralCache.TextFormatterHost.PixelsPerDip);
+                    if (ThisFlowDirection != PageFlowDirection)
+                    {
+                        t45Mbp.MirrorBP();
+                    }
+                    _visual.DrawBackgroundAndBorder(t45BackgroundBrush, t45Mbp.BorderBrush, t45Mbp.Border,
+                                                    _rect.FromTextDpi(), IsFirstChunk, IsLastChunk);
+                    WpfLinuxChainProbe.Hit("TPC.ParaBackground", "parah=" + WpfLinuxChainProbe.Hx(_paraHandle)
+                        + " rect=" + _rect.u + "," + _rect.v + "," + _rect.du + "," + _rect.dv);
+                }
+            }
 
             VisualCollection visualChildren = _visual.Children;
             ContainerVisual lineContainerVisual = _visual;
@@ -3251,6 +3270,16 @@ namespace MS.Internal.PtsHost
             // Get list of simple lines.
             PTS.FSLINEDESCRIPTIONSINGLE [] arrayLineDesc;
             PtsHelper.LineListSimpleFromTextPara(PtsContext, _paraHandle, ref textDetails, out arrayLineDesc);
+
+            // ── `T-A45` 只读几何判别器（**行盒落位**）──────────────────────────────
+            if (arrayLineDesc.Length > 0)
+            {
+                PTS.FSLINEDESCRIPTIONSINGLE lg0 = arrayLineDesc[0];
+                WpfLinuxLineVisProbe.Hit("RenderSimpleLines.Geom", _paraHandle, arrayLineDesc.Length, 0, 0, -1,
+                    "urStart=" + lg0.urStart + " vrStart=" + lg0.vrStart + " dur=" + lg0.dur
+                    + " asc=" + lg0.dvrAscent + " desc=" + lg0.dvrDescent
+                    + " rectU=" + _rect.u + " rectV=" + _rect.v + " rectDU=" + _rect.du + " rectDV=" + _rect.dv);
+            }
 
             // Create lines and render them
             if (!PTS.ToBoolean(textDetails.fUpdateInfoForLinesPresent) || ignoreUpdateInfo)
