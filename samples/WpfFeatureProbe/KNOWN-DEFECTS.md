@@ -3904,7 +3904,7 @@ SELFDESC_WIRING=FAIL examined=1 wired=1 unwired=0 undeclared=0 fails=1 run_step=
 
 ### ⏪ `T-A47`／`TASK-0302` 增量 **dated 现值位**（读时 `2026-09-30T20:2x+0800`；**只增不改**）
 
-- **`D-G70` 在册数（现值，现取）**：工具口径 **76**／**可操作缺口 64**；**实现口径 66**（`PTSGAP=PASS tool=76 dead=11 artifact=1 ops=64 impl=66 so16=1067da454b7ef114 exports=683`；`nm -D --defined-only` ＝ `exports.txt` ＝ **683**）。**本增量不动缺口/能力面**（五位全未动，只有 `so16` 跟权威件换）。
+- **`D-G70` 在册数（现值，现取）**：工具口径 **71**／**可操作缺口 59**；**实现口径 60**（`PTSGAP=PASS tool=71 dead=11 artifact=1 ops=59 impl=60 so16=3ff91579e7ea3efa exports=688`；`nm -D --defined-only` ＝ `exports.txt` ＝ **688**）。**本增量不动缺口/能力面**（五位全未动，只有 `so16` 跟权威件换）。
 - **本增量改的是"失败面"**：缺省路径残留的 1 条 `[HC-UNHANDLED]`（`ArgumentException: Specified Visual is already a child …`，首帧 `VisualCollection.Add`）⇒ **`[HC-UNHANDLED]=0`**。修法两处：①托管（走生成器 `P8`）生成件 `PtsHelper.Linux.cs` 的 `UpdateFloatingElementVisuals` 补**浮层视觉换父**（照上游 `UpdateParaListVisuals` 同形先例；`WPF_FLOAT_REPARENT=0` 回改前）；②native `src/WpfGfx.Linux.Native/src/win32_pts.c` 的 `drive-handles-released(page-destroyed)` 两处拒因**收窄**为"下一次填充必然要发 `+176` 时才拒"（`WPF_PTS_QTP_LIVE_NARROW=0` 回改前）。
 - **根因归属（native 侧，具名下一靶）**：附属对象台账 `fl_att[].obj_client` 是 **doc 级、跨页复用** ⇒ 同一客户端活在两页的 `FloatingElementList` 里（上游靠页销毁 `Dispose` 不会出现）⇒ 具名 `PRECOND-NATIVE-PAGE-SCOPED-ATTACH-CLIENT`（本波不做）。
 - **零回归**：`PTS_COLORANCHOR=PASS k=24 hits=2`（`Beige=910`／`DarkGreen=44`）、`k24 fr_sha=791696291d51470b` 未变；症状门逐格同。载体：`build/MilBridge/P1-tail2-hcres-impl-report.md`。

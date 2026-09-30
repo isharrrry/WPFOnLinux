@@ -363,6 +363,10 @@ static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *wh
 static int wpf_pts_att_content_gate(void);
 /* ⏪ `T-A52`：Floater 内容排版驱动的运行期闸（缺省关；定义在 `wpf_pts_att_content_gate` 之后）。 */
 static int wpf_pts_floater_cbk_gate(void);
+/* ⏪ `T-A53`：Table 族驱动闸 ＋ **窗内**表模型建点（定义在 `wpf_pts_floater_cbk_gate` 之后）。 */
+static int wpf_pts_tableobj_gate(void);
+struct wpf_pts_subpage_s;
+static void wpf_pts_tableobj_drive(wpf_pts_doc *d, struct wpf_pts_subpage_s *s, const char *where);
 /* ⏪ `t127`：字段级诚实性的判据助手（定义在页表可见之后）——本处先给声明。 */
 static int wpf_pts_track_owned(const void *track);
 
@@ -1022,6 +1026,69 @@ static int g_pts_floater_drv_calls = 0, g_pts_floater_drv_ok = 0, g_pts_floater_
 #define WPF_PTS_NULL_PRED_CBKOBJ_LEAD 3
 #define WPF_PTS_NULL_PRED_CBKW_RD     29
 #define WPF_PTS_NULL_PRED_TOTAL       (WPF_PTS_NULL_PRED_CBKOBJ_LEAD + WPF_PTS_NULL_PRED_CBKW_RD)
+
+/* ── ⏪ `T-A53`（`NATIVE-PTS-TABLEOBJ`）：Table 族（`FSTABLEOBJINIT`／`FSTABLEOBJCBK`）的**唯一形状/偏移定义处** ──
+   上游声明（`upstream/…/PtsHost/Pts.cs`，`StructLayout.Sequential`，指针宽 8）：
+     · `FSTABLEOBJINIT`（`Pts.cs:1852`）＝ `{FSTABLEOBJCBK tableobjcbk(5); FSTABLECBKFETCH tablecbkfetch(15);
+       FSTABLECBKCELL tablecbkcell(14); FSTABLECBKFETCHWORD tablecbkfetchword(11);}` ⇒ **45 槽／360 B**。
+     · 槽号逐字：`0 pfnGetTableProperties`／`1 pfnAutofitTable`／`2 pfnUpdAutofitTable`／
+       `3 pfnGetMCSClientAfterTable`／`4 pfnGetDvrUsedForFloatTable`／`5..8 头/脚取行四槽`／
+       `9 pfnGetFirstRow`／`10 pfnGetNextRow`／`11 pfnUpdFChangeInHeaderFooter`／
+       `12 pfnUpdGetFirstChangeInTable`／`13 pfnUpdGetRowChange`／`14 pfnUpdGetCellChange`／
+       `15 pfnGetDistributionKind`／`16 pfnGetRowProperties`／`17 pfnGetCells`／
+       `18 pfnFInterruptFormattingTable`／`19 pfnCalcHorizontalBBoxOfRow`／`20 pfnFormatCellFinite`／
+       `21..33 cell 余槽`／`34..44 FSTABLECBKFETCHWORD 11 槽`。
+   驱动入口 `TableParagraphId`（`PtsHost.cs:86`）＝ `FloaterParagraphId + 1` ＝ **3**。 */
+#define WPF_PTS_TABLE_ID                     3
+#define WPF_PTS_TABLEOBJ_SLOTS               45
+#define WPF_PTS_TABLEOBJ_IDX_GETTABLEPROPS   0
+#define WPF_PTS_TABLEOBJ_IDX_AUTOFITTABLE    1
+#define WPF_PTS_TABLEOBJ_IDX_GETFIRSTROW     9
+#define WPF_PTS_TABLEOBJ_IDX_GETNEXTROW      10
+#define WPF_PTS_TABLEOBJ_IDX_GETROWPROPS     16
+#define WPF_PTS_TABLEOBJ_IDX_GETCELLS        17
+typedef int (*wpf_pts_fn_autofit_table)(const void *pfsclient, const void *pfsparaclient_table,
+                                        const void *nmtable, unsigned int fswdir, int dur_available,
+                                        int *out_dur_table_width);
+typedef int (*wpf_pts_fn_get_first_row)(const void *pfsclient, const void *nmtable,
+                                        int *out_found, void **out_row);
+typedef int (*wpf_pts_fn_get_next_row)(const void *pfsclient, const void *nmtable, const void *nmrow,
+                                       int *out_found, void **out_row);
+typedef int (*wpf_pts_fn_get_row_properties)(const void *pfsclient, const void *nmrow,
+                                             unsigned int fswdir, void *out_props);
+/* `GetTableObjHandlerInfo` 的**只读捕获位**（本侧持有最近一次交出的托管回调表；同 `g_pts_floater_cbk[]` 体例）。 */
+static const void *g_pts_tableobj_cbk[WPF_PTS_TABLEOBJ_SLOTS];
+static int g_pts_tableobj_cbk_ok = 0, g_pts_tableobj_cbk_gap = 0;
+/* ── ⏪ `T-A53`：**本侧表模型**（`FSTABLEOBJDETAILS`／`FSTABLEDETAILS`／`FSTABLEROWDESCRIPTION`／
+   `FSTABLEROWDETAILS` 的本侧载体）。**零假值**：行来自托管 `pfnGetFirstRow`／`pfnGetNextRow` 的**真返回值**；
+   行高由 `pfnGetRowProperties` 的原值派生（放不下 ⇒ 取本侧下界并**具名**）。本侧**不**排单元内容
+   （`c_cells` 原样记、行详情一律报 `cCells=0`）⇒ 内容色不在本增量射程（见载体 §边界）。 */
+#define WPF_PTS_TBL_MAXROWS 8
+#define WPF_PTS_TBL_MAX     8
+#define WPF_PTS_TBL_DVR_MIN 200          /* 本侧行高下界（textdpi；具名 `NOINFO=row-height-self-convention`） */
+#define WPF_PTS_TBL_MAGIC   0x5754424cu  /* "WTBL" */
+typedef struct {
+    const void *nm_row;                  /* 行段落句柄（托管 `RowParagraph`；取行回调**真返回值**） */
+    const void *pfstablerow;             /* 本侧行 token（＝本对象内 `nm_row` 字段地址，承本仓句柄范式） */
+    int         dvr_row;                 /* 行高（textdpi） */
+    int         c_cells;                 /* 行内单元数（`pfnGetRowProperties` 原值；本侧**未**排单元） */
+} wpf_pts_tbl_row;
+typedef struct {
+    unsigned int magic;
+    const void  *nm_table;               /* 表段落句柄（托管 `TableParagraph`） */
+    const void  *pfstableproper;         /* 本侧表 token（＝本对象内 `nm_table` 字段地址） */
+    const void  *table_client;           /* 窗内为表段落现造的 `TableParaClient`（`+176`；保留不回收） */
+    int          nrows;
+    int          built;
+    int          autofit_rc, autofit_width;
+    int          autofit_done;           /* ⏪ `T-A53`：是否已在**真客户端**上补调过 `pfnAutofitTable`（每模型一次） */
+    int          autofit_rc2, autofit_width2;
+    wpf_pts_tbl_row rows[WPF_PTS_TBL_MAXROWS];
+} wpf_pts_tbl_model;
+static wpf_pts_tbl_model g_pts_tbl[WPF_PTS_TBL_MAX];
+static int g_pts_tbl_n = 0;
+static int g_pts_tbl_built_c = 0, g_pts_tbl_query_ok = 0, g_pts_tbl_query_gap = 0;
+static int g_pts_tbl_drv_calls = 0, g_pts_tbl_drv_rowhit = 0, g_pts_tbl_drv_gap = 0;
 
 static int g_pts_fscbk_probes   = 0;    /* 本进程内回读次数（仪器自身的调用计数，只读） */
 static int g_pts_fscbk_fp_pass  = 0;    /* 指纹 PASS 次数（观测 == 预言） */
@@ -2573,6 +2640,10 @@ static int wpf_pts_format_one_para(wpf_pts_doc *d, wpf_pts_subtrack *leaf,
                                             where, (void *)objs[a], oc, rch, rcf2,
                                             (rch != 0) ? "HANDLER-ERR" : "NO-CBK");
                                 }
+                                /* ⏪ `T-A53`（`NATIVE-PTS-TABLEOBJ`）：Floater 内容子页若含**表段落**
+                                   ⇒ **窗内**建本侧表模型（闸 `WPF_PTS_TABLEOBJ` 缺省关 ⇒ 缺省路径不动）。 */
+                                if (rcf2 == 0 && leaf->fl_att[slot].sub_obj && wpf_pts_tableobj_gate())
+                                    wpf_pts_tableobj_drive(d, leaf->fl_att[slot].sub_obj, where);
                             }
                         } else if (objs[a]) {
                             leaf->fl_att[slot].obj_rc = -7777;   /* 窗外 ⇒ 拒发（具名；不撞 FailFast） */
@@ -2785,6 +2856,177 @@ static int wpf_pts_floater_cbk_gate(void)
         cached = e ? atoi(e) : WPF_PTS_FLOATER_CBK_DEFAULT;
     }
     return cached;
+}
+
+/* ── ⏪ `T-A53`（`NATIVE-PTS-TABLEOBJ`）：**Table 族驱动**的运行期闸（缺省 **关**）──────────────────────
+   闸控的是"**窗内为 Floater 内容子页里的表段落建本侧表模型**"（`wpf_pts_tableobj_drive`）。缺省关 ⇒
+   缺省路径**逐格不变**（本侧不主动向托管索表 handler、不建模型）⇒ 零回归（同 `T-A52` 体例）。
+   闸：显式 `WPF_PTS_TABLEOBJ=1` ⇒ 开（供**前沿取证腿**用）。 */
+#ifndef WPF_PTS_TABLEOBJ_DEFAULT
+#define WPF_PTS_TABLEOBJ_DEFAULT 0
+#endif
+static int wpf_pts_tableobj_gate(void)
+{
+    static int cached = -1;
+    if (cached < 0) {
+        const char *e = getenv("WPF_PTS_TABLEOBJ");
+        cached = e ? atoi(e) : WPF_PTS_TABLEOBJ_DEFAULT;
+    }
+    return cached;
+}
+
+/* ── ⏪ `T-A53`：**窗内**为 `FsCreateSubpageFinite` 真造出的内容子页里的**表段落**建本侧表模型 ──────────
+   路径（逐跳，全部在窗内）：
+     ① 在子页内容树里找 `idobj==TableParagraphId(3)` 的段（窗内 `+168 pfnGetParaProperties` 读 `FSPAP.idobj`）；
+     ② 调 `+600 pfnGetObjectHandlerInfo(fsclient, 3, buf)` ⇒ 托管转调 `GetTableObjHandlerInfo`
+        ⇒ 本侧捕获 `FSTABLEOBJINIT`（`g_pts_tableobj_cbk[]`，后续发调源）；
+     ③ 窗内 `+176 pfnCreateParaclient(nmTable)` 现造 `TableParaClient`（**保留不回收**，同 `t160` 体例）；
+     ④ 调 `pfnAutofitTable`（置托管 `_calculatedColumns` ⇒ `ValidateVisual` 的 `Invariant.Assert` 才成立）；
+     ⑤ 循环 `pfnGetFirstRow`／`pfnGetNextRow` 取行句柄；每行调 `pfnGetRowProperties` 取 `cCells`／行距；
+     ⑥ 入册本侧表模型（键＝`nmTable`）。
+   🔴 **零假值 / 永不假成功**：任一 `rc≠0` ⇒ **该跳不记账**（具名留痕，绝不伪填）；行高只由
+      `pfnGetRowProperties` 原值派生（不足下界 ⇒ 取本侧下界并**具名** `NOINFO=row-height-self-convention`）。
+   ⚠️ 本侧**不**调 `pfnFormatCellFinite`（单元内容不在本增量射程）⇒ 行详情一律报 `cCells=0`（**诚实的空**：本侧确未排单元）。 */
+static wpf_pts_tbl_model *wpf_pts_tbl_find(const void *nm_table)
+{
+    for (int i = 0; i < g_pts_tbl_n; i++)
+        if (g_pts_tbl[i].magic == WPF_PTS_TBL_MAGIC && g_pts_tbl[i].nm_table == nm_table) return &g_pts_tbl[i];
+    return NULL;
+}
+static wpf_pts_tbl_model *wpf_pts_tbl_find_proper(const void *pfstableproper)
+{
+    for (int i = 0; i < g_pts_tbl_n; i++)
+        if (g_pts_tbl[i].magic == WPF_PTS_TBL_MAGIC && g_pts_tbl[i].pfstableproper == pfstableproper) return &g_pts_tbl[i];
+    return NULL;
+}
+static wpf_pts_tbl_row *wpf_pts_tbl_find_row(const void *pfstablerow)
+{
+    for (int i = 0; i < g_pts_tbl_n; i++) {
+        if (g_pts_tbl[i].magic != WPF_PTS_TBL_MAGIC) continue;
+        for (int r = 0; r < g_pts_tbl[i].nrows; r++)
+            if (g_pts_tbl[i].rows[r].pfstablerow == pfstablerow) return &g_pts_tbl[i].rows[r];
+    }
+    return NULL;
+}
+static void wpf_pts_tableobj_drive(wpf_pts_doc *d, struct wpf_pts_subpage_s *s, const char *where)
+{
+    g_pts_tbl_drv_calls++;
+    if (!d || !s || !s->cont_obj) { g_pts_tbl_drv_gap++; return; }
+    const void *fp168 = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_GETPARAPROPERTIES);
+    const void *fpHandler = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_GETOBJHANDLERINFO);
+    const void *fp176 = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_CREATEPARACLIENT);
+    if (!fp168 || !fpHandler || !fp176) {
+        g_pts_tbl_drv_gap++;
+        fprintf(stderr, "[FSTABLEOBJ-DRV] where=%s v=SKIP-NO-SLOT fp168=%p handler=%p fp176=%p\n",
+                where, fp168, fpHandler, fp176);
+        return;
+    }
+    /* ① 找表段落（窗内读 `idobj`） */
+    const void *nm_table = NULL;
+    wpf_pts_subtrack *stack[WPF_PTS_SUB_MAX]; int sp_n = 0;
+    stack[sp_n++] = s->cont_obj;
+    while (sp_n > 0 && !nm_table) {
+        wpf_pts_subtrack *o = stack[--sp_n];
+        int nc = (o->enum_ok) ? o->c_paras : 0;
+        for (int k = 0; k < nc && k < WPF_PTS_SUB_CHILD_MAX; k++) {
+            const void *child = o->children[k];
+            if (!child) continue;
+            int fspap[4] = { 0, 0, 0, 0 };
+            int rc = ((wpf_pts_fn_get_para_properties)fp168)((const void *)d->p_fsclient, child, (void *)fspap);
+            if (rc == 0 && fspap[0] == WPF_PTS_TABLE_ID) { nm_table = child; break; }
+            if (o->child_objs[k] && sp_n < WPF_PTS_SUB_MAX) stack[sp_n++] = o->child_objs[k];
+        }
+    }
+    if (!nm_table) {
+        g_pts_tbl_drv_gap++;
+        fprintf(stderr, "[FSTABLEOBJ-DRV] where=%s v=NO-TABLE-PARA cparas=%d\n",
+                where, s->cont_obj->enum_ok ? s->cont_obj->c_paras : -1);
+        return;
+    }
+    /* 幂等／换代：同表（同段落句柄）已有模型 ⇒ **重建行** —— 窗口可多次进入，行句柄必须取
+       **当前一代**；旧一代的行对象可能已被托管释放、其句柄被回收成别类对象
+       （实测：`UpdateChunkInfo` 的 `InvalidCastException: Line → RowParagraph`）⇒ 必须换代。 */
+    wpf_pts_tbl_model *m = wpf_pts_tbl_find(nm_table);
+    int is_new = 0;
+    if (!m) {
+        if (g_pts_tbl_n >= WPF_PTS_TBL_MAX) {
+            g_pts_tbl_drv_gap++;
+            fprintf(stderr, "[FSTABLEOBJ-DRV] where=%s nmTable=%p v=TABLE-FULL n=%d\n", where, nm_table, g_pts_tbl_n);
+            return;
+        }
+        m = &g_pts_tbl[g_pts_tbl_n];
+        memset(m, 0, sizeof(*m));
+        m->magic = WPF_PTS_TBL_MAGIC; m->nm_table = nm_table;
+        m->pfstableproper = (const void *)&m->nm_table;
+        is_new = 1;
+    }
+    m->nrows = 0; m->autofit_done = 0;
+    /* ② 索 handler（窗内 `+600`） */
+    unsigned char objinfo[WPF_PTS_TABLEOBJ_SLOTS * 8];
+    memset(objinfo, 0, sizeof(objinfo));
+    int rch = ((wpf_pts_fn_get_object_handler_info)fpHandler)((const void *)d->p_fsclient, WPF_PTS_TABLE_ID,
+                                                              (void *)objinfo);
+    if (rch != 0) {
+        g_pts_tbl_drv_gap++;
+        fprintf(stderr, "[FSTABLEOBJ-DRV] where=%s nmTable=%p rch=%d v=HANDLER-ERR\n", where, nm_table, rch);
+        return;
+    }
+    /* ③ 现造表 para client（保留不回收） */
+    void *tclient = NULL;
+    int rcc = ((wpf_pts_fn_create_paraclient)fp176)((const void *)d->p_fsclient, nm_table, &tclient);
+    if (rcc != 0 || !tclient) {
+        g_pts_tbl_drv_gap++;
+        fprintf(stderr, "[FSTABLEOBJ-DRV] where=%s nmTable=%p rcc=%d client=%p v=NO-TABLE-CLIENT\n",
+                where, nm_table, rcc, tclient);
+        return;
+    }
+    /* ④ Autofit（置托管 `_calculatedColumns`） */
+    int wtbl = 0, rcaf = -9999;
+    const void *pfAutofit = g_pts_tableobj_cbk[WPF_PTS_TABLEOBJ_IDX_AUTOFITTABLE];
+    if (pfAutofit)
+        rcaf = ((wpf_pts_fn_autofit_table)pfAutofit)((const void *)d->p_fsclient, tclient, nm_table,
+                                                     0u /*fswdir*/, WPF_PTS_FLOATER_AVAIL_DU, &wtbl);
+    /* ⑤ 取行 */
+    const void *pfFirst = g_pts_tableobj_cbk[WPF_PTS_TABLEOBJ_IDX_GETFIRSTROW];
+    const void *pfNext  = g_pts_tableobj_cbk[WPF_PTS_TABLEOBJ_IDX_GETNEXTROW];
+    const void *pfRProps= g_pts_tableobj_cbk[WPF_PTS_TABLEOBJ_IDX_GETROWPROPS];
+    m->table_client = (const void *)tclient;
+    m->autofit_rc = rcaf; m->autofit_width = wtbl;
+    int fFound = 0; void *row = NULL;
+    int rcF = (pfFirst && pfRProps) ? ((wpf_pts_fn_get_first_row)pfFirst)((const void *)d->p_fsclient,
+                                                                          nm_table, &fFound, &row) : -9999;
+    while (rcF == 0 && fFound == 1 && row && m->nrows < WPF_PTS_TBL_MAXROWS) {
+        unsigned char rprops[44];                          /* `FSTABLEROWPROPS` ＝ 11×int ＝ 44 B */
+        memset(rprops, 0, sizeof(rprops));
+        int rcr = ((wpf_pts_fn_get_row_properties)pfRProps)((const void *)d->p_fsclient, row, 0u, (void *)rprops);
+        if (rcr != 0) { g_pts_tbl_drv_gap++; break; }
+        const int *rp = (const int *)rprops;
+        int c_cells    = rp[10];                           /* cCells（第 11 个 int） */
+        int dvr_above  = rp[4];                            /* dvrAboveRow */
+        int dvr_below  = rp[5];                            /* dvrBelowRow */
+        int dvr_restr  = rp[2];                            /* dvrRowHeightRestriction */
+        int dvr_row = (dvr_restr > 0) ? dvr_restr : (dvr_above + dvr_below);
+        if (dvr_row < WPF_PTS_TBL_DVR_MIN) dvr_row = WPF_PTS_TBL_DVR_MIN;
+        wpf_pts_tbl_row *rr = &m->rows[m->nrows];
+        rr->nm_row = row; rr->pfstablerow = (const void *)&rr->nm_row;
+        rr->dvr_row = dvr_row; rr->c_cells = c_cells;
+        fprintf(stderr, "[FSTABLEOBJ-ROW] where=%s i=%d row=%p cCells=%d dvr=%d\n",
+                where, m->nrows, row, c_cells, dvr_row);
+        m->nrows++; g_pts_tbl_drv_rowhit++;
+        /* 下一行 */
+        void *nx = NULL; int fFound2 = 0;
+        int rcN = pfNext ? ((wpf_pts_fn_get_next_row)pfNext)((const void *)d->p_fsclient, nm_table,
+                                                             row, &fFound2, &nx) : -9999;
+        if (rcN != 0) { g_pts_tbl_drv_gap++; break; }
+        if (fFound2 != 1 || !nx) break;
+        row = nx;
+    }
+    m->built = (m->nrows > 0) ? 1 : 0;
+    if (is_new && m->built) { g_pts_tbl_n++; g_pts_tbl_built_c++; }
+    fprintf(stderr, "[FSTABLEOBJ-DRV] where=%s nmTable=%p client=%p rch=%d autofit_rc=%d wtbl=%d "
+                    "first_rc=%d nrows=%d built=%d v=%s NOINFO=row-height-self-convention\n",
+            where, nm_table, tclient, rch, rcaf, wtbl, rcF, m->nrows, m->built,
+            m->built ? "TABLE-MODEL-BUILT" : "NO-ROWS");
 }
 
 static void wpf_pts_drive_probe2_oow(void *pfscontext, const char *where)
@@ -3606,11 +3848,44 @@ int GetFloaterHandlerInfo(const void *pfsfloaterinit, void *pFloaterObjectInfo)
     return 0;
 }
 
+// ── ⏪ `T-A53`（`NATIVE-PTS-TABLEOBJ`）：`GetTableObjHandlerInfo` 由**具名 GAP** 升为**真实现** ───────────
+//   上游语义（`Pts.cs:3071`；调用链 `PtsHost.GetObjectHandlerInfo`（`PtsHost.cs:1096`，`idobj==TableParagraphId`）
+//     → `PtsCache.GetTableObjHandlerInfoCore`（`:353`）→ `PTS.GetTableObjHandlerInfo(ref TableobjInit, pobjectinfo)`）：
+//     托管把 `FSTABLEOBJINIT`（45 槽／360 B）逐槽交给 native 的 `pTableObjectInfo`。
+//   🔴 **本实现的诚实形态**：入参 `pfstableobjinit` 即 `FSTABLEOBJINIT*` ⇒ 逐槽**只读捕获函数指针值**
+//      （**不 deref** 托管结构；同 `GetFloaterHandlerInfo` 体例）到本侧持有位 `g_pts_tableobj_cbk[]`；
+//      出参 `pTableObjectInfo` 非空时**逐槽原样转写**，为空则只捕获（**不越界写**）。
+//   **零假值 / 永不假成功**：`pfstableobjinit == NULL` ⇒ **拒**（返 `-10000` ＋ 具名 `[FS_PAGE_GAP]`，出参一字不写）。
 int GetTableObjHandlerInfo(const void *pfstableobjinit, void *pTableObjectInfo)
 {
-    (void)pfstableobjinit;
-    (void)pTableObjectInfo;
-    return wpf_pts_gap("GetTableObjHandlerInfo");
+    if (!pfstableobjinit) {
+        g_pts_tableobj_cbk_gap++;
+        fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=null-init entry=GetTableObjHandlerInfo init=%p out=%p "
+                        "out=UNWRITTEN bytes=0\n",
+                WPF_PTS_ERR_NOT_IMPLEMENTED, pfstableobjinit, pTableObjectInfo);
+        return WPF_PTS_ERR_NOT_IMPLEMENTED;
+    }
+    const void *const *src = (const void *const *)pfstableobjinit;
+    if (pTableObjectInfo) {
+        const void **dst = (const void **)pTableObjectInfo;
+        for (int i = 0; i < WPF_PTS_TABLEOBJ_SLOTS; i++) dst[i] = src[i];
+    }
+    for (int i = 0; i < WPF_PTS_TABLEOBJ_SLOTS; i++) g_pts_tableobj_cbk[i] = src[i];
+    g_pts_tableobj_cbk_ok++;
+    fprintf(stderr, "[FSTABLEOBJ-CBK] rc=0 entry=GetTableObjHandlerInfo init=%p out=%p slots=%d "
+                    "getTableProps=%p autofit=%p firstRow=%p nextRow=%p rowProps=%p cells=%p "
+                    "fmtCellFinite=%p out=%s bytes=%d src=managed-FSTABLEOBJINIT\n",
+            pfstableobjinit, pTableObjectInfo, WPF_PTS_TABLEOBJ_SLOTS,
+            g_pts_tableobj_cbk[WPF_PTS_TABLEOBJ_IDX_GETTABLEPROPS],
+            g_pts_tableobj_cbk[WPF_PTS_TABLEOBJ_IDX_AUTOFITTABLE],
+            g_pts_tableobj_cbk[WPF_PTS_TABLEOBJ_IDX_GETFIRSTROW],
+            g_pts_tableobj_cbk[WPF_PTS_TABLEOBJ_IDX_GETNEXTROW],
+            g_pts_tableobj_cbk[WPF_PTS_TABLEOBJ_IDX_GETROWPROPS],
+            g_pts_tableobj_cbk[WPF_PTS_TABLEOBJ_IDX_GETCELLS],
+            g_pts_tableobj_cbk[20],
+            pTableObjectInfo ? "WRITTEN" : "skipped(null-out)",
+            pTableObjectInfo ? (int)(WPF_PTS_TABLEOBJ_SLOTS * (int)sizeof(void *)) : 0);
+    return 0;
 }
 
 // 批 2a：LS 构造期的 3 条，与既有 6 条同形（诚实失败 + 具名台账）。
@@ -6045,6 +6320,190 @@ int FsQueryFloaterDetails(void *pfscontext, void *pPara, void *pFloaterDetails)
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
 
+/* ══ ⏪ `T-A53`（`NATIVE-PTS-TABLEOBJ`）：Table 族**五入口**（`FsQueryTableObj*`）———————————————
+   上游声明（`upstream/…/PtsHost/Pts.cs`）：`FsQueryTableObjDetails`（`:3815`）／`...TableProperDetails`
+     （`:3823`）／`...RowList`（`:3829`）／`...RowDetails`（`:3837`）／`...CellList`（`:3843`）。
+   🔴 **本实现的诚实形态**：模型来源**唯一** ＝ `wpf_pts_tableobj_drive` 在**窗内**用托管回调
+     （`pfnGetFirstRow`／`pfnGetNextRow`／`pfnGetRowProperties`）建出的**本侧表模型**（`g_pts_tbl[]`）。
+     **零假值**：无模型（未驱／驱失败）⇒ **诚实拒绝**（返 `-10000` ＋ 具名 `[FS_PAGE_GAP]`，出参一字不写），
+     **绝不**返回"空表"冒充成功。单元面如实报 `cCells=0`（本侧确未排单元；见 `wpf_pts_tableobj_drive` 口径）。 */
+typedef struct { int u, v, du, dv; } wpf_pts_tbl_rect;
+typedef struct {
+    void          *fsnm_table;
+    wpf_pts_tbl_rect fsrc_table_obj;
+    int            dvr_top_caption, dvr_bottom_caption, dur_left_caption, dur_right_caption;
+    unsigned int   fswdir_table;
+    int            fskupd_table_proper;
+    void          *pfstableproper;
+} wpf_pts_fstableobjdetails;
+typedef struct { int dvr_table; int c_rows; } wpf_pts_fstabledetails;
+typedef struct {
+    wpf_pts_fsupdinf fsupdinf;
+    void          *fsnm_row;
+    void          *pfstablerow;
+    int            f_row_in_separate_rect;
+    union { wpf_pts_tbl_rect fsrc_row; int dvr_row; } u;
+} wpf_pts_fstablerowdescription;
+typedef struct {
+    int fskboundary_above; int dvr_above;
+    int fskboundary_below; int dvr_below;
+    int c_cells;           int f_forced_row;
+} wpf_pts_fstablerowdetails;
+_Static_assert(sizeof(wpf_pts_fstableobjdetails) == 56, "FSTABLEOBJDETAILS != 56 B");
+_Static_assert(offsetof(wpf_pts_fstableobjdetails, fsrc_table_obj) == 8, "fsrcTableObj 偏移 != 8");
+_Static_assert(offsetof(wpf_pts_fstableobjdetails, fswdir_table) == 40, "fswdirTable 偏移 != 40");
+_Static_assert(offsetof(wpf_pts_fstableobjdetails, fskupd_table_proper) == 44, "fskupdTableProper 偏移 != 44");
+_Static_assert(offsetof(wpf_pts_fstableobjdetails, pfstableproper) == 48, "pfstableProper 偏移 != 48");
+_Static_assert(sizeof(wpf_pts_fstabledetails) == 8, "FSTABLEDETAILS != 8 B");
+_Static_assert(sizeof(wpf_pts_fstablerowdescription) == 48, "FSTABLEROWDESCRIPTION != 48 B");
+_Static_assert(offsetof(wpf_pts_fstablerowdescription, u) == 28, "FSTABLEROWDESCRIPTION.u 偏移 != 28");
+_Static_assert(sizeof(wpf_pts_fstablerowdetails) == 24, "FSTABLEROWDETAILS != 24 B");
+
+static int wpf_pts_tbl_total_dv(const wpf_pts_tbl_model *m)
+{
+    int s = 0; for (int i = 0; i < m->nrows; i++) s += m->rows[i].dvr_row; return s;
+}
+// `FsQueryTableObjDetails`：按**表段落句柄**（托管 `_paraHandle`）认模型。
+int FsQueryTableObjDetails(void *pfscontext, void *pPara, void *pTableObjDetails)
+{
+    const char *reason = NULL;
+    if (!pTableObjDetails) reason = "null-out";
+    else if (!pPara)       reason = "null-table";
+    else {
+        /* ⏪ `T-A53`：托管 `_paraHandle` 来源 ＝ `FsQueryTrackParaList` 的 `FSPARADESCRIPTION.pfspara`
+           ⇒ 拿到的是**本侧子轨对象句柄**（`&o->c_paras`，见 `PtsHelper.ArrangeParaList`）。故先按
+           **对象身份**把该句柄还原成它承载的**段落句柄**（`o->nmp`）再查模型；直接命中亦容（双入口）。 */
+        wpf_pts_tbl_model *m = wpf_pts_tbl_find(pPara);
+        if (!m) {
+            wpf_pts_subtrack *o = NULL;
+            if (wpf_pts_sub_claim(pPara, &o) && o && o->nmp) m = wpf_pts_tbl_find(o->nmp);
+        }
+        if (!m) reason = "no-table-model";
+        else {
+            wpf_pts_fstableobjdetails *d = (wpf_pts_fstableobjdetails *)pTableObjDetails;
+            wpf_pts_tbl_rect rc;
+            rc.u = 0; rc.v = 0;
+            rc.du = (m->autofit_width > 0) ? m->autofit_width : WPF_PTS_FLOATER_AVAIL_DU;
+            rc.dv = wpf_pts_tbl_total_dv(m);
+            memset((void *)d, 0, sizeof(*d));
+            d->fsnm_table         = (void *)m->nm_table;
+            d->fsrc_table_obj     = rc;
+            d->fswdir_table       = 0;
+            d->fskupd_table_proper= WPF_PTS_FSKUPD_NEW;
+            d->pfstableproper     = (void *)m->pfstableproper;
+            g_pts_tbl_query_ok++;
+            fprintf(stderr, "[FSTABLEOBJ-Q] rc=0 entry=FsQueryTableObjDetails table=%p fsrc=(%d,%d,%d,%d) "
+                            "cRows=%d fskupd=New proper=%p NOINFO=table-geometry-self-convention\n",
+                    pPara, rc.u, rc.v, rc.du, rc.dv, m->nrows, (void *)m->pfstableproper);
+            return 0;
+        }
+    }
+    g_pts_tbl_query_gap++;
+    fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=FsQueryTableObjDetails ctx=%p p=%p "
+                    "ok=%d gap=%d out=UNWRITTEN bytes=0\n",
+            WPF_PTS_ERR_NOT_IMPLEMENTED, reason ? reason : "unknown", pfscontext, pPara,
+            g_pts_tbl_query_ok, g_pts_tbl_query_gap);
+    return WPF_PTS_ERR_NOT_IMPLEMENTED;
+}
+// `FsQueryTableObjTableProperDetails`：按**表 token** 认模型，报 `dvrTable`／`cRows`。
+int FsQueryTableObjTableProperDetails(void *pfscontext, void *pTableProper, void *pTableDetails)
+{
+    const char *reason = NULL;
+    if (!pTableDetails) reason = "null-out";
+    else {
+        wpf_pts_tbl_model *m = wpf_pts_tbl_find_proper(pTableProper);
+        if (!m) reason = "no-table-model";
+        else {
+            wpf_pts_fstabledetails *d = (wpf_pts_fstabledetails *)pTableDetails;
+            memset((void *)d, 0, sizeof(*d));
+            d->dvr_table = wpf_pts_tbl_total_dv(m);
+            d->c_rows    = m->nrows;
+            g_pts_tbl_query_ok++;
+            fprintf(stderr, "[FSTABLEOBJ-Q] rc=0 entry=FsQueryTableObjTableProperDetails proper=%p "
+                            "dvrTable=%d cRows=%d\n", pTableProper, d->dvr_table, d->c_rows);
+            return 0;
+        }
+    }
+    g_pts_tbl_query_gap++;
+    fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=FsQueryTableObjTableProperDetails ctx=%p p=%p "
+                    "ok=%d gap=%d out=UNWRITTEN bytes=0\n",
+            WPF_PTS_ERR_NOT_IMPLEMENTED, reason ? reason : "unknown", pfscontext, pTableProper,
+            g_pts_tbl_query_ok, g_pts_tbl_query_gap);
+    return WPF_PTS_ERR_NOT_IMPLEMENTED;
+}
+// `FsQueryTableObjRowList`：把本侧行描述逐条填进托管缓冲。
+int FsQueryTableObjRowList(void *pfscontext, void *pTableProper, int cRows, void *rgTableRowDesc,
+                           int *pcRowsActual)
+{
+    const char *reason = NULL;
+    if (pcRowsActual) *pcRowsActual = 0;
+    if (!rgTableRowDesc || !pcRowsActual) reason = "null-out";
+    else {
+        wpf_pts_tbl_model *m = wpf_pts_tbl_find_proper(pTableProper);
+        if (!m) reason = "no-table-model";
+        else {
+            int n = (cRows < m->nrows) ? cRows : m->nrows;
+            wpf_pts_fstablerowdescription *rg = (wpf_pts_fstablerowdescription *)rgTableRowDesc;
+            for (int i = 0; i < n; i++) {
+                memset(&rg[i], 0, sizeof(rg[i]));
+                rg[i].fsupdinf.fskupd = WPF_PTS_FSKUPD_NEW;
+                rg[i].fsnm_row        = (void *)m->rows[i].nm_row;
+                rg[i].pfstablerow     = (void *)m->rows[i].pfstablerow;
+                rg[i].u.dvr_row       = m->rows[i].dvr_row;
+            }
+            *pcRowsActual = n;
+            g_pts_tbl_query_ok++;
+            fprintf(stderr, "[FSTABLEOBJ-Q] rc=0 entry=FsQueryTableObjRowList proper=%p asked=%d filled=%d "
+                            "NOINFO=row-height-self-convention\n", pTableProper, cRows, n);
+            return 0;
+        }
+    }
+    g_pts_tbl_query_gap++;
+    fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=FsQueryTableObjRowList ctx=%p p=%p "
+                    "ok=%d gap=%d out=UNWRITTEN bytes=0\n",
+            WPF_PTS_ERR_NOT_IMPLEMENTED, reason ? reason : "unknown", pfscontext, pTableProper,
+            g_pts_tbl_query_ok, g_pts_tbl_query_gap);
+    return WPF_PTS_ERR_NOT_IMPLEMENTED;
+}
+// `FsQueryTableObjRowDetails`：按**行 token** 认行；单元面如实报 `cCells=0`（本侧未排单元）。
+int FsQueryTableObjRowDetails(void *pfscontext, void *pTableRow, void *pTableRowDetails)
+{
+    const char *reason = NULL;
+    if (!pTableRowDetails) reason = "null-out";
+    else {
+        wpf_pts_tbl_row *r = wpf_pts_tbl_find_row(pTableRow);
+        if (!r) reason = "no-table-row";
+        else {
+            wpf_pts_fstablerowdetails *d = (wpf_pts_fstablerowdetails *)pTableRowDetails;
+            memset((void *)d, 0, sizeof(*d));
+            d->fskboundary_above = 0;   /* fsktablerowboundaryOuter */
+            d->dvr_above         = 0;
+            d->fskboundary_below = 0;   /* fsktablerowboundaryOuter */
+            d->dvr_below         = 0;
+            d->c_cells           = 0;   /* **诚实的空**：本侧未排单元（`r->c_cells` 原值仅供诊断） */
+            d->f_forced_row      = 0;
+            g_pts_tbl_query_ok++;
+            fprintf(stderr, "[FSTABLEOBJ-Q] rc=0 entry=FsQueryTableObjRowDetails row=%p cCells=0 "
+                            "src_cCells=%d NOINFO=cells-not-laid-out\n", pTableRow, r->c_cells);
+            return 0;
+        }
+    }
+    g_pts_tbl_query_gap++;
+    fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=FsQueryTableObjRowDetails ctx=%p p=%p "
+                    "ok=%d gap=%d out=UNWRITTEN bytes=0\n",
+            WPF_PTS_ERR_NOT_IMPLEMENTED, reason ? reason : "unknown", pfscontext, pTableRow,
+            g_pts_tbl_query_ok, g_pts_tbl_query_gap);
+    return WPF_PTS_ERR_NOT_IMPLEMENTED;
+}
+// `FsQueryTableObjCellList`：本侧未排单元 ⇒ 单元列恒空（`cCells=0` 的**真值**）。
+int FsQueryTableObjCellList(void *pfscontext, void *pTableRow, int cCells, void *rgCell,
+                            int *pcCellsActual, void *rgCellMerge)
+{
+    (void)pfscontext; (void)pTableRow; (void)cCells; (void)rgCell; (void)rgCellMerge;
+    if (pcCellsActual) *pcCellsActual = 0;
+    return 0;
+}
+
 /* ⏪ `t125`：`wpf_pts_doc_find` 的定义体（**只比指针身份**，不 deref 入参）。 */
 static int wpf_pts_doc_find(const void *ctx)
 {
@@ -6881,6 +7340,25 @@ int FsQuerySubtrackParaList(void *pfscontext, void *pSubTrack, int cParas,
             rg[i].pfspara       = (void *)wpf_pts_sub_handle(obj->child_objs[i]);
             rg[i].pfsparaclient = (void *)obj->child_clients[i];  /* 本 run `+176` 真返回 */
             rg[i].nmp           = (void *)obj->children[i];
+            /* ⏪ `T-A53`：若该段是本侧表模型的**表段落** ⇒ 在此（**拿得到真客户端句柄**时）补调
+               `pfnAutofitTable` —— 托管 `TableParaClient.ValidateVisual` 的
+               `Invariant.Assert(CalculatedColumns != null)` 只在**该客户端**的 `_calculatedColumns`
+               被置后才成立（窗口内那个 `tclient` 是**另一个实例** ⇒ 对它 Autofit 不生效）。
+               **每模型一次**（`autofit_done`）；`rc≠0` ⇒ 具名留痕（不冒充成功）。 */
+            {
+                wpf_pts_tbl_model *tm = wpf_pts_tbl_find(obj->children[i]);
+                if (tm && !tm->autofit_done && obj->child_clients[i]
+                    && g_pts_tableobj_cbk[WPF_PTS_TABLEOBJ_IDX_AUTOFITTABLE]) {
+                    int wt = 0;
+                    int ra = ((wpf_pts_fn_autofit_table)g_pts_tableobj_cbk[WPF_PTS_TABLEOBJ_IDX_AUTOFITTABLE])(
+                        (const void *)dp->p_fsclient, (const void *)obj->child_clients[i],
+                        (const void *)obj->children[i], 0u, WPF_PTS_FLOATER_AVAIL_DU, &wt);
+                    tm->autofit_done = 1; tm->autofit_rc2 = ra; tm->autofit_width2 = wt;
+                    fprintf(stderr, "[FSTABLEOBJ-AUTOFIT] para=%p client=%p rc=%d wtbl=%d v=%s\n",
+                            (void *)obj->children[i], (void *)obj->child_clients[i], ra, wt,
+                            ra == 0 ? "AUTOFIT-ON-REAL-CLIENT" : "AUTOFIT-FAIL");
+                }
+            }
             /* ⏪ `T-A37`：**内容子页树**里，段高取该段**真行台账**的 `Σ(ascent+descent)`（否则为 0 ⇒
                零高矩形 ⇒ 内容不可见）；非内容树逐字保持 `0` ＋ 既有 `NOINFO`。 */
             if (obj->in_subpage && obj->child_objs[i] && obj->child_objs[i]->fl_ok) {
@@ -7214,7 +7692,7 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
        ② 出口断言"登记表回到 base"（新增格 `83`，见报告块）—— 把"不带泄漏"这件事**变成可证伪的断言**。 */
     int base = g_pts_loc_live_n;
 
-    char sb[256] = { 0 }, sp[256] = { 0 };
+    char sb[512] = { 0 }, sp[512] = { 0 };
     void *p1 = NULL; int c1 = 0;   /* 格1：真实现 ⇒ 期望被填成 **非空** 且表长 2 */
     void *p2 = (void *)0x2;
     // 【`#66` W158A 修订】3 个新入口**各自一个先被投毒的出参**：否则链条走到这里时 `p1`
@@ -7275,7 +7753,13 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
           ⇒ 旧 64 B 夹具上那次调用**越界**（本步顺手堵掉）。 */
     else if (GetFloaterHandlerInfo(NULL, sp) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 7;
     else if (GetFloaterHandlerInfo(sb, NULL) != 0) rc = 72;
-    else if (GetTableObjHandlerInfo(sb, sp) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 8;
+    /* ⏪ `T-A53`：`GetTableObjHandlerInfo` 已由**具名缺口 stub** 升为**真实现** ⇒ 旧断言
+          （`GetTableObjHandlerInfo(sb, sp)` 必须返 `-10000`）**必须跟着改**（不改就是自检恒红），
+          且**不是**把断言删掉：改成**成对断言** —— `NULL` init 必被拒（返 `-10000`）／
+          有效 init、空 out ⇒ 真实现**必须成功**（返 0）。⚠️ `sb` 本趟由 256 B 加到 512 B：
+          真实现按契约读 `FSTABLEOBJINIT`（45×8＝360 B）⇒ 旧 256 B 夹具上那次调用**越界**（本步堵掉）。 */
+    else if (GetTableObjHandlerInfo(NULL, sp) != WPF_PTS_ERR_NOT_IMPLEMENTED) rc = 8;
+    else if (GetTableObjHandlerInfo(sb, NULL) != 0) rc = 73;
     /* ── 格 2：三参形 · 必须**成功** ─────────────────────────────────────────── */
     else if (LoCreateContext(sb, sp, &loc) != 0) rc = 11;                              /* 真实现 ⇒ 0 */
     else if (loc == NULL) rc = 12;                                                     /* 真句柄：非空 */

@@ -31,7 +31,32 @@
 #   并**断言相等**（不等即 `rc=9` 停手 = 基底漂移），再把 `tool/dead/artifact/ops/impl`
 #   交给牙**现算对账**（不等即牙红 —— 那才是"数漂了"，与基底漂移是两回事，分开报）。
 # ══════════════════════════════════════════════════════════════════════════════════
-# PTSGAP-DECL: tool=76 dead=11 artifact=1 ops=64 impl=66 so16=1067da454b7ef114 exports=683 w66pre16=bf6b683d94549087
+# PTSGAP-DECL: tool=71 dead=11 artifact=1 ops=59 impl=60 so16=3ff91579e7ea3efa exports=688 w66pre16=bf6b683d94549087
+#   ⚠️ 波 `T-A53` 重锚（`TASK-0302` 增量：native `NATIVE-PTS-TABLEOBJ`（Table 族五入口 ＋
+#     `GetTableObjHandlerInfo`／`FSTABLEOBJCBK`）；`D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
+#     `src/WpfGfx.Linux.Native/src/win32_pts.c` 三处：
+#     ① **`GetTableObjHandlerInfo` 由具名缺口 stub 升为真实现** —— 按上游语义（`Pts.cs:3071`；调用链
+#        `PtsHost.GetObjectHandlerInfo`（`:1096`，`idobj==TableParagraphId`）→ `PtsCache.GetTableObjHandlerInfoCore`
+#        （`:353`）→ `PTS.GetTableObjHandlerInfo(ref FSTABLEOBJINIT, pTableObjectInfo)`）**逐槽只读捕获**托管交出的
+#        `FSTABLEOBJINIT`（45 槽／360 B）到本侧持有位（发调源）；出参非空时**逐槽原样转写**，`NULL` init ⇒ **拒**
+#        （`-10000` ＋ 具名留痕）。⇒ 实现口径的 `stubs` 少 1（该名不再 `return wpf_pts_gap(...)`）。
+#     ② **Table 族五入口导出**：`FsQueryTableObjDetails`／`...TableProperDetails`／`...RowList`／`...RowDetails`／
+#        `...CellList` ⇒ 5 条托管 `DllImport` **从缺口名单离开**（`tool 76→71`／`ops 64→59`）。
+#     ③ **窗内表模型驱动**（`WPF_PTS_TABLEOBJ`，**缺省关**）＋ 在**真客户端**上补调 `pfnAutofitTable`
+#        （见 `FsQuerySubtrackParaList` 填充分支）。
+#     **导出面 ＋5**（`nm -D --defined-only` 行数 == `exports.txt` 行数 == `688`；逐名 `diff` 零差异）；
+#     合计 ⇒ `tool 76→71`／`dead=11`／`artifact=1`／`ops 64→59`／`impl 66→60`（＝ `stubs` 少 1 的**事实**）；
+#     `so16 1067da454b7ef114→3ff91579e7ea3efa`。
+#     🔴 **判据 ① 已达（成对现取，同一 `.so 3ff91579e7ea3efa`／同装置 `:231`／同批工具，只差 env）**：
+#       缺省（两闸皆关）⇒ `k24 fr_sha=791696291d51470b colors=905`（`GhostWhite=22736 Beige=910 DarkGreen=44
+#       LightGoldenrodYellow=0`；`PTS_COLORANCHOR=PASS hits=2`；`[HC-UNHANDLED]=0`；`PTS_GUARD=PASS`）；
+#       显式 `WPF_PTS_FLOATER_CBK=1 WPF_PTS_TABLEOBJ=1` ⇒ `[FSTABLEOBJ-DRV] nrows=5 built=1
+#       v=TABLE-MODEL-BUILT`／`[FSTABLEOBJ-AUTOFIT] rc=0 v=AUTOFIT-ON-REAL-CLIENT`／
+#       `[FSTABLEOBJ-Q] … cRows=5`（`entry point named` **0**、`[HC-UNHANDLED]=0`）⇒ `k24 fr_sha=64603fc1d8e23e39`
+#       `colors=910`、**`LightGoldenrodYellow=1998 px`（≥200）** ⇒ `PTS_COLORANCHOR=PASS hits=3`。
+#       反极（`WPF_PTS_FLOATER_CBK=1 WPF_PTS_TABLEOBJ=0`）⇒ 无模型 ⇒ `FsQueryTableObjDetails` 诚实拒
+#       （`reason=no-table-model`）⇒ 整页空白（`colors=383`）⇒ `PTS_GUARD=FAIL`（**该红必红**）。
+#     载体 `build/MilBridge/P1-tail2-tableobj-impl-report.md`。
 #   ⚠️ 波 `T-A52` 重锚（`TASK-0302` 增量：native `NATIVE-PTS-FLOATERCBK`（`FSFLOATERCBK`／`GetFloaterHandlerInfo`）；
 #     `D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
 #     `src/WpfGfx.Linux.Native/src/win32_pts.c` 两处：
