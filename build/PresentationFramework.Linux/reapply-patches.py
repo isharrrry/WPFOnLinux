@@ -116,6 +116,25 @@ PATCH_C = '''  <!-- ============================================================
     <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/PtsCache.Linux.cs" />
     <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/documents/FlowDocumentView.cs" />
     <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/FlowDocumentView.Linux.cs" />
+    <!-- T-A44（CONTENT-LINEVIS-BRANCH-REACH）：内容段"造行支入口"只读判别器载体 -->
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/TextParaClient.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/TextParaClient.Linux.cs" />
+    <!-- T-A44：视觉/视口链逐跳只读判别器（[CHAIN]）—— 六个宿主 + 判别器类本体 -->
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/FlowDocumentPage.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/FlowDocumentPage.Linux.cs" />
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/PtsPage.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/PtsPage.Linux.cs" />
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/PtsHelper.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/PtsHelper.Linux.cs" />
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/FigureParaClient.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/FigureParaClient.Linux.cs" />
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/ContainerParaClient.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/ContainerParaClient.Linux.cs" />
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/documents/FlowDocumentFormatter.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/FlowDocumentFormatter.Linux.cs" />
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/documents/FlowDocumentPaginator.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/FlowDocumentPaginator.Linux.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/WpfLinuxChainProbe.Linux.cs" />
   </ItemGroup>
 '''
 
@@ -1586,6 +1605,529 @@ FDV_EDITS.append((FDV_E7_NEEDLE, FDV_E7_REPL, 1))
 FDV_EDITS.append((FDV_E8_NEEDLE, FDV_E8_REPL, 1))
 
 
+# ── `T-A44`（`CONTENT-LINEVIS-BRANCH-REACH`）**内容段"造行支入口"只读判别器** ────────────────
+#  【为什么落在这里】`T-A43`（`P1-tail2-contentvis-recon.md` §5.1）指认的唯一下一增量是
+#    "让内容段落进会发 `[FSQLL]` 的那一支"，但**两因不可分辨**：
+#      因 A ＝ `IsDeferredVisualCreationSupported` 为假 ⇒ `UpdateViewport:152` 不进
+#              `UpdateViewportSimpleLines`（`via=viewport` 类轮**全段** `[FSQLL]≡0` 与此同向）；
+#      因 B ＝ 内容段在 `via=viewport` 类轮里的两次 `[FSQTD]` **不来自** `UpdateViewport`
+#              （`FsQueryTextDetails` 是共用入口，单看它不辨调用者）。
+#    native 面（`win32_pts.c`）**结构性看不到托管调用者** ⇒ 本判别器只能落在**托管侧的两支
+#    入口**（`ValidateVisual`／`UpdateViewport`）与**三个造行支**（`RenderSimpleLines`／
+#    `UpdateViewportSimpleLines`／`SyncUpdateDeferredLineVisuals`）上，**只打一条具名行**：
+#      `[TPCL] site=… parah=0x… cLines=… composite=… att=… deferred=… … NOINFO=tpcl-entry-readonly`
+#    ⇒ "谁到了内容段" ＋ "`IsDeferredVisualCreationSupported` 取何值"**首次可现取**。
+#  【零假值】**不改任何行为**：不动出参、不删／不放宽任何 `Invariant.Assert`、
+#    不置 `fLinesComposite`／`fUpdateInfoForLinesPresent`；`WPF_TPCL_PROBE=0` 可**整个关掉**
+#    判别器（反极性腿：撤掉后逐字回上游行为）。
+TPC_E_UV_NEEDLE = """            PTS.FSTEXTDETAILS textDetails;
+            PTS.Validate(PTS.FsQueryTextDetails(PtsContext.Context, _paraHandle, out textDetails));
+            Invariant.Assert(textDetails.fsktd == PTS.FSKTEXTDETAILS.fsktdFull, "Only 'full' text paragraph type is expected.");
+
+            if (IsDeferredVisualCreationSupported(ref textDetails.u.full))
+"""
+TPC_E_UV_REPL = """            PTS.FSTEXTDETAILS textDetails;
+            PTS.Validate(PTS.FsQueryTextDetails(PtsContext.Context, _paraHandle, out textDetails));
+            Invariant.Assert(textDetails.fsktd == PTS.FSKTEXTDETAILS.fsktdFull, "Only 'full' text paragraph type is expected.");
+
+            // ── `T-A44` 只读判别器（**视口支入口**）────────────────────────────────
+            WpfLinuxLineVisProbe.Hit("UpdateViewport", _paraHandle, (int)textDetails.u.full.cLines,
+                PTS.ToBoolean(textDetails.u.full.fLinesComposite) ? 1 : 0, (int)textDetails.u.full.cAttachedObjects,
+                IsDeferredVisualCreationSupported(ref textDetails.u.full) ? 1 : 0,
+                "rectV=" + _rect.v + " rectDV=" + _rect.dv + " vpV=" + viewport.v + " vpDV=" + viewport.dv);
+
+            if (IsDeferredVisualCreationSupported(ref textDetails.u.full))
+"""
+
+TPC_E_VV_NEEDLE = """            PTS.FSTEXTDETAILS textDetails;
+            PTS.Validate(PTS.FsQueryTextDetails(PtsContext.Context, _paraHandle, out textDetails));
+
+            VisualCollection visualChildren = _visual.Children;
+            ContainerVisual lineContainerVisual = _visual;
+"""
+TPC_E_VV_REPL = """            PTS.FSTEXTDETAILS textDetails;
+            PTS.Validate(PTS.FsQueryTextDetails(PtsContext.Context, _paraHandle, out textDetails));
+
+            // ── `T-A44` 只读判别器（**视觉支入口**）────────────────────────────────
+            WpfLinuxLineVisProbe.Hit("ValidateVisual", _paraHandle, (int)textDetails.u.full.cLines,
+                PTS.ToBoolean(textDetails.u.full.fLinesComposite) ? 1 : 0, (int)textDetails.u.full.cAttachedObjects,
+                IsDeferredVisualCreationSupported(ref textDetails.u.full) ? 1 : 0,
+                "fsktd=" + (int)textDetails.fsktd);
+
+            VisualCollection visualChildren = _visual.Children;
+            ContainerVisual lineContainerVisual = _visual;
+"""
+
+TPC_E_RSL_NEEDLE = """            ErrorHandler.Assert(!PTS.ToBoolean(textDetails.fDropCapPresent), ErrorHandler.NotSupportedDropCap);
+            int cpTextParaStart = Paragraph.ParagraphStartCharacterPosition;
+
+            if (textDetails.cLines == 0)
+                return;
+"""
+TPC_E_RSL_REPL = """            ErrorHandler.Assert(!PTS.ToBoolean(textDetails.fDropCapPresent), ErrorHandler.NotSupportedDropCap);
+            int cpTextParaStart = Paragraph.ParagraphStartCharacterPosition;
+
+            // ── `T-A44` 只读判别器（**造行支：ValidateVisual 派**）────────────────
+            WpfLinuxLineVisProbe.Hit("RenderSimpleLines", _paraHandle, (int)textDetails.cLines,
+                PTS.ToBoolean(textDetails.fLinesComposite) ? 1 : 0, (int)textDetails.cAttachedObjects, -1,
+                "updateInfo=" + (PTS.ToBoolean(textDetails.fUpdateInfoForLinesPresent) ? 1 : 0));
+
+            if (textDetails.cLines == 0)
+                return;
+"""
+
+TPC_E_UVSL_NEEDLE = """            VisualCollection visualChildren = visual.Children;
+
+            Debug.Assert(!PTS.ToBoolean(textDetails.fLinesComposite));
+"""
+TPC_E_UVSL_REPL = """            VisualCollection visualChildren = visual.Children;
+
+            Debug.Assert(!PTS.ToBoolean(textDetails.fLinesComposite));
+
+            // ── `T-A44` 只读判别器（**造行支：UpdateViewport 派**）────────────────
+            WpfLinuxLineVisProbe.Hit("UpdateViewportSimpleLines", _paraHandle, (int)textDetails.cLines,
+                0, (int)textDetails.cAttachedObjects, -1,
+                "intersects=" + (IntersectsWithRectOnV(ref viewport) ? 1 : 0)
+                + " contained=" + (ContainedInRectOnV(ref viewport) ? 1 : 0)
+                + " rectV=" + _rect.v + " rectDV=" + _rect.dv + " vpV=" + viewport.v + " vpDV=" + viewport.dv);
+"""
+
+TPC_E_SUDLV_NEEDLE = """        private void SyncUpdateDeferredLineVisuals(VisualCollection lineVisuals, ref PTS.FSTEXTDETAILSFULL textDetails, bool ignoreUpdateInfo)
+        {
+            Debug.Assert(!PTS.ToBoolean(textDetails.fLinesComposite));
+"""
+TPC_E_SUDLV_REPL = """        private void SyncUpdateDeferredLineVisuals(VisualCollection lineVisuals, ref PTS.FSTEXTDETAILSFULL textDetails, bool ignoreUpdateInfo)
+        {
+            Debug.Assert(!PTS.ToBoolean(textDetails.fLinesComposite));
+
+            // ── `T-A44` 只读判别器（**造行支：ValidateVisual 的延迟派**）──────────
+            WpfLinuxLineVisProbe.Hit("SyncUpdateDeferredLineVisuals", _paraHandle, (int)textDetails.cLines,
+                0, (int)textDetails.cAttachedObjects, -1, null);
+"""
+
+TPC_E_TAIL_NEEDLE = """        private int _lineIndexFirstVisual = -1;
+
+        #endregion Private Fields
+    }
+}
+"""
+TPC_E_TAIL_REPL = """        private int _lineIndexFirstVisual = -1;
+
+        #endregion Private Fields
+    }
+
+    /// <summary>
+    /// `T-A44`（`CONTENT-LINEVIS-BRANCH-REACH`）**内容段"造行支入口"只读判别器**。
+    ///
+    /// 【它是什么】一条**只读**台账：在 `TextParaClient` 的两支入口
+    /// （`ValidateVisual`／`UpdateViewport`）与三个造行支
+    /// （`RenderSimpleLines`／`UpdateViewportSimpleLines`／`SyncUpdateDeferredLineVisuals`）
+    /// 各打**一行** `[TPCL]`，输出 `parah`（＝ native `[FSQTD] parah=` 的同一句柄）／
+    /// `cLines`／`composite`／`att`／`deferred`（＝ `IsDeferredVisualCreationSupported` 的真值）
+    /// ＋ 该点的门操作数。⇒ `T-A43 §5.1(a)` 要分辨的两因
+    /// （因 A：`deferred=假`；因 B：`UpdateViewport` 未到内容段）**首次可现取**。
+    /// 【它不做什么】不改任何行为：不动出参、不删／不放宽断言、不置任何 native 真值；
+    /// `WPF_TPCL_PROBE=0` ⇒ 整个关掉（反极性腿：撤掉后与上游逐字同行为）。
+    /// </summary>
+    internal static class WpfLinuxLineVisProbe
+    {
+        private const int TraceMax = 60000;
+        private static int _n;
+        private static int _enabled = -1;                 // -1＝未读；0＝关；1＝开
+
+        internal static bool Enabled
+        {
+            get
+            {
+                if (_enabled < 0)
+                {
+                    string s = null;
+                    try { s = System.Environment.GetEnvironmentVariable("WPF_TPCL_PROBE"); }
+                    catch (System.Exception) { s = null; }
+                    _enabled = (s == "0") ? 0 : 1;         // 缺省＝开；**只有**显式 "0" 才关
+                }
+                return _enabled == 1;
+            }
+        }
+
+        private static string H(long v)
+        {
+            return "0x" + ((ulong)v).ToString("x", System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        internal static void Emit(string line)
+        {
+            try
+            {
+                System.Console.Error.WriteLine(line);
+                System.Console.Error.Flush();
+            }
+            catch (System.Exception)
+            {
+                // 打印失败不许改变行为（例如 stderr 已关闭）。
+            }
+        }
+
+        internal static void Hit(string site, System.IntPtr para, int cLines, int composite, int att, int deferred, string extra)
+        {
+            if (!Enabled) { return; }
+            if (_n >= TraceMax)
+            {
+                if (_n == TraceMax)
+                {
+                    _n++;
+                    Emit("[TPCL] site=" + site + " trace=suppressed-after-" + TraceMax);
+                }
+                return;
+            }
+            _n++;
+            Emit("[TPCL] site=" + site + " parah=" + H((long)para)
+                 + " cLines=" + cLines + " composite=" + composite + " att=" + att + " deferred=" + deferred
+                 + (extra == null ? "" : " " + extra)
+                 + " NOINFO=tpcl-entry-readonly");
+        }
+    }
+}
+"""
+
+TPC_EDITS = [
+    (TPC_E_UV_NEEDLE, TPC_E_UV_REPL, 1),
+    (TPC_E_VV_NEEDLE, TPC_E_VV_REPL, 1),
+    (TPC_E_RSL_NEEDLE, TPC_E_RSL_REPL, 1),
+    (TPC_E_UVSL_NEEDLE, TPC_E_UVSL_REPL, 1),
+    (TPC_E_SUDLV_NEEDLE, TPC_E_SUDLV_REPL, 1),
+    (TPC_E_TAIL_NEEDLE, TPC_E_TAIL_REPL, 1),
+]
+
+
+# ── `T-A44`（`CONTENT-LINEVIS-BRANCH-REACH`）**视觉/视口链逐跳判别器**（`[CHAIN]`）────────────
+#  【为什么需要第二层】`[TPCL]` 现取（`evidence-tail2j/disc1`）：**内容段（`cLines=1`）的
+#    `ValidateVisual`／`UpdateViewport` 在整个 `FlowDocumentDemo` 阶段（762 轮）一次都没被调**
+#    ⇒ `T-A43` 的两因里 **因 B 成立**（不是 `deferred` 门：入口根本没到）。但"入口为什么不到"
+#    仍需逐跳定位 —— `TextParaClient` 的两支各有一条长的托管调用链：
+#      · 视觉支：`FlowDocumentFormatter.Arrange` → `FlowDocumentPage.Arrange` → `EnsureValidVisuals`
+#                → `UpdateVisual` → `PtsPage.GetPageVisual` → `PtsPage.UpdatePageVisuals`
+#                → `PtsHelper.UpdateTrackVisuals` → `PtsHelper.UpdateParaListVisuals` → …
+#      · 视口支：`FlowDocumentPage.UpdateViewport` → `PtsPage.UpdateViewport`
+#                → `PtsHelper.UpdateViewportTrack` → `PtsHelper.UpdateViewportParaList` → …
+#    本层在这条链的**每一跳入口**各打一行 `[CHAIN]`（**只读**：不动出参、不删／不放宽断言）。
+#  【零假值】`WPF_CHAIN_PROBE=0` ⇒ 整个关掉（逐字回上游行为）。
+CHAIN_PROBE_FILE = "WpfLinuxChainProbe.Linux.cs"
+CHAIN_PROBE_TEXT = '''// ⚠️ 本文件由 build/PresentationFramework.Linux/reapply-patches.py **生成**，不要手改。
+//
+// T-A44（CONTENT-LINEVIS-BRANCH-REACH）：托管侧"视觉/视口链逐跳"只读判别器（`[CHAIN]`）。
+//
+// 【射程】只打行：不改任何出参、不删／不放宽任何 Invariant.Assert、不置任何 native 真值。
+// `WPF_CHAIN_PROBE=0` ⇒ 整个关掉（逐字回上游行为）。
+
+namespace MS.Internal.PtsHost
+{
+    internal static class WpfLinuxChainProbe
+    {
+        private const int TraceMax = 200000;
+        private static int _n;
+        private static int _enabled = -1;
+
+        internal static bool Enabled
+        {
+            get
+            {
+                if (_enabled < 0)
+                {
+                    string s = null;
+                    try { s = System.Environment.GetEnvironmentVariable("WPF_CHAIN_PROBE"); }
+                    catch (System.Exception) { s = null; }
+                    _enabled = (s == "0") ? 0 : 1;
+                }
+                return _enabled == 1;
+            }
+        }
+
+        internal static string N(double v)
+        {
+            return v.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        internal static bool EnvOn(string name)
+        {
+            try
+            {
+                string s = System.Environment.GetEnvironmentVariable(name);
+                return (s == "0") ? false : true;      // 缺省＝开；**只有**显式 "0" 才关
+            }
+            catch (System.Exception)
+            {
+                return true;
+            }
+        }
+
+        internal static string Hx(System.IntPtr p)
+        {
+            return "0x" + ((ulong)(long)p).ToString("x", System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        internal static void Emit(string line)
+        {
+            try
+            {
+                System.Console.Error.WriteLine(line);
+                System.Console.Error.Flush();
+            }
+            catch (System.Exception)
+            {
+            }
+        }
+
+        internal static void Hit(string site, string detail)
+        {
+            if (!Enabled) { return; }
+            if (_n >= TraceMax)
+            {
+                if (_n == TraceMax)
+                {
+                    _n++;
+                    Emit("[CHAIN] site=" + site + " trace=suppressed-after-" + TraceMax);
+                }
+                return;
+            }
+            _n++;
+            Emit("[CHAIN] site=" + site + " " + (detail == null ? "" : detail) + " NOINFO=chain-entry-readonly");
+        }
+    }
+}
+'''
+
+# 每跳的 (needle, repl, expect)。全部 **只增一行**。
+CHAIN_FILES = [
+    ("MS/Internal/PtsHost/FlowDocumentPage.cs", "FlowDocumentPage.Linux.cs", [
+        ("""        internal void Arrange(Size partitionSize)
+        {
+""",
+         """        internal void Arrange(Size partitionSize)
+        {
+            WpfLinuxChainProbe.Hit("FDG.Arrange", "size=" + WpfLinuxChainProbe.N(partitionSize.Width) + "x" + WpfLinuxChainProbe.N(partitionSize.Height));
+""", 1),
+        ("""        internal void EnsureValidVisuals()
+        {
+            Invariant.Assert(!IsDisposed);
+            UpdateVisual();
+""",
+         """        internal void EnsureValidVisuals()
+        {
+            Invariant.Assert(!IsDisposed);
+            WpfLinuxChainProbe.Hit("FDG.EnsureValidVisuals", "needsUpdate=" + (_visualNeedsUpdate ? 1 : 0));
+            UpdateVisual();
+""", 1),
+        ("""        internal void UpdateViewport(ref PTS.FSRECT viewport, bool drawBackground)
+        {
+            Rect contentViewport;
+""",
+         """        internal void UpdateViewport(ref PTS.FSRECT viewport, bool drawBackground)
+        {
+            WpfLinuxChainProbe.Hit("FDG.UpdateViewport", "dbg=" + (drawBackground ? 1 : 0) + " vp=" + viewport.u + "," + viewport.v + "," + viewport.du + "," + viewport.dv);
+            Rect contentViewport;
+""", 1),
+        ("""        private void UpdateVisual()
+        {
+            if (this.PageVisual == null)
+            {
+                SetVisual(new PageVisual(this));
+            }
+            if (_visualNeedsUpdate)
+""",
+         """        private void UpdateVisual()
+        {
+            if (this.PageVisual == null)
+            {
+                SetVisual(new PageVisual(this));
+            }
+            WpfLinuxChainProbe.Hit("FDG.UpdateVisual", "needsUpdate=" + (_visualNeedsUpdate ? 1 : 0));
+            if (_visualNeedsUpdate)
+""", 1),
+    ]),
+    ("MS/Internal/PtsHost/PtsPage.cs", "PtsPage.Linux.cs", [
+        ("""        internal ContainerVisual GetPageVisual()
+        {
+            if (_visual == null)
+""",
+         """        internal ContainerVisual GetPageVisual()
+        {
+            WpfLinuxChainProbe.Hit("PTSP.GetPageVisual", "empty=" + (IsEmpty ? 1 : 0) + " visual=" + (_visual == null ? 0 : 1));
+            if (_visual == null)
+""", 1),
+        ("""        private void UpdatePageVisuals(Size arrangeSize)
+        {
+""",
+         """        private void UpdatePageVisuals(Size arrangeSize)
+        {
+            WpfLinuxChainProbe.Hit("PTSP.UpdatePageVisuals", "size=" + WpfLinuxChainProbe.N(arrangeSize.Width) + "x" + WpfLinuxChainProbe.N(arrangeSize.Height));
+""", 1),
+        ("""        internal void UpdateViewport(ref PTS.FSRECT viewport)
+        {
+            if (!IsEmpty)
+""",
+         """        internal void UpdateViewport(ref PTS.FSRECT viewport)
+        {
+            WpfLinuxChainProbe.Hit("PTSP.UpdateViewport", "empty=" + (IsEmpty ? 1 : 0) + " vp=" + viewport.u + "," + viewport.v + "," + viewport.du + "," + viewport.dv);
+            if (!IsEmpty)
+""", 1),
+    ]),
+    ("MS/Internal/PtsHost/PtsHelper.cs", "PtsHelper.Linux.cs", [
+        ("""        internal static void UpdateTrackVisuals(
+            PtsContext ptsContext,
+            VisualCollection visualCollection,
+            PTS.FSKUPDATE fskupdInherited,
+            ref PTS.FSTRACKDESCRIPTION trackDesc)
+        {
+            PTS.FSKUPDATE fskupd = trackDesc.fsupdinf.fskupd;
+""",
+         """        internal static void UpdateTrackVisuals(
+            PtsContext ptsContext,
+            VisualCollection visualCollection,
+            PTS.FSKUPDATE fskupdInherited,
+            ref PTS.FSTRACKDESCRIPTION trackDesc)
+        {
+            PTS.FSKUPDATE fskupd = trackDesc.fsupdinf.fskupd;
+            WpfLinuxChainProbe.Hit("PH.UpdateTrackVisuals", "fskupd=" + (int)trackDesc.fsupdinf.fskupd + " inh=" + (int)fskupdInherited + " pfstrack=" + WpfLinuxChainProbe.Hx(trackDesc.pfstrack));
+""", 1),
+        ("""        internal static void UpdateParaListVisuals(
+            PtsContext ptsContext,
+            VisualCollection visualCollection,
+            PTS.FSKUPDATE fskupdInherited,
+            PTS.FSPARADESCRIPTION [] arrayParaDesc)
+        {
+            // For each paragraph, do following:
+""",
+         """        internal static void UpdateParaListVisuals(
+            PtsContext ptsContext,
+            VisualCollection visualCollection,
+            PTS.FSKUPDATE fskupdInherited,
+            PTS.FSPARADESCRIPTION [] arrayParaDesc)
+        {
+            WpfLinuxChainProbe.Hit("PH.UpdateParaListVisuals", "n=" + arrayParaDesc.Length + " inh=" + (int)fskupdInherited);
+            // For each paragraph, do following:
+""", 1),
+        ("""        internal static void UpdateViewportTrack(
+            PtsContext ptsContext,
+            ref PTS.FSTRACKDESCRIPTION trackDesc,
+            ref PTS.FSRECT viewport)
+        {
+            // There is possibility to get empty track. (example: large figures)
+            if (trackDesc.pfstrack != IntPtr.Zero)
+""",
+         """        internal static void UpdateViewportTrack(
+            PtsContext ptsContext,
+            ref PTS.FSTRACKDESCRIPTION trackDesc,
+            ref PTS.FSRECT viewport)
+        {
+            WpfLinuxChainProbe.Hit("PH.UpdateViewportTrack", "pfstrack=" + WpfLinuxChainProbe.Hx(trackDesc.pfstrack) + " vp=" + viewport.u + "," + viewport.v + "," + viewport.du + "," + viewport.dv);
+            // There is possibility to get empty track. (example: large figures)
+            if (trackDesc.pfstrack != IntPtr.Zero)
+""", 1),
+        ("""        internal static void UpdateViewportParaList(
+            PtsContext ptsContext,
+            PTS.FSPARADESCRIPTION [] arrayParaDesc,
+            ref PTS.FSRECT viewport)
+        {
+            for (int index = 0; index < arrayParaDesc.Length; index++)
+""",
+         """        internal static void UpdateViewportParaList(
+            PtsContext ptsContext,
+            PTS.FSPARADESCRIPTION [] arrayParaDesc,
+            ref PTS.FSRECT viewport)
+        {
+            WpfLinuxChainProbe.Hit("PH.UpdateViewportParaList", "n=" + arrayParaDesc.Length);
+            for (int index = 0; index < arrayParaDesc.Length; index++)
+""", 1),
+    ]),
+    ("MS/Internal/PtsHost/FigureParaClient.cs", "FigureParaClient.Linux.cs", [
+        ("""        internal override void UpdateViewport(ref PTS.FSRECT viewport)
+        {
+            // Query subpage details
+            PTS.FSSUBPAGEDETAILS subpageDetails;
+""",
+         """        internal override void UpdateViewport(ref PTS.FSRECT viewport)
+        {
+            WpfLinuxChainProbe.Hit("FIG.UpdateViewport", "parah=" + WpfLinuxChainProbe.Hx(_paraHandle) + " vp=" + viewport.u + "," + viewport.v + "," + viewport.du + "," + viewport.dv);
+            // Query subpage details
+            PTS.FSSUBPAGEDETAILS subpageDetails;
+""", 1),
+        ("""        internal override void ValidateVisual(PTS.FSKUPDATE fskupdInherited)
+        {
+            // Figure is always reported as NEW. Override PTS inherited value.
+""",
+         """        internal override void ValidateVisual(PTS.FSKUPDATE fskupdInherited)
+        {
+            WpfLinuxChainProbe.Hit("FIG.ValidateVisual", "parah=" + WpfLinuxChainProbe.Hx(_paraHandle) + " inh=" + (int)fskupdInherited);
+            // Figure is always reported as NEW. Override PTS inherited value.
+""", 1),
+    ]),
+    ("MS/Internal/PtsHost/ContainerParaClient.cs", "ContainerParaClient.Linux.cs", [
+        ("""        internal override void ValidateVisual(PTS.FSKUPDATE fskupdInherited)
+        {
+            // Query paragraph details
+            PTS.FSSUBTRACKDETAILS subtrackDetails;
+""",
+         """        internal override void ValidateVisual(PTS.FSKUPDATE fskupdInherited)
+        {
+            WpfLinuxChainProbe.Hit("CON.ValidateVisual", "parah=" + WpfLinuxChainProbe.Hx(_paraHandle) + " inh=" + (int)fskupdInherited);
+            // Query paragraph details
+            PTS.FSSUBTRACKDETAILS subtrackDetails;
+""", 1),
+        ("""        internal override void UpdateViewport(ref PTS.FSRECT viewport)
+        {
+            // Query paragraph details
+            PTS.FSSUBTRACKDETAILS subtrackDetails;
+""",
+         """        internal override void UpdateViewport(ref PTS.FSRECT viewport)
+        {
+            WpfLinuxChainProbe.Hit("CON.UpdateViewport", "parah=" + WpfLinuxChainProbe.Hx(_paraHandle) + " vp=" + viewport.u + "," + viewport.v + "," + viewport.du + "," + viewport.dv);
+            // Query paragraph details
+            PTS.FSSUBTRACKDETAILS subtrackDetails;
+""", 1),
+    ]),
+    ("MS/Internal/documents/FlowDocumentFormatter.cs", "FlowDocumentFormatter.Linux.cs", [
+        ("""        internal void Arrange(Size arrangeSize, Rect viewport)
+        {
+""",
+         """        internal void Arrange(Size arrangeSize, Rect viewport)
+        {
+            WpfLinuxChainProbe.Hit("FDF.Arrange", "size=" + WpfLinuxChainProbe.N(arrangeSize.Width) + "x" + WpfLinuxChainProbe.N(arrangeSize.Height) + " vp=" + WpfLinuxChainProbe.N(viewport.X) + "," + WpfLinuxChainProbe.N(viewport.Y) + "," + WpfLinuxChainProbe.N(viewport.Width) + "," + WpfLinuxChainProbe.N(viewport.Height));
+""", 1),
+    ]),
+    # ── `T-A44` **驱动**（方案 3）：分页器这条宿主路径缺的"页视觉帧"那一跳 ────────────────────
+    #  【现取断点】`FlowDocumentFormatter.Arrange`（另一条宿主路径）在 `Arrange` 之后**必**再调
+    #    `EnsureValidVisuals()`（上游次序：`Arrange` → `EnsureValidVisuals` → `UpdateViewport`）；
+    #    而分页器这条路（`FlowDocumentPaginator.FormatPage`）**只调 `Arrange`** ⇒ 该页对象的
+    #    `_visualNeedsUpdate`（由 `FormatFinite` 的 `OnAfterFormatPage` 置真）**永不被消费**
+    #    ⇒ 页视觉帧（`GetPageVisual`／`UpdatePageVisuals`）不建 ⇒ `UpdateTrackVisuals`
+    #    → `UpdateParaListVisuals` → 段落的 `ValidateVisual` 全不发生（`[CHAIN]`／`[TPCL]` 现取）。
+    #  【驱动是什么】在 `Arrange` 之后补一次 `EnsureValidVisuals()`（**幂等**：`UpdateVisual` 自看
+    #    `_visualNeedsUpdate`）。**不**伪造任何几何、**不**删／**不**放宽任何 `Invariant.Assert`。
+    #  【零假值】`WPF_LINEVIS_DRIVE=0` ⇒ 整个撤掉（反极性腿；缺省＝开）。
+    ("MS/Internal/documents/FlowDocumentPaginator.cs", "FlowDocumentPaginator.Linux.cs", [
+        ("""            breakRecordOut = page.FormatFinite(pageSize, pageMargin, breakRecordIn);
+            page.Arrange(pageSize);
+
+            // NOTE: May execute external code, so it is possible to get
+""",
+         """            breakRecordOut = page.FormatFinite(pageSize, pageMargin, breakRecordIn);
+            page.Arrange(pageSize);
+
+            // ── `T-A44`（`CONTENT-LINEVIS-BRANCH-REACH`）**驱动：补上"页视觉帧"缺的那一跳** ──
+            //  见生成器内该块的说明；`WPF_LINEVIS_DRIVE=0` ⇒ 逐字回上游（反极性腿）。
+            if (WpfLinuxChainProbe.EnvOn("WPF_LINEVIS_DRIVE"))
+            {
+                WpfLinuxChainProbe.Hit("DRIVE.EnsurePageVisuals", "site=FDPaginator.FormatPage page=" + page.GetHashCode());
+                page.EnsureValidVisuals();
+            }
+
+            // NOTE: May execute external code, so it is possible to get
+""", 1),
+    ]),
+]
+
+
 def materialize_derived():
     """生成补丁 C 的两个派生源文件。needle 校验失败 ⇒ 抛（由 main 转成 rc≠0）。"""
     made = []
@@ -1594,6 +2136,16 @@ def materialize_derived():
     b, n = _apply_edits(UP_PF + "MS/Internal/documents/FlowDocumentView.cs",
                         "FlowDocumentView.Linux.cs", FDV_EDITS)
     made.append((b, n))
+    c, n = _apply_edits(UP_PF + "MS/Internal/PtsHost/TextParaClient.cs",
+                        "TextParaClient.Linux.cs", TPC_EDITS)
+    made.append((c, n))
+    for up_rel, out_name, edits in CHAIN_FILES:
+        p, n = _apply_edits(UP_PF + up_rel, out_name, edits)
+        made.append((p, n))
+    # 判别器类本体（**非派生**：新建件，`temp+rename`）
+    probe_abs = os.path.join(HERE, CHAIN_PROBE_FILE)
+    _write_atomic(probe_abs, CHAIN_PROBE_TEXT)
+    made.append((probe_abs, 0))
     return made
 
 

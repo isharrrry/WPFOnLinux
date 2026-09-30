@@ -1438,6 +1438,44 @@
       <WithCulture>false</WithCulture>
     </EmbeddedResource>
   </ItemGroup>
+  <!-- ==== WPF-on-Linux M7c 补丁 L：主题字典路径上的 XamlAccessLevel（由 tools/patch-presentationframework-xamlaccess.py 注入）==== -->
+  <ItemGroup>
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/SystemResources.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/SystemResources.Linux.cs" />
+  </ItemGroup>
+  <!-- ==== WPF-on-Linux M7c 补丁 L 结束 ==== -->
+  <!-- ==== WPF-on-Linux 补丁：Window 的 min/max 声明告示（TASK-0108 P3）=== -->
+  <ItemGroup>
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Window.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/Window.Linux.cs" />
+  </ItemGroup>
+  <!-- ==== WPF-on-Linux 补丁结束（TASK-0108 P3）==== -->
+  <!-- ==== T1c 输入链读数（第 2 批）：PF 侧 TextEditorTyping.OnTextInput（patch-presentationframework-texteditor-trace.py 注入）==== -->
+  <ItemGroup>
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Documents/TextEditorTyping.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/TextEditorTyping.Linux.cs" />
+  </ItemGroup>
+  <!-- ==== T1c 输入链读数（第 2 批）TextEditorTyping 结束 ==== -->
+  <!-- ==== T1c 第 4 批：TextContainer.Changed → TextBox.Text DP（patch-presentationframework-textbox-textdp-trace.py 注入）==== -->
+  <ItemGroup>
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Documents/TextContainer.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/TextContainer.Linux.cs" />
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Controls/Primitives/TextBoxBase.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/TextBoxBase.Linux.cs" />
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Controls/TextBox.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/TextBox.Linux.cs" />
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Controls/DeferredTextReference.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/DeferredTextReference.Linux.cs" />
+  </ItemGroup>
+  <!-- ==== T1c 第 4 批 结束 ==== -->
+  <!-- ==== T1c RTL 镜像读数：实推变换 vs GetFlowDirectionTransform（patch-presentationframework-mirror-trace.py 注入）==== -->
+  <ItemGroup>
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/FrameworkElement.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/FrameworkElement.Linux.cs" />
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Controls/TextBlock.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/TextBlock.Linux.cs" />
+  </ItemGroup>
+  <!-- ==== T1c RTL 镜像读数 结束 ==== -->
   <!-- ==== WPF-on-Linux 补丁开关：以下内容由 reapply-patches.py 追加 ==== -->
   <!-- ============================================================================
        WPF-on-Linux 补丁 A：公开签名（PublicSign），通过 WindowsBase/PresentationCore 的 IVT 检查
@@ -1517,46 +1555,27 @@
     <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/PtsCache.Linux.cs" />
     <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/documents/FlowDocumentView.cs" />
     <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/FlowDocumentView.Linux.cs" />
+    <!-- T-A44（CONTENT-LINEVIS-BRANCH-REACH）：内容段"造行支入口"只读判别器载体 -->
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/TextParaClient.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/TextParaClient.Linux.cs" />
+    <!-- T-A44：视觉/视口链逐跳只读判别器（[CHAIN]）—— 六个宿主 + 判别器类本体 -->
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/FlowDocumentPage.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/FlowDocumentPage.Linux.cs" />
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/PtsPage.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/PtsPage.Linux.cs" />
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/PtsHelper.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/PtsHelper.Linux.cs" />
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/FigureParaClient.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/FigureParaClient.Linux.cs" />
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/ContainerParaClient.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/ContainerParaClient.Linux.cs" />
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/documents/FlowDocumentFormatter.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/FlowDocumentFormatter.Linux.cs" />
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/documents/FlowDocumentPaginator.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/FlowDocumentPaginator.Linux.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/WpfLinuxChainProbe.Linux.cs" />
   </ItemGroup>
 
   <!-- ==== WPF-on-Linux 补丁结束 ==== -->
-  <!-- ==== WPF-on-Linux M7c 补丁 L：主题字典路径上的 XamlAccessLevel（由 tools/patch-presentationframework-xamlaccess.py 注入）==== -->
-  <ItemGroup>
-    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/SystemResources.cs" />
-    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/SystemResources.Linux.cs" />
-  </ItemGroup>
-  <!-- ==== WPF-on-Linux M7c 补丁 L 结束 ==== -->
-  <!-- ==== WPF-on-Linux 补丁：Window 的 min/max 声明告示（TASK-0108 P3）=== -->
-  <ItemGroup>
-    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Window.cs" />
-    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/Window.Linux.cs" />
-  </ItemGroup>
-  <!-- ==== WPF-on-Linux 补丁结束（TASK-0108 P3）==== -->
-  <!-- ==== T1c 输入链读数（第 2 批）：PF 侧 TextEditorTyping.OnTextInput（patch-presentationframework-texteditor-trace.py 注入）==== -->
-  <ItemGroup>
-    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Documents/TextEditorTyping.cs" />
-    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/TextEditorTyping.Linux.cs" />
-  </ItemGroup>
-  <!-- ==== T1c 输入链读数（第 2 批）TextEditorTyping 结束 ==== -->
-  <!-- ==== T1c 第 4 批：TextContainer.Changed → TextBox.Text DP（patch-presentationframework-textbox-textdp-trace.py 注入）==== -->
-  <ItemGroup>
-    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Documents/TextContainer.cs" />
-    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/TextContainer.Linux.cs" />
-    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Controls/Primitives/TextBoxBase.cs" />
-    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/TextBoxBase.Linux.cs" />
-    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Controls/TextBox.cs" />
-    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/TextBox.Linux.cs" />
-    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Controls/DeferredTextReference.cs" />
-    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/DeferredTextReference.Linux.cs" />
-  </ItemGroup>
-  <!-- ==== T1c 第 4 批 结束 ==== -->
-  <!-- ==== T1c RTL 镜像读数：实推变换 vs GetFlowDirectionTransform（patch-presentationframework-mirror-trace.py 注入）==== -->
-  <ItemGroup>
-    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/FrameworkElement.cs" />
-    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/FrameworkElement.Linux.cs" />
-    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Controls/TextBlock.cs" />
-    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/TextBlock.Linux.cs" />
-  </ItemGroup>
-  <!-- ==== T1c RTL 镜像读数 结束 ==== -->
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 </Project>
