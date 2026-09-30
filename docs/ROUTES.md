@@ -464,6 +464,7 @@ wpf-linux 路线图
     │   ├─ 前置：无链在跑 ∧ 槽释放 ∧ 冻后链完成（现取三读数）。
     │   ├─ 判据：冻后 `verify-all` ×2 各 `N ✅/0 ❌` ∧ 判词行逐字一致 ∧ 两哨兵 `cmp IDENTICAL` ∧ `inputs_fp` 与 `[42] --expect` 同趟。
     │   └─ ⛔ **只能队长执行**，子代理不得代跑。
+    │   └─ ⏪ **dated E5 尝试（队长，读时 `2026-09-30T11:2x+0800`；只增不改）**：`build/close-wave.sh` 整波真跑（17 工程 `0 错误 0 警告`），按设计**中止于 `[5/6] verify-all`**（`失败 6`）。**收口已清 5 项**：`SENTINEL-SPEC`（哨兵重写 ⇒ `SSC=PASS`）／`ROOT-ENTRIES`（`.narnat` 入允许清单 ⇒ `ROOT_ALLOW=PASS`）／`HANDOFF-MV`（`cell=#1` 对齐 ⇒ `PASS`）／`STATIC-JAWS`（随前述转绿）／`ManagedLayer.Tests`（2 份陈旧桥副本按权威同步 ⇒ **`76/76` 全过**）／`FrameProbe-frame`（`frame-step.sh` 补 `WPF_PROBE_FRAMEPROBE_AUTH_PC` 传参 ⇒ `FRAME_STEP=PASS`）。**残余 1 项**：`PTS-PAGES` ＝ `phase=degraded` **设计红** ⇒ **E5 完整通过被 `TASK-0302` 门控**（相位翻转前置未满足，不得提前翻）。**两条结构隐患入册**：① `build/PresentationFramework.Linux/PtsCache.Linux.cs` 被 `port-lib.py`／应用器**整份重写** ⇒ 静默抹掉已提交的 `t133`/`t155` 仪器块（`numstat 16 611`；已 `git checkout` 复原、留 `~/t204-captain/bak/PtsCache.Linux.cs.post-e5`）——**须把该仪器编码进应用器**否则每趟整波都丢；② app-local **声明图缺 2 条桥副本**（`samples/WpfFeatureProbe/bin/Release/…`、`samples/ThirdPartyMini/bin/Debug/…` 曾留旧桥 `4e25e4b27d4d5ae1`），同步器报「分组落单、不由权威锚定」⇒ 手工按权威同步。
     └─ TASK-9909 [Next] 🔴 同代收口：哨兵重写 ＋ `HANDOFF-MV cell=#1` 对齐 ＋ 18 脏件入账推送
         ├─ 目标：① 以现值重写 `SSC`（`WIN32SHIM`）；② 追写 `HANDOFF-MV cell=#1/#2/#5`；③ 逐路径 `git add`（**禁 `-A`**）入账 `t203`–`t208` 载体与产品源并推送。
         ├─ 判据：`SSC` rc=0（13 行 13 键 `cmp IDENTICAL`）∧ `HANDOFF_MV` rc=0 ∧ `DEFREG` rc=0 ∧ `cat-file blob HEAD:` 逐件核对 ∧ `ls-remote`==HEAD。

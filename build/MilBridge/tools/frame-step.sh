@@ -124,7 +124,7 @@ for spec in "${LEGS[@]}"; do
     TAG="${spec%%|*}"; rest="${spec#*|}"; TIER="${rest%%|*}"; EXTRA="${rest#*|}"
     LOG="$LOGDIR/$TAG.log"
     # shellcheck disable=SC2086
-    DISPLAY="${DISPLAY:-:97}" dotnet "$ARM" --corpus "$CORPUS" --leg b --tier $TIER $EXTRA > "$LOG" 2>&1
+    DISPLAY="${DISPLAY:-:97}" WPF_PROBE_FRAMEPROBE_AUTH_PC="$AUTH_PC" dotnet "$ARM" --corpus "$CORPUS" --leg b --tier $TIER $EXTRA > "$LOG" 2>&1
     PRC=$?
     echo
     echo "FRAME_STEP ── 腿 $TAG（--leg b --tier $TIER $EXTRA）probe_rc=$PRC  日志=$LOG"
