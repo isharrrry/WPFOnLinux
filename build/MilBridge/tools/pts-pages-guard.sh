@@ -48,8 +48,13 @@
 #   · 红条件（方向的**反面**，逐字）：`magenta=0 ∧ 无具名行 ∧ native_gap=0`；**反转必须成对**。
 #   · 下面这一行是**唯一机读声明行**；判词行**行尾**带 `direction=` 标记（**前缀语义一字不改**）；
 #     本行缺失／与编译常量不符 ⇒ `PTS_DIRECTION=FAIL` ＋ 本步**当场红**（**不许静默绿**）。
-# PTS-DIRECTION: absent="magenta=0" present-floor=20000 red-when="magenta=0 AND no-named-line AND native_gap=0" source=TASK-0741 phase=degraded
-#   ⚠️【`t12` 的**判据反转**】`phase=degraded`（今天）＝ 上面那套绿条件（降级还在）；
+# PTS-DIRECTION: absent="magenta=0" present-floor=20000 red-when="magenta>0 OR named-line-present OR native_gap>0" source=TASK-0741 phase=realized
+#   ⏪ **dated 相位翻转（`T-A48` 相位翻转包，裁定二十；读时／读数见载体 `build/MilBridge/P1-tail2-phaseflip-report.md`）**：
+#     相位位 `degraded→realized` **已同趟落定**（现权威 `.so 1dbea9026dd7d3d7`／两页真排版：`magenta=0 ∧ 无具名降级行 ∧ 色锚 PASS`）。
+#     ⇒ 本行 `phase=` 随之翻；`red-when=` 同趟由 **degraded 缺失语义**改写为 **realized 红条件**（＝下文 `t12` 段所述绿条件的**反面**）；
+#       `absent=`／`present-floor=` 两字段是**定义／阈值**（与相位无关）**一字未改**（`present-floor` 仍 == 编译常量 `MAGENTA_FLOOR`，闸照校验）。
+#       `degraded` 支**保留不删**（legacy ＋ 反极性腿用；`--selftest` 造 `_dg` 副本仍跑它）。
+#   ⚠️【`t12` 的**判据反转**】`phase=degraded`（旧）＝ 上面那套绿条件（降级还在）；
 #     `phase=realized`（`TASK-0302` 真实现落地后**同趟**改）＝ 绿条件**反转**为
 #     `洋红 = 0 ∧ 无具名行 ∧ native_gap = 0 ∧ 真实排版证据（`ink` > 0）`；
 #     两期**共用**不可变量 `I1`（三态完备性）：`(magenta>0 ∧ 具名行在位)` ∨ `(magenta==0 ∧ 无具名行 ∧ ink>0)`；
@@ -147,6 +152,17 @@ BT='`'
 COLOR_ANCHOR_K24="GhostWhite=248,248,255 Beige=245,245,220 DarkGreen=0,100,0 LightGoldenrodYellow=250,250,210"
 COLOR_ANCHOR_MIN=200
 COLOR_ANCHOR_BASE_FRAME="boot.png"
+
+# ── ⏪ `T-A48`（相位翻转包，裁定二十／二十一②／三十五(a)）`N4` **正身份登记位**（**唯一登记处**，与 `FRAME_EMPTY_SET`／`COLOR_ANCHOR_*` 同处）──
+#   语义（逐字，承 `t145` `C-C`）：`n4` 源 ＝ **该两枚帧的 `sha16` 拼接**（`<k23 sha16>,<k24 sha16>`，与两腿 `fr_sha` **逐位相同**）
+#   **且**守卫**自己现算**的色锚读数成片（`color_px_scan` 在 `k=24` 帧上 `>=COLOR_ANCHOR_MIN` 的色数 `>=2`）。
+#   ⇒ **只登记、无独立支撑** ⇒ `N4-DECLARED-ONLY`、**不给绿**（折 `cannot`）—— 那条"登记即算"的声明式假绿通道按 `t145` 堵住。
+#   **登记来源（本趟现取，可复跑）**：在册证据 `build/MilBridge/tests/PtsPagesProbe/evidence/shots/g1/{k23,k24}.png`；
+#     帧 `sha16`：`k23=10d0b9d54e649c10`、`k24=791696291d51470b`（各见下）；`k=24` 色锚现算 `hits=2`（`Beige=910`／`DarkGreen=44`）。
+#   ⚠️ **移位即失效**：帧面换代 ⇒ 本值 ≠ 实测两腿 `fr_sha` ⇒ `n4` **自动不计**（`n4_unregistered=1`）、退回 `differ`／`anchor` 两源 ⇒ **不会假绿**；
+#      届时**守卫写者**须同趟重登记（本行即登记处）。
+#   **env 可覆盖**（`PTS_N4_POSITIVE_FP` 非空即用其值）⇒ 反极性腿／合成夹具靠**取值**两极化；**不设"把现帧写进登记位即绿"的路子**（支撑要件照旧）。
+: "${PTS_N4_POSITIVE_FP:=10d0b9d54e649c10,791696291d51470b}"
 
 # 逐色 px 扫描器（纯读；PIL 不在 ⇒ rc=1 空输出 ⇒ 调用方按"读不到"处理，绝不当 0）
 color_px_scan() {   # color_px_scan <png> "<Name=r,g,b …>"
@@ -829,8 +845,13 @@ selftest() {
     printf 'FRAME k=%s fr_file=k%s.png fr_sha=%s fr_lsha=%s fr_ae_boot=%s\n' \
       "$2" "$2" "${14:-cafebabe12345678}" "${14:-cafebabe12345678}" "${15:-12345}" >> "$d/leg_$2.env"
   }
-  good() { mk "$1" 24 yes 143 54454 851 HandyControlDemo.UserControl.FlowDocumentDemo -10000 1 -10000 yes yes
-           mk "$1" 23 yes 143 49864 843 HandyControlDemo.UserControl.RichTextBoxDemo  -10000 0 -10000 yes yes; }
+  good() { # ⏪ `T-A48`（相位翻转包）：本夹具 ＝ **`realized` 期现权威形态**（相位位翻转 ⇒ 夹具**同趟换代**）。
+           #   逐字段：`magenta=0`（占位缺席）／`err=-`（无具名降级行）／`native_gap=0`（台账空）／`ink=480000`（渲染证据位在场）；
+           #   另给**两腿不同 `fr_sha`**（⇒ `N1` 正证据闸的 `differ` 源在场 —— 否则按 `t136` 会被"只有必要件"点红）。
+           #   ⚠️ 这两枚 `fr_sha` **刻意取合成值**（∉ `FRAME_EMPTY_SET` ∧ ≠ `N4` 登记值）⇒ 夹具**不踩** `n4` 支撑闸。
+           #   旧 `degraded` 形态（`magenta=54454/49864 ∧ err=-10000 ∧ native_gap=1`）改由 `_dg` 反极性腿覆盖（见下）。
+           mk "$1" 24 yes 143 0 905 HandyControlDemo.UserControl.FlowDocumentDemo - 0 - yes yes 480000 a1b2c3d4e5f60718 220019
+           mk "$1" 23 yes 143 0 636 HandyControlDemo.UserControl.RichTextBoxDemo  - 0 - yes yes 480000 1122334455667788 189862; }
   chk() { local want="$1" got="$2" nm="$3"
     if [ "$want" = "$got" ]; then npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "$nm" "$got"
     else nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "$nm" "$got" "$want"; fi; }
@@ -838,28 +859,30 @@ selftest() {
   out() { printf '%s\n' "$1" | grep -o -m1 '^PTS_GUARD=[A-Z]*' | cut -d= -f2; }
   outdir() { printf '%s\n' "$1" | grep -o -m1 'direction=[a-z-]*' | cut -d= -f2; }
 
-  # ① 全好 ⇒ PASS
-  good c1;                              chk PASS "$(out "$(judge_legs "$T/c1")")" "全好(54454/49864)"
+  # ⏪ `T-A48`：`c1–c15` 的**夹具与期望已随相位位同趟换代**（`good()` ＝ `realized` 现权威；下列注释按 **`realized` 期**读）。
+  #   旧 `degraded` 期的止损正控（占位洋红 ≥20000／具名 `err=-10000`）改由 **`_dg`（`degraded` 副本）腿**覆盖（见 §`c34` 与 `N1`-`INFO` 两处）。
+  # ① 全好（`realized` 现权威）⇒ PASS
+  good c1;                              chk PASS "$(out "$(judge_legs "$T/c1")")" "全好(realized 0/0)"
   # ② 修前成对件形态：leg24 rc=134 alive=no ⇒ FAIL
   good c2; rm -f "$T/c2/leg_24.env"; mk c2 24 no 134 0 1 HandyControlDemo.UserControl.FlowDocumentDemo -10000 0 -10000 yes yes
                                         chk FAIL "$(out "$(judge_legs "$T/c2")")" "rc=134/alive=no"
-  # ③ 假修形态：alive=yes 但 magenta=0 ⇒ FAIL
+  # ③ `realized` 期：leg24 `magenta=0` 但**具名行仍在**（`err=-10000`）∧ 台账非零 ⇒ FAIL
   good c3; rm -f "$T/c3/leg_24.env"; mk c3 24 yes 143 0 643 HandyControlDemo.UserControl.FlowDocumentDemo -10000 1 -10000 yes yes
-                                        chk FAIL "$(out "$(judge_legs "$T/c3")")" "alive 但洋红 0"
-  # ④ 阈值下界 -1 ⇒ FAIL
+                                        chk FAIL "$(out "$(judge_legs "$T/c3")")" "realized·具名行仍在 ⇒ FAIL"
+  # ④ `realized` 期：leg24 占位仍在（`magenta=19999`）⇒ FAIL
   good c4; rm -f "$T/c4/leg_24.env"; mk c4 24 yes 143 19999 851 HandyControlDemo.UserControl.FlowDocumentDemo -10000 1 -10000 yes yes
-                                        chk FAIL "$(out "$(judge_legs "$T/c4")")" "洋红 19999(<门槛)"
-  # ⑤ 阈值上界（恰好 = 门槛）⇒ PASS（"≥"）
+                                        chk FAIL "$(out "$(judge_legs "$T/c4")")" "realized·占位 19999 ⇒ FAIL"
+  # ⑤ `realized` 期：占位仍在（`magenta=20000`）⇒ FAIL（旧 `degraded` 期的"边界必过"随相位位反转）
   good c5; rm -f "$T/c5/leg_24.env"; mk c5 24 yes 143 20000 851 HandyControlDemo.UserControl.FlowDocumentDemo -10000 1 -10000 yes yes
-                                        chk PASS "$(out "$(judge_legs "$T/c5")")" "洋红 =20000(边界必过)"
+                                        chk FAIL "$(out "$(judge_legs "$T/c5")")" "realized·占位 20000 ⇒ FAIL"
   # ⑥ 点错对象（ns 不匹配）⇒ NOINFO
-  good c6; rm -f "$T/c6/leg_24.env"; mk c6 24 yes 143 54454 851 HandyControlDemo.UserControl.BrushDemo -10000 1 -10000 yes yes
+  good c6; rm -f "$T/c6/leg_24.env"; mk c6 24 yes 143 0 905 HandyControlDemo.UserControl.BrushDemo - 0 - yes yes 480000 c0ffee1234abcd99 220019
                                         chk NOINFO "$(out "$(judge_legs "$T/c6")")" "ns=B rushDemo(点错对象)"
-  # ⑦ 具名行缺 ⇒ FAIL
+  # ⑦ `realized` 期：leg24 占位仍在（`magenta≠0`）∧ 无具名行 ⇒ FAIL
   good c7; rm -f "$T/c7/leg_24.env"; mk c7 24 yes 143 54454 851 HandyControlDemo.UserControl.FlowDocumentDemo - 0 -10000 yes yes
-                                        chk FAIL "$(out "$(judge_legs "$T/c7")")" "无具名行"
+                                        chk FAIL "$(out "$(judge_legs "$T/c7")")" "realized·占位 54454 ⇒ FAIL"
   # ⑧ native err=0（假 stub）⇒ 仍 PASS（只有 DIAG）
-  good c8; rm -f "$T/c8/leg_24.env"; mk c8 24 yes 143 54454 851 HandyControlDemo.UserControl.FlowDocumentDemo -10000 1 0 yes yes
+  good c8; rm -f "$T/c8/leg_24.env"; mk c8 24 yes 143 0 905 HandyControlDemo.UserControl.FlowDocumentDemo - 0 0 yes yes 480000 a1b2c3d4e5f60718 220019
                                         chk PASS "$(out "$(judge_legs "$T/c8")")" "native err=0 ⇒ PASS+DIAG"
   # ⑨ X 没起来 ⇒ NOINFO
   good c9; rm -f "$T/c9/leg_24.env" "$T/c9/leg_23.env"
@@ -870,7 +893,7 @@ selftest() {
   # ⏪ `t122`：**夹具的 app 日志**由 `mk()` 自带的 `TAB entry=<在册名>` 行提供（`ENFE_TOTAL=0`）⇒ 既有腿的期望不受 `N2` 接线影响。
                                         chk NOINFO "$(out "$(judge_legs "$T/c10")")" "空证据目录"
   # ⑪ 件跑动中被换 ⇒ NOINFO
-  good c11; rm -f "$T/c11/leg_24.env";  mk c11 24 yes 143 54454 851 HandyControlDemo.UserControl.FlowDocumentDemo -10000 1 -10000 no yes
+  good c11; rm -f "$T/c11/leg_24.env";  mk c11 24 yes 143 0 905 HandyControlDemo.UserControl.FlowDocumentDemo - 0 - no yes 480000 a1b2c3d4e5f60718 220019
                                         chk NOINFO "$(out "$(judge_legs "$T/c11")")" "five_stable=no"
   # ⑫ 139（静默 SEGV）⇒ FAIL
   good c12; rm -f "$T/c12/leg_24.env";  mk c12 24 no 139 0 1 HandyControlDemo.UserControl.FlowDocumentDemo -10000 0 -10000 yes yes
@@ -896,10 +919,15 @@ selftest() {
   else
     nfail=$((nfail+1)); printf '  %-34s => rc=%-3s ✗ 期望非零\n' "删句 ⇒ rc≠0" "$_sbrc"
   fi
-  # ── `t12`：判据反转的两极化（**realized 期**用同一件、只改口径位的副本跑）─────────
+  # ── `t12`：判据反转的两极化（**`realized` 期**用同一件、只改口径位的副本跑）─────────
+  #   ⏪ `T-A48`（相位位已翻）：本件**在册相位 ＝ `realized`** ⇒ 上面那个 `sed`（`degraded→realized`）在本件上是**恒等**（`_rz` ＝ 本件）；
+  #     为使 **`degraded` 支**仍被两极化跑，同趟补一个**反向**副本 `_dg`（`realized→degraded`），供"`degraded` 期"三条腿用。
   _rz="$T/guard-realized.sh"
   sed 's/^\(# PTS-DIRECTION: .*\)phase=degraded$/\1phase=realized/' "$0" > "$_rz"
   grep -q 'phase=realized' "$_rz" || { nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "realized 副本生成" "no" "yes"; }
+  _dg="$T/guard-degraded.sh"
+  sed 's/^\(# PTS-DIRECTION: .*\)phase=realized$/\1phase=degraded/' "$0" > "$_dg"
+  grep -q 'phase=degraded' "$_dg" || { nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "degraded 副本生成" "no" "yes"; }
   rz() { local c="$1" want="$2" nm="$3" o v
          o="$(bash "$_rz" --legs "$T/$c" 2>&1 || true)"; v="$(out "$o")"
          chk "$want" "$v" "$nm"; return 0; }
@@ -952,7 +980,8 @@ ENFE_EOF
     nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "allowlist 逐名可核" "no" "allow=… 且 non_allow=none"
   fi
   _nfe3="$T/c34"; rm -rf "$_nfe3"; cp -a "$_nfe" "$_nfe3"
-  _o="$(bash "$0" --legs "$_nfe3" 2>&1 || true)"      # degraded 期：不据此判红（只印 INFO）
+  # ⏪ `T-A48`：本件在册相位已 ＝ `realized` ⇒ 本腿改用 `_dg`（`degraded` 副本）跑"degraded 期只印 INFO"。
+  _o="$(bash "$_dg" --legs "$_nfe3" 2>&1 || true)"      # degraded 期：不据此判红（只印 INFO）
   if grep -qF 'PTS_ENFE=INFO' <<<"$_o"; then
     npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "degraded·ENFE 只印 INFO" "yes"
   else
@@ -1011,7 +1040,8 @@ ENFE_EOF
   else
     nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "N1·缺格 ⇒ NOINFO(不当绿)" "no" "PTS_N1=NOINFO reason=frame-cell-missing"
   fi
-  _o="$(bash "$0" --legs "$_f1" 2>&1 || true)"
+  # ⏪ `T-A48`：本件在册相位已 ＝ `realized` ⇒ 本腿改用 `_dg`（`degraded` 副本）跑"degraded 期 N1 只印 INFO"。
+  _o="$(bash "$_dg" --legs "$_f1" 2>&1 || true)"
   if grep -qF 'PTS_N1=INFO' <<<"$_o" && ! grep -qF 'criterion=frame-identity' <<<"$_o"; then
     npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "degraded·N1 只印 INFO" "yes"
   else
@@ -1089,7 +1119,8 @@ ENFE_EOF
 
   # ⑳ `phase` 位自身的反极性：把 `phase=` 删掉 ⇒ `PTS_DIRECTION=FAIL` ＋ 判词必红
   _pf="$T/guard-nophase.sh"
-  sed 's/^\(# PTS-DIRECTION: .*\)phase=degraded/\1phase=/' "$0" > "$_pf"
+  # ⏪ `T-A48`：本件在册相位已 ＝ `realized` ⇒ 删相位位的 `sed` 锚随之改为 `phase=realized`（判据一字未动）。
+  sed 's/^\(# PTS-DIRECTION: .*\)phase=realized/\1phase=/' "$0" > "$_pf"
   rm -rf "$T/c20"
   _pfo="$(bash "$_pf" --legs "$T/c20" 2>&1 || true)"
   chk FAIL "$(out "$_pfo")" "phase 位缺失 ⇒ 判词必红"

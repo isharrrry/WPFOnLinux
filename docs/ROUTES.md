@@ -899,6 +899,8 @@ wpf-linux 路线图
 - ⏪ **dated 入册（`t114`／P1-W38，读时 `2026-09-29T03:16+0800`；本节原文一字未动，本条只增）**：字体栈**降级路径**落地后，两条**残留缺口**如实登记（**只登记、不主张扩面**，与队长裁定十八一致）：
   - **① `build/DirectWrite.Linux/Provider/DefaultFontFamily.cs`（`d574c3acd6cc6939`）与 `LinuxFontCollection.cs`（`e07ac1329fec10fa`）两个覆盖面都不在** —— `fp_inputs()`（234 件）与 `ARTIFACT-SRC-FP`（PC/WB/PF 三工程 src 面）**都收不到它们** ⇒ **改这两件不会被任何牙发现**（`PresentationCore.Linux.csproj` 只把该 DLL 当 **peer** 引用）。
   - **② 守卫 `phase=` 位与运行期态漂移（属 `tools/**`）**：`build/MilBridge/tools/pts-pages-guard.sh:51` 的 `# PTS-DIRECTION: … phase=degraded` 是**写死的判据相位**；`t114` 之后两页现取已落 **realized 态**（`magenta=0` ∧ 无具名降级行 ∧ `native_gap=0`）⇒ 该件**自己的件头规则**（`:52-53`）要求同趟改 `realized`。该件**不在 `t114` 写域**（硬条款禁改 `tools/**`）⇒ **如实登记、未改**；两侧判读见 `build/MilBridge/P1-fontstack-fallback-report.md` §C6。
+    - ⏪ **dated 结账（`T-A48`，读时 `2026-09-30T20:2x–20:4x+0800`；上句原文一字未动，本条只增）**：**本项已消** —— **相位翻转包**同趟落地（裁定二十）：`build/MilBridge/tools/pts-pages-guard.sh:51` 的 `PTS-DIRECTION … phase=` 由 `degraded` 改 **`realized`**（同趟重写 `red-when=` 口径文字 ＋ 同步改 `--selftest` 的 `degraded` 正控夹具/期望 ＋ 新增 `_dg`（`degraded` 副本）腿 ＋ 落 `N4` 正身份**登记位**），在册 `evidence/` **换代**（现权威 `.so 1dbea9026dd7d3d7`／`pf 189e3704cbf4f031`）⇒ `PTS_GUARD=PASS rc=0`／`phase=realized`；**反极**（相位位回退为 `degraded`）⇒ `FAIL rc=1`。读数与两极化逐条见 `build/MilBridge/P1-tail2-phaseflip-report.md`。
+
 ## §15ae 波 `#77` 的**修复记账**（`t17`，2026-09-26；`t6` 独立复验判 `failed` 后逐条关账）
 
 > 复验报告：`build/MilBridge/V77-verify-report.md`（主链读数全过；两条验收 FAIL ＋ 七句现场被推翻/打折扣）。
