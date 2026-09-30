@@ -20,7 +20,7 @@
 
 | # | 现象 | 状态 / 处置 |
 |---|---|---|
-| ① | 切「富文本」23／「流文档」24 **必死 `rc=134`** | 🔴 真因 = **PTS／原生 LineServices 未实现**（`TASK-0302`，**可操作 70／实现口径 73**，月级长线；旧「111 条 `Fs*`/`Lo*` 缺口」已证 `TOOL-UNSOUND`）；已落**页级可见降级**（洋红占位，不再静默空白） |
+| ① | 切「富文本」23／「流文档」24 **必死 `rc=134`** | 🔴 真因 = **PTS／原生 LineServices 未实现**（`TASK-0302`，**可操作 66／实现口径 69**，月级长线；旧「111 条 `Fs*`/`Lo*` 缺口」已证 `TOOL-UNSOUND`）；已落**页级可见降级**（洋红占位，不再静默空白） |
 | ② | **PTS／LineServices 真实现** | 🔴 `TASK-0302`（同上，长线） |
 | ③ | 静默 `rc=139`＋0 字节日志 | 🟡 产品修法（UAF 链 `F1/F2/F3/F3b`）**已随 `#55` 冻结落地** ⇒ **本行读数须重取**（`TASK-0201`：用 `SILENT_SEGV_HIT` 逐字判别式 ＋ ≥131 腿/臂） |
 | ④ | 零墨修法的**反极性腿**未跑 | 🟡 `TASK-0301`（正极已成立；**只差这一条腿**） |
@@ -28,6 +28,7 @@
 > ⏪ **本段原是一张 8 行"已知问题"表（2026-09-20）**，其中 6 条（点页签崩 `D-G66`／启动即死／`PMaxSize` 钉死／双层窗框／顶部菜单条 NRE／Effects 缺 `0x6c`、`0x70`）**均已修**，另 2 条并入上表 ⇒ **该表已删除**；全文可从 git 历史逐字取回（`git -C ~/netTest/GitProj/WPFOnLinux log --oneline -- README.md`）。逐条细节见 `samples/WpfFeatureProbe/KNOWN-DEFECTS.md` 与 `docs/ROUTES.md`。
 >
 > ⏪ **dated 更正（`T-A33`，读时 `2026-09-30`；只增不改，上面两行**原文保留**）**：① 行「必死 `rc=134`／洋红占位」**已不成立** —— `T-A33` 落地 **native 查询期文本行回填**（`FsQueryTextDetails`／三入口按**行记录台账**真填出参）后，切「富文本」23／「流文档」24 **不再崩**（`alive=yes app_rc=143 failfast=0`），且**占位图消失、内容区首次出现真实像素**（改前/反极性：占位 `129792` px、`AE(content)=0`；改后：占位 **0** px、`AE(content)=203949`／`174476`）。② 行「PTS／LineServices 真实现」**仍**是长线（`TASK-0302`；`可操作 70／实现口径 73` **未变**）。⚠️ 免读宽：`PTS` 本体仍是**降级实现**，新前沿见 `docs/ROUTES.md` §15x 的 `T-A33` 行与载体 `build/MilBridge/P1-tail2-backfill-impl-report.md`。
+> ⏪ **dated 更正（`T-A36`，读时 `2026-09-30`；只增不改，上面各行**原文保留**）**：`T-A36` 落地 **native「PTS 附属对象回填」**（`Figure`/`Floater` 建台账 ＋ 查询期回填 `cAttachedObjects`，并新增 `FsQueryAttachedObjectList`／`FsQuerySubpageDetails`／`FsQueryFigureObjectDetails`／`FsQueryFloaterDetails` **四导出**）后，`k=24` 帧上**首现具名色块**（`PTS_COLORANCHOR` `hits 0→1`；**`GhostWhite 0→29637 px`**），`colors 654→724`，帧 `fa7df9222ebb199f → 1487caf78fd88886`；症状门**无回归**（`[HC-UNHANDLED]=1`）。⚠️ **免读宽**：**四具名色仍只出 1 个**（`Beige`/`DarkGreen`/`LightGoldenrodYellow` 在 `Figure`/`Floater` 的**内容**里，需"附属对象内容排版"驱动 ⇒ 下一增量）；`PTS` 本体仍是**降级实现**。现值位随动：`可操作 66／实现口径 69`（`.so=21ad5f39ef3c4034`／`exports=681`）。载体 `build/MilBridge/P1-tail2-attach-impl-report.md`。
 
 
 ## 1. 今天能做什么（每条都可复算）

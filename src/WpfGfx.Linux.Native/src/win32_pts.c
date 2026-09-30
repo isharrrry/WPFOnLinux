@@ -883,6 +883,24 @@ _Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_FSCBK_CBKGEN_OFF + 152 == 192, "pfnDe
 _Static_assert(WPF_PTS_SNAP_IDX_FORMATLINE == 41, "pfnFormatLine 快照下标 != 41");
 _Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_SNAP_IDX_FORMATLINE * 8 == 368,
                "pfnFormatLine 绝对偏移 != 368（cbktxt 6 字节头 + 第 10 槽）");
+/* ── ⏪ `T-A36`（`TASK-0302` 增量 · `NATIVE-PTS-ATTACHED-OBJECTS-BACKFILL`）：`cbktxt` 槽
+   `pfnGetNumberAttachedObjectsInTextLine` 的**唯一偏移定义处** ───────────────────────────────
+   上游声明（`upstream/…/PtsHost/Pts.cs:694`，`FSCBKTXT` 的第 28 个字段 ⇒ **索引 27**）：
+       `internal GetNumberAttachedObjectsInTextLine pfnGetNumberAttachedObjectsInTextLine;`
+   （`FSCBKTXT` 字段序 0..30 共 31 个 ⇒ `WPF_PTS_CBKTXT_SLOTS=31` 恰好装得下，见 `:692-697`）。
+   绝对偏移 ＝ `fscbk(+40)` ＋ `cbktxt 组基(+256)` ＋ `27×8` ＝ **`+512`** ⇒ 快照下标 ＝ `256/8 + 27` ＝ **59**。 */
+#define WPF_PTS_CBKTXT_IDX_GETNUMATTACHLINE   27
+#define WPF_PTS_SNAP_IDX_GETNUMATTACHLINE     (WPF_PTS_FSCBK_CBKTXT_OFF / 8 + WPF_PTS_CBKTXT_IDX_GETNUMATTACHLINE)
+_Static_assert(WPF_PTS_SNAP_IDX_GETNUMATTACHLINE == 59, "pfnGetNumberAttachedObjectsInTextLine 快照下标 != 59");
+_Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_SNAP_IDX_GETNUMATTACHLINE * 8 == 512,
+               "pfnGetNumberAttachedObjectsInTextLine 绝对偏移 != 512（cbktxt 第 28 槽）");
+/* ⏪ `T-A36`：`pfnGetAttachedObjectsInTextLine`（`Pts.cs:695`，`FSCBKTXT` 第 29 个字段 ⇒ **索引 28**）。
+   绝对偏移 ＝ 40 ＋ 256 ＋ 28×8 ＝ **`+520`** ⇒ 快照下标 ＝ 32 + 28 ＝ **60**。 */
+#define WPF_PTS_CBKTXT_IDX_GETATTACHLINE      28
+#define WPF_PTS_SNAP_IDX_GETATTACHLINE        (WPF_PTS_FSCBK_CBKTXT_OFF / 8 + WPF_PTS_CBKTXT_IDX_GETATTACHLINE)
+_Static_assert(WPF_PTS_SNAP_IDX_GETATTACHLINE == 60, "pfnGetAttachedObjectsInTextLine 快照下标 != 60");
+_Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_SNAP_IDX_GETATTACHLINE * 8 == 520,
+               "pfnGetAttachedObjectsInTextLine 绝对偏移 != 520（cbktxt 第 29 槽）");
 /* 预言的空槽（**由托管侧源码**得来：`cbkobj` 的前三槽与整个 `cbkwrd` 声明为 `IntPtr` 且**未赋值**）
    ⇒ 只读回读若在这些绝对偏移上读到非 0，说明偏移（或对齐/顺序）**另有其事** ⇒ 指纹判 FAIL。 */
 #define WPF_PTS_NULL_PRED_CBKOBJ_LEAD 3
@@ -1360,6 +1378,8 @@ const char *WpfLinuxWin32_PtsFsParaListParaLastSrc(void) { return g_pts_fsp_pl_p
       而是"**尚未造型**"；⇒ (b) 必须读 `formatted` 而**不得**据 `c_paras==0` 走叶子分支（判据 §5.2 的 P8 防线）。 */
 /* ⏪ `T-A28`：每段行记录上界（有界 ⇒ 撞界即 `fl_truncated=1` 并**拒绝回查**，绝不静默截断）。 */
 #define WPF_PTS_FL_MAXLINE 32
+/* ⏪ `T-A36`：每段**附属对象**（`Figure`/`Floater`）台账上界（有界 ⇒ 撞界即停止记账并具名留痕）。 */
+#define WPF_PTS_FL_ATT_MAX 8
 /* ⏪ `T-A28`：窗内被驱的段数上界（每窗最多驱这么多 `TextParagraph`；防异常调用失控）。 */
 #define WPF_PTS_FL_MAX_PARA 8
 struct wpf_pts_subtrack_s {
@@ -1413,6 +1433,24 @@ struct wpf_pts_subtrack_s {
         const void *pbr_in;
         const void *pbr_out;
     } fl_line[WPF_PTS_FL_MAXLINE];
+    /* ── ⏪ `T-A36`（`NATIVE-PTS-ATTACHED-OBJECTS-BACKFILL`）：**附属对象台账**（`Figure`/`Floater`）
+       内容**只**来自 `pfnGetNumberAttachedObjectsInTextLine`（计数）＋ `pfnGetAttachedObjectsInTextLine`
+       （对象名／`idobj`／锚点）的**真返回值**；`obj_client` 由**窗内** `+176 pfnCreateParaclient`
+       为附属对象段落现造（`T-A33`（丙）的窗内纪律）。**零假值**：`rc≠0` ⇒ 该行不记账。 */
+    int          fl_att_n;              /* 本段附属对象条数（Σ 各行；**只装真值**） */
+    int          fl_att_calls;          /* 本段发起附属对象查询（`num`）的次数 */
+    int          fl_att_gap;            /* 附属对象查询失败（`num` 或 `objects` 返非 0）次数 */
+    int          fl_att_capped;         /* 撞 `WPF_PTS_FL_ATT_MAX` 上界的次数（失败必留痕） */
+    const void  *owner_doc;             /* ⏪ `T-A36`：本对象被**驱**时的 doc（消歧：同一逻辑段落
+                                           可有两代对象，附属对象托管句柄**相同** ⇒ 按 doc 归属消歧） */
+    struct {
+        const void *nmp_obj;            /* 附属对象段落句柄（托管 `FigureParagraph`/`FloaterParagraph`） */
+        const void *obj_client;         /* 为其在**窗内**现造的 `FigureParaClient`/`FloaterParaClient`（`+176`） */
+        int         obj_rc;             /* `+176` 的 fserr（0 ＝ 真造出；`-7777` ＝ 闸外拒发） */
+        int         idobj;              /* `fsidobjFigure(-2)` 或 `FloaterParagraphId`（**回调原值**） */
+        int         dcp_anchor;         /* 锚点 dcp（**回调原值**） */
+        int         line_idx;           /* 所属行 index（诊断用） */
+    } fl_att[WPF_PTS_FL_ATT_MAX];
 };
 #define WPF_PTS_SUB_MAGIC 0x57535054u     /* "WSPT" */
 /* ⏪ `T-A25`：台账上限（窗内建树 ⇒ 一个容器对象 ＋ 每子段一个对象，**递归**）
@@ -1841,6 +1879,30 @@ typedef int (*wpf_pts_fn_format_line)(
     int *out_dcp_depend, int *out_f_reformat);
 _Static_assert(sizeof(wpf_pts_fn_format_line) == 8, "pfnFormatLine 指针不是 8 B");
 
+/* ── ⏪ `T-A36`：`pfnGetNumberAttachedObjectsInTextLine` 的**回调签名**（逐参照抄上游
+   `Pts.cs:2535-2543` 的 `GetNumberAttachedObjectsInTextLine` 委托）。
+   3 个入参指针 ＋ 4 个 `int` ＋ 1 个 `int*` 出参，**全是 ≤8 B 标量** ⇒ 无结构封送风险。
+   ⚠️ 契约的严格面在托管侧（`PtsHost.cs:2002`）：`nmp` 必须是 `TextParagraph`、`pfsline` 必须是
+   `LineBase`（否则 `ValidateHandle` 抛 ⇒ 被 `try/catch` 捕 ⇒ 返 `-100002`）；**不可捕获的
+   `FailFast` 只出现在跨族调 `HandleToObject` 的那类槽**，本槽两条 `HandleToObject` 都落在
+   `try/catch` 内（`PtsHost.cs:2013-2052`）⇒ 可捕获、可判。 */
+typedef int (*wpf_pts_fn_get_num_attach_in_line)(
+    const void *pfsclient, const void *pfsline, const void *nmp,
+    int dcp_first, int dcp_lim, int f_found_before, int dcp_max_anchor_before,
+    int *out_c_attached_objects);
+_Static_assert(sizeof(wpf_pts_fn_get_num_attach_in_line) == 8, "pfnGetNumberAttachedObjectsInTextLine 指针不是 8 B");
+
+/* ── ⏪ `T-A36`：`pfnGetAttachedObjectsInTextLine` 的**回调签名**（逐参照抄上游 `Pts.cs:2544-2556`
+   的 `GetAttachedObjectsInTextLine` 委托）：在 `num` 拿到计数后，用它取**对象名／`idobj`／锚点**。
+   契约严格面同 `num`（`PtsHost.cs:2056`：`nmp`→`TextParagraph`、`pfsline`→`LineBase`，全在
+   `try/catch` 内 ⇒ 可捕获）。 */
+typedef int (*wpf_pts_fn_get_attach_in_line)(
+    const void *pfsclient, const void *pfsline, const void *nmp,
+    int dcp_first, int dcp_lim, int f_found_before, int dcp_max_anchor_before,
+    int n_attached_objects, void **rg_nmp_objects, int *rg_idobj, int *rg_dcp_anchor,
+    int *out_c_objects);
+_Static_assert(sizeof(wpf_pts_fn_get_attach_in_line) == 8, "pfnGetAttachedObjectsInTextLine 指针不是 8 B");
+
 static int          g_pts_dp2_136_a    = -1;   /* +136 首调 fserr */
 static int          g_pts_dp2_136_b    = -1;   /* +136 次调 fserr */
 static int          g_pts_dp2_136_succ = -1;   /* fSuccessful（首调） */
@@ -2134,6 +2196,8 @@ static int wpf_pts_format_one_para(wpf_pts_doc *d, wpf_pts_subtrack *leaf,
     leaf->fl_last_rc = -9999;
     leaf->fl_nlines = 0; leaf->fl_dcp_sum = 0; leaf->fl_ok = 0;
     leaf->fl_complete = 0; leaf->fl_truncated = 0;
+    leaf->fl_att_n = 0; leaf->fl_att_calls = 0; leaf->fl_att_gap = 0; leaf->fl_att_capped = 0;
+    leaf->owner_doc = (const void *)d;   /* ⏪ `T-A36`：本代驱所属 doc（附属对象查表消歧用） */
     if (rc176 != 0 || !cli) {
         g_pts_fl_gap++;
         fprintf(stderr, "[FORMATLINE] where=%s nmp=%p rc176=%d cli=%p nlines=0 calls=0 "
@@ -2177,6 +2241,61 @@ static int wpf_pts_format_one_para(wpf_pts_doc *d, wpf_pts_subtrack *leaf,
         leaf->fl_line[i].pfsline     = pfsline;
         leaf->fl_line[i].pbr_in      = pbrin;      /* ⏪ `T-A33`：本行**入参**断行记录（回填源） */
         leaf->fl_line[i].pbr_out     = ppbr;       /* ⏪ `T-A33`：本行**产出**断行记录（真返回值） */
+        /* ── ⏪ `T-A36`（`NATIVE-PTS-ATTACHED-OBJECTS-BACKFILL`）：**窗内**为附属对象建台账 ───────
+           对刚排出的这一行：① 问托管「该行附着几个附属对象（`Figure`/`Floater`）」（`num`，`+512`）；
+           ② 有 >0 则取对象名／`idobj`／锚点（`objects`，`+520`）；③ 为每个附属对象段落**在窗内**造
+           `FigureParaClient`/`FloaterParaClient`（`+176`，承 `T-A33`（丙）窗内纪律：只在格式窗内发调）；
+           ④ 记入 `leaf->fl_att[]`。**零假值**：任一 `rc≠0` ⇒ 该行不记账（`fl_att_gap++`，绝不伪填）；
+           `rc=0 ∧ cAtt==0` ⇒ **真 0**（不记条、不算失败）。 */
+        {
+            const void *fpNum = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_GETNUMATTACHLINE);
+            const void *fpObj = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_GETATTACHLINE);
+            int cAtt = -1, rcNum = -9999, rcObj = -9999;
+            leaf->fl_att_calls++;
+            if (fpNum && pfsline)
+                rcNum = ((wpf_pts_fn_get_num_attach_in_line)fpNum)(
+                    (const void *)d->p_fsclient, (const void *)pfsline, (const void *)leaf->nmp,
+                    leaf->fl_line[i].dcp_first, leaf->fl_line[i].dcp_lim, 0, 0, &cAtt);
+            if (rcNum != 0) { leaf->fl_att_gap++; }
+            else if (cAtt > 0 && fpObj) {
+                void *objs[WPF_PTS_FL_ATT_MAX]; int idobjs[WPF_PTS_FL_ATT_MAX];
+                int anch[WPF_PTS_FL_ATT_MAX]; int cGot = -1;
+                if (cAtt > WPF_PTS_FL_ATT_MAX) { leaf->fl_att_capped++; cAtt = WPF_PTS_FL_ATT_MAX; }
+                rcObj = ((wpf_pts_fn_get_attach_in_line)fpObj)(
+                    (const void *)d->p_fsclient, (const void *)pfsline, (const void *)leaf->nmp,
+                    leaf->fl_line[i].dcp_first, leaf->fl_line[i].dcp_lim, 0, 0, cAtt,
+                    objs, idobjs, anch, &cGot);
+                if (rcObj != 0) { leaf->fl_att_gap++; }
+                else {
+                    for (int a = 0; a < cGot && leaf->fl_att_n < WPF_PTS_FL_ATT_MAX; a++) {
+                        int slot = leaf->fl_att_n++;
+                        leaf->fl_att[slot].nmp_obj    = objs[a];
+                        leaf->fl_att[slot].idobj      = idobjs[a];
+                        leaf->fl_att[slot].dcp_anchor = anch[a];
+                        leaf->fl_att[slot].line_idx   = i;
+                        leaf->fl_att[slot].obj_client = NULL;
+                        leaf->fl_att[slot].obj_rc     = -9999;
+                        if (objs[a] && fp176 && d->in_win) {
+                            void *oc = NULL;
+                            int rco = ((wpf_pts_fn_create_paraclient)fp176)(
+                                (const void *)d->p_fsclient, (const void *)objs[a], &oc);
+                            leaf->fl_att[slot].obj_client = oc;
+                            leaf->fl_att[slot].obj_rc     = rco;
+                        } else if (objs[a]) {
+                            leaf->fl_att[slot].obj_rc = -7777;   /* 窗外 ⇒ 拒发（具名；不撞 FailFast） */
+                        }
+                    }
+                }
+            }
+            fprintf(stderr, "[FSATT-PROBE] where=%s para=%p i=%d pfsline=%p rcNum=%d rcObj=%d cAtt=%d "
+                            "fl_att_n=%d gap=%d capped=%d att0_obj=%p att0_id=%d att0_rc=%d doc=%p\n",
+                    where, (void *)leaf->nmp, i, pfsline, rcNum, rcObj, cAtt,
+                    leaf->fl_att_n, leaf->fl_att_gap, leaf->fl_att_capped,
+                    leaf->fl_att_n > 0 ? leaf->fl_att[0].nmp_obj : NULL,
+                    leaf->fl_att_n > 0 ? leaf->fl_att[0].idobj : 0,
+                    leaf->fl_att_n > 0 ? leaf->fl_att[0].obj_rc : -9999,
+                    (void *)leaf->owner_doc);
+        }
         leaf->fl_nlines++;
         dcp += dcpLine;
         i++;
@@ -4663,6 +4782,86 @@ typedef struct {                                   /* FSTEXTDETAILS 镜像（112
 } wpf_pts_fstextdetails;
 _Static_assert(sizeof(wpf_pts_fstextdetails) == 112, "sizeof(FSTEXTDETAILS) != 112");
 _Static_assert(offsetof(wpf_pts_fstextdetails, full) == 8, "FSTEXTDETAILS.u != +8");
+/* ── ⏪ `T-A36`（`NATIVE-PTS-ATTACHED-OBJECTS-BACKFILL`）：附属对象回填所需的**上游逐字镜像** ─────
+   全部照 `upstream/…/PtsHost/Pts.cs` 的定义（`StructLayout.Sequential`，默认 pack=8）逐字段镜像；
+   每条的 `sizeof`／关键偏移用 `_Static_assert` 钉死（与托管侧逐值相同：`FSKUPDATE`/`FSRECT`/
+   `FSBBOX`/`FSPOINT` 只含 `int` ⇒ 对齐 4；含 `IntPtr` 的结构 ⇒ 对齐 8）。 */
+typedef struct { int fskupd; int dvr_shifted; } wpf_pts_fsupdateinfo;      /* FSUPDATEINFO（Pts.cs:1943） */
+_Static_assert(sizeof(wpf_pts_fsupdateinfo) == 8, "sizeof(FSUPDATEINFO) != 8");
+typedef struct { int u, v, du, dv; } wpf_pts_fsrect;                       /* FSRECT（Pts.cs:849） */
+_Static_assert(sizeof(wpf_pts_fsrect) == 16, "sizeof(FSRECT) != 16");
+typedef struct { int u, v; } wpf_pts_fspoint;                              /* FSPOINT */
+_Static_assert(sizeof(wpf_pts_fspoint) == 8, "sizeof(FSPOINT) != 8");
+typedef struct { int f_defined; wpf_pts_fsrect fsrc; } wpf_pts_fsbbox;     /* FSBBOX（Pts.cs:989） */
+_Static_assert(sizeof(wpf_pts_fsbbox) == 20, "sizeof(FSBBOX) != 20");
+typedef struct {                                                           /* FSATTACHEDOBJECTDESCRIPTION（Pts.cs:1416） */
+    wpf_pts_fsupdateinfo fsupdinf;   /* @ +0  */
+    void *pfspara;                   /* @ +8  */
+    void *pfsparaclient;             /* @ +16 */
+    void *nmp;                       /* @ +24 */
+    int   idobj;                     /* @ +32 */
+    int   vr_start;                  /* @ +36 */
+    int   dvr_used;                  /* @ +40 */
+    wpf_pts_fsbbox fsbbox;           /* @ +44 */
+    int   dvr_top_space;             /* @ +64 */
+    int   _pad;                      /* @ +68 （结构 8 字节对齐 ⇒ 总 72） */
+} wpf_pts_fsattachedobjectdescription;
+_Static_assert(sizeof(wpf_pts_fsattachedobjectdescription) == 72, "sizeof(FSATTACHEDOBJECTDESCRIPTION) != 72");
+_Static_assert(offsetof(wpf_pts_fsattachedobjectdescription, pfspara) == 8, "FSATTOBJ.pfspara != +8");
+_Static_assert(offsetof(wpf_pts_fsattachedobjectdescription, pfsparaclient) == 16, "FSATTOBJ.pfsparaclient != +16");
+_Static_assert(offsetof(wpf_pts_fsattachedobjectdescription, idobj) == 32, "FSATTOBJ.idobj != +32");
+_Static_assert(offsetof(wpf_pts_fsattachedobjectdescription, fsbbox) == 44, "FSATTOBJ.fsbbox != +44");
+typedef struct {                                                           /* FSTRACKDESCRIPTION（Pts.cs:1517） */
+    wpf_pts_fsupdateinfo fsupdinf;   /* @ +0  */
+    void *nms;                       /* @ +8  */
+    wpf_pts_fsrect fsrc;             /* @ +16 */
+    wpf_pts_fsbbox fsbbox;           /* @ +32 */
+    int   f_track_relative_to_rect;  /* @ +52 */
+    void *pfstrack;                  /* @ +56 */
+} wpf_pts_fstrackdescription;
+_Static_assert(sizeof(wpf_pts_fstrackdescription) == 64, "sizeof(FSTRACKDESCRIPTION) != 64");
+_Static_assert(offsetof(wpf_pts_fstrackdescription, pfstrack) == 56, "FSTRACKDESC.pfstrack != +56");
+typedef struct {                                                           /* FSSUBPAGEDETAILSSIMPLE（Pts.cs:1546） */
+    unsigned int fswdir;             /* @ +0  */
+    int   _pad;                      /* @ +4  */
+    wpf_pts_fstrackdescription trackdescr;  /* @ +8  */
+} wpf_pts_fssubpagedetailssimple;
+_Static_assert(sizeof(wpf_pts_fssubpagedetailssimple) == 72, "sizeof(FSSUBPAGEDETAILSSIMPLE) != 72");
+typedef struct {                                                           /* FSSUBPAGEDETAILSCOMPLEX（Pts.cs:1535） */
+    void *nms;                       /* @ +0  */
+    unsigned int fswdir;             /* @ +8  */
+    wpf_pts_fsrect fsrc;             /* @ +12 */
+    wpf_pts_fsbbox fsbbox;           /* @ +28 */
+    int   c_basic_columns;           /* @ +48 */
+    int   c_segment_defined_column_span_areas;  /* @ +52 */
+    int   c_height_defined_column_span_areas;   /* @ +56 */
+    int   _pad;                      /* @ +60 （结构 8 字节对齐 ⇒ 总 64） */
+} wpf_pts_fssubpagedetailscomplex;
+_Static_assert(sizeof(wpf_pts_fssubpagedetailscomplex) == 64, "sizeof(FSSUBPAGEDETAILSCOMPLEX) != 64");
+typedef struct {                                                           /* FSSUBPAGEDETAILS（Pts.cs:1552） */
+    int f_simple;                    /* @ +0  */
+    int _pad;                        /* @ +4  */
+    union {
+        wpf_pts_fssubpagedetailssimple simple;    /* 72 B */
+        wpf_pts_fssubpagedetailscomplex complex;  /* 64 B */
+    } u;                             /* @ +8  */
+} wpf_pts_fssubpagedetails;
+_Static_assert(sizeof(wpf_pts_fssubpagedetails) == 80, "sizeof(FSSUBPAGEDETAILS) != 80");
+typedef struct {                                                           /* FSFIGUREDETAILS（Pts.cs:1351） */
+    wpf_pts_fsrect fsrc_flow_around; /* @ +0  */
+    wpf_pts_fsbbox fsbbox;           /* @ +16 */
+    wpf_pts_fspoint fspt_pos_preliminary; /* @ +36 */
+    int   f_delayed;                 /* @ +44 */
+} wpf_pts_fsfiguredetails;
+_Static_assert(sizeof(wpf_pts_fsfiguredetails) == 48, "sizeof(FSFIGUREDETAILS) != 48");
+typedef struct {                                                           /* FSFLOATERDETAILS（Pts.cs:1082） */
+    int   fskupd_content;            /* @ +0  */
+    int   _pad;                      /* @ +4  */
+    void *fsnm_floater;              /* @ +8  */
+    wpf_pts_fsrect fsrc_floater;     /* @ +16 */
+    void *pfs_floater_content;       /* @ +32 */
+} wpf_pts_fsfloaterdetails;
+_Static_assert(sizeof(wpf_pts_fsfloaterdetails) == 40, "sizeof(FSFLOATERDETAILS) != 40");
 /* 回填面计数（**只增**；与既有 `[FS_PAGE_GAP]` 计数分开，判据 ② 的成对面）。 */
 static int g_pts_fsqtd_ok      = 0;   /* `FsQueryTextDetails` 回填成功次数（D2 的"真源"面） */
 static int g_pts_tlb_ok        = 0;   /* 四入口回填成功合计 */
@@ -4694,7 +4893,7 @@ static void wpf_pts_tlb_fill_details(wpf_pts_subtrack *o, void *pOut)
     e->full.fsklines = 0;                       /* `fsklinesNormal`（真调的就是 `pfnFormatLine`） */
     e->full.f_lines_composite = 0;              /* simple lines（台账行来自 `pfnFormatLine`） */
     e->full.c_lines = o->fl_nlines;             /* ← **承重格**（真值＝台账行数） */
-    e->full.c_attached_objects = 0;             /* 无 attached-object 台账（NOINFO-TLB-ATTACHED-OBJECTS） */
+    e->full.c_attached_objects = o->fl_att_n;   /* ⏪ `T-A36`：真值＝附属对象台账条数（`Figure`/`Floater`） */
     e->full.dcp_first = o->fl_line[0].dcp_first;                 /* ← 真值 */
     e->full.dcp_lim   = o->fl_line[o->fl_nlines - 1].dcp_lim;    /* ← 真值 */
     e->full.f_dropcap_present = 0;
@@ -4787,6 +4986,40 @@ static void wpf_pts_tlb_fill_element(wpf_pts_subtrack *o, int idx, wpf_pts_fslin
     e->f_clear_right_lr_word = 0;
 }
 
+/* ⏪ `T-A36`：按**附属对象段落句柄**（`fl_att[].nmp_obj`）在台账里定位。
+   🔴 **同一逻辑段落可有两代本侧对象**（两趟窗），其附属对象的托管句柄**相同** ⇒ 其 `nmp_obj`
+   会多命中。消歧**有据**：优先取 `owner_doc == ctx 的 doc` 的那一代（＝本次查询所属文档）；
+   无 doc 可依时取**最新一代**（`seq` 最大）。多命中共计 `g_pts_att_ambig`（**具名，不静默**）。 */
+static int g_pts_att_ambig = 0;
+static int wpf_pts_att_claim(const void *pObj, const void *ctx, wpf_pts_subtrack **outObj, int *outIdx)
+{
+    wpf_pts_subtrack *best = NULL; int bestIdx = -1, hits = 0;
+    const wpf_pts_doc *dp = wpf_pts_doc_ptr(ctx);
+    if (outObj) *outObj = NULL;
+    if (outIdx) *outIdx = -1;
+    if (!pObj) return 0;
+    for (int i = 0; i < g_pts_sub_live_n; i++) {
+        wpf_pts_subtrack *o = g_pts_sub_live[i];
+        if (o->magic != WPF_PTS_SUB_MAGIC) continue;
+        for (int a = 0; a < o->fl_att_n; a++) {
+            if (o->fl_att[a].nmp_obj != pObj) continue;
+            hits++;
+            if (!best) { best = o; bestIdx = a; }
+            else if (dp && o->owner_doc == (const void *)dp) { best = o; bestIdx = a; }
+            else if (!(dp && best->owner_doc == (const void *)dp) && o->seq > best->seq) { best = o; bestIdx = a; }
+        }
+    }
+    if (!hits) return 0;
+    if (hits > 1) g_pts_att_ambig++;
+    *outObj = best; *outIdx = bestIdx;
+    return 1;
+}
+/* ⏪ `T-A36`：附属对象四入口的成败面（`[FS_ATT]` 的计数只读口）。 */
+static int g_pts_att_list_ok = 0, g_pts_att_list_gap = 0;   /* `FsQueryAttachedObjectList` */
+static int g_pts_subpage_ok  = 0, g_pts_subpage_gap  = 0;   /* `FsQuerySubpageDetails` */
+static int g_pts_figdet_ok   = 0, g_pts_figdet_gap   = 0;   /* `FsQueryFigureObjectDetails` */
+static int g_pts_flodet_ok   = 0, g_pts_flodet_gap   = 0;   /* `FsQueryFloaterDetails` */
+
 // ── `T-A20`／`TASK-0302` 增量：`FsQueryTextDetails`（声明 `Pts.cs:3749-3753`；调用点
 //    `TextParaClient.cs` 十余处，首个是 `ValidateVisual` 的 `:56`）──
 //   签名（上游逐字，`Pts.cs:3750-3753`）：`int FsQueryTextDetails(IntPtr pfsContext, IntPtr pPara,
@@ -4876,12 +5109,26 @@ int FsQueryTextDetails(void *pfscontext, void *pPara, void *pTextDetails)
                 pfscontext, pPara, g_pts_fsqtd_calls, g_pts_fsqtd_ok, g_pts_fsqtd_gap,
                 g_pts_fsqtd_nomodel, obj->fl_nlines, obj->fl_line[0].dcp_first,
                 obj->fl_line[obj->fl_nlines - 1].dcp_lim, obj->fl_ok);
-        fprintf(stderr, "[FS_TLB] entry=FsQueryTextDetails parah=%p cLines=%d dcpFirst=%d dcpLim=%d "
-                        "fl_calls=%d fl_ok=%d complete=%d truncated=%d "
-                        "NOINFO=fsgeometry-layout(vrStart=self-accum),attached-objects(none)\n",
-                pPara, obj->fl_nlines, obj->fl_line[0].dcp_first,
-                obj->fl_line[obj->fl_nlines - 1].dcp_lim, obj->fl_calls, obj->fl_ok,
-                obj->fl_complete, obj->fl_truncated);
+        /* ⏪ `T-A36`：`attached-objects(none)` ⇒ **具名真值**。**零假值**：
+           `fl_att_n>0` ⇒ `attached-objects=figure=N,floater=M`（`idobj` 取自回调原值：`-2`＝Figure）；
+           `fl_att_n==0 ∧ fl_att_calls>0`（**真查过**）⇒ `not-present(true-queried)`；
+           `fl_att_calls==0`（**未查**，如闸关）⇒ `not-queried` —— **两者不混同**。 */
+        {
+            int nfig = 0, nflo = 0;
+            for (int a = 0; a < obj->fl_att_n; a++) {
+                if (obj->fl_att[a].idobj == -2) nfig++; else nflo++;
+            }
+            fprintf(stderr, "[FS_TLB] entry=FsQueryTextDetails parah=%p cLines=%d dcpFirst=%d dcpLim=%d "
+                            "fl_calls=%d fl_ok=%d complete=%d truncated=%d "
+                            "attached-objects=%s queried=%d gap=%d capped=%d figure=%d floater=%d "
+                            "NOINFO=fsgeometry-layout(vrStart=self-accum)\n",
+                    pPara, obj->fl_nlines, obj->fl_line[0].dcp_first,
+                    obj->fl_line[obj->fl_nlines - 1].dcp_lim, obj->fl_calls, obj->fl_ok,
+                    obj->fl_complete, obj->fl_truncated,
+                    (obj->fl_att_n > 0) ? "present"
+                                        : (obj->fl_att_calls > 0 ? "not-present(true-queried)" : "not-queried"),
+                    obj->fl_att_calls, obj->fl_att_gap, obj->fl_att_capped, nfig, nflo);
+        }
         (void)dpt;
         return 0;
     }
@@ -5070,6 +5317,182 @@ int FsQueryLineCompositeElementList(void *pfscontext, void *pLine, int cElements
     }
     return wpf_pts_line_reject("FsQueryLineCompositeElementList", "line", pfscontext, pLine, cElements, (void *)cLineElements);
 #endif
+}
+
+// ── ⏪ `T-A36`（`NATIVE-PTS-ATTACHED-OBJECTS-BACKFILL`）：**附属对象四入口** ──────────────────────
+//   声明（上游逐字）：`FsQueryAttachedObjectList`（`Pts.cs:3789`）／`FsQuerySubpageDetails`
+//     （`Pts.cs:3704`）／`FsQueryFigureObjectDetails`（`Pts.cs:3797`）／`FsQueryFloaterDetails`。
+//   消费链（`TextParaClient.cs:122/1312/3732`）：`FsQueryTextDetails` 报 `cAttachedObjects>0`
+//     ⇒ `ValidateVisualFloatersAndFigures` →（每个对象）`FsQueryAttachedObjectList` 取
+//     `{pfspara,pfsparaclient,idobj}` ⇒ `HandleToObject(pfsparaclient)` 得 `FigureParaClient`/
+//     `FloaterParaClient` ⇒ `ArrangeFigure/Floater`（`FsQueryFigureObjectDetails`/`FsQueryFloaterDetails`
+//     给几何）⇒ `ValidateVisual`（`FsQuerySubpageDetails` ＋ `DrawBackgroundAndBorder`）。
+//   🔴 **诚实形态**：认领**只**按台账真值（`wpf_pts_att_claim`／`wpf_pts_sub_claim`）；未命中／歧义／
+//     计数不符／出参 NULL / 缺 paraclient ⇒ **返 -10000 ＋ 出参一字不写**；`rc=0` **只**在语义成立时给。
+//   ⚠️ **射程（如实划界）**：几何＝**本侧约定**（`NOINFO-attached-object-geometry-layout`）；附属对象
+//     的子页＝**空子页**（`cBasicColumns=0`；本侧**不**排附属对象内容 ⇒ `Figure`/`Floater` 的**背景**可绘、
+//     **内容**不可绘）＋ `NOINFO-attached-content-not-laid-out`。
+#define WPF_PTS_ATT_FIG_DU 42000     /* Figure 宽 140 DIP（×300）—— 本侧约定 */
+#define WPF_PTS_ATT_FIG_DV 15000     /* Figure 高  50 DIP */
+#define WPF_PTS_ATT_FLO_DU 85500     /* Floater 宽 285 DIP */
+#define WPF_PTS_ATT_FLO_DV 30000     /* Floater 高 100 DIP */
+static void wpf_pts_att_geometry(int idx, int is_figure, wpf_pts_fsrect *out)
+{
+    out->du = is_figure ? WPF_PTS_ATT_FIG_DU : WPF_PTS_ATT_FLO_DU;
+    out->dv = is_figure ? WPF_PTS_ATT_FIG_DV : WPF_PTS_ATT_FLO_DV;
+    out->u  = 30000 + (idx % 4) * 30000;
+    out->v  = 20000 + (idx / 4) * 40000;
+}
+// `FsQueryAttachedObjectList`：按**文本段落**认领，返回该段附属对象描述数组（`Figure`/`Floater`）。
+int FsQueryAttachedObjectList(void *pfscontext, void *pPara, int cAttachedObject,
+                              void *rgAttachedObjects, int *cAttachedObjectDesc)
+{
+    wpf_pts_subtrack *obj = NULL;
+    const char *reason = NULL;
+    if (!cAttachedObjectDesc)      reason = "null-count-out";
+    else if (!pPara)               reason = "null-para";
+    else if (!wpf_pts_sub_claim(pPara, &obj)) reason = "unclaimable-para";
+    else if ((const void *)pfscontext && !wpf_pts_doc_find(pfscontext)) reason = "unknown-ctx";
+    else if (obj->fl_att_n <= 0)   reason = "no-attached-objects";
+    else if (cAttachedObject != obj->fl_att_n) reason = "count-mismatch";
+    else if (!rgAttachedObjects)   reason = "null-array-out";
+    else {
+        /* 先**全体**校验（缺 paraclient ⇒ 一字不写，绝不部分写） */
+        for (int a = 0; a < obj->fl_att_n; a++)
+            if (!obj->fl_att[a].obj_client) { reason = "no-paraclient"; break; }
+        if (!reason) {
+            wpf_pts_fsattachedobjectdescription *rg = (wpf_pts_fsattachedobjectdescription *)rgAttachedObjects;
+            for (int a = 0; a < obj->fl_att_n; a++) {
+                wpf_pts_fsrect rc; wpf_pts_att_geometry(a, obj->fl_att[a].idobj == -2, &rc);
+                memset((void *)&rg[a], 0, sizeof(rg[a]));
+                rg[a].fsupdinf.fskupd = WPF_PTS_FSKUPD_NEW;   /* 首报 ⇒ New（触发 ValidateVisual） */
+                rg[a].fsupdinf.dvr_shifted = 0;
+                rg[a].pfspara       = (void *)obj->fl_att[a].nmp_obj;
+                rg[a].pfsparaclient = (void *)obj->fl_att[a].obj_client;
+                rg[a].nmp           = (void *)obj->fl_att[a].nmp_obj;
+                rg[a].idobj         = obj->fl_att[a].idobj;
+                rg[a].vr_start      = 0;
+                rg[a].dvr_used      = rc.dv;
+                rg[a].fsbbox.f_defined = 1;
+                rg[a].fsbbox.fsrc      = rc;
+                rg[a].dvr_top_space = 0;
+            }
+            *cAttachedObjectDesc = obj->fl_att_n;
+            g_pts_att_list_ok++;
+            fprintf(stderr, "[FS_ATT] rc=0 entry=FsQueryAttachedObjectList para=%p cAttachedObjects=%d "
+                            "out=WRITTEN bytes=%d src=ledger:fl_att[]\n",
+                    pPara, obj->fl_att_n,
+                    (int)(obj->fl_att_n * (int)sizeof(wpf_pts_fsattachedobjectdescription)));
+            return 0;
+        }
+    }
+    g_pts_att_list_gap++;
+    fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=FsQueryAttachedObjectList ctx=%p para=%p c=%d "
+                    "ok=%d gap=%d out=UNWRITTEN bytes=0\n",
+            WPF_PTS_ERR_NOT_IMPLEMENTED, reason ? reason : "unknown", pfscontext, pPara, cAttachedObject,
+            g_pts_att_list_ok, g_pts_att_list_gap);
+    return WPF_PTS_ERR_NOT_IMPLEMENTED;
+}
+// `FsQuerySubpageDetails`：按**附属对象段落句柄**认领，返回**空子页**（本侧不排附属对象内容）。
+//   🔴 `pSubPage`（＝托管 `FigureParaClient.SubpageHandle`）**由托管在"附属对象内容排版"回调里**设
+//     （`FigureParagraph.cs:284`／`FloaterParagraph.cs:355/523` 的 `SubpageHandle = pfs*Content`）。
+//     本侧 native **未驱动**该内容排版 ⇒ 该句柄**恒 0** ⇒ `pSubPage == NULL`。此**不是**错误入参，
+//     而是"内容未排 ⇒ **子页确实为空**"的**真值**：本入口对 `pSubPage == NULL` **返回空子页**
+//     （`fSimple=0`／`cBasicColumns=0`，**这是真值**）并**具名**；非空但不可认领 ⇒ 仍拒。
+int FsQuerySubpageDetails(void *pfscontext, void *pSubPage, void *pSubPageDetails)
+{
+    wpf_pts_subtrack *obj = NULL; int idx = -1;
+    const char *reason = NULL;
+    if (!pSubPageDetails) reason = "null-out";
+    else if ((const void *)pfscontext && !wpf_pts_doc_find(pfscontext)) reason = "unknown-ctx";
+    else if (pSubPage && !wpf_pts_att_claim(pSubPage, pfscontext, &obj, &idx)) reason = "unclaimable-subpage";
+    else {
+        wpf_pts_fssubpagedetails *d = (wpf_pts_fssubpagedetails *)pSubPageDetails;
+        wpf_pts_fsrect rc; rc.u = rc.v = rc.du = rc.dv = 0;
+        const char *src = "handle-unset(attached-content-not-laid-out)";
+        if (obj) { wpf_pts_att_geometry(idx, obj->fl_att[idx].idobj == -2, &rc); src = "claimed"; }
+        memset((void *)d, 0, sizeof(*d));
+        d->f_simple = 0;                       /* complex（空子页：cBasicColumns=0） */
+        d->u.complex.nms = NULL;
+        d->u.complex.fswdir = 0;
+        d->u.complex.fsrc = rc;
+        d->u.complex.fsbbox.f_defined = obj ? 1 : 0;
+        d->u.complex.fsbbox.fsrc = rc;
+        d->u.complex.c_basic_columns = 0;
+        g_pts_subpage_ok++;
+        fprintf(stderr, "[FS_ATT] rc=0 entry=FsQuerySubpageDetails subpage=%p fSimple=0 cBasicColumns=0 "
+                        "src=%s out=WRITTEN bytes=%d NOINFO=attached-content-not-laid-out\n",
+                pSubPage, src, (int)sizeof(*d));
+        return 0;
+    }
+    g_pts_subpage_gap++;
+    fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=FsQuerySubpageDetails ctx=%p subpage=%p "
+                    "ok=%d gap=%d out=UNWRITTEN bytes=0\n",
+            WPF_PTS_ERR_NOT_IMPLEMENTED, reason ? reason : "unknown", pfscontext, pSubPage,
+            g_pts_subpage_ok, g_pts_subpage_gap);
+    return WPF_PTS_ERR_NOT_IMPLEMENTED;
+}
+// `FsQueryFigureObjectDetails`：按**附属对象段落句柄**认领（须是 Figure），给图几何。
+int FsQueryFigureObjectDetails(void *pfscontext, void *pPara, void *pFigureDetails)
+{
+    wpf_pts_subtrack *obj = NULL; int idx = -1;
+    const char *reason = NULL;
+    if (!pFigureDetails) reason = "null-out";
+    else if (!pPara)     reason = "null-figure";
+    else if (!wpf_pts_att_claim(pPara, pfscontext, &obj, &idx)) reason = "unclaimable-figure";
+    else if (obj->fl_att[idx].idobj != -2) reason = "not-a-figure";
+    else {
+        wpf_pts_fsfiguredetails *d = (wpf_pts_fsfiguredetails *)pFigureDetails;
+        wpf_pts_fsrect rc; wpf_pts_att_geometry(idx, 1, &rc);
+        memset((void *)d, 0, sizeof(*d));
+        d->fsrc_flow_around = rc;
+        d->fsbbox.f_defined = 1;
+        d->fsbbox.fsrc = rc;
+        d->fspt_pos_preliminary.u = rc.u;
+        d->fspt_pos_preliminary.v = rc.v;
+        d->f_delayed = 0;
+        g_pts_figdet_ok++;
+        fprintf(stderr, "[FS_ATT] rc=0 entry=FsQueryFigureObjectDetails figure=%p fsrc=(%d,%d,%d,%d) "
+                        "out=WRITTEN bytes=%d NOINFO=attached-object-geometry-layout(self-convention)\n",
+                pPara, rc.u, rc.v, rc.du, rc.dv, (int)sizeof(*d));
+        return 0;
+    }
+    g_pts_figdet_gap++;
+    fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=FsQueryFigureObjectDetails ctx=%p p=%p "
+                    "ok=%d gap=%d out=UNWRITTEN bytes=0\n",
+            WPF_PTS_ERR_NOT_IMPLEMENTED, reason ? reason : "unknown", pfscontext, pPara,
+            g_pts_figdet_ok, g_pts_figdet_gap);
+    return WPF_PTS_ERR_NOT_IMPLEMENTED;
+}
+// `FsQueryFloaterDetails`：按**附属对象段落句柄**认领（须是 Floater），给 floater 几何（内容＝空）。
+int FsQueryFloaterDetails(void *pfscontext, void *pPara, void *pFloaterDetails)
+{
+    wpf_pts_subtrack *obj = NULL; int idx = -1;
+    const char *reason = NULL;
+    if (!pFloaterDetails) reason = "null-out";
+    else if (!pPara)      reason = "null-floater";
+    else if (!wpf_pts_att_claim(pPara, pfscontext, &obj, &idx)) reason = "unclaimable-floater";
+    else if (obj->fl_att[idx].idobj == -2) reason = "not-a-floater";
+    else {
+        wpf_pts_fsfloaterdetails *d = (wpf_pts_fsfloaterdetails *)pFloaterDetails;
+        wpf_pts_fsrect rc; wpf_pts_att_geometry(idx, 0, &rc);
+        memset((void *)d, 0, sizeof(*d));
+        d->fskupd_content = WPF_PTS_FSKUPD_NEW;
+        d->fsnm_floater = (void *)obj->fl_att[idx].nmp_obj;
+        d->fsrc_floater = rc;
+        d->pfs_floater_content = NULL;         /* 空内容（本侧不排内容） */
+        g_pts_flodet_ok++;
+        fprintf(stderr, "[FS_ATT] rc=0 entry=FsQueryFloaterDetails floater=%p fsrc=(%d,%d,%d,%d) "
+                        "out=WRITTEN bytes=%d NOINFO=attached-content-not-laid-out\n",
+                pPara, rc.u, rc.v, rc.du, rc.dv, (int)sizeof(*d));
+        return 0;
+    }
+    g_pts_flodet_gap++;
+    fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=FsQueryFloaterDetails ctx=%p p=%p "
+                    "ok=%d gap=%d out=UNWRITTEN bytes=0\n",
+            WPF_PTS_ERR_NOT_IMPLEMENTED, reason ? reason : "unknown", pfscontext, pPara,
+            g_pts_flodet_ok, g_pts_flodet_gap);
+    return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
 
 /* ⏪ `t125`：`wpf_pts_doc_find` 的定义体（**只比指针身份**，不 deref 入参）。 */
