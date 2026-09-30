@@ -498,6 +498,63 @@ static int g_pts_fsqtd_provclaimed = 0;
 /* ⏪ `T-A15`：**"查询组"毗邻判定**（见 `FsQueryPageDetails` 的语义注释）。
    上一条 native 调用是否也是**对同一页**的 `FsQueryPageDetails`；由下游入口（轨/子轨的查询）清空。 */
 static const void *g_pts_qpd_prev_page = NULL;
+
+/* ══════════════════════════════════════════════════════════════════════════════════════════════
+   ⏪ `T-A41`（`HOSTED-FSVIEW-VIEWPORT-DRIVE` · **`D0` 只读判别器**，`A40 §4 丙` ＋ `A40 §5.2 D0`）
+   ──────────────────────────────────────────────────────────────────────────────────────────────
+   问题（`A40 §6` 的 `NOINFO-VIEWPORT-BRANCH-CALLSITE`）：**页轨枚举（`PtsHelper.cs:134/225/327`）
+   到底由哪条支发起** —— `ArrangeTrack`（arrange）／`UpdateTrackVisuals`（visual）／
+   `UpdateViewportTrack`（viewport）**在 native 侧逐字节相同**（各 `FsQueryTrackDetails`×1 ＋
+   `FsQueryTrackParaList`×1），而 `BaseParaClient.UpdateViewport` 是**托管内部虚方法、无 P/Invoke、无导出**
+   （现取 `grep -ci updateviewport bin/exports.txt` ＝ 0）⇒ native **直读不到调用者**。
+
+   ⇒ 本判别器**不是直读，是具名推断**（口径写死，防被读宽）：
+     · **轮**（round）＝ 自一次**页轨枚举**成功起，到**下一次页轨枚举**或**下一次 `FsQueryPageDetails`**
+       （三个消费者都先调它）为止；
+     · 该轮内的**下游签名**决定 `via=`：
+         `FsQueryFigureObjectDetails`（`FIGOBJ`；**唯一**调用者 `TextParaClient.OnArrange:1238/1316`）⇒ `via=arrange`
+         否则 `FsQueryLineListSingle`（`FSQLL`；`TextParaClient.RenderSimpleLines:3218` 与 `OnArrange:1254`）⇒ `via=visual`
+         否则 `FsQueryAttachedObjectList`（`ATT`；`TextParaClient.UpdateViewport:169`／`ValidateVisual:124`）⇒ `via=viewport`
+         否则 ⇒ `via=unknown`（**不给标签**，不猜）
+     · 三支互斥且**每轮恰一个标签** ⇒ `n_arrange+n_visual+n_viewport+n_unknown` ＝ 页轨枚举行数（**可对账**）。
+   **零行为变化**：只多一条具名 stderr 行；`via=` 的**唯一来源**是本状态机（**不是** env、**不是**常量、
+   **不是**无条件打印）⇒ 反极性（撤驱动）时 `via=viewport` 计数**必**随链到达与否改变；恒打同一标签 ⇒ 必红。
+   ⚠️ **射程（如实划界）**：`via=visual` 与 `via=viewport` 的分辨力**只**来自"该轮里有没有 `FSQLL`"——
+   对**含附属对象**的宿主段两者本就该有差（`ValidateVisual` 必打 `FSQLL`、`UpdateViewport` 在
+   `IsDeferredVisualCreationSupported()==false` 时**不打**）；对**无附属对象**段该差**可能消失** ⇒
+   逐轮的 `via=` 是**推断**，判词里必须标注（本行尾已具名 `NOINFO=`）。
+   ══════════════════════════════════════════════════════════════════════════════════════════════ */
+static int g_pts_qvp_arrange = 0, g_pts_qvp_visual = 0, g_pts_qvp_viewport = 0, g_pts_qvp_unknown = 0;
+static int g_pts_qvp_open = 0;                        /* 1 ＝ 有一轮开着（等标签） */
+static unsigned long g_pts_qvp_round = 0;             /* 轮号（与 `[FSPARALIST-FILL]` 同序） */
+static int g_pts_qvp_saw_fsqll = 0, g_pts_qvp_saw_att = 0, g_pts_qvp_saw_figobj = 0;
+static const void *g_pts_qvp_page = NULL;
+static const void *g_pts_qvp_qpd_page = NULL;         /* 最近一次成功 `FsQueryPageDetails` 的页（只读） */
+static void wpf_pts_qvp_begin(void)
+{
+    g_pts_qvp_open = 1;
+    g_pts_qvp_round++;
+    g_pts_qvp_saw_fsqll = 0; g_pts_qvp_saw_att = 0; g_pts_qvp_saw_figobj = 0;
+    g_pts_qvp_page = g_pts_qvp_qpd_page;
+}
+static void wpf_pts_qvp_end(const char *why)
+{
+    const char *via; int *ctr;
+    if (!g_pts_qvp_open) return;
+    if (g_pts_qvp_saw_figobj)     { via = "arrange";  ctr = &g_pts_qvp_arrange; }
+    else if (g_pts_qvp_saw_fsqll) { via = "visual";   ctr = &g_pts_qvp_visual; }
+    else if (g_pts_qvp_saw_att)   { via = "viewport"; ctr = &g_pts_qvp_viewport; }
+    else                          { via = "unknown";  ctr = &g_pts_qvp_unknown; }
+    (*ctr)++;
+    fprintf(stderr, "[FSQVP] via=%s round=%lu page=%p closed_by=%s fsqll=%d att=%d figobj=%d "
+                    "n_arrange=%d n_visual=%d n_viewport=%d n_unknown=%d "
+                    "NOINFO=viewport-branch-callsite(inference:adjacent-events+page-query-state)\n",
+            via, g_pts_qvp_round, g_pts_qvp_page, why,
+            g_pts_qvp_saw_fsqll, g_pts_qvp_saw_att, g_pts_qvp_saw_figobj,
+            g_pts_qvp_arrange, g_pts_qvp_visual, g_pts_qvp_viewport, g_pts_qvp_unknown);
+    g_pts_qvp_open = 0;
+}
+
 /* ── `T-A15` 的 `FSKUPDATE` 值域（逐字照 `Pts.cs:1934-1941` 的枚举；本模块只落两格）────────── */
 #define WPF_PTS_FSKUPD_NOCHANGE 1      /* `fskupdNoChange` */
 #define WPF_PTS_FSKUPD_NEW      2      /* `fskupdNew`      */
@@ -4644,6 +4701,11 @@ int FsQueryPageDetails(void *pfscontext, void *pPage, void *pPageDetails)
             d->b_defined = pg->bbox_defined;
             d->b_u = 0;  d->b_v = 0;  d->b_du = pg->pg_w; d->b_dv = pg->pg_h;
             g_pts_fsp_qpd_ok++;
+            /* ⏪ `T-A41` `D0`：`FsQueryPageDetails` 是**三个页级 pass**（`ArrangePage:503`／
+               `UpdatePageVisuals:996`／`UpdateViewport:553`）共同的起手 ⇒ 这里给上一轮收口。
+               （只读：不改任何出参。） */
+            wpf_pts_qvp_end("next-qpd");
+            g_pts_qvp_qpd_page = (const void *)pPage;   /* ⏪ `T-A41` `D0`：下一轮的页身份（只读） */
             { int _i = wpf_pts_index("FsQueryPageDetails"); if (_i >= 0) g_pts_seen[_i]++; }
             /* ⏪ `T-A15`：成功路径的**机读留痕**（`A14` §6-2 的 `NOINFO(QPD-SUCCESS-NOT-LOGGED)` 的消掉条件）。
                `first=` 与 `page_qpd=` **逐趟可核**；`fskupd=0` 若出现即**当场红并点名**（上游明示排除该值）。*/
@@ -5446,6 +5508,7 @@ int FsQueryLineListSingle(void *pfscontext, void *pPara, int cLines, void *rgLin
         wpf_pts_tlb_fill_single(obj, (wpf_pts_fslds *)rgLineDesc, cLines);
         *cLineDesc = cLines;
         g_pts_fsqll_ok++; g_pts_tlb_ok++; g_pts_tlb_single_ok++;
+        if (g_pts_qvp_open) g_pts_qvp_saw_fsqll = 1;   /* ⏪ `T-A41` `D0`：本轮的 visual/arrange 签名 */
         fprintf(stderr, "[FSQLL] rc=0 reason=ok entry=FsQueryLineListSingle ctx=%p parah=%p cLines=%d "
                         "calls=%d ok=%d gap=%d nomodel=%d fl_ok=%d out=WRITTEN bytes=%d "
                         "src=ledger:fl_line[]←pfnFormatLine\n",
@@ -5572,6 +5635,7 @@ int FsQueryAttachedObjectList(void *pfscontext, void *pPara, int cAttachedObject
             }
             *cAttachedObjectDesc = obj->fl_att_n;
             g_pts_att_list_ok++;
+            if (g_pts_qvp_open) g_pts_qvp_saw_att = 1;   /* ⏪ `T-A41` `D0`：本轮的 viewport 签名 */
             fprintf(stderr, "[FS_ATT] rc=0 entry=FsQueryAttachedObjectList para=%p cAttachedObjects=%d "
                             "out=WRITTEN bytes=%d src=ledger:fl_att[]\n",
                     pPara, obj->fl_att_n,
@@ -5757,6 +5821,7 @@ int FsQueryFigureObjectDetails(void *pfscontext, void *pPara, void *pFigureDetai
         d->fspt_pos_preliminary.v = rc.v;
         d->f_delayed = 0;
         g_pts_figdet_ok++;
+        if (g_pts_qvp_open) g_pts_qvp_saw_figobj = 1;   /* ⏪ `T-A41` `D0`：本轮的 arrange 签名 */
         fprintf(stderr, "[FS_ATT] rc=0 entry=FsQueryFigureObjectDetails figure=%p fsrc=(%d,%d,%d,%d) "
                         "out=WRITTEN bytes=%d NOINFO=attached-object-geometry-layout(self-convention)\n",
                 pPara, rc.u, rc.v, rc.du, rc.dv, (int)sizeof(*d));
@@ -6296,6 +6361,10 @@ int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgPar
                         }
                     }
                     *cParaDesc = cParas;                       /* ← **只在真填完成后**置（P2） */
+                    /* ⏪ `T-A41` `D0`：页轨枚举 ＝ **新一轮**的起手 —— 先给上一轮贴标签（`via=`），再开新轮。
+                       （本行**只读**：不改 `cParas`／`rg[]`／任何出参一个字节。） */
+                    wpf_pts_qvp_end("next-page-track-enum");
+                    wpf_pts_qvp_begin();
                     g_pts_fsp_pl_fills++;
                     dp->fsp_pl_quota++;
                     g_pts_fsp_pl_last_h = dp->fsp_pl_cur;

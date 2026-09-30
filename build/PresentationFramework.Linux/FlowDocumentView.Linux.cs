@@ -1,9 +1,9 @@
 // ⚠️ 本文件由 build/PresentationFramework.Linux/reapply-patches.py **生成**，不要手改。
 //
-// 内容 = 上游 `upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/documents/FlowDocumentView.cs` 逐字复制 + 8 处 W86A（`TASK-0304`/`TASK-0305`）改动。
+// 内容 = 上游 `upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/documents/FlowDocumentView.cs` 逐字复制 + 10 处 W86A（`TASK-0304`/`TASK-0305`）改动。
 // 每次运行该脚本都会从上游重读重生成；needle 找不到 / 命中数不符时**报错退出**
 // （不会静默产出未打补丁的副本）。改动逐处见：
-//   E1 ／ E2 ／ E3 ／ E4 ／ E5 ／ E6 ／ E7 ／ E8
+//   E1 ／ E2 ／ E3 ／ E4 ／ E5 ／ E6 ／ E7 ／ E8 ／ E9 ／ E10
 //
 // 背景（`D-G70`/`D-G78`）：本移植没有 PTS/原生 LineServices ⇒ 切「富文本」/「流文档」页
 // 曾**整进程 `rc=134`**。本件把它变成「**具名、可判、可见的能力边界**」：
@@ -213,7 +213,28 @@ namespace MS.Internal.Documents
                         }
                         viewport = new Rect(_scrollData.HorizontalOffset, _scrollData.VerticalOffset, safeArrangeSize.Width, safeArrangeSize.Height);
                     }
-                    _formatter.Arrange(safeArrangeSize, viewport);
+                    // ── `T-A41`（`HOSTED-FSVIEW-VIEWPORT-DRIVE`）：**本视图发起视口驱动** ──────────────
+                    //  病情（现取）：`FlowDocumentFormatter.Arrange:130` 之后的整条视口链
+                    //  （页轨枚举 → 宿主段 → 附属对象 → 子页轨 → 容器 → 内容段
+                    //   `UpdateViewportSimpleLines:3359`）里，**内容段的行视图从未被造出**
+                    //  （`[FSQLL] cLines=1` 恒 0）。本视图是**唯一**把 viewport 交给 formatter 的收口。
+                    //  驱动 ＝ **视口 ∪ 整页**（空/非有限 ⇒ 直接用整页），**只动这一个入参**：
+                    //    · 不碰 native 几何；· 不改 `fsupdinf`／`fUpdateInfoForLinesPresent`；
+                    //    · 不删不放宽任何 `Invariant.Assert`。
+                    //  `WPF_FSVIEW_VIEWPORT_DRIVE=0` ⇒ 逐字回上游行为（反极性腿；缺省＝开）。
+                    Rect fsviewViewport = WpfLinuxFsViewDrive.Effective(viewport, safeArrangeSize, _formatter, _pageVisual);
+                    WpfLinuxFsViewDrive.Report("ArrangeOverride", Document != null, _suspendLayout,
+                                               _scrollData != null, safeArrangeSize, viewport, fsviewViewport,
+                                               _formatter, _pageVisual);
+                    try
+                    {
+                        _formatter.Arrange(safeArrangeSize, fsviewViewport);
+                    }
+                    catch (System.Exception fsviewEx)
+                    {
+                        WpfLinuxFsViewDrive.ReportException("ArrangeOverride.Arrange", fsviewEx);
+                        throw;
+                    }
 
                     // Connect to visual tree.
                     if (_pageVisual != _formatter.DocumentPage.Visual)
@@ -822,5 +843,177 @@ namespace MS.Internal.Documents
         }
 
         #endregion IServiceProvider Members
+    }
+
+    /// <summary>
+    /// W86A `T-A41`（`HOSTED-FSVIEW-VIEWPORT-DRIVE`）：**视口驱动 ＋ 只读台账**（`D0` 的同趟托管侧面）。
+    ///
+    /// 【它是"读数"不是"调参"】`Effective()` 只对**本视图自己交给 formatter 的那一个入参**赋值
+    /// （视口＝可见区 ∪ 整页计算尺寸）；它**不接触**任何 native 真值（几何／更新信息／断言都不动）⇒
+    /// 下游若仍不造行视图，那是**下游的事实**，不是这里"调"出来的。`Enabled` 读 `WPF_FSVIEW_VIEWPORT_DRIVE`
+    /// （缺省开，显式 `0` 关）⇒ 反极性腿可在**同一产物**上把驱动点整个撤掉（逐字回上游入参）。
+    /// 【台账】`[FSVIEW]` 每趟 arrange 一行：`doc`／`suspend`／`scroll`／`arrange`／`viewport`／`handed`／`page`
+    /// ＋ 尾部具名 `NOINFO=` —— 使 `A40 §6` 的 `NOINFO-FSVIEW-ARRANGE-TRIGGER`（"`ArrangeOverride`
+    /// 到底有没有被布局系统调到"）有**直读**面。台账上限 `TraceMax` 行（超出只打一条 `suppressed`）。
+    /// </summary>
+    internal static class WpfLinuxFsViewDrive
+    {
+        private const int TraceMax = 400;
+        private static int _traceCount;
+        private static int _enabled = -1;                 // -1＝未读；0＝关；1＝开
+
+        internal static bool Enabled
+        {
+            get
+            {
+                if (_enabled < 0)
+                {
+                    string s = null;
+                    try { s = System.Environment.GetEnvironmentVariable("WPF_FSVIEW_VIEWPORT_DRIVE"); }
+                    catch (System.Exception) { s = null; }
+                    _enabled = (s == "0") ? 0 : 1;         // 缺省＝开；**只有**显式 "0" 才关
+                }
+                return _enabled == 1;
+            }
+        }
+
+        private static bool IsFinite(Rect r)
+        {
+            return !double.IsNaN(r.X) && !double.IsInfinity(r.X)
+                && !double.IsNaN(r.Y) && !double.IsInfinity(r.Y)
+                && !double.IsNaN(r.Width) && !double.IsInfinity(r.Width)
+                && !double.IsNaN(r.Height) && !double.IsInfinity(r.Height);
+        }
+
+        /// <summary>
+        /// 交给 formatter 的视口：关 ⇒ **原样**返回上游算出的 `viewport`；开 ⇒ `可见区 ∪ 整页 ∪ 已实现视觉子树`，
+        /// 且空/非有限时用后两者（`arrangeSize`／`DocumentPage.Size`／`GetDescendantBounds(pageVisual)`）。
+        /// **不得**在这里改任何其它变量（本方法只读这 4 个入参）。
+        ///
+        /// 【为什么含"已实现视觉子树"这一项】现取（`T-A41` 三腿）：本页的 `DocumentPage.Size` 只有
+        /// `39.81x39.17` DIP，**远小于**可见视口 ⇒ 只写"整页"这一项时 `handed == viewport`（驱动成空转）。
+        /// 而本侧 native 声明的附属对象盒（`Figure` `(30000,20000,42000,15000)` 文本 dpi ⇒ `9600x6400` DIP）
+        /// **远在**该页盒之外 —— 它们**已经**被实现在 `_pageVisual` 子树里（`Figure` 的背景 `GhostWhite`
+        /// 现取 `29637 px` 即其证）⇒ 该项是**从已实现视觉树里读出来的真实范围**（不是常量、不是伪造几何）。
+        /// </summary>
+        internal static Rect Effective(Rect viewport, Size arrangeSize, FlowDocumentFormatter formatter, Visual pageVisual)
+        {
+            if (!Enabled)
+            {
+                return viewport;
+            }
+
+            Rect pageRect = new Rect(0, 0, arrangeSize.Width, arrangeSize.Height);
+            try
+            {
+                Size cs = formatter.DocumentPage.Size;      // 只读：本页"计算尺寸"
+                Rect csRect = new Rect(0, 0, cs.Width, cs.Height);
+                if (!csRect.IsEmpty && IsFinite(csRect))
+                {
+                    pageRect = Rect.Union(pageRect, csRect);
+                }
+            }
+            catch (System.Exception)
+            {
+                // 读不到尺寸**不许**改变行为（退回 arrangeSize 一档；不影响下面的判据）。
+            }
+
+            Rect visRect = VisualBounds(pageVisual);
+            if (!visRect.IsEmpty && IsFinite(visRect))
+            {
+                pageRect = Rect.Union(pageRect, visRect);
+            }
+
+            if (viewport.IsEmpty || !IsFinite(viewport) || !IsFinite(pageRect))
+            {
+                return pageRect;
+            }
+            Rect union = Rect.Union(viewport, pageRect);
+            return (union.IsEmpty || !IsFinite(union)) ? pageRect : union;
+        }
+
+        /// <summary>
+        /// 只读：已实现视觉子树的范围（`VisualTreeHelper.GetDescendantBounds`）。读不到 ⇒ `Rect.Empty`
+        /// （**绝不当 0/当整页** —— 拿不到就是拿不到）。
+        /// </summary>
+        internal static Rect VisualBounds(Visual pageVisual)
+        {
+            try
+            {
+                if (pageVisual == null) { return Rect.Empty; }
+                return VisualTreeHelper.GetDescendantBounds(pageVisual);
+            }
+            catch (System.Exception)
+            {
+                return Rect.Empty;
+            }
+        }
+
+        private static string N(double v)
+        {
+            return v.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        private static string R(Rect r)
+        {
+            if (r.IsEmpty) { return "empty"; }
+            return N(r.X) + "," + N(r.Y) + "," + N(r.Width) + "," + N(r.Height);
+        }
+
+        private static void Emit(string line)
+        {
+            try
+            {
+                System.Console.Error.WriteLine(line);
+                System.Console.Error.Flush();
+            }
+            catch (System.Exception)
+            {
+                // 打印失败不许改变行为（例如 stderr 已关闭）。
+            }
+        }
+
+        internal static void Report(string site, bool hasDocument, bool suspendLayout, bool hasScrollData,
+                                    Size arrangeSize, Rect viewport, Rect handed, FlowDocumentFormatter formatter,
+                                    Visual pageVisual)
+        {
+            if (_traceCount >= TraceMax)
+            {
+                if (_traceCount == TraceMax)
+                {
+                    _traceCount++;
+                    Emit("[FSVIEW] site=" + site + " trace=suppressed-after-" + TraceMax + "lines");
+                }
+                return;
+            }
+            _traceCount++;
+            string pageSize = "NA";
+            try
+            {
+                Size cs = formatter.DocumentPage.Size;
+                pageSize = N(cs.Width) + "x" + N(cs.Height);
+            }
+            catch (System.Exception)
+            {
+                pageSize = "NA";
+            }
+            Emit("[FSVIEW] site=" + site
+                 + " doc=" + (hasDocument ? 1 : 0)
+                 + " suspend=" + (suspendLayout ? 1 : 0)
+                 + " scroll=" + (hasScrollData ? 1 : 0)
+                 + " drive=" + (Enabled ? "on" : "off")
+                 + " arrange=" + N(arrangeSize.Width) + "x" + N(arrangeSize.Height)
+                 + " viewport=" + R(viewport)
+                 + " handed=" + R(handed)
+                 + " page=" + pageSize
+                 + " visbounds=" + R(VisualBounds(pageVisual))
+                 + " NOINFO=fsview-window(managed-side-readonly-ledger)");
+        }
+
+        internal static void ReportException(string site, System.Exception e)
+        {
+            Emit("[FSVIEW] site=" + site + " outcome=exception type="
+                 + ((e == null) ? "null" : e.GetType().FullName));
+        }
     }
 }
