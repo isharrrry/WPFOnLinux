@@ -88,6 +88,7 @@ static const char *const k_pts_entries[] = {
     "FsQueryTrackDetails",
     "FsCreatePageFinite",
     "FsQueryTrackParaList",
+    "FsQuerySubtrackDetails",
 };
 #define WPF_PTS_ENTRY_COUNT ((int)(sizeof(k_pts_entries) / sizeof(k_pts_entries[0])))
 
@@ -3924,6 +3925,66 @@ int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgPar
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason, pfscontext, pTrack, cParas,
             wpf_pts_track_owned(pTrack), g_pts_fsp_pl_ok, g_pts_fsp_pl_gap);
     return WPF_PTS_ERR_NOT_IMPLEMENTED;                  /* ← 本步**永不**返 0（返 0 ＝ 假成功） */
+}
+
+// ── 本增量靶心：`FsQuerySubtrackDetails`（声明 `Pts.cs:3735-3739`；调用点 `ContainerParaClient.cs` 9 处 ＋ `ListParaClient.cs` 1 处）──
+//   签名：`int FsQuerySubtrackDetails(IntPtr pfsContext, IntPtr pSubTrack, out FSSUBTRACKDETAILS pSubTrackDetails);`
+//   出参结构 `FSSUBTRACKDETAILS { FSUPDATEINFO fsupdinf; IntPtr nms; FSRECT fsrc; int cParas; }`（`Pts.cs:1527-1533`）。
+//   🔴 **本入口的诚实上界（现取，见 `build/MilBridge/P1-tail2-fsqsub-recon.md` §3.3／§4）**：出参面
+//      `cParas`（＝**托管孩子数真值**，属内容层 `S-2b`）与 `nms`（＝需**托管句柄**，native 无合法来源）
+//      **都无源** ⇒ `rc=0` **永远不可给**（判据 §4-D2）。
+//   ⇒ **本实现的选择（写死，防被读成"没做完"）**：**永不假成功** —— 三路一律**返非 0 ＋ 记数 ＋ 留痕**，
+//      **不写 `pSubTrackDetails` 一个字节**（判据 §4-D1：出参一字不写，**禁**"写 `cParas=0` 让 `rc=0` 好看"
+//      —— 那会让 `ContainerParaClient.cs:277` 走叶子分支、**静默丢整棵嵌套内容**）。
+//   🔴 **入参按对象身份认领**（判据 §4-D4）：`pSubTrack` 必须能被 `wpf_pts_sub_claim` **唯一认领**
+//      （＝本侧自有子轨对象内 `c_paras` 字段的地址，承 `FsQueryTrackDetails` 范式）；NULL／栈地址／
+//      外来值**必被拒** ⇒ 身份**只许靠来源证据**，不许靠 `rc`／数值大小。
+//   🔴 **闸关与闸开分开报**（判据 §4-D5，`P13` 反腿）：缺省路径 `pSubTrack==NULL`（`FSPARALIST.pfspara`
+//      的填充整块只在 `wpf_pts_drive_probe_enabled()` 内、缺省关）⇒ `reason=null-subtrack`；
+//      认领成功但未造型（`formatted==0`）⇒ `reason=no-layout-content-model`。**两路判词不同**。
+typedef struct {                              /* FSSUBTRACKDETAILS 镜像（**只用于尺寸/偏移自证**；不 deref 托管结构） */
+    int   fskupd;        /* FSUPDATEINFO.fskupd（FSKUPDATGE : int）        @ +0  */
+    int   dvr_shifted;   /* FSUPDATEINFO.dvrShifted                        @ +4  */
+    void *nms;           /* nms                                            @ +8  */
+    int   u, v, du, dv;  /* FSRECT{u,v,du,dv}                              @ +16 */
+    int   c_paras;       /* cParas                                         @ +32 */
+} wpf_pts_fssubtrackdetails;
+_Static_assert(sizeof(wpf_pts_fssubtrackdetails) == 40, "sizeof(FSSUBTRACKDETAILS) != 40");
+_Static_assert(offsetof(wpf_pts_fssubtrackdetails, nms)     ==  8, "FSSUBTRACKDETAILS.nms 偏移 != +8");
+_Static_assert(offsetof(wpf_pts_fssubtrackdetails, u)       == 16, "FSSUBTRACKDETAILS.fsrc 偏移 != +16");
+_Static_assert(offsetof(wpf_pts_fssubtrackdetails, c_paras) == 32, "FSSUBTRACKDETAILS.cParas 偏移 != +32");
+static int g_pts_fsqstd_calls       = 0;   /* 进入次数（含重复；判据 §4-D5 的 `calls=`） */
+static int g_pts_fsqstd_ok          = 0;   /* 成功（`rc=0`）次数 —— **今天结构性恒 0**（`rc=0` 永不可给） */
+static int g_pts_fsqstd_gap         = 0;   /* 返非 0 次数（今天＝全部；判据 §4-D3 的 `gap=`） */
+static int g_pts_fsqstd_null        = 0;   /* 路①：`pSubTrack==NULL`（缺省路径）被拒次数 */
+static int g_pts_fsqstd_unclaim     = 0;   /* 路②：认领失败（NULL／栈地址／外来值）次数 */
+static int g_pts_fsqstd_unformatted = 0;   /* 路③：认领成功但未造型次数 */
+static const char *g_pts_fsqstd_last_reason = "none";   /* 最后一次失败的原因 token（可独立读取） */
+//   【本入口＝**查询**，无配对销毁入口；导出即改生成件 `bin/exports.txt`（同趟逐名对拍零消失）。】
+int FsQuerySubtrackDetails(void *pfscontext, void *pSubTrack, void *pSubTrackDetails)
+{
+    /* 🔴 **判据 §4-D1（零假值／出参纪律）**：本入口**绝不触碰** `pSubTrackDetails` ——
+       一个字节都不写（含"写 `cParas=0`"这种"看起来像答案"的缺省值）。下面**没有任何**对
+       `pSubTrackDetails` 的读写；反腿（给它补一句 `*(int*)((char*)out+32)=0`）必红。 */
+    g_pts_fsqstd_calls++;
+    { int _i = wpf_pts_index("FsQuerySubtrackDetails"); if (_i >= 0) g_pts_seen[_i]++; }
+    const char *reason = NULL;
+    wpf_pts_subtrack *obj = NULL;
+    if (!pSubTrack)                               { reason = "null-subtrack";           g_pts_fsqstd_null++; }
+    else if (!wpf_pts_sub_claim(pSubTrack, &obj)) { reason = "unclaimable-subtrack";    g_pts_fsqstd_unclaim++; }
+    else                                          { reason = "no-layout-content-model"; g_pts_fsqstd_unformatted++; }
+    /* ⚠️ **没有成功分支**：`cParas`／`nms` 无源 ⇒ `rc=0` 永不可给 ⇒ `g_pts_fsqstd_ok` 恒 0。 */
+    (void)pfscontext;                        /* `pfsContext` 原样收下、**不 deref**（本入口无上下文消费） */
+    (void)pSubTrackDetails;                  /* **刻意**只收不用（D1 的机器可读形态：参数在册但零写入） */
+    (void)obj;
+    g_pts_fsqstd_gap++;
+    g_pts_fsqstd_last_reason = reason;
+    fprintf(stderr, "[FSQSTD] rc=%d reason=%s entry=FsQuerySubtrackDetails ctx=%p psub=%p "
+                    "calls=%d ok=%d gap=%d null=%d unclaim=%d unformatted=%d out=UNWRITTEN bytes=0\n",
+            WPF_PTS_ERR_NOT_IMPLEMENTED, reason, pfscontext, pSubTrack,
+            g_pts_fsqstd_calls, g_pts_fsqstd_ok, g_pts_fsqstd_gap,
+            g_pts_fsqstd_null, g_pts_fsqstd_unclaim, g_pts_fsqstd_unformatted);
+    return WPF_PTS_ERR_NOT_IMPLEMENTED;      /* ← 改成 0 就是制造静默半通／伪成功（判据 §4-D2） */
 }
 
 // ── 格 7 夹具（`t123`／P1-W46）：`FsCreatePageBottomless` 的出参绑定 ＋ 失败必清 ＋ **失败必留痕** ──

@@ -31,7 +31,7 @@
 #   并**断言相等**（不等即 `rc=9` 停手 = 基底漂移），再把 `tool/dead/artifact/ops/impl`
 #   交给牙**现算对账**（不等即牙红 —— 那才是"数漂了"，与基底漂移是两回事，分开报）。
 # ══════════════════════════════════════════════════════════════════════════════════
-# PTSGAP-DECL: tool=90 dead=11 artifact=1 ops=78 impl=81 so16=352855f8dfbf8dc7 exports=669 w66pre16=bf6b683d94549087
+# PTSGAP-DECL: tool=89 dead=11 artifact=1 ops=77 impl=80 so16=a1403ea71c2bf487 exports=670 w66pre16=bf6b683d94549087
 #   ⚠️ 波 W8·`t103` 重锚（`D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
 #   `LoGetPenaltyModuleInternalHandle` 由诚实缺口 stub 升为真实现 ⇒ `so16` `4e999451e9ab137e`→`5c2097d35cd89749`、
 #   导出 **565→567**，**逐名二条**（新加的两个**独立读取面**，与 `t97` 同形制）：
@@ -52,3 +52,13 @@
 #      **真实现**（三参 ABI 修正 ＋ 真对象）＋ 新增**导出** `LoDestroyContext`（真销毁）⇒ `stubs 7→6`
 #      ⇒ **`impl 95→94`**（缺口计数**下降** ＝ 能力前进）；`exports 556→557`；`so16 6825dd7071387a46→2a5165700a8c8579`；
 #      `ops/tool/dead/artifact` 未动。逐字段对账由本牙现算（`!=` 即红，零余量）。
+#   ⚠️ 波 `T-A4` 重锚（`TASK-0302` 增量；`D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
+#     `src/WpfGfx.Linux.Native/src/win32_pts.c` 新增导出 `FsQuerySubtrackDetails`（**诚实拒绝**：rc 非 0（`-10000`）
+#     ＋ 具名 `[FSQSTD]` 留痕 ＋ **出参 `pSubTrackDetails` 一字不写**）⇒ `exports 669→670`；
+#     `so16 26da177686acb1f0→a1403ea71c2bf487`；`tool 90→89`／`ops 78→77`／`impl 81→80`
+#     （该名由「会 `EntryPointNotFoundException` 的缺口」变为「已导出可用」⇒ 缺口计数**下降** 1）。
+#     ⚠️ **计数下降 ≠ 能力前进**：本入口**永不返 0**（出参 `cParas`／`nms` 无源）⇒ 只是"缺符号"变"诚实拒绝"，
+#        即 `pts-gap-count-check.sh` 件头第 ① 条"进度 ＝ 具名前沿跳数，不是缺口条数"的又一实例。
+#     ⚠️ **正文复述位（`docs/ROUTES.md` 等，现值 `ops=78`／`impl=81`）本趟未同改** —— 那些件在 `T-A4` 写域
+#        （黑名单 `docs/**`）之外 ⇒ `pts-gap-count-check.sh` 会因此报 `SITE-DRIFT`（**已如实记、待裁决**）；
+#        本行只保证**声明行 vs 现算**逐字段一致（`tool/dead/artifact/ops/impl/so16/exports/w66pre16` 全等）。
