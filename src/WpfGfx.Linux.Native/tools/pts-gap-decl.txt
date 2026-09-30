@@ -31,7 +31,27 @@
 #   并**断言相等**（不等即 `rc=9` 停手 = 基底漂移），再把 `tool/dead/artifact/ops/impl`
 #   交给牙**现算对账**（不等即牙红 —— 那才是"数漂了"，与基底漂移是两回事，分开报）。
 # ══════════════════════════════════════════════════════════════════════════════════
-# PTSGAP-DECL: tool=85 dead=11 artifact=1 ops=73 impl=76 so16=744fb3affd107bf0 exports=674 w66pre16=bf6b683d94549087
+# PTSGAP-DECL: tool=82 dead=11 artifact=1 ops=70 impl=73 so16=3795777128d29995 exports=677 w66pre16=bf6b683d94549087
+#   ⚠️ 波 `T-A26` 重锚（`TASK-0302` 增量：native「文本行模型」三入口；`D-G70` 形态又一实例；
+#     **产品改动 ⇒ 在册数必须跟随权威件**）：
+#     `src/WpfGfx.Linux.Native/src/win32_pts.c` 新增**导出** `FsQueryLineListSingle`（声明 `Pts.cs:3756-3761`；
+#     调用点 `PtsHelper.cs:652`）／`FsQueryLineListComposite`（`:3764-3769`；`:671`）／
+#     `FsQueryLineCompositeElementList`（`:3772-3777`；`:689`）。**诚实形态**（承 `FsQueryTextDetails`）：
+#     导出符号 ⇒ 三名离开"会 `EntryPointNotFoundException` 的缺口"名单；入参按**对象身份**认领
+#     （`pPara` 走 `wpf_pts_sub_claim`／来源证据；`pLine` 本侧无行对象 ⇒ 恒不可认领）；
+#     **出参（行盒／计数）一字不写** ⇒ **恒返 `-10000`** ＋ 具名 `[FS_PAGE_GAP]`（永不假成功／零假值）。
+#     ⇒ `exports 674→677`（**逐名 +3，无消失**；`nm -D --defined-only` 行数 == `exports.txt` 行数 == 677）；
+#     `tool 85→82`／`ops 73→70`／`impl 76→73`（三名由「会 ENFE 的缺口」变为「已导出可用」⇒ 缺口计数**下降** 3；
+#     不新增/不删除任何 `wpf_pts_gap(...)` stub ⇒ `impl−ops` 仍 3）；`so16 744fb3affd107bf0→3795777128d29995`；
+#     `dead/artifact/w66pre16` 未动。
+#     ⚠️ **计数下降 ≠ 能力前进**（件头第 ① 条同口径；`P1-ptsname-result.md` 裁定：**"`ENFE` 归零"本身不构成
+#        任何证据**）：本增量只把**缺符号**变成**有符号的诚实拒绝**；**文本行模型本侧仍无源**
+#        （行盒要「行断器＋字符源＋度量」三样，本侧一个都没有 ⇒ 见载体
+#        `build/MilBridge/P1-tail2-textline-impl-report.md`）⇒ 两页仍**未绘出内容**（症状门由腿读数给；
+#        帧面成对读数：改前后逐字节相同）。
+#     ⚠️ **正文复述位本趟已随动**（`docs/ROUTES.md` 三处／`README.md`／`build/MilBridge/HANDOFF-NEXT.md`／
+#        `samples/WpfFeatureProbe/KNOWN-DEFECTS.md`／`docs/unimplemented.md`／
+#        `src/WpfGfx.Linux.Native/src/win32_classification.c`）⇒ 本牙现取 **`PTSGAP=PASS`**（零 `SITE-DRIFT`）。
 #   ⚠️ 波 `T-A25` 重锚（`TASK-0302` 增量：native「查询期内容模型」`NATIVE-QUERY-PHASE-CONTENT-MODEL`；
 #     `D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
 #     `src/WpfGfx.Linux.Native/src/win32_pts.c` 三处：

@@ -4303,6 +4303,126 @@ int FsQueryTextDetails(void *pfscontext, void *pPara, void *pTextDetails)
 #endif
 }
 
+/* ══ `T-A26`／`TASK-0302` 增量：native「文本行模型」三入口 ═══════════════════════════════════
+   声明（上游逐字）：
+     · `FsQueryLineListSingle`（`Pts.cs:3756-3761`）：`int(IntPtr pfsContext, IntPtr pPara,
+       int cLines, FSLINEDESCRIPTIONSINGLE* rgLineDesc, out int cLineDesc);`
+     · `FsQueryLineListComposite`（`Pts.cs:3764-3769`）：`int(IntPtr pfsContext, IntPtr pPara,
+       int cElements, FSLINEDESCRIPTIONCOMPOSITE* rgLineDescription, out int cLineElements);`
+     · `FsQueryLineCompositeElementList`（`Pts.cs:3772-3777`）：`int(IntPtr pfsContext, IntPtr pLine,
+       int cElements, FSLINEELEMENT* rgLineElement, out int cLineElements);`
+   调用点（`PtsHost/PtsHelper.cs`，唯一三处）：`:652` `LineListSimpleFromTextPara`／
+     `:671` `LineListCompositeFromTextPara`／`:689` `LineElementListFromCompositeLine`；
+     消费者 `TextParaClient.cs`（`_paraHandle`；三处均以 `FsQueryTextDetails` 成功为前提）。
+   🔴 **入参/出参可得性（本席现取，逐面）**：
+     · 入参 `pPara`：文本段落句柄 —— 与本侧 `N1` 身份模型**同一枚**（＝ `FsQuerySubtrackParaList`
+       交回的 `pfspara`；可 `wpf_pts_sub_claim` 按对象身份认领）。`pLine`（composite line 句柄）：
+       本侧**无行对象台账**（本文件里没有 line 表）⇒ 恒不可认领（具名 `unclaimable-line`，
+       与 `unclaimable-para` 分立）。
+     · 出参 `rgLineDesc`／`rgLineDescription`／`rgLineElement`（行盒：`dcpFirst`/`dcpLim`/`dur`/
+       `urStart`/`urBBox`/`dvrAscent`/`dvrDescent`/`vrStart`/`pfslineclient`…）：**本侧无源** ——
+       行盒要「**行断器** ＋ **字符源（`dcp`↔字符）** ＋ **度量（字宽/字体）**」三样，本侧**一个都没有**
+       （判据件 `build/MilBridge/P1-layout-content-criteria.md` §3.3／§4.1：LS 族 27 入口 22 缺、
+       回调面 30 槽一个未接；`T-A25` 载体 §5-3 同结论）。**源在宿主侧**，取它要**新开一条与
+       LineServices 同规模的链**（越级，另派）。
+   🔴 **诚实形态（本增量）**：三入口**导出符号**（离开"会 `EntryPointNotFoundException` 的缺口"名单）
+     ＋ **入参按对象身份认领**（只用于**分离失败原因**：参数认不了 vs 出参无源）＋ **出参一字不写**
+     （`cLineDesc`/`cLineElements` 也**不写 0** —— 写 0 会被消费者读成"0 行"而**静默丢整段文本**，
+     `P8` 恒绿陷阱，裁定四十八 (c)）＋ **恒返 `-10000`** ＋ **失败必留痕**（`[FS_PAGE_GAP]`）。
+     ⇒ **永不假成功／零假值**；`rc=0` 的出现**只能**来自反腿（`WPF_PTS_FSQLL_FAKE=1`，**只在副本**）。
+   ⚠️ **射程边界（如实划界，防被读宽）**：本增量**只**把"缺符号"变成"有符号的诚实拒绝" ——
+     它**不**声称"文本行模型可得"、**不**声称"页会可见变化"、**更不**构成"排版前进"的证据
+     （`P1-ptsname-result.md` 裁定：**"`ENFE` 归零"本身不构成任何证据**）。具名
+     `NOINFO-text-line-model-source`（射程＝**行盒这一面没源**；入参面已认领）。 */
+static int g_pts_fsqll_calls      = 0;   /* 三入口进入次数（合账；逐入口名见留痕行 `entry=`） */
+static int g_pts_fsqll_gap        = 0;   /* 返非 0 次数（**本形态＝全部**：无成功分支） */
+static int g_pts_fsqll_nullout    = 0;   /* 路①：`cLineDesc`/`cLineElements` 出参 == NULL */
+static int g_pts_fsqll_nullobj    = 0;   /* 路②：`pPara`/`pLine` == NULL */
+static int g_pts_fsqll_unclaim    = 0;   /* 路③：`pPara`/`pLine` 不可认领（外来值／栈地址） */
+static int g_pts_fsqll_unknownctx = 0;   /* 路④：`pfscontext` 非空但不在册 */
+static int g_pts_fsqll_nomodel    = 0;   /* 路⑤：认领成功但**出参无源**（本侧无文本行模型） */
+/* 反腿开关（默认 `0` ⇒ 主链产物**零影响**）。`1` ⇒ 三入口**假成功**（返 0 并把计数出参写成入参）
+   —— 用来证明「不可认领的 `pPara`/`pLine` 必被拒」这条断言**真的会红**（假腿 ⇒ 伪值亦"过关"）。
+   **只在副本**以 `-DWPF_PTS_FSQLL_FAKE=1` 单独编译，**绝不进主链**（照 `T-A16`／`T-A19`／`T-A20` 形制）。 */
+#ifndef WPF_PTS_FSQLL_FAKE
+#define WPF_PTS_FSQLL_FAKE 0
+#endif
+/* 三入口共用的**诚实拒绝**实现。`objkind`＝`"para"`／`"line"`（只影响具名 reason 的词）。 */
+static int wpf_pts_line_reject(const char *entry, const char *objkind, void *pfscontext,
+                               void *pObj, int cIn, void *cOutPtr)
+{
+    char rbuf[48];
+    const char *reason = NULL;
+    g_pts_fsqll_calls++;
+    g_pts_qpd_prev_page = NULL;   /* 下游入口 ⇒ 断开"查询组"（与同族查询同办） */
+    if (!cOutPtr)                                  { reason = "null-count-out"; g_pts_fsqll_nullout++; }
+    else if (!pObj)  { snprintf(rbuf, sizeof rbuf, "null-%s", objkind); reason = rbuf; g_pts_fsqll_nullobj++; }
+    else if (!wpf_pts_sub_claim(pObj, NULL)) {
+        /* 本侧自有对象认不出 ⇒ **追加**「按来源证据认领 ＋ 对象身份核验」（承 `N1`／`FsQueryTextDetails`
+           形制）。认出 ⇒ 判词**分立**为 `claimed-by-provenance-no-text-line-model`（身份成立，
+           行盒仍无源 ⇒ 仍拒、出参一字不写）；认不出 ⇒ 具名 `unclaimable-<objkind>`（逐字保留）。 */
+        wpf_pts_doc  *dpt = wpf_pts_doc_ptr(pfscontext);
+        wpf_pts_prov *pev = NULL;
+        if (wpf_pts_prov_claim(pObj, dpt, 'S', &pev)) {
+            reason = "claimed-by-provenance-no-text-line-model";
+        } else {
+            snprintf(rbuf, sizeof rbuf, "unclaimable-%s", objkind); reason = rbuf;
+            g_pts_fsqll_unclaim++;
+        }
+    }
+    else if ((const void *)pfscontext && !wpf_pts_doc_find(pfscontext)) { reason = "unknown-ctx"; g_pts_fsqll_unknownctx++; }
+    else                                           { reason = "no-text-line-model"; g_pts_fsqll_nomodel++; }
+    (void)cIn;                    /* 入参只作**诊断留痕**，不参与任何写入 */
+    /* ── 拒绝面（**零假值／出参一字不写**）：`cOutPtr` 与行盒数组**绝不触碰**。 */
+    g_pts_fsqll_gap++;
+    fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=%s ctx=%p obj=%p c=%d "
+                    "calls=%d gap=%d nullout=%d nullobj=%d unclaim=%d unknown_ctx=%d nomodel=%d "
+                    "out=UNWRITTEN bytes=0\n",
+            WPF_PTS_ERR_NOT_IMPLEMENTED, reason, entry, pfscontext, pObj, cIn,
+            g_pts_fsqll_calls, g_pts_fsqll_gap, g_pts_fsqll_nullout, g_pts_fsqll_nullobj,
+            g_pts_fsqll_unclaim, g_pts_fsqll_unknownctx, g_pts_fsqll_nomodel);
+    return WPF_PTS_ERR_NOT_IMPLEMENTED;   /* ← 无真值时改成 0 就是制造静默半通／伪成功 */
+}
+
+int FsQueryLineListSingle(void *pfscontext, void *pPara, int cLines, void *rgLineDesc, int *cLineDesc)
+{
+#if WPF_PTS_FSQLL_FAKE == 1
+    if (cLineDesc) *cLineDesc = cLines;   /* 反腿：**伪造**（返 0 且计数＝入参） */
+    fprintf(stderr, "[FSQLL] rc=0 entry=FsQueryLineListSingle out=FAKE-WRITTEN lines=%d "
+                    "basis=FAKE-UNCHECKED-PARA NOINFO=text-line-model-source\n", cLines);
+    return 0;
+#else
+    (void)rgLineDesc;   /* 刻意只收不用（机器可读形态：参数在册但**零写入**） */
+    return wpf_pts_line_reject("FsQueryLineListSingle", "para", pfscontext, pPara, cLines, (void *)cLineDesc);
+#endif
+}
+
+int FsQueryLineListComposite(void *pfscontext, void *pPara, int cElements, void *rgLineDescription, int *cLineElements)
+{
+#if WPF_PTS_FSQLL_FAKE == 1
+    if (cLineElements) *cLineElements = cElements;
+    fprintf(stderr, "[FSQLL] rc=0 entry=FsQueryLineListComposite out=FAKE-WRITTEN elements=%d "
+                    "basis=FAKE-UNCHECKED-PARA NOINFO=text-line-model-source\n", cElements);
+    return 0;
+#else
+    (void)rgLineDescription;
+    return wpf_pts_line_reject("FsQueryLineListComposite", "para", pfscontext, pPara, cElements, (void *)cLineElements);
+#endif
+}
+
+int FsQueryLineCompositeElementList(void *pfscontext, void *pLine, int cElements, void *rgLineElement, int *cLineElements)
+{
+#if WPF_PTS_FSQLL_FAKE == 1
+    if (cLineElements) *cLineElements = cElements;
+    fprintf(stderr, "[FSQLL] rc=0 entry=FsQueryLineCompositeElementList out=FAKE-WRITTEN elements=%d "
+                    "basis=FAKE-UNCHECKED-LINE NOINFO=text-line-model-source\n", cElements);
+    return 0;
+#else
+    (void)rgLineElement;
+    return wpf_pts_line_reject("FsQueryLineCompositeElementList", "line", pfscontext, pLine, cElements, (void *)cLineElements);
+#endif
+}
+
 /* ⏪ `t125`：`wpf_pts_doc_find` 的定义体（**只比指针身份**，不 deref 入参）。 */
 static int wpf_pts_doc_find(const void *ctx)
 {
