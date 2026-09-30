@@ -374,6 +374,25 @@ typedef struct {
        修法同 `penalty_module_handle` 型：**句柄 ＝ 本对象内某字段的地址** ⇒
        **身份即可直接指针比较**（不是全局常量、不是伪值、无需偏移推算）。 */
     int          c_paras;               /* 这条 track 的段数（按**对象**给，非全局常量） */
+    /* ── `T-A15`：`FsQueryPageDetails` 的 `FSPAGEDETAILS.fskupd` 语义（逐字照
+       `build/MilBridge/P1-tail2-aoore-recon.md` §4.1：**首次 `fskupdNew`／稳态 `fskupdNoChange`**，
+       **永不再写** `fskupdInherited`）────────────────────────────────────────────
+       上游契约（`Pts.cs:1693-1696`）：`fskupd` 只可能是 `fskupdNew`／`fskupdChangeInside`／
+       `fskupdNoChange`；`PtsPage.cs:999` 用 `== fskupdNoChange` 提前返回、`:1029` 用 `== fskupdNew`
+       建轨视觉 ⇒ 旧写法（恒 `0`＝`fskupdInherited`）两处都判否 ⇒ 空 `VisualCollection` 取 `[0]`
+       ⇒ `ArgumentOutOfRangeException`（`A14` 现取 561）。
+       · `qpd_calls`       ＝ 该页对象被**成功**查询的次数（即 `[QPD]` 的 `page_qpd`）。
+       · `qpd_new_pending` ＝ 上一次成功查询给了 **`fskupdNew(2)`** 且下游见证尚未到达。
+       · `qpd_vis_built`   ＝ 已见"消费者据 `New` 真建起轨视觉"的**下游见证**（见 `FsQueryTrackParaList`
+                              的判别器）⇒ 此后按**稳态**给 `fskupdNoChange(1)`。
+       · `qpd_fstd_since`  ＝ 上一次成功查询以来，`FsQueryTrackDetails` 被调用过几次（判别器的第二格）。
+       ⚠️ **本模块不声称拥有"该页本轮是否变化"的真值** ⇒ 具名 `NOINFO-FSPAGEDETAILS-PAGE-CHANGE-TRACKING`；
+          "首次"只按**"查询组的首次查询"**划界，"稳态"只按**"该页的轨视觉已被建起"**这一可现取的见证划界
+          （**不**自造位移源）。 */
+    int          qpd_calls;
+    int          qpd_new_pending;
+    int          qpd_vis_built;
+    int          qpd_fstd_since;
 } wpf_pts_fsp;
 static wpf_pts_fsp *g_pts_fsp_live[WPF_PTS_FSP_MAX];
 static int g_pts_fsp_live_n     = 0;
@@ -392,6 +411,24 @@ static int g_pts_fsp_fin_ok   = 0;
 static int g_pts_fsp_fin_gap  = 0;
 static int g_pts_fsp_pl_ok   = 0;      /* `t129` `FsQueryTrackParaList`：成功次数（**本步恒 0**） */
 static int g_pts_fsp_pl_gap  = 0;      /* `t129`：返非 0 次数（**本步＝全部**） */
+/* ⏪ `T-A15`：`FsQueryPageDetails.fskupd` 的语义面（`[QPD]`／`[VIS]` 的计数只读口）。 */
+static int g_pts_fsp_qpd_new  = 0;     /* `fskupd = fskupdNew(2)` 的次数（**首次**查询） */
+static int g_pts_fsp_qpd_nc   = 0;     /* `fskupd = fskupdNoChange(1)` 的次数（**稳态**查询） */
+static int g_pts_fsp_vis_ok   = 0;     /* 轨视觉"建起"的**下游见证**次数（`[VIS]`） */
+/* ⏪ `T-A15`：**"查询组"毗邻判定**（见 `FsQueryPageDetails` 的语义注释）。
+   上一条 native 调用是否也是**对同一页**的 `FsQueryPageDetails`；由下游入口（轨/子轨的查询）清空。 */
+static const void *g_pts_qpd_prev_page = NULL;
+/* ── `T-A15` 的 `FSKUPDATE` 值域（逐字照 `Pts.cs:1934-1941` 的枚举；本模块只落两格）────────── */
+#define WPF_PTS_FSKUPD_NOCHANGE 1      /* `fskupdNoChange` */
+#define WPF_PTS_FSKUPD_NEW      2      /* `fskupdNew`      */
+/* ⚠️ **反腿开关**（默认 `0`）：**只在副本**以 `-DWPF_PTS_QPD_FSKUPD_FAKE=<n>` 单独编译，**绝不进主链**。
+   `0`＝真值（**首次 `New(2)`／见证后稳态 `NoChange(1)`**）｜`1`＝**恒 `0`**（＝上游 `Pts.cs:1695`
+   明示不可能的 `fskupdInherited`，即 `T-A15` 之前的旧行为）⇒ 消费者 `:999`／`:1029` 两处判否
+   ⇒ **`ArgumentOutOfRangeException` 必回**（`D1` **该红必红**）｜`2`＝**恒 `2`**（每趟都 New）
+   ⇒ 把"未变"谎报成"新建"（`D2` **该红必红**：`fskupd=1` **永不出现**）。 */
+#ifndef WPF_PTS_QPD_FSKUPD_FAKE
+#define WPF_PTS_QPD_FSKUPD_FAKE 0
+#endif
 
 // 【格 7 · 真实现】成功 ⇒ 0 ＋ `*ppfspage` = **本次真分配**的页对象（两次调用**互不相等**）；
 //   失败 ⇒ **返非 0** ＋ `*ppfspage = NULL`（**不许留半成品指针**）＋ `*pfsfmtrbl = 未达成`（**不许留毒值**）
@@ -3511,7 +3548,36 @@ int FsQueryPageDetails(void *pfscontext, void *pPage, void *pPageDetails)
         if (!pg) reason = "unknown-page";
         else {
             wpf_pts_fspagedetails_head *d = (wpf_pts_fspagedetails_head *)pPageDetails;
+            /* ── `T-A15`：`FSPAGEDETAILS.fskupd` **按该页对象的状态**给值（**首次 `New`／稳态 `NoChange`**）──
+               **不再**留 `memset` 之后的 `0`（＝上游 `Pts.cs:1695` 明示不可能的 `fskupdInherited`）。
+               ⚠️ **"首次"的判据（现取后写死；为什么不是"该页对象的第一条查询"）**：同一页对象在**同一帧**里
+                 会被**多个互不相同的消费者**查询 —— 现取（本趟 `[QPD]`／`[VIS]` 逐帧）三页**一律**是
+                 `page_qpd=1/2/3` **紧邻成组**（`PtsPage.GetRect()`／`GetBoundingBox()` ＋ 第三个消费者），
+                 而**页视觉帧（`PtsPage.UpdatePageVisuals:996`）的查询是本组的"下一条"**（＝上一条 native 调用
+                 不是对本页的查询）。若按"第一条第查询"给 `New`，则页视觉帧拿到 `NoChange` ⇒ `:999` 提前返回
+                 ⇒ **轨视觉永不建起**（本趟实测：`[FSPARALIST-FILL]` 与 `恒 0` 腿**逐条相等** ⇒ 页视觉帧 `0` 次到达 `:1043`）。
+               ⇒ **"首次"＝该页在本"查询组"内的首次查询**（组 ＝ 从非本页查询的 native 调用之后开始）；
+                  **组内后续查询** ⇒ "页不可能已变" ⇒ `NoChange`。
+               `qpd_vis_built` ＝ 已见**页视觉帧真建起轨视觉**的下游见证（见 `FsQueryTrackParaList` 的判别器）
+                 ⇒ 置 1 后**一律** `NoChange`（稳态，消费者 `:999` 做零工作）。 */
+            const int qpd_adjacent = ((const void *)g_pts_qpd_prev_page == (const void *)pPage);
+            const int qpd_vis_built = pg->qpd_vis_built;
+#if WPF_PTS_QPD_FSKUPD_FAKE == 1
+            const int fskupd = 0;                     /* 反腿①：恒 `fskupdInherited`（旧行为） */
+#elif WPF_PTS_QPD_FSKUPD_FAKE == 2
+            const int fskupd = WPF_PTS_FSKUPD_NEW;    /* 反腿②：恒 New ⇒ 把"未变"谎报成"新建" */
+#else
+            const int fskupd = (qpd_vis_built || qpd_adjacent) ? WPF_PTS_FSKUPD_NOCHANGE
+                                                               : WPF_PTS_FSKUPD_NEW;
+#endif
+            g_pts_qpd_prev_page = (const void *)pPage;   /* 供下一次查询判定"是否同组" */
+            pg->qpd_calls++;
+            pg->qpd_fstd_since = 0;                   /* 判别器的窗口从"本次查询"起算 */
+            pg->qpd_new_pending = (fskupd == WPF_PTS_FSKUPD_NEW) ? 1 : 0;
+            if (fskupd == WPF_PTS_FSKUPD_NOCHANGE) { g_pts_fsp_qpd_nc++; }
+            else                                   { g_pts_fsp_qpd_new++; }
             memset(d, 0, sizeof(*d));                 /* 先清（**不留残留**），再逐字段填 */
+            d->pad0       = (unsigned int)fskupd;     /* FSPAGEDETAILS.fskupd（**唯一合法值域**） */
             d->fSimple    = 1;                        /* 简单页 ⇒ 托管侧只读 trackdescr 两格 */
             d->r_u = 0;  d->r_v = 0;  d->r_du = pg->pg_w; d->r_dv = pg->pg_h;
             d->td_pfstrack = (void *)&pg->c_paras;   /* `t127`：轨句柄 ＝ **本对象内**该字段的地址 */
@@ -3519,10 +3585,19 @@ int FsQueryPageDetails(void *pfscontext, void *pPage, void *pPageDetails)
             d->b_u = 0;  d->b_v = 0;  d->b_du = pg->pg_w; d->b_dv = pg->pg_h;
             g_pts_fsp_qpd_ok++;
             { int _i = wpf_pts_index("FsQueryPageDetails"); if (_i >= 0) g_pts_seen[_i]++; }
+            /* ⏪ `T-A15`：成功路径的**机读留痕**（`A14` §6-2 的 `NOINFO(QPD-SUCCESS-NOT-LOGGED)` 的消掉条件）。
+               `first=` 与 `page_qpd=` **逐趟可核**；`fskupd=0` 若出现即**当场红并点名**（上游明示排除该值）。*/
+            fprintf(stderr, "[QPD] rc=0 fskupd=%d first=%d adj=%d page=%p page_qpd=%d vis_built=%d "
+                            "qpd_ok=%d qpd_gap=%d new_n=%d nc_n=%d vis_n=%d seq=%d "
+                            "NOINFO=fspagedetails-page-change-tracking\n",
+                    fskupd, (pg->qpd_calls == 1) ? 1 : 0, qpd_adjacent, (void *)pg, pg->qpd_calls,
+                    qpd_vis_built, g_pts_fsp_qpd_ok, g_pts_fsp_qpd_gap, g_pts_fsp_qpd_new,
+                    g_pts_fsp_qpd_nc, g_pts_fsp_vis_ok, g_pts_seq);
             g_pts_seq++;
             return 0;
         }
     }
+    g_pts_qpd_prev_page = NULL;   /* `T-A15`：拒绝路径**不**续接"查询组"（判"同组"只认相邻的**成功**查询）*/
     g_pts_fsp_qpd_gap++;
     fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=FsQueryPageDetails ctx=%p page=%p qpd_ok=%d qpd_gap=%d\n",
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason, pfscontext, pPage, g_pts_fsp_qpd_ok, g_pts_fsp_qpd_gap);
@@ -3626,6 +3701,7 @@ static int wpf_pts_track_owned(const void *track)
 int FsQueryTrackDetails(void *pfscontext, void *pTrack, void *pTrackDetails)
 {
     const char *reason = NULL;
+    g_pts_qpd_prev_page = NULL;   /* `T-A15`：下游入口 ⇒ 断开"查询组"（页视觉帧的查询在它之后另起一组）*/
     if (pTrackDetails) *(int *)pTrackDetails = 0;          /* 失败路径：先清成 0（不留残留） */
     if (!pTrackDetails)               reason = "null-details-out";
     else if (!pTrack)                 reason = "null-track";
@@ -3635,6 +3711,7 @@ int FsQueryTrackDetails(void *pfscontext, void *pTrack, void *pTrackDetails)
         for (int i = 0; i < g_pts_fsp_live_n; i++) {
             if ((const void *)&g_pts_fsp_live[i]->c_paras != pTrack) continue;
             *(int *)pTrackDetails = g_pts_fsp_live[i]->c_paras;   /* **按对象**回答段数 */
+            g_pts_fsp_live[i]->qpd_fstd_since++;   /* ⏪ `T-A15`：判别器的计数（`[VIS]` 在 `FsQueryTrackParaList`）*/
             g_pts_fsp_trk_ok++;
             { int _i = wpf_pts_index("FsQueryTrackDetails"); if (_i >= 0) g_pts_seen[_i]++; }
             g_pts_seq++;
@@ -3715,7 +3792,39 @@ int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgPar
 {
     const char *reason = NULL;
     wpf_pts_drive_probe2_oow(pfscontext, "FsQueryTrackParaList");   /* ⏪ `t151` 窗外腿（调用点 ②；该入口日志可证被调） */
+    g_pts_qpd_prev_page = NULL;   /* `T-A15`：下游入口 ⇒ 断开"查询组" */
     if (cParaDesc) *cParaDesc = 0;                       /* 失败：出参先清成 0（不留残留） */
+    /* ⏪ `T-A15`：页视觉帧的**下游见证**（`[VIS]` 的唯一发点）。**只在三条件同时成立**时才认：
+       ① 上一次 `FsQueryPageDetails` 给过 `fskupdNew(2)`（`qpd_new_pending`）—— 而 `New` 只发给**"查询组的首次"**
+          查询（组内后续查询给 `NoChange`，见 `FsQueryPageDetails` 的语义注释）；
+       ② 自那次查询以来 `FsQueryTrackDetails` **恰被调过 1 次**（`qpd_fstd_since == 1`）；
+       ③ 本次调用认到的是**本页的轨句柄**（`pTrack == &pg->c_paras`，**指针值比较**，不 deref）。
+       ⚠️ **为什么这三条能定钉"页视觉帧"**（现取来源，`upstream/…/PtsHost/`，行号仅本次有效）：
+         · **页视觉帧**：`PtsPage.UpdatePageVisuals:996`(查询) → `:1029-1032` 建轨视觉 → `:1042` 取 `[0]`
+           → `:1043 PtsHelper.UpdateTrackVisuals:218` 的 `FsQueryTrackDetails` **×1** → `:225 ParaListFromTrack`
+           → 本入口；
+         · **同帧的第三个消费者**（非视觉）：它的页查询**与 `GetRect`／`GetBoundingBox` 的查询紧邻成组**
+           ⇒ 拿到的是 `NoChange`（`qpd_new_pending == 0`）⇒ 它的 `FsQueryTrackParaList` **不会**被认作见证。
+       ⇒ `== 1` ⇒ 页视觉帧（`pageContentVisual.Children` 已由 `:1029-1032` 置为**恰 1 个**轨视觉容器
+                     ⇒ `:1042` 的 `visualChildren[0]` **必中**，不再抛 `AOOORE`）；
+          `>= 2` ⇒ 该次 `New` 的消费者的调用链里有多条轨查询 ⇒ **不认**。
+       这同时消掉 `A14` §6-3 的 `NOINFO(NO-MANAGED-VISUAL-FRAME-COUNTER)`。 */
+    {
+        wpf_pts_fsp *pg = NULL;
+        for (int i = 0; i < g_pts_fsp_live_n; i++) {       /* **指针值比较**，不 deref 未知句柄 */
+            if (g_pts_fsp_live[i]->magic != WPF_PTS_FSP_MAGIC) continue;
+            if ((const void *)&g_pts_fsp_live[i]->c_paras == pTrack) { pg = g_pts_fsp_live[i]; break; }
+        }
+        if (pg && pg->qpd_new_pending && pg->qpd_fstd_since == 1) {
+            pg->qpd_new_pending = 0;
+            pg->qpd_vis_built   = 1;
+            g_pts_fsp_vis_ok++;
+            fprintf(stderr, "[VIS] children=1 page=%p page_qpd=%d fstd_since_qpd=%d vis_n=%d seq=%d "
+                            "basis=fmtrackparalist-after-qpdnew-with-1-trackdetails "
+                            "NOINFO=fspagedetails-page-change-tracking\n",
+                    (void *)pg, pg->qpd_calls, pg->qpd_fstd_since, g_pts_fsp_vis_ok, g_pts_seq);
+        }
+    }
     if (!cParaDesc)                       reason = "null-count-out";
     else if (!pTrack)                     reason = "null-track";
     else if ((const void *)pfscontext && !wpf_pts_doc_find(pfscontext)) reason = "unknown-ctx";
@@ -4098,6 +4207,7 @@ int FsQuerySubtrackDetails(void *pfscontext, void *pSubTrack, void *pSubTrackDet
 {
     g_pts_fsqstd_calls++;
     { int _i = wpf_pts_index("FsQuerySubtrackDetails"); if (_i >= 0) g_pts_seen[_i]++; }
+    g_pts_qpd_prev_page = NULL;   /* `T-A15`：下游入口 ⇒ 断开"查询组" */
     const char *reason = NULL;
     wpf_pts_subtrack *obj = NULL;
     wpf_pts_doc *dpx = wpf_pts_doc_ptr(pfscontext);
@@ -4170,6 +4280,7 @@ int FsQuerySubtrackParaList(void *pfscontext, void *pSubTrack, int cParas,
     const char *reason = NULL;
     g_pts_fsqspl_calls++;
     { int _i = wpf_pts_index("FsQuerySubtrackParaList"); if (_i >= 0) g_pts_seen[_i]++; }
+    g_pts_qpd_prev_page = NULL;   /* `T-A15`：下游入口 ⇒ 断开"查询组" */
     if (cParaDesc) *cParaDesc = 0;                     /* 失败：出参先清成 0（不留残留） */
     wpf_pts_subtrack *obj = NULL;
     wpf_pts_doc *dp = wpf_pts_doc_ptr(pfscontext);
@@ -4491,6 +4602,10 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
        "自检不许改变可观测状态"对新面变成假话（`t102` 的 `F-2` 同形）。 */
     int save_fsp_ok = g_pts_fsp_ok, save_fsp_gap = g_pts_fsp_gap, save_fsp_rej = g_pts_fsp_rej;
     int save_fsp_q = g_pts_fsp_qpd_ok, save_fsp_qg = g_pts_fsp_qpd_gap;
+    /* ⏪ `T-A15`：`FsQueryPageDetails` 新增的语义面计数（`New`／`NoChange`／`[VIS]` 见证）同办
+       —— 格 8 夹具真调 `FsQueryPageDetails` ⇒ 不复原就会让"自检不许改变可观测状态"对新面变成假话。*/
+    int save_fsp_qpd_new = g_pts_fsp_qpd_new, save_fsp_qpd_nc = g_pts_fsp_qpd_nc;
+    int save_fsp_vis = g_pts_fsp_vis_ok;
     int save_fsp_d = g_pts_fsp_des_ok, save_fsp_dg = g_pts_fsp_des_gap;
     int save_fsp_t = g_pts_fsp_trk_ok, save_fsp_tg = g_pts_fsp_trk_gap;
     int save_fsp_f = g_pts_fsp_fin_ok, save_fsp_fg = g_pts_fsp_fin_gap;
@@ -4809,6 +4924,8 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
     g_pts_doc_sets_c = save_doc_c_sets; g_pts_doc_rejected_c = save_doc_c_rej;
     g_pts_doc_destroys = save_doc_des; g_pts_doc_destroy_rej = save_doc_desrej;
     g_pts_fsp_ok = save_fsp_ok; g_pts_fsp_gap = save_fsp_gap; g_pts_fsp_rej = save_fsp_rej;   /* `t123`：格 7 计数一并复原 */
+    g_pts_fsp_qpd_new = save_fsp_qpd_new; g_pts_fsp_qpd_nc = save_fsp_qpd_nc;                /* `T-A15`：语义面计数一并复原 */
+    g_pts_fsp_vis_ok = save_fsp_vis;
     g_pts_break_sets = save_brk_sets; g_pts_break_rejected = save_brk_rej;
     g_pts_pen_sets = save_pen_sets; g_pts_pen_rejected = save_pen_rej;   /* `F-2`：格 4 计数一并复原 */
     g_pts_inth_sets = save_inth_sets; g_pts_inth_rejected = save_inth_rej;   /* `t103`：格 5 计数一并复原 */
