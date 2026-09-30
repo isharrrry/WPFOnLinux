@@ -857,6 +857,18 @@ _Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_FSCBK_CBKGEN_OFF + 128 == 168, "pfnGe
 _Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_FSCBK_CBKGEN_OFF + 136 == 176, "pfnCreateParaclient 绝对偏移 != 176");
 _Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_FSCBK_CBKGEN_OFF + 152 == 192, "pfnDestroyParaclient 绝对偏移 != 192");
 
+/* ── ⏪ `T-A28`（`TASK-0302` 增量）：`cbktxt` 槽 `pfnFormatLine` 的**唯一偏移定义处** ──────────────
+   上游声明（`upstream/…/PtsHost/Pts.cs:676`，`FSCBKTXT` 第 10 个字段 ⇒ **索引 9**）：
+       `internal FormatLine pfnFormatLine;`
+   行排版链（`T-A27` §1.4 现取）：`pfnFormatLine` → `PtsHost.cs:1341 FormatLine` →
+   `TextParagraph.cs:664 FormatLine` → `Line.cs:271 Line.Format` → `TextFormatter.FormatLine`（本移植 ⇒ shim）。
+   绝对偏移 ＝ `fscbk(+40)` ＋ `cbktxt 组基(+256)` ＋ `9×8` ＝ **`+368`**（`T-A27` `P1-fscbk-slot-recon.md`
+   的"相对 `+328`／绝对 `+368`"同值）⇒ 快照下标 ＝ `328/8` ＝ **`41`**（`fscbk_snap` 起点即 `fscbk`）。 */
+#define WPF_PTS_CBKTXT_IDX_FORMATLINE   9
+#define WPF_PTS_SNAP_IDX_FORMATLINE     (WPF_PTS_FSCBK_CBKTXT_OFF / 8 + WPF_PTS_CBKTXT_IDX_FORMATLINE)  /* 41 */
+_Static_assert(WPF_PTS_SNAP_IDX_FORMATLINE == 41, "pfnFormatLine 快照下标 != 41");
+_Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_SNAP_IDX_FORMATLINE * 8 == 368,
+               "pfnFormatLine 绝对偏移 != 368（cbktxt 6 字节头 + 第 10 槽）");
 /* 预言的空槽（**由托管侧源码**得来：`cbkobj` 的前三槽与整个 `cbkwrd` 声明为 `IntPtr` 且**未赋值**）
    ⇒ 只读回读若在这些绝对偏移上读到非 0，说明偏移（或对齐/顺序）**另有其事** ⇒ 指纹判 FAIL。 */
 #define WPF_PTS_NULL_PRED_CBKOBJ_LEAD 3
@@ -1332,6 +1344,10 @@ const char *WpfLinuxWin32_PtsFsParaListParaLastSrc(void) { return g_pts_fsp_pl_p
           （⇒ 判据 §5.4「只许靠来源证据」在本侧有了**可判**的形态：NULL／栈地址／外来值**必被拒**）
    ⚠️ `formatted` **今天恒 0**：本对象**未被造型** ⇒ **`c_paras` 不是"0 个孩子"的断言**，
       而是"**尚未造型**"；⇒ (b) 必须读 `formatted` 而**不得**据 `c_paras==0` 走叶子分支（判据 §5.2 的 P8 防线）。 */
+/* ⏪ `T-A28`：每段行记录上界（有界 ⇒ 撞界即 `fl_truncated=1` 并**拒绝回查**，绝不静默截断）。 */
+#define WPF_PTS_FL_MAXLINE 32
+/* ⏪ `T-A28`：窗内被驱的段数上界（每窗最多驱这么多 `TextParagraph`；防异常调用失控）。 */
+#define WPF_PTS_FL_MAX_PARA 8
 struct wpf_pts_subtrack_s {
     unsigned int magic;
     int          c_paras;       /* 子轨段落数（(b) 要答的那个数；**未造型时无意义**） */
@@ -1355,6 +1371,26 @@ struct wpf_pts_subtrack_s {
     struct wpf_pts_subtrack_s *child_objs[WPF_PTS_SUB_CHILD_MAX];
     int          depth;                 /* 本对象在窗内建树里的深度（0＝`dp->sub` 的顶层容器） */
     int          obj_no;                /* 台账序号（诊断用；与 `seq` 同源） */
+    /* ── ⏪ `T-A28`（本增量）：**native 侧驱动的行记录台账**（`pfnFormatLine` 的返回值) ──────────
+       · 只在**窗内**（`FsCreatePage*` ⇒ `wpf_pts_formatline_drive`）真调 `pfnFormatLine` 后写入；
+         一行一条，序＝行序；`fl_nlines` ＝ 已入账行数（**不用伪值填**）。
+       · `fl_ok` **仅当**：至少一行 ∧ 末行由 `fsflrEndOfParagraph*` 收束（`fl_complete=1`，即
+         "**几何上确实排到段尾**"）∧ 行数未撞上界；否则 `fl_ok=0` ⇒ **回查必须拒**（零假值）。
+       · 持有期＝本对象在册期（与 `sub` 的销毁口径同）：`DestroyDocContext` 一并回收。 */
+    int          fl_calls;              /* 本对象上真发起的 `pfnFormatLine` 调用数 */
+    int          fl_last_rc;            /* 末次 `fserr`（-9999 = 未调） */
+    int          fl_nlines;             /* 已入账行数 */
+    int          fl_dcp_sum;            /* Σ `dcpLine`（账守恒的**被加数**） */
+    int          fl_ok;                 /* 1 ＝ 行记录可用（可回查）；0 ＝ 无源／不完整 */
+    int          fl_complete;           /* 1 ＝ 末行收束于段尾（`fsflrEndOfParagraph*`） */
+    int          fl_truncated;          /* 1 ＝ 撞行数上界而停（⇒ **不许回查**） */
+    int          fl_paraclient_rc;      /* 本对象上 `+176` 建客户端的 fserr */
+    const char  *fl_geo_src;            /* 几何来源 token（本侧页几何约定 ⇒ 具名 `NOINFO`） */
+    struct {
+        int dcp_first, dcp_lim, dvr_ascent, dvr_descent, ur_bbox, dur_bbox;
+        int fsflres, f_forced;
+        const void *pfsline;
+    } fl_line[WPF_PTS_FL_MAXLINE];
 };
 #define WPF_PTS_SUB_MAGIC 0x57535054u     /* "WSPT" */
 /* ⏪ `T-A25`：台账上限（窗内建树 ⇒ 一个容器对象 ＋ 每子段一个对象，**递归**）
@@ -1763,6 +1799,26 @@ _Static_assert(sizeof(wpf_pts_fn_get_first_para) == 8 && sizeof(wpf_pts_fn_get_p
                "回调指针不是 8 B（与快照的 8 B 字假设不符）");
 _Static_assert(sizeof(wpf_pts_fn_get_next_para) == 8, "回调指针不是 8 B（与快照的 8 B 字假设不符）");
 
+/* ── ⏪ `T-A28`：`pfnFormatLine` 的**回调签名**（逐参照抄上游 `Pts.cs:2312-2341` 的 `FormatLine` 委托）──
+   18 个入参 ＋ 11 个出参，**全是 ≤8 B 标量**（`int`／指针）⇒ 无结构封送风险；`out FSFLRES` 是
+   `int` 枚举（`Pts.cs:1092`）⇒ 出参是 `int *`。
+   ⚠️ **契约的严格面在托管侧**（`PtsHost.cs:1341`）：`nmp` 必须是 `TextParagraph`、`pfsparaclient`
+   必须是 `TextParaClient`，否则 `ValidateHandle` 抛 ⇒ 被 `catch` ⇒ 返 `-100002`
+   （`tserrCallbackException`）；**不可捕获的 `FailFast` 只出现在跨族调 `HandleToObject` 的那类槽**
+   （见 `FsQueryTrackParaList` 的具名边界）—— 本槽两条身份检查都落在那两个 `try/catch` 内。 */
+typedef int (*wpf_pts_fn_format_line)(
+    const void *pfsclient, const void *pfsparaclient, const void *nmp,
+    int i_area, int dcp, const void *pbrline_in, unsigned int fswdir,
+    int ur_start_line, int dur_line, int ur_start_track, int dur_track,
+    int ur_page_left_margin, int f_allow_hyphenation, int f_clear_on_left,
+    int f_clear_on_right, int f_treat_as_first_in_para, int f_treat_as_last_in_para,
+    int f_suppress_top_space,
+    void **out_pfsline, int *out_dcp_line, void **out_ppbrline,
+    int *out_f_forced_broken, int *out_fsflres, int *out_dvr_ascent,
+    int *out_dvr_descent, int *out_ur_bbox, int *out_dur_bbox,
+    int *out_dcp_depend, int *out_f_reformat);
+_Static_assert(sizeof(wpf_pts_fn_format_line) == 8, "pfnFormatLine 指针不是 8 B");
+
 static int          g_pts_dp2_136_a    = -1;   /* +136 首调 fserr */
 static int          g_pts_dp2_136_b    = -1;   /* +136 次调 fserr */
 static int          g_pts_dp2_136_succ = -1;   /* fSuccessful（首调） */
@@ -1974,6 +2030,197 @@ out:
             (d->sub_enum_rc136 != -9999 ? 1 : 0) + (d->sub_enum_rc144 != -9999 ? 1 : 0),
             g_pts_win_in_enum, g_pts_win_out_summary, g_pts_win_out_refused,
             d->sub_enum_ok ? "IN-WINDOW-ENUM+LEDGER" : "IN-WINDOW-ENUM-FAILED");
+}
+
+/* ══ ⏪ `T-A28`（`TASK-0302` 增量）：native 侧**驱动 `pfnFormatLine`** ＋ **行记录台账** ═══════════
+   【这一格要解决什么】`T-A27` §2.3 现取：native 侧**从不驱动** `cbktxt` 任何槽（`grep cbktxt.` ＝ 0）
+   ⇒ 没有行记录可回填 ⇒ `FsQueryTextDetails` 恒拒（`no-text-line-model 109`）。本格把**第一跳**接起来：
+   **在造型窗内**（`FsCreatePage*` ⇒ `wpf_pts_drive_probe`）对**枚举到的文本段落**真调
+   `pfnFormatLine`（绝对偏移 `+368`／快照下标 `41`），并把**它的返回值**逐行记进本侧台账。
+
+   【路径（逐跳，全部在窗内）】
+     ① 在窗内已枚举出的子段树里找**叶**（`enum_ok==0` ⇒ `+136` 对该段不成立 ⇒ 非 `ISegment`
+        ⇒ 正是 `TextParagraph` 那一类；`T-A26` 的 `[NMP-TYPE]` 现场：容器 `0x4` 的首段 `0x8`
+        `TYPE=MS.Internal.PtsHost.TextParagraph`）；
+     ② `+176 pfnCreateParaclient(nmp)` ⇒ 为该 `TextParagraph` 现造 `TextParaClient`（**本侧**造、
+        **本侧**回收）；
+     ③ 循环 `pfnFormatLine`（`dcp` 累计；`pbrlineIn` 取上一行的 `ppbrlineOut`）直到
+        `fsflrEndOfParagraph*` / 无进展（`dcpLine<=0` 成环守卫）/ 行数上界；
+     ④ 收尾 `+192 pfnDestroyParaclient` 回收客户端。
+
+   🔴 **硬边界（承 `T-A27` §4 判据 D1–D6）**
+     · **窗内才驱**（`FsCreatePage*` 窗；窗外查询期**只回查／只拒绝**，承 `N2`）；
+     · **零假值**：台账**只**装 `pfnFormatLine` 的**真返回值**；`rc≠0` ⇒ 该行不记账；
+     · **永不假成功**：`fl_ok` 仅当"至少一行 ∧ 末行由 `fsflrEndOfParagraph*` 收束 ∧ 未撞行数上界"
+       ⇒ **几何上确实排到段尾**；否则 `fl_ok=0` ⇒ 回查**必须拒**（回查在下一增量里接）；
+     · **失败必留痕**：每段一条 `[FORMATLINE]`（`rc=`／`nlines=`／`v=`）＋ 全局计数；
+     · **有界 ＋ 成环守卫**：`WPF_PTS_FL_MAXLINE`／`WPF_PTS_FL_MAX_PARA` ＋ `dcpLine<=0` 即停。
+   ⚠️ **几何来源（如实划界）**：`pfnFormatLine` 要页几何（`urStartLine`／`durLine`／`urStartTrack`／
+      `durTrack`／`urPageLeftMargin`）。本侧**没有**几何的入站源（页矩形由真机 native 引擎在
+      `FsCreatePage*` 内自算；本移植的 `FsCreatePageFinite` 用的是**本侧页几何约定** `768×576`，
+      见该入口的 `WPF_PTS_FSP_FIN_DU/DV`）⇒ 本格**沿用同一约定**并**具名** `NOINFO-FSGEOMETRY-LAYOUT`
+      （**不**声称与上游 ABI 几何可比；`pbrlineIn` 首行传 `0`＝首行契约）。 */
+/* ⏪ `T-A28`：**运行期闸**（缺省 **关**）—— `WPF_PTS_FL_DRIVE=1` 才驱。
+   🔴 为什么缺省必须是**关**（不是"保守"，是**现场读数**）：本跳在**正确几何**（`600 DIP`）下
+      真被驱时，托管侧 `Line.GetTextRun` 会撞 **`Invariant.FailFast("We do not expect any Blocks
+      inside Paragraphs")`**（`LineBase.cs:137`）⇒ **不可捕获** ⇒ `app_rc=134`（载体 §3 的成对读数：
+      `gate=on` ⇒ `alive=no/app_rc=134`；`gate=off` ⇒ `alive=yes/app_rc=143`，其余症状门逐字相同）。
+      ⇒ 缺省关 ＝ **不把已知会 abort 的调用放进主链**；驱与不驱都**留具名行**（零静默）。 */
+#ifndef WPF_PTS_FL_DEFAULT
+#define WPF_PTS_FL_DEFAULT 0
+#endif
+#define WPF_PTS_FL_DU 180000         /* 本侧页几何：**PTS 单位**（`TextDpi`：`300 单位 = 1 DIP`）
+                                         ⇒ `180000 = 600 DIP`（`TextDpi.cs:201` 的 `_scale=28800/96=300`）。
+                                         ⚠️ `FsCreatePageFinite` 的 `768/576` 是**同一单位制**下的**另一组**
+                                         约定值（= 2.56×1.92 DIP，仅够"页对象存在"）⇒ 与行排版无可比性。 */
+#define WPF_PTS_FL_DV 180000
+static int g_pts_fl_gate = -1;       /* 运行期闸（-1 = 未读环境） */
+static int wpf_pts_fl_enabled(void)
+{
+    if (g_pts_fl_gate < 0) {
+        const char *e = getenv("WPF_PTS_FL_DRIVE");
+        g_pts_fl_gate = e ? atoi(e) : WPF_PTS_FL_DEFAULT;
+    }
+    return g_pts_fl_gate;
+}
+static int g_pts_fl_win_paras = 0;   /* 本窗已被驱的段数（窗级预算） */
+static int g_pts_fl_paras     = 0;   /* 累计被驱段数（只增） */
+static int g_pts_fl_calls     = 0;   /* 累计 `pfnFormatLine` 调用数（D4 的 `calls=`） */
+static int g_pts_fl_ok        = 0;   /* 累计可用行记录段数（D2 的"真源"面） */
+static int g_pts_fl_gap       = 0;   /* 累计不可用段数（失败必留痕） */
+static int g_pts_fl_nopara    = 0;   /* 找不到可驱段／缺槽的次数 */
+static int g_pts_fl_attempt   = 0;   /* 累计**尝试驱**的段数（含未成；`driven=` 用这个） */
+static int g_pts_fl_win_attempt = 0; /* 本窗尝试驱的段数（窗级） */
+static int g_pts_fl_incomplete= 0;   /* 行记录**未收束于段尾**（撞界／无进展）的段数 */
+static const char *g_pts_fl_last_v = "NOT-RUN";
+
+static int wpf_pts_format_one_para(wpf_pts_doc *d, wpf_pts_subtrack *leaf,
+                                   const void *fpFL, const void *fp176, const void *fp192,
+                                   const char *where)
+{
+    wpf_pts_fn_format_line fl = (wpf_pts_fn_format_line)fpFL;
+    void *cli = NULL;
+    g_pts_fl_attempt++; g_pts_fl_win_attempt++;
+    int rc176 = ((wpf_pts_fn_create_paraclient)fp176)((const void *)d->p_fsclient,
+                                                      (const void *)leaf->nmp, &cli);
+    leaf->fl_paraclient_rc = rc176;
+    leaf->fl_last_rc = -9999;
+    leaf->fl_nlines = 0; leaf->fl_dcp_sum = 0; leaf->fl_ok = 0;
+    leaf->fl_complete = 0; leaf->fl_truncated = 0;
+    if (rc176 != 0 || !cli) {
+        g_pts_fl_gap++;
+        fprintf(stderr, "[FORMATLINE] where=%s nmp=%p rc176=%d cli=%p nlines=0 calls=0 "
+                        "v=NO-PARACLIENT(未驱)\n", where, (void *)leaf->nmp, rc176, cli);
+        return 0;
+    }
+    leaf->fl_geo_src = "self-page-geometry(768x576,same-as-FsCreatePageFinite)";
+    const int du = WPF_PTS_FL_DU;
+    int dcp = 0; void *pbrin = NULL; int i = 0; int ended = 0;
+    while (i < WPF_PTS_FL_MAXLINE) {
+        void *pfsline = NULL, *ppbr = NULL;
+        int dcpLine = 0, fforced = 0, fslres = -1;
+        int asc = 0, desc = 0, ubb = 0, dbb = 0, dep = 0, rfmt = 0;
+        int rc = fl((const void *)d->p_fsclient, (const void *)cli, (const void *)leaf->nmp,
+                    0 /*iArea 恒 0（托管 Invariant.Assert(iArea==0)）*/,
+                    dcp, (const void *)pbrin, 0u /*fswdir*/,
+                    0, du /*urStartLine,durLine*/, 0, du /*urStartTrack,durTrack*/,
+                    0 /*urPageLeftMargin*/,
+                    0 /*fAllowHyphenation*/, 0 /*fClearOnLeft*/, 0 /*fClearOnRight*/,
+                    (i == 0) ? 1 : 0 /*fTreatAsFirstInPara*/, 0 /*fTreatAsLastInPara*/,
+                    0 /*fSuppressTopSpace*/,
+                    &pfsline, &dcpLine, &ppbr, &fforced, &fslres, &asc, &desc,
+                    &ubb, &dbb, &dep, &rfmt);
+        leaf->fl_calls++; g_pts_fl_calls++;
+        leaf->fl_last_rc = rc;
+        fprintf(stderr, "[FORMATLINE-LINE] where=%s para=%p i=%d dcp=%d rc=%d pfsline=%p "
+                        "dcpLine=%d fsflres=%d fforced=%d ascent=%d descent=%d urbbox=%d durbbox=%d "
+                        "dep=%d rfmt=%d\n",
+                where, (void *)leaf->nmp, i, dcp, rc, pfsline, dcpLine, fslres, fforced,
+                asc, desc, ubb, dbb, dep, rfmt);
+        if (rc != 0) break;                        /* 失败 ⇒ **不记账**（零假值） */
+        if (dcpLine <= 0) break;                   /* 成环守卫：无进展 ⇒ 停（不收束） */
+        leaf->fl_line[i].dcp_first   = dcp;
+        leaf->fl_line[i].dcp_lim     = dcp + dcpLine;
+        leaf->fl_line[i].dvr_ascent  = asc;
+        leaf->fl_line[i].dvr_descent = desc;
+        leaf->fl_line[i].ur_bbox     = ubb;
+        leaf->fl_line[i].dur_bbox    = dbb;
+        leaf->fl_line[i].fsflres     = fslres;
+        leaf->fl_line[i].f_forced    = fforced;
+        leaf->fl_line[i].pfsline     = pfsline;
+        leaf->fl_nlines++;
+        dcp += dcpLine;
+        i++;
+        if (fslres == 2 || fslres == 3 || fslres == 4 || fslres == 5) { ended = 1; break; }
+        if (ppbr) pbrin = ppbr;
+        if (i >= WPF_PTS_FL_MAXLINE) break;
+    }
+    leaf->fl_dcp_sum = dcp;
+    if (i >= WPF_PTS_FL_MAXLINE && !ended) { leaf->fl_truncated = 1; g_pts_fl_incomplete++; }
+    else if (!ended && leaf->fl_nlines > 0) { g_pts_fl_incomplete++; }
+    leaf->fl_complete = ended;
+    leaf->fl_ok = (leaf->fl_nlines > 0 && ended && !leaf->fl_truncated) ? 1 : 0;
+    if (leaf->fl_ok) g_pts_fl_ok++; else g_pts_fl_gap++;
+    if (fp192 && cli) {
+        int rcr = ((wpf_pts_fn_destroy_paraclient)fp192)((const void *)d->p_fsclient, (const void *)cli);
+        (void)rcr;
+    }
+    fprintf(stderr, "[FORMATLINE] where=%s para=%p nmp=%p du=%d nlines=%d dcp_sum=%d last_rc=%d "
+                    "complete=%d truncated=%d v=%s geo=%s\n",
+            where, (void *)leaf, (void *)leaf->nmp, du, leaf->fl_nlines, leaf->fl_dcp_sum,
+            leaf->fl_last_rc, leaf->fl_complete, leaf->fl_truncated,
+            leaf->fl_ok ? "LINES-RECORDED" : "NO-COMPLETE-LINES", leaf->fl_geo_src);
+    return leaf->fl_ok;
+}
+
+static int wpf_pts_fl_walk(wpf_pts_doc *d, wpf_pts_subtrack *o, const void *fpFL,
+                           const void *fp176, const void *fp192, const char *where, int depth)
+{
+    if (!o || o->magic != WPF_PTS_SUB_MAGIC || depth > WPF_PTS_SUB_MAX_DEPTH) return 0;
+    if (o->enum_ok == 0) {                       /* 叶 ⇒ `TextParagraph` 类（+136 不成立） */
+        if (g_pts_fl_win_paras >= WPF_PTS_FL_MAX_PARA) return 0;
+        g_pts_fl_win_paras++;
+        return wpf_pts_format_one_para(d, o, fpFL, fp176, fp192, where);
+    }
+    int n = 0;
+    for (int k = 0; k < WPF_PTS_SUB_CHILD_MAX; k++) {
+        if (!o->child_objs[k]) continue;
+        if (g_pts_fl_win_paras >= WPF_PTS_FL_MAX_PARA) break;
+        n += wpf_pts_fl_walk(d, o->child_objs[k], fpFL, fp176, fp192, where, depth + 1);
+    }
+    return n;
+}
+
+/* 窗内驱动入口（**只**从 `wpf_pts_drive_probe` 调；窗内 ＝ `FsCreatePage*` 调用期）。 */
+static void wpf_pts_formatline_drive(wpf_pts_doc *d, const char *where)
+{
+    if (!wpf_pts_fl_enabled()) {
+        g_pts_fl_last_v = "GATE-OFF";
+        fprintf(stderr, "[FORMATLINE] where=%s window=in gate=0 v=GATE-OFF（缺省；`WPF_PTS_FL_DRIVE=1` 才驱）"
+                        " calls=%d ok=%d gap=%d\n", where, g_pts_fl_calls, g_pts_fl_ok, g_pts_fl_gap);
+        return;
+    }
+    const void *fpFL  = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_FORMATLINE);
+    const void *fp176 = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_CREATEPARACLIENT);
+    const void *fp192 = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_DESTROYPARACLIENT);
+    int driven = 0;
+    if (!fpFL)              { g_pts_fl_nopara++; g_pts_fl_last_v = "SKIP-NO-FORMATLINE-SLOT"; }
+    else if (!fp176)        { g_pts_fl_nopara++; g_pts_fl_last_v = "SKIP-NO-CLIENT-SLOT"; }
+    else if (d->sub_child_objs_n <= 0) { g_pts_fl_nopara++; g_pts_fl_last_v = "SKIP-NO-SUBTREE"; }
+    else {
+        g_pts_fl_win_paras = 0; g_pts_fl_win_attempt = 0;
+        for (int j = 0; j < d->sub_child_objs_n && j < WPF_PTS_SUB_CHILD_MAX; j++) {
+            if (!d->sub_child_objs[j]) continue;
+            if (g_pts_fl_win_paras >= WPF_PTS_FL_MAX_PARA) break;
+            driven += wpf_pts_fl_walk(d, d->sub_child_objs[j], fpFL, fp176, fp192, where, 1);
+        }
+        if (g_pts_fl_win_attempt > 0) { g_pts_fl_paras += g_pts_fl_win_attempt; g_pts_fl_last_v = "DRIVEN"; }
+        else                          { g_pts_fl_nopara++; g_pts_fl_last_v = "NO-TEXT-PARA-IN-WINDOW"; }
+    }
+    fprintf(stderr, "[FORMATLINE] where=%s window=in gate=1 slot=%p attempted=%d ok_n=%d paras_total=%d calls=%d "
+                    "ok=%d gap=%d incomplete=%d nopara=%d v=%s geo=NOINFO-FSGEOMETRY-LAYOUT\n",
+            where, fpFL, g_pts_fl_win_attempt, driven, g_pts_fl_paras, g_pts_fl_calls, g_pts_fl_ok,
+            g_pts_fl_gap, g_pts_fl_incomplete, g_pts_fl_nopara, g_pts_fl_last_v);
 }
 
 
@@ -2535,6 +2782,11 @@ static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *wh
                `ContainerParagraph` ⇒ 对 `ISegment` 成立；窗外调 `+136` 必 `-100002`，故此处
                是**唯一**可枚举的窗）。计数与句柄序存进 doc，供 `FsQuerySubtrackDetails` 承重格用。 */
             if (d->drive_nmp != NULL && !d->sub_enum_ok) wpf_pts_sub_enum(d, d->drive_nmp, where);
+            /* ⏪ `T-A28`：**窗内**驱动 `pfnFormatLine`（`cbktxt` 槽 9／绝对 `+368`）—— 在子段树
+               建成之后（要用树里的 `TextParagraph` 叶），仍在 `FsCreatePage*` 的**调用期内**
+               （`CurrentFormatContext` 在 `FormatBottomless`／`FormatFinite` 的 `using` 里成立）。
+               本跳**只**驱动 ＋ 记台账；**回查**（`FsQueryTextDetails`／`FsQueryLineList*`）不在本跳。 */
+            wpf_pts_formatline_drive(d, where);
 #if WPF_PTS_DRIVE_PROBE3_CTXDEAD
             g_pts_dp3_st_nmp = (const void *)nmp1; g_pts_dp3_st_client = pfsclient;
             g_pts_dp3_st_fp176 = fp176; g_pts_dp3_st_fp192 = fp192;

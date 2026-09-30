@@ -31,7 +31,27 @@
 #   并**断言相等**（不等即 `rc=9` 停手 = 基底漂移），再把 `tool/dead/artifact/ops/impl`
 #   交给牙**现算对账**（不等即牙红 —— 那才是"数漂了"，与基底漂移是两回事，分开报）。
 # ══════════════════════════════════════════════════════════════════════════════════
-# PTSGAP-DECL: tool=82 dead=11 artifact=1 ops=70 impl=73 so16=3795777128d29995 exports=677 w66pre16=bf6b683d94549087
+# PTSGAP-DECL: tool=82 dead=11 artifact=1 ops=70 impl=73 so16=8ad9376305404ca2 exports=677 w66pre16=bf6b683d94549087
+#   ⚠️ 波 `T-A28` 重锚（`TASK-0302` 增量：native 侧**驱动 `cbktxt.pfnFormatLine`**；`D-G70` 形态又一实例；
+#     **产品改动 ⇒ 在册数必须跟随权威件**）：
+#     `src/WpfGfx.Linux.Native/src/win32_pts.c` 新增（**不新增任何导出**）：
+#       · `pfnFormatLine` 的**唯一偏移定义**（`cbktxt` 槽 9；绝对 `+368`／快照下标 `41`；两条 `_Static_assert`）
+#         ＋ 回调签名 `wpf_pts_fn_format_line`（逐参照抄 `Pts.cs:2312-2341`）；
+#       · **窗内驱动格** `wpf_pts_formatline_drive`（在 `wpf_pts_drive_probe` 的 `FsCreatePage*` 调用期内：
+#         从窗内已建的子段树里取 `TextParagraph` 叶 ⇒ `+176` 造 `TextParaClient` ⇒ 循环 `pfnFormatLine`
+#         ⇒ `+192` 回收）＋ 每段**行记录台账**（`wpf_pts_subtrack.fl_line[]`：`dcp_first/dcp_lim/
+#         dvr_ascent/dvr_descent/ur_bbox/dur_bbox/fsflres/f_forced/pfsline` 逐行来自回调**真返回值**）；
+#       · **运行期闸 `WPF_PTS_FL_DRIVE`（缺省 `0`＝关）** ＋ 具名留痕 `[FORMATLINE]`／`[FORMATLINE-LINE]`。
+#     ⇒ `so16 3795777128d29995→8ad9376305404ca2`（430240→430736 B）；`exports` **677→677**（**零消失、
+#     零新增** ⇒ `tool/dead/artifact/ops/impl` **逐字不变** `82/11/1/70/73`）；`dead/artifact/w66pre16` 未动。
+#     🔴 **缺省关的理由是现场读数**（不是保守）：本跳在**正确几何**下真被驱时，托管 `Line.GetTextRun`
+#     会撞 **`Invariant.FailFast("We do not expect any Blocks inside Paragraphs")`**（`LineBase.cs:137`）
+#     ⇒ **不可捕获** ⇒ `app_rc=134`（成对腿：`gate=on` ⇒ `alive=no/app_rc=134/failfast=4`；
+#     `gate=off` ⇒ `alive=yes/app_rc=143`，`no-text-line-model`／`[HC-UNHANDLED]` 与改前**同**）。
+#     ⚠️ **计数不变 ≠ 无改动**：本增量把 `grep cbktxt.` ＝ 0 的"从不驱动"变成"**有具名驱动格 ＋ 闸**"，
+#     且**行记录台账真的装进了回调返回值**（`rc=0`／`pfsline` 句柄／`dcpLine`／`dvrAscent` 现场可读）；
+#     但**产品行为逐字不变**（两页仍**未绘出内容**）⇒ 见载体
+#     `build/MilBridge/P1-tail2-formatline-impl-report.md`。
 #   ⚠️ 波 `T-A26` 重锚（`TASK-0302` 增量：native「文本行模型」三入口；`D-G70` 形态又一实例；
 #     **产品改动 ⇒ 在册数必须跟随权威件**）：
 #     `src/WpfGfx.Linux.Native/src/win32_pts.c` 新增**导出** `FsQueryLineListSingle`（声明 `Pts.cs:3756-3761`；
