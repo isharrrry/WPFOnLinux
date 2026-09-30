@@ -91,6 +91,7 @@ static const char *const k_pts_entries[] = {
     "FsQuerySubtrackDetails",
     "FsQuerySubtrackParaList",
     "FsClearUpdateInfoInPage",
+    "FsUpdateBottomlessPage",
 };
 #define WPF_PTS_ENTRY_COUNT ((int)(sizeof(k_pts_entries) / sizeof(k_pts_entries[0])))
 
@@ -435,6 +436,15 @@ static int g_pts_fsp_clr_gap  = 0;     /* 返非 0 次数（失败面：`NULL`�
 #define WPF_PTS_CLRUPD_BASIS "FAKE-NO-CLEAR"
 #else
 #define WPF_PTS_CLRUPD_BASIS "reset-page-owned-incremental-state"
+#endif
+/* ⏪ `T-A19`：`FsUpdateBottomlessPage` 的成败面（`[FSUPDFSP]`／`[FS_PAGE_GAP]` 的计数只读口）。 */
+static int g_pts_fsp_upd_ok  = 0;      /* **真刷新**该页自持状态次数（成功 ⇒ 返 0） */
+static int g_pts_fsp_upd_gap = 0;      /* 返非 0 次数（失败面：`NULL` 出参／未知上下文／不在册的页） */
+/* ⏪ `T-A19`：**反腿开关**（默认 `0` ⇒ 主链产物**零影响**）。`1` ⇒ `FsUpdateBottomlessPage` **假成功**：
+   返 0 但**不校验页在册**（对任意页句柄都返 0）—— 用来证明「不在册的页必被拒」这条断言**真的会红**
+   （假成功腿 ⇒ 伪页句柄亦返 0）。**只在副本**以 `-DWPF_PTS_UPDPSP_FAKE=1` 单独编译，**绝不进主链**。 */
+#ifndef WPF_PTS_UPDPSP_FAKE
+#define WPF_PTS_UPDPSP_FAKE 0
 #endif
 /* ⏪ `T-A15`：**"查询组"毗邻判定**（见 `FsQueryPageDetails` 的语义注释）。
    上一条 native 调用是否也是**对同一页**的 `FsQueryPageDetails`；由下游入口（轨/子轨的查询）清空。 */
@@ -3771,6 +3781,80 @@ int FsClearUpdateInfoInPage(void *pfscontext, void *pfspage)
                     "clr_ok=%d clr_gap=%d\n",
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason, pfscontext, pfspage,
             g_pts_fsp_clr_ok, g_pts_fsp_clr_gap);
+    return WPF_PTS_ERR_NOT_IMPLEMENTED;
+}
+
+// ── `T-A19`／`TASK-0302` 增量：`FsUpdateBottomlessPage`（声明 `Pts.cs:3135`；调用点 `PtsPage.cs:347`
+//    `UpdateBottomlessPage()`）──
+//   签名（上游逐字，`Pts.cs:3135-3139`）：`int FsUpdateBottomlessPage(IntPtr pfscontext, IntPtr pfspage,
+//     IntPtr fsnmsect, out FSFMTRBL pfsfmtrbl);`（`pfscontext` IN／`pfspage` IN＝**要更新的页**／
+//     `fsnmsect` IN＝起始节名／`pfsfmtrbl` **OUT**＝排版结果）
+//   ⚠️ `FSFMTRBL` 是 **`int` 枚举**（`Pts.cs:1147-1152`：`fmtrblGoalReached=0`／`fmtrblCollision=1`／
+//      `fmtrblInterrupted=2`）⇒ native 侧是 `int *`；**与同侪 `FsCreatePageBottomless` 同一出参类型**。
+//   🔴 **为什么必须补它（现取的因果链）**：`T-A15`／`T-A16` 让"页视觉帧 ＋ 清页增量状态"走通之后，
+//      `PtsPage.UpdateBottomlessPage()`（`PtsPage.cs:326-360`）会调本入口 —— 该符号本侧**未导出**
+//      ⇒ 现取 `EntryPointNotFoundException: … 'FsUpdateBottomlessPage' in shared library
+//      'PresentationNative_cor3.dll'`（`[HC-UNHANDLED] #354`）。补上符号 ⇒ 该名**离开**"会
+//      `EntryPointNotFoundException` 的缺口"名单（`ENFE` 归零）。
+//   🔴 **诚实形态（逐条照同侪 `FsCreatePageBottomless` 的体例；`rc=0` 只在语义成立时给）**：
+//     · **入参按对象身份认领**：`pfspage` 必须**在册**（`g_pts_fsp_live[]`，**指针值比较、不 deref**）；
+//       `pfscontext` 非空时必须**在册**（`ctx=NULL` 但页在册 ⇒ **认领** —— 与 `FsClearUpdateInfoInPage`
+//       ／`FsQueryPageDetails`／`FsDestroyPage` **同办**）。
+//     · **出参按语义**：`pfsfmtrbl` 失败面**先**写"未达成"（`WPF_PTS_FSFMTRBL_NOT_ACHIEVED`，非上游枚举值
+//       ⇒ **不放残留/毒值**）；成功面写**本页对象自持的 `result`**（与 `FsCreatePageBottomless` **同源**，
+//       非全局常量）。
+//     · **永不假成功**：只有**页在册**（真对象身份）才返 0；`NULL` 出参／`NULL` 页／未知上下文／不在册的页
+//       ⇒ 返 `-10000` ＋ 具名 `[FS_PAGE_GAP]` 留痕，且**出参的语义值一字节不写**（失败面只留"未达成"）。
+//     · **本入口不引入新的位移源**：它只刷新**本模块自持**的页对象（把该页的 `sect` 置成本次入参），
+//       **不**调用任何驱动探针、**不**声称"页已重排/页会可见变化" ⇒ 具名
+//       `NOINFO-fsupdatebottomlesspage-scope-native-owned-state`（同 `FsClearUpdateInfoInPage` 的射程口径）。
+//   ⚠️ **反腿**（`WPF_PTS_UPDPSP_FAKE=1`，**只在副本**）：假成功（不校验页在册）⇒「不在册的页必被拒」当场红。
+int FsUpdateBottomlessPage(void *pfscontext, void *pfspage, const void *fsnmsect, int *pfsfmtrbl)
+{
+    /* 失败路径先把出参置到"确定未达成"（**一个字节的残留/毒值都不留**） */
+    if (pfsfmtrbl) *pfsfmtrbl = WPF_PTS_FSFMTRBL_NOT_ACHIEVED;
+    const char *reason = NULL;
+    if (!pfsfmtrbl)                     reason = "null-result-out";
+    else if (!pfspage)                  reason = "null-page";
+    else if ((const void *)pfscontext && !wpf_pts_doc_find(pfscontext)) reason = "unknown-ctx";
+#if WPF_PTS_UPDPSP_FAKE == 1
+    else {
+        /* 反腿（**只在副本**）：**假成功** —— 对**任意页句柄**（含不在册的伪值）都返 0
+           ⇒ 「不在册的页必被拒」这条断言**当场红**。 */
+        g_pts_fsp_upd_ok++;
+        fprintf(stderr, "[FSUPDFSP] rc=0 page=%p sect=%p result=%d upd_ok=%d upd_gap=%d "
+                        "basis=FAKE-UNCHECKED-PAGE NOINFO=fsupdatebottomlesspage-scope-native-owned-state\n",
+                pfspage, fsnmsect, 0, g_pts_fsp_upd_ok, g_pts_fsp_upd_gap);
+        *pfsfmtrbl = 0;                             /* 伪值：**不来自任何页对象** */
+        return 0;
+    }
+#else
+    else {
+        wpf_pts_fsp *pg = NULL;
+        for (int i = 0; i < g_pts_fsp_live_n; i++) {       /* **指针值比较**，不 deref 未知句柄 */
+            if (g_pts_fsp_live[i]->magic != WPF_PTS_FSP_MAGIC) continue;
+            if ((const void *)g_pts_fsp_live[i] == pfspage) { pg = g_pts_fsp_live[i]; break; }
+        }
+        if (!pg) reason = "unknown-page";
+        else {
+            pg->sect = fsnmsect;                        /* 本页对象自持（**原样存、不 deref**） */
+            g_pts_fsp_upd_ok++;
+            { int _i = wpf_pts_index("FsUpdateBottomlessPage"); if (_i >= 0) g_pts_seen[_i]++; }
+            fprintf(stderr, "[FSUPDFSP] rc=0 page=%p sect=%p result=%d upd_ok=%d upd_gap=%d seq=%d "
+                            "basis=refresh-page-owned-bottomless-state "
+                            "NOINFO=fsupdatebottomlesspage-scope-native-owned-state\n",
+                    (void *)pg, fsnmsect, pg->result, g_pts_fsp_upd_ok, g_pts_fsp_upd_gap, g_pts_seq);
+            g_pts_seq++;
+            *pfsfmtrbl = pg->result;                    /* 出参按语义：该页对象**自持**的结果（同侪同源） */
+            return 0;                                   /* ← 只有**页在册**才到这里（改别的值＝静默半通） */
+        }
+    }
+#endif
+    g_pts_fsp_upd_gap++;
+    fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=FsUpdateBottomlessPage ctx=%p page=%p sect=%p "
+                    "upd_ok=%d upd_gap=%d\n",
+            WPF_PTS_ERR_NOT_IMPLEMENTED, reason, pfscontext, pfspage, fsnmsect,
+            g_pts_fsp_upd_ok, g_pts_fsp_upd_gap);
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
 
