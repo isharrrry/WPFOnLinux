@@ -235,6 +235,11 @@ typedef struct {
     /* ⏪ `t151`：第一跳 `+80` 交出的 `nmSegment`（**live** 的 `ContainerParagraph` 句柄）——
        供**窗外腿**复用**同一个** `nms`（窗外/窗内只差窗口，不差句柄）。**原样存，不 deref**。 */
     const void  *drive_nmseg;
+    /* ⏪ `T-A17`：**该缓存句柄的 liveness 位** —— 1 ＝仍可信；0 ＝**已释放/销毁语境** ⇒ 窗外腿**拒驱**。
+       置 1：窗内**首次**取到 `drive_nmseg` 时（见 `wpf_pts_drive_probe` 的 `+80` 支）；
+       置 0：`FsDestroyPage`（页销毁 ⇒ 该页的托管段落实例句柄**已先**被释放）。
+       `calloc` ⇒ 初值 0（在取到句柄之前无窗口可驱，故 0 不产生假拒）。 */
+    int          drive_handles_live;
     /* ⏪ `t156`：第二跳 `+136` 交出的**合法 `nmp`**（live `BaseParagraph` 族）—— 供**第三跳**的
        **窗外腿**复用**同一个**句柄（窗内/窗外只差窗口，不差句柄）。**原样存，不 deref**。 */
     const void  *drive_nmp;
@@ -967,6 +972,14 @@ static int wpf_pts_drive_probe_n(void);   /* 定义见闸函数旁边（读一�
 #ifndef WPF_PTS_DRIVE_PROBE_FAKE_NMS
 #define WPF_PTS_DRIVE_PROBE_FAKE_NMS 0
 #endif
+/* ⏪ `T-A17`：驱动探针**第二跳窗外腿**（`+136 pfnGetFirstPara`）前的**句柄 liveness 判据**总闸。
+   缺省 `1` ＝判据生效（页销毁语境下**拒驱**）；`-DWPF_PTS_DRIVEPROBE_OOW_LIVE_GUARD=0`
+   （**只允许在应用副本上**单独编译）＝判据失效 ⇒ **复现旧序列**（`FsDestroyPage` 用已释放的
+   `nms` 调 `+136`）⇒ 必回 `app_rc=134`（不可捕获 `FailFast`）—— 那是**反极性腿**。
+   ⚠️ **绝不许**把 `0` 编进主链产物。 */
+#ifndef WPF_PTS_DRIVEPROBE_OOW_LIVE_GUARD
+#define WPF_PTS_DRIVEPROBE_OOW_LIVE_GUARD 1
+#endif
 
 _Static_assert(WPF_PTS_FSCBK_OFF + WPF_PTS_SNAP_IDX_GETNEXTSECTION * 8 == 56,
                "快照下标 GETNEXTSECTION 对应的绝对偏移 != +56");
@@ -1515,6 +1528,7 @@ static int          g_pts_dp2_oow_rc   = -9999;/* 窗外腿（`FsDestroyPage`）
 static int          g_pts_dp2_oow_succ = -1;
 static const void  *g_pts_dp2_oow_nmp  = NULL;
 static int          g_pts_dp2_oow_calls= 0;
+static int          g_pts_dp2_oow_refused = 0;  /* ⏪ `T-A17`：因 liveness 判据被**拒驱**的次数（只计数，不新增导出） */
 static unsigned long long g_pts_dp2_t3_value = 0;  /* T3 腿所用值（0 = 未走 T3） */
 
 int WpfLinuxWin32_PtsDriveProbe2Fserr136(void)  { return g_pts_dp2_136_a; }
@@ -1611,7 +1625,13 @@ out:
    两处调用点：① `FsDestroyPage`（页拆除在 `using` 窗关闭之后）；② `FsQueryTrackParaList`
    （日志可证**被调 1123 次**；它在 `PtsHelper.ParaListFromTrack` 里，被 `FlowDocumentPage` 的
    列/段落结果查询路径调用 —— **该处是否在窗内属代码结构推断**，实验本身即其检验）。
-   ⚠️ **只在闸开且该 context 已缓存 `nms` 时**才发调；**绝不**伪值、**绝不**跨上下文用陈旧句柄。 */
+   ⚠️ **只在闸开且该 context 已缓存 `nms` 时**才发调；**绝不**伪值、**绝不**跨上下文用陈旧句柄。
+   🔴 ⏪ `T-A17` **现取证伪**（上句"绝不跨上下文用陈旧句柄"在**调用点 ①** 不成立）：`FsDestroyPage`
+   的窗外腿用**已释放**的 `nms` 调 `+136` ⇒ 托管 `PtsContext.HandleToObject` 的
+   `Invariant.Assert("Handle has been already released.")` ⇒ **不可捕获 `FailFast`**（症状门
+   `app_rc 143→134`）。⇒ 新增**句柄 liveness 判据**（下 `WPF_PTS_DRIVEPROBE_OOW_LIVE_GUARD`）：
+   **`FsDestroyPage` 置该 doc 的 `drive_handles_live=0` ⇒ 此后（含调用点 ②）一律拒驱**；
+   页销毁**之前**照旧驱（保持改前读数成对）。详见 §函数体判据段。 */
 static void wpf_pts_drive_probe2_oow(void *pfscontext, const char *where)
 {
     if (!wpf_pts_drive_probe_enabled()) return;
@@ -1619,6 +1639,26 @@ static void wpf_pts_drive_probe2_oow(void *pfscontext, const char *where)
     if (!dp || !dp->drive_nmseg) return;
     const void *fp136o = wpf_pts_snap_word(dp, WPF_PTS_SNAP_IDX_GETFIRSTPARA);
     if (!fp136o) return;
+#if WPF_PTS_DRIVEPROBE_OOW_LIVE_GUARD
+    /* ⏪ `T-A17`：**句柄 liveness 判据**（判定对象 ＝ 本 doc 缓存的 `drive_nmseg`，判据 ＝ `drive_handles_live`）。
+       口径（写死，防读宽）：`drive_nmseg` 来源是**窗内** `+80 GetMainTextSegment` 交出的托管段落实例
+       （`ContainerParagraph`）；其生存期**绑定在产生它的那个 `FsCreatePage*` 页对象**上。
+       ⇒ **该页被销毁时**（托管侧 `PtsPage.DestroyPage()` ⇒ `PtsContext.OnPageDisposed` ⇒ `OnDestroyPage`
+       ⇒ native `FsDestroyPage`，**先**于该 native 入口释放该页的托管对象）⇒ 缓存值**不再是 live 句柄**
+       ⇒ 再用它调 `+136` 必撞 `HandleToObject` 的 `Invariant.Assert` ⇒ **不可捕获 `FailFast`**（主链禁）。
+       本判据的实现即：`FsDestroyPage` 把本 doc 的 `drive_handles_live` 置 0 ⇒ **此后**（含调用点 ②
+       `FsQueryTrackParaList` 的 `ArrangePage` 路径）**拒驱 ＋ 失败必留痕**；**页销毁之前照旧驱**。
+       ⚠️ 这是**状态判据**（native 侧自记），**不是**托管读数（native 侧无"句柄 liveness"观测口）
+          ⇒ 判词里如实标注 `NOINFO=oow-nms-liveness-judge-native-selfrecorded-not-managed-read`。 */
+    if (!dp->drive_handles_live) {
+        g_pts_dp2_oow_refused++;
+        fprintf(stderr, "[DRIVE-PROBE2-OOW] where=%s window=out nms136=%p rc136=- fSucc=- nmp=(nil) "
+                        "idem136=- v136=REFUSED-NONLIVE-HANDLE calls=%d refused=%d "
+                        "NOINFO=oow-nms-liveness-judge-native-selfrecorded-not-managed-read\n",
+                where, dp->drive_nmseg, g_pts_dp2_oow_calls, g_pts_dp2_oow_refused);
+        return;
+    }
+#endif
     int fSuccO = -1; void *nmpO = NULL;
     int rcO = ((wpf_pts_fn_get_first_para)fp136o)((const void *)dp->p_fsclient, dp->drive_nmseg,
                                                   &fSuccO, &nmpO);
@@ -2027,7 +2067,7 @@ static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *wh
         g_pts_dp2_136_succ = fSucc1; g_pts_dp2_136_nmp = (const void *)nmp1;
         g_pts_dp2_136_idem = ((rc136a == rc136b) && (fSucc1 == fSucc2) && (nmp1 == nmp2)) ? 1 : 0;
         g_pts_dp2_168_rc = rc168;
-        if (!((const void *)d->drive_nmseg)) d->drive_nmseg = (const void *)nmSeg1;  /* 供窗外腿复用 */
+        if (!((const void *)d->drive_nmseg)) { d->drive_nmseg = (const void *)nmSeg1; d->drive_handles_live = 1; }  /* 供窗外腿复用（⏪ `T-A17`：同置 liveness=1） */
 
         const char *v136 = (rc136a == 0 && fSucc1 == 1 && nmp1 != NULL) ? "FIRSTPARA-HANDLE"
                          : (rc136a == 0 && fSucc1 == 0 && nmp1 == NULL) ? "FIRSTPARA-ABSENT(by-design)"
@@ -3625,7 +3665,15 @@ int FsQueryPageDetails(void *pfscontext, void *pPage, void *pPageDetails)
 int FsDestroyPage(void *pfscontext, void *pfspage)
 {
     const char *reason = NULL;
-    /* ⏪ `t151` 窗外腿（调用点 ①）：页拆除在 `using` 窗关闭之后 */
+    /* ⏪ `t151` 窗外腿（调用点 ①）：页拆除在 `using` 窗关闭之后。
+       ⏪ `T-A17`：**置该 doc 的句柄 liveness = 0（释放后拒驱）** —— 进入本入口前，托管侧
+       `PtsPage.DestroyPage()` ⇒ `PtsContext.OnPageDisposed` ⇒ `OnDestroyPage` ⇒ 本入口，**已先**
+       释放该页的托管段落实例句柄；本 doc 缓存的 `drive_nmseg` 取得于此之前 ⇒ 此刻**已释放** ⇒ 置 0
+       ⇒ 本入口与**此后**所有窗外腿（含调用点 ② 的 `ArrangePage` 路径）**一律拒驱**（否则
+       `+136 pfnGetFirstPara` 会撞 `PtsContext.HandleToObject` 的
+       `Invariant.Assert("Handle has been already released.")` ⇒ 不可捕获 `FailFast`，`app_rc 134`）。
+       如实留痕：`[DRIVE-PROBE2-OOW] … v136=REFUSED-NONLIVE-HANDLE`。 */
+    { wpf_pts_doc *ddp = wpf_pts_doc_ptr(pfscontext); if (ddp) ddp->drive_handles_live = 0; }
     wpf_pts_drive_probe2_oow(pfscontext, "FsDestroyPage");
     if (!pfspage)                     reason = "null-page";
     else if ((const void *)pfscontext && !wpf_pts_doc_find(pfscontext)) reason = "unknown-ctx";
@@ -3883,7 +3931,8 @@ int FsCreatePageFinite(void *pfscontext, void *pfsBRPageStart, const void *fsnmS
 int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgParaDesc, int *cParaDesc)
 {
     const char *reason = NULL;
-    wpf_pts_drive_probe2_oow(pfscontext, "FsQueryTrackParaList");   /* ⏪ `t151` 窗外腿（调用点 ②；该入口日志可证被调） */
+    wpf_pts_drive_probe2_oow(pfscontext, "FsQueryTrackParaList");   /* ⏪ `t151` 窗外腿（调用点 ②；该入口日志可证被调）。
+       ⏪ `T-A17`：是否驱由 `dp->drive_handles_live` 判（**只在页销毁后**拒驱 ⇒ 之前读数与改前成对） */
     g_pts_qpd_prev_page = NULL;   /* `T-A15`：下游入口 ⇒ 断开"查询组" */
     if (cParaDesc) *cParaDesc = 0;                       /* 失败：出参先清成 0（不留残留） */
     /* ⏪ `T-A15`：页视觉帧的**下游见证**（`[VIS]` 的唯一发点）。**只在三条件同时成立**时才认：
@@ -3947,6 +3996,11 @@ int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgPar
             else
 #endif
             if (!dp || !fp176f || !fp192f)                    reason = "no-slot-or-doc";
+            /* ⏪ `T-A17`：**句柄 liveness 判据** —— 页销毁后（`drive_handles_live==0`）该 doc 的
+               `drive_nmp`（以及复用的 `fsp_pl_cur`）均已被托管释放 ⇒ 再调 `+176 CreateParaclient`
+               必撞 `PtsContext.HandleToObject` 的 `Invariant.Assert`（**不可捕获 `FailFast`**）
+               ⇒ **拒填**（出参一字不写 ＋ 具名 `reason`；成功路径逐字不变）。 */
+            else if (WPF_PTS_DRIVEPROBE_OOW_LIVE_GUARD && !dp->drive_handles_live) reason = "drive-handles-released(page-destroyed)";
             else if (!dp->drive_nmp)                          reason = "no-legal-nmp-in-this-run";
             else if (maxc > 0 && g_pts_fsp_pl_fills >= maxc)  reason = "fill-budget-exhausted";
             else {
@@ -4387,6 +4441,10 @@ int FsQuerySubtrackParaList(void *pfscontext, void *pSubTrack, int cParas,
         const void *fp176 = wpf_pts_snap_word(dp, WPF_PTS_SNAP_IDX_CREATEPARACLIENT);
         if (!fp176)                        reason = "no-slot-176";
         else if (!wpf_pts_ctx_is_live(dp)) reason = "ctx-not-live";
+        /* ⏪ `T-A17`：**句柄 liveness 判据** —— 页销毁后 `obj->children[]`（窗内枚举出的托管段落实例）
+           已被托管释放 ⇒ 再调 `+176 CreateParaclient` 必撞 `HandleToObject` 的 `Invariant.Assert`
+           ⇒ **拒填**（出参一字不写 ＋ 具名 `reason`；成功路径逐字不变）。 */
+        else if (WPF_PTS_DRIVEPROBE_OOW_LIVE_GUARD && !dp->drive_handles_live)  reason = "drive-handles-released(page-destroyed)";
         else {
             /* 客户端：**只造缺的那些**（跨调用复用 ⇒ 不重复造／不泄漏／不换手） */
             for (int i = obj->child_clients_made; i < cParas; i++) {
