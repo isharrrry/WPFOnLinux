@@ -31,7 +31,25 @@
 #   并**断言相等**（不等即 `rc=9` 停手 = 基底漂移），再把 `tool/dead/artifact/ops/impl`
 #   交给牙**现算对账**（不等即牙红 —— 那才是"数漂了"，与基底漂移是两回事，分开报）。
 # ══════════════════════════════════════════════════════════════════════════════════
-# PTSGAP-DECL: tool=85 dead=11 artifact=1 ops=73 impl=76 so16=51fe76de3d8613de exports=674 w66pre16=bf6b683d94549087
+# PTSGAP-DECL: tool=85 dead=11 artifact=1 ops=73 impl=76 so16=e09c8d739c179966 exports=674 w66pre16=bf6b683d94549087
+#   ⚠️ 波 `T-A22` 重锚（`TASK-0302` 增量：`N1` 身份模型 ＋ `N2` 窗分离；`D-G70` 形态又一实例）：
+#     `src/WpfGfx.Linux.Native/src/win32_pts.c` 两处：
+#     **(N1)** 新增**来源证据台账**（`wpf_pts_prov`：`doc`／通道（段 `'S'`／客户端 `'C'`）／会话 `gen`／
+#       全局唯一 `seq`／`written_out`）＋ 认领谓词 `wpf_pts_prov_claim`（**按来源证据认领 ＋ 对象身份核验**；
+#       同值异 doc ⇒ `WRONG-OBJECT`、同值异通道 ⇒ `ABA`、旧会话 ⇒ `STALE-GEN`，**三者必拒**）⇒
+#       `FsQuerySubtrackDetails`／`FsQueryTextDetails` 在"本侧自有对象认不出"时**追加**该认领：认出 ⇒
+#       判词**分立**为 `claimed-by-provenance-no-content-model`（身份成立，但该段自己的子段序本波无源）
+#       ⇒ **仍拒、出参一字不写**（零假值／永不假成功）。
+#     **(N2)** `wpf_pts_drive_probe2_oow` 的**窗外腿不再发 `+136` 回调**：窗外**只做汇总/拒绝并留痕**
+#       （`[WINDOW-SPLIT] window=out action=summarize-only`），**窗内**（`FsCreatePage*` ⇒ `wpf_pts_sub_enum`）
+#       才真枚举/真填（`[WINDOW-SPLIT] window=in action=enum+ledger`）⇒ 原"窗外 `+136` ⇒ `-100002` ×576"
+#       的**不可判形态**变成**成对可判**。
+#     **导出面一字未动**（`exports=674` 不变，`nm -D --defined-only` 行数 == `exports.txt` 行数 == 674）；
+#     不新增/不删除任何 `wpf_pts_gap(...)` stub ⇒ `tool=85`／`dead=11`／`artifact=1`／`ops=73`／`impl=76`
+#     全未动，**只有 `so16` 跟权威件换**：`51fe76de3d8613de→e09c8d739c179966`。
+#     ⚠️ **计数未动 ≠ 能力未动**（件头第 ① 条同口径）：本增量把**两个具名前置**（`N1`／`N2`）从"未解除"
+#        推进为"native 侧已落地"，不在缺口条数上体现；页仍**未绘出内容**（症状门由腿读数给）。
+#     ⚠️ **正文复述位未同改**（`ops`／`impl`／`tool` 三字段**未动** ⇒ 无随动需要）：`PTSGAP=PASS`（零 `SITE-DRIFT`）。
 #   ⚠️ 波 W8·`t103` 重锚（`D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
 #   `LoGetPenaltyModuleInternalHandle` 由诚实缺口 stub 升为真实现 ⇒ `so16` `4e999451e9ab137e`→`5c2097d35cd89749`、
 #   导出 **565→567**，**逐名二条**（新加的两个**独立读取面**，与 `t97` 同形制）：

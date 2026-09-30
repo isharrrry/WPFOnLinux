@@ -293,6 +293,10 @@ typedef struct {
        被调多次 ⇒ 无常驻位就会反复驱（且把有限预算耗在同 doc 上）。置位时机＝**已提交驱这一窗**
        （在首条回调之前），与"该窗是否成功"无关 ⇒ 每 doc 至多驱一次、不同 doc 各驱一次。 */
     int          drive_done;
+    /* ── ⏪ `T-A22`（`N1` 身份模型）：本 doc 的**枚举会话号**（＝来源证据台账里 `gen` 的来源）──────
+       每次 `wpf_pts_sub_enum` 真枚举时 ++；**只增不复用**。认领「本 run 由 `+136`／`+144` 交回的
+       段句柄」时要求证据的 `gen` **就是**本值 ⇒ 上一会话（上一窗）留下的同值句柄**不可认领**。 */
+    int          prov_gen;
 } wpf_pts_doc;
 static wpf_pts_doc *g_pts_doc_live[WPF_PTS_DOC_MAX];
 static int g_pts_doc_live_n       = 0;
@@ -455,6 +459,8 @@ static int g_pts_fsqtd_nullpara    = 0;   /* 路②：`pPara==NULL` */
 static int g_pts_fsqtd_unclaim     = 0;   /* 路③：`pPara` 不可认领（外来值／栈地址） */
 static int g_pts_fsqtd_unknown_ctx = 0;   /* 路④：`pfscontext` 非空但不在册 */
 static int g_pts_fsqtd_nomodel     = 0;   /* 路⑤：认领成功但**出参无源**（本侧无文本行模型） */
+/* ⏪ `T-A22`（`N1`）：**按来源证据认领成功**的次数（身份成立，文本行模型仍无源 ⇒ 仍拒，出参不写）。 */
+static int g_pts_fsqtd_provclaimed = 0;
 /* ⏪ `T-A20`：**反腿开关**（默认 `0` ⇒ 主链产物**零影响**）。`1` ⇒ `FsQueryTextDetails` **假成功**：
    返 0 并把出参写成**捏造的** `fsktdCached` —— 用来证明「不可认领的 `pPara` 必被拒」这条断言
    **真的会红**（假腿 ⇒ 伪值亦"过关"）。**只在副本**以 `-DWPF_PTS_FSQTD_FAKE=1` 单独编译，
@@ -1465,6 +1471,150 @@ int WpfLinuxWin32_PtsSubClaimOk(void)     { return g_pts_sub_claim_ok; }
 int WpfLinuxWin32_PtsSubClaimBad(void)    { return g_pts_sub_claim_bad; }
 int WpfLinuxWin32_PtsSubSelfTestMask(void){ return g_pts_sub_selftest_mask; }
 
+/* ── ⏪ `T-A22`（`N1`：`PRECOND-NATIVE-CLAIMS-CALLBACK-HANDLES`）：**来源证据台账** ──────────────
+   🎯 裁定四十七 (c)：身份判据**不得依赖 `rc`／数值形态**，须**独立可读的身份证据**。
+   托管交回的句柄是 `PtsContext.CreateHandle` 的**槽位下标** ⇒ **数值可复用、非稳定身份**
+   （同趟实证：`0x4` 先后当过段句柄与客户端句柄）。⇒ 本侧**绝不**按"数值相等"认对象：认的是
+   「**产生该句柄的那一次回调调用**」这一**来源事实**（provenance）——
+     · `channel`＝`'S'`（`+136`／`+144` **段句柄**）｜`'C'`（`+176` **客户端句柄**）
+     · `doc`＝交回它的那个上下文（**对象身份核验**：本次调用的 `pfscontext` 必须**指针等值**于它）
+     · `gen`＝那次枚举的**会话号**（`wpf_pts_doc.prov_gen`；**只增不复用** ⇒ 上一窗的旧身份不可认领）
+     · `seq`＝本台账**全局唯一序号**（只增不复用 ⇒ 同值两条证据**可分辨**，这正是 `ABA` 的判据）
+   持有期（裁定四十五 (a)）＝**托管对象生存期**：本侧只持**引用**、**不回收**托管句柄。
+   🔴 **认领的必要但不充分条件**＝"数值等值"；**充分条件**＝同值候选里**恰有一条**满足
+      （`doc` 等值 ∧ 通道相符 ∧ 会话相符）**且没有**任何同值的"异 doc／异通道／旧会话"条目；
+      后者在册 ⇒ 判 `ABA-CONFLICT`／`WRONG-OBJECT`／`STALE-GEN` ⇒ **拒**（不静默取一条）。 */
+#define WPF_PTS_PROV_MAGIC 0x56525054u   /* "TPRV" */
+#define WPF_PTS_PROV_MAX   64
+typedef struct {
+    unsigned int magic;
+    const void  *handle;        /* 托管交回的句柄值（**原样存，不 deref**） */
+    const void  *doc;           /* 来源上下文（对象身份核验用） */
+    char         channel;       /* 'S'＝段句柄（+136/+144）｜'C'＝客户端句柄（+176） */
+    const char  *src;           /* 来源行标记（具名：哪个槽、在哪个 where） */
+    int          ord;           /* 该次枚举内的序号（0 ＝ `+136` 首段） */
+    int          gen;           /* 枚举会话号（doc->prov_gen） */
+    int          written_out;   /* 本侧把它写进 `FSPARADESCRIPTION` 的次数（0 ⇒ 未交出去） */
+    int          seq;           /* 全局唯一序号（只增不复用） */
+    int          live;
+} wpf_pts_prov;
+static wpf_pts_prov g_pts_prov[WPF_PTS_PROV_MAX];
+static int g_pts_prov_n        = 0;   /* 在册条数 */
+static int g_pts_prov_created  = 0;
+static int g_pts_prov_retired  = 0;   /* 因"新枚举会话"或"doc 注销"整体失效的条数 */
+static int g_pts_prov_seq      = 0;
+static int g_pts_prov_claim_ok = 0;
+static int g_pts_prov_claim_no = 0;   /* 认领失败（**数值在册里一条都没有**） */
+static int g_pts_prov_wrongobj = 0;   /* 反极性①：数值在册但**对象身份不符**（另一个 doc）⇒ 拒 */
+static int g_pts_prov_ababa    = 0;   /* 反极性②：数值在册但**通道不符**（ABA／索引复用）⇒ 拒 */
+static int g_pts_prov_stale    = 0;   /* 上一会话（旧 `gen`）的同值句柄 ⇒ 拒 */
+static int g_pts_prov_selftest_mask = -1;
+/* 只读口：**不新增导出**（导出面一字不动）；计数只在 `stderr` 具名行里引用。 */
+static void wpf_pts_prov_retire(const void *doc, char channel, const char *why)
+{
+    (void)why;
+    for (int i = 0; i < g_pts_prov_n; ) {
+        wpf_pts_prov *e = &g_pts_prov[i];
+        if (e->doc != doc || (channel && e->channel != channel)) { i++; continue; }
+        e->live = 0; e->magic = 0;
+        g_pts_prov[i] = g_pts_prov[--g_pts_prov_n];
+        g_pts_prov[g_pts_prov_n].magic = 0;
+        g_pts_prov_retired++;
+    }
+}
+static int wpf_pts_prov_register(const void *doc, const void *handle, char channel,
+                                 const char *src, int ord, int gen)
+{
+    if (!doc || !handle) return -1;
+    /* 幂等：同 doc ＋ 同值 ＋ 同通道 ＋ 同会话 ⇒ 只更新（**不**新增 ⇒ 认领时唯一） */
+    for (int i = 0; i < g_pts_prov_n; i++) {
+        wpf_pts_prov *e = &g_pts_prov[i];
+        if (e->doc == doc && e->handle == handle && e->channel == channel && e->gen == gen) {
+            e->ord = ord; e->src = src; e->live = 1;
+            return e->seq;
+        }
+    }
+    if (g_pts_prov_n >= WPF_PTS_PROV_MAX) return -1;
+    wpf_pts_prov *e = &g_pts_prov[g_pts_prov_n++];
+    e->magic = WPF_PTS_PROV_MAGIC; e->handle = handle; e->doc = doc; e->channel = channel;
+    e->src = src; e->ord = ord; e->gen = gen; e->written_out = 0;
+    e->seq = ++g_pts_prov_seq; e->live = 1;
+    g_pts_prov_created++;
+    return e->seq;
+}
+/* 记「本侧**真把它交出去过**」的次数（写进 `FSPARADESCRIPTION` 那一刻）—— 是来源证据的**强化面**，
+   不是认领的必要条件（认领的必要条件仍是 `handle` 等值 ∧ doc ∧ 通道 ∧ 会话）。 */
+static int wpf_pts_prov_mark_written(const void *doc, char channel, const void *handle)
+{
+    for (int i = 0; i < g_pts_prov_n; i++) {
+        wpf_pts_prov *e = &g_pts_prov[i];
+        if (e->live && e->doc == doc && e->channel == channel && e->handle == handle) {
+            e->written_out++;
+            return e->written_out;
+        }
+    }
+    return 0;
+}
+/* 认领：返回 1 ＝ 认出（`*out` 指向该证据）；0 ＝ 拒（具名分类见计数口）。 */
+static int wpf_pts_prov_claim(const void *p, const void *doc, char channel, wpf_pts_prov **out)
+{
+    if (out) *out = NULL;
+    if (!p) { g_pts_prov_claim_no++; return 0; }
+    const int cur_gen = doc ? ((const wpf_pts_doc *)doc)->prov_gen : -1;
+    int n_ok = 0, bad_doc = 0, bad_ch = 0, bad_gen = 0;
+    wpf_pts_prov *hit = NULL;
+    for (int i = 0; i < g_pts_prov_n; i++) {
+        wpf_pts_prov *e = &g_pts_prov[i];
+        if (e->magic != WPF_PTS_PROV_MAGIC || !e->live) continue;
+        if (e->handle != p) continue;                       /* ① 数值等值（必要） */
+        if (e->doc != doc)         { bad_doc++; continue; } /* ② 对象身份核验 */
+        if (e->channel != channel) { bad_ch++;  continue; } /* ③ 通道（段 ≠ 客户端） */
+        if (e->gen != cur_gen)     { bad_gen++; continue; } /* ④ 会话（上一窗 ⇒ 失效） */
+        n_ok++; hit = e;
+    }
+    if (n_ok == 1 && bad_doc == 0 && bad_ch == 0 && bad_gen == 0) {
+        if (out) *out = hit;
+        g_pts_prov_claim_ok++;
+        return 1;
+    }
+    if (n_ok == 0 && bad_doc == 0 && bad_ch == 0 && bad_gen == 0) g_pts_prov_claim_no++;
+    if (bad_doc) g_pts_prov_wrongobj++;
+    if (bad_ch)  g_pts_prov_ababa++;
+    if (bad_gen) g_pts_prov_stale++;
+    if (n_ok > 1) g_pts_prov_ababa++;       /* 同值多条同身份 ⇒ 也不唯一 ⇒ 拒 */
+    return 0;
+}
+/* 自检：**两腿成对 ＋ 三条反极性必红**（只用自己的登记项；不碰主链 doc 台账）。
+   bit0 正腿(同 doc＋同通道＋同会话 ⇒ 认出) ｜ bit1 `WRONG-OBJECT`(异 doc ⇒ 拒)
+   ｜ bit2 `ABA`(同值异通道在册 ⇒ 拒) ｜ bit3 `STALE-GEN`(旧会话 ⇒ 拒) ｜ bit4 数值相等但零证据(⇒ 拒) */
+static int wpf_pts_prov_selftest(void)
+{
+    static wpf_pts_doc d1, d2;                 /* 只当**身份令牌**；只读其 `prov_gen` */
+    d1.magic = WPF_PTS_DOC_MAGIC; d1.prov_gen = 7;
+    d2.magic = WPF_PTS_DOC_MAGIC; d2.prov_gen = 7;
+    const void *H = (const void *)0x4;         /* 与 §2.3 同值（索引复用的真例） */
+    const int n0 = g_pts_prov_n;
+    int mask = 0;
+    wpf_pts_prov *got = NULL;
+    const int s1 = wpf_pts_prov_register(&d1, H, 'S', "selftest(+136.nmp@doc1)", 0, 7);
+    if (s1 > 0 && wpf_pts_prov_claim(H, &d1, 'S', &got) && got && got->seq == s1) mask |= 1;
+    if (!wpf_pts_prov_claim(H, &d2, 'S', NULL)) mask |= 2;          /* 异 doc ⇒ 拒 */
+    wpf_pts_prov_register(&d1, H, 'C', "selftest(+176@doc1)", 0, 7);
+    if (!wpf_pts_prov_claim(H, &d1, 'S', NULL)) mask |= 4;          /* 同值异通道 ⇒ 拒（ABA） */
+    d1.prov_gen = 8;
+    if (!wpf_pts_prov_claim(H, &d1, 'S', NULL)) mask |= 8;          /* 旧会话 ⇒ 拒 */
+    d1.prov_gen = 7;
+    wpf_pts_prov_retire(&d2, 0, "selftest");                        /* 清腿（d2 名下本无条目） */
+    wpf_pts_prov_retire(&d1, 0, "selftest");
+    if (!wpf_pts_prov_claim((const void *)0x5bdbff1b1054, &d1, 'S', NULL)) mask |= 16;  /* 零证据 ⇒ 拒 */
+    fprintf(stderr, "[PROV-SELFTEST] mask=0x%02x claim_ok=%d wrong_object=%d aba=%d stale=%d zero_evidence=%d "
+                    "created=%d retired=%d n=%d(n0=%d) v=%s（反极性三类必红：wrong-object／ABA／stale-gen）\n",
+            mask, (mask & 1) ? 1 : 0, (mask & 2) ? 1 : 0, (mask & 4) ? 1 : 0, (mask & 8) ? 1 : 0,
+            (mask & 16) ? 1 : 0, g_pts_prov_created, g_pts_prov_retired, g_pts_prov_n, n0,
+            (mask == 0x1f) ? "PROV-IDENTITY-OK(5/5)" : "PROV-IDENTITY-DEFECT(see-mask)");
+    return mask;
+}
+
 /* ── ⏪ `t162` E1：`FSIMETHODS` **镜像 ＋ 断言**（判据/队长指引：槽序今天只能按托管声明推断 ⇒
       **具名 `NOINFO-FSIMETHODS-ABI`**，但**偏移**必须钉死并**实测**槽指针是否在场）。 ── */
 typedef int (*wpf_pts_fnim)(void);
@@ -1594,9 +1744,18 @@ static const void *wpf_pts_snap_word(const wpf_pts_doc *d, int idx)
 static int g_pts_sub_enum_calls = 0;
 static int g_pts_sub_enum_ok_c  = 0;
 static int g_pts_sub_enum_gap   = 0;
+/* ⏪ `T-A22`（`N2`：`PRECOND-WINDOW-SEPARATION`）：**窗内枚举／窗外汇总**的**成对**计数 ——
+   `in` ＝ 在 `FsCreatePage*` 造型窗内**真枚举并真填**的次数（`[WINDOW-SPLIT] window=in`）；
+   `out` ＝ 窗外**只汇总/拒绝**的次数（`[WINDOW-SPLIT] window=out`；**零回调**发调）。
+   🔴 两腿分开报（判据 D5／`P13`）：**不**把"窗内可得"读成"调用期可得"。 */
+static int g_pts_win_in_enum      = 0;
+static int g_pts_win_out_summary  = 0;
+static int g_pts_win_out_refused  = 0;
 static void wpf_pts_sub_enum(wpf_pts_doc *d, const void *container, const char *where)
 {
     g_pts_sub_enum_calls++;
+    d->prov_gen++;                       /* ⏪ `T-A22`：新会话 ⇒ 上一会话的段证据整体失效（只增不复用） */
+    wpf_pts_prov_retire((const void *)d, 'S', "new-subenum-session");
     d->sub_enum_ok = 0; d->sub_cparas = 0;
     d->sub_enum_rc136 = -9999; d->sub_enum_rc144 = -9999;
     const char *v = "ENUM-NOT-RUN";
@@ -1637,6 +1796,13 @@ static void wpf_pts_sub_enum(wpf_pts_doc *d, const void *container, const char *
     }
 out:
     d->sub_enum_v = v;
+    /* ⏪ `T-A22`（`N1`）：**本 run 由 `+136`／`+144` 交回的段句柄**逐条入册为**来源证据**
+       （通道 `'S'`、会话 `d->prov_gen`、序号＝枚举序、来源行＝`where`）—— 这是 native 侧**唯一**
+       的身份来源，**不看数值形态**（判据 D4／裁定四十七 (c)）。未穷尽（`ok=0`）⇒ **零登记**。 */
+    if (d->sub_enum_ok && d->sub_cparas > 0) {
+        for (int j = 0; j < d->sub_cparas && j < WPF_PTS_SUB_CHILD_MAX; j++)
+            wpf_pts_prov_register((const void *)d, d->sub_children[j], 'S', where, j, d->prov_gen);
+    }
     if (d->sub_enum_ok) g_pts_sub_enum_ok_c++; else g_pts_sub_enum_gap++;
     /* 失败必留痕（具名 ＋ 计数；**不静默**）：`cParas` 的源是否成立，看这一行的 `ok=`／`v=`。 */
     fprintf(stderr, "[SUBENUM] where=%s container=%p first=%p cparas=%d ok=%d rc136=%d rc144=%d "
@@ -1644,59 +1810,59 @@ out:
             where, container, first, d->sub_enum_ok ? d->sub_cparas : 0, d->sub_enum_ok,
             d->sub_enum_rc136, d->sub_enum_rc144, WPF_PTS_SUB_CHILD_MAX, v,
             g_pts_sub_enum_calls, g_pts_sub_enum_ok_c, g_pts_sub_enum_gap);
+    /* ⏪ `T-A22`（`N2`）：**窗内**腿的成对行 —— 与窗外的 `[WINDOW-SPLIT] window=out` **成对**判读：
+       本行证明"枚举/真填发生在**窗内**"（`calls136` 即真发起的 `+136`／`+144` 调用数）。 */
+    if (d->sub_enum_ok) g_pts_win_in_enum++;
+    fprintf(stderr, "[WINDOW-SPLIT] where=%s window=in action=enum+ledger src=+136/+144 "
+                    "ledger_ok=%d ledger_cparas=%d calls136=%d(real-callbacks-in-window) "
+                    "in_enum=%d out_sum=%d out_refused=%d v=%s\n",
+            where, d->sub_enum_ok, d->sub_enum_ok ? d->sub_cparas : 0,
+            (d->sub_enum_rc136 != -9999 ? 1 : 0) + (d->sub_enum_rc144 != -9999 ? 1 : 0),
+            g_pts_win_in_enum, g_pts_win_out_summary, g_pts_win_out_refused,
+            d->sub_enum_ok ? "IN-WINDOW-ENUM+LEDGER" : "IN-WINDOW-ENUM-FAILED");
 }
 
 
 /* ⏪ `t151`：**窗外腿**（判据 §8.2 的成对实验反腿）—— 用**同一个**真 `nms` 在**窗外**调 `+136`。
-   两处调用点：① `FsDestroyPage`（页拆除在 `using` 窗关闭之后）；② `FsQueryTrackParaList`
-   （日志可证**被调 1123 次**；它在 `PtsHelper.ParaListFromTrack` 里，被 `FlowDocumentPage` 的
-   列/段落结果查询路径调用 —— **该处是否在窗内属代码结构推断**，实验本身即其检验）。
-   ⚠️ **只在闸开且该 context 已缓存 `nms` 时**才发调；**绝不**伪值、**绝不**跨上下文用陈旧句柄。
-   🔴 ⏪ `T-A17` **现取证伪**（上句"绝不跨上下文用陈旧句柄"在**调用点 ①** 不成立）：`FsDestroyPage`
-   的窗外腿用**已释放**的 `nms` 调 `+136` ⇒ 托管 `PtsContext.HandleToObject` 的
-   `Invariant.Assert("Handle has been already released.")` ⇒ **不可捕获 `FailFast`**（症状门
-   `app_rc 143→134`）。⇒ 新增**句柄 liveness 判据**（下 `WPF_PTS_DRIVEPROBE_OOW_LIVE_GUARD`）：
-   **`FsDestroyPage` 置该 doc 的 `drive_handles_live=0` ⇒ 此后（含调用点 ②）一律拒驱**；
-   页销毁**之前**照旧驱（保持改前读数成对）。详见 §函数体判据段。 */
+   🔴 ⏪ `T-A22`（`N2`：`PRECOND-WINDOW-SEPARATION`）**现取改写**：本条**不再发 `+136` 回调** ——
+     窗外（查询期）**只做汇总/拒绝并留痕**（`[WINDOW-SPLIT] window=out`），**窗内**（`FsCreatePage*`）
+     才真枚举/真填（`[WINDOW-SPLIT] window=in`）。原形态（窗外真调 `+136` ⇒ `rc=-100002` ×576，
+     `v136=CALLBACK-ERR(-100002)`）属"**注定失败的发调**"，该形态**不可判** ⇒ 本件改为**可判**的成对读数。 */
 static void wpf_pts_drive_probe2_oow(void *pfscontext, const char *where)
 {
     if (!wpf_pts_drive_probe_enabled()) return;
     wpf_pts_doc *dp = wpf_pts_doc_ptr(pfscontext);
     if (!dp || !dp->drive_nmseg) return;
-    const void *fp136o = wpf_pts_snap_word(dp, WPF_PTS_SNAP_IDX_GETFIRSTPARA);
-    if (!fp136o) return;
-#if WPF_PTS_DRIVEPROBE_OOW_LIVE_GUARD
-    /* ⏪ `T-A17`：**句柄 liveness 判据**（判定对象 ＝ 本 doc 缓存的 `drive_nmseg`，判据 ＝ `drive_handles_live`）。
-       口径（写死，防读宽）：`drive_nmseg` 来源是**窗内** `+80 GetMainTextSegment` 交出的托管段落实例
-       （`ContainerParagraph`）；其生存期**绑定在产生它的那个 `FsCreatePage*` 页对象**上。
-       ⇒ **该页被销毁时**（托管侧 `PtsPage.DestroyPage()` ⇒ `PtsContext.OnPageDisposed` ⇒ `OnDestroyPage`
-       ⇒ native `FsDestroyPage`，**先**于该 native 入口释放该页的托管对象）⇒ 缓存值**不再是 live 句柄**
-       ⇒ 再用它调 `+136` 必撞 `HandleToObject` 的 `Invariant.Assert` ⇒ **不可捕获 `FailFast`**（主链禁）。
-       本判据的实现即：`FsDestroyPage` 把本 doc 的 `drive_handles_live` 置 0 ⇒ **此后**（含调用点 ②
-       `FsQueryTrackParaList` 的 `ArrangePage` 路径）**拒驱 ＋ 失败必留痕**；**页销毁之前照旧驱**。
-       ⚠️ 这是**状态判据**（native 侧自记），**不是**托管读数（native 侧无"句柄 liveness"观测口）
-          ⇒ 判词里如实标注 `NOINFO=oow-nms-liveness-judge-native-selfrecorded-not-managed-read`。 */
-    if (!dp->drive_handles_live) {
-        g_pts_dp2_oow_refused++;
-        fprintf(stderr, "[DRIVE-PROBE2-OOW] where=%s window=out nms136=%p rc136=- fSucc=- nmp=(nil) "
-                        "idem136=- v136=REFUSED-NONLIVE-HANDLE calls=%d refused=%d "
-                        "NOINFO=oow-nms-liveness-judge-native-selfrecorded-not-managed-read\n",
-                where, dp->drive_nmseg, g_pts_dp2_oow_calls, g_pts_dp2_oow_refused);
-        return;
-    }
-#endif
-    int fSuccO = -1; void *nmpO = NULL;
-    int rcO = ((wpf_pts_fn_get_first_para)fp136o)((const void *)dp->p_fsclient, dp->drive_nmseg,
-                                                  &fSuccO, &nmpO);
+    /* ⏪ `T-A22`（`N2`：`PRECOND-WINDOW-SEPARATION`）：**窗外只做汇总/拒绝并留痕**，**零回调**。
+       🔴 改前形态（现取，作为对照）：本腿用同一 `nms` 在**窗外**真调 `+136`，实测
+          `rc=-100002` **×576**（`v136=CALLBACK-ERR(-100002)`）⇒ **注定失败的发调** ⇒ 该形态**不可判**
+          （分不清"窗内可得"与"调用期可得"）。根因：`+136 pfnGetFirstPara` 的实现读
+          `StructuralCache.CurrentFormatContext`（`ContainerParagraph.cs:105/112/151`）⇒ **只在造型窗内可调**。
+       ⇒ 本腿改为：**只读窗内已建好的台账**（`sub_enum_ok`/`sub_cparas`）并**具名留痕**（`window=out`）；
+          **窗内**（`FsCreatePage*`）才真枚举/真填（`[WINDOW-SPLIT] window=in`，见 `wpf_pts_sub_enum`）。
+       ⇒ 两腿**成对**且**可判**：`in`＝枚举真填（`calls136>0`）｜`out`＝汇总（`calls136=0`）。
+       ⚠️ `drive_handles_live` 逐字保留其判据语义（页销毁 ⇒ 该 doc 的缓存句柄已被托管释放）——
+          今天它**不再**是"防止撞 `FailFast` 的必要守卫"（窗外已不发调），而是**汇总行的取值依据**。
+       ⚠️ 这是**状态判据**（native 侧自记），**不是**托管读数 ⇒ 行里如实标注
+          `NOINFO=oow-nms-liveness-judge-native-selfrecorded-not-managed-read`。 */
     g_pts_dp2_oow_calls++;
-    g_pts_dp2_oow_rc = rcO; g_pts_dp2_oow_succ = fSuccO; g_pts_dp2_oow_nmp = (const void *)nmpO;
-    const char *vO = (rcO == 0 && fSuccO == 1 && nmpO != NULL) ? "FIRSTPARA-HANDLE"
-                   : (rcO == 0 && fSuccO == 0 && nmpO == NULL) ? "FIRSTPARA-ABSENT(by-design)"
-                   : (rcO == -100002) ? "CALLBACK-ERR(-100002)"
-                   : (rcO == -10000) ? "NOT-IMPLEMENTED" : "FIRSTPARA-OTHER";
-    fprintf(stderr, "[DRIVE-PROBE2-OOW] where=%s window=out nms136=%p rc136=%d fSucc=%d nmp=%p "
-                    "idem136=- v136=%s calls=%d\n", where, dp->drive_nmseg, rcO, fSuccO, nmpO, vO,
-            g_pts_dp2_oow_calls);
+    g_pts_dp2_oow_rc   = -9999;      /* −9999 ＝ **未调**（不冒充成功/失败；改前此处是真实 `rc`） */
+    g_pts_dp2_oow_succ = -1;
+    g_pts_dp2_oow_nmp  = NULL;
+    const int live_ok = dp->drive_handles_live;
+    const int led_ok  = (live_ok && dp->sub_enum_ok) ? 1 : 0;
+    if (led_ok) { g_pts_win_out_summary++; }
+    else        { g_pts_dp2_oow_refused++; g_pts_win_out_refused++; }
+    const char *vO = led_ok  ? "OUT-WINDOW-SUMMARIZE-ONLY(from-in-window-ledger)"
+                   : !live_ok ? "OUT-WINDOW-REFUSED(handles-released/page-destroyed)"
+                              : "OUT-WINDOW-REFUSED(no-in-window-ledger)";
+    fprintf(stderr, "[WINDOW-SPLIT] where=%s window=out action=summarize-only src=in-window-subenum "
+                    "ledger_ok=%d ledger_cparas=%d nms136=%p handles_live=%d calls136=0 "
+                    "in_enum=%d out_sum=%d out_refused=%d refused=%d calls=%d v=%s "
+                    "NOINFO=oow-nms-liveness-judge-native-selfrecorded-not-managed-read\n",
+            where, led_ok, led_ok ? dp->sub_cparas : 0, dp->drive_nmseg, live_ok,
+            g_pts_win_in_enum, g_pts_win_out_summary, g_pts_win_out_refused,
+            g_pts_dp2_oow_refused, g_pts_dp2_oow_calls, vO);
 
     /* ⏪ `t156` 第三跳**窗外腿**（判据 §8.3.3）：用**同一个合法 `nmp`** 在**窗外**调 `+176`。
        代码级预判 ＝ 本槽**对窗不敏感**（`CreateParaclient` → `new *ParaClient(this)` →
@@ -2041,6 +2207,9 @@ static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *wh
             }
         }
     }
+    /* ⏪ `T-A22`（`N1`）：**来源证据认领谓词**的自检（每进程一次）—— 正腿 ＋ 三条反极性必红
+       （`wrong-object`／`ABA`／`stale-gen`）。⚠️ 本行只证明**谓词的判别力**，不参与任何主链认领。 */
+    if (g_pts_prov_selftest_mask < 0) g_pts_prov_selftest_mask = wpf_pts_prov_selftest();
     fprintf(stderr, "[DRIVE-PROBE-ENTER] where=%s nms=%p pfsclient=%p slot56=%p slot80=%p fake=%d "
                     "t3mode=%d window=%d n=%d\n",
             where, nms, pfsclient, fp56, fp80, WPF_PTS_DRIVE_PROBE_FAKE_NMS, t3mode, g_pts_dp_calls, wpf_pts_drive_probe_n());
@@ -2393,6 +2562,9 @@ int DestroyDocContext(void *pfscontext)
             wpf_pts_sub_destroy(g_pts_doc_live[i]->sub);
             g_pts_doc_live[i]->sub = NULL;
         }
+        /* ⏪ `T-A22`（`N1`）：该 doc 名下的**来源证据**随 doc 注销**整体失效**（持有期＝托管对象
+           生存期的 native 对偶：上下文一没，来源事实就无从核验 ⇒ 此后任何同值入参**必被拒**）。 */
+        wpf_pts_prov_retire((const void *)g_pts_doc_live[i], 0, "doc-destroyed");
         g_pts_doc_live[i]->magic = 0;                          /* 先失效 ⇒ 重复销毁必被拒 */
         free(g_pts_doc_live[i]);
         g_pts_doc_live[i] = g_pts_doc_live[--g_pts_doc_live_n];
@@ -3918,13 +4090,40 @@ int FsQueryTextDetails(void *pfscontext, void *pPara, void *pTextDetails)
 #else
     const char *reason = NULL;
     wpf_pts_subtrack *obj = NULL;
+    wpf_pts_doc *dpt = wpf_pts_doc_ptr(pfscontext);   /* ⏪ `T-A22`：来源证据的**对象身份核验**用 */
+    wpf_pts_prov *pev = NULL;
     if (!pTextDetails)                        { reason = "null-details-out";   g_pts_fsqtd_nullout++; }
     else if (!pPara)                          { reason = "null-para";          g_pts_fsqtd_nullpara++; }
-    else if (!wpf_pts_sub_claim(pPara, &obj)) { reason = "unclaimable-para";   g_pts_fsqtd_unclaim++; }
+    else if (!wpf_pts_sub_claim(pPara, &obj)) {
+        /* ⏪ `T-A22`（`N1`）：本侧自有对象认不出 ⇒ **追加**「按来源证据认领 ＋ 对象身份核验」，
+           形制与 `FsQuerySubtrackDetails` **完全一致**（通道 `'S'`＝`+136`／`+144` 段句柄）。
+           认出 ⇒ 判词**分立**为 `claimed-by-provenance-no-text-line-model`（身份成立，但文本行模型
+           本侧**无源** ⇒ 仍拒、出参一字不写）；认不出 ⇒ 旧判词 `unclaimable-para`（逐字保留）。 */
+        if (wpf_pts_prov_claim(pPara, dpt, 'S', &pev)) {
+            reason = "claimed-by-provenance-no-text-line-model";
+            g_pts_fsqtd_provclaimed++;
+            fprintf(stderr, "[PROVCLAIM] entry=FsQueryTextDetails p=%p claim=prov doc=%p ev_seq=%d "
+                            "channel=S(+136/+144 段句柄) src=%s ord=%d gen=%d written_out=%d "
+                            "claims_ok=%d wrong_object=%d aba=%d stale=%d zero_ev=%d "
+                            "out=UNWRITTEN bytes=0 v=CLAIMED-NO-TEXT-MODEL\n",
+                    pPara, (void *)dpt, pev->seq, pev->src, pev->ord, pev->gen, pev->written_out,
+                    g_pts_prov_claim_ok, g_pts_prov_wrongobj, g_pts_prov_ababa, g_pts_prov_stale,
+                    g_pts_prov_claim_no);
+        } else {
+            reason = "unclaimable-para";
+            fprintf(stderr, "[PROVCLAIM] entry=FsQueryTextDetails p=%p claim=none doc=%p "
+                            "claims_ok=%d wrong_object=%d aba=%d stale=%d zero_ev=%d "
+                            "v=NO-PROVENANCE-EVIDENCE\n",
+                    pPara, (void *)dpt, g_pts_prov_claim_ok, g_pts_prov_wrongobj,
+                    g_pts_prov_ababa, g_pts_prov_stale, g_pts_prov_claim_no);
+        }
+        g_pts_fsqtd_unclaim++;
+    }
     else if ((const void *)pfscontext && !wpf_pts_doc_find(pfscontext))
                                               { reason = "unknown-ctx";        g_pts_fsqtd_unknown_ctx++; }
     else                                      { reason = "no-text-line-model"; g_pts_fsqtd_nomodel++; }
     (void)obj;                    /* 认领结果只用于**分离失败原因**，不参与任何写入 */
+    (void)dpt;                    /* ⏪ `T-A22`：同上（只作**对象身份核验**的入参） */
     (void)pTextDetails;           /* 刻意只收不用（机器可读形态：参数在册但**零写入**） */
     /* ── 拒绝面（**零假值／出参一字不写**）：`pTextDetails` **绝不触碰**。 */
     g_pts_fsqtd_gap++;
@@ -4504,6 +4703,9 @@ static int g_pts_fsqstd_null        = 0;   /* 路①：`pSubTrack==NULL`（闸�
 static int g_pts_fsqstd_unclaim     = 0;   /* 路②：认领失败（NULL／栈地址／外来值）次数 */
 static int g_pts_fsqstd_unformatted = 0;   /* 路③：认领成功但**未枚举／未造型**次数 */
 static int g_pts_fsqstd_nullout     = 0;   /* 路④：已枚举但 `pSubTrackDetails==NULL` 被拒次数 */
+/* ⏪ `T-A22`（`N1`）：**按来源证据认领成功**的次数（身份成立，但该段**自己的子段序**本波无源
+   ⇒ 仍拒、出参一字不写）。与 `ok`（本侧自有子轨对象的成功分支）**分开计**，判词也不同。 */
+static int g_pts_fsqstd_provclaimed = 0;
 static const char *g_pts_fsqstd_last_reason = "none";   /* 最后一次判词 token（可独立读取） */
 /* ⚠️ **反腿开关**（默认 0）：**只在副本**以 `-DWPF_PTS_SUB_CPARAS_FAKE=<n>` 单独编译，**绝不进主链**。
    `0`＝真值（枚举计数）｜`1`＝写**恒定 999**（伪真值）⇒ `FsQuerySubtrackParaList` 必 `cparas-mismatch`
@@ -4521,8 +4723,36 @@ int FsQuerySubtrackDetails(void *pfscontext, void *pSubTrack, void *pSubTrackDet
     const char *reason = NULL;
     wpf_pts_subtrack *obj = NULL;
     wpf_pts_doc *dpx = wpf_pts_doc_ptr(pfscontext);
+    wpf_pts_prov *pev = NULL;                     /* ⏪ `T-A22`：来源证据认领结果 */
     if (!pSubTrack)                               { reason = "null-subtrack";           g_pts_fsqstd_null++; }
-    else if (!wpf_pts_sub_claim(pSubTrack, &obj)) { reason = "unclaimable-subtrack";    g_pts_fsqstd_unclaim++; }
+    else if (!wpf_pts_sub_claim(pSubTrack, &obj)) {
+        /* ⏪ `T-A22`（`N1`）：本侧自有对象**认不出** ⇒ **追加**「**按来源证据认领 ＋ 对象身份核验**」：
+           `pSubTrack` 须等值于**本 run 由 `+136`／`+144` 交回、并经本侧写进 `FSPARADESCRIPTION.pfspara`
+           的那个托管段句柄**（通道 `'S'`），且该证据的 `doc` **就是**本次 `pfscontext`（指针等值）、
+           `gen` 就是本会话。**认出** ⇒ 判词**分立**为 `claimed-by-provenance-no-content-model`：
+            身份**成立**，但该段**自己的子段序**（内容模型）本波**无源**（窗内只枚举了顶层 container）
+            ⇒ 仍**拒**、出参一字不写（**永不假成功**，判据 D1／D2）。
+           同值证据里存在异 doc／异通道／旧会话者 ⇒ 判 `WRONG-OBJECT`／`ABA`／`STALE-GEN` ⇒ **拒**。 */
+        if (wpf_pts_prov_claim(pSubTrack, dpx, 'S', &pev)) {
+            reason = "claimed-by-provenance-no-content-model";
+            g_pts_fsqstd_provclaimed++;
+            fprintf(stderr, "[PROVCLAIM] entry=FsQuerySubtrackDetails p=%p claim=prov doc=%p ev_seq=%d "
+                            "channel=S(+136/+144 段句柄) src=%s ord=%d gen=%d written_out=%d "
+                            "claims_ok=%d wrong_object=%d aba=%d stale=%d zero_ev=%d "
+                            "out=UNWRITTEN bytes=0 v=CLAIMED-NO-CONTENT-MODEL\n",
+                    pSubTrack, (void *)dpx, pev->seq, pev->src, pev->ord, pev->gen, pev->written_out,
+                    g_pts_prov_claim_ok, g_pts_prov_wrongobj, g_pts_prov_ababa, g_pts_prov_stale,
+                    g_pts_prov_claim_no);
+        } else {
+            reason = "unclaimable-subtrack";
+            fprintf(stderr, "[PROVCLAIM] entry=FsQuerySubtrackDetails p=%p claim=none doc=%p "
+                            "claims_ok=%d wrong_object=%d aba=%d stale=%d zero_ev=%d "
+                            "v=NO-PROVENANCE-EVIDENCE\n",
+                    pSubTrack, (void *)dpx, g_pts_prov_claim_ok, g_pts_prov_wrongobj,
+                    g_pts_prov_ababa, g_pts_prov_stale, g_pts_prov_claim_no);
+        }
+        g_pts_fsqstd_unclaim++;
+    }
     else if (!obj->formatted || !obj->enum_ok)    { reason = "no-layout-content-model"; g_pts_fsqstd_unformatted++; }
     else if (!pSubTrackDetails)                   { reason = "null-details-out";        g_pts_fsqstd_nullout++; }
     else {
@@ -4619,6 +4849,10 @@ int FsQuerySubtrackParaList(void *pfscontext, void *pSubTrack, int cParas,
                 obj->child_clients[i] = (const void *)h;
                 obj->child_clients_made = i + 1;
                 g_pts_fsqspl_cli_made++;
+                /* ⏪ `T-A22`（`N1`）：`+176` 交回的**客户端句柄**入册为**来源证据**（通道 `'C'`）——
+                   它**与段句柄同值即 ABA**（§2.3 实证）⇒ 通道判据把这两类分开。 */
+                wpf_pts_prov_register((const void *)dp, (const void *)h, 'C',
+                                      "+176.CreateParaclient@FsQuerySubtrackParaList", i, dp->prov_gen);
             }
         }
     }
@@ -4629,6 +4863,9 @@ int FsQuerySubtrackParaList(void *pfscontext, void *pSubTrack, int cParas,
             rg[i].pfspara       = (void *)obj->children[i];       /* 窗内枚举出的子段句柄 */
             rg[i].pfsparaclient = (void *)obj->child_clients[i];  /* 本 run `+176` 真返回 */
             rg[i].nmp           = (void *)obj->children[i];
+            /* ⏪ `T-A22`（`N1`）：**本侧真把该段句柄交出去过**（写进 `FSPARADESCRIPTION.pfspara`）
+               ⇒ 记进来源证据（强化面；托管随后把它当 `_paraHandle` 送回时即可**按来源证据认领**）。 */
+            wpf_pts_prov_mark_written((const void *)dp, 'S', (const void *)obj->children[i]);
             /* dvrUsed／dvrTopSpace／bbox／idobj：**本侧无几何源** ⇒ 0（NOINFO-SUBTRACK-PARA-GEOMETRY）*/
         }
         *cParaDesc = cParas;                              /* 只在**真填完后**置（与 cParas 自洽） */
