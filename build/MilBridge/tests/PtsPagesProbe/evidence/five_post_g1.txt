@@ -1,5 +1,5 @@
-libwpfwin32.so=1dbea9026dd7d3d7
+libwpfwin32.so=d406f243cdc2c402
 wpfgfx_cor3.so=941e69902d82ef02
-PresentationCore.dll=e47c4b4521c54cb2
-PresentationFramework.dll=189e3704cbf4f031
-WindowsBase.dll=3886f61b0251140e
+PresentationCore.dll=ba162811e97e4484
+PresentationFramework.dll=1c6c58df6d757f3f
+WindowsBase.dll=7f1c38f90e916718
