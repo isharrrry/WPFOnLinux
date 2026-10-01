@@ -356,6 +356,11 @@ typedef struct wpf_window {
     int       display_devices_notified; // 是否已代发 DisplayDevicesAvailabilityChanged（win32_msg.c）
     uint64_t  created_ms;
     void     *owner_thread;         // 创建它的 wpf_thread*（见 wpf_thread.self 的说明）
+    // ── ⏪ `T-A66`：`SetScrollPosWrapper` 的**滚动位置状态位**（本侧窗口模型自持）───────────────
+    //   语义＝ Win32 `SetScrollPos` 的"位置存取"：`[SB_HORZ(0)]`／`[SB_VERT(1)]` 各一格，
+    //   调用返回**旧位置**（首次调用前为 0，`calloc` 初值）。本侧无滚动条视觉 ⇒ **不**声称重绘
+    //   （具名 `NOINFO-WRAPPER-REDRAW`）；**共用**窗口表的句柄校验（未知 hwnd ⇒ 失败面）。
+    int       scroll_pos[2];
     wpf_prop *props;
     struct wpf_window *next;
 } wpf_window;
