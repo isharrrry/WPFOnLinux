@@ -31,7 +31,36 @@
 #   并**断言相等**（不等即 `rc=9` 停手 = 基底漂移），再把 `tool/dead/artifact/ops/impl`
 #   交给牙**现算对账**（不等即牙红 —— 那才是"数漂了"，与基底漂移是两回事，分开报）。
 # ══════════════════════════════════════════════════════════════════════════════════
-# PTSGAP-DECL: tool=62 dead=11 artifact=1 ops=50 impl=51 so16=2852242a1c946d1f exports=701 w66pre16=bf6b683d94549087
+# PTSGAP-DECL: tool=59 dead=11 artifact=1 ops=47 impl=47 so16=327dcce237e03e1f exports=718 w66pre16=bf6b683d94549087
+#   ⚠️ 波 `T-A62` 重锚（`TASK-0302` 增量：**`Lo*` 族缺口首批（可诚实实现子集 3 条）＋ 同族唯一诚实 stub 升格**；
+#     `D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
+#     `src/WpfGfx.Linux.Native/src/win32_pts.c` 新增**导出** 3 条 `Lo*` 入口（由「会
+#     `EntryPointNotFoundException` 的缺口」升为**真实现**）：
+#       `LoSetTabs`（声明 `LineServices.cs:1478-1484`；调用 `TextFormatterContext.cs:374`）／
+#       `LoCreateParaBreakingSession`（`:1533-1542`；`TextParagraphCache.cs:54`）／
+#       `LoDisposeParaBreakingSession`（`:1544-1549`；`TextParagraphCache.cs:150`）；
+#     并把同族**唯一**的诚实缺口 stub `LoDisposePenaltyModule`（`:1575-1578`；`TextPenaltyModule.cs:59`）
+#     **升格为真实现**（按模块句柄身份认领后真失效该上下文对象字段）⇒ `stubs 1→0`。
+#     **诚实准入铁律**（本侧只作自持对象的作者）：只收**无几何出参**且**不依赖行/字符内容**者（上下文/会话/罚分模块
+#     的生命周期与状态搬运）；凡出参含**真几何**或需**行内容/字形**者（`LoCreateLine`／`LoCreateBreaks`／`LoEnumLine`／
+#     `LoQueryLineCpPpoint`／`LoQueryLinePointPcp`／`LoDisplayLine`／`LoAcquireBreakRecord`／`LoDisposeLine`／
+#     `LoDisposeBreakRecord`／`LoCloneBreakRecord`／`LoRelievePenaltyResource`／`LocbkGetObjectHandlerInfo` **11 条**）
+#     **一律不冒充**，仍留在缺口名单（**如实划界**：本侧无文本源 `PRECOND-NO-TEXT-SOURCE`、无 LS 会话驱动器
+#     `PRECOND-LS-SESSION-DRIVER`）；`Nl*` 6 条按在册语义**有意降级**（`nl-intent-check.sh` 段①：6 名不许导出）**不动**。
+#     ⇒ `exports 701→718`（**逐名 +3（PTS 族）＋+14（本侧只读自检桥接 `WpfLinuxWin32_PtsLsBatch2*/PtsLocTab*/…`）**，
+#     无消失；`nm -D --defined-only` 行数 == `exports.txt` 行数 == 718；逐名 `diff` 零差异）；
+#     `tool 62→59`／`ops 50→47`／`impl 51→47`（3 名由「会 ENFE 的缺口」变为「已导出可用」⇒ 缺口计数**下降** 3；
+#     另 `stubs 1→0` ⇒ `impl = ops + stubs` 恒式仍成立）；`dead/artifact/w66pre16` 未动；
+#     `so16 2852242a1c946d1f→327dcce237e03e1f`（480488→490072 B）。
+#     ⚠️ **两极化（该红必红）**：本趟新增导出 `WpfLinuxWin32_PtsLsBatch2SelfCheck()`（dlopen 探针**现取**：
+#       改前 3 名 `present=0/3`；改后 `present=3/3` 且 `[LSBATCH2-SELFTEST] mask=0x0f`＝4/4「正极真值 ∧ 反极必拒」；
+#       反腿副本（去掉 `LoDisposePenaltyModule` 的对象身份认领）⇒ `mask=0x07`（该位**必红**））。
+#     🔴 **计数下降 ≠ 能力前进**（件头第 ① 条同口径）：本增量把**缺符号**变成**有符号的真实现**，
+#       但 4 条入口在现产品路径**未被调用**（本侧 LS 面已被托管 `pfnFormatLine` 链取代，见
+#       `build/MilBridge/P1-tail2-hostline-recon.md` §3 判 native LS「不必要」）⇒ 页仍**未全绘**。
+#     ⚠️ **前提不成立（如实记）**：任务所写「`Lo*`/`Nl*` 族**至少 8 条**真实现」在本侧**不可诚实满足** ——
+#       该族除本 4 条外，其余 11 `Lo*`／6 `Nl*` **均**因「出参含真几何（无测量源）」或「在册语义＝有意降级」而
+#       **不可诚实实现** ⇒ 本趟按硬边界「**诚实拒绝优于假成功**」只做**可诚实实现者**，其余**保持现状并如实划界**。
 #   ⚠️ 波 `T-A61` 重锚（`TASK-0302` 增量：**`Fs*` 族缺口首批 8 条真实现**；`D-G70` 形态又一实例；
 #     **产品改动 ⇒ 在册数必须跟随权威件**）：
 #     `src/WpfGfx.Linux.Native/src/win32_pts.c` 新增**导出** 8 条 `Fs*` 入口（由「会

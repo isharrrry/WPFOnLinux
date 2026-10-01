@@ -4111,6 +4111,8 @@ int GetTableObjHandlerInfo(const void *pfstableobjinit, void *pTableObjectInfo)
 //   **绝不 deref 任意指针** —— 先按**指针身份**在登记表里查，查不到就直接失败（不读它的任何字段）。
 #define WPF_PTS_LOC_MAGIC  0x5054534cu   /* "PTSL"：本模块自认的上下文魔数 */
 #define WPF_PTS_LOC_MAX    8             /* 有界分配清单（防异常调用无限增长） */
+/* ⏪ `T-A62`：`LoSetTabs`（`LineServices.cs:1478-1484`）真落盘的**制表位条数上界**（有界，防异常调用）。 */
+#define WPF_PTS_LS_TAB_MAX 32
 typedef struct {
     unsigned int magic;
     const void  *context_info;           /* 托管给的指针，**原样存，不 deref** */
@@ -4148,6 +4150,17 @@ typedef struct {
        本格把内部句柄也**落在这个对象上**（＝与"哪个模块"绑定、**不是**进程级全局单例）。 */
     void        *penalty_internal_handle;
     int          penalty_internal_gets;  /* 本对象上成功落盘的 LoGetPenaltyModuleInternalHandle 次数 */
+    /* ── ⏪ `T-A62`：`LoSetTabs`（`LineServices.cs:1478-1484`）真落盘的**制表位表**（本对象上）──────
+       上游签名：`unsafe LsErr LoSetTabs(IntPtr ploc, int durIncrementalTab, int tabCount, LsTbd* pTabs)`；
+       `LsTbd`（同件 `:696-706`，顺序布局 12 B）＝ `int lskt`(+0)／`int ur`(+4)／
+       `char wchTabLeader`(+8)／`char wchCharTab`(+10)。本侧**逐字段按真实类型读**（不整块 memcpy）。 */
+    int          tab_inc;                /* durIncrementalTab */
+    int          tab_count;              /* 落盘条数 */
+    int          tab_sets;               /* 本对象上成功落盘的 LoSetTabs 次数 */
+    int          tab_lskt[WPF_PTS_LS_TAB_MAX];
+    int          tab_ur[WPF_PTS_LS_TAB_MAX];
+    int          tab_leader[WPF_PTS_LS_TAB_MAX];
+    int          tab_chartab[WPF_PTS_LS_TAB_MAX];
 } wpf_pts_loc;
 
 static wpf_pts_loc *g_pts_loc_live[WPF_PTS_LOC_MAX];
@@ -4473,11 +4486,10 @@ int WpfLinuxWin32_PtsPenaltyModuleAcquisitions(void) { return g_pts_pen_sets; }
 //   它在清理期**不被当作"成功"**，而"缺符号"这件事消失了。
 //   ⚠️ 它**不是**把 `LoAcquirePenaltyModule` 的成功"圆回去"：acquire 仍然真成功、真落盘、真绑定；
 //      这里补的是**它的生命周期对端**（否则该成功本身就会在 finalizer 里崩）。
-int LoDisposePenaltyModule(void *penaltyModuleHandle)
-{
-    (void)penaltyModuleHandle;                 /* 不 deref、不 free：本层没有需要释放的真资源 */
-    return wpf_pts_gap("LoDisposePenaltyModule");
-}
+//   ⏪ **`T-A62` 升格**：本入口由「诚实缺口 stub（恒 `-10000`）」升为**真实现** —— 按**模块句柄身份**
+//      认领后**真失效**该字段（见本文件 `T-A62` 块的 `LoDisposePenaltyModule`）。下面两枚计数随之启用。
+static int g_pts_pen_disposed = 0;           /* ⏪ `T-A62`：真失效的本对象模块句柄数 */
+static int g_pts_pen_dispose_rejected = 0;   /* ⏪ `T-A62`：被拒的释放请求（NULL/未知/重复） */
 
 // ── 格 5 · 真实现（`t103`／W8-3）：`LoGetPenaltyModuleInternalHandle`（托管声明 `LineServices.cs:1580`）──
 //   契约：`LsErr LoGetPenaltyModuleInternalHandle(IntPtr penaltyModuleHandle, out IntPtr penaltyModuleInternalHandle)`
@@ -4544,6 +4556,322 @@ void *WpfLinuxWin32_PtsPenaltyInternalHandleAt(int idx)
     return g_pts_loc_live[idx]->penalty_internal_handle;
 }
 int WpfLinuxWin32_PtsPenaltyInternalGets(void) { return g_pts_inth_sets; }
+
+/* ══════════════════════════════════════════════════════════════════════════════════════════════
+   ⏪ `T-A62`（`TASK-0302` 增量）· **`Lo*` 族缺口首批（可诚实实现子集）** —— native 真实现
+   ──────────────────────────────────────────────────────────────────────────────────────────────
+   【本块做什么】按 `LineServices.cs` 在册语义，把**可诚实实现**的 `Lo*` 入口由「会
+   `EntryPointNotFoundException` 的缺口」变成**已导出可用**，并把同族**唯一**的诚实缺口 stub
+   `LoDisposePenaltyModule` **升格**为真实现。逐条（声明 件:行 → 调用点 件:行 → 语义）：
+     ① `LoSetTabs`                     声明 `LineServices.cs:1478-1484`  调用 `TextFormatterContext.cs:374`（`SetTabs`）／
+        `TextParagraphCache.cs:50` —— 把 `durIncrementalTab` ＋ `LsTbd[tabCount]`（每 12 B）**真落盘**到**该 `ploc`
+        的上下文对象**上（逐字段按真实类型读，可独立读取）。
+     ② `LoCreateParaBreakingSession`   声明 `LineServices.cs:1533-1542` 调用 `TextParagraphCache.cs:54`
+        —— 按对象身份认领 `ploc` 后**真造**本侧自有「段断行会话」对象（句柄＝对象本身，绑定所属上下文）；
+        `fParagraphJustified` 取**保守缺省 0**（本侧无宿主 `FetchPap` 对齐来源，具名 `NOINFO-PARABRK-JUSTIFY`）。
+     ③ `LoDisposeParaBreakingSession`  声明 `LineServices.cs:1544-1549` 调用 `TextParagraphCache.cs:150`
+        —— **真销毁**该会话对象（重复／未知／NULL 一律拒）。
+     ④ `LoDisposePenaltyModule`（**升格**）声明 `LineServices.cs:1575-1578` 调用 `TextPenaltyModule.cs:59`
+        —— 按**模块句柄身份**（＝某个在册上下文对象的 `penalty_module_handle` 字段地址）认领后**真失效**该字段
+        （承 `t97`/`t103` 的对象身份认领范式）；未知／NULL／重复一律拒。
+
+   【为什么只有这 4 条（诚实准入铁律）】本侧**只**是本模块**自持对象**的作者 —— `LineServices` 的**排版引擎**
+   本侧**不实现**（取证：`build/MilBridge/P1-native-para-model-report.md` 立 `PRECOND-NO-TEXT-SOURCE`（本侧无字符源）＋
+   `PRECOND-LS-SESSION-DRIVER`（本侧须成"被托管调用、再回调托管"的重入方）；`P1-tail2-hostline-recon.md` §3 判定
+   native LS「**不必要** ∧ 代价极高」）。故只收**无几何出参**、且**不依赖行/字符内容**的入口：
+     · **本块 4 条**全部是「上下文/会话/罚分模块」的**生命周期与状态搬运**（无字盒、无度量、无 bbox）；
+     · **凡出参含真几何、或需行内容/字形的入口一律不冒充** —— `LoCreateLine`（出参 `LsLInfo` 22 字段全度量 ＋
+       `LsLineWidths` 7 字段 ＋ `maxDepth`；本侧**无测量源**，返回 0 即造「静默半通」）／`LoCreateBreaks`（`LsBreaks`
+       ＝断点集＋逐断点 `LsLInfo`）／`LoEnumLine`／`LoQueryLineCpPpoint`／`LoQueryLinePointPcp`／`LoDisplayLine`／
+       `LoAcquireBreakRecord`／`LoDisposeLine`／`LoDisposeBreakRecord`／`LoCloneBreakRecord`／`LoRelievePenaltyResource`
+       ／`LocbkGetObjectHandlerInfo`（native 对象处理器信息）—— 这 **11 条保持缺口**（如实划界）；其根对象（行／断行记录）
+       因**无诚实创造者**故其生命周期对端亦无源。
+     · `Nl*` 6 条在册语义 ＝ **有意降级**（`build/MilBridge/tools/nl-intent-check.sh` 段①：6 名**一个都不许导出**）
+       ⇒ 本趟**不动**（如实划界，**不**造 `IntPtr` 假句柄＝`docs/ROUTES.md:402` 的 `D-G76` 口径）。
+
+   【两极化（该红必红）】每条都**先按对象身份认领**再动作；`NULL`／未知／外来值／已失效值 ⇒ 返 `-10000`
+   ＋ 一行具名 `[LSBATCH2]` 留痕，**出参一字不写**。由本块末 `WpfLinuxWin32_PtsLsBatch2SelfCheck()`
+   （逐条现取「正极真值 ∧ 反极必拒」的 4-bit `mask`）承担。
+   ══════════════════════════════════════════════════════════════════════════════════════════════ */
+#define WPF_PTS_B2_N       4
+#define WPF_PTS_LSPS_MAGIC 0x50545353u   /* "PTSS"：本模块自认的「段断行会话」对象魔数 */
+#define WPF_PTS_LSPS_MAX   64            /* 有界分配清单（防异常调用无限增长） */
+typedef struct {
+    unsigned int magic;
+    wpf_pts_loc *ctx;                    /* 所属上下文（**对象身份**，非托管句柄） */
+    int          cp_para_first;          /* `LoCreateParaBreakingSession` 入参（原样存） */
+    int          max_width;
+    const void  *prev_breakrec;          /* 托管给的上一段断行记录句柄（**原样存，不 deref**） */
+    int          justified;              /* `fParagraphJustified`（本侧保守缺省 0，见 `NOINFO-PARABRK-JUSTIFY`） */
+    int          disposed;               /* 1 = 已销毁（`magic` 同时置 0 ⇒ 重复销毁必被拒） */
+} wpf_pts_lsps;
+
+static wpf_pts_lsps *g_pts_lsps_live[WPF_PTS_LSPS_MAX];
+static int g_pts_lsps_live_n   = 0;
+static int g_pts_lsps_creates  = 0;
+static int g_pts_lsps_destroys = 0;
+static int g_pts_lsps_rejected = 0;
+static int g_pts_lstabs_sets       = 0;   /* `LoSetTabs` 成功次数 */
+static int g_pts_lstabs_rejected   = 0;   /* `LoSetTabs` 被拒次数 */
+static int g_pts_b2_ok[WPF_PTS_B2_N]  = {0};
+static int g_pts_b2_gap[WPF_PTS_B2_N] = {0};
+_Static_assert(WPF_PTS_B2_N == 4, "`T-A62` 首批条数 != 4");
+
+/* 统一失败面：认领失败/参数非法 ⇒ 具名留痕 ＋ 返 `-10000`（出参调用方**一字不写**）。 */
+static int wpf_pts_b2_gap(const char *entry, int idx, const char *reason, const void *p)
+{
+    g_pts_b2_gap[idx]++;
+    fprintf(stderr, "[LSBATCH2] rc=%d reason=%s entry=%s p=%p ok=%d gap=%d out=UNWRITTEN bytes=0\n",
+            WPF_PTS_ERR_NOT_IMPLEMENTED, reason, entry, p, g_pts_b2_ok[idx], g_pts_b2_gap[idx]);
+    return WPF_PTS_ERR_NOT_IMPLEMENTED;
+}
+/* 会话句柄身份校验（**只按指针身份**在登记表里查；查不到 ⇒ NULL，**一个字节都不读**）。 */
+static wpf_pts_lsps *wpf_pts_lsps_find(const void *h)
+{
+    if (!h) return NULL;
+    for (int i = 0; i < g_pts_lsps_live_n; i++) {
+        if ((const void *)g_pts_lsps_live[i] != h) continue;
+        if (g_pts_lsps_live[i]->magic != WPF_PTS_LSPS_MAGIC) return NULL;   /* 已失效 ⇒ 与"未知"同办 */
+        return g_pts_lsps_live[i];
+    }
+    return NULL;
+}
+
+/* ① `LoSetTabs`（`LineServices.cs:1478-1484`）—— 制表位表**真落盘**到该 `ploc` 的上下文对象上。 */
+int LoSetTabs(void *ploc, int durIncrementalTab, int tabCount, const void *pTabs)
+{
+    wpf_pts_loc *c = wpf_pts_loc_find(ploc);
+    if (!c) { g_pts_lstabs_rejected++; return wpf_pts_b2_gap("LoSetTabs", 0, "unknown-context", ploc); }
+    if (tabCount < 0 || tabCount > WPF_PTS_LS_TAB_MAX) {
+        g_pts_lstabs_rejected++; return wpf_pts_b2_gap("LoSetTabs", 0, "tab-count-out-of-range", ploc);
+    }
+    if (tabCount > 0 && !pTabs) { g_pts_lstabs_rejected++; return wpf_pts_b2_gap("LoSetTabs", 0, "null-tabs", ploc); }
+    /* 逐条按 `LsTbd` 真实类型读（顺序布局 12 B：`int lskt`+0／`int ur`+4／`u16 leader`+8／`u16 chartab`+10）。
+       ⚠️ 只读**调用方此刻的有效内存**；入参 `const`，本侧一个字节都不写回。 */
+    for (int i = 0; i < tabCount; i++) {
+        const unsigned char *b = (const unsigned char *)pTabs + (size_t)i * 12u;
+        int lskt = 0, ur = 0; unsigned short leader = 0, chartab = 0;
+        memcpy(&lskt,    b + 0, 4);
+        memcpy(&ur,      b + 4, 4);
+        memcpy(&leader,  b + 8, 2);
+        memcpy(&chartab, b + 10, 2);
+        c->tab_lskt[i]    = lskt;
+        c->tab_ur[i]      = ur;
+        c->tab_leader[i]  = (int)leader;
+        c->tab_chartab[i] = (int)chartab;
+    }
+    c->tab_inc   = durIncrementalTab;
+    c->tab_count = tabCount;
+    c->tab_sets++;
+    g_pts_lstabs_sets++;
+    g_pts_b2_ok[0]++;
+    fprintf(stderr, "[LSBATCH2] rc=0 entry=LoSetTabs ploc=%p tabCount=%d durIncrementalTab=%d ok=%d gap=%d "
+                    "v=TABS-STORED\n", ploc, tabCount, durIncrementalTab, g_pts_b2_ok[0], g_pts_b2_gap[0]);
+    return 0;                                                          /* ← 改成别的值就是制造静默半通 */
+}
+
+/* ② `LoCreateParaBreakingSession`（`LineServices.cs:1533-1542`）—— 真造本侧自有会话对象。 */
+int LoCreateParaBreakingSession(void *ploc, int cpParagraphFirst, int maxWidth,
+                                const void *previousParaBreakRecord,
+                                void **pploparabreak, int *pfParagraphJustified)
+{
+    if (pploparabreak)        *pploparabreak = NULL;                    /* 失败面先清 */
+    if (pfParagraphJustified) *pfParagraphJustified = 0;
+    if (!pploparabreak || !pfParagraphJustified)
+        { g_pts_lsps_rejected++; return wpf_pts_b2_gap("LoCreateParaBreakingSession", 1,
+              !pploparabreak ? "null-out-session" : "null-out-justified", ploc); }
+    wpf_pts_loc *c = wpf_pts_loc_find(ploc);
+    if (!c)                                        { g_pts_lsps_rejected++; return wpf_pts_b2_gap("LoCreateParaBreakingSession", 1, "unknown-context", ploc); }
+    if (g_pts_lsps_live_n >= WPF_PTS_LSPS_MAX)     { g_pts_lsps_rejected++; return wpf_pts_b2_gap("LoCreateParaBreakingSession", 1, "table-full", ploc); }
+    wpf_pts_lsps *s = (wpf_pts_lsps *)calloc(1, sizeof(*s));
+    if (!s)                                        { g_pts_lsps_rejected++; return wpf_pts_b2_gap("LoCreateParaBreakingSession", 1, "alloc-failed", ploc); }
+    s->magic          = WPF_PTS_LSPS_MAGIC;
+    s->ctx            = c;
+    s->cp_para_first  = cpParagraphFirst;
+    s->max_width      = maxWidth;
+    s->prev_breakrec  = previousParaBreakRecord;
+    s->justified      = 0;
+    g_pts_lsps_live[g_pts_lsps_live_n++] = s;
+    g_pts_lsps_creates++;
+    *pploparabreak        = (void *)s;
+    *pfParagraphJustified = 0;                                          /* NOINFO：无宿主对齐来源 ⇒ 保守缺省 */
+    g_pts_b2_ok[1]++;
+    fprintf(stderr, "[LSBATCH2] rc=0 entry=LoCreateParaBreakingSession ploc=%p session=%p cpFirst=%d maxWidth=%d "
+                    "justified=0 ok=%d gap=%d NOINFO=PARABRK-JUSTIFY(no-host-justify-source)\n",
+            ploc, (void *)s, cpParagraphFirst, maxWidth, g_pts_b2_ok[1], g_pts_b2_gap[1]);
+    return 0;                                                          /* ← 改成别的值就是制造静默半通 */
+}
+
+/* ③ `LoDisposeParaBreakingSession`（`LineServices.cs:1544-1549`）—— 真销毁本侧自有会话对象。 */
+int LoDisposeParaBreakingSession(void *ploparabreak, int finalizing)
+{
+    (void)finalizing;
+    if (!ploparabreak) { g_pts_lsps_rejected++; return wpf_pts_b2_gap("LoDisposeParaBreakingSession", 2, "null-session", NULL); }
+    for (int i = 0; i < g_pts_lsps_live_n; i++) {
+        if ((void *)g_pts_lsps_live[i] != ploparabreak) continue;
+        if (g_pts_lsps_live[i]->magic != WPF_PTS_LSPS_MAGIC)
+            { g_pts_lsps_rejected++; return wpf_pts_b2_gap("LoDisposeParaBreakingSession", 2, "stale-session", ploparabreak); }
+        g_pts_lsps_live[i]->magic    = 0;                              /* 先失效 ⇒ 重复销毁必被拒 */
+        g_pts_lsps_live[i]->disposed = 1;
+        free(g_pts_lsps_live[i]);
+        g_pts_lsps_live[i] = g_pts_lsps_live[--g_pts_lsps_live_n];
+        g_pts_lsps_live[g_pts_lsps_live_n] = NULL;
+        g_pts_lsps_destroys++;
+        g_pts_b2_ok[2]++;
+        fprintf(stderr, "[LSBATCH2] rc=0 entry=LoDisposeParaBreakingSession session=%p ok=%d gap=%d "
+                        "v=SESSION-DESTROYED\n", ploparabreak, g_pts_b2_ok[2], g_pts_b2_gap[2]);
+        return 0;                                                      /* ← 改成别的值就是制造静默半通 */
+    }
+    g_pts_lsps_rejected++;
+    return wpf_pts_b2_gap("LoDisposeParaBreakingSession", 2, "unknown-session", ploparabreak);
+}
+
+/* ④ `LoDisposePenaltyModule`（`LineServices.cs:1575-1578`）—— **升格为真实现**：按**模块句柄身份**
+   认领后**真失效**该上下文对象的 `penalty_module_handle` 字段（于是 `LoGetPenaltyModuleInternalHandle`
+   再拿它必被拒）。⚠️ 不 deref／不 free：本层的"资源"就是那个自持字段。 */
+int LoDisposePenaltyModule(void *penaltyModuleHandle)
+{
+    if (!penaltyModuleHandle) { g_pts_pen_dispose_rejected++; return wpf_pts_b2_gap("LoDisposePenaltyModule", 3, "null-module", NULL); }
+    for (int i = 0; i < g_pts_loc_live_n; i++) {
+        if (g_pts_loc_live[i]->magic != WPF_PTS_LOC_MAGIC) continue;
+        if (g_pts_loc_live[i]->penalty_module_handle != penaltyModuleHandle) continue;
+        g_pts_loc_live[i]->penalty_module_handle = NULL;               /* **真失效** */
+        g_pts_pen_disposed++;
+        g_pts_b2_ok[3]++;
+        fprintf(stderr, "[LSBATCH2] rc=0 entry=LoDisposePenaltyModule module=%p ok=%d gap=%d "
+                        "v=MODULE-INVALIDATED\n", penaltyModuleHandle, g_pts_b2_ok[3], g_pts_b2_gap[3]);
+        return 0;                                                      /* ← 改成别的值就是制造静默半通 */
+    }
+    g_pts_pen_dispose_rejected++;
+    return wpf_pts_b2_gap("LoDisposePenaltyModule", 3, "unknown-module", penaltyModuleHandle);
+}
+
+/* ── 本批的**逐条两极化自检**（正极＋反极；纯 native，只用自己的对象，不碰应用状态）──────────────
+   bit k ＝ 第 k 条入口的「正极真值 ∧ 反极必拒」**同时**成立。返回 mask；**-1** ＝ 夹具自身失败
+   （表满/分配失败 ⇒ **不算绿**）。任何一条不成立 ⇒ 对应位 0（该红必红）。 */
+int WpfLinuxWin32_PtsLsBatch2SelfCheck(void)
+{
+    int save_ok[WPF_PTS_B2_N], save_gap[WPF_PTS_B2_N];
+    int mask = 0;
+    for (int i = 0; i < WPF_PTS_B2_N; i++) { save_ok[i] = g_pts_b2_ok[i]; save_gap[i] = g_pts_b2_gap[i]; }
+    int base_loc = g_pts_loc_live_n, base_sps = g_pts_lsps_live_n;
+    int save_tab_s = g_pts_lstabs_sets, save_tab_r = g_pts_lstabs_rejected;
+    int save_sps_c = g_pts_lsps_creates, save_sps_d = g_pts_lsps_destroys, save_sps_r = g_pts_lsps_rejected;
+    int save_pen_d = g_pts_pen_disposed, save_pen_r = g_pts_pen_dispose_rejected;
+    if (base_loc + 1 > WPF_PTS_LOC_MAX || base_sps + 1 > WPF_PTS_LSPS_MAX) return -1;
+    void *ploc = NULL;
+    if (LoCreateContext((const void *)0xB1, (const void *)0xB2, &ploc) != 0 || !ploc) return -1;
+    wpf_pts_loc *c = (wpf_pts_loc *)ploc;
+
+    /* ① LoSetTabs：正极（落盘逐字段可读）＋反极（未知上下文／越界条数／缺表必拒） */
+    {
+        unsigned char tabs[2 * 12];
+        int lskt0 = 3, ur0 = 1440, lskt1 = 5, ur1 = 2880;
+        unsigned short ld0 = 0x2E, ct0 = 0x09, ld1 = 0x20, ct1 = 0x0A;
+        memset(tabs, 0, sizeof(tabs));
+        memcpy(tabs + 0, &lskt0, 4); memcpy(tabs + 4, &ur0, 4); memcpy(tabs + 8, &ld0, 2); memcpy(tabs + 10, &ct0, 2);
+        memcpy(tabs + 12, &lskt1, 4); memcpy(tabs + 16, &ur1, 4); memcpy(tabs + 20, &ld1, 2); memcpy(tabs + 22, &ct1, 2);
+        int p = (LoSetTabs(ploc, 720, 2, tabs) == 0) &&
+                c->tab_inc == 720 && c->tab_count == 2 &&
+                c->tab_lskt[0] == 3 && c->tab_ur[0] == 1440 && c->tab_leader[0] == 0x2E && c->tab_chartab[0] == 0x09 &&
+                c->tab_lskt[1] == 5 && c->tab_ur[1] == 2880;
+        int n = (LoSetTabs((void *)0xdead, 720, 0, NULL) == WPF_PTS_ERR_NOT_IMPLEMENTED) &&
+                (LoSetTabs(ploc, 720, WPF_PTS_LS_TAB_MAX + 1, tabs) == WPF_PTS_ERR_NOT_IMPLEMENTED) &&
+                (LoSetTabs(ploc, 720, 2, NULL) == WPF_PTS_ERR_NOT_IMPLEMENTED);
+        if (p && n) mask |= 1 << 0;
+    }
+    /* ② LoCreateParaBreakingSession：正极（真对象／绑定上下文／保守 justified=0）＋反极 */
+    void *sess = NULL; int just = 9;
+    {
+        int p = (LoCreateParaBreakingSession(ploc, 10, 400, NULL, &sess, &just) == 0) &&
+                sess != NULL && just == 0 &&
+                wpf_pts_lsps_find(sess) != NULL &&
+                ((wpf_pts_lsps *)sess)->ctx == c &&
+                ((wpf_pts_lsps *)sess)->cp_para_first == 10 &&
+                ((wpf_pts_lsps *)sess)->max_width == 400;
+        /* ⚠️ 反极用**自己的出参变量**（`t103` 教训：与正极共用出参 ⇒ 反极把出参清成 NULL ⇒ 后续断言串变量） */
+        void *sess_neg = (void *)0x55; int just_neg = 7;
+        int n = (LoCreateParaBreakingSession((void *)0xdead, 0, 0, NULL, &sess_neg, &just_neg) == WPF_PTS_ERR_NOT_IMPLEMENTED) &&
+                (LoCreateParaBreakingSession(ploc, 0, 0, NULL, NULL, &just_neg) == WPF_PTS_ERR_NOT_IMPLEMENTED) &&
+                (LoCreateParaBreakingSession(ploc, 0, 0, NULL, &sess_neg, NULL) == WPF_PTS_ERR_NOT_IMPLEMENTED);
+        if (p && n) mask |= 1 << 1;
+    }
+    /* ③ LoDisposeParaBreakingSession：正极（真销毁 ⇒ 不可再认领）＋反极（NULL／伪值／重复必拒） */
+    {
+        int p = (LoDisposeParaBreakingSession(sess, 0) == 0) && wpf_pts_lsps_find(sess) == NULL;
+        int n = (LoDisposeParaBreakingSession(NULL, 0) == WPF_PTS_ERR_NOT_IMPLEMENTED) &&
+                (LoDisposeParaBreakingSession((void *)0xdead, 0) == WPF_PTS_ERR_NOT_IMPLEMENTED) &&
+                (LoDisposeParaBreakingSession(sess, 0) == WPF_PTS_ERR_NOT_IMPLEMENTED);
+        if (p && n) mask |= 1 << 2;
+    }
+    /* ④ LoDisposePenaltyModule：正极（失效 ⇒ 取内部句柄必拒且清出参）＋反极（NULL／伪值／重复必拒） */
+    {
+        void *mod = NULL, *inner = (void *)0x77;
+        int p = (LoAcquirePenaltyModule(ploc, &mod) == 0) && mod != NULL &&
+                (LoDisposePenaltyModule(mod) == 0) &&
+                (LoGetPenaltyModuleInternalHandle(mod, &inner) == WPF_PTS_ERR_NOT_IMPLEMENTED) && inner == NULL;
+        int n = (LoDisposePenaltyModule(NULL) == WPF_PTS_ERR_NOT_IMPLEMENTED) &&
+                (LoDisposePenaltyModule((void *)0xdead) == WPF_PTS_ERR_NOT_IMPLEMENTED) &&
+                (LoDisposePenaltyModule(mod) == WPF_PTS_ERR_NOT_IMPLEMENTED);
+        if (p && n) mask |= 1 << 3;
+    }
+    fprintf(stderr, "[LSBATCH2-SELFTEST] mask=0x%02x settabs=%d parabrk_create=%d parabrk_dispose=%d pen_dispose=%d "
+                    "legs=%s\n", mask, (mask >> 0) & 1, (mask >> 1) & 1, (mask >> 2) & 1, (mask >> 3) & 1,
+            mask == 0x0f ? "4/4(POS+REJECT)" : "PARTIAL");
+
+    /* 收尾：真销毁夹具对象（未过继的会话亦一并回收）⇒ 活数回 base（泄漏 ⇒ 不算绿） */
+    while (g_pts_lsps_live_n > base_sps)
+        LoDisposeParaBreakingSession(g_pts_lsps_live[g_pts_lsps_live_n - 1], 0);
+    LoDestroyContext(ploc);
+    for (int i = 0; i < WPF_PTS_B2_N; i++) { g_pts_b2_ok[i] = save_ok[i]; g_pts_b2_gap[i] = save_gap[i]; }
+    g_pts_lstabs_sets = save_tab_s; g_pts_lstabs_rejected = save_tab_r;
+    g_pts_lsps_creates = save_sps_c; g_pts_lsps_destroys = save_sps_d; g_pts_lsps_rejected = save_sps_r;
+    g_pts_pen_disposed = save_pen_d; g_pts_pen_dispose_rejected = save_pen_r;
+    if (g_pts_loc_live_n != base_loc || g_pts_lsps_live_n != base_sps) return -1;
+    return mask;
+}
+
+/* ── 本批的只读桥接（供仓外 dlopen 探针与判据现取；纯读、越界即响亮返回哨兵）────────────── */
+int WpfLinuxWin32_PtsLsBatch2SelftestMask(void) { return WpfLinuxWin32_PtsLsBatch2SelfCheck(); }
+int WpfLinuxWin32_PtsLsBatch2Ok(int idx)  { return (idx >= 0 && idx < WPF_PTS_B2_N) ? g_pts_b2_ok[idx]  : -1; }
+int WpfLinuxWin32_PtsLsBatch2Gap(int idx) { return (idx >= 0 && idx < WPF_PTS_B2_N) ? g_pts_b2_gap[idx] : -1; }
+int WpfLinuxWin32_PtsLsSessionLive(void)      { return g_pts_lsps_live_n; }
+int WpfLinuxWin32_PtsLsSessionCreates(void)   { return g_pts_lsps_creates; }
+int WpfLinuxWin32_PtsLsSessionDestroys(void)  { return g_pts_lsps_destroys; }
+int WpfLinuxWin32_PtsLsSessionRejected(void)  { return g_pts_lsps_rejected; }
+int WpfLinuxWin32_PtsLsTabsSets(void)         { return g_pts_lstabs_sets; }
+int WpfLinuxWin32_PtsLsTabsRejected(void)     { return g_pts_lstabs_rejected; }
+int WpfLinuxWin32_PtsPenaltyDisposed(void)    { return g_pts_pen_disposed; }
+int WpfLinuxWin32_PtsPenaltyDisposeRejected(void) { return g_pts_pen_dispose_rejected; }
+/* 第 idx 个在册上下文上的制表位整数值（**位置读**：不得跨销毁缓存 idx；越界／无 ⇒ -1）。
+   `field`：0 = `durIncrementalTab` ｜ 1 = `tabCount` ｜ 2 = `LoSetTabs` 成功次数。 */
+int WpfLinuxWin32_PtsLocTabInt(int idx, int field)
+{
+    if (idx < 0 || idx >= g_pts_loc_live_n) return -1;
+    wpf_pts_loc *c = g_pts_loc_live[idx];
+    if (!c || c->magic != WPF_PTS_LOC_MAGIC) return -1;
+    switch (field) {
+        case 0: return c->tab_inc;
+        case 1: return c->tab_count;
+        case 2: return c->tab_sets;
+        default: return -1;
+    }
+}
+/* 第 idx 个在册上下文上的**第 i 条制表位**的某字段（`what`：0=lskt 1=ur 2=leader 3=chartab）；越界 ⇒ -1。 */
+int WpfLinuxWin32_PtsLocTabEntry(int idx, int i, int what)
+{
+    if (idx < 0 || idx >= g_pts_loc_live_n) return -1;
+    wpf_pts_loc *c = g_pts_loc_live[idx];
+    if (!c || c->magic != WPF_PTS_LOC_MAGIC) return -1;
+    if (i < 0 || i >= c->tab_count || i >= WPF_PTS_LS_TAB_MAX) return -1;
+    switch (what) {
+        case 0: return c->tab_lskt[i];
+        case 1: return c->tab_ur[i];
+        case 2: return c->tab_leader[i];
+        case 3: return c->tab_chartab[i];
+        default: return -1;
+    }
+}
 
 // ── 格 6 · 只读面（`t110`／P1-W35）：`CreateDocContext` 的**独立读取面** ────────────────
 //   为什么要这些口：判据 C9 的判绿**不许**停在"两个句柄不同"（那只是必要条件）；"按对象绑定"
