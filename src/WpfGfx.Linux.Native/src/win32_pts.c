@@ -11085,3 +11085,374 @@ int WpfLinuxWin32_PtsGapSelfCheck(void)
 // 诊断读数：上一次 `WpfLinuxWin32_PtsGapSelfCheck()` 的内部格号（0 = 全过；>0 = 该格必红）。
 //   ⚠️ 它**不**参与判据（判据只看自检的 1/0）；存在的理由是"红的时候要能点名"（本仓纪律：不许红而不点名）。
 int WpfLinuxWin32_PtsGapSelfCheckDiag(void) { return g_pts_selfcheck_rc; }
+
+/* ══════════════════════════════════════════════════════════════════════════════════════════════
+   ⏪ `T-A73`（`TASK-0307` 增量 · **行断器** ＝ `W` 合取第 ③ 条 `PRECOND-NO-LINE-BREAKER`）
+   ──────────────────────────────────────────────────────────────────────────────────────────────
+   【在册前置 · 件:行】`build/MilBridge/P1-layout-content-criteria.md:113`：「**`PRECOND-NO-LINE-BREAKER`**：
+   本侧无行断器（LS 族 0 实现）。」`build/MilBridge/P1-tail2-dingrecon.md` §3.2 把它列为 `W`
+   （"内容层那一波"准入合取）的**第三条**（`:93`）。
+   【本块做什么】把**行断点集合**做成 native 侧一条**可现取、可对拍、可两极化**的台账：
+     · **断点 cp 序列**：对给定段，逐断点给出 `cp`（＝`cp_first + dcp`，`cp_first` 取自 `T-A69`
+       内容源的起始偏移，`dcp` 取自**托管真排版**交回的行记录 `fl_line[]`（`T-A33` 回填源））；
+     · **逐断点最小 `LsLInfo` 骨架**：只给**能诚实推出的**字段（`cpLimToStay`/`cpLimToContinue`
+       ＝该断点 `cp`、`cpFirstVis`＝该行起始 `cp`、`fFirstLineInPara`＝是否首行）；
+       **度量字段（`dvr/dvp` ascent/descent、`vaAdvance`、`EffectsFlags`…）一律不给** —— 本侧
+       **无度量源**（判据件 `:112` 的 `PRECOND-NO-TEXT-SOURCE` 与 LS 回调面 `LS-CB-M1` 的
+       `GetRunTextMetrics`/`GetRunCharWidths` 本侧未接）⇒ **不许伪造度量**（`P3`／`P8` 家族）。
+     · **自算**：native 从 `T-A69` 的**内容源字符序列**独立数出**强制断行序列**个数（`n_hard`；
+       `LF`/`CR`/`NEL`/`LS`/`PS`，`CRLF` 视作**一条**）—— 这是**不依赖度量**的可诚实规则。
+   【对拍（**逐段**）】`n_brk`（真排版行数＝真断点数）／`dcp[i]`／`cp[i]` 逐格现取；两条可证伪不变量：
+     ① **真断点集合结构自洽**：`dcp` **严格递增**（`mono`）∧ 首断点 `> 0`（`first_ok`）；
+     ② **跨域计数不变量**：`n_brk >= n_hard`（`cover_ok`）—— 每个强制断行必在真排版里产生一个
+        **行边界**（故**真排版行数不得少于强制断行序列数**）。
+     **任一不成立 ⇒ 诚实拒绝**（`brk-not-monotonic`／`brk-first`／`brk-count-vs-content`）——
+     这就是「**断点不符 ⇒ 该红必红**」的牙（反腿副本把这三条判据门在 `WPF_PTS_LB_FAKE` 上）。
+   【诚实边界（逐条，不许读宽）】
+     1. 🔴 **本侧不是作者**：断点 `dcp` 由**托管真排版**产出（`pfnFormatLine` 真返回值，经 `T-A33`
+        记进 `fl_line[]`）；`cp_first` 由托管给出（`T-A69`）。本块**只收、只认领、只对拍、只回读**。
+     2. 🔴 **"域不同"如实声明（本件核心划界）**：内容源是**文本域**（`TextRange.Text`），而
+        `fl_line[]` 的 `dcp` 是**排版域**（含元素边界符号）⇒ 两者**不可逐点换算**（现取：某段
+        `text.Length=38` 而 `dcpLim=41`）⇒ 本块**只做跨域**的**计数不变量**（②）＋ 域内自洽（①），
+        **不**跨域对点、**不**伪造映射（具名 `NOINFO-linebreak-domain-mismatch`）。
+     3. 🔴 **"行断器"≠"排版前进"**：本块**不**改任何几何／行盒／渲染；`W` 整体仍**未解除**
+        （`C2` 的 `plsrun` 那一半／`PRECOND-NEW-CALLBACK-FACE` 仍在册）。
+     4. **有界**：条数 ≤ `WPF_PTS_LB_MAX`、逐段断点 ≤ `WPF_PTS_FL_MAXLINE`（真排版行数上界）；
+        越界**响亮拒**（不截断、不静默）；表满 ⇒ 有界复用最旧槽。
+   ══════════════════════════════════════════════════════════════════════════════════════════════ */
+#define WPF_PTS_LB_MAX       8        /* 在册"行断点台账"条数上界（有界，防异常调用无限增长） */
+#define WPF_PTS_LB_ST_NONE   0        /* 该段**没有**行断点台账（≠"有台账但 0 断点"） */
+#define WPF_PTS_LB_ST_EMPTY  1        /* 有台账但 `n_brk==0`（真排版 0 行；正常路径不会出现） */
+#define WPF_PTS_LB_ST_VALUE  2        /* 有台账且有断点（真实断点集合） */
+#define WPF_PTS_LB_MAGIC     0x4c42524bu   /* "LBRK"：本模块自认的条目魔数 */
+
+typedef struct {
+    unsigned int magic;
+    const void  *parah;      /* 段落身份（托管给的句柄；本侧**只存、不 deref**） */
+    int          cp_first;   /* 段起始字符偏移（`T-A69` 内容源给出的 `cp_off`） */
+    int          cp_lim;     /* 段末字符偏移（＝`cp_first + cch`，内容域） */
+    int          cch;        /* 内容源字符数（文本域；跨域只作计数，见件头边界 2） */
+    int          n_hard;     /* **native 自算**：内容源里强制断行序列数 */
+    int          n_brk;      /* **托管真排版**交回的真断点（真行）数 */
+    int          dcp[WPF_PTS_FL_MAXLINE];   /* 逐断点段内偏移（真排版 `fl_line[k].dcp_lim`） */
+    int          cp[WPF_PTS_FL_MAXLINE];    /* 逐断点 `cp` ＝ `cp_first + dcp`（"断点 cp 序列"） */
+    int          mono;       /* 真断点 `dcp` 严格递增 */
+    int          first_ok;   /* 首断点 `dcp > 0` */
+    int          cover_ok;   /* `n_brk >= n_hard`（跨域计数不变量） */
+    int          state;      /* `WPF_PTS_LB_ST_{NONE,EMPTY,VALUE}` */
+    int          seq;        /* 全局入站序号（只增） */
+} wpf_pts_linebreak;
+
+static wpf_pts_linebreak *g_pts_lb[WPF_PTS_LB_MAX];
+static int g_pts_lb_n    = 0;   /* 在册条数（＝"行断点台账"的现取计数） */
+static int g_pts_lb_seq  = 0;   /* 全局入站序号（只增） */
+static int g_pts_lb_rx   = 0;   /* 成功入账次数 */
+static int g_pts_lb_gap  = 0;   /* 被拒（空参／不在链／无内容源／无行台账／结构不符）次数 */
+static int g_pts_lb_mism = 0;   /* 因"**断点不符**"（结构/计数不变量破）被拒的次数（该红必红面） */
+static int g_pts_lb_rr   = 0;   /* 有界表的轮转指针（满时复用最旧槽） */
+
+/* ── 强制断行判定（**内容域的确定性规则**，不依赖任何度量）────────────────────────────────
+   Unicode 强制断行符：`LF(U+000A)`／`CR(U+000D)`／`NEL(U+0085)`／`LS(U+2028)`／`PS(U+2029)`。
+   `CRLF` 视作**一条**（避免把 Windows 行尾数成两条）。 */
+static int wpf_pts_lb_hard(unsigned short c)
+{
+    return (c == 0x000Au || c == 0x000Du || c == 0x0085u || c == 0x2028u || c == 0x2029u);
+}
+/* 从 `T-A69` 的内容副本里数**强制断行序列**个数（`k` ＝ 内容源槽；槽无效 ⇒ `-1`）。 */
+static int wpf_pts_lb_count_hard(int k)
+{
+    int cch = WpfLinuxWin32_PtsTextSrcCch(k);
+    if (cch < 0) return -1;
+    int n = 0;
+    for (int i = 0; i < cch; i++) {
+        int c = WpfLinuxWin32_PtsTextSrcChar(k, i);
+        if (c < 0) break;
+        if (!wpf_pts_lb_hard((unsigned short)c)) continue;
+        if (c == 0x000D && (i + 1) < cch && WpfLinuxWin32_PtsTextSrcChar(k, i + 1) == 0x000A) { n++; i++; continue; }
+        n++;
+    }
+    return n;
+}
+
+/* ── 入站（唯一收口）：认领段 ＋ 核内容源 ＋ 对拍真断点 ＋ 具名行 ─────────────────────────────
+   ⚠️ **无假值纪律**：任一失败路径 ⇒ **一个字都不写进表**（表内不出现该段）＋具名 `[LINEBREAK] rx=REJECT`。 */
+int WpfLinuxWin32_PtsLineBreakFeed(const void *parah)
+{
+    const char *reason = NULL;
+    wpf_pts_subtrack *obj = NULL;
+    if (!parah)                                              reason = "null-para";
+    else if (!wpf_pts_sub_claim(parah, &obj))                reason = "not-in-chain";       /* ← T-A71 进链牙 */
+    else if (WpfLinuxWin32_PtsTextSrcFind(parah) < 0)        reason = "no-text-source";     /* ← T-A69 内容源牙 */
+    else if (!wpf_pts_fl_usable(obj))                        reason = "no-line-ledger";     /* ← 真断点无源 */
+    if (reason) {
+        g_pts_lb_gap++;
+        fprintf(stderr, "[LINEBREAK] rx=REJECT reason=%s parah=%p out=UNWRITTEN bytes=0\n", reason, parah);
+        return WPF_PTS_ERR_NOT_IMPLEMENTED;
+    }
+    int ts      = WpfLinuxWin32_PtsTextSrcFind(parah);
+    int cch     = WpfLinuxWin32_PtsTextSrcCch(ts);
+    int cp_first = WpfLinuxWin32_PtsTextSrcCpOff(ts);
+    int n_hard  = wpf_pts_lb_count_hard(ts);                  /* **native 自算**（内容域，可诚实推出） */
+    int n_brk   = obj->fl_nlines;                             /* **托管真排版**（`fl_line[]` 台账） */
+    if (n_brk > WPF_PTS_FL_MAXLINE) n_brk = WPF_PTS_FL_MAXLINE;
+    int mono = 1, first_ok = 1;
+    for (int i = 0; i < n_brk; i++) {
+        if (i > 0 && obj->fl_line[i].dcp_lim <= obj->fl_line[i - 1].dcp_lim) mono = 0;
+    }
+    if (n_brk > 0 && obj->fl_line[0].dcp_lim <= 0) first_ok = 0;
+    int cover_ok = (n_brk >= n_hard);
+    /* ── 判据 ①（真断点集合结构自洽）＋ ②（跨域计数不变量）—— **断点不符 ⇒ 该红必红** ────────── */
+    if (!mono)                                  { g_pts_lb_mism++; reason = "brk-not-monotonic"; }
+    else if (n_brk > 0 && !first_ok)            { g_pts_lb_mism++; reason = "brk-first-not-after-start"; }
+    else if (!cover_ok)                         { g_pts_lb_mism++; reason = "brk-count-vs-content"; }
+    if (reason) {
+        g_pts_lb_gap++;
+        fprintf(stderr, "[LINEBREAK] rx=REJECT reason=%s parah=%p n_brk=%d n_hard=%d mono=%d first=%d cover=%d "
+                        "out=UNWRITTEN bytes=0\n",
+                reason, parah, n_brk, n_hard, mono, first_ok, cover_ok);
+        return WPF_PTS_ERR_NOT_IMPLEMENTED;
+    }
+    int slot = -1;
+    for (int i = 0; i < g_pts_lb_n; i++)
+        if (g_pts_lb[i] && g_pts_lb[i]->magic == WPF_PTS_LB_MAGIC && g_pts_lb[i]->parah == parah) { slot = i; break; }
+    if (slot < 0) {
+        if (g_pts_lb_n < WPF_PTS_LB_MAX) {
+            slot = g_pts_lb_n;
+            g_pts_lb[slot] = (wpf_pts_linebreak *)calloc(1, sizeof(wpf_pts_linebreak));
+            if (!g_pts_lb[slot]) {
+                g_pts_lb_gap++;
+                fprintf(stderr, "[LINEBREAK] rx=REJECT reason=alloc-failed parah=%p out=UNWRITTEN bytes=0\n", parah);
+                return WPF_PTS_ERR_NOT_IMPLEMENTED;
+            }
+            g_pts_lb_n++;
+        } else {
+            slot = g_pts_lb_rr++ % WPF_PTS_LB_MAX;            /* 有界复用（最旧） */
+        }
+    }
+    wpf_pts_linebreak *s = g_pts_lb[slot];
+    s->magic    = WPF_PTS_LB_MAGIC;
+    s->parah    = parah;
+    s->cp_first = cp_first;
+    s->cch      = cch;
+    s->cp_lim   = cp_first + cch;
+    s->n_hard   = n_hard;
+    s->n_brk    = n_brk;
+    s->mono     = mono;
+    s->first_ok = first_ok;
+    s->cover_ok = cover_ok;
+    for (int i = 0; i < n_brk; i++) {
+        s->dcp[i] = obj->fl_line[i].dcp_lim;
+        s->cp[i]  = cp_first + obj->fl_line[i].dcp_lim;
+    }
+    s->state    = (n_brk > 0) ? WPF_PTS_LB_ST_VALUE : WPF_PTS_LB_ST_EMPTY;
+    s->seq      = ++g_pts_lb_seq;
+    g_pts_lb_rx++;
+    fprintf(stderr, "[LINEBREAK] rx=OK slot=%d seq=%d parah=%p cp=[%d,%d) cch=%d n_brk=%d n_hard=%d mono=%d "
+                    "first=%d cover=%d dcp0=%d dcpN=%d state=%s v=LINE-BREAKER-SET\n",
+            slot, s->seq, parah, cp_first, s->cp_lim, cch, n_brk, n_hard, mono, first_ok, cover_ok,
+            n_brk > 0 ? s->dcp[0] : -1, n_brk > 0 ? s->dcp[n_brk - 1] : -1,
+            s->state == WPF_PTS_LB_ST_VALUE ? "VALUE" : "EMPTY");
+    return 0;
+}
+
+/* ── 只读回读面（供托管对拍／探针／判据现取；纯读、越界即响亮哨兵）────────────────────────── */
+static wpf_pts_linebreak *wpf_pts_lb_at(int k)
+{
+    if (k < 0 || k >= g_pts_lb_n) return NULL;
+    wpf_pts_linebreak *s = g_pts_lb[k];
+    return (s && s->magic == WPF_PTS_LB_MAGIC) ? s : NULL;
+}
+int WpfLinuxWin32_PtsLineBreakCount(void) { return g_pts_lb_n; }
+int WpfLinuxWin32_PtsLineBreakFind(const void *parah)
+{
+    for (int i = 0; i < g_pts_lb_n; i++) {
+        wpf_pts_linebreak *s = wpf_pts_lb_at(i);
+        if (s && s->parah == parah) return i;
+    }
+    return -1;
+}
+int WpfLinuxWin32_PtsLineBreakState(int k)   { wpf_pts_linebreak *s = wpf_pts_lb_at(k); return s ? s->state : -1; }
+int WpfLinuxWin32_PtsLineBreakSeq(int k)     { wpf_pts_linebreak *s = wpf_pts_lb_at(k); return s ? s->seq : -1; }
+const void *WpfLinuxWin32_PtsLineBreakPara(int k) { wpf_pts_linebreak *s = wpf_pts_lb_at(k); return s ? s->parah : NULL; }
+int WpfLinuxWin32_PtsLineBreakCpFirst(int k) { wpf_pts_linebreak *s = wpf_pts_lb_at(k); return s ? s->cp_first : -1; }
+int WpfLinuxWin32_PtsLineBreakCpLim(int k)   { wpf_pts_linebreak *s = wpf_pts_lb_at(k); return s ? s->cp_lim : -1; }
+int WpfLinuxWin32_PtsLineBreakCch(int k)     { wpf_pts_linebreak *s = wpf_pts_lb_at(k); return s ? s->cch : -1; }
+int WpfLinuxWin32_PtsLineBreakNHard(int k)   { wpf_pts_linebreak *s = wpf_pts_lb_at(k); return s ? s->n_hard : -1; }
+int WpfLinuxWin32_PtsLineBreakNBrk(int k)    { wpf_pts_linebreak *s = wpf_pts_lb_at(k); return s ? s->n_brk : -1; }
+int WpfLinuxWin32_PtsLineBreakMono(int k)    { wpf_pts_linebreak *s = wpf_pts_lb_at(k); return s ? s->mono : -1; }
+int WpfLinuxWin32_PtsLineBreakFirstOk(int k) { wpf_pts_linebreak *s = wpf_pts_lb_at(k); return s ? s->first_ok : -1; }
+int WpfLinuxWin32_PtsLineBreakCoverOk(int k) { wpf_pts_linebreak *s = wpf_pts_lb_at(k); return s ? s->cover_ok : -1; }
+/* 逐断点 `dcp`（段内偏移；越界 ⇒ `-1`）。 */
+int WpfLinuxWin32_PtsLineBreakDcpAt(int k, int i)
+{
+    wpf_pts_linebreak *s = wpf_pts_lb_at(k);
+    if (!s || i < 0 || i >= s->n_brk) return -1;
+    return s->dcp[i];
+}
+/* 逐断点 `cp`（＝`cp_first + dcp`；越界 ⇒ `-1`）。 */
+int WpfLinuxWin32_PtsLineBreakCpAt(int k, int i)
+{
+    wpf_pts_linebreak *s = wpf_pts_lb_at(k);
+    if (!s || i < 0 || i >= s->n_brk) return -1;
+    return s->cp[i];
+}
+/* ── 逐断点**最小 `LsLInfo` 骨架**（只给可诚实推出的字段；度量字段本侧**不给** = 不伪造）──────
+   `field`＝0 `cpFirstVis`（该行起始 `cp`；`i==0` ⇒ `cp_first`）｜1 `cpLimToStay`/`cpLimToContinue`
+   （该断点 `cp`）｜2 `fFirstLineInPara`（i==0）。越界 ⇒ `-1`。 */
+int WpfLinuxWin32_PtsLineBreakInfo(int k, int i, int field)
+{
+    wpf_pts_linebreak *s = wpf_pts_lb_at(k);
+    if (!s || i < 0 || i >= s->n_brk) return -1;
+    switch (field) {
+        case 0: return (i == 0) ? s->cp_first : s->cp[i - 1];
+        case 1: return s->cp[i];
+        case 2: return (i == 0) ? 1 : 0;
+        default: return -1;                     /* 度量字段：**不给**（本侧无度量源） */
+    }
+}
+int WpfLinuxWin32_PtsLineBreakRx(void)    { return g_pts_lb_rx; }
+int WpfLinuxWin32_PtsLineBreakRxGap(void) { return g_pts_lb_gap; }
+int WpfLinuxWin32_PtsLineBreakMism(void)  { return g_pts_lb_mism; }
+
+/* ── 两极化自检（**正极真值 ∧ 反极必拒 ∧ 断点不符必红**；纯 native，只用本侧夹具）────────────
+   夹具段落由 `wpf_pts_sub_new` 真造（⇒ `T-A71` 进链可收）、内容源由 `T-A69` 的 `…PtsTextSrcFeed`
+   真入站、真排版行台账由本自检**当窗内夹具**直接置（＝真排版交回的同一 `fl_line[]` 形状）。
+   bit0 ＝ 正极（真断点结构自洽 ∧ 跨域计数不变量成立 ⇒ `VALUE` ∧ cp 序列／骨架逐格相符）；
+   bit1 ＝ 反极必拒（不在链／无内容源／空参 ⇒ `-10000`；回读越界 ⇒ 哨兵）；
+   bit2 ＝ **该红必红**（真断点**非单调** ⇒ 必拒 `brk-not-monotonic`）；
+   bit3 ＝ **该红必红**（**跨域计数不变量破**：内容源 2 条强制断行但真排版只有 1 行 ⇒ 必拒
+          `brk-count-vs-content`）。
+   **-1** ＝ 夹具自身失败（表位不足 ⇒ **不算绿**）。收尾**真销毁**并**复原全部可观测状态**。 */
+static int g_pts_lb_fix_page;
+
+int WpfLinuxWin32_PtsLineBreakSelfCheck(void)
+{
+    if (g_pts_lb_n + 2 > WPF_PTS_LB_MAX)          return -1;      /* 表位不足 ⇒ 不算绿 */
+    if (g_pts_sub_live_n + 2 > WPF_PTS_SUB_MAX)   return -1;
+    if (g_pts_textsrc_n + 2 > WPF_PTS_TEXTSRC_MAX) return -1;
+    if (g_pts_pc_n + 2 > WPF_PTS_PC_MAX)          return -1;
+    int save_lbn = g_pts_lb_n, save_lbseq = g_pts_lb_seq, save_lbrr = g_pts_lb_rr;
+    int save_lbrx = g_pts_lb_rx, save_lbgap = g_pts_lb_gap, save_lbmis = g_pts_lb_mism;
+    int save_tsn = g_pts_textsrc_n, save_tsseq = g_pts_textsrc_seq, save_tsrr = g_pts_textsrc_rr;
+    int save_tsrx = g_pts_textsrc_rx, save_tsgap = g_pts_textsrc_gap, save_tsempty = g_pts_textsrc_empty;
+    int save_pcn = g_pts_pc_n, save_pcseq = g_pts_pc_seq, save_pcrr = g_pts_pc_rr;
+    int save_pcrx = g_pts_pc_rx, save_pcgap = g_pts_pc_gap, save_pcuns = g_pts_pc_unsourced;
+    int save_subn = g_pts_sub_live_n, save_subc = g_pts_sub_created, save_subd = g_pts_sub_destroyed;
+    int save_subseq = g_pts_sub_seq, save_hcr = g_pts_hc_reading;
+    int save_cok = g_pts_sub_claim_ok, save_cbad = g_pts_sub_claim_bad;
+    int mask = 0;
+
+    wpf_pts_subtrack *o_a = wpf_pts_sub_new(&g_pts_lb_fix_page, NULL);
+    wpf_pts_subtrack *o_b = NULL;
+    if (!o_a) return -1;
+    const void *pa = wpf_pts_sub_handle(o_a);              /* 可认领的段身份 ⇒ `T-A71` 台账可收 */
+    static const unsigned short fix[] = { 'A','B', 0x000A, 'C','D' };   /* 夹具内容：1 条强制断行（LF） */
+    const int fc = (int)(sizeof(fix) / sizeof(fix[0]));
+    if (WpfLinuxWin32_PtsTextSrcFeed(pa, 3, fix, fc) != 0)              { wpf_pts_sub_destroy(o_a); return -1; }
+    if (WpfLinuxWin32_PtsParaChainFeed(pa, 1, 3, 3 + fc) != 0)          { wpf_pts_sub_destroy(o_a); return -1; }
+
+    /* 正极夹具：真排版 2 行（`dcp` 0→3、3→6）；内容源 1 条强制断行 ⇒ `n_brk=2 >= n_hard=1`。 */
+    o_a->fl_nlines = 2; o_a->fl_ok = 1; o_a->fl_complete = 1; o_a->fl_truncated = 0; o_a->fl_calls = 2;
+    o_a->fl_line[0].dcp_first = 0; o_a->fl_line[0].dcp_lim = 3;
+    o_a->fl_line[1].dcp_first = 3; o_a->fl_line[1].dcp_lim = 6;
+
+    /* bit0：正极 —— 断点 cp 序列 ＋ 最小骨架 ＋ 两条不变量逐格相符 */
+    {
+        int rc = WpfLinuxWin32_PtsLineBreakFeed(pa);
+        int k  = WpfLinuxWin32_PtsLineBreakFind(pa);
+        int ok = (rc == 0) && (k >= 0)
+              && (WpfLinuxWin32_PtsLineBreakState(k)   == WPF_PTS_LB_ST_VALUE)
+              && (WpfLinuxWin32_PtsLineBreakNBrk(k)    == 2)
+              && (WpfLinuxWin32_PtsLineBreakNHard(k)   == 1)
+              && (WpfLinuxWin32_PtsLineBreakMono(k)    == 1)
+              && (WpfLinuxWin32_PtsLineBreakFirstOk(k) == 1)
+              && (WpfLinuxWin32_PtsLineBreakCoverOk(k) == 1)
+              && (WpfLinuxWin32_PtsLineBreakCpFirst(k) == 3)
+              && (WpfLinuxWin32_PtsLineBreakCpLim(k)   == 8)
+              && (WpfLinuxWin32_PtsLineBreakCch(k)     == fc)
+              && (WpfLinuxWin32_PtsLineBreakSeq(k)     == 1);
+        if (ok) for (int i = 0; i < 2; i++)
+                    if (WpfLinuxWin32_PtsLineBreakDcpAt(k, i) != o_a->fl_line[i].dcp_lim) { ok = 0; break; }
+        if (ok)
+            ok = (WpfLinuxWin32_PtsLineBreakCpAt(k, 0) == 6) && (WpfLinuxWin32_PtsLineBreakCpAt(k, 1) == 9)
+              && (WpfLinuxWin32_PtsLineBreakCpAt(k, 2) == -1)
+              && (WpfLinuxWin32_PtsLineBreakInfo(k, 0, 0) == 3)      /* cpFirstVis（首行）＝ cp_first */
+              && (WpfLinuxWin32_PtsLineBreakInfo(k, 1, 0) == 6)      /* cpFirstVis（次行）＝ 上一断点 cp */
+              && (WpfLinuxWin32_PtsLineBreakInfo(k, 1, 1) == 9)      /* cpLim ＝ 本断点 cp */
+              && (WpfLinuxWin32_PtsLineBreakInfo(k, 0, 2) == 1)      /* fFirstLineInPara */
+              && (WpfLinuxWin32_PtsLineBreakInfo(k, 1, 2) == 0)
+              && (WpfLinuxWin32_PtsLineBreakInfo(k, 0, 3) == -1);    /* 度量字段：**不给** */
+        if (ok) mask |= 1 << 0;
+    }
+    /* bit1：反极必拒（该拒必拒；回读越界 ⇒ 哨兵） */
+    {
+        o_b = wpf_pts_sub_new(&g_pts_lb_fix_page, NULL);            /* 在链上但**无内容源** ⇒ 必拒 */
+        const void *pb = o_b ? wpf_pts_sub_handle(o_b) : NULL;
+        int ok = (WpfLinuxWin32_PtsLineBreakFeed(NULL)                                 == WPF_PTS_ERR_NOT_IMPLEMENTED)
+              && (WpfLinuxWin32_PtsLineBreakFeed((const void *)0x5a5a5a5a)             == WPF_PTS_ERR_NOT_IMPLEMENTED)
+              && (o_b != NULL)
+              && (WpfLinuxWin32_PtsLineBreakFeed(pb)                                   == WPF_PTS_ERR_NOT_IMPLEMENTED)
+              && (WpfLinuxWin32_PtsLineBreakFind((const void *)0x5a5a5a5a)             == -1)
+              && (WpfLinuxWin32_PtsLineBreakState(999)                                 == -1)
+              && (WpfLinuxWin32_PtsLineBreakNBrk(999)                                  == -1)
+              && (WpfLinuxWin32_PtsLineBreakCpAt(999, 0)                               == -1)
+              && (WpfLinuxWin32_PtsLineBreakDcpAt(0, 999)                              == -1)
+              && (WpfLinuxWin32_PtsLineBreakInfo(999, 0, 0)                            == -1)
+              && (WpfLinuxWin32_PtsLineBreakPara(999)                                  == NULL);
+        if (ok) mask |= 1 << 1;
+    }
+    /* bit2：**该红必红** —— 真断点**非单调**（`dcp_lim` 回退）⇒ 必拒 ∧ 原台账不动 */
+    {
+        int k0 = WpfLinuxWin32_PtsLineBreakFind(pa);
+        o_a->fl_line[1].dcp_lim = 1;                                /* 3 → 1：非单调（伪造） */
+        int rc = WpfLinuxWin32_PtsLineBreakFeed(pa);
+        o_a->fl_line[1].dcp_lim = 6;                                /* 复原 */
+        int ok = (rc == WPF_PTS_ERR_NOT_IMPLEMENTED)
+              && (k0 >= 0) && (WpfLinuxWin32_PtsLineBreakNBrk(k0) == 2)
+              && (WpfLinuxWin32_PtsLineBreakMism() >= 1);
+        if (ok) mask |= 1 << 2;
+    }
+    /* bit3：**该红必红** —— **跨域计数不变量破**（内容源 2 条强制断行，真排版只有 1 行）⇒ 必拒 */
+    {
+        static const unsigned short fix2[] = { 'A',0x000A,'B',0x000A,'C' };   /* 2 条强制断行 */
+        const int fc2 = (int)(sizeof(fix2) / sizeof(fix2[0]));
+        if (WpfLinuxWin32_PtsTextSrcFeed(pa, 3, fix2, fc2) == 0) {            /* 内容源换代（同段身份） */
+            o_a->fl_nlines = 1; o_a->fl_line[0].dcp_first = 0; o_a->fl_line[0].dcp_lim = 5;
+            int rc = WpfLinuxWin32_PtsLineBreakFeed(pa);
+            int ok = (rc == WPF_PTS_ERR_NOT_IMPLEMENTED);
+            /* 复原内容源（bit3 会覆盖 bit0 的样本；收尾前复原成 1 条强制断行的样本） */
+            WpfLinuxWin32_PtsTextSrcFeed(pa, 3, fix, fc);
+            o_a->fl_nlines = 2; o_a->fl_line[0].dcp_first = 0; o_a->fl_line[0].dcp_lim = 3;
+            o_a->fl_line[1].dcp_first = 3; o_a->fl_line[1].dcp_lim = 6;
+            if (ok) mask |= 1 << 3;
+        }
+    }
+    fprintf(stderr, "[LINEBREAK-SELFTEST] mask=0x%02x positive=%d reject=%d nonmono=%d count=%d legs=%s\n",
+            mask, (mask >> 0) & 1, (mask >> 1) & 1, (mask >> 2) & 1, (mask >> 3) & 1,
+            mask == 0x0f ? "4/4(POS+REJECT)" : "PARTIAL");
+
+    /* 复原一切可观测状态（"自检不许改变可观测状态"） */
+    for (int i = save_lbn; i < g_pts_lb_n; i++) {
+        if (g_pts_lb[i]) { g_pts_lb[i]->magic = 0; free(g_pts_lb[i]); g_pts_lb[i] = NULL; }
+    }
+    g_pts_lb_n = save_lbn; g_pts_lb_seq = save_lbseq; g_pts_lb_rr = save_lbrr;
+    g_pts_lb_rx = save_lbrx; g_pts_lb_gap = save_lbgap; g_pts_lb_mism = save_lbmis;
+    for (int i = save_tsn; i < g_pts_textsrc_n; i++) {
+        if (g_pts_textsrc[i]) { g_pts_textsrc[i]->magic = 0; free(g_pts_textsrc[i]); g_pts_textsrc[i] = NULL; }
+    }
+    g_pts_textsrc_n = save_tsn; g_pts_textsrc_seq = save_tsseq; g_pts_textsrc_rr = save_tsrr;
+    g_pts_textsrc_rx = save_tsrx; g_pts_textsrc_gap = save_tsgap; g_pts_textsrc_empty = save_tsempty;
+    for (int i = save_pcn; i < g_pts_pc_n; i++) {
+        if (g_pts_pc[i]) { g_pts_pc[i]->magic = 0; free(g_pts_pc[i]); g_pts_pc[i] = NULL; }
+    }
+    g_pts_pc_n = save_pcn; g_pts_pc_seq = save_pcseq; g_pts_pc_rr = save_pcrr;
+    g_pts_pc_rx = save_pcrx; g_pts_pc_gap = save_pcgap; g_pts_pc_unsourced = save_pcuns;
+    if (o_b) wpf_pts_sub_destroy(o_b);
+    wpf_pts_sub_destroy(o_a);
+    g_pts_sub_live_n = save_subn; g_pts_sub_created = save_subc; g_pts_sub_destroyed = save_subd;
+    g_pts_sub_seq = save_subseq; g_pts_hc_reading = save_hcr;
+    g_pts_sub_claim_ok = save_cok; g_pts_sub_claim_bad = save_cbad;
+    if (g_pts_lb_n != save_lbn) return -1;                         /* 泄漏 ⇒ 不算绿 */
+    return mask;
+}
+int WpfLinuxWin32_PtsLineBreakSelftestMask(void) { return WpfLinuxWin32_PtsLineBreakSelfCheck(); }

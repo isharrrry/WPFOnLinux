@@ -1,9 +1,9 @@
 // ⚠️ 本文件由 build/PresentationFramework.Linux/reapply-patches.py **生成**，不要手改。
 //
-// 内容 = 上游 `upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/PtsCache.cs` 逐字复制 + 8 处 W86A（`TASK-0304`/`TASK-0305`）改动。
+// 内容 = 上游 `upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/PtsCache.cs` 逐字复制 + 10 处 W86A（`TASK-0304`/`TASK-0305`）改动。
 // 每次运行该脚本都会从上游重读重生成；needle 找不到 / 命中数不符时**报错退出**
 // （不会静默产出未打补丁的副本）。改动逐处见：
-//   E1 ／ E2 ／ E3 ／ E4 ／ E5 ／ E6 ／ E7 ／ E8
+//   E1 ／ E2 ／ E3 ／ E4 ／ E5 ／ E6 ／ E7 ／ E8 ／ E9 ／ E10
 //
 // 背景（`D-G70`/`D-G78`）：本移植没有 PTS/原生 LineServices ⇒ 切「富文本」/「流文档」页
 // 曾**整进程 `rc=134`**。本件把它变成「**具名、可判、可见的能力边界**」：
@@ -509,7 +509,10 @@ namespace MS.Internal.PtsHost
             PtsHost ptsHost;
             IntPtr installedObjects;
             int installedObjectsCount;
-            TextFormatterContext textFormatterContext;
+            // ⏪ `T-A72`：本 PTS 上下文的 **LS 会话身份**（`LoCreateContext` 的 `ploc`）要能交给
+            //   下游段落窗去对账 ⇒ 这里先置 `null`（非最优段落的上下文**没有**会话），
+            //   在 `CreateDocContext` 之后由 `NoteContext` 记档。**只增、不改任何控制流**。
+            TextFormatterContext textFormatterContext = null;
             IntPtr context;
 
             ptsHost = _contextPool[index].PtsHost;
@@ -546,6 +549,16 @@ namespace MS.Internal.PtsHost
 
             // Create PTS Context
             PTS.Validate(PTS.CreateDocContext(ref _contextPool[index].ContextInfo, out context));
+
+            // ── ⏪ `T-A72`（`PRECOND-LS-SESSION-DRIVER` · **LS 会话进链**）──────────────────────────
+            //  为什么在这里：`textFormatterContext.Ploc`（`LoCreateContext` 的产出；`TextFormatterContext.cs:483`
+            //  的 `internal IntPtr Ploc`，PresentationCore 对 PresentationFramework 开了 `InternalsVisibleTo`）
+            //  与**本 PTS 文档上下文句柄**（`context`）在**同一个窗内**都在手上 ⇒ 当场把 `docCtx → ploc`
+            //  记进只读交付器；下游段落窗（`TextParaClient.ValidateVisual`）据此把 `(ploc, _paraHandle)`
+            //  在**同一窗内**交给 native 去做**会话↔段落对账**。
+            //  ⚠️ **只记不写**：不改 `contextInfo`／不改 `context`／不改控制流；`textFormatterContext` 为
+            //     `null`（非最优段落）⇒ 交付器直接跳过（如实，不冒充"有会话"）。
+            WpfLinuxLsSessionProbe.NoteContext(context, (textFormatterContext != null) ? textFormatterContext.Ploc : IntPtr.Zero);
 
             return context;
         }

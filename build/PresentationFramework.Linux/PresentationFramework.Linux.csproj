@@ -1582,6 +1582,8 @@
     <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/WpfLinuxTextParaChainProbe.Linux.cs" />
     <!-- T-A72（PRECOND-LS-SESSION-DRIVER · LS 会话进链）：会话↔段落对账交付器类本体 -->
     <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/WpfLinuxLsSessionProbe.Linux.cs" />
+    <!-- T-A73（PRECOND-NO-LINE-BREAKER · 行断器）：行断器触发器类本体 -->
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/WpfLinuxLineBreakProbe.Linux.cs" />
   </ItemGroup>
 
   <!-- ==== WPF-on-Linux 补丁结束 ==== -->

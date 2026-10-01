@@ -31,7 +31,7 @@
 #   并**断言相等**（不等即 `rc=9` 停手 = 基底漂移），再把 `tool/dead/artifact/ops/impl`
 #   交给牙**现算对账**（不等即牙红 —— 那才是"数漂了"，与基底漂移是两回事，分开报）。
 # ══════════════════════════════════════════════════════════════════════════════════
-# PTSGAP-DECL: tool=54 dead=11 artifact=1 ops=42 impl=42 so16=630cefb6c7bdf0f0 exports=824 w66pre16=bf6b683d94549087
+# PTSGAP-DECL: tool=54 dead=11 artifact=1 ops=42 impl=42 so16=df27801beb222f05 exports=846 w66pre16=bf6b683d94549087
 #   ⚠️ 波 `T-A72` 重锚（`TASK-0307` 增量 · **LS 会话进链 ＝ `PRECOND-LS-SESSION-DRIVER`**（`W` 合取第 ① 条）＋
 #     **契约 `C2` 的 `ploc` 一半**，`build/MilBridge/P1-ls-callback-face-recon.md:85` ／
 #     `build/MilBridge/P1-ls-provenance-contract.md:70` ／ `build/MilBridge/P1-tail2-dingrecon.md:91`）：
@@ -56,6 +56,37 @@
 #       `UNBOUND≠NONE`／反极必拒／**同段冲突必拒**）＋ 外部反腿 `NOCHAIN feed=‑10000 find=‑1`；反腿副本
 #       （`not-in-chain` 闸由"拒"改为"**只记不拒**" ⇒ 静默半通形态）⇒ `mask=0x03`（bit2／bit3 灭）＋
 #       外部反腿 `feed=0 find=-1 COUNT=1` ⇒ **该红必红**。
+
+#   ⚠️ 波 `T-A73` 重锚（`TASK-0307` 增量 · **行断器 ＝ `PRECOND-NO-LINE-BREAKER`**／`W` 合取第 ③ 条，
+#     `build/MilBridge/P1-layout-content-criteria.md:113`）：native 侧新增**行断点台账 ＋ 逐断点只读回读面
+#     （断点 `cp` 序列 ＋ 逐断点最小 `LsLInfo` 骨架）＋ 两极化自检**
+#     （`WpfLinuxWin32_PtsLineBreak{Feed,Count,Find,State,Seq,Para,CpFirst,CpLim,Cch,NHard,NBrk,Mono,FirstOk,
+#     CoverOk,DcpAt,CpAt,Info,Rx,RxGap,Mism,SelfCheck,SelftestMask}` 22 名）；并在**托管侧**（生成器
+#     `build/PresentationFramework.Linux/reapply-patches.py` 重产件 `WpfLinuxLineBreakProbe.Linux.cs` ＋
+#     `TextParaClient.Linux.cs` 的 `ValidateVisual` 一处调用）按**段身份**触发本侧收口。
+#     入站**三面牙**（任一不成立 ⇒ **诚实拒绝**，表内不出现该段）：① 段身份须能 `wpf_pts_sub_claim` 认领
+#     （`not-in-chain`，承 `T-A71` 进链）；② 须有 `T-A69` 内容源（`no-text-source`）；③ 须有**托管真排版**
+#     交回的行记录（`fl_line[]` 可回填，`no-line-ledger`）。
+#     **native 自算（可诚实规则，不依赖度量）**：从 `T-A69` 内容副本数出**强制断行序列**数（`LF`/`CR`/`NEL`/
+#     `LS`/`PS`，`CRLF` 视作一条）；**对拍**＝真断点**域内自洽**（`dcp` 严格递增 ∧ 首断点 > 0）＋ **跨域计数
+#     不变量**（`n_brk >= n_hard`）；任一破 ⇒ **必拒**（`brk-not-monotonic`／`brk-first-not-after-start`／
+#     `brk-count-vs-content`）。
+#     `exports 824→846`（**逐名 +22**：上列 22 名，无消失；`nm -D --defined-only` 行数 == `exports.txt`
+#       行数 == 846；逐名 `diff` 零差异）；
+#     `tool/ops/impl/dead/artifact` **未动**（未触碰任何 `PresentationNative` 入口缺口；`stubs` 仍 0）；
+#     `so16 630cefb6c7bdf0f0→df27801beb222f05`（544008→553936 B）；`w66pre16` 未动。
+#     ⚠️ **本增量不解除 `W`**：**行断器 ≠ 排版前进** —— 本块**不**改任何几何／行盒／渲染；断点 `dcp` 由
+#       **托管真排版**产出（`pfnFormatLine` 真返回值），`cp_first` 由 `T-A69` 给出，本侧**只收／只认领／只对拍／
+#       只回读**；`C2` 的 `plsrun` 那一半／`PRECOND-NEW-CALLBACK-FACE` 仍在册（`W` 整体仍**未解除**）。
+#     ⚠️ **域不同如实声明**：内容源是**文本域**（`TextRange.Text`）而 `fl_line[]` 的 `dcp` 是**排版域**（含元素
+#       边界符号）⇒ 两者**不可逐点换算**（现取：某段 `text.Length=38` 而 `dcpLim=41`）⇒ 本块**只做跨域计数
+#       不变量 ＋ 域内自洽**，不跨域对点（具名 `NOINFO-linebreak-domain-mismatch`）。
+#     ⚠️ **两极化（该红必红）**：dlopen 探针现取（主链）`[LINEBREAK-SELFTEST] mask=0x0f`（4/4：正极／反极必拒／
+#       **真断点非单调必红**／**跨域计数不变量破必红**）；外部反腿 `feed(NULL)=‑10000 feed(未在链)=‑10000`；反腿副本
+#       （三条判据门在 `WPF_PTS_LB_FAKE` 上 ⇒ 静默半通形态）⇒ `mask=0x03`（bit2／bit3 灭）⇒ **该红必红**。
+#     ⚠️ **真腿（`after`）**：`[LINEBREAK] mgd … mism=0 v=LINE-BREAKER-SET` **×25** ＋ native `[LINEBREAK] rx=OK …`
+#       **×25**（`n_brk` 1…8 ／ `n_hard` 0…8 ／ `cover=1` 全中）；反极腿（`WPF_LINEBREAK_FEED=0`）⇒ 本侧 `[LINEBREAK]`
+#       行 **0 条**；三腿四帧**逐字节相同**（零回归）。
 
 #   ⚠️ 波 `T-A71` 重锚（`TASK-0307` 增量 · **文本段落进链 ＝ `PRECOND-NO-TEXT-PARA-IN-CHAIN`**／`W` 合取第 ④ 条，
 #     `build/MilBridge/P1-layout-content-criteria.md:114`）：native 侧新增**进链台账（可寻址）＋ 逐段只读回读面 ＋

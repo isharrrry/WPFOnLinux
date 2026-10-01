@@ -110,6 +110,10 @@ namespace MS.Internal.PtsHost
             //  见生成器内该块的说明；`WPF_LSSESS_FEED=0` ⇒ 整块不发生（反极性腿）。
             WpfLinuxLsSessionProbe.Feed(PtsContext.Context, _paraHandle);
 
+            // ── `T-A73`（`PRECOND-NO-LINE-BREAKER` · **行断器**）─────────────────────
+            //  见生成器内该块的说明；`WPF_LINEBREAK_FEED=0` ⇒ 整块不发生（反极性腿）。
+            WpfLinuxLineBreakProbe.FeedParagraph(_paraHandle);
+
             VisualCollection visualChildren = _visual.Children;
             ContainerVisual lineContainerVisual = _visual;
 
