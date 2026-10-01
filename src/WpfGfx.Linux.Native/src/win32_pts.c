@@ -7892,6 +7892,43 @@ int FsQuerySubtrackDetails(void *pfscontext, void *pSubTrack, void *pSubTrackDet
 //   🔴 **失败必留痕**：任何拒绝**必**打具名行 ＋ `gap` 恰涨 1；**出参先清 0**。
 static int g_pts_fsqspl_calls = 0, g_pts_fsqspl_ok = 0, g_pts_fsqspl_gap = 0;
 static int g_pts_fsqspl_cli_made = 0;      /* 累计现造的客户端条数（**只增**） */
+/* ── ⏪ `T-A63`（`PRECOND-LS-PROVENANCE-BRIDGE` 的 `subtrack-path` 面）：**溯源桥消费者观测** ──────
+   判据 `P1-paralist-wire-criteria.md` §2.4 的「消费者行」（`[FSPARALIST-CONSUME]`）当年只在
+   `FsQueryTrackParaList` 一条路上落地；本增量把它**同形**引到 `FsQuerySubtrackParaList`：
+     · 逐条打 `[FSQSPL-CONSUME] i= h= src=managed-176 id=… resolve=… type=… via=…`；
+     · `id=` ＝ **本侧只读的来源证据核对**：交出去的 `pfsparaclient` 是否**仍是**本 run `+176`
+       为**同一序号**产出的那个值（必要非充分；**充分判据在托管侧** ⇒ 具名 `resolve=NOINFO(managed-side)`）。
+   🔴 **诚信边界**：本侧**测不到**托管 `HandleToObject` 的解析结果（无 P/Invoke、无导出），
+   故**绝不**把 `id=ok` 读成 `resolve=ok`；`resolve=` 一律写 `NOINFO` 并具名原因。
+   ⚠️ 本观测**只读**（`wpf_pts_prov_lookup` 不动 `wpf_pts_prov_claim` 的任何计数口）。 */
+static int g_pts_fsqspl_consume_ok  = 0;   /* `id=ok`（值＝本 run `+176` 同序号产出）条数 */
+static int g_pts_fsqspl_consume_bad = 0;   /* `id=ord-mismatch`／`no-evidence` 条数（⇒ 该红必红） */
+static int g_pts_fsqspl_unwired     = 0;   /* 「拆接线」反腿（闸关）拒填次数 */
+/* 只读来源证据核对（**不**记账、**不**拒；认领谓词仍由 `wpf_pts_prov_claim` 独占）。
+   ⚠️ 匹配 **(doc, 通道 'C', 值)**，**不**看会话号：本核对只回答"交出去的这个值，是否仍是
+   本 doc 上 `+176` 为**同一序号**产出的那个值"（**必要非充分**）；会话号那一维由认领谓词管。 */
+static const wpf_pts_prov *wpf_pts_prov_lookup(const void *p, const void *doc, char channel)
+{
+    if (!p) return NULL;
+    const wpf_pts_prov *hit = NULL; int n = 0;
+    for (int i = 0; i < g_pts_prov_n; i++) {
+        const wpf_pts_prov *e = &g_pts_prov[i];
+        if (e->magic != WPF_PTS_PROV_MAGIC || !e->live) continue;
+        if (e->handle != p || e->doc != doc || e->channel != channel) continue;
+        n++; hit = e;
+    }
+    return (n == 1) ? hit : NULL;                 /* 同值多条 ⇒ 不唯一 ⇒ 不作证据 */
+}
+/* 「拆接线」反腿闸（缺省**开**；仅显式 `WPF_PTS_QSPL_PROV=0` 才关 ⇒ 逐字回改前"拒填"形态）。 */
+#ifndef WPF_PTS_QSPL_PROV_DEFAULT
+#define WPF_PTS_QSPL_PROV_DEFAULT 1
+#endif
+static int wpf_pts_qspl_prov_gate(void)
+{
+    static int cached = -1;
+    if (cached < 0) { const char *e = getenv("WPF_PTS_QSPL_PROV"); cached = e ? atoi(e) : WPF_PTS_QSPL_PROV_DEFAULT; }
+    return cached;
+}
 int FsQuerySubtrackParaList(void *pfscontext, void *pSubTrack, int cParas,
                             void *rgParaDesc, int *cParaDesc)
 {
@@ -7909,6 +7946,10 @@ int FsQuerySubtrackParaList(void *pfscontext, void *pSubTrack, int cParas,
     else if (cParas != obj->c_paras)               reason = "cparas-mismatch";
     else if (cParas > 0 && !rgParaDesc)            reason = "null-paradesc-out";
     else if (!dp)                                  reason = "unknown-ctx";
+    /* ⏪ `T-A63`：**「拆接线」反腿**（闸缺省开）—— 显式 `WPF_PTS_QSPL_PROV=0` ⇒ 本入口**不再**把
+       托管 `+176` 产出的客户端交出去（逐字回"拒填"形态）⇒ 供**正/反腿成对**读数用。
+       ⚠️ 拒因**具名**且出参一字不写（`out=UNWRITTEN`），**不**假成功。 */
+    else if (!wpf_pts_qspl_prov_gate())            { reason = "prov-bridge-unwired(reverse-leg)"; g_pts_fsqspl_unwired++; }
     else {
         const void *fp176 = wpf_pts_snap_word(dp, WPF_PTS_SNAP_IDX_CREATEPARACLIENT);
         if (!fp176)                        reason = "no-slot-176";
@@ -7994,15 +8035,31 @@ int FsQuerySubtrackParaList(void *pfscontext, void *pSubTrack, int cParas,
             /* ⏪ `T-A22`（`N1`）：**本侧真把该段句柄交出去过**（写进 `FSPARADESCRIPTION.pfspara`）
                ⇒ 记进来源证据（强化面；托管随后把它当 `_paraHandle` 送回时即可**按来源证据认领**）。 */
             wpf_pts_prov_mark_written((const void *)dp, 'S', (const void *)obj->children[i]);
+            /* ⏪ `T-A63`：**消费者观测行**（判据 §2.4 的消费者行同形；逐条）。`id=` ＝ 只读来源证据核对。 */
+            {
+                const void *hc = (const void *)obj->child_clients[i];
+                const wpf_pts_prov *ev = wpf_pts_prov_lookup(hc, (const void *)dp, 'C');
+                const char *id_v = ev ? ((ev->ord == i) ? "ok" : "ord-mismatch") : "no-evidence";
+                if (id_v[0] == 'o' && id_v[1] == 'k') g_pts_fsqspl_consume_ok++;
+                else                                  g_pts_fsqspl_consume_bad++;
+                fprintf(stderr, "[FSQSPL-CONSUME] i=%d h=%p src=managed-176 id=%s prov_ord=%d ev_seq=%d "
+                                "gen_age=%d resolve=NOINFO(managed-side-no-pinvoke) type=unknown(native-cannot-read) "
+                                "via=PtsHelper.ParaListFromSubtrack consume_ok=%d consume_bad=%d\n",
+                        i, hc, id_v, ev ? ev->ord : -1, ev ? ev->seq : -1,
+                        ev ? (((const wpf_pts_doc *)dp)->prov_gen - ev->gen) : -1,
+                        g_pts_fsqspl_consume_ok, g_pts_fsqspl_consume_bad);
+            }
             /* dvrUsed／dvrTopSpace／bbox／idobj：**本侧无几何源** ⇒ 0（NOINFO-SUBTRACK-PARA-GEOMETRY）*/
         }
         *cParaDesc = cParas;                              /* 只在**真填完后**置（与 cParas 自洽） */
         g_pts_fsqspl_ok++;
         fprintf(stderr, "[FSQSPL] rc=0 reason=ok entry=FsQuerySubtrackParaList ctx=%p psub=%p cParas=%d "
                         "made=%d cli_total=%d src=SUBENUM(+136/+144)+managed-176 calls=%d ok=%d gap=%d "
+                        "consume_ok=%d consume_bad=%d "
                         "NOINFO=subtrack-para-geometry(dvrUsed/dvrTopSpace/bbox=0)\n",
                 pfscontext, pSubTrack, cParas, obj->child_clients_made, g_pts_fsqspl_cli_made,
-                g_pts_fsqspl_calls, g_pts_fsqspl_ok, g_pts_fsqspl_gap);
+                g_pts_fsqspl_calls, g_pts_fsqspl_ok, g_pts_fsqspl_gap,
+                g_pts_fsqspl_consume_ok, g_pts_fsqspl_consume_bad);
         return 0;
     }
     g_pts_fsqspl_gap++;
