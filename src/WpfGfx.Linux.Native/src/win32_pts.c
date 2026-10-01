@@ -2945,13 +2945,14 @@ static int wpf_pts_tableobj_gate(void)
     return cached;
 }
 
-/* ── ⏪ `T-A56`（表单元内容排版）：**单元内容排版**的运行期闸（`T-A53`／`T-A54` 体例；**缺省关**）──────
+/* ── ⏪ `T-A56`（表单元内容排版）：**单元内容排版**的运行期闸（`T-A57` 起缺省 **开**）──────────────
    闸控的是"**窗内为表模型的每一行逐格调 `pfnFormatCellFinite` 真造单元内容子页**"。
-   为什么**缺省关**（硬边界：「新增 ⇒ 缺省关」）：本闸是**新增行为**，其读数（第 4 色行高／单元内文本）
-   尚未在缺省路径验证过 ⇒ 缺省一次都不调 ⇒ 缺省路径与改前**逐格相同**（有闸的零回归证明见载体）。
-   显式 `WPF_PTS_TABLECELL=1`（非 0、非空）才开（**开闸腿**）；`=0` ⇒ 关（**反极性腿**）。 */
+   ⏪ `T-A57`：`T-A56` 当年缺省关，为使缺省路径**逐格不变**（零回归）；单元内容排版已真落像素
+     （开闸腿 `LightGoldenrodYellow 1998→5830 px`，表区 `dark(<140)` `+1449 px`）⇒ 本增量照
+     `T-A28→T-A31` 体例**翻为缺省开**，使**缺省路径**即含表单元内容。
+   闸：显式 `WPF_PTS_TABLECELL=0` ⇒ 关（**反极性腿**）；缺省 `1` ⇒ 开。 */
 #ifndef WPF_PTS_TABLECELL_DEFAULT
-#define WPF_PTS_TABLECELL_DEFAULT 0
+#define WPF_PTS_TABLECELL_DEFAULT 1
 #endif
 static int wpf_pts_tablecell_gate(void)
 {
