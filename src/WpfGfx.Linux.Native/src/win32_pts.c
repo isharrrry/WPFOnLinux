@@ -1047,6 +1047,11 @@ static int g_pts_floater_drv_calls = 0, g_pts_floater_drv_ok = 0, g_pts_floater_
 #define WPF_PTS_TABLEOBJ_IDX_GETNEXTROW      10
 #define WPF_PTS_TABLEOBJ_IDX_GETROWPROPS     16
 #define WPF_PTS_TABLEOBJ_IDX_GETCELLS        17
+#define WPF_PTS_TABLEOBJ_IDX_FMTCELLFINITE   20     /* ⏪ T-A56：`FSTABLECBKCELL` 首槽 */
+#define WPF_PTS_TABLEOBJ_IDX_SETCELLHEIGHT   25     /* ⏪ T-A56：`FSTABLECBKCELL` 第 6 槽 */
+/* ⏪ `T-A56`：`FSTABLECBKCELL`（14 槽）余槽号（逐字照 `Pts.cs:1736-1752`）：
+   20 `pfnFormatCellFinite`／21 `pfnFormatCellBottomless`／22 `pfnUpdateBottomlessCell`／
+   23 `pfnCompareCells`／24 `pfnClearUpdateInfoInCell`／25 `pfnSetCellHeight`／26 `pfnDestroyCell`／… */
 typedef int (*wpf_pts_fn_autofit_table)(const void *pfsclient, const void *pfsparaclient_table,
                                         const void *nmtable, unsigned int fswdir, int dur_available,
                                         int *out_dur_table_width);
@@ -1056,6 +1061,19 @@ typedef int (*wpf_pts_fn_get_next_row)(const void *pfsclient, const void *nmtabl
                                        int *out_found, void **out_row);
 typedef int (*wpf_pts_fn_get_row_properties)(const void *pfsclient, const void *nmrow,
                                              unsigned int fswdir, void *out_props);
+/* ⏪ `T-A56`（表单元内容排版）：`pfnGetCells`／`pfnFormatCellFinite`／`pfnSetCellHeight` 的 C 侧原型
+   照 `Pts.cs:2953-2958`／`:2973-2987`／`:3012-3019` 逐参（全指针宽 8；`FSFMTR`＝3×int＝12 B）。 */
+typedef int (*wpf_pts_fn_get_cells)(const void *pfsclient, const void *nmrow, int ccells,
+                                    void **rgnmcell, int *rgkcellmerge);
+typedef int (*wpf_pts_fn_format_cell_finite)(const void *pfsclient, const void *pfsparaclient_table,
+                                             const void *pfsbrkcell, const void *nmcell,
+                                             const void *pfsftnrejector, int femptyok,
+                                             unsigned int fswdirtable, int dvrextraheight, int dvravailable,
+                                             void *fsfmtr_out, void **ppfscell, void **pfsbrkcell_out,
+                                             int *dvrused);
+typedef int (*wpf_pts_fn_set_cell_height)(const void *pfscell, const void *pfsparaclient_table,
+                                          const void *pfsbrkcell, const void *nmcell,
+                                          int fbrokenhere, unsigned int fswdirtable, int dvractual);
 /* `GetTableObjHandlerInfo` 的**只读捕获位**（本侧持有最近一次交出的托管回调表；同 `g_pts_floater_cbk[]` 体例）。 */
 static const void *g_pts_tableobj_cbk[WPF_PTS_TABLEOBJ_SLOTS];
 static int g_pts_tableobj_cbk_ok = 0, g_pts_tableobj_cbk_gap = 0;
@@ -1065,13 +1083,30 @@ static int g_pts_tableobj_cbk_ok = 0, g_pts_tableobj_cbk_gap = 0;
    （`c_cells` 原样记、行详情一律报 `cCells=0`）⇒ 内容色不在本增量射程（见载体 §边界）。 */
 #define WPF_PTS_TBL_MAXROWS 8
 #define WPF_PTS_TBL_MAX     8
+#define WPF_PTS_TBL_MAXCELLS 8
 #define WPF_PTS_TBL_DVR_MIN 200          /* 本侧行高下界（textdpi；具名 `NOINFO=row-height-self-convention`） */
 #define WPF_PTS_TBL_MAGIC   0x5754424cu  /* "WTBL" */
+/* ⏪ `T-A56`：**单元槽**（`cCells` 的每格）——`nm_cell` 来自托管 `pfnGetCells` 真返回；
+   `pfscell` 来自托管 `pfnFormatCellFinite` 真返回（`CellParaClient.Handle`）；`dvr_used` 同趟真返回。
+   **零假值**：任一步 `rc≠0` ⇒ 该行 `n_cells=0`（不记、行详情仍报 `cCells=0`）。 */
+typedef struct {
+    const void *nm_cell;                 /* 托管 `CellParagraph` 句柄（`pfnGetCells` 真返回） */
+    const void *pfscell;                 /* 托管 `CellParaClient` 句柄（`pfnFormatCellFinite` 真返回） */
+    const void *sub_obj;                 /* `pfnFormatCellFinite` 真造出的**单元内容子页**（本侧对象） */
+    int         kcellmerge;              /* `pfnGetCells` 的 `FSTABLEKCELLMERGE` 原值 */
+    int         fskupd;                  /* 报给 `FsQueryTableObjCellList` 的更新态（本侧恒 New） */
+    int         fmt_rc;                  /* `pfnFormatCellFinite` 的返回码（诊断） */
+    int         dvr_used;                /* `pfnFormatCellFinite` 真返回（⚠️ 本侧 `FsCreateSubpageFinite`
+                                            恒报 `dvrUsed=lHeight` ⇒ 该值**不是**内容真高，仅诊断用） */
+} wpf_pts_tbl_cell;
 typedef struct {
     const void *nm_row;                  /* 行段落句柄（托管 `RowParagraph`；取行回调**真返回值**） */
     const void *pfstablerow;             /* 本侧行 token（＝本对象内 `nm_row` 字段地址，承本仓句柄范式） */
-    int         dvr_row;                 /* 行高（textdpi） */
-    int         c_cells;                 /* 行内单元数（`pfnGetRowProperties` 原值；本侧**未**排单元） */
+    int         dvr_row;                 /* 行高（textdpi；**回退值**——单元台账不可用时用它） */
+    int         dvr_above, dvr_below;    /* `FSTABLEROWPROPS` 的 `dvrAboveRow`／`dvrBelowRow` 原值 */
+    int         c_cells;                 /* 行内单元数（`pfnGetRowProperties` 原值；本侧**未**排单元时为诊断） */
+    int         n_cells;                 /* ⏪ T-A56：**真排出的**单元数（0 ＝ 未排／失败 ⇒ 诚实报 0） */
+    wpf_pts_tbl_cell cells[WPF_PTS_TBL_MAXCELLS];
 } wpf_pts_tbl_row;
 typedef struct {
     unsigned int magic;
@@ -1089,6 +1124,8 @@ static wpf_pts_tbl_model g_pts_tbl[WPF_PTS_TBL_MAX];
 static int g_pts_tbl_n = 0;
 static int g_pts_tbl_built_c = 0, g_pts_tbl_query_ok = 0, g_pts_tbl_query_gap = 0;
 static int g_pts_tbl_drv_calls = 0, g_pts_tbl_drv_rowhit = 0, g_pts_tbl_drv_gap = 0;
+/* ⏪ `T-A56`：单元内容排版台账（只读口；`cell_ok` ＝ 真造出 `CellParaClient` 的单元数）。 */
+static int g_pts_tbl_cell_rows = 0, g_pts_tbl_cell_ok = 0, g_pts_tbl_cell_gap = 0;
 
 static int g_pts_fscbk_probes   = 0;    /* 本进程内回读次数（仪器自身的调用计数，只读） */
 static int g_pts_fscbk_fp_pass  = 0;    /* 指纹 PASS 次数（观测 == 预言） */
@@ -1735,6 +1772,8 @@ static int g_pts_sp_live_n = 0, g_pts_sp_created = 0, g_pts_sp_seq = 0;
 static int g_pts_sp_ok = 0, g_pts_sp_gap = 0;          /* `FsCreateSubpageFinite` 成败面 */
 static int g_pts_spquery_ok = 0;                       /* `FsQuerySubpageDetails` 子页支成功次数 */
 static int g_pts_sptrack_ok = 0, g_pts_sptrack_gap = 0;/* `FsQueryTrackParaList` 子页轨支成败 */
+/* ⏪ `T-A56`：`FsClearUpdateInfoInSubpage` 成败面（`CellParaClient.Arrange` 必调）。 */
+static int g_pts_sp_clrupd_ok = 0, g_pts_sp_clrupd_gap = 0;
 
 static struct wpf_pts_subpage_s *wpf_pts_sp_new(const void *ctx, const void *nseg)
 {
@@ -2724,6 +2763,33 @@ static int wpf_pts_fl_walk_c(wpf_pts_doc *d, wpf_pts_subtrack *o, const void *fp
     return n;
 }
 
+/* ── ⏪ `T-A56`：**单元内容高**（内容树逐叶段 Σ 行 `dvrAscent+dvrDescent`；`pfnFormatLine` **真台账**）──
+   用于 ① **窗内**把行高告知单元（`pfnSetCellHeight`，`SetCellHeight` 只许在格式窗内发调 —— 实测
+   窗外调它撞 `PtsHost.get_PtsContext()` 的 `Invariant.FailFast`）；② **查询期**由同一台账重算行高。
+   **零假值**：无可用台账（`fl_ok!=1`／0 行／未收束／撞界）⇒ 返 `-1`。 */
+static int wpf_pts_tbl_cell_tree_dv(const wpf_pts_subtrack *root)
+{
+    if (!root) return -1;
+    int total = 0, got = 0;
+    wpf_pts_subtrack *stack[WPF_PTS_SUB_MAX]; int sp = 0;
+    stack[sp++] = (wpf_pts_subtrack *)root;
+    while (sp > 0) {
+        wpf_pts_subtrack *o = stack[--sp];
+        int nc = (o->enum_ok) ? o->c_paras : 0;
+        if (nc == 0) {                                   /* 叶 ⇒ `TextParagraph` 类 */
+            if (o->fl_ok == 1 && o->fl_nlines > 0 && o->fl_complete && !o->fl_truncated) {
+                for (int k = 0; k < o->fl_nlines; k++)
+                    total += o->fl_line[k].dvr_ascent + o->fl_line[k].dvr_descent;
+                got = 1;
+            }
+            continue;
+        }
+        for (int k = 0; k < nc && k < WPF_PTS_SUB_CHILD_MAX; k++)
+            if (o->child_objs[k] && sp < WPF_PTS_SUB_MAX) stack[sp++] = o->child_objs[k];
+    }
+    return got ? total : -1;
+}
+
 /* 窗内驱动入口（**只**从 `wpf_pts_drive_probe` 调；窗内 ＝ `FsCreatePage*` 调用期）。 */
 static void wpf_pts_formatline_drive(wpf_pts_doc *d, const char *where)
 {
@@ -2879,6 +2945,24 @@ static int wpf_pts_tableobj_gate(void)
     return cached;
 }
 
+/* ── ⏪ `T-A56`（表单元内容排版）：**单元内容排版**的运行期闸（`T-A53`／`T-A54` 体例；**缺省关**）──────
+   闸控的是"**窗内为表模型的每一行逐格调 `pfnFormatCellFinite` 真造单元内容子页**"。
+   为什么**缺省关**（硬边界：「新增 ⇒ 缺省关」）：本闸是**新增行为**，其读数（第 4 色行高／单元内文本）
+   尚未在缺省路径验证过 ⇒ 缺省一次都不调 ⇒ 缺省路径与改前**逐格相同**（有闸的零回归证明见载体）。
+   显式 `WPF_PTS_TABLECELL=1`（非 0、非空）才开（**开闸腿**）；`=0` ⇒ 关（**反极性腿**）。 */
+#ifndef WPF_PTS_TABLECELL_DEFAULT
+#define WPF_PTS_TABLECELL_DEFAULT 0
+#endif
+static int wpf_pts_tablecell_gate(void)
+{
+    static int cached = -1;
+    if (cached < 0) {
+        const char *e = getenv("WPF_PTS_TABLECELL");
+        cached = e ? atoi(e) : WPF_PTS_TABLECELL_DEFAULT;
+    }
+    return cached;
+}
+
 /* ── ⏪ `T-A53`：**窗内**为 `FsCreateSubpageFinite` 真造出的内容子页里的**表段落**建本侧表模型 ──────────
    路径（逐跳，全部在窗内）：
      ① 在子页内容树里找 `idobj==TableParagraphId(3)` 的段（窗内 `+168 pfnGetParaProperties` 读 `FSPAP.idobj`）；
@@ -2994,6 +3078,11 @@ static void wpf_pts_tableobj_drive(wpf_pts_doc *d, struct wpf_pts_subpage_s *s, 
     const void *pfFirst = g_pts_tableobj_cbk[WPF_PTS_TABLEOBJ_IDX_GETFIRSTROW];
     const void *pfNext  = g_pts_tableobj_cbk[WPF_PTS_TABLEOBJ_IDX_GETNEXTROW];
     const void *pfRProps= g_pts_tableobj_cbk[WPF_PTS_TABLEOBJ_IDX_GETROWPROPS];
+    /* ⏪ `T-A56`：单元内容排版的托管回调（缺省关闸 ⇒ 不用） */
+    const void *pfGetCells  = g_pts_tableobj_cbk[WPF_PTS_TABLEOBJ_IDX_GETCELLS];
+    const void *pfFmtCell   = g_pts_tableobj_cbk[WPF_PTS_TABLEOBJ_IDX_FMTCELLFINITE];
+    const void *pfSetCellH  = g_pts_tableobj_cbk[WPF_PTS_TABLEOBJ_IDX_SETCELLHEIGHT];
+    const int   cell_on     = wpf_pts_tablecell_gate();
     m->table_client = (const void *)tclient;
     m->autofit_rc = rcaf; m->autofit_width = wtbl;
     int fFound = 0; void *row = NULL;
@@ -3013,9 +3102,113 @@ static void wpf_pts_tableobj_drive(wpf_pts_doc *d, struct wpf_pts_subpage_s *s, 
         if (dvr_row < WPF_PTS_TBL_DVR_MIN) dvr_row = WPF_PTS_TBL_DVR_MIN;
         wpf_pts_tbl_row *rr = &m->rows[m->nrows];
         rr->nm_row = row; rr->pfstablerow = (const void *)&rr->nm_row;
+        rr->dvr_above = dvr_above; rr->dvr_below = dvr_below;
+        rr->n_cells = 0;
+        /* ── ⏪ `T-A56`：**单元内容排版**（缺省关闸）─────────────────────────────────
+           逐格：① `pfnGetCells`（槽 17）取 `nmCell`（托管 `CellParagraph` 句柄）；② `pfnFormatCellFinite`
+           （槽 20）**真造**单元内容子页（托管 `CellParagraph.FormatCellFinite` ⇒ `FsCreateSubpageFinite`），
+           返回 `ppfscell`（`CellParaClient` 句柄）与 `dvrUsed`（⚠️ 本侧 `FsCreateSubpageFinite` 恒报
+           `dvrUsed=lHeight` ⇒ **不是**内容真高 ⇒ 本侧**不**用它做行高；行高改在**查询期**由单元内容台账派生，
+           见 `wpf_pts_tbl_row_dvr`）。
+           **零假值**：`pfnGetCells rc≠0`／任一格 `pfnFormatCellFinite rc≠0` 或 `ppfscell==NULL`
+           ⇒ 本行 `n_cells=0`（**不记**，行详情报 `cCells=0` 的**诚实的空**）。 */
+        if (cell_on && c_cells > 0 && pfGetCells && pfFmtCell) {
+            int nc = (c_cells < WPF_PTS_TBL_MAXCELLS) ? c_cells : WPF_PTS_TBL_MAXCELLS;
+            void *nmcells[WPF_PTS_TBL_MAXCELLS];
+            int   kmerge[WPF_PTS_TBL_MAXCELLS];
+            for (int c = 0; c < WPF_PTS_TBL_MAXCELLS; c++) { nmcells[c] = NULL; kmerge[c] = 0; }
+            int rcg = ((wpf_pts_fn_get_cells)pfGetCells)((const void *)d->p_fsclient, row, c_cells,
+                                                         nmcells, kmerge);
+            if (rcg != 0) {
+                g_pts_tbl_cell_gap++;
+                fprintf(stderr, "[FSTABLECELL] where=%s row=%p cCells=%d rc=%d v=GETCELLS-ERR\n",
+                        where, row, c_cells, rcg);
+            } else {
+                int all_ok = 1, made = 0;
+                for (int c = 0; c < nc; c++) {
+                    if (!nmcells[c]) { all_ok = 0; break; }
+                    int fsfmtr[3] = { 0, 0, 0 };
+                    void *pfscell = NULL, *brkout = NULL;
+                    int dvr_used = 0;
+                    const int sp_before = g_pts_sp_created;
+                    int rcf = ((wpf_pts_fn_format_cell_finite)pfFmtCell)(
+                        (const void *)d->p_fsclient, (const void *)tclient, NULL,
+                        (const void *)nmcells[c], NULL, 1 /*fEmptyOk*/, 0u /*fswdirTable*/,
+                        0 /*dvrExtraHeight*/, WPF_PTS_FLOATER_AVAIL_DV,
+                        (void *)fsfmtr, &pfscell, &brkout, &dvr_used);
+                    rr->cells[c].nm_cell    = nmcells[c];
+                    rr->cells[c].kcellmerge = kmerge[c];
+                    rr->cells[c].fmt_rc     = rcf;
+                    if (rcf != 0 || !pfscell) {
+                        all_ok = 0;
+                        fprintf(stderr, "[FSTABLECELL] where=%s row=%p i=%d cell=%p rc=%d pfscell=%p "
+                                        "v=FORMATCELL-%s\n",
+                                where, row, c, nmcells[c], rcf, pfscell,
+                                (rcf == 0) ? "EMPTY-OUT" : (rcf == -100002) ? "CALLBACK-ERR"
+                                            : (rcf == -10000) ? "NOT-IMPLEMENTED" : "OTHER");
+                        break;
+                    }
+                    rr->cells[c].pfscell  = pfscell;
+                    rr->cells[c].dvr_used = dvr_used;
+                    rr->cells[c].fskupd   = WPF_PTS_FSKUPD_NEW;
+                    /* 单元内容子页 = 本次调用真造出的那一个（`g_pts_sp_created` 增量 ＋ 栈顶） */
+                    if (g_pts_sp_created > sp_before && g_pts_sp_live_n > 0)
+                        rr->cells[c].sub_obj = (const void *)g_pts_sp_live[g_pts_sp_live_n - 1];
+                    made++;
+                    fprintf(stderr, "[FSTABLECELL] where=%s row=%p i=%d nmCell=%p cell=%p subpage=%p "
+                                    "rc=0 dvrUsed=%d kmerge=%d v=CELL-SUBPAGE\n",
+                            where, row, c, nmcells[c], pfscell, rr->cells[c].sub_obj, dvr_used, kmerge[c]);
+                }
+                if (all_ok && made == nc) {
+                    rr->n_cells = nc;
+                    g_pts_tbl_cell_rows++; g_pts_tbl_cell_ok += nc;
+                    /* ── ⏪ `T-A56`：**窗内**把单元内容真排出行 ＋ 由台账定行高 ＋ 告知单元 ──────
+                       ① 单元内容子页是**本趟新造**的 ⇒ 其段落行尚未排版（行台账为空）⇒
+                          同窗内对它的内容树**真驱一次 `pfnFormatLine`**（`wpf_pts_fl_walk_c`，
+                          与窗口末的附属对象内容驱动**同器**；先把内容预算计数复位以免沿用上一窗残值）；
+                       ② 由 `wpf_pts_tbl_cell_tree_dv`（真台账 Σ 行高）取 `max`（**零假值**：
+                          台账不可用 ⇒ 退回本侧约定 `dvr_row`，**不**假造）；
+                       ③ 用 `pfnSetCellHeight`（槽 25）把行高告知各单元 —— **只许窗内发调**
+                          （窗外调它撞 `PtsHost.get_PtsContext()` 的 `Invariant.FailFast`，实测）。 */
+                    const void *fpFL  = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_FORMATLINE);
+                    const void *fpDst = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_DESTROYPARACLIENT);
+                    int max_cell = -1;
+                    if (fpFL) {
+                        g_pts_fl_win_paras_c = 0;
+                        for (int c = 0; c < nc; c++) {
+                            struct wpf_pts_subpage_s *cs =
+                                (struct wpf_pts_subpage_s *)rr->cells[c].sub_obj;
+                            if (cs && cs->magic == WPF_PTS_SP_MAGIC && cs->cont_obj)
+                                wpf_pts_fl_walk_c(d, cs->cont_obj, fpFL, fp176, fpDst, where, 1);
+                            int h = wpf_pts_tbl_cell_tree_dv(cs ? cs->cont_obj : NULL);
+                            if (h > max_cell) max_cell = h;
+                        }
+                    }
+                    if (max_cell >= 0) {
+                        int dr = max_cell + dvr_above + dvr_below;
+                        if (dr < WPF_PTS_TBL_DVR_MIN) dr = WPF_PTS_TBL_DVR_MIN;
+                        dvr_row = dr;
+                        if (pfSetCellH)
+                            for (int c = 0; c < nc; c++)
+                                ((wpf_pts_fn_set_cell_height)pfSetCellH)(
+                                    rr->cells[c].pfscell, (const void *)tclient, NULL,
+                                    (const void *)rr->cells[c].nm_cell, 0 /*fBrokenHere*/,
+                                    0u /*fswdirTable*/, dr);
+                    } else {
+                        fprintf(stderr, "[FSTABLECELL] where=%s row=%p v=NO-LINE-LEDGER "
+                                        "action=row-height-fallback dvr=%d\n", where, row, dvr_row);
+                    }
+                } else {
+                    rr->n_cells = 0;
+                    g_pts_tbl_cell_gap++;
+                    fprintf(stderr, "[FSTABLECELL] where=%s row=%p cCells=%d made=%d v=ROW-UNFORMATTED\n",
+                            where, row, c_cells, made);
+                }
+            }
+        }
         rr->dvr_row = dvr_row; rr->c_cells = c_cells;
-        fprintf(stderr, "[FSTABLEOBJ-ROW] where=%s i=%d row=%p cCells=%d dvr=%d\n",
-                where, m->nrows, row, c_cells, dvr_row);
+        fprintf(stderr, "[FSTABLEOBJ-ROW] where=%s i=%d row=%p cCells=%d nCells=%d dvr=%d\n",
+                where, m->nrows, row, c_cells, rr->n_cells, dvr_row);
         m->nrows++; g_pts_tbl_drv_rowhit++;
         /* 下一行 */
         void *nx = NULL; int fFound2 = 0;
@@ -6197,6 +6390,33 @@ int FsDestroySubpage(void *pfscontext, void *pSubPage)
     if (pSubPage && wpf_pts_sp_claim_track(pSubPage, &s)) { wpf_pts_sp_destroy(s); return 0; }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
+// ── ⏪ `T-A56`：`FsClearUpdateInfoInSubpage`（上游 `Pts.cs:3263`，**2 参**）──────────────────────────
+//   调用方（现取）：`CellParaClient.Arrange`（`CellParaClient.cs:119`）—— 单元**真排版**后**必调**
+//     （`T-A56` 之前本移植不排单元 ⇒ 该入口从未被调 ⇒ 未导出 ⇒ `EntryPointNotFoundException`
+//     ⇒ 整页 `ArrangeOverride` 抛；本增量把它补上）。另两条上层入口
+//     （`PtsHost.ClearUpdateInfoInFloaterContent`／`SubpageClearUpdateInfoInPara`）本侧**未发调**。
+//   🔴 **本实现的诚实形态**：按**本侧对象身份**认领（`wpf_pts_sp_claim_track`）后返 `rc=0`；
+//     本侧 `FsQuerySubpageDetails` **恒报首态**（`fskupd=New`）⇒ "清更新信息"在语义上**无需改状态**
+//     （下次查询仍是 `New` ⇒ 托管重建视觉；**不**冒充"稳态 `NoChange`"，见 `NOINFO=`）。
+//   **零假值**：空／未知句柄 ⇒ **诚实拒**（`-10000` ＋ 具名 `[FS_PAGE_GAP]`），**不**冒充成功。
+int FsClearUpdateInfoInSubpage(void *pfscontext, void *pSubpage)
+{
+    (void)pfscontext;
+    struct wpf_pts_subpage_s *s = NULL;
+    if (pSubpage && wpf_pts_sp_claim_track(pSubpage, &s)) {
+        g_pts_sp_clrupd_ok++;
+        fprintf(stderr, "[FS_CLRUPD] rc=0 entry=FsClearUpdateInfoInSubpage subpage=%p ok=%d gap=%d "
+                        "NOINFO=query-always-first-state(New)\n",
+                pSubpage, g_pts_sp_clrupd_ok, g_pts_sp_clrupd_gap);
+        return 0;
+    }
+    g_pts_sp_clrupd_gap++;
+    fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=FsClearUpdateInfoInSubpage ctx=%p p=%p "
+                    "ok=%d gap=%d out=UNWRITTEN bytes=0\n",
+            WPF_PTS_ERR_NOT_IMPLEMENTED, pSubpage ? "unknown-subpage" : "null-subpage",
+            pfscontext, pSubpage, g_pts_sp_clrupd_ok, g_pts_sp_clrupd_gap);
+    return WPF_PTS_ERR_NOT_IMPLEMENTED;
+}
 // `FsQuerySubpageDetails`：按**附属对象段落句柄**认领，返回**空子页**（本侧不排附属对象内容）。
 //   🔴 `pSubPage`（＝托管 `FigureParaClient.SubpageHandle`）**由托管在"附属对象内容排版"回调里**设
 //     （`FigureParagraph.cs:284`／`FloaterParagraph.cs:355/523` 的 `SubpageHandle = pfs*Content`）。
@@ -6363,9 +6583,35 @@ _Static_assert(sizeof(wpf_pts_fstablerowdescription) == 48, "FSTABLEROWDESCRIPTI
 _Static_assert(offsetof(wpf_pts_fstablerowdescription, u) == 28, "FSTABLEROWDESCRIPTION.u 偏移 != 28");
 _Static_assert(sizeof(wpf_pts_fstablerowdetails) == 24, "FSTABLEROWDETAILS != 24 B");
 
+/* ── ⏪ `T-A56`：**单元内容高 → 行高**的派生（**查询期**；口径同 `FsQuerySubtrackParaList` 的内容段高）──
+   `wpf_pts_tbl_cell_content_dv`：该单元**内容子页**的内容树里，逐叶段按 `pfnFormatLine` **真台账**
+   累加 `Σ(dvrAscent+dvrDescent)`（`wpf_pts_fl_usable` 判可用）。**零假值**：无可用户台账 ⇒ 返 `-1`
+   （**不**用 `pfnFormatCellFinite` 的 `dvrUsed`——本侧 `FsCreateSubpageFinite` 恒报 `dvrUsed=lHeight`）。 */
+static int wpf_pts_tbl_cell_content_dv(const wpf_pts_tbl_cell *c)
+{
+    if (!c || !c->sub_obj) return -1;
+    struct wpf_pts_subpage_s *s = (struct wpf_pts_subpage_s *)c->sub_obj;
+    if (s->magic != WPF_PTS_SP_MAGIC) return -1;
+    return wpf_pts_tbl_cell_tree_dv(s->cont_obj);
+}
+/* 行高：有真单元 ⇒ `max(单元内容高)+dvrAboveRow+dvrBelowRow`（不足本侧下界取下界）；否则退回本侧约定值。 */
+static int wpf_pts_tbl_row_dvr(const wpf_pts_tbl_row *r)
+{
+    if (!r) return WPF_PTS_TBL_DVR_MIN;
+    if (r->n_cells <= 0) return r->dvr_row;
+    int maxc = -1;
+    for (int c = 0; c < r->n_cells; c++) {
+        int h = wpf_pts_tbl_cell_content_dv(&r->cells[c]);
+        if (h > maxc) maxc = h;
+    }
+    if (maxc < 0) return r->dvr_row;                     /* 台账不可用 ⇒ 退回（**不**假造高） */
+    int dr = maxc + r->dvr_above + r->dvr_below;
+    if (dr < WPF_PTS_TBL_DVR_MIN) dr = WPF_PTS_TBL_DVR_MIN;
+    return dr;
+}
 static int wpf_pts_tbl_total_dv(const wpf_pts_tbl_model *m)
 {
-    int s = 0; for (int i = 0; i < m->nrows; i++) s += m->rows[i].dvr_row; return s;
+    int s = 0; for (int i = 0; i < m->nrows; i++) s += wpf_pts_tbl_row_dvr(&m->rows[i]); return s;
 }
 // `FsQueryTableObjDetails`：按**表段落句柄**（托管 `_paraHandle`）认模型。
 int FsQueryTableObjDetails(void *pfscontext, void *pPara, void *pTableObjDetails)
@@ -6436,6 +6682,9 @@ int FsQueryTableObjTableProperDetails(void *pfscontext, void *pTableProper, void
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
 // `FsQueryTableObjRowList`：把本侧行描述逐条填进托管缓冲。
+//   ⏪ `T-A56`：行高由**单元内容台账**派生（`wpf_pts_tbl_row_dvr`，与**窗内**同一台账；
+//   窗内已用 `pfnSetCellHeight` 把同一行高告知各单元 ⇒ 此处**只读回填**，**不**再发托管回调
+//   —— 实测窗外调 `pfnSetCellHeight` 撞 `PtsHost.get_PtsContext()` 的 `Invariant.FailFast`）。
 int FsQueryTableObjRowList(void *pfscontext, void *pTableProper, int cRows, void *rgTableRowDesc,
                            int *pcRowsActual)
 {
@@ -6453,12 +6702,13 @@ int FsQueryTableObjRowList(void *pfscontext, void *pTableProper, int cRows, void
                 rg[i].fsupdinf.fskupd = WPF_PTS_FSKUPD_NEW;
                 rg[i].fsnm_row        = (void *)m->rows[i].nm_row;
                 rg[i].pfstablerow     = (void *)m->rows[i].pfstablerow;
-                rg[i].u.dvr_row       = m->rows[i].dvr_row;
+                rg[i].u.dvr_row       = wpf_pts_tbl_row_dvr(&m->rows[i]);
             }
             *pcRowsActual = n;
             g_pts_tbl_query_ok++;
             fprintf(stderr, "[FSTABLEOBJ-Q] rc=0 entry=FsQueryTableObjRowList proper=%p asked=%d filled=%d "
-                            "NOINFO=row-height-self-convention\n", pTableProper, cRows, n);
+                            "dvr0=%d NOINFO=row-height-from-cell-content-ledger\n",
+                    pTableProper, cRows, n, n > 0 ? wpf_pts_tbl_row_dvr(&m->rows[0]) : 0);
             return 0;
         }
     }
@@ -6469,7 +6719,7 @@ int FsQueryTableObjRowList(void *pfscontext, void *pTableProper, int cRows, void
             g_pts_tbl_query_ok, g_pts_tbl_query_gap);
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
-// `FsQueryTableObjRowDetails`：按**行 token** 认行；单元面如实报 `cCells=0`（本侧未排单元）。
+// `FsQueryTableObjRowDetails`：按**行 token** 认行；单元面报**真值**（`T-A56`：本侧真排出的单元数）。
 int FsQueryTableObjRowDetails(void *pfscontext, void *pTableRow, void *pTableRowDetails)
 {
     const char *reason = NULL;
@@ -6484,11 +6734,13 @@ int FsQueryTableObjRowDetails(void *pfscontext, void *pTableRow, void *pTableRow
             d->dvr_above         = 0;
             d->fskboundary_below = 0;   /* fsktablerowboundaryOuter */
             d->dvr_below         = 0;
-            d->c_cells           = 0;   /* **诚实的空**：本侧未排单元（`r->c_cells` 原值仅供诊断） */
+            /* ⏪ `T-A56`：**真值** —— 本侧真排出的单元数（未排 ⇒ 0 的**诚实的空**）。 */
+            d->c_cells           = r->n_cells;
             d->f_forced_row      = 0;
             g_pts_tbl_query_ok++;
-            fprintf(stderr, "[FSTABLEOBJ-Q] rc=0 entry=FsQueryTableObjRowDetails row=%p cCells=0 "
-                            "src_cCells=%d NOINFO=cells-not-laid-out\n", pTableRow, r->c_cells);
+            fprintf(stderr, "[FSTABLEOBJ-Q] rc=0 entry=FsQueryTableObjRowDetails row=%p cCells=%d "
+                            "src_cCells=%d v=%s\n", pTableRow, r->n_cells, r->c_cells,
+                    (r->n_cells > 0) ? "cells-laid-out" : "cells-not-laid-out");
             return 0;
         }
     }
@@ -6499,13 +6751,48 @@ int FsQueryTableObjRowDetails(void *pfscontext, void *pTableRow, void *pTableRow
             g_pts_tbl_query_ok, g_pts_tbl_query_gap);
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
-// `FsQueryTableObjCellList`：本侧未排单元 ⇒ 单元列恒空（`cCells=0` 的**真值**）。
-int FsQueryTableObjCellList(void *pfscontext, void *pTableRow, int cCells, void *rgCell,
-                            int *pcCellsActual, void *rgCellMerge)
+// `FsQueryTableObjCellList`：按**行 token** 认行，逐格填 `T-A56` 真排出的单元
+//   （`rgfskupd`／`rgpfscell`／`rgkcellmerge`／`*pcCellsActual`）。
+//   ⚠️ **ABI 修正（`T-A56`）**：上游声明（`Pts.cs:3843-3850`）是 **7 参**：
+//     `(pfscontext, pfstablerow, cCells, FSKUPDATE* rgfskupd, IntPtr* rgpfscell,
+//       FSTABLEKCELLMERGE* rgkcellmerge, out int pcCellsActual)`。
+//     改前本侧是 **6 参**且顺序不同（`…, void *rgCell, int *pcCellsActual, void *rgCellMerge`）
+//     —— 该错位**从未触发**（`FsQueryTableObjRowDetails` 恒报 `cCells=0` ⇒ 托管不调本入口）。
+//     `T-A56` 让行详情报**真 `cCells`** ⇒ 本入口**必被调** ⇒ 必须先把 ABI 对齐（否则托管写越界/读错位）。
+//   **零假值**：无模型／无该行 ⇒ 诚实拒（`-10000` ＋ 具名 `[FS_PAGE_GAP]`，出参一字不写）。
+int FsQueryTableObjCellList(void *pfscontext, void *pTableRow, int cCells, void *rgFskupd,
+                            void *rgPfscell, void *rgKcellmerge, int *pcCellsActual)
 {
-    (void)pfscontext; (void)pTableRow; (void)cCells; (void)rgCell; (void)rgCellMerge;
+    int *rgupd = (int *)rgFskupd;
+    void **rgcell = (void **)rgPfscell;
+    int *rgmerge = (int *)rgKcellmerge;
+    const char *reason = NULL;
+    (void)pfscontext;
     if (pcCellsActual) *pcCellsActual = 0;
-    return 0;
+    if (!rgFskupd || !rgPfscell || !rgKcellmerge || !pcCellsActual) reason = "null-out";
+    else {
+        wpf_pts_tbl_row *r = wpf_pts_tbl_find_row(pTableRow);
+        if (!r) reason = "no-table-row";
+        else {
+            int n = (cCells < r->n_cells) ? cCells : r->n_cells;
+            for (int i = 0; i < n; i++) {
+                rgupd[i]   = r->cells[i].fskupd;
+                rgcell[i]  = (void *)r->cells[i].pfscell;
+                rgmerge[i] = r->cells[i].kcellmerge;
+            }
+            *pcCellsActual = n;
+            g_pts_tbl_query_ok++;
+            fprintf(stderr, "[FSTABLEOBJ-Q] rc=0 entry=FsQueryTableObjCellList row=%p asked=%d filled=%d "
+                            "src=managed-GetCells+FormatCellFinite\n", pTableRow, cCells, n);
+            return 0;
+        }
+    }
+    g_pts_tbl_query_gap++;
+    fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=FsQueryTableObjCellList ctx=%p p=%p "
+                    "ok=%d gap=%d out=UNWRITTEN bytes=0\n",
+            WPF_PTS_ERR_NOT_IMPLEMENTED, reason ? reason : "unknown", pfscontext, pTableRow,
+            g_pts_tbl_query_ok, g_pts_tbl_query_gap);
+    return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
 
 /* ⏪ `t125`：`wpf_pts_doc_find` 的定义体（**只比指针身份**，不 deref 入参）。 */

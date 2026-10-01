@@ -31,7 +31,26 @@
 #   并**断言相等**（不等即 `rc=9` 停手 = 基底漂移），再把 `tool/dead/artifact/ops/impl`
 #   交给牙**现算对账**（不等即牙红 —— 那才是"数漂了"，与基底漂移是两回事，分开报）。
 # ══════════════════════════════════════════════════════════════════════════════════
-# PTSGAP-DECL: tool=71 dead=11 artifact=1 ops=59 impl=60 so16=642019f680d75d87 exports=688 w66pre16=bf6b683d94549087
+# PTSGAP-DECL: tool=70 dead=11 artifact=1 ops=58 impl=59 so16=193e20c8b483ea3d exports=689 w66pre16=bf6b683d94549087
+#   ⚠️ 波 `T-A56` 重锚（`TASK-0302` 增量：**表单元内容排版**（`pfnFormatCellFinite`）＋ 新增导出
+#     `FsClearUpdateInfoInSubpage`；`D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
+#     `src/WpfGfx.Linux.Native/src/win32_pts.c` 新增**导出** `FsClearUpdateInfoInSubpage`
+#     （上游声明 `Pts.cs:3263`，**2 参**；调用点 `CellParaClient.Arrange:119` —— 单元**真排版**后必调；
+#      `T-A56` 之前本移植不排单元 ⇒ 该入口从未被调 ⇒ 未导出；`T-A56` 让行详情报真 `cCells` ⇒ 必被调
+#      ⇒ 改前形态是 `entry point named 'FsClearUpdateInfoInSubpage'` **335 条** ⇒ 整页空白）。
+#     **诚实形态**：按**本侧对象身份**认领（`wpf_pts_sp_claim_track`）后返 `rc=0`（本侧
+#     `FsQuerySubpageDetails` 恒报首态 `fskupd=New` ⇒ "清更新信息"无需改状态，**不**冒充稳态）；
+#     空／未知句柄 ⇒ 诚实拒（`-10000` ＋ 具名 `[FS_PAGE_GAP]`））⇒ `exports 688→689`
+#     （**逐名 +1，无消失**；`nm -D --defined-only` 行数 == `exports.txt` 行数 == 689；逐名 `diff` 零差异）；
+#     `tool 71→70`／`ops 59→58`／`impl 60→59`（该名由「会 `EntryPointNotFoundException` 的缺口」变为
+#     「已导出可用」⇒ 缺口计数**下降** 1；不新增/不删除任何 `wpf_pts_gap(...)` stub ⇒ `impl−ops` 仍 1）；
+#     `so16 642019f680d75d87→193e20c8b483ea3d`；`dead/artifact/w66pre16` 未动。
+#     ⚠️ **计数下降 ≠ 能力前进**（件头第 ① 条同口径）：本增量把**缺符号**变成**有符号**，并让**表单元**内容
+#        真排版（`pfnGetCells`／`pfnFormatCellFinite`／`pfnSetCellHeight` 三个托管回调**窗内**真发调；
+#        行高由单元内容台账 `Σ(ascent+descent)` 派生）；页仍**未全绘**（症状门由腿读数给）。
+#     ⚠️ **正文复述位本趟已随动**（`docs/ROUTES.md` 三处／`README.md`／`build/MilBridge/HANDOFF-NEXT.md`／
+#        `samples/WpfFeatureProbe/KNOWN-DEFECTS.md` 两处／`docs/unimplemented.md`／
+#        `src/WpfGfx.Linux.Native/src/win32_classification.c`）⇒ 本牙现取 **`PTSGAP=PASS`**（零 `SITE-DRIFT`）。
 #   ⚠️ 波 `T-A54` 重锚（`TASK-0302` 增量：翻 `WPF_PTS_FLOATER_CBK`／`WPF_PTS_TABLEOBJ` 为**缺省开**；
 #     `D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
 #     `src/WpfGfx.Linux.Native/src/win32_pts.c` 的两个**运行期闸缺省值**由 `..._DEFAULT 0` 翻为 `1`
