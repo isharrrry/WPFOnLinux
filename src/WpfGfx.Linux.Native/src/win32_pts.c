@@ -6052,6 +6052,383 @@ int WpfLinuxWin32_PtsParaChainSelfCheck(void)
 }
 int WpfLinuxWin32_PtsParaChainSelftestMask(void) { return WpfLinuxWin32_PtsParaChainSelfCheck(); }
 
+/* ══════════════════════════════════════════════════════════════════════════════════════════════
+   ⏪ `T-A72`（`TASK-0307` 增量 · **LS 会话进链** ＝ `W` 合取第 ① 条 `PRECOND-LS-SESSION-DRIVER`
+   ＋ 契约 `C2` 的 `ploc` 一半）
+   ──────────────────────────────────────────────────────────────────────────────────────────────
+   【在册出处 · 件:行】
+     · `build/MilBridge/P1-ls-callback-face-recon.md:85`：「⇒ 新增具名前置：**`PRECOND-LS-SESSION-DRIVER`**
+       —— 一旦实现 LS，本侧要成为**重入方**（托管→我们→托管），其寿命/重入口径**不在 `t166` 的射程内**。」
+     · `build/MilBridge/P1-ls-provenance-contract.md:70`（契约 `C2`）：「LS 会话标识（`plsrun` 起点 或
+       `LoCreateContext` 的 `ploc`）｜**宿主 + LS**｜❌ **不存在于我们的链上**……**须新立**（本侧今天不在该
+       调用链上）｜❌ **不能** ⇒ 只能**接收并保管**」。
+     · `build/MilBridge/P1-tail2-dingrecon.md:91`（§3.2 第 1 条）：「**LS 会话进链**：`LoCreateContext` 的
+       `ploc` 与文本段落 `nmp` 在本侧**同一窗内**可观测」。
+   【本块做什么】把 **LS 会话**（`LoCreateContext` 真产出的 `ploc`）与**文本段落**（`nmp`／`_paraHandle`）
+   在**同一窗内**做成一条**可对账的进链台账**：托管在**一次调用窗内**同时交出 `(ploc, para)`，native：
+     · **会话身份**：`ploc` **必须**能在本侧会话登记表里**按对象身份认领**（`wpf_pts_loc_find`）——
+       认不出 ⇒ **诚实拒绝**（`not-in-chain`，表内不出现该条）；
+     · **回调面指纹**：从**该会话对象**上现取 `T-A68` 的窗内值化面（三态／28 槽非零数／最小面非零数／
+       `redef` 非零数／布局自证）＋ 对**副本**（`cbf_info[744]`＋`cbf_redef[24]`）算的 FNV-1a 64；
+     · **两结构指针**：`LsContextInfo`／`LscbkRedefined` 两个入参结构的地址（**只存不 deref**）；
+     · **所属段**：段落身份按**同一段身份**去 `T-A69`（内容源）／`T-A71`（进链）两本台账解析
+       ⇒ `src_slot`／`chain_slot`／`para_link`（两本**同时**可解析才 ＝ 1）。
+   ⇒ 此后**逐条可现取**：`Find(para)` 得槽 ⇒ 会话／段／两结构指针／回调面指纹／状态／序。
+   【诚实边界（逐条，不许读宽）】
+     1. 🔴 **本侧不是作者**：会话由**托管**造（`TextFormatterContext.cs:113 LoCreateContext`）、段由**宿主**
+        造（`P1-layout-content-criteria.md:146` 在册）⇒ 本块**只收、只认领、只解析、只回读**，**绝不自造**。
+     2. 🔴 **"进链" ≠ "排版"**：本块**不**填任何几何／行盒／`cLines`／`dcp` 区间；也**不**主张"LS 引擎真用
+        该会话排了该段"（本移植绕过 LS 造型）⇒ `W` 整体仍**未解除**（`PRECOND-NO-LINE-BREAKER`／`C2` 的
+        `plsrun` 那一半**仍在册**）。
+     3. 🔴 **无源 ≠ 有源**：会话在链上但段解析不到 ⇒ 状态 `UNBOUND`（**与"没进链"的 `NONE` 不同形**），
+        **不**用零值／假句柄冒充"有段"。
+     4. 🔴 **`C1↔C2` 一一对应有牙**（契约 §6 `acceptance` ① 的否定面）：同一段落被**第二个不同会话**认领
+        ⇒ **必拒**（`session-conflict`，表内保留原绑定）。
+     5. **有界**：条数 ≤ `WPF_PTS_LSS_MAX`；越界**响亮拒**（不截断、不静默）；表满 ⇒ 有界复用最旧槽。
+   ══════════════════════════════════════════════════════════════════════════════════════════════ */
+#define WPF_PTS_LSS_MAX        8        /* 在册"已进链会话"条数上界（有界，防异常调用无限增长） */
+#define WPF_PTS_LSS_ST_NONE    0        /* 该段**没有**绑定任何会话（≠"绑了但段无源"） */
+#define WPF_PTS_LSS_ST_UNBOUND 1        /* 会话在链上 ∧ 段在本侧台账里解析不到（＝ 无源） */
+#define WPF_PTS_LSS_ST_BOUND   2        /* 会话在链上 ∧ 段在 `T-A69` ＋ `T-A71` 两本台账里**同时**解析到 */
+#define WPF_PTS_LSS_MAGIC      0x4c535352u   /* "LSSR"：本模块自认的条目魔数 */
+
+typedef struct {
+    unsigned int magic;
+    const void  *ploc;           /* **会话身份**：`LoCreateContext` 的产出（本侧**只存、不 deref**） */
+    const void  *para;           /* **所属段**：托管给的 `nmp`（本侧**只存、不 deref**） */
+    const void  *info_ptr;       /* **两结构指针 ①**：`LsContextInfo`（`LoCreateContext` 入参①） */
+    const void  *redef_ptr;      /* **两结构指针 ②**：`LscbkRedefined`（`LoCreateContext` 入参②） */
+    int          cbf_state;      /* **回调面指纹**：`T-A68` 三态（NONE/ALLZERO/VALUE） */
+    int          cbf_nonzero;    /* **回调面指纹**：28 槽里非 0 的槽数 */
+    int          cbf_min_nonzero;/* **回调面指纹**：最小入站面 `LS-CB-M1`（9 槽）里的非 0 槽数 */
+    int          cbf_redef_nonzero; /* **回调面指纹**：`LscbkRedefined` 3 槽里非 0 的槽数 */
+    int          cbf_layok;      /* **回调面指纹**：布局自证（`T-A68` 三锚对拍） */
+    unsigned long long cbf_fp;   /* **回调面指纹**：FNV-1a 64（对两副本逐字节算） */
+    int          src_slot;       /* 所属段：`T-A69` 内容源槽（-1 ＝ 无源） */
+    int          chain_slot;     /* 所属段：`T-A71` 进链槽（-1 ＝ 不在链上） */
+    int          para_link;      /* 所属段：两本台账**同时**可解析（1 ＝ 是） */
+    int          state;          /* `WPF_PTS_LSS_ST_{NONE,UNBOUND,BOUND}` */
+    int          seq;            /* 全局进链序号（只增；"逐条现取"的序） */
+} wpf_pts_lssess;
+
+static wpf_pts_lssess *g_pts_lss[WPF_PTS_LSS_MAX];
+static int g_pts_lss_n         = 0;   /* 在册条数（＝"已进链会话"的现取计数） */
+static int g_pts_lss_seq       = 0;   /* 全局进链序号（只增） */
+static int g_pts_lss_rx        = 0;   /* 成功进链次数 */
+static int g_pts_lss_gap       = 0;   /* 被拒（空参／**不在链上**／**同段冲突**／无回调面／分配失败）次数 */
+static int g_pts_lss_unbound   = 0;   /* 进了链但段解析不到的次数（与"没进链"不同形） */
+static int g_pts_lss_rr        = 0;   /* 有界表的轮转指针（满时复用最旧槽） */
+
+/* ── 回调面指纹（**非恒真**：读的是该会话对象上的 `T-A68` 值化副本，不是新造的量）──────────────
+   FNV-1a 64 对 `cbf_info[744] ＋ cbf_redef[24]` 的**副本**逐字节算 ⇒ 同一个回调面必得同值、
+   任一处不同必得不同值（可证伪）。 */
+static unsigned long long wpf_pts_lss_fp(const wpf_pts_loc *c)
+{
+    unsigned long long h = 1469598103934665603ULL;           /* FNV-1a 64 offset basis */
+    for (size_t i = 0; i < WPF_PTS_LSCBF_INFO_SIZE;  i++) { h ^= (unsigned long long)c->cbf_info[i];  h *= 1099511628211ULL; }
+    for (size_t i = 0; i < WPF_PTS_LSCBF_REDEF_SIZE; i++) { h ^= (unsigned long long)c->cbf_redef[i]; h *= 1099511628211ULL; }
+    return h;
+}
+static int wpf_pts_lss_min_nonzero(const wpf_pts_loc *c)
+{
+    int n = 0;
+    for (int i = 0; i < WPF_PTS_LSCBF_SLOT_N; i++)
+        if (k_pts_lscbf_slots[i].in_min && c->cbf_slot[i]) n++;
+    return n;
+}
+
+/* ── 进链（唯一收口）：**先认领会话、再解析段**＋具名行 ──────────────────────────────────────
+   ⚠️ **无假值纪律**：任一失败路径 ⇒ **一个字都不写进表**（表内不出现该条）＋具名 `[LSSESS] rx=REJECT`。 */
+int WpfLinuxWin32_PtsLsSessFeed(const void *ploc, const void *para)
+{
+    const char *reason = NULL;
+    wpf_pts_loc *c = NULL;
+    if (!ploc)                                    reason = "null-session";
+    else if (!para)                               reason = "null-para";
+    if (!reason) {
+        c = wpf_pts_loc_find(ploc);
+        if (!c)                                        reason = "not-in-chain";       /* ← 该红必红的牙（会话不入链 ⇒ 必拒） */
+        else if (c->cbf_state == WPF_PTS_LSCBF_ST_NONE) reason = "no-callback-face";   /* 面从未值化 ⇒ 无指纹可给 */
+        else {
+            for (int i = 0; i < g_pts_lss_n; i++) {                                    /* `C1↔C2` 一一对应 */
+                wpf_pts_lssess *s = g_pts_lss[i];
+                if (!s || s->magic != WPF_PTS_LSS_MAGIC || s->para != para) continue;
+                if (s->ploc != ploc) { reason = "session-conflict"; break; }
+            }
+        }
+    }
+    if (reason) {
+        g_pts_lss_gap++;
+        fprintf(stderr, "[LSSESS] rx=REJECT reason=%s ploc=%p para=%p out=UNWRITTEN bytes=0\n",
+                reason, ploc, para);
+        return WPF_PTS_ERR_NOT_IMPLEMENTED;
+    }
+    /* ── 到了这里：会话**必在本侧登记表里**（上面的 `not-in-chain` 已挡掉反面）────────────────── */
+    int src_slot = -1, chain_slot = -1;
+    if (WpfLinuxWin32_PtsTextSrcFind(para) >= 0) src_slot = WpfLinuxWin32_PtsTextSrcFind(para);
+    if (WpfLinuxWin32_PtsParaChainFind(para)  >= 0) chain_slot = WpfLinuxWin32_PtsParaChainFind(para);
+    int slot = -1;
+    for (int i = 0; i < g_pts_lss_n; i++)
+        if (g_pts_lss[i] && g_pts_lss[i]->magic == WPF_PTS_LSS_MAGIC && g_pts_lss[i]->para == para) { slot = i; break; }
+    if (slot < 0) {
+        if (g_pts_lss_n < WPF_PTS_LSS_MAX) {
+            slot = g_pts_lss_n;
+            g_pts_lss[slot] = (wpf_pts_lssess *)calloc(1, sizeof(wpf_pts_lssess));
+            if (!g_pts_lss[slot]) {
+                g_pts_lss_gap++;
+                fprintf(stderr, "[LSSESS] rx=REJECT reason=alloc-failed ploc=%p para=%p out=UNWRITTEN bytes=0\n",
+                        ploc, para);
+                return WPF_PTS_ERR_NOT_IMPLEMENTED;
+            }
+            g_pts_lss_n++;
+        } else {
+            slot = g_pts_lss_rr++ % WPF_PTS_LSS_MAX;         /* 有界复用（最旧） */
+        }
+    }
+    wpf_pts_lssess *s = g_pts_lss[slot];
+    s->magic             = WPF_PTS_LSS_MAGIC;
+    s->ploc              = ploc;
+    s->para              = para;
+    s->info_ptr          = c->context_info;      /* 两结构指针（**只存值**，不 deref） */
+    s->redef_ptr         = c->lscbk_redef;
+    s->cbf_state         = c->cbf_state;
+    s->cbf_nonzero       = c->cbf_slot_nonzero;
+    s->cbf_min_nonzero   = wpf_pts_lss_min_nonzero(c);
+    s->cbf_redef_nonzero = c->cbf_redef_nonzero;
+    s->cbf_layok         = c->cbf_layok;
+    s->cbf_fp            = wpf_pts_lss_fp(c);
+    s->src_slot          = src_slot;
+    s->chain_slot        = chain_slot;
+    s->para_link         = (src_slot >= 0 && chain_slot >= 0) ? 1 : 0;
+    s->state             = s->para_link ? WPF_PTS_LSS_ST_BOUND : WPF_PTS_LSS_ST_UNBOUND;
+    s->seq               = ++g_pts_lss_seq;
+    g_pts_lss_rx++;
+    if (!s->para_link) g_pts_lss_unbound++;
+    fprintf(stderr, "[LSSESS] rx=OK slot=%d seq=%d ploc=%p para=%p info=%p redef=%p cbf_state=%d nonzero=%d "
+                    "min_nonzero=%d/%d redef_nonzero=%d layok=%d fp=%016llx src_slot=%d chain_slot=%d link=%d "
+                    "state=%s v=LS-SESSION-IN-CHAIN\n",
+            slot, s->seq, ploc, para, s->info_ptr, s->redef_ptr, s->cbf_state, s->cbf_nonzero,
+            s->cbf_min_nonzero, WPF_PTS_LSCBF_MIN_N, s->cbf_redef_nonzero, s->cbf_layok, s->cbf_fp,
+            src_slot, chain_slot, s->para_link,
+            s->state == WPF_PTS_LSS_ST_BOUND ? "BOUND" : "UNBOUND");
+    return 0;
+}
+
+/* ── 只读回读面（供托管对拍／探针／判据现取；纯读、越界即响亮哨兵）────────────────────────── */
+static wpf_pts_lssess *wpf_pts_lss_at(int k)
+{
+    if (k < 0 || k >= g_pts_lss_n) return NULL;
+    wpf_pts_lssess *s = g_pts_lss[k];
+    return (s && s->magic == WPF_PTS_LSS_MAGIC) ? s : NULL;
+}
+int WpfLinuxWin32_PtsLsSessCount(void) { return g_pts_lss_n; }
+int WpfLinuxWin32_PtsLsSessFind(const void *para)
+{
+    for (int i = 0; i < g_pts_lss_n; i++) {
+        wpf_pts_lssess *s = wpf_pts_lss_at(i);
+        if (s && s->para == para) return i;
+    }
+    return -1;
+}
+int WpfLinuxWin32_PtsLsSessState(int k)              { wpf_pts_lssess *s = wpf_pts_lss_at(k); return s ? s->state : -1; }
+int WpfLinuxWin32_PtsLsSessSeq(int k)                { wpf_pts_lssess *s = wpf_pts_lss_at(k); return s ? s->seq : -1; }
+const void *WpfLinuxWin32_PtsLsSessSession(int k)    { wpf_pts_lssess *s = wpf_pts_lss_at(k); return s ? s->ploc : NULL; }
+const void *WpfLinuxWin32_PtsLsSessPara(int k)       { wpf_pts_lssess *s = wpf_pts_lss_at(k); return s ? s->para : NULL; }
+const void *WpfLinuxWin32_PtsLsSessInfoPtr(int k)    { wpf_pts_lssess *s = wpf_pts_lss_at(k); return s ? s->info_ptr : NULL; }
+const void *WpfLinuxWin32_PtsLsSessRedefPtr(int k)   { wpf_pts_lssess *s = wpf_pts_lss_at(k); return s ? s->redef_ptr : NULL; }
+int WpfLinuxWin32_PtsLsSessCbfState(int k)           { wpf_pts_lssess *s = wpf_pts_lss_at(k); return s ? s->cbf_state : -1; }
+int WpfLinuxWin32_PtsLsSessCbfNonzero(int k)         { wpf_pts_lssess *s = wpf_pts_lss_at(k); return s ? s->cbf_nonzero : -1; }
+int WpfLinuxWin32_PtsLsSessCbfMinNonzero(int k)      { wpf_pts_lssess *s = wpf_pts_lss_at(k); return s ? s->cbf_min_nonzero : -1; }
+int WpfLinuxWin32_PtsLsSessCbfRedefNonzero(int k)    { wpf_pts_lssess *s = wpf_pts_lss_at(k); return s ? s->cbf_redef_nonzero : -1; }
+int WpfLinuxWin32_PtsLsSessCbfLayOk(int k)           { wpf_pts_lssess *s = wpf_pts_lss_at(k); return s ? s->cbf_layok : -1; }
+int WpfLinuxWin32_PtsLsSessSrcSlot(int k)            { wpf_pts_lssess *s = wpf_pts_lss_at(k); return s ? s->src_slot : -2; }
+int WpfLinuxWin32_PtsLsSessChainSlot(int k)          { wpf_pts_lssess *s = wpf_pts_lss_at(k); return s ? s->chain_slot : -2; }
+int WpfLinuxWin32_PtsLsSessParaLink(int k)           { wpf_pts_lssess *s = wpf_pts_lss_at(k); return s ? s->para_link : -1; }
+/* ⏪ 回调面指纹（64 位；越界/无 ⇒ `0`，法值域非 0 ⇒ 可区分）。 */
+unsigned long long WpfLinuxWin32_PtsLsSessCbfFp(int k) { wpf_pts_lssess *s = wpf_pts_lss_at(k); return s ? s->cbf_fp : 0ULL; }
+/* **指针一致性**：两结构指针非空 ∧ **会话句柄仍指回同一个在册对象** ∧ 该对象上的两指针与登记值逐一相等。 */
+int WpfLinuxWin32_PtsLsSessPtrOk(int k)
+{
+    wpf_pts_lssess *s = wpf_pts_lss_at(k);
+    if (!s) return -1;
+    if (!s->info_ptr || !s->redef_ptr) return 0;
+    wpf_pts_loc *c = wpf_pts_loc_find(s->ploc);
+    if (!c) return 0;                                    /* 会话已销毁 ⇒ 身份不再一致 */
+    if (c->context_info != s->info_ptr) return 0;
+    if (c->lscbk_redef  != s->redef_ptr) return 0;
+    return 1;
+}
+int WpfLinuxWin32_PtsLsSessLiveSessions(void) { return g_pts_loc_live_n; }   /* 会话数（本侧登记表真值） */
+int WpfLinuxWin32_PtsLsSessDistinctSessions(void)                            /* 台账上**互异**会话数 */
+{
+    int n = 0;
+    for (int i = 0; i < g_pts_lss_n; i++) {
+        wpf_pts_lssess *s = wpf_pts_lss_at(i);
+        if (!s) continue;
+        int dup = 0;
+        for (int j = 0; j < i; j++) { wpf_pts_lssess *t = wpf_pts_lss_at(j); if (t && t->ploc == s->ploc) { dup = 1; break; } }
+        if (!dup) n++;
+    }
+    return n;
+}
+int WpfLinuxWin32_PtsLsSessRx(void)        { return g_pts_lss_rx; }
+int WpfLinuxWin32_PtsLsSessRxGap(void)     { return g_pts_lss_gap; }
+int WpfLinuxWin32_PtsLsSessUnbound(void)   { return g_pts_lss_unbound; }
+
+/* ── 两极化自检（**正极真值 ∧ 反极必拒 ∧ 该红必红**；纯 native，只用本侧夹具，不碰应用状态）──────
+   夹具会话由 `LoCreateContext` **真造**（⇒ 其 `ploc` 在本侧登记表里**可按对象身份认领**，这是本条的
+   正极前提）；夹具段落由 `T-A69` 的 `…PtsTextSrcFeed` ＋ `T-A71` 的 `…PtsParaChainFeed` **真入站**
+   （⇒ `para_link` 可真核）；子轨对象用 `wpf_pts_sub_new` 真造（T-A71 的正极前提）。
+   bit0 ＝ 会话在链 ∧ 段在两本台账里同时可解析 ⇒ `BOUND` ∧ 会话／段／两结构指针／回调面指纹逐格相符；
+   bit1 ＝ 会话在链但**段解析不到** ⇒ `UNBOUND`（**与"没进链"的 `NONE` 不同形**）；
+   bit2 ＝ 反极必拒（空会话／空段／未知会话 ⇒ `-10000`；回读越界 ⇒ 哨兵）；
+   bit3 ＝ **该红必红**（**同段被第二个会话认领** ⇒ 必拒 ∧ 原绑定不动；未知会话**从不进表**）。
+   **-1** ＝ 夹具自身失败（表位不足／会话造不出 ⇒ **不算绿**）。收尾**真销毁**并**复原全部可观测状态**。 */
+static int g_pts_lss_fix_b, g_pts_lss_fix_page;
+
+int WpfLinuxWin32_PtsLsSessSelfCheck(void)
+{
+    if (g_pts_lss_n   + 2 > WPF_PTS_LSS_MAX)     return -1;      /* 表位不足 ⇒ 不算绿 */
+    if (g_pts_loc_live_n + 2 > WPF_PTS_LOC_MAX)  return -1;
+    if (g_pts_sub_live_n + 2 > WPF_PTS_SUB_MAX)  return -1;
+    if (g_pts_textsrc_n + 1 > WPF_PTS_TEXTSRC_MAX) return -1;
+    if (g_pts_pc_n      + 1 > WPF_PTS_PC_MAX)    return -1;
+    int save_n = g_pts_lss_n, save_seq = g_pts_lss_seq, save_rr = g_pts_lss_rr;
+    int save_rx = g_pts_lss_rx, save_gap = g_pts_lss_gap, save_unb = g_pts_lss_unbound;
+    int save_locn = g_pts_loc_live_n, save_locc = g_pts_loc_creates, save_locd = g_pts_loc_destroys;
+    int save_locrej = g_pts_loc_rejected;
+    int save_cbfrx = g_pts_lscbf_rx, save_cbfgap = g_pts_lscbf_rx_gap;
+    int save_subn = g_pts_sub_live_n, save_subc = g_pts_sub_created, save_subd = g_pts_sub_destroyed;
+    int save_subseq = g_pts_sub_seq, save_hcr = g_pts_hc_reading;
+    int save_cok = g_pts_sub_claim_ok, save_cbad = g_pts_sub_claim_bad;
+    int save_tsn = g_pts_textsrc_n, save_tsseq = g_pts_textsrc_seq, save_tsrr = g_pts_textsrc_rr;
+    int save_tsrx = g_pts_textsrc_rx, save_tsgap = g_pts_textsrc_gap, save_tsempty = g_pts_textsrc_empty;
+    int save_pcn = g_pts_pc_n, save_pcseq = g_pts_pc_seq, save_pcrr = g_pts_pc_rr;
+    int save_pcrx = g_pts_pc_rx, save_pcgap = g_pts_pc_gap, save_pcuns = g_pts_pc_unsourced;
+    int lidx = wpf_pts_index("LoCreateContext");
+    int save_seen = (lidx >= 0) ? g_pts_seen[lidx] : 0;
+    int mask = 0;
+
+    /* 夹具会话（两枚：一枚正极、一枚用于"同段冲突"反腿）＋ 夹具回调面（含三锚 ⇒ 可核 `cbf_layok`） */
+    unsigned char info[WPF_PTS_LSCBF_INFO_SIZE], redef[WPF_PTS_LSCBF_REDEF_SIZE];
+    memset(info, 0, sizeof(info)); memset(redef, 0, sizeof(redef));
+    { unsigned int ver = 4u; int jpl = 3; unsigned short wt = 9u;      /* 托管置值三锚（布局自证） */
+      memcpy(info + 0, &ver, 4); memcpy(info + 20, &jpl, 4); memcpy(info + 32, &wt, 2); }
+    { const void *p;
+      p = (const void *)&wpf_pts_lscbf_stub0; memcpy(info + 184, &p, 8);   /* slot 0  FetchPap       */
+      p = (const void *)&wpf_pts_lscbf_stub3; memcpy(redef + 0,   &p, 8); } /* slot 2  FetchRunRedef  */
+
+    void *loc_a = NULL, *loc_b = NULL;
+    wpf_pts_subtrack *o_a = NULL;
+    if (LoCreateContext(info, redef, &loc_a) != 0 || !loc_a) return -1;
+    if (LoCreateContext(info, redef, &loc_b) != 0 || !loc_b) { LoDestroyContext(loc_a); return -1; }
+    wpf_pts_loc *ca = wpf_pts_loc_find(loc_a);
+    wpf_pts_loc *cb = wpf_pts_loc_find(loc_b);
+    if (!ca || !cb) { LoDestroyContext(loc_b); LoDestroyContext(loc_a); return -1; }
+    o_a = wpf_pts_sub_new(&g_pts_lss_fix_page, NULL);
+    if (!o_a) { LoDestroyContext(loc_b); LoDestroyContext(loc_a); return -1; }
+    const void *pa = wpf_pts_sub_handle(o_a);                 /* 可认领的段身份 ⇒ T-A71 台账可收 */
+    static const unsigned short fix[] = { 'L','S','S','E','S','S', 0x4E2D, 0x0009 };
+    const int fc = (int)(sizeof(fix) / sizeof(fix[0]));
+    if (WpfLinuxWin32_PtsTextSrcFeed(pa, 3, fix, fc) != 0) {                   /* 内容源真入站 */
+        wpf_pts_sub_destroy(o_a); LoDestroyContext(loc_b); LoDestroyContext(loc_a); return -1;
+    }
+    if (WpfLinuxWin32_PtsParaChainFeed(pa, 1, 3, 3 + fc) != 0) {               /* 段落真进链 */
+        wpf_pts_sub_destroy(o_a); LoDestroyContext(loc_b); LoDestroyContext(loc_a); return -1;
+    }
+
+    /* bit0：正极 —— 会话在链 ∧ 段在两本台账里同时可解析 ⇒ BOUND ∧ 逐格相符 */
+    {
+        int rc = WpfLinuxWin32_PtsLsSessFeed(loc_a, pa);
+        int k  = WpfLinuxWin32_PtsLsSessFind(pa);
+        int ok = (rc == 0) && (k >= 0)
+              && (WpfLinuxWin32_PtsLsSessState(k)            == WPF_PTS_LSS_ST_BOUND)
+              && (WpfLinuxWin32_PtsLsSessSession(k)          == loc_a)
+              && (WpfLinuxWin32_PtsLsSessPara(k)             == pa)
+              && (WpfLinuxWin32_PtsLsSessInfoPtr(k)          == ca->context_info)
+              && (WpfLinuxWin32_PtsLsSessRedefPtr(k)         == ca->lscbk_redef)
+              && (WpfLinuxWin32_PtsLsSessPtrOk(k)            == 1)
+              && (WpfLinuxWin32_PtsLsSessCbfState(k)         == ca->cbf_state)
+              && (WpfLinuxWin32_PtsLsSessCbfNonzero(k)       == ca->cbf_slot_nonzero)
+              && (WpfLinuxWin32_PtsLsSessCbfMinNonzero(k)    == 2)          /* 最小面里塞了 2 个桩（FetchPap ＋ FetchRunRedefined） */
+              && (WpfLinuxWin32_PtsLsSessCbfRedefNonzero(k)  == ca->cbf_redef_nonzero)
+              && (WpfLinuxWin32_PtsLsSessCbfLayOk(k)         == 1)
+              && (WpfLinuxWin32_PtsLsSessCbfFp(k)            == wpf_pts_lss_fp(ca))
+              && (WpfLinuxWin32_PtsLsSessSrcSlot(k)          == WpfLinuxWin32_PtsTextSrcFind(pa))
+              && (WpfLinuxWin32_PtsLsSessChainSlot(k)        == WpfLinuxWin32_PtsParaChainFind(pa))
+              && (WpfLinuxWin32_PtsLsSessParaLink(k)         == 1)
+              && (WpfLinuxWin32_PtsLsSessDistinctSessions()  == 1);
+        if (ok) mask |= 1 << 0;
+    }
+    /* bit1：会话在链但**段解析不到** ⇒ UNBOUND（与"没进链"不同形） */
+    {
+        int rc = WpfLinuxWin32_PtsLsSessFeed(loc_b, (const void *)&g_pts_lss_fix_b);
+        int k  = WpfLinuxWin32_PtsLsSessFind((const void *)&g_pts_lss_fix_b);
+        if (rc == 0 && k >= 0
+            && WpfLinuxWin32_PtsLsSessState(k)      == WPF_PTS_LSS_ST_UNBOUND
+            && WpfLinuxWin32_PtsLsSessParaLink(k)   == 0
+            && WpfLinuxWin32_PtsLsSessSrcSlot(k)    == -1
+            && WpfLinuxWin32_PtsLsSessChainSlot(k)  == -1
+            && WpfLinuxWin32_PtsLsSessPtrOk(k)      == 1
+            && WpfLinuxWin32_PtsLsSessUnbound()     == 1)
+            mask |= 1 << 1;
+    }
+    /* bit2：反极必拒（该拒必拒；回读越界 → 哨兵） */
+    {
+        int ok = (WpfLinuxWin32_PtsLsSessFeed(NULL, pa)                       == WPF_PTS_ERR_NOT_IMPLEMENTED)
+              && (WpfLinuxWin32_PtsLsSessFeed(loc_a, NULL)                    == WPF_PTS_ERR_NOT_IMPLEMENTED)
+              && (WpfLinuxWin32_PtsLsSessFeed((const void *)0xdead, pa)       == WPF_PTS_ERR_NOT_IMPLEMENTED)
+              && (WpfLinuxWin32_PtsLsSessFind((const void *)0xdead)           == -1)
+              && (WpfLinuxWin32_PtsLsSessState(999)                           == -1)
+              && (WpfLinuxWin32_PtsLsSessSession(999)                         == NULL)
+              && (WpfLinuxWin32_PtsLsSessInfoPtr(999)                         == NULL)
+              && (WpfLinuxWin32_PtsLsSessPtrOk(999)                           == -1)
+              && (WpfLinuxWin32_PtsLsSessCbfFp(999)                           == 0ULL)
+              && (WpfLinuxWin32_PtsLsSessSrcSlot(999)                         == -2);
+        if (ok) mask |= 1 << 2;
+    }
+    /* bit3：**该红必红** —— 同段被**第二个会话**认领 ⇒ 必拒 ∧ 原绑定不动 ∧ 未知会话从不进表 */
+    {
+        int k0 = WpfLinuxWin32_PtsLsSessFind(pa);
+        int ok = (WpfLinuxWin32_PtsLsSessFeed(loc_b, pa) == WPF_PTS_ERR_NOT_IMPLEMENTED)   /* 同段冲突 */
+              && (k0 >= 0) && (WpfLinuxWin32_PtsLsSessSession(k0) == loc_a)                /* 原绑定不动 */
+              && (WpfLinuxWin32_PtsLsSessFind((const void *)0x5a5a5a5a) == -1);            /* 未知身份从不进表 */
+        if (ok) mask |= 1 << 3;
+    }
+    fprintf(stderr, "[LSSESS-SELFTEST] mask=0x%02x bound=%d unbound=%d reject=%d conflict=%d legs=%s\n",
+            mask, (mask >> 0) & 1, (mask >> 1) & 1, (mask >> 2) & 1, (mask >> 3) & 1,
+            mask == 0x0f ? "4/4(POS+REJECT)" : "PARTIAL");
+
+    /* 复原一切可观测状态（"自检不许改变可观测状态"） */
+    for (int i = save_n; i < g_pts_lss_n; i++) {
+        if (g_pts_lss[i]) { g_pts_lss[i]->magic = 0; free(g_pts_lss[i]); g_pts_lss[i] = NULL; }
+    }
+    g_pts_lss_n = save_n; g_pts_lss_seq = save_seq; g_pts_lss_rr = save_rr;
+    g_pts_lss_rx = save_rx; g_pts_lss_gap = save_gap; g_pts_lss_unbound = save_unb;
+    for (int i = save_pcn; i < g_pts_pc_n; i++) {
+        if (g_pts_pc[i]) { g_pts_pc[i]->magic = 0; free(g_pts_pc[i]); g_pts_pc[i] = NULL; }
+    }
+    g_pts_pc_n = save_pcn; g_pts_pc_seq = save_pcseq; g_pts_pc_rr = save_pcrr;
+    g_pts_pc_rx = save_pcrx; g_pts_pc_gap = save_pcgap; g_pts_pc_unsourced = save_pcuns;
+    for (int i = save_tsn; i < g_pts_textsrc_n; i++) {
+        if (g_pts_textsrc[i]) { g_pts_textsrc[i]->magic = 0; free(g_pts_textsrc[i]); g_pts_textsrc[i] = NULL; }
+    }
+    g_pts_textsrc_n = save_tsn; g_pts_textsrc_seq = save_tsseq; g_pts_textsrc_rr = save_tsrr;
+    g_pts_textsrc_rx = save_tsrx; g_pts_textsrc_gap = save_tsgap; g_pts_textsrc_empty = save_tsempty;
+    wpf_pts_sub_destroy(o_a);
+    g_pts_sub_live_n = save_subn; g_pts_sub_created = save_subc; g_pts_sub_destroyed = save_subd;
+    g_pts_sub_seq = save_subseq; g_pts_hc_reading = save_hcr;
+    g_pts_sub_claim_ok = save_cok; g_pts_sub_claim_bad = save_cbad;
+    LoDestroyContext(loc_b); LoDestroyContext(loc_a);
+    g_pts_loc_live_n = save_locn; g_pts_loc_creates = save_locc; g_pts_loc_destroys = save_locd;
+    g_pts_loc_rejected = save_locrej;
+    g_pts_lscbf_rx = save_cbfrx; g_pts_lscbf_rx_gap = save_cbfgap;
+    if (lidx >= 0) g_pts_seen[lidx] = save_seen;
+    if (g_pts_lss_n != save_n) return -1;                         /* 泄漏 ⇒ 不算绿 */
+    return mask;
+}
+int WpfLinuxWin32_PtsLsSessSelftestMask(void) { return WpfLinuxWin32_PtsLsSessSelfCheck(); }
+
 // ── 格 6 · 只读面（`t110`／P1-W35）：`CreateDocContext` 的**独立读取面** ────────────────
 //   为什么要这些口：判据 C9 的判绿**不许**停在"两个句柄不同"（那只是必要条件）；"按对象绑定"
 //   必须由**字段读回**承担 ⇒ 需要一个**不经过出参**的读回口。`field` 逐字段取值：

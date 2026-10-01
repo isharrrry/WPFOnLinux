@@ -106,6 +106,10 @@ namespace MS.Internal.PtsHost
             //  见生成器内该块的说明；`WPF_PARACHAIN_FEED=0` ⇒ 整块不发生（反极性腿）。
             WpfLinuxTextParaChainProbe.FeedParagraph(_paraHandle, Paragraph, _pageContext);
 
+            // ── `T-A72`（`PRECOND-LS-SESSION-DRIVER` · **LS 会话进链**）─────────────────
+            //  见生成器内该块的说明；`WPF_LSSESS_FEED=0` ⇒ 整块不发生（反极性腿）。
+            WpfLinuxLsSessionProbe.Feed(PtsContext.Context, _paraHandle);
+
             VisualCollection visualChildren = _visual.Children;
             ContainerVisual lineContainerVisual = _visual;
 

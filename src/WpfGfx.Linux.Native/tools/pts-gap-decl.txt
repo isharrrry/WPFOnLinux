@@ -31,7 +31,32 @@
 #   并**断言相等**（不等即 `rc=9` 停手 = 基底漂移），再把 `tool/dead/artifact/ops/impl`
 #   交给牙**现算对账**（不等即牙红 —— 那才是"数漂了"，与基底漂移是两回事，分开报）。
 # ══════════════════════════════════════════════════════════════════════════════════
-# PTSGAP-DECL: tool=54 dead=11 artifact=1 ops=42 impl=42 so16=53116d7456f62c44 exports=798 w66pre16=bf6b683d94549087
+# PTSGAP-DECL: tool=54 dead=11 artifact=1 ops=42 impl=42 so16=630cefb6c7bdf0f0 exports=824 w66pre16=bf6b683d94549087
+#   ⚠️ 波 `T-A72` 重锚（`TASK-0307` 增量 · **LS 会话进链 ＝ `PRECOND-LS-SESSION-DRIVER`**（`W` 合取第 ① 条）＋
+#     **契约 `C2` 的 `ploc` 一半**，`build/MilBridge/P1-ls-callback-face-recon.md:85` ／
+#     `build/MilBridge/P1-ls-provenance-contract.md:70` ／ `build/MilBridge/P1-tail2-dingrecon.md:91`）：
+#     native 侧新增**会话↔段落进链台账 ＋ 逐条只读回读面（含回调面指纹与两结构指针一致性）＋ 两极化自检**
+#     （`WpfLinuxWin32_PtsLsSess{Feed,Count,Find,State,Seq,Session,Para,InfoPtr,RedefPtr,PtrOk,CbfState,
+#     CbfNonzero,CbfMinNonzero,CbfRedefNonzero,CbfLayOk,CbfFp,SrcSlot,ChainSlot,ParaLink,LiveSessions,
+#     DistinctSessions,Rx,RxGap,Unbound,SelfCheck,SelftestMask}` 26 名）；并在**托管侧**（生成器
+#     `build/PresentationFramework.Linux/reapply-patches.py` 重产件 `WpfLinuxLsSessionProbe.Linux.cs` ＋
+#     `PtsCache.Linux.cs` 的 `CreatePTSContext` 一处 `NoteContext` ＋ `TextParaClient.Linux.cs` 的
+#     `ValidateVisual` 一处 `Feed`）把 **LS 会话身份**（`LoCreateContext` 的 `ploc`）与**文本段落**
+#     （`_paraHandle`）在**同一窗内**交给 native；`ploc` **必须**在本侧会话登记表里**按对象身份认领**
+#     （`wpf_pts_loc_find`）—— 认不出 ⇒ **诚实拒绝**（`not-in-chain`，表内不出现该条）；同段被**第二个不同
+#     会话**认领 ⇒ **必拒**（`session-conflict`）。
+#     `exports 798→824`（**逐名 +26**：上列 26 名，无消失；`nm -D --defined-only` 行数 == `exports.txt`
+#       行数 == 824；逐名 `diff` 零差异）；
+#     `tool/ops/impl/dead/artifact` **未动**（未触碰任何 `PresentationNative` 入口缺口；`stubs` 仍 0）；
+#     `so16 53116d7456f62c44→630cefb6c7bdf0f0`（533832→544008 B）；`w66pre16` 未动。
+#     ⚠️ **本增量不解除 `W`**：**进链 ≠ 排版** —— 它**不**填任何几何／行盒／`cLines`／`dcp` 区间，也**不**
+#       主张"LS 引擎真用该会话排了该段"（本移植绕过 LS 造型）；`PRECOND-NO-LINE-BREAKER`／`C2` 的
+#       `plsrun` 那一半仍在册（`W` 整体仍**未解除**）。
+#     ⚠️ **两极化（该红必红）**：dlopen 探针现取（主链）`[LSSESS-SELFTEST] mask=0x0f`（4/4：正极 BOUND／
+#       `UNBOUND≠NONE`／反极必拒／**同段冲突必拒**）＋ 外部反腿 `NOCHAIN feed=‑10000 find=‑1`；反腿副本
+#       （`not-in-chain` 闸由"拒"改为"**只记不拒**" ⇒ 静默半通形态）⇒ `mask=0x03`（bit2／bit3 灭）＋
+#       外部反腿 `feed=0 find=-1 COUNT=1` ⇒ **该红必红**。
+
 #   ⚠️ 波 `T-A71` 重锚（`TASK-0307` 增量 · **文本段落进链 ＝ `PRECOND-NO-TEXT-PARA-IN-CHAIN`**／`W` 合取第 ④ 条，
 #     `build/MilBridge/P1-layout-content-criteria.md:114`）：native 侧新增**进链台账（可寻址）＋ 逐段只读回读面 ＋
 #     两极化自检**（`WpfLinuxWin32_PtsParaChain{Feed,Count,Find,State,Para,PageId,SubSeq,SubClaimed,CpFirst,CpLim,
