@@ -11,7 +11,7 @@
 
 | 现读入口 | 位置 |
 |---|---|
-| **世代与基线** | `docs/CURRENT-STATE.md:9`（现读 `gen=#59`，基线件 `02f80e388d308c4d`／846,233 B） |
+| **世代与基线** | `docs/CURRENT-STATE.md:9`（现读 `gen=#81`，基线件 `7cd1bc5c37a74e8d`／1,238,130 B） |
 | **交接件（新会话先读这个）** | `build/MilBridge/HANDOFF-NEXT.md`（§5 = **23 条纪律**；§7 = **七条命令**重建存活态） |
 | **路线图（权威状态）** | `docs/ROUTES.md` **§13 树**；`§15x+` = 逐波记录；`§14` = `[Next]` 清单 |
 | **牙齿自检（一条命令）** | `bash build/MilBridge/tools/defect-registry-check.sh`（现读 `DEFREG=PASS declared=149`） |
@@ -244,3 +244,5 @@ GDI+ 的**图像编解码族**只做到"应用能起来"；`ntdll` 面只有 `Rt
 ⏪ **dated 收尾对齐（`T-A49`／`T-A50`／`T-A51`，读时 `2026-09-30T23:59+0800`；只增不改）**：① `T-A49`（E5 重取臂 · 五臂换代）：世代绑定项 `instr_shim 921ba9c65e9fb3be → e2fa9ec9be1a6cf1` ⇒ 五臂重取，`TLINE_GATE=PASS tree_gen=same drift=0 gone=0 unregistered=0`；五臂红/绿结论与在册逐字相同（`known-red.json 29219b6f071c6361 → dcc22fd3c80cfcac`）；同趟 `repo-alias-allow.tsv` 补声明臂日志输出树 ⇒ `ALIAS=PASS`。② `T-A50`（重冻结冻结块 5 行 `# ARM-LOG-SHA`）：`COLUMN_FLOOR=FAIL → PASS`；基线件 `b27ff6332f263495 → bd64f2c1a3eaaa05`（**世代仍 `#80`**）。③ `T-A51`（收尾）：**现取六闸逐条 `rc=0`**（`SSC`／`HANDOFF_MV`／`DEFREG=PASS declared=225`／`REPORTID`／`COLUMN_FLOOR`／`ARMLOG_SHA`）；整波旁生件 `git checkout HEAD --` 归位（旁生件归 0）；`declared.tsv` 重发 225 条。载体：`build/MilBridge/P1-tail2-closeout-report.md`。
 
 ⏪ **dated 现值位随动（`T-A52`／`T-A53`／`T-A54`，读时 `2026-10-01T08:0x+0800`；只增不改，上两段原文保留）**：三连落地后**第 4 具名色 `LightGoldenrodYellow` 缺省落位** —— `T-A52`（`GetFloaterHandlerInfo` 真实现 ＋ Floater 内容排版驱动；缺省关，零回归）⇒ 真阻挡前移 ＝ `Floater` 内 `<Table>` 撞未导出 `FsQueryTableObjDetails`；`T-A53`（**Table 族五入口导出**，`exports 683→688`）⇒ 开闸腿 `LightGoldenrodYellow=1998 px`；`T-A54`（两闸转**缺省开**）⇒ **缺省腿** `LightGoldenrodYellow = 1998 px`、`PTS_COLORANCHOR=PASS k=24 hits=3`、缺省零回归（三帧与 `T-A53` 开闸腿逐字节同）。**现值位（现取）**：`可操作 59／实现口径 60`；`.so 642019f680d75d87`／`exports 688`（`PTSGAP=PASS tool=71 dead=11 artifact=1 ops=59 impl=60 so16=642019f680d75d87 exports=688`）。⚠️ **免读宽**：第 4 色所在层 ＝ **`TableRow Background`（表行背景）**，只让行背景落像素；`FsQueryTableObjRowDetails` 仍一律 `cCells=0`（诚实的空）⇒ 表单元文本未绘（具名下一靶）。载体：`build/MilBridge/P1-tail2-{floatercbk,tableobj,gate-on}-impl-report.md`。
+
+⏪ **dated 现值位随动（`T-A56`／`T-A57`／`T-A58` 冻结收口，读时 `2026-10-01T12:5x+0800`；只增不改，上两段原文保留）**：① `T-A56`（表单元内容排版 `pfnFormatCellFinite` 真发调）⇒ 开闸腿第 4 色 `LightGoldenrodYellow = 5830 px`（表区 `dark(<140)=4318`）；② `T-A57`（`WPF_PTS_TABLECELL` 转**缺省开**）⇒ **缺省路径**即含表单元内容（`[FSTABLECELL] v=CELL-SUBPAGE`×16）；③ **`T-A58` 新一代冻结**：基线件 `bd64f2c1a3eaaa05 → 7cd1bc5c37a74e8d`（世代 `#80 → #81`），`verify-all 64✅/0❌ ×2`、六闸 `rc=0`。**现值位（现取）**：`.so d406f243cdc2c402`／`exports 689`（`PTSGAP=PASS tool=70 dead=11 artifact=1 ops=58 impl=59 so16=d406f243cdc2c402 exports=689`）。⚠️ **如实划界**：门禁 `[38]` 步读的**仓内证据目录** `build/MilBridge/tests/PtsPagesProbe/evidence/` 仍是 `T-A52` 之前的旧件 ⇒ **门禁现取 `PTS_COLORANCHOR=PASS hits=2`**（`LightGoldenrodYellow=0`），与车道腿的 `hits=3` **不同源**（详见 `build/MilBridge/P1-tail2-freeze81-report.md` §2）。载体：`build/MilBridge/P1-tail2-{textline,cellgate-on}-impl-report.md`／`build/MilBridge/P1-tail2-freeze81-report.md`。
