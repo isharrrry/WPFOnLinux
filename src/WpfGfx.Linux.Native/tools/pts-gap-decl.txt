@@ -31,7 +31,19 @@
 #   并**断言相等**（不等即 `rc=9` 停手 = 基底漂移），再把 `tool/dead/artifact/ops/impl`
 #   交给牙**现算对账**（不等即牙红 —— 那才是"数漂了"，与基底漂移是两回事，分开报）。
 # ══════════════════════════════════════════════════════════════════════════════════
-# PTSGAP-DECL: tool=71 dead=11 artifact=1 ops=59 impl=60 so16=3ff91579e7ea3efa exports=688 w66pre16=bf6b683d94549087
+# PTSGAP-DECL: tool=71 dead=11 artifact=1 ops=59 impl=60 so16=642019f680d75d87 exports=688 w66pre16=bf6b683d94549087
+#   ⚠️ 波 `T-A54` 重锚（`TASK-0302` 增量：翻 `WPF_PTS_FLOATER_CBK`／`WPF_PTS_TABLEOBJ` 为**缺省开**；
+#     `D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
+#     `src/WpfGfx.Linux.Native/src/win32_pts.c` 的两个**运行期闸缺省值**由 `..._DEFAULT 0` 翻为 `1`
+#     （照 `T-A28→T-A31` 体例收口）：`WPF_PTS_FLOATER_CBK_DEFAULT`／`WPF_PTS_TABLEOBJ_DEFAULT`；
+#     **仅显式 `=0` 才关**（两条反极性腿）。**导出面一字未动**（`exports=688` 不变，
+#     `nm -D --defined-only` 行数 == `exports.txt` 行数 == 688；逐名 `diff` 零差异）；不新增/不删除任何
+#     `wpf_pts_gap(...)` stub ⇒ `tool/dead/artifact/ops/impl` 全未动，**只有 `so16` 跟权威件换**：
+#     `so16 3ff91579e7ea3efa→642019f680d75d87`（462648 B，**字节数不变** —— 仅常量 `0→1` ＋ 注释文案）。
+#     🔴 **翻闸的理由**：`T-A52`／`T-A53` 当年缺省关的现场依据（Table 族未落地 ⇒ 驱动后
+#     `FsQueryTableObjDetails` 缺符号 ⇒ `EntryPointNotFoundException` ⇒ 整页空白）已由 `T-A53` 解除
+#     （Table 族五入口真服务 ⇒ `entry point named` 归 0）；⇒ 本增量照 `T-A28→T-A31` 体例让**缺省路径**
+#     即含第 4 色。成对腿与症状门读数见载体 `build/MilBridge/P1-tail2-gate-on-impl-report.md`。
 #   ⚠️ 波 `T-A53` 重锚（`TASK-0302` 增量：native `NATIVE-PTS-TABLEOBJ`（Table 族五入口 ＋
 #     `GetTableObjHandlerInfo`／`FSTABLEOBJCBK`）；`D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
 #     `src/WpfGfx.Linux.Native/src/win32_pts.c` 三处：

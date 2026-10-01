@@ -361,7 +361,7 @@ static int wpf_pts_ctx_is_live(const wpf_pts_doc *d);   /* ⏪ t156：该 doc �
 static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *where);
 /* ⏪ `T-A37`：内容排版驱动的运行期闸（定义见 `wpf_pts_qtp_create_safe` 之后）。 */
 static int wpf_pts_att_content_gate(void);
-/* ⏪ `T-A52`：Floater 内容排版驱动的运行期闸（缺省关；定义在 `wpf_pts_att_content_gate` 之后）。 */
+/* ⏪ `T-A52`／`T-A54`：Floater 内容排版驱动的运行期闸（`T-A54` 起**缺省开**；定义在 `wpf_pts_att_content_gate` 之后）。 */
 static int wpf_pts_floater_cbk_gate(void);
 /* ⏪ `T-A53`：Table 族驱动闸 ＋ **窗内**表模型建点（定义在 `wpf_pts_floater_cbk_gate` 之后）。 */
 static int wpf_pts_tableobj_gate(void);
@@ -2641,7 +2641,7 @@ static int wpf_pts_format_one_para(wpf_pts_doc *d, wpf_pts_subtrack *leaf,
                                             (rch != 0) ? "HANDLER-ERR" : "NO-CBK");
                                 }
                                 /* ⏪ `T-A53`（`NATIVE-PTS-TABLEOBJ`）：Floater 内容子页若含**表段落**
-                                   ⇒ **窗内**建本侧表模型（闸 `WPF_PTS_TABLEOBJ` 缺省关 ⇒ 缺省路径不动）。 */
+                                   ⇒ **窗内**建本侧表模型（`T-A54` 起闸 `WPF_PTS_TABLEOBJ` **缺省开**）。 */
                                 if (rcf2 == 0 && leaf->fl_att[slot].sub_obj && wpf_pts_tableobj_gate())
                                     wpf_pts_tableobj_drive(d, leaf->fl_att[slot].sub_obj, where);
                             }
@@ -2835,18 +2835,21 @@ static int wpf_pts_att_content_gate(void)
     }
     return cached;
 }
-/* ── ⏪ `T-A52`（`NATIVE-PTS-FLOATERCBK`）：Floater **内容排版驱动**的运行期闸（缺省 **关**）──────────────
-   🔴 **为什么缺省关是现场读数逼出来的**（不是保守）：
+/* ── ⏪ `T-A52`（`NATIVE-PTS-FLOATERCBK`）：Floater **内容排版驱动**的运行期闸（`T-A54` 起缺省 **开**）──────
+   🔴 **`T-A52` 当年缺省关是现场读数逼出来的**（不是保守）：
      Floater（`<Floater>`）的内容在本页是一个 `<Table>`（`LightGoldenrodYellow` ＝ 其 `<TableRow Background>`）。
      一旦驱动 `pfnFormatFloaterContentFinite` 把内容子页真造出，托管 `FloaterParaClient.ValidateVisual`
      ⇒ `PtsHelper.UpdateTrackVisuals` **会下到 Table 段落** ⇒ `TableParaClient.QueryTableDetails`
-     ⇒ `PTS.FsQueryTableObjDetails`（本移植**未导出**）⇒ `EntryPointNotFoundException`（**不可捕**）
+     ⇒ `PTS.FsQueryTableObjDetails`（当时本移植**未导出**）⇒ `EntryPointNotFoundException`（**不可捕**）
      ⇒ `FlowDocumentView.ArrangeOverride` 抛（现取 `[FSVIEW] … outcome=exception type=System.EntryPointNotFoundException`）
      ⇒ 整页**空白**（现取 `k24 colors 905→383`、`fr_sha 791696291d51470b→ef3fd6765f18f51b`（空态参照成员）、
      `[HC-UNHANDLED] 0→392`）。⇒ 该驱动**只在** Table 族落地后才准缺省开（下一增量 `NATIVE-PTS-TABLEOBJ`）。
-   闸：显式 `WPF_PTS_FLOATER_CBK=1` ⇒ 开（供**前沿取证腿**用）；缺省 `0` ⇒ 关（缺省路径零变化）。 */
+   ⏪ `T-A54`：该前置已由 `T-A53` 落地（Table 族五入口 ＋ `GetTableObjHandlerInfo`／`FSTABLEOBJCBK`；
+     `entry point named 'FsQueryTableObjDetails'` 归 **0**、开闸腿 `LightGoldenrodYellow=1998 px`）
+     ⇒ 本增量照 `T-A28→T-A31` 体例**把闸翻为缺省开**，使**缺省路径**即含第 4 色；
+     闸：显式 `WPF_PTS_FLOATER_CBK=0` ⇒ 关（**反极性腿**）；缺省 `1` ⇒ 开。 */
 #ifndef WPF_PTS_FLOATER_CBK_DEFAULT
-#define WPF_PTS_FLOATER_CBK_DEFAULT 0
+#define WPF_PTS_FLOATER_CBK_DEFAULT 1
 #endif
 static int wpf_pts_floater_cbk_gate(void)
 {
@@ -2858,12 +2861,13 @@ static int wpf_pts_floater_cbk_gate(void)
     return cached;
 }
 
-/* ── ⏪ `T-A53`（`NATIVE-PTS-TABLEOBJ`）：**Table 族驱动**的运行期闸（缺省 **关**）──────────────────────
-   闸控的是"**窗内为 Floater 内容子页里的表段落建本侧表模型**"（`wpf_pts_tableobj_drive`）。缺省关 ⇒
-   缺省路径**逐格不变**（本侧不主动向托管索表 handler、不建模型）⇒ 零回归（同 `T-A52` 体例）。
-   闸：显式 `WPF_PTS_TABLEOBJ=1` ⇒ 开（供**前沿取证腿**用）。 */
+/* ── ⏪ `T-A53`（`NATIVE-PTS-TABLEOBJ`）：**Table 族驱动**的运行期闸（`T-A54` 起缺省 **开**）──────────────
+   闸控的是"**窗内为 Floater 内容子页里的表段落建本侧表模型**"（`wpf_pts_tableobj_drive`）。
+   ⏪ `T-A54`：`T-A53` 当年缺省关，是为使缺省路径**逐格不变**（零回归）；Table 族已真服务且开闸腿
+     第 4 色 `LightGoldenrodYellow=1998 px` ⇒ 本增量照 `T-A28→T-A31` 体例**翻为缺省开**，使**缺省路径**即含第 4 色。
+   闸：显式 `WPF_PTS_TABLEOBJ=0` ⇒ 关（**反极性腿**）；缺省 `1` ⇒ 开。 */
 #ifndef WPF_PTS_TABLEOBJ_DEFAULT
-#define WPF_PTS_TABLEOBJ_DEFAULT 0
+#define WPF_PTS_TABLEOBJ_DEFAULT 1
 #endif
 static int wpf_pts_tableobj_gate(void)
 {
