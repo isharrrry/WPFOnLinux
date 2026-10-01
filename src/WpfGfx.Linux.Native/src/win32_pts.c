@@ -1625,6 +1625,10 @@ struct wpf_pts_subtrack_s {
     struct wpf_pts_subtrack_s *child_objs[WPF_PTS_SUB_CHILD_MAX];
     int          depth;                 /* 本对象在窗内建树里的深度（0＝`dp->sub` 的顶层容器） */
     int          obj_no;                /* 台账序号（诊断用；与 `seq` 同源） */
+    /* ── ⏪ `T-A61`（`Fs*` 首批）：`FsSynchronizeBottomlessSubtrack` 的**垂直位移累积位** ──────────
+       上游 `Pts.cs:3390` 的语义＝"按 `vrShift` 平移该 bottomless subtrack"；本侧无真几何源
+       ⇒ 只**累积本侧收到的位移**（`+= vrShift`），**不**伪造 bbox/几何（见本入口实现处的划界）。 */
+    int          sync_vr;
     /* ── ⏪ `T-A28`（本增量）：**native 侧驱动的行记录台账**（`pfnFormatLine` 的返回值) ──────────
        · 只在**窗内**（`FsCreatePage*` ⇒ `wpf_pts_formatline_drive`）真调 `pfnFormatLine` 后写入；
          一行一条，序＝行序；`fl_nlines` ＝ 已入账行数（**不用伪值填**）。
@@ -7919,6 +7923,410 @@ static int g_pts_selfcheck_f9_track(void)
     g_pts_fsp_fin_ok = f9_f; g_pts_fsp_fin_gap = f9_fg;
     return 1;
 }
+
+/* ══════════════════════════════════════════════════════════════════════════════════════════════
+   ⏪ `T-A61`（`TASK-0302` 增量）· **`Fs*` 族缺口首批**（8 条）—— native 真实现
+   ──────────────────────────────────────────────────────────────────────────────────────────────
+   【本块做什么】按 `Pts.cs` 在册语义，把 `PresentationNative_cor3.dll` 可操作缺口里**可诚实实现**的
+   8 条 `Fs*` 入口由「会 `EntryPointNotFoundException` 的缺口」变成**已导出可用**：
+     ① `FsDestroySubtrack`              声明 `Pts.cs:3412`  调用 `PtsHost.cs:2890 SubtrackDestroyPara`
+     ② `FsClearUpdateInfoInSubtrack`    声明 `Pts.cs:3407`  调用 `PtsHost.cs:2884 SubtrackClearUpdateInfoInPara`
+     ③ `FsGetSubtrackColumnBalancingInfo` 声明 `Pts.cs:3428` 调用 `PtsHost.cs:2915 SubtrackGetColumnBalancingInfo`
+     ④ `FsTransferDisplayInfoSubtrack`  声明 `Pts.cs:3469`  调用 `PtsHost.cs:2952 SubtrackTransferDisplayInfoPara`
+     ⑤ `FsTransferDisplayInfoSubpage`   声明 `Pts.cs:3309`  调用 `PtsHost.cs:3251 SubpageTransferDisplayInfoPara`
+     ⑥ `FsCompareSubtrack`              声明 `Pts.cs:3398`  调用 `PtsHost.cs:2878 SubtrackComparePara`
+     ⑦ `FsCompareSubpages`              声明 `Pts.cs:3256`  调用 `PtsHost.cs:3177 SubpageComparePara`
+     ⑧ `FsSynchronizeBottomlessSubtrack` 声明 `Pts.cs:3390` 调用 `PtsHost.cs:2854 SubtrackSynchronizeBottomlessPara`
+
+   【为什么是这 8 条（诚实准入铁律）】本侧**只**是本模块自持对象的**作者**：子轨（`wpf_pts_subtrack`）／
+   子页（`wpf_pts_subpage_s`）都是本模块 `calloc` 的，句柄＝对象内字段地址。因此只收**无几何出参**、
+   或几何/计数**可由本侧真台账导出**的入口：
+     · ①②④⑤⑧ **无出参**（生命周期/状态搬运/位移累积）⇒ 真动作可现取；
+     · ③ 的出参（行数／行高和／最小行高）**只**读本侧**真行台账** `fl_line[]`（`T-A28` 的行记录，
+       由 `pfnFormatLine` **真返回值**入账）⇒ **零假值**：台账不可用（`wpf_pts_fl_usable` 不成立）⇒ **拒**；
+     · ⑥⑦ 的比较结果**只**建立在本侧两对象**自持数据的逐字段比较**上（同数据 ⇒ `fscmprNoChange`，
+       否则 `fscmprChangeInside`；`dvrShifted` 本侧无位移源 ⇒ **恒 0**，见各入口划界）。
+   🔴 **不可诚实实现者不在此列**（保持原样，如实划界）：凡出参含**真几何**而无源者
+   （`FsUpdateBottomlessSubtrack`／`FsUpdateBottomlessSubpage`／`FsFormatSubtrack*`／`FsQuery*ColumnList`／
+   `FsGet*FootnoteInfo`／`*BreakRecord` 生命周期／`FsTransform*` 等）**一律不冒充**——它们仍留在缺口名单。
+
+   【两极化（该红必红）】每条入口都**先认领后动作**：入参不是本侧在册对象的句柄（NULL／外来值／
+   已销毁的值）⇒ 返 `-10000` ＋ 一行具名 `[FS_PAGE_GAP] entry=<名> reason=…`，**出参一字不写**。
+   ⇒ 由本块末的 `WpfLinuxWin32_PtsFsBatch1SelfCheck()` 逐条现取正极（真值）＋ 反极（必拒）。
+   ══════════════════════════════════════════════════════════════════════════════════════════════ */
+#define WPF_PTS_B1_N 8
+static int g_pts_b1_ok[WPF_PTS_B1_N]  = {0};
+static int g_pts_b1_gap[WPF_PTS_B1_N] = {0};
+_Static_assert(WPF_PTS_B1_N == 8, "`T-A61` 首批条数 != 8");
+
+/* 统一失败面：认领失败/参数非法 ⇒ 具名留痕 ＋ 返 `-10000`（出参调用方**一字不写**）。 */
+static int wpf_pts_b1_gap(const char *entry, int idx, const char *reason,
+                          const void *ctx, const void *p)
+{
+    g_pts_b1_gap[idx]++;
+    fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=%s ctx=%p p=%p ok=%d gap=%d "
+                    "out=UNWRITTEN bytes=0\n",
+            WPF_PTS_ERR_NOT_IMPLEMENTED, reason, entry, ctx, p,
+            g_pts_b1_ok[idx], g_pts_b1_gap[idx]);
+    return WPF_PTS_ERR_NOT_IMPLEMENTED;
+}
+/* `FsDestroySubtrack` 的**解引用**（本侧销毁一棵自有子树前，先把所有指向它的引用位清掉 ⇒
+   **绝不**留悬垂指针：doc 的 `sub`／`sub_child_objs[]`、其它子轨的 `child_objs[]`、
+   子页的 `cont_obj`、子轨附属对象位的 `sub_obj`）。 */
+static void wpf_pts_b1_detach(const wpf_pts_subtrack *o)
+{
+    if (!o) return;
+    for (int i = 0; i < WPF_PTS_DOC_MAX; i++) {
+        wpf_pts_doc *d = g_pts_doc_live[i];
+        if (!d || d->magic != WPF_PTS_DOC_MAGIC) continue;
+        if (d->sub == o) d->sub = NULL;
+        for (int k = 0; k < WPF_PTS_SUB_CHILD_MAX; k++)
+            if (d->sub_child_objs[k] == o) d->sub_child_objs[k] = NULL;
+    }
+    for (int i = 0; i < g_pts_sub_live_n; i++) {
+        wpf_pts_subtrack *p = g_pts_sub_live[i];
+        if (p == o) continue;
+        for (int k = 0; k < WPF_PTS_SUB_CHILD_MAX; k++)
+            if (p->child_objs[k] == o) p->child_objs[k] = NULL;
+    }
+    for (int i = 0; i < g_pts_sp_live_n; i++)
+        if (g_pts_sp_live[i]->cont_obj == o) g_pts_sp_live[i]->cont_obj = NULL;
+}
+
+/* ① `FsDestroySubtrack`（`Pts.cs:3412`）—— **真销毁**本侧自有子轨对象（递归整棵子树）。 */
+int FsDestroySubtrack(void *pfscontext, void *pfsSubtrack)
+{
+    (void)pfscontext;
+    wpf_pts_subtrack *o = NULL;
+    if (!pfsSubtrack || !wpf_pts_sub_claim(pfsSubtrack, &o))
+        return wpf_pts_b1_gap("FsDestroySubtrack", 0,
+                              pfsSubtrack ? "unknown-subtrack" : "null-subtrack", pfscontext, pfsSubtrack);
+    wpf_pts_b1_detach(o);
+    wpf_pts_sub_destroy(o);                       /* 递归：子对象由父拥有（`T-A25` 口径） */
+    g_pts_b1_ok[0]++;
+    fprintf(stderr, "[FSBATCH1] rc=0 entry=FsDestroySubtrack subtrack=%p ok=%d gap=%d "
+                    "v=DESTROYED-RECURSIVE\n",
+            pfsSubtrack, g_pts_b1_ok[0], g_pts_b1_gap[0]);
+    return 0;
+}
+
+/* ② `FsClearUpdateInfoInSubtrack`（`Pts.cs:3407`）—— 按对象身份认领后**清本侧该子轨的增量更新状态**。
+   诚实形态（承 `T-A56` 的 `FsClearUpdateInfoInSubpage` 先例）：本侧 `FsQuerySubtrackDetails` 的
+   `fsupdinf` 是**恒报值**（`win32_pts.c` 成功分支里写死 `fskupd=Inherited`、`dvrShifted=0`，
+   并已具名 `NOINFO-FSUPDINF-SEMANTICS`）⇒ "清更新信息"在本侧**无需改状态**即可与查询面自洽
+   （**不**冒充"稳态 `NoChange`"）。空／未知句柄 ⇒ **拒**。 */
+int FsClearUpdateInfoInSubtrack(void *pfscontext, void *pfsSubtrack)
+{
+    (void)pfscontext;
+    wpf_pts_subtrack *o = NULL;
+    if (!pfsSubtrack || !wpf_pts_sub_claim(pfsSubtrack, &o))
+        return wpf_pts_b1_gap("FsClearUpdateInfoInSubtrack", 1,
+                              pfsSubtrack ? "unknown-subtrack" : "null-subtrack", pfscontext, pfsSubtrack);
+    g_pts_b1_ok[1]++;
+    fprintf(stderr, "[FSBATCH1] rc=0 entry=FsClearUpdateInfoInSubtrack subtrack=%p ok=%d gap=%d "
+                    "NOINFO=fsupdinf-constant-consumer(见 FsQuerySubtrackDetails)\n",
+            pfsSubtrack, g_pts_b1_ok[1], g_pts_b1_gap[1]);
+    return 0;
+}
+
+/* ③ `FsGetSubtrackColumnBalancingInfo`（`Pts.cs:3428`：`out nlines, out dvrSumHeight, out dvrMinHeight`）
+   —— 出参**只**取自本侧**真行台账**（`fl_line[]`，`T-A28` 由 `pfnFormatLine` 真返回值入账）。
+   可用性判据 ＝ `wpf_pts_fl_usable`（已录 ∧ 收束段尾 ∧ 未撞界 ∧ ≥1 行）；不满足 ⇒ **拒**（零假值）。
+   行高 ＝ `dvrAscent + dvrDescent`（本侧约定，与 `fl_vr_start` 同源；具名 `NOINFO-FSGEOMETRY-LAYOUT`）。 */
+int FsGetSubtrackColumnBalancingInfo(void *pfscontext, void *pfsSubtrack, unsigned fswdir,
+                                     int *pnlines, int *pdvrSum, int *pdvrMin)
+{
+    (void)fswdir;
+    if (pnlines)  *pnlines  = 0;
+    if (pdvrSum)  *pdvrSum  = 0;
+    if (pdvrMin)  *pdvrMin  = 0;                  /* 失败面**先清**（不留残留/毒值） */
+    wpf_pts_subtrack *o = NULL;
+    const char *reason = NULL;
+    if (!pnlines || !pdvrSum || !pdvrMin) reason = "null-out";
+    else if (!pfsSubtrack)                reason = "null-subtrack";
+    else if (!wpf_pts_sub_claim(pfsSubtrack, &o)) reason = "unknown-subtrack";
+    else if (!wpf_pts_fl_usable(o))       reason = "no-line-ledger";
+    if (reason)
+        return wpf_pts_b1_gap("FsGetSubtrackColumnBalancingInfo", 2, reason, pfscontext, pfsSubtrack);
+    {
+        int sum = 0, min = 0;
+        for (int k = 0; k < o->fl_nlines; k++) {
+            int h = o->fl_line[k].dvr_ascent + o->fl_line[k].dvr_descent;
+            sum += h;
+            if (k == 0 || h < min) min = h;
+        }
+        *pnlines = o->fl_nlines; *pdvrSum = sum; *pdvrMin = min;
+        g_pts_b1_ok[2]++;
+        fprintf(stderr, "[FSBATCH1] rc=0 entry=FsGetSubtrackColumnBalancingInfo subtrack=%p "
+                        "nlines=%d dvrSumHeight=%d dvrMinHeight=%d src=fl_line[] ok=%d gap=%d "
+                        "NOINFO=FSGEOMETRY-LAYOUT(line-height=ascent+descent,own-convention)\n",
+                pfsSubtrack, o->fl_nlines, sum, min, g_pts_b1_ok[2], g_pts_b1_gap[2]);
+    }
+    return 0;
+}
+
+/* ④ `FsTransferDisplayInfoSubtrack`（`Pts.cs:3469`：`(ctx, pfsSubtrackOld, pfsSubtrackNew)`）
+   —— 把本侧 **old** 子轨自持的**显示信息**（行台账 ＋ 计数 ＋ 位移累积）逐字段搬到 **new**。
+   两对象都须是本侧在册对象；任一认领失败 ⇒ **拒**（**不**部分写、**不**假成功）。 */
+int FsTransferDisplayInfoSubtrack(void *pfscontext, void *pOld, void *pNew)
+{
+    wpf_pts_subtrack *a = NULL, *b = NULL;
+    if (!pOld || !pNew)
+        return wpf_pts_b1_gap("FsTransferDisplayInfoSubtrack", 3,
+                              !pOld ? "null-old" : "null-new", pfscontext, pOld ? pNew : pOld);
+    if (!wpf_pts_sub_claim(pOld, &a))
+        return wpf_pts_b1_gap("FsTransferDisplayInfoSubtrack", 3, "unknown-old", pfscontext, pOld);
+    if (!wpf_pts_sub_claim(pNew, &b))
+        return wpf_pts_b1_gap("FsTransferDisplayInfoSubtrack", 3, "unknown-new", pfscontext, pNew);
+    b->c_paras      = a->c_paras;
+    b->fl_calls     = a->fl_calls;
+    b->fl_last_rc   = a->fl_last_rc;
+    b->fl_nlines    = a->fl_nlines;
+    b->fl_dcp_sum   = a->fl_dcp_sum;
+    b->fl_ok        = a->fl_ok;
+    b->fl_complete  = a->fl_complete;
+    b->fl_truncated = a->fl_truncated;
+    b->fl_geo_src   = a->fl_geo_src;
+    b->sync_vr      = a->sync_vr;
+    for (int k = 0; k < WPF_PTS_FL_MAXLINE; k++) b->fl_line[k] = a->fl_line[k];
+    g_pts_b1_ok[3]++;
+    fprintf(stderr, "[FSBATCH1] rc=0 entry=FsTransferDisplayInfoSubtrack old=%p new=%p "
+                    "fl_nlines=%d fl_ok=%d sync_vr=%d ok=%d gap=%d src=own-ledger\n",
+            pOld, pNew, b->fl_nlines, b->fl_ok, b->sync_vr, g_pts_b1_ok[3], g_pts_b1_gap[3]);
+    return 0;
+}
+
+/* ⑤ `FsTransferDisplayInfoSubpage`（`Pts.cs:3309`：`(ctx, pSubpageOld, pfsSubpageNew)`）
+   —— 把本侧 **old** 子页自持的显示信息（`dvrUsed`／`fsrc`／段数）搬到 **new**。两对象均须在册。 */
+int FsTransferDisplayInfoSubpage(void *pfscontext, void *pOld, void *pNew)
+{
+    struct wpf_pts_subpage_s *a = NULL, *b = NULL;
+    if (!pOld || !pNew)
+        return wpf_pts_b1_gap("FsTransferDisplayInfoSubpage", 4,
+                              !pOld ? "null-old" : "null-new", pfscontext, pOld ? pNew : pOld);
+    if (!wpf_pts_sp_claim_track(pOld, &a))
+        return wpf_pts_b1_gap("FsTransferDisplayInfoSubpage", 4, "unknown-old", pfscontext, pOld);
+    if (!wpf_pts_sp_claim_track(pNew, &b))
+        return wpf_pts_b1_gap("FsTransferDisplayInfoSubpage", 4, "unknown-new", pfscontext, pNew);
+    b->c_paras  = a->c_paras;
+    b->dvr_used = a->dvr_used;
+    b->fsrc_u = a->fsrc_u; b->fsrc_v = a->fsrc_v;
+    b->fsrc_du = a->fsrc_du; b->fsrc_dv = a->fsrc_dv;
+    g_pts_b1_ok[4]++;
+    fprintf(stderr, "[FSBATCH1] rc=0 entry=FsTransferDisplayInfoSubpage old=%p new=%p "
+                    "dvrUsed=%d fsrc=(%d,%d,%d,%d) ok=%d gap=%d src=own-display-info\n",
+            pOld, pNew, b->dvr_used, b->fsrc_u, b->fsrc_v, b->fsrc_du, b->fsrc_dv,
+            g_pts_b1_ok[4], g_pts_b1_gap[4]);
+    return 0;
+}
+
+/* 子轨**显示信息等价**判据（⑥ 的唯一来源）：逐字段比较两对象**自持数据**。 */
+static int wpf_pts_b1_subtrack_same(const wpf_pts_subtrack *a, const wpf_pts_subtrack *b)
+{
+    if (a == b) return 1;
+    if (a->c_paras != b->c_paras) return 0;
+    if (a->fl_ok != b->fl_ok || a->fl_nlines != b->fl_nlines || a->fl_dcp_sum != b->fl_dcp_sum)
+        return 0;
+    if (a->fl_complete != b->fl_complete || a->fl_truncated != b->fl_truncated) return 0;
+    if (a->sync_vr != b->sync_vr) return 0;
+    for (int k = 0; k < a->fl_nlines && k < WPF_PTS_FL_MAXLINE; k++) {
+        if (a->fl_line[k].dcp_first   != b->fl_line[k].dcp_first   ||
+            a->fl_line[k].dcp_lim     != b->fl_line[k].dcp_lim     ||
+            a->fl_line[k].dvr_ascent  != b->fl_line[k].dvr_ascent  ||
+            a->fl_line[k].dvr_descent != b->fl_line[k].dvr_descent) return 0;
+    }
+    return 1;
+}
+/* ⑥ `FsCompareSubtrack`（`Pts.cs:3398`：`(ctx, old, new, fswdir, out fscmpr, out dvrShifted)`）
+   —— 结果**只**取自本侧两对象自持数据的逐字段比较：等价 ⇒ `fscmprNoChange(0)`，否则
+   `fscmprChangeInside(1)`（值域见 `Pts.cs:823`）。**位移**本侧无源 ⇒ `dvrShifted=0`
+   （**不**冒充 `fscmprShifted`，具名 `NOINFO-FSCOMPRESULT-SHIFT`）。 */
+int FsCompareSubtrack(void *pfscontext, void *pOld, void *pNew, unsigned fswdir,
+                      int *pfscmpr, int *pdvrShifted)
+{
+    (void)fswdir;
+    if (pfscmpr)     *pfscmpr     = 0;
+    if (pdvrShifted) *pdvrShifted = 0;            /* 失败面先清 */
+    wpf_pts_subtrack *a = NULL, *b = NULL;
+    const char *reason = NULL;
+    if (!pfscmpr || !pdvrShifted) reason = "null-out";
+    else if (!pOld)               reason = "null-old";
+    else if (!pNew)               reason = "null-new";
+    else if (!wpf_pts_sub_claim(pOld, &a)) reason = "unknown-old";
+    else if (!wpf_pts_sub_claim(pNew, &b)) reason = "unknown-new";
+    if (reason)
+        return wpf_pts_b1_gap("FsCompareSubtrack", 5, reason, pfscontext, pOld);
+    *pfscmpr = wpf_pts_b1_subtrack_same(a, b) ? 0 /* fscmprNoChange */ : 1 /* fscmprChangeInside */;
+    *pdvrShifted = 0;
+    g_pts_b1_ok[5]++;
+    fprintf(stderr, "[FSBATCH1] rc=0 entry=FsCompareSubtrack old=%p new=%p fscmpr=%d dvrShifted=0 "
+                    "ok=%d gap=%d NOINFO=FSCOMPRESULT-SHIFT(own-data-compare;no-shift-source)\n",
+            pOld, pNew, *pfscmpr, g_pts_b1_ok[5], g_pts_b1_gap[5]);
+    return 0;
+}
+
+/* 子页**显示信息等价**判据（⑦ 的唯一来源）。 */
+static int wpf_pts_b1_subpage_same(const struct wpf_pts_subpage_s *a, const struct wpf_pts_subpage_s *b)
+{
+    if (a == b) return 1;
+    return a->c_paras == b->c_paras && a->dvr_used == b->dvr_used &&
+           a->fsrc_u == b->fsrc_u && a->fsrc_v == b->fsrc_v &&
+           a->fsrc_du == b->fsrc_du && a->fsrc_dv == b->fsrc_dv;
+}
+/* ⑦ `FsCompareSubpages`（`Pts.cs:3256`：`(ctx, old, new, out fscmpr)`）—— 同 ⑥，作用在子页对象上。 */
+int FsCompareSubpages(void *pfscontext, void *pOld, void *pNew, int *pfscmpr)
+{
+    if (pfscmpr) *pfscmpr = 0;
+    struct wpf_pts_subpage_s *a = NULL, *b = NULL;
+    const char *reason = NULL;
+    if (!pfscmpr) reason = "null-out";
+    else if (!pOld) reason = "null-old";
+    else if (!pNew) reason = "null-new";
+    else if (!wpf_pts_sp_claim_track(pOld, &a)) reason = "unknown-old";
+    else if (!wpf_pts_sp_claim_track(pNew, &b)) reason = "unknown-new";
+    if (reason)
+        return wpf_pts_b1_gap("FsCompareSubpages", 6, reason, pfscontext, pOld);
+    *pfscmpr = wpf_pts_b1_subpage_same(a, b) ? 0 : 1;
+    g_pts_b1_ok[6]++;
+    fprintf(stderr, "[FSBATCH1] rc=0 entry=FsCompareSubpages old=%p new=%p fscmpr=%d ok=%d gap=%d "
+                    "NOINFO=FSCOMPRESULT-SHIFT(own-data-compare;no-shift-source)\n",
+            pOld, pNew, *pfscmpr, g_pts_b1_ok[6], g_pts_b1_gap[6]);
+    return 0;
+}
+
+/* ⑧ `FsSynchronizeBottomlessSubtrack`（`Pts.cs:3390`：`(ctx, pfsSubtrack, pfsGeom, fswdir, vrShift)`）
+   —— 按对象身份认领后把 `vrShift` **真累加**到本侧该子轨的位移累积位（`sync_vr`）。**无出参**
+   ⇒ 不伪造几何/bbox（具名 `NOINFO-FSGEOMETRY-LAYOUT`）。空／未知句柄 ⇒ **拒**。 */
+int FsSynchronizeBottomlessSubtrack(void *pfscontext, void *pfsSubtrack, void *pfsGeom,
+                                    unsigned fswdir, int vrShift)
+{
+    (void)pfsGeom; (void)fswdir;
+    wpf_pts_subtrack *o = NULL;
+    if (!pfsSubtrack || !wpf_pts_sub_claim(pfsSubtrack, &o))
+        return wpf_pts_b1_gap("FsSynchronizeBottomlessSubtrack", 7,
+                              pfsSubtrack ? "unknown-subtrack" : "null-subtrack", pfscontext, pfsSubtrack);
+    o->sync_vr += vrShift;
+    g_pts_b1_ok[7]++;
+    fprintf(stderr, "[FSBATCH1] rc=0 entry=FsSynchronizeBottomlessSubtrack subtrack=%p vrShift=%d "
+                    "sync_vr=%d ok=%d gap=%d NOINFO=FSGEOMETRY-LAYOUT(no-bbox-out)\n",
+            pfsSubtrack, vrShift, o->sync_vr, g_pts_b1_ok[7], g_pts_b1_gap[7]);
+    return 0;
+}
+
+/* ── 本批的**逐条两极化自检**（正极＋反极；纯 native，只用自己的对象，不碰应用状态）──────────────
+   bit k ＝ 第 k 条入口的「正极真值 ∧ 反极必拒」**同时**成立。返回 mask；**-1** ＝ 夹具自身失败
+   （表满/分配失败 ⇒ **不算绿**）。任何一条不成立 ⇒ 对应位 0（该红必红）。 */
+int WpfLinuxWin32_PtsFsBatch1SelfCheck(void)
+{
+    int nlive = g_pts_sub_live_n, splive = g_pts_sp_live_n;
+    int save_ok[WPF_PTS_B1_N], save_gap[WPF_PTS_B1_N];
+    int mask = 0;
+    for (int i = 0; i < WPF_PTS_B1_N; i++) { save_ok[i] = g_pts_b1_ok[i]; save_gap[i] = g_pts_b1_gap[i]; }
+    if (nlive + 5 > WPF_PTS_SUB_MAX || splive + 2 > WPF_PTS_SP_MAX) return -1;
+    wpf_pts_subtrack *A  = wpf_pts_sub_new((const void *)0xA1, (const void *)0xB1);
+    wpf_pts_subtrack *B  = wpf_pts_sub_new((const void *)0xA2, (const void *)0xB2);
+    wpf_pts_subtrack *C  = wpf_pts_sub_new((const void *)0xA3, (const void *)0xB3);
+    wpf_pts_subtrack *T  = wpf_pts_sub_new((const void *)0xA4, (const void *)0xB4);
+    wpf_pts_subtrack *D  = wpf_pts_sub_new((const void *)0xA5, (const void *)0xB5);  /* 无台账 ⇒ ③ 反极 */
+    struct wpf_pts_subpage_s *S1 = wpf_pts_sp_new((const void *)0xC1, (const void *)0xD1);
+    struct wpf_pts_subpage_s *S2 = wpf_pts_sp_new((const void *)0xC2, (const void *)0xD2);
+    if (!A || !B || !C || !T || !D || !S1 || !S2) {   /* 夹具自身失败：清干净并**响亮**（-1） */
+        if (S1) wpf_pts_sp_destroy(S1); if (S2) wpf_pts_sp_destroy(S2);
+        if (D) wpf_pts_sub_destroy(D); if (T) wpf_pts_sub_destroy(T);
+        if (C) wpf_pts_sub_destroy(C); if (B) wpf_pts_sub_destroy(B); if (A) wpf_pts_sub_destroy(A);
+        return -1;
+    }
+    /* A 造**真行台账**（2 行；与既有 `fl_line[]` 同形；`wpf_pts_fl_usable` 需全条成立） */
+    A->formatted = 1; A->enum_ok = 1; A->c_paras = 1;
+    A->fl_nlines = 2; A->fl_complete = 1; A->fl_truncated = 0; A->fl_ok = 1;
+    A->fl_line[0].dcp_first = 0; A->fl_line[0].dcp_lim = 3;
+    A->fl_line[0].dvr_ascent = 12; A->fl_line[0].dvr_descent = 4;   /* 高 16 */
+    A->fl_line[1].dcp_first = 3; A->fl_line[1].dcp_lim = 0;
+    A->fl_line[1].dvr_ascent = 10; A->fl_line[1].dvr_descent = 5;   /* 高 15 */
+    A->fl_dcp_sum = 3;
+    /* B 的台账与 A **不同**（用于 ⑥ 的 change 腿）；C 与 A 同数据（用于 ⑥ 的 nochange 腿） */
+    B->formatted = 1; B->enum_ok = 1; B->c_paras = 1;
+    B->fl_nlines = 1; B->fl_complete = 1; B->fl_ok = 1;
+    B->fl_line[0].dcp_first = 0; B->fl_line[0].dcp_lim = 5;
+    B->fl_line[0].dvr_ascent = 9; B->fl_line[0].dvr_descent = 2;   /* 高 11 */
+    C->formatted = 1; C->enum_ok = 1; C->c_paras = 1;
+    C->fl_nlines = 2; C->fl_complete = 1; C->fl_ok = 1; C->fl_dcp_sum = 3;
+    C->fl_line[0] = A->fl_line[0]; C->fl_line[1] = A->fl_line[1];
+    /* 子页对象造显示信息（S1 有值、S2 空 ⇒ 用于 ⑤/⑦） */
+    S1->c_paras = 1; S1->dvr_used = 31; S1->fsrc_u = 5; S1->fsrc_v = 7;
+    S1->fsrc_du = 100; S1->fsrc_dv = 200;
+
+    const void *hA = wpf_pts_sub_handle(A), *hB = wpf_pts_sub_handle(B);
+    const void *hC = wpf_pts_sub_handle(C), *hT = wpf_pts_sub_handle(T);
+    const void *hD = wpf_pts_sub_handle(D);
+    const void *hS1 = wpf_pts_sp_handle(S1), *hS2 = wpf_pts_sp_handle(S2);
+    const void *bogus = (const void *)0xDEAD;
+
+    /* ① destroy：正极（T 是真对象）＋反极（NULL／伪值必拒） */
+    { int p = (FsDestroySubtrack(NULL, (void *)hT) == 0) && !wpf_pts_sub_claim(hT, NULL);
+      int n = (FsDestroySubtrack(NULL, NULL) == WPF_PTS_ERR_NOT_IMPLEMENTED) &&
+              (FsDestroySubtrack(NULL, (void *)bogus) == WPF_PTS_ERR_NOT_IMPLEMENTED);
+      if (p && n) mask |= 1 << 0; }
+    /* ② clear-update：正极（A）＋反极（伪值必拒） */
+    { int p = (FsClearUpdateInfoInSubtrack(NULL, (void *)hA) == 0);
+      int n = (FsClearUpdateInfoInSubtrack(NULL, (void *)bogus) == WPF_PTS_ERR_NOT_IMPLEMENTED);
+      if (p && n) mask |= 1 << 1; }
+    /* ③ balancing：正极（2 行/31/15）＋反极（无台账的 B 必拒 ∧ 伪值必拒 ∧ NULL 出参必拒） */
+    { int nl = -1, su = -1, mi = -1, p = 0, n = 0;
+      p = (FsGetSubtrackColumnBalancingInfo(NULL, (void *)hA, 0u, &nl, &su, &mi) == 0) &&
+          nl == 2 && su == 31 && mi == 15;
+      n = (FsGetSubtrackColumnBalancingInfo(NULL, (void *)hD, 0u, &nl, &su, &mi) == WPF_PTS_ERR_NOT_IMPLEMENTED) &&
+          nl == 0 && su == 0 && mi == 0 &&
+          (FsGetSubtrackColumnBalancingInfo(NULL, (void *)bogus, 0u, &nl, &su, &mi) == WPF_PTS_ERR_NOT_IMPLEMENTED) &&
+          (FsGetSubtrackColumnBalancingInfo(NULL, (void *)hA, 0u, NULL, &su, &mi) == WPF_PTS_ERR_NOT_IMPLEMENTED);
+      if (p && n) mask |= 1 << 2; }
+    /* ④ transfer subtrack：正极（A→C 后 C 与 A 等价）＋反极（伪值必拒） */
+    { int p = (FsTransferDisplayInfoSubtrack(NULL, (void *)hA, (void *)hC) == 0) &&
+              wpf_pts_b1_subtrack_same(A, C);
+      int n = (FsTransferDisplayInfoSubtrack(NULL, (void *)bogus, (void *)hC) == WPF_PTS_ERR_NOT_IMPLEMENTED) &&
+              (FsTransferDisplayInfoSubtrack(NULL, (void *)hA, (void *)bogus) == WPF_PTS_ERR_NOT_IMPLEMENTED);
+      if (p && n) mask |= 1 << 3; }
+    /* ⑤ transfer subpage：正极（S1→S2 后等价）＋反极（伪值必拒） */
+    { int p = (FsTransferDisplayInfoSubpage(NULL, (void *)hS1, (void *)hS2) == 0) &&
+              wpf_pts_b1_subpage_same(S1, S2);
+      int n = (FsTransferDisplayInfoSubpage(NULL, (void *)bogus, (void *)hS2) == WPF_PTS_ERR_NOT_IMPLEMENTED) &&
+              (FsTransferDisplayInfoSubpage(NULL, (void *)hS1, (void *)bogus) == WPF_PTS_ERR_NOT_IMPLEMENTED);
+      if (p && n) mask |= 1 << 4; }
+    /* ⑥ compare subtrack：正极（同数据=A,C ⇒ NoChange；异数据=A,B ⇒ ChangeInside）＋反极 */
+    { int c1 = 9, c2 = 9, sh = 9, p = 0, n = 0;
+      p = (FsCompareSubtrack(NULL, (void *)hA, (void *)hC, 0u, &c1, &sh) == 0) && c1 == 0 && sh == 0 &&
+          (FsCompareSubtrack(NULL, (void *)hA, (void *)hB, 0u, &c2, &sh) == 0) && c2 == 1;
+      n = (FsCompareSubtrack(NULL, (void *)bogus, (void *)hA, 0u, &c1, &sh) == WPF_PTS_ERR_NOT_IMPLEMENTED) &&
+          (FsCompareSubtrack(NULL, (void *)hA, (void *)hB, 0u, NULL, &sh) == WPF_PTS_ERR_NOT_IMPLEMENTED);
+      if (p && n) mask |= 1 << 5; }
+    /* ⑦ compare subpages：正极（S1,S2 现等价 ⇒ NoChange）＋反极 */
+    { int c1 = 9, p = 0, n = 0;
+      p = (FsCompareSubpages(NULL, (void *)hS1, (void *)hS2, &c1) == 0) && c1 == 0;
+      n = (FsCompareSubpages(NULL, (void *)bogus, (void *)hS1, &c1) == WPF_PTS_ERR_NOT_IMPLEMENTED) &&
+          (FsCompareSubpages(NULL, (void *)hS1, (void *)hS2, NULL) == WPF_PTS_ERR_NOT_IMPLEMENTED);
+      if (p && n) mask |= 1 << 6; }
+    /* ⑧ synchronize：正极（累加可现取：+7 再 +5 ⇒ 12）＋反极（伪值必拒） */
+    { int p = (FsSynchronizeBottomlessSubtrack(NULL, (void *)hC, (void *)0x1, 0u, 7) == 0) &&
+              (FsSynchronizeBottomlessSubtrack(NULL, (void *)hC, (void *)0x1, 0u, 5) == 0) && C->sync_vr == 12;
+      int n = (FsSynchronizeBottomlessSubtrack(NULL, (void *)bogus, (void *)0x1, 0u, 7) == WPF_PTS_ERR_NOT_IMPLEMENTED);
+      if (p && n) mask |= 1 << 7; }
+
+    fprintf(stderr, "[FSBATCH1-SELFTEST] mask=0x%02x destroy=%d clear=%d balancing=%d xfer_sub=%d "
+                    "xfer_sp=%d cmp_sub=%d cmp_sp=%d sync=%d legs=%s\n",
+            mask, (mask >> 0) & 1, (mask >> 1) & 1, (mask >> 2) & 1, (mask >> 3) & 1,
+            (mask >> 4) & 1, (mask >> 5) & 1, (mask >> 6) & 1, (mask >> 7) & 1,
+            mask == 0xff ? "8/8(POS+REJECT)" : "PARTIAL");
+
+    /* 收尾：真销毁夹具对象（T 已在 ① 里销毁；A/B/C/D 与 S1/S2 在此回收）⇒ 活数回 base */
+    wpf_pts_sub_destroy(A); wpf_pts_sub_destroy(B); wpf_pts_sub_destroy(C); wpf_pts_sub_destroy(D);
+    wpf_pts_sp_destroy(S1); wpf_pts_sp_destroy(S2);
+    for (int i = 0; i < WPF_PTS_B1_N; i++) { g_pts_b1_ok[i] = save_ok[i]; g_pts_b1_gap[i] = save_gap[i]; }
+    if (g_pts_sub_live_n != nlive || g_pts_sp_live_n != splive) return -1;   /* 泄漏 ⇒ 不算绿 */
+    return mask;
+}
+int WpfLinuxWin32_PtsFsBatch1SelftestMask(void) { return WpfLinuxWin32_PtsFsBatch1SelfCheck(); }
+int WpfLinuxWin32_PtsFsBatch1Ok(int idx)  { return (idx >= 0 && idx < WPF_PTS_B1_N) ? g_pts_b1_ok[idx]  : -1; }
+int WpfLinuxWin32_PtsFsBatch1Gap(int idx) { return (idx >= 0 && idx < WPF_PTS_B1_N) ? g_pts_b1_gap[idx] : -1; }
 
 // ⚠️ 诊断面（给"诊断驱动"的开发阶段用，也留给后续 `t80` §5-NOINFO-4 那条"谁调它"的问题）：
 //   把这个 `int` 追加到 `WpfLinuxWin32_PtsGapReport()` 的行尾 ⇒ 自检红的时候**看得见是哪一格**。

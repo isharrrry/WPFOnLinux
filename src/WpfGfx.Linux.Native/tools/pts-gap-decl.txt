@@ -31,7 +31,36 @@
 #   并**断言相等**（不等即 `rc=9` 停手 = 基底漂移），再把 `tool/dead/artifact/ops/impl`
 #   交给牙**现算对账**（不等即牙红 —— 那才是"数漂了"，与基底漂移是两回事，分开报）。
 # ══════════════════════════════════════════════════════════════════════════════════
-# PTSGAP-DECL: tool=70 dead=11 artifact=1 ops=58 impl=59 so16=d406f243cdc2c402 exports=689 w66pre16=bf6b683d94549087
+# PTSGAP-DECL: tool=62 dead=11 artifact=1 ops=50 impl=51 so16=2852242a1c946d1f exports=701 w66pre16=bf6b683d94549087
+#   ⚠️ 波 `T-A61` 重锚（`TASK-0302` 增量：**`Fs*` 族缺口首批 8 条真实现**；`D-G70` 形态又一实例；
+#     **产品改动 ⇒ 在册数必须跟随权威件**）：
+#     `src/WpfGfx.Linux.Native/src/win32_pts.c` 新增**导出** 8 条 `Fs*` 入口（由「会
+#     `EntryPointNotFoundException` 的缺口」升为**真实现**）：
+#       `FsDestroySubtrack`（声明 `Pts.cs:3412`；调用 `PtsHost.cs:2890 SubtrackDestroyPara`）／
+#       `FsClearUpdateInfoInSubtrack`（`:3407`；`PtsHost.cs:2884`）／
+#       `FsGetSubtrackColumnBalancingInfo`（`:3428`；`PtsHost.cs:2915`）／
+#       `FsTransferDisplayInfoSubtrack`（`:3469`；`PtsHost.cs:2952`）／
+#       `FsTransferDisplayInfoSubpage`（`:3309`；`PtsHost.cs:3251`）／
+#       `FsCompareSubtrack`（`:3398`；`PtsHost.cs:2878`）／
+#       `FsCompareSubpages`（`:3256`；`PtsHost.cs:3177`）／
+#       `FsSynchronizeBottomlessSubtrack`（`:3390`；`PtsHost.cs:2854`）。
+#     **诚实准入铁律**（本侧只作自持对象的作者）：只收**无几何出参**、或出参**可由本侧真台账导出**者；
+#     凡出参含**真几何**而无源者（`FsUpdateBottomlessSubtrack/Subpage`／`FsFormatSubtrack*`／
+#     `FsQuery*ColumnList`／`FsGet*FootnoteInfo`／`*BreakRecord` 生命周期／`FsTransform*` 等）
+#     **一律不冒充**，仍留在缺口名单（**如实划界**）。
+#     ⇒ `exports 689→701`（**逐名 +8（PTS 族）+4（本侧只读自检桥接 `WpfLinuxWin32_PtsFsBatch1{SelftestMask,SelfCheck,Ok,Gap}`）**，
+#     无消失；`nm -D --defined-only` 行数 == `exports.txt` 行数 == 701；逐名 `diff` 零差异）；
+#     `tool 70→62`／`ops 58→50`／`impl 59→51`（8 名由「会 ENFE 的缺口」变为「已导出可用」⇒ 缺口计数**下降** 8；
+#     不新增/不删除任何 `wpf_pts_gap(...)` stub ⇒ `stubs` 仍 1、`impl−ops` 仍 1）；`dead/artifact/w66pre16` 未动；
+#     `so16 d406f243cdc2c402→2852242a1c946d1f`（467240→480488 B）。
+#     🔴 **计数下降 ≠ 能力前进**（件头第 ① 条同口径）：本增量把**缺符号**变成**有符号的真实现**，
+#       但 8 条入口在现产品路径**未被调用**（成对腿 `before`／`after` 的 `k24 fr_sha` 均 `0bdb2dfd05952bc9`、
+#       `k23` 均 `10d0b9d54e649c10`、`boot` 均 `colors=386`；三帧逐字节 `AE=0`；`[HC-UNHANDLED]=0`／
+#       `entry point named=0` 两腿同）⇒ 页仍**未全绘**（症状门由腿读数给）。
+#     ⚠️ **两极化（该红必红）**：本趟新增导出 `WpfLinuxWin32_PtsFsBatch1SelfCheck()`（dlopen 探针**现取**：
+#       改前 8 名 `present=0/8`；改后 `present=8/8` 且 `[FSBATCH1-SELFTEST] mask=0xff`＝8/8「正极真值 ∧ 反极必拒」；
+#       反腿副本（去掉 `FsClearUpdateInfoInSubtrack` 的对象身份认领）⇒ `mask=0xfd`（该位**必红**））。
+#     成对腿与探针读数见载体 `build/MilBridge/P1-tail2-gapbatch1-impl-report.md`。
 #   ⚠️ 波 `T-A57` 重锚（`TASK-0302` 增量：翻 `WPF_PTS_TABLECELL` 为**缺省开**；
 #     `D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
 #     `src/WpfGfx.Linux.Native/src/win32_pts.c` 的运行期闸缺省值由 `WPF_PTS_TABLECELL_DEFAULT 0` 翻为 `1`
