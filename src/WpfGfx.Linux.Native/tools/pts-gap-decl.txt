@@ -31,7 +31,41 @@
 #   并**断言相等**（不等即 `rc=9` 停手 = 基底漂移），再把 `tool/dead/artifact/ops/impl`
 #   交给牙**现算对账**（不等即牙红 —— 那才是"数漂了"，与基底漂移是两回事，分开报）。
 # ══════════════════════════════════════════════════════════════════════════════════
-# PTSGAP-DECL: tool=59 dead=11 artifact=1 ops=47 impl=47 so16=969536ee1549ef39 exports=718 w66pre16=bf6b683d94549087
+# PTSGAP-DECL: tool=54 dead=11 artifact=1 ops=42 impl=42 so16=3118bd1ce7d9604c exports=727 w66pre16=bf6b683d94549087
+#   ⚠️ 波 `T-A66` 重锚（`TASK-0302` 增量：**甲类 5 条**（清单出处 `T-A65` §3 第三批）——
+#     `FsDestroyPageBreakRecord`（声明 `Pts.cs:3159`；调用 `PtsContext.cs:85`／`:524`）／
+#     `FsUpdateFinitePage`（`:3118`；`PtsPage.cs:457`）／
+#     `FsGetSubpageColumnBalancingInfo`（`:3283`；`PtsHost.cs:2521`／`:3213`）／
+#     `SetScrollPosWrapper`（`NativeMethodsSetLastError.cs:89`）／
+#     `GlobalDeleteAtomWrapper`（`:46`）由「会 `EntryPointNotFoundException` 的缺口」升为**真实现**；
+#     `D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
+#     `src/WpfGfx.Linux.Native/src/win32_pts.c` 新增**导出** 5 条（见上）＋ `struct wpf_pts_fsp` 增 `br_destroyed` 位；
+#     `src/WpfGfx.Linux.Native/src/win32_internal.h` 的 `wpf_window` 增 `scroll_pos[2]`（`SetScrollPosWrapper` 的位置位）。
+#     **诚实准入铁律**（本侧只作自持对象的作者）：只收**无几何出参**、或出参**可由本侧真台账/自持状态推出**者 ——
+#       ① 无出参 ⇒ 按对象身份认领后失效页自持的断页记录句柄（**不**声称释放真记录内存）；
+#       ② `FSFMTR`（3×`int`）无几何 ∧ 断页记录＝页字段址（与 `FsCreatePageFinite` **同源**）；
+#       ③ 行数/行高和/最小行高**只**读本侧**真行台账** `fl_line[]`（`T-A28`；内容子树递归汇总，
+#          同 `FsGetSubtrackColumnBalancingInfo` 谓词 `wpf_pts_fl_usable`）；
+#       ④⑤ 纯**状态存取**／**原子表状态**（无几何、无测量）。凡出参含**真几何**而无源者
+#       （`FsUpdateBottomlessSubpage` 等）**一律不冒充**，仍留在缺口名单。
+#     ⇒ `exports 718→727`（**逐名 +5（清单条）＋+4（本侧只读自检桥接 `WpfLinuxWin32_PtsFsBatch3{SelftestMask,SelfCheck,Ok,Gap}`）**，
+#       无消失；`nm -D --defined-only` 行数 == `exports.txt` 行数 == 727；逐名 `diff` 零差异）；
+#     `tool 59→54`／`ops 47→42`／`impl 47→42`（5 名由「会 ENFE 的缺口」变为「已导出可用」⇒ 缺口计数**下降** 5；
+#       不新增/不删除任何 `wpf_pts_gap(...)` stub ⇒ `stubs` 仍 0、`impl == ops`）；`dead/artifact/w66pre16` 未动；
+#     `so16 969536ee1549ef39→3118bd1ce7d9604c`（490296→499240 B）。
+#     ⚠️ **两极化（该红必红）**：本趟新增导出 `WpfLinuxWin32_PtsFsBatch3SelfCheck()`（dlopen 探针**现取**：
+#       改前 5 名 `present=0/5`；改后 `present=5/5` 且 `[FSBATCH3-SELFTEST] mask=0x1f`＝5/5「正极真值 ∧ 反极必拒」；
+#       反腿副本（去掉 `FsDestroyPageBreakRecord` 的对象身份认领）⇒ `mask=0x1e`（该位**必红**））。
+#     ⚠️ **如实划界（具名 `NOINFO-WRAPPER-UNCOMPILED`）**：`SetScrollPosWrapper`／`GlobalDeleteAtomWrapper`
+#       落在 `NativeMethodsSetLastError.cs` 的 `#elif UIAUTOMATIONCLIENT || …` **非编译分支**内
+#       （分支界 `:38`／`:93`；本仓只汇 `WindowsBase`／`PresentationCore`／`PresentationFramework`，
+#       三程序集**均未定义** `UIAUTOMATIONCLIENT`）⇒ 两条 `*Wrapper` **无托管调用方**；本块仍**真实现**
+#       （符号可用 ＋ 按 Win32 语义真动作），**不**因无调用方就冒充（`NOINFO=WRAPPER-REDRAW`／
+#       `ATOM-NAMESPACE`／`ATOM-ADD-NOT-EXPORTED`；`GlobalDeleteAtomWrapper` 失败面按 Win32 约定返 **0**，
+#       **不**用 `-10000`）。
+#     🔴 **计数下降 ≠ 能力前进**（件头第 ① 条同口径）：本增量把**缺符号**变成**有符号的真实现**，
+#       但 5 条入口在现产品路径**未被调用** ⇒ 两腿三帧**逐字节相同**（`AE=0`）、症状门逐格同 ⇒ 页仍**未全绘**。
+#     成对腿与探针读数见载体 `build/MilBridge/P1-tail2-gapbatch3-impl-report.md`。
 #   ⚠️ 波 `T-A64` 重锚（`TASK-0201` 产品侧静默 `rc=139` 残余：`win32_msg.c` 队列链遍历的**对称守卫**；
 #     `D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
 #     `src/WpfGfx.Linux.Native/src/win32_msg.c` 的 `wpf_queue_push` 在 F1（`tail==NULL ∧ head!=NULL`）之外，

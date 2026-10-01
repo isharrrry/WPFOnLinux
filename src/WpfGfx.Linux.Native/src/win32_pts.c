@@ -435,6 +435,13 @@ typedef struct {
     int          qpd_new_pending;
     int          qpd_vis_built;
     int          qpd_fstd_since;
+    /* ── ⏪ `T-A66`：**断页记录（break record）句柄的"已失效"位** ────────────────────────────
+       本侧断页记录句柄 ＝ 本对象内字段 `c_paras` 的地址（`FsCreatePageFinite`／`FsUpdateFinitePage`
+       的 `ppfsBRPageOut`）；「销毁断页记录」在本侧**没有真记录内存**可释放 ⇒ 语义落成
+       **按对象身份认领后失效该句柄**：`0` ＝ 断页记录有效（可被 `FsDestroyPageBreakRecord` 认领），
+       `1` ＝ 已销毁（再认领必被拒）。`FsUpdateFinitePage` 成功时**重新产出**断页记录 ⇒ 置回 0。
+       ⚠️ 本侧**不**声称"释放了真断页记录内存"（具名 `NOINFO=no-breakrec-memory(field-address-only)`）。 */
+    int          br_destroyed;
 } wpf_pts_fsp;
 static wpf_pts_fsp *g_pts_fsp_live[WPF_PTS_FSP_MAX];
 static int g_pts_fsp_live_n     = 0;
@@ -8712,6 +8719,440 @@ int WpfLinuxWin32_PtsFsBatch1SelfCheck(void)
 int WpfLinuxWin32_PtsFsBatch1SelftestMask(void) { return WpfLinuxWin32_PtsFsBatch1SelfCheck(); }
 int WpfLinuxWin32_PtsFsBatch1Ok(int idx)  { return (idx >= 0 && idx < WPF_PTS_B1_N) ? g_pts_b1_ok[idx]  : -1; }
 int WpfLinuxWin32_PtsFsBatch1Gap(int idx) { return (idx >= 0 && idx < WPF_PTS_B1_N) ? g_pts_b1_gap[idx] : -1; }
+
+/* ══════════════════════════════════════════════════════════════════════════════════════════════
+   ⏪ `T-A66`（`TASK-0302` 增量）· **甲类 5 条**（`Pts.cs` 缺口第三批；清单出处 `T-A65` §3）
+   ──────────────────────────────────────────────────────────────────────────────────────────────
+   【本块做什么】按上游在册语义，把 `PresentationNative_cor3.dll` 可操作缺口里**可诚实实施**的
+   5 条入口由「会 `EntryPointNotFoundException` 的缺口」变成**已导出可用**（非恒 `-10000`）：
+     ① `FsDestroyPageBreakRecord`         声明 `Pts.cs:3159-3162`  调用 `PtsContext.cs:85`／`:524`
+     ② `FsUpdateFinitePage`               声明 `Pts.cs:3118-3125`  调用 `PtsPage.cs:457`
+     ③ `FsGetSubpageColumnBalancingInfo`  声明 `Pts.cs:3283-3290`  调用 `PtsHost.cs:2521`／`:3213`
+     ④ `SetScrollPosWrapper`              声明 `NativeMethodsSetLastError.cs:89-90`
+     ⑤ `GlobalDeleteAtomWrapper`          声明 `NativeMethodsSetLastError.cs:46-47`
+   ④⑤ 逐条落在 `NativeMethodsSetLastError.cs` 的 **`#elif UIAUTOMATIONCLIENT || …`** 分支内
+   （分支界 `:38`／`:93`），而本仓只汇 `WindowsBase`／`PresentationCore`／`PresentationFramework`
+   三个程序集、**均未定义** `UIAUTOMATIONCLIENT` ⇒ 该分支**永不编译**（`T-A65` §4-W 现取）
+   ⇒ 两条 `*Wrapper` **无托管调用方**（具名 `NOINFO-WRAPPER-UNCOMPILED`）；本块仍**真实现**
+   （符号可用 ＋ 按 Win32 语义真动作），**不**因无调用方就冒充。
+
+   【诚实准入铁律（承 `T-A61`／`T-A62`）】本侧**只**是自持对象（页／子页／窗口状态）的作者：
+     ① **无出参** ⇒ 按**对象身份**认领后失效该页对象自持的断页记录句柄（**不**声称释放真记录内存）；
+     ② 出参 `FSFMTR`（3×`int`）**无几何** ∧ 断页记录＝页字段址（与 `FsCreatePageFinite` 同源）；
+     ③ 出参（行数／行高和／最小行高）**只**读本侧**真行台账** `fl_line[]`（`T-A28` 由 `pfnFormatLine`
+        真返回值入账），走**内容子树递归汇总**（同 `FsGetSubtrackColumnBalancingInfo` 的谓词）；
+     ④⑤ 纯**状态存取**／**原子表状态**（无几何、无测量）。
+   🔴 **凡出参含真几何而无源者一律不冒充**（`FsUpdateBottomlessSubpage` 等）⇒ 仍留在缺口名单。
+
+   【两极化（该红必红）】每条入口失败面**逐条具名**（`[FSBATCH3]`／`[FS_PAGE_GAP]`），落在
+   入口自身或 `wpf_pts_b3_gap()`；由本块末 `WpfLinuxWin32_PtsFsBatch3SelfCheck()` 现取
+   「正极真值 ∧ 反极必拒」，返回 5-bit `mask`（`0x1f` ＝ 全过）。
+   ══════════════════════════════════════════════════════════════════════════════════════════════ */
+#define WPF_PTS_B3_N 5
+static int g_pts_b3_ok[WPF_PTS_B3_N]  = {0};
+static int g_pts_b3_gap[WPF_PTS_B3_N] = {0};
+_Static_assert(WPF_PTS_B3_N == 5, "`T-A66` 甲类条数 != 5");
+/* `FSFMTR.kstop` 的"未达成"值（不在上游 `FSFMTRKSTOP` 枚举 `0..15` 内 ⇒ 失败面**不放残留/毒值**）。 */
+#define WPF_PTS_B3_FSFMTR_NOT_ACHIEVED 16
+/* Win32 错误码（`win32_internal.h` 只具名了 `ERROR_INVALID_WINDOW_HANDLE`）。 */
+#define WPF_PTS_B3_ERR_INVALID_HANDLE    6
+#define WPF_PTS_B3_ERR_INVALID_PARAMETER 87
+/* `SetScrollPos` 的 nBar 值域（上游 `NativeMethodsSetLastError.cs:89` 逐字；本侧只支持前两格）。 */
+#define WPF_PTS_B3_SB_HORZ 0
+#define WPF_PTS_B3_SB_VERT 1
+
+/* 统一失败面：认领失败/参数非法 ⇒ 具名留痕 ＋ 返 `-10000`。
+   `outstate` 逐条描述**失败面出参的形状**（**不**写任何语义值）：① 本入口无出参 ⇒ `NO-OUTPUT`；
+   ② `FSFMTR` 先写"未达成" ∧ 断页记录清 `NULL`；③ 四个出参先清 0。 */
+static int wpf_pts_b3_gap(const char *entry, int idx, const char *reason,
+                          const void *ctx, const void *p, const char *outstate)
+{
+    g_pts_b3_gap[idx]++;
+    fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=%s ctx=%p p=%p ok=%d gap=%d out=%s\n",
+            WPF_PTS_ERR_NOT_IMPLEMENTED, reason, entry, ctx, p,
+            g_pts_b3_ok[idx], g_pts_b3_gap[idx], outstate);
+    return WPF_PTS_ERR_NOT_IMPLEMENTED;
+}
+/* 页对象认领（**只比指针身份**，不 deref 未知句柄；与 `FsClearUpdateInfoInPage`／`FsDestroyPage` 同办）。 */
+static int wpf_pts_b3_page_claim(const void *page, wpf_pts_fsp **out)
+{
+    if (out) *out = NULL;
+    if (!page) return 0;
+    for (int i = 0; i < g_pts_fsp_live_n; i++) {
+        if (g_pts_fsp_live[i]->magic != WPF_PTS_FSP_MAGIC) continue;
+        if ((const void *)g_pts_fsp_live[i] == page) { if (out) *out = g_pts_fsp_live[i]; return 1; }
+    }
+    return 0;
+}
+
+/* ① `FsDestroyPageBreakRecord`（`Pts.cs:3159`：`(pfscontext, pfsbreakrec)`，**无出参**）─────────
+   本侧断页记录句柄 ＝ 本页对象内 `c_paras` 字段的地址（`FsCreatePageFinite` 的 `ppfsBRPageOut`）。
+   **诚实语义**：按**对象身份**认领（指针等值于某在册页对象的该字段地址）后**失效该句柄**
+   （置 `br_destroyed=1`）⇒ 二次调用必被拒。**不**声称"释放了真断页记录内存"（本侧无该实体，
+   具名 `NOINFO=no-breakrec-memory(field-address-only)`）。`NULL`／外来值／未知上下文 ⇒ **拒**。 */
+int FsDestroyPageBreakRecord(void *pfscontext, void *pfsbreakrec)
+{
+    const char *reason = NULL;
+    wpf_pts_fsp *pg = NULL;
+    if (!pfsbreakrec) reason = "null-breakrec";
+    else if ((const void *)pfscontext && !wpf_pts_doc_find(pfscontext)) reason = "unknown-ctx";
+    else {
+        for (int i = 0; i < g_pts_fsp_live_n; i++) {
+            if (g_pts_fsp_live[i]->magic != WPF_PTS_FSP_MAGIC) continue;
+            if ((const void *)&g_pts_fsp_live[i]->c_paras == pfsbreakrec) { pg = g_pts_fsp_live[i]; break; }
+        }
+        if (!pg) reason = "unknown-breakrec";
+        else if (pg->br_destroyed) reason = "already-destroyed-breakrec";
+    }
+    if (reason)
+        return wpf_pts_b3_gap("FsDestroyPageBreakRecord", 0, reason, pfscontext, pfsbreakrec,
+                              "NO-OUTPUT");
+    pg->br_destroyed = 1;                       /* 真失效：该句柄此后不可再被本入口认领 */
+    g_pts_b3_ok[0]++;
+    fprintf(stderr, "[FSBATCH3] rc=0 entry=FsDestroyPageBreakRecord breakrec=%p page=%p ok=%d gap=%d "
+                    "v=BREAKREC-INVALIDATED basis=claim-by-object-identity+invalidate-field "
+                    "NOINFO=no-breakrec-memory(field-address-only)\n",
+            pfsbreakrec, (void *)pg, g_pts_b3_ok[0], g_pts_b3_gap[0]);
+    return 0;
+}
+
+/* ② `FsUpdateFinitePage`（`Pts.cs:3118`：`(pfscontext, pfspage, pfsBRPageStart, fsnmSectStart,
+   out FSFMTR pfsfmtrOut, out IntPtr ppfsBRPageOut)`）────────────────────────────────────────────
+   承 `FsUpdateBottomlessPage`（`T-A19`）同形先例：**无真几何出参**（`FSFMTR` ＝ `{kstop, …}` 3×`int`），
+   断页记录＝页字段址（与 `FsCreatePageFinite` **同源**）。**永不假成功**：只有**页在册**才返 0；
+   出参 `FSFMTR` 失败面**先写"未达成"**（`WPF_PTS_B3_FSFMTR_NOT_ACHIEVED`，非上游枚举值 ⇒ 不留毒值），
+   成功面写**本页对象自持的 `result`**；`ppfsBRPageOut` 失败面清 `NULL`、成功面给本对象内字段地址。
+   ⚠️ 本入口**不**声称"页被重新排版"（本侧无排版引擎，具名
+   `NOINFO=fsupdatefinitepage-scope-native-owned-state`）。 */
+int FsUpdateFinitePage(void *pfscontext, void *pfspage, void *pfsBRPageStart,
+                       const void *fsnmSectStart, int *pfsfmtrOut, void **ppfsBRPageOut)
+{
+    (void)pfsBRPageStart;                         /* 上游语义：起始断页记录；本侧只作对象身份认领 */
+    if (pfsfmtrOut)    { pfsfmtrOut[0] = WPF_PTS_B3_FSFMTR_NOT_ACHIEVED; pfsfmtrOut[1] = 0; pfsfmtrOut[2] = 0; }
+    if (ppfsBRPageOut) *ppfsBRPageOut = NULL;
+    wpf_pts_fsp *pg = NULL;
+    const char *reason = NULL;
+    if (!pfsfmtrOut || !ppfsBRPageOut)   reason = "null-out";
+    else if (!pfspage)                   reason = "null-page";
+    else if ((const void *)pfscontext && !wpf_pts_doc_find(pfscontext)) reason = "unknown-ctx";
+    else if (!wpf_pts_b3_page_claim(pfspage, &pg))                     reason = "unknown-page";
+    if (reason)
+        return wpf_pts_b3_gap("FsUpdateFinitePage", 1, reason, pfscontext, pfspage,
+                              "FSFMTR=NOT-ACHIEVED(16) brk=NULL");
+    pg->sect = fsnmSectStart;                     /* 本页对象自持（**原样存、不 deref**） */
+    pg->br_destroyed = 0;                          /* 本入口重新产出断页记录 ⇒ 该句柄重新有效 */
+    pfsfmtrOut[0] = pg->result;                    /* `FSFMTR.kstop` ＝ 本页对象自持结果（同侪同源） */
+    pfsfmtrOut[1] = 0; pfsfmtrOut[2] = 0;
+    *ppfsBRPageOut = (void *)&pg->c_paras;         /* 断页记录句柄：本对象内字段地址（非 NULL、可身份校验） */
+    g_pts_b3_ok[1]++;
+    fprintf(stderr, "[FSBATCH3] rc=0 entry=FsUpdateFinitePage page=%p sect=%p kstop=%d brk=%p ok=%d gap=%d "
+                    "basis=refresh-page-owned-state+reemit-breakrec "
+                    "NOINFO=fsupdatefinitepage-scope-native-owned-state(no-relayout-claim)\n",
+            (void *)pg, fsnmSectStart, pfsfmtrOut[0], *ppfsBRPageOut, g_pts_b3_ok[1], g_pts_b3_gap[1]);
+    return 0;
+}
+
+/* ③ `FsGetSubpageColumnBalancingInfo`（`Pts.cs:3283`：`(ctx, pSubpage, out uint fswdir,
+   out int lLineNumber, out int lLineHeights, out int lMinimumLineHeight)`）──────────────────────
+   出参**只**取自本侧**真行台账**（`fl_line[]`）：**对内容子树递归汇总**（同 `FsGetSubtrackColumnBalancingInfo`
+   的谓词 `wpf_pts_fl_usable`）。`fswdir` 取**本侧恒 ltr(0)**（承 `wpf_pts_fstextdetailsfull.fswdir`
+   的同一约定，具名 `NOINFO=FSWRITINGDIR`）。**零假值**：无可用户台账 ⇒ **拒**（出参先清 0）；
+   未知/NULL 对象 ⇒ `-10000`；`NULL` 出参 ⇒ `-10000`。 */
+static int wpf_pts_b3_subpage_balance(const wpf_pts_subtrack *root,
+                                      int *pnlines, int *psum, int *pmin)
+{
+    if (!root) return 0;
+    int nlines = 0, sum = 0, min = 0, got = 0;
+    wpf_pts_subtrack *stack[WPF_PTS_SUB_MAX]; int sp = 0;
+    stack[sp++] = (wpf_pts_subtrack *)root;
+    while (sp > 0) {
+        wpf_pts_subtrack *o = stack[--sp];
+        int nc = (o->enum_ok) ? o->c_paras : 0;
+        if (nc == 0) {                                 /* 叶 ⇒ `TextParagraph` 类 */
+            if (wpf_pts_fl_usable(o)) {
+                for (int k = 0; k < o->fl_nlines; k++) {
+                    int h = o->fl_line[k].dvr_ascent + o->fl_line[k].dvr_descent;
+                    sum += h; nlines++;
+                    if (!got || h < min) min = h;
+                }
+                got = 1;
+            }
+            continue;
+        }
+        for (int k = 0; k < nc && k < WPF_PTS_SUB_CHILD_MAX; k++)
+            if (o->child_objs[k] && sp < WPF_PTS_SUB_MAX) stack[sp++] = o->child_objs[k];
+    }
+    if (!got) return 0;
+    *pnlines = nlines; *psum = sum; *pmin = min;
+    return 1;
+}
+int FsGetSubpageColumnBalancingInfo(void *pfscontext, void *pSubpage, unsigned int *pfswdir,
+                                    int *pnlines, int *pdvrSum, int *pdvrMin)
+{
+    if (pfswdir)  *pfswdir  = 0u;
+    if (pnlines)  *pnlines  = 0;
+    if (pdvrSum)  *pdvrSum  = 0;
+    if (pdvrMin)  *pdvrMin  = 0;                  /* 失败面**先清**（不留残留/毒值） */
+    struct wpf_pts_subpage_s *sp = NULL;
+    const char *reason = NULL;
+    if (!pfswdir || !pnlines || !pdvrSum || !pdvrMin) reason = "null-out";
+    else if (!pSubpage)                               reason = "null-subpage";
+    else if ((const void *)pfscontext && !wpf_pts_doc_find(pfscontext)) reason = "unknown-ctx";
+    else if (!wpf_pts_sp_claim_track(pSubpage, &sp))  reason = "unknown-subpage";
+    else if (!sp->cont_obj)                           reason = "no-content-tree";
+    {
+        int nl = 0, su = 0, mi = 0;
+        if (!reason && !wpf_pts_b3_subpage_balance(sp->cont_obj, &nl, &su, &mi))
+            reason = "no-line-ledger";
+        if (reason)
+            return wpf_pts_b3_gap("FsGetSubpageColumnBalancingInfo", 2, reason, pfscontext, pSubpage,
+                                  "fswdir=0 nlines=0 dvrSum=0 dvrMin=0");
+        *pfswdir = 0u;                             /* 本侧恒 ltr（具名 NOINFO=FSWRITINGDIR） */
+        *pnlines = nl; *pdvrSum = su; *pdvrMin = mi;
+        g_pts_b3_ok[2]++;
+        fprintf(stderr, "[FSBATCH3] rc=0 entry=FsGetSubpageColumnBalancingInfo subpage=%p "
+                        "fswdir=0 nlines=%d dvrSumHeight=%d dvrMinHeight=%d src=content-subtree:fl_line[] "
+                        "ok=%d gap=%d NOINFO=FSGEOMETRY-LAYOUT(line-height=ascent+descent,own-convention)"
+                        "+FSWRITINGDIR(ltr-only)\n",
+                pSubpage, nl, su, mi, g_pts_b3_ok[2], g_pts_b3_gap[2]);
+    }
+    return 0;
+}
+
+/* ④ `SetScrollPosWrapper`（`NativeMethodsSetLastError.cs:89`：`(IntPtr hWnd, int nBar, int nPos,
+   bool bRedraw)`，**返回旧位置**）── ⚠️ 该声明在**非编译分支**（`NOINFO-WRAPPER-UNCOMPILED`）。
+   本侧**有窗口模型**（`win32_core.c`；`wpf_window.scroll_pos[2]` 自持位置位）。承 Wrapper 族形制
+   （`GetWindowLong*Wrapper` 同办：**先 `SetLastError(0)`**）：成功 ⇒ 返回**旧位置**（可现取）；
+   未知 `hwnd` ⇒ 返 0 ＋ `SetLastError(ERROR_INVALID_WINDOW_HANDLE)`（**不静默成功**）；
+   `nBar` 越界 ⇒ 返 0 ＋ `SetLastError(ERROR_INVALID_PARAMETER)`。⚠️ `bRedraw` 本侧无重绘面 ⇒
+   具名 `NOINFO=WRAPPER-REDRAW(no-scrollbar-visual)`；**只**主张"位置状态存取"。 */
+int SetScrollPosWrapper(HWND hwnd, int nBar, int nPos, int bRedraw)
+{
+    (void)bRedraw;
+    wpf_set_last_error(0);                         /* 承 Wrapper 族形制 */
+    if (nBar != WPF_PTS_B3_SB_HORZ && nBar != WPF_PTS_B3_SB_VERT) {
+        wpf_set_last_error(WPF_PTS_B3_ERR_INVALID_PARAMETER);
+        g_pts_b3_gap[3]++;
+        fprintf(stderr, "[FSBATCH3] ret=%d entry=SetScrollPosWrapper hwnd=%p nBar=%d ok=%d gap=%d "
+                        "v=REJECT reason=nbar-out-of-range set_last_error=%u "
+                        "NOINFO=WRAPPER-REDRAW(no-scrollbar-visual)+WRAPPER-UNCOMPILED\n",
+                0, (void *)hwnd, nBar, g_pts_b3_ok[3], g_pts_b3_gap[3], (unsigned)wpf_get_last_error());
+        return 0;
+    }
+    wpf_global_init();
+    wpf_lock();
+    wpf_window *w = wpf_window_find(hwnd);
+    if (!w) {
+        wpf_unlock();
+        wpf_set_last_error(ERROR_INVALID_WINDOW_HANDLE);
+        g_pts_b3_gap[3]++;
+        fprintf(stderr, "[FSBATCH3] ret=%d entry=SetScrollPosWrapper hwnd=%p nBar=%d ok=%d gap=%d "
+                        "v=REJECT reason=unknown-hwnd set_last_error=%u "
+                        "NOINFO=WRAPPER-REDRAW(no-scrollbar-visual)+WRAPPER-UNCOMPILED\n",
+                0, (void *)hwnd, nBar, g_pts_b3_ok[3], g_pts_b3_gap[3], (unsigned)wpf_get_last_error());
+        return 0;
+    }
+    int old = w->scroll_pos[nBar];
+    w->scroll_pos[nBar] = nPos;
+    wpf_unlock();
+    g_pts_b3_ok[3]++;
+    fprintf(stderr, "[FSBATCH3] ret=%d entry=SetScrollPosWrapper hwnd=%p nBar=%d nPos=%d old=%d ok=%d gap=%d "
+                    "basis=own-window-model:scroll_pos[2] NOINFO=WRAPPER-REDRAW(no-scrollbar-visual)\n",
+            old, (void *)hwnd, nBar, nPos, old, g_pts_b3_ok[3], g_pts_b3_gap[3]);
+    return old;
+}
+
+/* ⑤ `GlobalDeleteAtomWrapper`（`NativeMethodsSetLastError.cs:46`：`(short atom)→short`）──────────
+   ⚠️ **非编译分支**（`NOINFO-WRAPPER-UNCOMPILED`）。本侧**新立一张进程内全局原子表**（语义明确、
+   无外部源依赖）；**不**与窗口**类原子表**（`wpf_class_find_atom`，`win32_core.c:341`）共用命名空间
+   （具名 `NOINFO=ATOM-NAMESPACE`）。Win32 语义：**成功 ⇒ 返回该 atom**（引用计数减 1，减到 0 即移除）；
+   **失败 ⇒ 返 0** ＋ `SetLastError(ERROR_INVALID_HANDLE)`（**不静默成功**；**不**用 `-10000`，
+   因 Win32 失败返回就是 0）。⚠️ 公开的 `GlobalAddAtom*` 导出**不在本批清单内** ⇒ 表的填充只经内部
+   等价体 `wpf_pts_b3_atom_intern`（供自检夹具用；具名 `NOINFO=ATOM-ADD-NOT-EXPORTED`）。 */
+#define WPF_PTS_B3_ATOM_MAX 64
+static struct { int used; short atom; int ref; char name[32]; } g_pts_b3_atoms[WPF_PTS_B3_ATOM_MAX];
+static short g_pts_b3_next_atom = (short)0xC000;   /* 字符串 atom 段（Win32 惯例 0xC000..0xFFFF） */
+static short wpf_pts_b3_atom_intern(const char *s)  /* `GlobalAddAtom` 的内部等价体（非导出） */
+{
+    if (!s) return 0;
+    for (int i = 0; i < WPF_PTS_B3_ATOM_MAX; i++)
+        if (g_pts_b3_atoms[i].used && strcmp(g_pts_b3_atoms[i].name, s) == 0) {
+            g_pts_b3_atoms[i].ref++;
+            return g_pts_b3_atoms[i].atom;
+        }
+    for (int i = 0; i < WPF_PTS_B3_ATOM_MAX; i++)
+        if (!g_pts_b3_atoms[i].used) {
+            g_pts_b3_atoms[i].used = 1;
+            g_pts_b3_atoms[i].atom = g_pts_b3_next_atom++;
+            g_pts_b3_atoms[i].ref  = 1;
+            snprintf(g_pts_b3_atoms[i].name, sizeof(g_pts_b3_atoms[i].name), "%s", s);
+            return g_pts_b3_atoms[i].atom;
+        }
+    return 0;
+}
+short GlobalDeleteAtomWrapper(short atom)
+{
+    wpf_set_last_error(0);
+    if (atom != 0) {
+        for (int i = 0; i < WPF_PTS_B3_ATOM_MAX; i++) {
+            if (!g_pts_b3_atoms[i].used || g_pts_b3_atoms[i].atom != atom) continue;
+            int left;
+            if (--g_pts_b3_atoms[i].ref <= 0) { g_pts_b3_atoms[i].used = 0; g_pts_b3_atoms[i].ref = 0; left = 0; }
+            else left = g_pts_b3_atoms[i].ref;
+            g_pts_b3_ok[4]++;
+            fprintf(stderr, "[FSBATCH3] ret=0x%04x entry=GlobalDeleteAtomWrapper atom=0x%04x ref_left=%d "
+                            "ok=%d gap=%d v=ATOM-DELETED basis=own-process-atom-table "
+                            "NOINFO=ATOM-NAMESPACE(not-class-atoms)\n",
+                    (unsigned short)atom, (unsigned short)atom, left, g_pts_b3_ok[4], g_pts_b3_gap[4]);
+            return atom;
+        }
+    }
+    wpf_set_last_error(WPF_PTS_B3_ERR_INVALID_HANDLE);
+    g_pts_b3_gap[4]++;
+    fprintf(stderr, "[FSBATCH3] ret=0 entry=GlobalDeleteAtomWrapper atom=0x%04x ok=%d gap=%d v=REJECT "
+                    "reason=absent-atom set_last_error=%u basis=win32-convention(0-on-failure) "
+                    "NOINFO=ATOM-NAMESPACE(not-class-atoms)\n",
+            (unsigned short)atom, g_pts_b3_ok[4], g_pts_b3_gap[4], (unsigned)wpf_get_last_error());
+    return 0;
+}
+
+/* ── 本批的**逐条两极化自检**（正极＋反极；纯 native，只用自己的对象，不碰应用状态）──────────────
+   bit k ＝ 第 k 条入口的「正极真值 ∧ 反极必拒」**同时**成立。返回 mask；**-1** ＝ 夹具自身失败
+   （表满/分配失败 ⇒ **不算绿**）。任何一条不成立 ⇒ 对应位 0（该红必红）。 */
+int WpfLinuxWin32_PtsFsBatch3SelfCheck(void)
+{
+    int mask = 0;
+    int save_ok[WPF_PTS_B3_N], save_gap[WPF_PTS_B3_N];
+    for (int i = 0; i < WPF_PTS_B3_N; i++) { save_ok[i] = g_pts_b3_ok[i]; save_gap[i] = g_pts_b3_gap[i]; }
+    const int save_fin_ok = g_pts_fsp_fin_ok, save_fin_gap = g_pts_fsp_fin_gap;
+    const int save_sp_ok = g_pts_sp_ok, save_sp_gap = g_pts_sp_gap;
+    if (g_pts_fsp_live_n + 1 > WPF_PTS_FSP_MAX) return -1;
+
+    /* ── 页夹具（①／②）────────────────────────────────────────────────────────────────────── */
+    wpf_pts_fsctx_probe sc; memset(&sc, 0, sizeof(sc));
+    sc.version = 0x00010001u; sc.fsffi = 0xDEADBEEFu; sc.c_installed_objects = 1;
+    void *ctx = NULL;
+    if (CreateDocContext(&sc, &ctx) != 0 || ctx == NULL) return -1;
+    void *pfa = NULL, *bra = NULL; int fmt[3] = { 9, 9, 9 };
+    if (FsCreatePageFinite(ctx, NULL, (const void *)0xB61, fmt, &pfa, &bra) != 0 || !pfa || !bra) {
+        DestroyDocContext(ctx); return -1;
+    }
+    const void *bogus = (const void *)0xDEAD;
+
+    /* ① destroy-page-break-record：正极（真句柄 ⇒ 0 ∧ 之后不可再认领）＋反极（NULL／伪值必拒） */
+    {
+        int p = (FsDestroyPageBreakRecord(ctx, bra) == 0) &&
+                (FsDestroyPageBreakRecord(ctx, bra) == WPF_PTS_ERR_NOT_IMPLEMENTED);
+        int n = (FsDestroyPageBreakRecord(ctx, NULL) == WPF_PTS_ERR_NOT_IMPLEMENTED) &&
+                (FsDestroyPageBreakRecord(NULL, (void *)bogus) == WPF_PTS_ERR_NOT_IMPLEMENTED);
+        if (p && n) mask |= 1 << 0;
+    }
+    /* ② update-finite-page：正极（kstop ＝ 本页自持 result ∧ 断页记录 ＝ 本页字段址 ⇒ 可再销毁）
+          ＋反极（未知页／NULL 出参必拒，且 `FSFMTR` 写成"未达成"、断页记录清 NULL） */
+    {
+        int f[3] = { 9, 9, 9 }; void *br2 = (void *)0x1; int p = 0, n = 0;
+        p = (FsUpdateFinitePage(ctx, pfa, NULL, (const void *)0xB62, f, &br2) == 0) &&
+            f[0] == ((wpf_pts_fsp *)pfa)->result && f[1] == 0 && f[2] == 0 &&
+            br2 == (void *)&((wpf_pts_fsp *)pfa)->c_paras &&
+            (FsDestroyPageBreakRecord(ctx, br2) == 0);
+        f[0] = f[1] = f[2] = 9; br2 = (void *)0x1;
+        n = (FsUpdateFinitePage(ctx, (void *)bogus, NULL, NULL, f, &br2) == WPF_PTS_ERR_NOT_IMPLEMENTED) &&
+            f[0] == WPF_PTS_B3_FSFMTR_NOT_ACHIEVED && br2 == NULL;
+        f[0] = f[1] = f[2] = 9; br2 = (void *)0x1;
+        n = n && (FsUpdateFinitePage(ctx, pfa, NULL, NULL, NULL, &br2) == WPF_PTS_ERR_NOT_IMPLEMENTED) &&
+            (FsUpdateFinitePage(ctx, pfa, NULL, NULL, f, NULL) == WPF_PTS_ERR_NOT_IMPLEMENTED);
+        if (p && n) mask |= 1 << 1;
+    }
+
+    /* ── 子页夹具（③）：内容子树＝root(enum_ok) ⇒ 叶(可用户台账 2 行/16+15)；另造无台账子页（反极）── */
+    {
+        int spbase = g_pts_sp_live_n;
+        if (spbase + 2 <= WPF_PTS_SP_MAX && g_pts_sub_live_n + 3 <= WPF_PTS_SUB_MAX) {
+            struct wpf_pts_subpage_s *S  = wpf_pts_sp_new((const void *)0xC1, (const void *)0xD1);
+            struct wpf_pts_subpage_s *S2 = wpf_pts_sp_new((const void *)0xC2, (const void *)0xD2);
+            wpf_pts_subtrack *R  = wpf_pts_sub_new((const void *)0xC3, NULL);
+            wpf_pts_subtrack *L  = wpf_pts_sub_new((const void *)0xC4, NULL);
+            wpf_pts_subtrack *R2 = wpf_pts_sub_new((const void *)0xC5, NULL);
+            wpf_pts_subtrack *L2 = wpf_pts_sub_new((const void *)0xC6, NULL);
+            if (S && S2 && R && L && R2 && L2) {
+                R->enum_ok = 1; R->c_paras = 1; R->child_objs[0] = L;
+                L->fl_ok = 1; L->fl_complete = 1; L->fl_nlines = 2;
+                L->fl_line[0].dvr_ascent = 12; L->fl_line[0].dvr_descent = 4;   /* 高 16 */
+                L->fl_line[1].dvr_ascent = 10; L->fl_line[1].dvr_descent = 5;   /* 高 15 */
+                R2->enum_ok = 1; R2->c_paras = 1; R2->child_objs[0] = L2;       /* L2 无台账 ⇒ 反极 */
+                S->cont_obj  = R;
+                S2->cont_obj = R2;
+                {
+                    const void *hS = wpf_pts_sp_handle(S), *hS2 = wpf_pts_sp_handle(S2);
+                    unsigned dir = 9u; int nl = -1, su = -1, mi = -1, p = 0, n = 0;
+                    p = (FsGetSubpageColumnBalancingInfo(NULL, (void *)hS, &dir, &nl, &su, &mi) == 0) &&
+                        dir == 0u && nl == 2 && su == 31 && mi == 15;
+                    n = (FsGetSubpageColumnBalancingInfo(NULL, (void *)hS2, &dir, &nl, &su, &mi)
+                             == WPF_PTS_ERR_NOT_IMPLEMENTED) &&
+                        nl == 0 && su == 0 && mi == 0 &&
+                        (FsGetSubpageColumnBalancingInfo(NULL, (void *)bogus, &dir, &nl, &su, &mi)
+                             == WPF_PTS_ERR_NOT_IMPLEMENTED) &&
+                        (FsGetSubpageColumnBalancingInfo(NULL, (void *)hS, NULL, &nl, &su, &mi)
+                             == WPF_PTS_ERR_NOT_IMPLEMENTED);
+                    if (p && n) mask |= 1 << 2;
+                }
+            }
+            /* 收尾：`wpf_pts_sp_destroy` 会连带销毁 `cont_obj`（R／R2 递归到 L／L2） */
+            if (S)  wpf_pts_sp_destroy(S);
+            if (S2) wpf_pts_sp_destroy(S2);
+            if (!S && R)  { wpf_pts_sub_destroy(R);  }
+            if (!S2 && R2) { wpf_pts_sub_destroy(R2); }
+        }
+    }
+
+    /* ④ SetScrollPosWrapper：正极（连调两次，第二次返回第一次设的旧值）＋反极（未知 hwnd／非法 nBar） */
+    {
+        int p = 0, n = 0;
+        wpf_global_init();
+        wpf_window *fw = wpf_window_add((HWND)0xB31);
+        if (fw) {
+            int r1 = SetScrollPosWrapper((HWND)0xB31, WPF_PTS_B3_SB_HORZ, 100, 1);
+            int r2 = SetScrollPosWrapper((HWND)0xB31, WPF_PTS_B3_SB_HORZ, 250, 1);
+            p = (r1 == 0 && r2 == 100 && fw->scroll_pos[WPF_PTS_B3_SB_HORZ] == 250);
+            wpf_set_last_error(0);
+            int rb = SetScrollPosWrapper((HWND)0xB32, WPF_PTS_B3_SB_HORZ, 5, 1);   /* 未知 hwnd */
+            unsigned e1 = wpf_get_last_error();
+            wpf_set_last_error(0);
+            int rc2 = SetScrollPosWrapper((HWND)0xB31, 9, 5, 1);                 /* 非法 nBar */
+            unsigned e2 = wpf_get_last_error();
+            n = (rb == 0 && e1 != 0 && rc2 == 0 && e2 != 0);
+            wpf_window_remove((HWND)0xB31);
+        }
+        if (p && n) mask |= 1 << 3;
+    }
+
+    /* ⑤ GlobalDeleteAtomWrapper：正极（真 atom ⇒ 返该 atom ∧ 再删 ⇒ 0）＋反极（不存在 ⇒ 0 ∧ LastError≠0） */
+    {
+        short a = wpf_pts_b3_atom_intern("T-A66.fixture");
+        int p = (a != 0) && (GlobalDeleteAtomWrapper(a) == a) && (GlobalDeleteAtomWrapper(a) == 0);
+        wpf_set_last_error(0);
+        short b = GlobalDeleteAtomWrapper((short)0x1234);
+        unsigned e = wpf_get_last_error();
+        int n = (b == 0 && e != 0) && (GlobalDeleteAtomWrapper((short)0) == 0);
+        if (p && n) mask |= 1 << 4;
+    }
+
+    fprintf(stderr, "[FSBATCH3-SELFTEST] mask=0x%02x destroy_brk=%d update_finite=%d subpage_bal=%d "
+                    "scrollpos=%d atom=%d legs=%s\n",
+            mask, (mask >> 0) & 1, (mask >> 1) & 1, (mask >> 2) & 1, (mask >> 3) & 1, (mask >> 4) & 1,
+            mask == 0x1f ? "5/5(POS+REJECT)" : "PARTIAL");
+
+    /* 收尾：真销毁页对象与上下文（活数回 base；幂等、不逼近上限） */
+    if (FsDestroyPage(ctx, pfa) != 0) { DestroyDocContext(ctx); mask = -1; }
+    if (DestroyDocContext(ctx) != 0) mask = -1;
+    for (int i = 0; i < WPF_PTS_B3_N; i++) { g_pts_b3_ok[i] = save_ok[i]; g_pts_b3_gap[i] = save_gap[i]; }
+    g_pts_fsp_fin_ok = save_fin_ok; g_pts_fsp_fin_gap = save_fin_gap;
+    g_pts_sp_ok = save_sp_ok; g_pts_sp_gap = save_sp_gap;
+    return mask;
+}
+int WpfLinuxWin32_PtsFsBatch3SelftestMask(void) { return WpfLinuxWin32_PtsFsBatch3SelfCheck(); }
+int WpfLinuxWin32_PtsFsBatch3Ok(int idx)  { return (idx >= 0 && idx < WPF_PTS_B3_N) ? g_pts_b3_ok[idx]  : -1; }
+int WpfLinuxWin32_PtsFsBatch3Gap(int idx) { return (idx >= 0 && idx < WPF_PTS_B3_N) ? g_pts_b3_gap[idx] : -1; }
 
 // ⚠️ 诊断面（给"诊断驱动"的开发阶段用，也留给后续 `t80` §5-NOINFO-4 那条"谁调它"的问题）：
 //   把这个 `int` 追加到 `WpfLinuxWin32_PtsGapReport()` 的行尾 ⇒ 自检红的时候**看得见是哪一格**。
