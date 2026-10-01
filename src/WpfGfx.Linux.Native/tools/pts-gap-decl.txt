@@ -31,7 +31,27 @@
 #   并**断言相等**（不等即 `rc=9` 停手 = 基底漂移），再把 `tool/dead/artifact/ops/impl`
 #   交给牙**现算对账**（不等即牙红 —— 那才是"数漂了"，与基底漂移是两回事，分开报）。
 # ══════════════════════════════════════════════════════════════════════════════════
-# PTSGAP-DECL: tool=54 dead=11 artifact=1 ops=42 impl=42 so16=3118bd1ce7d9604c exports=727 w66pre16=bf6b683d94549087
+# PTSGAP-DECL: tool=54 dead=11 artifact=1 ops=42 impl=42 so16=0e15268163bbbd71 exports=747 w66pre16=bf6b683d94549087
+#   ⚠️ 波 `T-A68` 重锚（`TASK-0307` 增量 · **LS 回调面 ＝ 第二条回调面**／`PRECOND-NEW-CALLBACK-FACE` 的**量＋面**）：
+#     native 侧在 `LoCreateContext` **窗内值化** `LsContextInfo`（前 744 B）＋ `LscbkRedefined`（24 B），登记 **28 槽**
+#     （最小入站面 `LS-CB-M1` **9 槽**；`P1-ls-callback-face-recon.md` §3／§5.1），落**逐槽只读探针**＋**一条真发调通路**
+#     （显式闸 `WPF_PTS_LSCBF_INVOKE`，**缺省关**）＋**两极化自检**；**零托管改动**、**不动任何 `PresentationNative` 入口缺口**：
+#     `exports 727→747`（**逐名 +20（本侧只读桥接／发调／自检口 `WpfLinuxWin32_PtsLscbf{Invoke,Rx,RxGap,Invokes,InvokeRejected,SlotCount,MinSlotCount,SlotName,SlotSrc,SlotOff,SlotInMin,SelfCheck,SelftestMask}` ＋
+#       `…PtsLocCbf{State,Nonzero,LayOk,Rx,Invokes,Slot}` ＋ `…PtsLocLiveCount`）**，无消失；
+#       `nm -D --defined-only` 行数 == `exports.txt` 行数 == 747；逐名 `diff` 零差异）；
+#     `tool/ops/impl/dead/artifact` **未动**（`stubs` 仍 0）；`so16 3118bd1ce7d9604c→0e15268163bbbd71`（503336→504872 B）；
+#     `w66pre16` 未动。
+#     ⚠️ **现取（真实应用腿 `after`；`~/tA68-work/legs/after/app_g1.log`）**：`[LSCBF] rx=OK … slots=28 nonzero=26
+#       min_nonzero=8/9 redef_nonzero=3 layok=1 state=VALUE` **×3** —— 托管在冷启里**真的把回调面交给本侧 3 次**，
+#       且本侧按**算出**的偏移读回与托管置值（`version=4`@+0／`cJustPriorityLim=3`@+20／`wchTab=9`@+32）**三锚全中**
+#       ⇒ 布局假设**在真数据上自证**（`layok=1`）；`nonzero=26` 与装配面（24 `contextInfo` ＋ 2 `redef`-only = 26）**逐值相符**、
+#       `min_nonzero=8/9` 与（9 槽去掉 1 个**不在结构内**的 `InlineFormat`）**相符**。
+#     ⚠️ **两极化**：`[LSCBF-SELFTEST] mask=0x0f`（值化／真发调／反极拒／闸关拒 = 4/4）；闸缺省关 ⇒ 真发调被拒
+#       （`invoke-gate-off(reverse-leg)`）；探针给 `WPF_PTS_LSCBF_INVOKE=1` ⇒ 桩被真调（`stub_calls 0→1`／`invokes=1`／
+#       被调返回值真读 `rc=0x7777`）。
+#     ⚠️ **如实划界**：本条只判「**面已在链上 ∧ 本侧可逐槽现取 ∧ 本侧可发调**」；**不**判「内容层落地」——
+#       28 槽**全为入站面**（本侧**不是作者**，`P1-ls-callback-face-recon.md` §5.1）；`InlineFormat`／`InlineDraw` 两槽
+#       **不在两入参结构内** ⇒ 本侧**不取、不冒充**（`SRC_NONE`）。
 #   ⚠️ 波 `T-A66` 重锚（`TASK-0302` 增量：**甲类 5 条**（清单出处 `T-A65` §3 第三批）——
 #     `FsDestroyPageBreakRecord`（声明 `Pts.cs:3159`；调用 `PtsContext.cs:85`／`:524`）／
 #     `FsUpdateFinitePage`（`:3118`；`PtsPage.cs:457`）／

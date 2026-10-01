@@ -4120,6 +4120,18 @@ int GetTableObjHandlerInfo(const void *pfstableobjinit, void *pTableObjectInfo)
 #define WPF_PTS_LOC_MAX    8             /* 有界分配清单（防异常调用无限增长） */
 /* ⏪ `T-A62`：`LoSetTabs`（`LineServices.cs:1478-1484`）真落盘的**制表位条数上界**（有界，防异常调用）。 */
 #define WPF_PTS_LS_TAB_MAX 32
+/* ⏪ `T-A68`：**LS 回调面（第二条回调面）**的窗口常量（`FSCBK` 式：本侧**只接收值化、只保管、只发调**，
+   **不自造**回调指针 —— 自造即红 `P3`）。
+   上游声明权威：`upstream/…/TextFormatting/LineServices.cs:803-808`（`LscbkRedefined` 3 槽）／
+   `:813-963`（`LsContextInfo`）；装配面 `LineServicesCallbacks.cs:3296-3324`（`PopulateContextInfo`）。
+   逐槽偏移见本件下方 `wpf_pts_lsci_mirror` 的**编译期实测**（`_Static_assert` 钉死）。 */
+#define WPF_PTS_LSCBF_REDEF_SIZE 24    /* `sizeof(LscbkRedefined)` = 3 × 8 B（`LineServices.cs:803-808`） */
+#define WPF_PTS_LSCBF_INFO_SIZE  744   /* `LsContextInfo` 前 744 B 窗口（含全部回调指针槽，止于 `pfnGetObjectHandlerInfo` 尾） */
+#define WPF_PTS_LSCBF_SLOT_N     28    /* 回调面槽位总数（24 `contextInfo` ＋ 2 `redef`-only ＋ 2 惰性，去重后 28 名） */
+#define WPF_PTS_LSCBF_MIN_N      9     /* 最小入站面 `LS-CB-M1`（`P1-ls-callback-face-recon.md` §5.1） */
+#define WPF_PTS_LSCBF_ST_NONE    0     /* 未值化 */
+#define WPF_PTS_LSCBF_ST_ALLZERO 1     /* 值化了但回调面全 0（合成/空表）—— **与"未值化"不同形** */
+#define WPF_PTS_LSCBF_ST_VALUE   2     /* 值化了且有非 0 槽（真实回调表） */
 typedef struct {
     unsigned int magic;
     const void  *context_info;           /* 托管给的指针，**原样存，不 deref** */
@@ -4168,6 +4180,23 @@ typedef struct {
     int          tab_ur[WPF_PTS_LS_TAB_MAX];
     int          tab_leader[WPF_PTS_LS_TAB_MAX];
     int          tab_chartab[WPF_PTS_LS_TAB_MAX];
+    /* ── ⏪ `T-A68`：**LS 回调面（第二条回调面）**的**窗内值化快照**（照 `t141` 的 `fscbk_snap` 方子）──
+       `LsContextInfo`／`LscbkRedefined` 是托管侧 `TextFormatterContext.cs:113 LoCreateContext` 传进来的
+       **入参结构**（`ref`）⇒ CLR 只保证**封送期间**地址有效，返回后可能搬移 ⇒ **必须值拷贝**，
+       不许跨调用存指针（`t141` §判据 1 三条现取）。本侧把 `LscbkRedefined`（24 B）＋ `LsContextInfo`
+       前 744 B 那一段（含全部回调指针槽）**逐字节拷进本对象**；调用返回后仍可独立读取。
+       ⚠️ 语义边界（如实划界）：这些 8 B 是**封送后的函数指针**（LS 回调槽）；本侧**只给值**、
+       **不 deref**、**不代它断言"是哪个回调"**，也**不**主张"该槽可安全调用"。 */
+    unsigned char cbf_redef[WPF_PTS_LSCBF_REDEF_SIZE];   /* `LscbkRedefined` 的逐字节副本 */
+    unsigned char cbf_info[WPF_PTS_LSCBF_INFO_SIZE];     /* `LsContextInfo` 前 744 B 的逐字节副本 */
+    const void   *cbf_slot[WPF_PTS_LSCBF_SLOT_N];        /* **逐槽值**（未解槽／不在两结构内 ⇒ NULL） */
+    int           cbf_redef_nonzero;                     /* `cbf_redef` 里**非 0** 的 8 B 字数（0..3） */
+    int           cbf_slot_nonzero;                      /* 28 槽里**非 0** 的槽数（0..28） */
+    int           cbf_state;                             /* `WPF_PTS_LSCBF_ST_{NONE,ALLZERO,VALUE}` */
+    int           cbf_layok;                             /* 布局自证：托管置值对拍（`version==4 ∧ cJustPriorityLim==3 ∧ wchTab==9`） */
+    int           cbf_rx;                                /* 本对象上**值化成功**次数 */
+    int           cbf_invokes;                           /* 本对象上**真发调**（本侧真的调了某槽的函数指针）次数 */
+    int           cbf_inv_rej;                           /* 本对象上发调**被拒**次数 */
 } wpf_pts_loc;
 
 static wpf_pts_loc *g_pts_loc_live[WPF_PTS_LOC_MAX];
@@ -4175,6 +4204,16 @@ static int g_pts_loc_live_n   = 0;       /* 活上下文数（**泄漏检查的�
 static int g_pts_loc_creates  = 0;
 static int g_pts_loc_destroys = 0;
 static int g_pts_loc_rejected = 0;       /* 被拒的销毁请求（空/未知/重复/魔数不符） */
+
+/* ⏪ `T-A68`：LS 回调面**值化**助手（定义在本文件下方 `wpf_pts_lsci_mirror` 之后；此处先给前向声明，
+   因为 `LoCreateContext`（↓）比它早）。窗内**只读**入参结构、**逐字节拷贝**、**零托管改动**。 */
+static void wpf_pts_lscbf_snapshot(wpf_pts_loc *c, const void *info, const void *redef);
+/* `T-A68` 进程级读数：LS 回调面**被托管交付**的次数（＝`LoCreateContext` 收到真实回调面的次数）＋
+   值化失败（响亮拒绝）次数。两者都**只增**，供探针/判据现取（`g_pts_lscbf_rx` 0↔>0 是"面真的来了"的证据）。 */
+static int g_pts_lscbf_rx     = 0;
+static int g_pts_lscbf_rx_gap = 0;
+static int g_pts_lscbf_invokes  = 0;     /* 进程级：真发调次数 */
+static int g_pts_lscbf_inv_rej  = 0;     /* 进程级：发调被拒次数 */
 
 // ── 格 3（`TASK-0302` 第 3 个真增量 · 车道 `t81`／波 W13）：`LoSetDoc` / `LoSetBreaking` ──
 // 【为什么先补这两条（取证在前）】应用冷启链 `PtsCache.Linux.cs:532` → `TextFormatterContext.Init()`：
@@ -4245,6 +4284,9 @@ int LoCreateContext(const void *lscontextinfo, const void *lscbkRedef, void **pl
     c->magic        = WPF_PTS_LOC_MAGIC;
     c->context_info = lscontextinfo;                         /* 原样存，不 deref */
     c->lscbk_redef  = lscbkRedef;
+    /* ⏪ `T-A68`：**窗内值化** LS 回调面（`LsContextInfo`／`LscbkRedefined`）—— 只读拷贝，见上方字段注释。
+       两个入参任一为 NULL ⇒ 值化失败（响亮记 gap；本侧**不**据空面给任何"可用"读）。 */
+    wpf_pts_lscbf_snapshot(c, lscontextinfo, lscbkRedef);
     g_pts_loc_live[g_pts_loc_live_n++] = c;
     g_pts_loc_creates++;
     { int _i = wpf_pts_index("LoCreateContext"); if (_i >= 0) g_pts_seen[_i]++; }  /* 格3：真实现也记"被问过" */
@@ -4879,6 +4921,356 @@ int WpfLinuxWin32_PtsLocTabEntry(int idx, int i, int what)
         default: return -1;
     }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════════════════════════
+   ⏪ `T-A68`（`TASK-0307` 增量 · **LS 回调面 ＝ 第二条回调面**）—— native 侧**接收／值化／逐槽观测／真发调**
+   ──────────────────────────────────────────────────────────────────────────────────────────────
+   【本块做什么】`LineServices` 的回调面 ＝ **28 槽**（`LsContextInfo` 24 槽 ＋ `LscbkRedefined` 3 槽 ＋
+   惰性 2 槽；去重后 28 名；最小入站面 `LS-CB-M1` **9 槽**，`P1-ls-callback-face-recon.md` §3／§5.1）。
+   本块把它从"托管交付、本侧从不看"变成：**窗内值化快照（`LoCreateContext` 内）＋ 逐槽只读探针 ＋
+   一条真发调通路 ＋ 两极化自检**。照 `t141` 的 `FSCBK` 方子（窗内值拷贝、只读、零托管改动）。
+
+   【诚实边界（逐条，不许读宽）】
+     · 这 28 槽**全是"向宿主取"**（`P1-ls-callback-face-recon.md` §5.1：9 槽无一槽本侧能作**作者**）⇒
+       本侧**只保管函数指针、只发调**，**绝不自造**（自造即红 `P3`／`P8`）。`InlineFormat`／`InlineDraw`
+       两槽**不在两个入参结构内**（经 `pfnGetObjectHandlerInfo` 惰性取）⇒ 本侧**不取、不冒充**（`SRC_NONE`）。
+     · 值化窗口 ＝ `LsContextInfo` 前 744 B ＋ `LscbkRedefined` 24 B；**逐字节拷贝**（`t141` §判据 1：
+       入参是托管 `ref` 结构 ⇒ 只能值拷贝，不许跨调用存指针）。
+     · **触发性**：本侧**不在产品路径主动发调任何真实回调**（无 LS 引擎语义；乱调必撞
+       `Invariant.FailFast`）⇒ 真发调走**显式闸** `WPF_PTS_LSCBF_INVOKE`（**缺省关**，承硬边界
+       「新增闸缺省关」）；两极化自检只用**本侧自造桩**，读数具名标 `fixture`。
+   ══════════════════════════════════════════════════════════════════════════════════════════════ */
+
+/* ── 入参结构**镜像**（只用于编译期偏移实测/钉死；本侧**不 deref 托管表**）──────────────────────
+   字段序/类型逐字照 `upstream/…/TextFormatting/LineServices.cs:803-963`（`char`＝`System.Char`＝2 B；
+   顺序布局、默认 pack）。断言即"偏移假设自证"：镜像算出的偏移若与代码里写死的常量不符 ⇒ **编译期即红**。 */
+typedef struct { const void *pfnFetchRunRedefined, *pfnGetGlyphsRedefined, *pfnFetchLineProps; }
+        wpf_pts_lscbkredef_mirror;
+_Static_assert(sizeof(wpf_pts_lscbkredef_mirror) == WPF_PTS_LSCBF_REDEF_SIZE, "sizeof(LscbkRedefined) != 24（3×8）");
+_Static_assert(offsetof(wpf_pts_lscbkredef_mirror, pfnFetchRunRedefined)  == 0,  "redef.pfnFetchRunRedefined  != +0");
+_Static_assert(offsetof(wpf_pts_lscbkredef_mirror, pfnGetGlyphsRedefined) == 8,  "redef.pfnGetGlyphsRedefined != +8");
+_Static_assert(offsetof(wpf_pts_lscbkredef_mirror, pfnFetchLineProps)     == 16, "redef.pfnFetchLineProps    != +16");
+
+typedef struct {
+    unsigned int version; int cInstalledHandlers; const void *plsimethods;                 /* +0/+4/+8 */
+    int cEstimatedCharsPerLine; int cJustPriorityLim;                                      /* +16/+20 */
+    unsigned short wch[46];                                                                /* +24..+116 */
+    const void *pols;                                                                      /* +120 */
+    const void *pfnNewPtr, *pfnDisposePtr, *pfnReallocPtr, *pfnFetchRun,
+        *pfnGetAutoNumberInfo, *pfnGetNumericSeparators, *pfnCheckForDigit, *pfnFetchPap,
+        *pfnFetchLineProps, *pfnFetchTabs, *pfnReleaseTabsBuffer, *pfnGetBreakThroughTab,
+        *pfnGetPosTabProps, *pfnFGetLastLineJustification, *pfnCheckParaBoundaries, *pfnGetRunCharWidths,
+        *pfnCheckRunKernability, *pfnGetRunCharKerning, *pfnGetRunTextMetrics, *pfnGetRunUnderlineInfo,
+        *pfnGetRunStrikethroughInfo, *pfnGetBorderInfo, *pfnReleaseRun, *pfnReleaseRunBuffer,
+        *pfnHyphenate, *pfnGetPrevHyphenOpp, *pfnGetNextHyphenOpp, *pfnGetHyphenInfo,
+        *pfnDrawUnderline, *pfnDrawStrikethrough, *pfnDrawBorder, *pfnFInterruptUnderline,
+        *pfnFInterruptShade, *pfnFInterruptBorder, *pfnShadeRectangle, *pfnDrawTextRun,
+        *pfnDrawSplatLine, *pfnFInterruptShaping, *pfnGetGlyphs, *pfnGetGlyphPositions,
+        *pfnDrawGlyphs, *pfnReleaseGlyphBuffers, *pfnGetGlyphExpansionInfo, *pfnGetGlyphExpansionInkInfo,
+        *pfnGetGlyphRunInk, *pfnGetEms, *pfnPunctStartLine, *pfnModWidthOnRun,
+        *pfnModWidthSpace, *pfnCompOnRun, *pfnCompWidthSpace, *pfnExpOnRun,
+        *pfnExpWidthSpace, *pfnGetModWidthClasses, *pfnGetBreakingClasses, *pfnFTruncateBefore,
+        *pfnCanBreakBeforeChar, *pfnCanBreakAfterChar, *pfnFHangingPunct, *pfnGetSnapGrid,
+        *pfnDrawEffects, *pfnFCancelHangingPunct, *pfnModifyCompAtLastChar, *pfnGetDurMaxExpandRagged,
+        *pfnGetCharExpansionInfoFullMixed, *pfnGetGlyphExpansionInfoFullMixed, *pfnGetCharCompressionInfoFullMixed,
+        *pfnGetGlyphCompressionInfoFullMixed, *pfnGetCharAlignmentStartLine, *pfnGetCharAlignmentEndLine,
+        *pfnGetGlyphAlignmentStartLine, *pfnGetGlyphAlignmentEndLine, *pfnGetPriorityForGoodTypography,
+        *pfnEnumText, *pfnEnumTab, *pfnEnumPen, *pfnGetObjectHandlerInfo, *pfnAssertFailedPtr;   /* +128..+744 */
+    int fDontReleaseRuns;                                                                  /* +752 */
+} wpf_pts_lsci_mirror;
+_Static_assert(sizeof(wpf_pts_lsci_mirror) == 760, "sizeof(LsContextInfo) != 760（镜像自洽）");
+_Static_assert(offsetof(wpf_pts_lsci_mirror, version)            == 0,   "LsContextInfo.version            != +0");
+_Static_assert(offsetof(wpf_pts_lsci_mirror, cJustPriorityLim)   == 20,  "LsContextInfo.cJustPriorityLim   != +20");
+_Static_assert(offsetof(wpf_pts_lsci_mirror, wch)                == 24,  "LsContextInfo.wch                != +24");
+_Static_assert(offsetof(wpf_pts_lsci_mirror, pols)               == 120, "LsContextInfo.pols               != +120");
+_Static_assert(offsetof(wpf_pts_lsci_mirror, pfnGetAutoNumberInfo)      == 160, "pfnGetAutoNumberInfo      != +160");
+_Static_assert(offsetof(wpf_pts_lsci_mirror, pfnFetchPap)               == 184, "pfnFetchPap               != +184");
+_Static_assert(offsetof(wpf_pts_lsci_mirror, pfnFetchLineProps)         == 192, "pfnFetchLineProps         != +192");
+_Static_assert(offsetof(wpf_pts_lsci_mirror, pfnGetRunCharWidths)       == 248, "pfnGetRunCharWidths       != +248");
+_Static_assert(offsetof(wpf_pts_lsci_mirror, pfnGetRunTextMetrics)      == 272, "pfnGetRunTextMetrics      != +272");
+_Static_assert(offsetof(wpf_pts_lsci_mirror, pfnGetRunUnderlineInfo)    == 280, "pfnGetRunUnderlineInfo    != +280");
+_Static_assert(offsetof(wpf_pts_lsci_mirror, pfnGetRunStrikethroughInfo)== 288, "pfnGetRunStrikethroughInfo!= +288");
+_Static_assert(offsetof(wpf_pts_lsci_mirror, pfnHyphenate)              == 320, "pfnHyphenate              != +320");
+_Static_assert(offsetof(wpf_pts_lsci_mirror, pfnGetPrevHyphenOpp)       == 328, "pfnGetPrevHyphenOpp       != +328");
+_Static_assert(offsetof(wpf_pts_lsci_mirror, pfnGetNextHyphenOpp)       == 336, "pfnGetNextHyphenOpp       != +336");
+_Static_assert(offsetof(wpf_pts_lsci_mirror, pfnDrawUnderline)          == 352, "pfnDrawUnderline          != +352");
+_Static_assert(offsetof(wpf_pts_lsci_mirror, pfnDrawStrikethrough)      == 360, "pfnDrawStrikethrough      != +360");
+_Static_assert(offsetof(wpf_pts_lsci_mirror, pfnDrawTextRun)            == 408, "pfnDrawTextRun            != +408");
+_Static_assert(offsetof(wpf_pts_lsci_mirror, pfnFInterruptShaping)      == 424, "pfnFInterruptShaping      != +424");
+_Static_assert(offsetof(wpf_pts_lsci_mirror, pfnGetGlyphPositions)      == 440, "pfnGetGlyphPositions      != +440");
+_Static_assert(offsetof(wpf_pts_lsci_mirror, pfnDrawGlyphs)             == 448, "pfnDrawGlyphs             != +448");
+_Static_assert(offsetof(wpf_pts_lsci_mirror, pfnGetDurMaxExpandRagged)  == 632, "pfnGetDurMaxExpandRagged  != +632");
+_Static_assert(offsetof(wpf_pts_lsci_mirror, pfnGetCharExpansionInfoFullMixed)    == 640, "pfnGetCharExpansionInfoFullMixed    != +640");
+_Static_assert(offsetof(wpf_pts_lsci_mirror, pfnGetGlyphExpansionInfoFullMixed)   == 648, "pfnGetGlyphExpansionInfoFullMixed   != +648");
+_Static_assert(offsetof(wpf_pts_lsci_mirror, pfnGetCharCompressionInfoFullMixed)  == 656, "pfnGetCharCompressionInfoFullMixed  != +656");
+_Static_assert(offsetof(wpf_pts_lsci_mirror, pfnGetGlyphCompressionInfoFullMixed) == 664, "pfnGetGlyphCompressionInfoFullMixed != +664");
+_Static_assert(offsetof(wpf_pts_lsci_mirror, pfnEnumText)               == 712, "pfnEnumText               != +712");
+_Static_assert(offsetof(wpf_pts_lsci_mirror, pfnEnumTab)                == 720, "pfnEnumTab                != +720");
+_Static_assert(offsetof(wpf_pts_lsci_mirror, pfnGetObjectHandlerInfo)   == 736, "pfnGetObjectHandlerInfo   != +736");
+_Static_assert(WPF_PTS_LSCBF_INFO_SIZE == 744, "回调面窗口长 != 744（含全部回调指针槽）");
+_Static_assert(WPF_PTS_LSCBF_INFO_SIZE <= sizeof(wpf_pts_lsci_mirror), "窗口越出 LsContextInfo");
+
+/* ── 28 槽登记表（逐槽：名／所在结构／偏移／是否属最小入站面 `LS-CB-M1`）──────────────────────────
+   槽序/归属照 `P1-ls-callback-face-recon.md` §3 全表 ＋ `LineServicesCallbacks.cs:3296-3324` 装配面。 */
+#define WPF_PTS_LSCBF_SRC_INFO  0    /* 在 `LsContextInfo` 内 */
+#define WPF_PTS_LSCBF_SRC_REDEF 1    /* 在 `LscbkRedefined` 内 */
+#define WPF_PTS_LSCBF_SRC_NONE  2    /* **不在两个入参结构内**（惰性属性；本侧**不取、不冒充**） */
+typedef struct { const char *name; int src; int off; int in_min; } wpf_pts_lscbf_slot_t;
+static const wpf_pts_lscbf_slot_t k_pts_lscbf_slots[WPF_PTS_LSCBF_SLOT_N] = {
+    { "FetchPap",                         WPF_PTS_LSCBF_SRC_INFO,  184, 1 },
+    { "FetchLineProps",                   WPF_PTS_LSCBF_SRC_INFO,  192, 1 },
+    { "FetchRunRedefined",                WPF_PTS_LSCBF_SRC_REDEF,   0, 1 },
+    { "GetRunTextMetrics",                WPF_PTS_LSCBF_SRC_INFO,  272, 1 },
+    { "GetRunCharWidths",                 WPF_PTS_LSCBF_SRC_INFO,  248, 1 },
+    { "GetDurMaxExpandRagged",            WPF_PTS_LSCBF_SRC_INFO,  632, 0 },
+    { "DrawTextRun",                      WPF_PTS_LSCBF_SRC_INFO,  408, 0 },
+    { "FInterruptShaping",                WPF_PTS_LSCBF_SRC_INFO,  424, 0 },
+    { "GetRunUnderlineInfo",              WPF_PTS_LSCBF_SRC_INFO,  280, 0 },
+    { "GetRunStrikethroughInfo",          WPF_PTS_LSCBF_SRC_INFO,  288, 0 },
+    { "Hyphenate",                        WPF_PTS_LSCBF_SRC_INFO,  320, 0 },
+    { "GetNextHyphenOpp",                 WPF_PTS_LSCBF_SRC_INFO,  336, 0 },
+    { "GetPrevHyphenOpp",                 WPF_PTS_LSCBF_SRC_INFO,  328, 0 },
+    { "GetAutoNumberInfo",                WPF_PTS_LSCBF_SRC_INFO,  160, 0 },
+    { "DrawUnderline",                    WPF_PTS_LSCBF_SRC_INFO,  352, 0 },
+    { "DrawStrikethrough",                WPF_PTS_LSCBF_SRC_INFO,  360, 0 },
+    { "GetGlyphsRedefined",               WPF_PTS_LSCBF_SRC_REDEF,   8, 1 },
+    { "GetGlyphPositions",                WPF_PTS_LSCBF_SRC_INFO,  440, 1 },
+    { "DrawGlyphs",                       WPF_PTS_LSCBF_SRC_INFO,  448, 0 },
+    { "EnumText",                         WPF_PTS_LSCBF_SRC_INFO,  712, 0 },
+    { "EnumTab",                          WPF_PTS_LSCBF_SRC_INFO,  720, 1 },
+    { "GetCharCompressionInfoFullMixed",  WPF_PTS_LSCBF_SRC_INFO,  656, 0 },
+    { "GetCharExpansionInfoFullMixed",    WPF_PTS_LSCBF_SRC_INFO,  640, 0 },
+    { "GetGlyphCompressionInfoFullMixed", WPF_PTS_LSCBF_SRC_INFO,  664, 0 },
+    { "GetGlyphExpansionInfoFullMixed",   WPF_PTS_LSCBF_SRC_INFO,  648, 0 },
+    { "GetObjectHandlerInfo",             WPF_PTS_LSCBF_SRC_INFO,  736, 0 },
+    { "InlineFormat",                     WPF_PTS_LSCBF_SRC_NONE,   -1, 1 },
+    { "InlineDraw",                       WPF_PTS_LSCBF_SRC_NONE,   -1, 0 },
+};
+_Static_assert(sizeof(k_pts_lscbf_slots) / sizeof(k_pts_lscbf_slots[0]) == WPF_PTS_LSCBF_SLOT_N,
+               "登记表条数 != 28");
+
+/* ── 窗内**值化**（`LoCreateContext` 内调；只读入参结构、逐字节拷贝）──────────────────────────── */
+static void wpf_pts_lscbf_snapshot(wpf_pts_loc *c, const void *info, const void *redef)
+{
+    if (!c) return;
+    if (!info || !redef) {
+        g_pts_lscbf_rx_gap++;
+        fprintf(stderr, "[LSCBF] rx=GAP reason=%s ploc=%p info=%p redef=%p out=UNWRITTEN bytes=0\n",
+                !info ? "null-context-info" : "null-lscbk-redef", (void *)c, info, redef);
+        return;
+    }
+    memcpy(c->cbf_redef, redef, WPF_PTS_LSCBF_REDEF_SIZE);
+    memcpy(c->cbf_info,  info,  WPF_PTS_LSCBF_INFO_SIZE);
+    int nz = 0, minnz = 0;
+    for (int i = 0; i < WPF_PTS_LSCBF_SLOT_N; i++) {
+        const wpf_pts_lscbf_slot_t *s = &k_pts_lscbf_slots[i];
+        const void *v = NULL;
+        if (s->src == WPF_PTS_LSCBF_SRC_INFO && s->off >= 0 && (size_t)s->off + 8 <= WPF_PTS_LSCBF_INFO_SIZE)
+            memcpy(&v, c->cbf_info  + s->off, 8);
+        else if (s->src == WPF_PTS_LSCBF_SRC_REDEF && s->off >= 0 && (size_t)s->off + 8 <= WPF_PTS_LSCBF_REDEF_SIZE)
+            memcpy(&v, c->cbf_redef + s->off, 8);
+        c->cbf_slot[i] = v;
+        if (v) { nz++; if (s->in_min) minnz++; }
+    }
+    int rnz = 0;
+    for (int k = 0; k < WPF_PTS_LSCBF_REDEF_SIZE / 8; k++) { const void *v = NULL; memcpy(&v, c->cbf_redef + k * 8, 8); if (v) rnz++; }
+    c->cbf_redef_nonzero = rnz;
+    c->cbf_slot_nonzero  = nz;
+    c->cbf_state = (nz > 0) ? WPF_PTS_LSCBF_ST_VALUE : WPF_PTS_LSCBF_ST_ALLZERO;
+    /* 布局自证（**非恒真**）：托管 `TextFormatterContext.cs:51/60/65` 对这三处**真置值**
+       （`version=4`@+0 ／ `cJustPriorityLim=3`@+20 ／ `wchTab='\u0009'=9`@+32）⇒ 本侧读回对拍；
+       偏移若错 ⇒ **必不等** ⇒ `layok=0`（如实）。 */
+    { unsigned int ver = 0; int jpl = 0; unsigned short wt = 0;
+      memcpy(&ver, c->cbf_info + 0, 4); memcpy(&jpl, c->cbf_info + 20, 4); memcpy(&wt, c->cbf_info + 32, 2);
+      c->cbf_layok = (ver == 4u && jpl == 3 && wt == 9u) ? 1 : 0; }
+    c->cbf_rx++;
+    g_pts_lscbf_rx++;
+    fprintf(stderr, "[LSCBF] rx=OK ploc=%p slots=%d nonzero=%d min_nonzero=%d/%d redef_nonzero=%d layok=%d "
+                    "state=%s v=LS-CALLBACK-FACE-SNAPSHOTTED\n",
+            (void *)c, WPF_PTS_LSCBF_SLOT_N, nz, minnz, WPF_PTS_LSCBF_MIN_N, rnz, c->cbf_layok,
+            c->cbf_state == WPF_PTS_LSCBF_ST_VALUE ? "VALUE" : "ALLZERO");
+}
+
+/* ── 真发调（本侧真的调用某槽的函数指针）────────────────────────────────────────────────────
+   ⚠️ 只对**本侧已值化且槽非空**的槽发调；未知句柄／越界槽／空槽一律拒（出参一字不写）。
+   ⚠️ 承重守卫：**缺省关**（`WPF_PTS_LSCBF_INVOKE`，硬边界「新增闸缺省关」）—— 产品路径零行为改动；
+      只有显式给 `WPF_PTS_LSCBF_INVOKE=1` 才放行（供两极化腿/探针）。 */
+static int g_pts_lscbf_invoke_gate = -1;   /* -1 = 未读；0/1 = env 求值结果 */
+static int wpf_pts_lscbf_gate(void)
+{
+    if (g_pts_lscbf_invoke_gate < 0) {
+        const char *e = getenv("WPF_PTS_LSCBF_INVOKE");
+        g_pts_lscbf_invoke_gate = (e && e[0] && e[0] != '0') ? 1 : 0;   /* **缺省关** */
+    }
+    return g_pts_lscbf_invoke_gate;
+}
+typedef int (*wpf_pts_lscbf_fn)(const void *, const void *, const void *, const void *);
+/* 发调核心（**唯一**真调用点；闸由导出入口把） */
+static int wpf_pts_lscbf_invoke(wpf_pts_loc *c, int slot, const void *a0, const void *a1, const void *a2, const void *a3)
+{
+    const void *fp = c->cbf_slot[slot];
+    int rc = ((wpf_pts_lscbf_fn)fp)(a0, a1, a2, a3);   /* 同 `T-A56` 的 `pfnFormatCellFinite` 体例 */
+    c->cbf_invokes++; g_pts_lscbf_invokes++;
+    return rc;
+}
+/* 导出：真发调某槽。成功 ⇒ 返回**被调回调的返回值**（真值，非伪造）；任一失败 ⇒ `-10000` ＋具名行。 */
+int WpfLinuxWin32_PtsLscbfInvoke(void *ploc, int slot, const void *a0, const void *a1, const void *a2, const void *a3)
+{
+    wpf_pts_loc *c = wpf_pts_loc_find(ploc);
+    if (!wpf_pts_lscbf_gate()) {
+        g_pts_lscbf_inv_rej++; if (c) c->cbf_inv_rej++;
+        fprintf(stderr, "[LSCBF] invoke=REJECT reason=invoke-gate-off(reverse-leg) ploc=%p slot=%d out=UNWRITTEN bytes=0\n",
+                ploc, slot);
+        return WPF_PTS_ERR_NOT_IMPLEMENTED;
+    }
+    if (!c) {
+        g_pts_lscbf_inv_rej++;
+        fprintf(stderr, "[LSCBF] invoke=REJECT reason=unknown-context ploc=%p slot=%d out=UNWRITTEN bytes=0\n", ploc, slot);
+        return WPF_PTS_ERR_NOT_IMPLEMENTED;
+    }
+    if (slot < 0 || slot >= WPF_PTS_LSCBF_SLOT_N) {
+        g_pts_lscbf_inv_rej++; c->cbf_inv_rej++;
+        fprintf(stderr, "[LSCBF] invoke=REJECT reason=slot-out-of-range ploc=%p slot=%d out=UNWRITTEN bytes=0\n", ploc, slot);
+        return WPF_PTS_ERR_NOT_IMPLEMENTED;
+    }
+    if (!c->cbf_slot[slot]) {
+        g_pts_lscbf_inv_rej++; c->cbf_inv_rej++;
+        fprintf(stderr, "[LSCBF] invoke=REJECT reason=null-slot ploc=%p slot=%d name=%s out=UNWRITTEN bytes=0\n",
+                ploc, slot, k_pts_lscbf_slots[slot].name);
+        return WPF_PTS_ERR_NOT_IMPLEMENTED;
+    }
+    int rc = wpf_pts_lscbf_invoke(c, slot, a0, a1, a2, a3);
+    fprintf(stderr, "[LSCBF] invoke=OK ploc=%p slot=%d name=%s rc=%d invokes=%d\n",
+            ploc, slot, k_pts_lscbf_slots[slot].name, rc, c->cbf_invokes);
+    return rc;                                            /* ← 改成常量就是制造静默半通 */
+}
+
+/* ── 只读桥接（供探针/判据现取；纯读、越界即响亮返回哨兵）────────────────────────────────────── */
+int WpfLinuxWin32_PtsLscbfRx(void)              { return g_pts_lscbf_rx; }
+int WpfLinuxWin32_PtsLscbfRxGap(void)           { return g_pts_lscbf_rx_gap; }
+int WpfLinuxWin32_PtsLscbfInvokes(void)         { return g_pts_lscbf_invokes; }
+int WpfLinuxWin32_PtsLscbfInvokeRejected(void)  { return g_pts_lscbf_inv_rej; }
+int WpfLinuxWin32_PtsLscbfSlotCount(void)       { return WPF_PTS_LSCBF_SLOT_N; }
+int WpfLinuxWin32_PtsLscbfMinSlotCount(void)    { return WPF_PTS_LSCBF_MIN_N; }
+const char *WpfLinuxWin32_PtsLscbfSlotName(int slot)
+{ return (slot >= 0 && slot < WPF_PTS_LSCBF_SLOT_N) ? k_pts_lscbf_slots[slot].name : NULL; }
+int WpfLinuxWin32_PtsLscbfSlotSrc(int slot)
+{ return (slot >= 0 && slot < WPF_PTS_LSCBF_SLOT_N) ? k_pts_lscbf_slots[slot].src : -1; }
+int WpfLinuxWin32_PtsLscbfSlotOff(int slot)
+{ return (slot >= 0 && slot < WPF_PTS_LSCBF_SLOT_N) ? k_pts_lscbf_slots[slot].off : -2; }
+int WpfLinuxWin32_PtsLscbfSlotInMin(int slot)
+{ return (slot >= 0 && slot < WPF_PTS_LSCBF_SLOT_N) ? k_pts_lscbf_slots[slot].in_min : -1; }
+int WpfLinuxWin32_PtsLocCbfState(int idx)
+{ if (idx < 0 || idx >= g_pts_loc_live_n) return -1; wpf_pts_loc *c = g_pts_loc_live[idx];
+  return (c && c->magic == WPF_PTS_LOC_MAGIC) ? c->cbf_state : -1; }
+int WpfLinuxWin32_PtsLocCbfNonzero(int idx)
+{ if (idx < 0 || idx >= g_pts_loc_live_n) return -1; wpf_pts_loc *c = g_pts_loc_live[idx];
+  if (!c || c->magic != WPF_PTS_LOC_MAGIC || c->cbf_state == WPF_PTS_LSCBF_ST_NONE) return -1;
+  return c->cbf_slot_nonzero; }
+int WpfLinuxWin32_PtsLocCbfLayOk(int idx)
+{ if (idx < 0 || idx >= g_pts_loc_live_n) return -1; wpf_pts_loc *c = g_pts_loc_live[idx];
+  return (c && c->magic == WPF_PTS_LOC_MAGIC) ? c->cbf_layok : -1; }
+int WpfLinuxWin32_PtsLocCbfRx(int idx)
+{ if (idx < 0 || idx >= g_pts_loc_live_n) return -1; wpf_pts_loc *c = g_pts_loc_live[idx];
+  return (c && c->magic == WPF_PTS_LOC_MAGIC) ? c->cbf_rx : -1; }
+int WpfLinuxWin32_PtsLocCbfInvokes(int idx)
+{ if (idx < 0 || idx >= g_pts_loc_live_n) return -1; wpf_pts_loc *c = g_pts_loc_live[idx];
+  return (c && c->magic == WPF_PTS_LOC_MAGIC) ? c->cbf_invokes : -1; }
+const void *WpfLinuxWin32_PtsLocCbfSlot(int idx, int slot)
+{ if (idx < 0 || idx >= g_pts_loc_live_n) return NULL; wpf_pts_loc *c = g_pts_loc_live[idx];
+  if (!c || c->magic != WPF_PTS_LOC_MAGIC) return NULL;
+  if (slot < 0 || slot >= WPF_PTS_LSCBF_SLOT_N) return NULL;
+  return c->cbf_slot[slot]; }
+int WpfLinuxWin32_PtsLocLiveCount(void) { return g_pts_loc_live_n; }
+
+/* ── 两极化自检（**正极真值 ∧ 反极必拒**；纯 native，只用本侧自造夹具，不碰应用状态）──────────────
+   夹具＝本侧自造的 `LsContextInfo`／`LscbkRedefined` 镜像 ＋ **本侧自造桩**（读数具名标 `fixture`）。
+   bit0＝值化成功（state=`VALUE` ∧ `layok=1` ∧ 抽检槽值对拍相符）；
+   bit1＝**真发调**成功（桩被真调、返回值被真读、`invokes` 涨 0→>0）；
+   bit2＝反极必拒（未知句柄／越界槽／空槽 ⇒ `-10000`）；
+   bit3＝闸关必拒（`gate=0` ⇒ `-10000`）。
+   **-1** ＝ 夹具自身失败（分配/建上下文失败 ⇒ **不算绿**）。 */
+static int g_pts_lscbf_stub_calls[4] = { 0, 0, 0, 0 };
+static int wpf_pts_lscbf_stub0(const void *a, const void *b, const void *c, const void *d) { (void)a;(void)b;(void)c;(void)d; g_pts_lscbf_stub_calls[0]++; return 0x6801; }
+static int wpf_pts_lscbf_stub1(const void *a, const void *b, const void *c, const void *d) { (void)a;(void)b;(void)c;(void)d; g_pts_lscbf_stub_calls[1]++; return 0x6802; }
+static int wpf_pts_lscbf_stub2(const void *a, const void *b, const void *c, const void *d) { (void)a;(void)b;(void)c;(void)d; g_pts_lscbf_stub_calls[2]++; return 0x6803; }
+static int wpf_pts_lscbf_stub3(const void *a, const void *b, const void *c, const void *d) { (void)a;(void)b;(void)c;(void)d; g_pts_lscbf_stub_calls[3]++; return 0x6804; }
+
+int WpfLinuxWin32_PtsLscbfSelfCheck(void)
+{
+    int save_loc_creates = g_pts_loc_creates, save_rx = g_pts_lscbf_rx, save_gap = g_pts_lscbf_rx_gap;
+    int save_inv = g_pts_lscbf_invokes, save_rej = g_pts_lscbf_inv_rej;
+    int save_gate = g_pts_lscbf_invoke_gate;
+    int save_stub[4]; for (int i = 0; i < 4; i++) save_stub[i] = g_pts_lscbf_stub_calls[i];
+    int lidx = wpf_pts_index("LoCreateContext");
+    int save_seen = (lidx >= 0) ? g_pts_seen[lidx] : 0;
+    int base_loc = g_pts_loc_live_n;
+    int mask = 0;
+    if (base_loc + 1 > WPF_PTS_LOC_MAX) return -1;
+
+    unsigned char info[WPF_PTS_LSCBF_INFO_SIZE], redef[WPF_PTS_LSCBF_REDEF_SIZE];
+    memset(info, 0, sizeof(info)); memset(redef, 0, sizeof(redef));
+    { unsigned int ver = 4u; int jpl = 3; unsigned short wt = 9u;         /* 托管置值三锚（布局自证） */
+      memcpy(info + 0, &ver, 4); memcpy(info + 20, &jpl, 4); memcpy(info + 32, &wt, 2); }
+    { const void *p;                                                        /* 抽检槽塞桩 */
+      p = (const void *)&wpf_pts_lscbf_stub0; memcpy(info + 184, &p, 8);   /* slot 0  FetchPap        */
+      p = (const void *)&wpf_pts_lscbf_stub1; memcpy(info + 272, &p, 8);   /* slot 3  GetRunTextMetrics*/
+      p = (const void *)&wpf_pts_lscbf_stub2; memcpy(info + 720, &p, 8);   /* slot 20 EnumTab         */
+      p = (const void *)&wpf_pts_lscbf_stub3; memcpy(redef + 0, &p, 8); }  /* slot 2  FetchRunRedefined*/
+
+    void *ploc = NULL;
+    if (LoCreateContext(info, redef, &ploc) != 0 || !ploc) return -1;
+    wpf_pts_loc *c = wpf_pts_loc_find(ploc);
+    if (!c) return -1;
+
+    /* bit0：值化成功 ＋ 布局自证 ＋ 抽检槽值对拍 */
+    {
+        int ok = (c->cbf_state == WPF_PTS_LSCBF_ST_VALUE) && (c->cbf_layok == 1) &&
+                 (c->cbf_slot[0]  == (const void *)&wpf_pts_lscbf_stub0) &&
+                 (c->cbf_slot[3]  == (const void *)&wpf_pts_lscbf_stub1) &&
+                 (c->cbf_slot[20] == (const void *)&wpf_pts_lscbf_stub2) &&
+                 (c->cbf_slot[2]  == (const void *)&wpf_pts_lscbf_stub3) &&
+                 (c->cbf_slot[26] == NULL) &&            /* 惰性槽本侧不取 ⇒ NULL（如实划界） */
+                 (c->cbf_redef_nonzero == 1) && (c->cbf_slot_nonzero == 4);
+        if (ok) mask |= 1 << 0;
+    }
+    /* bit1：真发调（桩被真调、返回值被真读） */
+    {
+        g_pts_lscbf_invoke_gate = 1;                    /* 临时放行（自检专用） */
+        int before = g_pts_lscbf_stub_calls[0];
+        int rc = WpfLinuxWin32_PtsLscbfInvoke(ploc, 0, NULL, NULL, NULL, NULL);
+        int ok = (rc == 0x6801) && (g_pts_lscbf_stub_calls[0] == before + 1) && (c->cbf_invokes == 1);
+        if (ok) mask |= 1 << 1;
+    }
+    /* bit2：反极必拒（未知句柄／越界槽／空槽） */
+    {
+        int ok = (WpfLinuxWin32_PtsLscbfInvoke((void *)0xdead, 0, NULL, NULL, NULL, NULL) == WPF_PTS_ERR_NOT_IMPLEMENTED) &&
+                 (WpfLinuxWin32_PtsLscbfInvoke(ploc, WPF_PTS_LSCBF_SLOT_N, NULL, NULL, NULL, NULL) == WPF_PTS_ERR_NOT_IMPLEMENTED) &&
+                 (WpfLinuxWin32_PtsLscbfInvoke(ploc, 26, NULL, NULL, NULL, NULL) == WPF_PTS_ERR_NOT_IMPLEMENTED);  /* InlineFormat 空槽 */
+        if (ok) mask |= 1 << 2;
+    }
+    /* bit3：闸关必拒 */
+    {
+        g_pts_lscbf_invoke_gate = 0;
+        int ok = (WpfLinuxWin32_PtsLscbfInvoke(ploc, 0, NULL, NULL, NULL, NULL) == WPF_PTS_ERR_NOT_IMPLEMENTED);
+        if (ok) mask |= 1 << 3;
+    }
+    fprintf(stderr, "[LSCBF-SELFTEST] mask=0x%02x snapshot=%d invoke=%d reject=%d gate-off=%d legs=%s\n",
+            mask, (mask >> 0) & 1, (mask >> 1) & 1, (mask >> 2) & 1, (mask >> 3) & 1,
+            mask == 0x0f ? "4/4(POS+REJECT)" : "PARTIAL");
+
+    LoDestroyContext(ploc);
+    /* 复原一切可观测状态（"自检不许改变可观测状态"） */
+    g_pts_lscbf_invoke_gate = save_gate;
+    g_pts_loc_creates = save_loc_creates;
+    g_pts_lscbf_rx = save_rx; g_pts_lscbf_rx_gap = save_gap;
+    g_pts_lscbf_invokes = save_inv; g_pts_lscbf_inv_rej = save_rej;
+    for (int i = 0; i < 4; i++) g_pts_lscbf_stub_calls[i] = save_stub[i];
+    if (lidx >= 0) g_pts_seen[lidx] = save_seen;
+    if (g_pts_loc_live_n != base_loc) return -1;        /* 泄漏 ⇒ 不算绿 */
+    return mask;
+}
+int WpfLinuxWin32_PtsLscbfSelftestMask(void) { return WpfLinuxWin32_PtsLscbfSelfCheck(); }
 
 // ── 格 6 · 只读面（`t110`／P1-W35）：`CreateDocContext` 的**独立读取面** ────────────────
 //   为什么要这些口：判据 C9 的判绿**不许**停在"两个句柄不同"（那只是必要条件）；"按对象绑定"
