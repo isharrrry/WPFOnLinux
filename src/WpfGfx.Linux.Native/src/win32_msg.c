@@ -99,7 +99,28 @@ void wpf_queue_push(wpf_thread *t, const WPF_MSG *m)
     s_push_seq++;                                  // 【F2】进程内单调：台账可指名"第几次写"
     s_last_push_tid = wpf_msgflow_tid();           // 【F2】谁写的
     n->push_seq = (uint32_t)s_push_seq;            // 【F2】把「谁写的、第几次」钉在这个节点上
-    if (t->tail) {
+    // 【T-A64 · D-G109 残余 · 对称守卫】F1 只把"链不可信"绑在 `tail==NULL` 上，但同一类型
+    //   混淆还有**另一半**：`sizeof(wpf_thread)==sizeof(wpf_msg_node)==64` ⇒ 一块已 free 的线程结构
+    //   被下一次 `malloc(0x40)` 复用成消息节点后，按 `wpf_thread` 视图读它是
+    //     `tail(@16) = msg.wParam` —— `PostMessageW(hwnd,msg,1,0)` 一类 **wp≠0** 的形态
+    //   （本仓现取调用点：本文件里 `PostMessageW(…, g_display_devices_msg, 1, 0)` 那处设备变更广播）。
+    //   此时 `tail` **非空、却指着一个根本不是节点的值** ⇒ 旧实现 `if (t->tail) t->tail->next = n;`
+    //   直接解引用 `tail+0x38` ⇒ **确定性 SEGV，且一行台账都没有**（与 F1 那半**同族的静默死**）。
+    //   修法：把 F1 的"合法节点指针"形态判据（**零解引用**：≥0x10000 且 16 字节对齐）
+    //   **对称地**用到 tail 上；`tail` 非空而形态非法 ⇒ 整条链不可信 ⇒ 隔离（与 F1 同款），
+    //   本条消息照常入队成干净单节点 ⇒ 既不崩，也**不静默丢件**。
+    //   （"只对 tail 加空指针守卫"同样被禁止，理由同 F1：那会把"链被写坏"降级成"静默丢消息"。）
+    //   ⚠️ 本守卫**只覆盖 `tail`**；"`tail` 假合法而 `head` 坏"这一未观测形态见本件报告的 `NOINFO`。
+    uintptr_t tv = (uintptr_t)t->tail;
+    int tail_bad = t->tail && !((tv >= 0x10000u) && ((tv & 0xFu) == 0));
+    if (tail_bad) {
+        wpf_msg_node *quarantine = t->tail;      // 只记指针，**绝不解引用**
+        n->next = NULL;
+        t->head = n;
+        t->tail = n;
+        wpf_queue_corrupt_report(t, quarantine, m->message,
+                                 "tail 非合法节点指针（链已不可信）");
+    } else if (t->tail) {
         t->tail->next = n;
     } else if (t->head) {
         // 【W136A · TASK-0209 · F1 修法】本分支**禁止再走链**。

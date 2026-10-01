@@ -31,7 +31,26 @@
 #   并**断言相等**（不等即 `rc=9` 停手 = 基底漂移），再把 `tool/dead/artifact/ops/impl`
 #   交给牙**现算对账**（不等即牙红 —— 那才是"数漂了"，与基底漂移是两回事，分开报）。
 # ══════════════════════════════════════════════════════════════════════════════════
-# PTSGAP-DECL: tool=59 dead=11 artifact=1 ops=47 impl=47 so16=2197fd72497619fb exports=718 w66pre16=bf6b683d94549087
+# PTSGAP-DECL: tool=59 dead=11 artifact=1 ops=47 impl=47 so16=969536ee1549ef39 exports=718 w66pre16=bf6b683d94549087
+#   ⚠️ 波 `T-A64` 重锚（`TASK-0201` 产品侧静默 `rc=139` 残余：`win32_msg.c` 队列链遍历的**对称守卫**；
+#     `D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
+#     `src/WpfGfx.Linux.Native/src/win32_msg.c` 的 `wpf_queue_push` 在 F1（`tail==NULL ∧ head!=NULL`）之外，
+#     补**同根因的另一半**：`tail!=NULL` 但**非合法节点指针**（`sizeof(wpf_thread)==sizeof(wpf_msg_node)==64`
+#     复用时 `tail(@16) = msg.wParam`，`wp≠0` 即非空）⇒ 旧实现 `if (t->tail) t->tail->next = n;` 解引用坏指针 ⇒
+#     **确定性静默 SEGV（一行台账都没有）**；修法＝对 `tail` **复用 F1 的零解引用形态判据**（≥0x10000 ∧ 16 字节对齐），
+#     非法即隔离（具名 `[QUEUE_CORRUPT] 原因=tail 非合法节点指针`）＋本条消息照常入队。
+#     **导出面/缺口数一字未动** ⇒ `tool/dead/artifact/ops/impl/exports` 全未动，
+#     **只有 `so16` 跟权威件换**：`so16 2197fd72497619fb→969536ee1549ef39`（490248→490296 B）。
+#     ⇒ `nm -D --defined-only` 行数 == `exports.txt` 行数 == 718；逐名 `diff` 零差异。
+#     🔴 **两极化（确定性夹具现取）**：反腿（修前件 `2197fd72497619fb`）注入 `head=NULL,tail=0x102` ⇒
+#       `rc=139`＋`T64_SEGV si_addr=0x13a`（**静默、无 `[QUEUE_CORRUPT]`**）；正腿（本件 `969536ee1549ef39`）
+#       同一注入 ⇒ `rc=0`＋`[QUEUE_CORRUPT] … 原因=tail 非合法节点指针 … 对策=隔离可疑链(零解引用)`；
+#       正常路径（`push×3`）两件同：`count=3 msg=[0x200,0x201,0x202] tail_next_null=1`。
+#     🔴 **零回归**：改前 `.so 2197fd72497619fb` 与改后两腿三帧**逐字节相同**（`AE=0`；
+#       `boot b21eb530afd3c66c`／`k23 10d0b9d54e649c10`／`k24 0bdb2dfd05952bc9`）、症状门逐格同
+#       （`alive=yes app_rc=143 magenta=0 colors 1220/636 ink=480000 failfast=0`）。
+#     ⚠️ **如实划界**：`D-G109` 的「偶发 `1.14%` 是否同因」／「谁写坏 `next`」仍 `NOINFO`；
+#       `TASK-0211` 的窄 `TOCTOU` 可利用性**另计**；「`tail` 假合法而 `head` 坏」这一**未观测形态**本件**不冒充**。
 #   ⚠️ 波 `T-A63` 重锚（`TASK-0307`：**LS 溯源桥 ＋ `pfsparaclient` 来源**（`PRECOND-LS-PROVENANCE-BRIDGE`／
 #     `PRECOND-PARADESC-SOURCE-MISSING(scope=subtrack-path)`）；**导出面一字未动** ⇒ `tool/dead/artifact/ops/impl/exports`
 #     全未动，**只有 `so16` 跟权威件换**：`so16 327dcce237e03e1f→2197fd72497619fb`（490072→490248 B）。
