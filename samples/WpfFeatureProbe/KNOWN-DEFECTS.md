@@ -3916,3 +3916,10 @@ SELFDESC_WIRING=FAIL examined=1 wired=1 unwired=0 undeclared=0 fails=1 run_step=
 - **`T-A49`（E5 重取臂 · 五臂换代）**：世代绑定项 `instr_shim` `921ba9c65e9fb3be → e2fa9ec9be1a6cf1`（`build/shims/PresentationCore.HbTextLine.cs`，提交 `fe4c471`）⇒ 五臂重取；`TLINE_GATE=PASS arms=5 red=2 green=3 noinfo_arm=0 drift=0 gone=0 unregistered=0 tree_gen=same`（`rc=0`）；**五臂红/绿结论与在册逐字相同**；`known-red.json 29219b6f071c6361 → dcc22fd3c80cfcac`。
 - **`T-A50`（重冻结 `# ARM-LOG-SHA` 五行）**：冻结块 `# RE-FROZEN #80` 内 5 行按现盘值重钉（只改 token）⇒ `COLUMN_FLOOR=FAIL → PASS`（`COLUMN_FLOOR_ARMLOG=PASS n_decl=5 n_ok=5`）；`ARMLOG_SHA=PASS`；基线件 `b27ff6332f263495 → bd64f2c1a3eaaa05`（**世代仍 `#80`**）。
 - **`T-A51`（收尾）**：**现取六闸逐条 `rc=0`**（`SSC`／`HANDOFF_MV`／`DEFREG=PASS declared=225 route_ids=225`／`REPORTID=PASS`／`COLUMN_FLOOR=PASS`／`ARMLOG_SHA=PASS`）；整波旁生件 `git checkout HEAD --` 归位；`declared.tsv` 重发 225 条。载体：`build/MilBridge/P1-tail2-closeout-report.md`。
+
+---
+
+### ⏪ `T-A52`／`T-A53`／`T-A54`（P1 尾波2 `#82` 第 4 色段）**dated 现值位**（读时 `2026-10-01T08:0x+0800`；**只增不改**）
+
+- **`D-G70` 在册数（现值，现取）**：工具口径 **71**／**可操作缺口 59**；**实现口径 60**（`PTSGAP=PASS tool=71 dead=11 artifact=1 ops=59 impl=60 so16=642019f680d75d87 exports=688`；`nm -D --defined-only` ＝ `exports.txt` ＝ **688**）。**逐增量归因**：`T-A52`（`GetFloaterHandlerInfo` 由具名缺口 stub 升真实现 ＋ Floater 内容排版驱动）改**实现面** —— 五位未动，只 `so16 1dbea9026dd7d3d7→1067da454b7ef114`；`T-A53`（Table 族五入口导出 ＋ `GetTableObjHandlerInfo` 真实现）使 `tool 76→71`／`ops 64→59`／`impl 66→60`／`exports 683→688`；`T-A54`（两闸转缺省开）五位未动，`so16→642019f680d75d87`。
+- **产品面净结果（缺省路径现取）**：`k=24` 第 4 具名色 `LightGoldenrodYellow = 1998 px`、`PTS_COLORANCHOR=PASS k=24 hits=3`（`GhostWhite=18945`／`Beige=910`／`DarkGreen=44`／`LightGoldenrodYellow=1998`）；缺省零回归（三帧与 `T-A53` 开闸腿逐字节同：`boot b21eb530afd3c66c`／`k23 10d0b9d54e649c10`／`k24 64603fc1d8e23e39`）。⚠️ **射程（如实划界）**：第 4 色所在层 ＝ **`TableRow Background`（表行背景）**，只让行背景落像素；`FsQueryTableObjRowDetails` 仍一律报 `cCells=0`（诚实的空）⇒ 表单元文本未绘。载体：`build/MilBridge/P1-tail2-{floatercbk,tableobj,gate-on}-impl-report.md`。

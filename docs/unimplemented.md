@@ -635,3 +635,10 @@ channel.CommittedCommands    // 成功解码执行的命令数
 - **`T-A50`（重冻结 `# ARM-LOG-SHA` 五行）**：`COLUMN_FLOOR=FAIL → PASS`（`rc=0`）；基线件 `b27ff6332f263495 → bd64f2c1a3eaaa05`（**世代仍 `#80`**）；`ARMLOG_SHA=PASS`。
 - **`T-A51`（收尾）**：**现取六闸逐条 `rc=0`**（`SSC`／`HANDOFF_MV`／`DEFREG=PASS declared=225`／`REPORTID`／`COLUMN_FLOOR`／`ARMLOG_SHA`）；`declared.tsv` 重发 225 条。
 - **本增量不改"缺口/能力面"**：`PTSGAP` 五位未动（`tool=76 dead=11 artifact=1 ops=64 impl=67 so16=1dbea9026dd7d3d7 exports=683`）；`PTS_COLORANCHOR=PASS k=24 hits=2`。载体：`build/MilBridge/P1-tail2-closeout-report.md`。
+
+---
+
+## ⏪ **dated 现值位随动（`T-A52`／`T-A53`／`T-A54`，读时 `2026-10-01T08:0x+0800`；上文一字未动）**
+
+- **PTS/LineServices 条现值（现取）**：`PTSGAP=PASS tool=71 dead=11 artifact=1 ops=59 impl=60 so16=642019f680d75d87 exports=688`（`rc=0`）⇒ **工具口径 71／可操作缺口 59／实现口径 60**。**逐增量归因**：`T-A52`（`GetFloaterHandlerInfo` 由具名缺口 stub 升真实现）改的是**实现面** —— 缺口五位未动，只 `so16 1dbea9026dd7d3d7 → 1067da454b7ef114`；`T-A53`（Table 族五入口导出 ＋ `GetTableObjHandlerInfo` 真实现）使 `tool 76→71`／`ops 64→59`／`impl 66→60`／`exports 683→688`（`nm -D --defined-only` 逐名 `diff` 零差异）；`T-A54`（两闸转缺省开）只翻两闸缺省常量，缺口五位未动，`so16 → 642019f680d75d87`。
+- **产品面净结果（缺省路径现取）**：`k=24` 第 4 具名色 `LightGoldenrodYellow = 1998 px`、`PTS_COLORANCHOR=PASS k=24 hits=3`（`GhostWhite=18945`／`Beige=910`／`DarkGreen=44`／`LightGoldenrodYellow=1998`）；缺省零回归（三帧与 `T-A53` 开闸腿逐字节同：`boot b21eb530afd3c66c`／`k23 10d0b9d54e649c10`／`k24 64603fc1d8e23e39`）。⚠️ **射程（如实划界）**：第 4 色所在层 ＝ **`TableRow Background`（表行背景）**，只让行背景落像素；`FsQueryTableObjRowDetails` 仍一律报 `cCells=0`（诚实的空）⇒ 表单元文本未绘。载体：`build/MilBridge/P1-tail2-{floatercbk,tableobj,gate-on}-impl-report.md`。
