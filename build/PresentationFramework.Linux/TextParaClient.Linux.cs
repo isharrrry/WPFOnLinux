@@ -94,6 +94,18 @@ namespace MS.Internal.PtsHost
                 }
             }
 
+            // ── `T-A69`（`PRECOND-NO-TEXT-SOURCE` · **内容源入站：字符序列**）─────────────
+            //  见生成器内该块的说明；`WPF_TEXTSRC_FEED=0` ⇒ 整块不发生（反极性腿）。
+            WpfLinuxTextSrcProbe.FeedParagraph(_paraHandle, Paragraph);
+
+            // ── `T-A70`（契约 `C4` · **`cp↔dcp` 偏移由宿主给定**，本侧只校不算）─────────
+            //  见生成器内该块的说明；`WPF_CPDCMAP_FEED=0` ⇒ 整块不发生（反极性腿）。
+            WpfLinuxCpDcpMapProbe.FeedParagraph(_paraHandle, Paragraph);
+
+            // ── `T-A71`（`PRECOND-NO-TEXT-PARA-IN-CHAIN` · **文本段落进链**）─────────────
+            //  见生成器内该块的说明；`WPF_PARACHAIN_FEED=0` ⇒ 整块不发生（反极性腿）。
+            WpfLinuxTextParaChainProbe.FeedParagraph(_paraHandle, Paragraph, _pageContext);
+
             VisualCollection visualChildren = _visual.Children;
             ContainerVisual lineContainerVisual = _visual;
 

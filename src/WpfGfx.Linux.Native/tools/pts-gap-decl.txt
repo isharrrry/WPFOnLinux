@@ -31,7 +31,39 @@
 #   并**断言相等**（不等即 `rc=9` 停手 = 基底漂移），再把 `tool/dead/artifact/ops/impl`
 #   交给牙**现算对账**（不等即牙红 —— 那才是"数漂了"，与基底漂移是两回事，分开报）。
 # ══════════════════════════════════════════════════════════════════════════════════
-# PTSGAP-DECL: tool=54 dead=11 artifact=1 ops=42 impl=42 so16=a5e9e090a6a64273 exports=763 w66pre16=bf6b683d94549087
+# PTSGAP-DECL: tool=54 dead=11 artifact=1 ops=42 impl=42 so16=53116d7456f62c44 exports=798 w66pre16=bf6b683d94549087
+#   ⚠️ 波 `T-A71` 重锚（`TASK-0307` 增量 · **文本段落进链 ＝ `PRECOND-NO-TEXT-PARA-IN-CHAIN`**／`W` 合取第 ④ 条，
+#     `build/MilBridge/P1-layout-content-criteria.md:114`）：native 侧新增**进链台账（可寻址）＋ 逐段只读回读面 ＋
+#     两极化自检**（`WpfLinuxWin32_PtsParaChain{Feed,Count,Find,State,Para,PageId,SubSeq,SubClaimed,CpFirst,CpLim,
+#     SrcSlot,SrcHandle,LinkOk,Seq,Rx,RxGap,Unsourced,SelfCheck,SelftestMask}` 19 名）＋ 一条**内容源句柄访问器**
+#     `WpfLinuxWin32_PtsTextSrcHandle`（＝`T-A69` 内容源表项的地址，供"一一对应"核对）；并在**托管侧**（生成器
+#     `build/PresentationFramework.Linux/reapply-patches.py` 重产件 `WpfLinuxTextParaChainProbe.Linux.cs` ＋
+#     `TextParaClient.Linux.cs` 的 `ValidateVisual` 一处调用）把**文本段落的链坐标**（段身份 `_paraHandle`／
+#     页身份 `_pageContext` 的同一性序号／`cp` 域 `[ParagraphStartCharacterPosition, +text.Length)`）在**同一窗内**
+#     交给 native；native **当场按对象身份认领**（`wpf_pts_sub_claim`）—— 段身份**不是**本侧链上对象 ⇒ **诚实拒绝**
+#     （`not-in-chain`，表内不出现该段）；并把**内容源句柄**按同一段身份接到 `T-A69` 表上（`LinkOk` 为"一一对应"的
+#     机器读数），随即回读逐格对拍：
+#     `exports 778→798`（**逐名 +20**：上列 19 名 ＋ `PtsTextSrcHandle`，无消失；`nm -D --defined-only` 行数 ==
+#       `exports.txt` 行数 == 798；逐名 `diff` 零差异）；
+#     `tool/ops/impl/dead/artifact` **未动**（未触碰任何 `PresentationNative` 入口缺口；`stubs` 仍 0）；
+#     `so16 c5acc47490098ff0→53116d7456f62c44`（524008→533832 B）；`w66pre16` 未动。
+#     ⚠️ **本增量不解除 `W`**：**进链 ≠ 排版** —— 它**不**填任何几何／行盒／`cLines`／`dcp` 区间；
+#       `PRECOND-NO-LINE-BREAKER`／`PRECOND-LS-SESSION-DRIVER`／`C2` 的 `plsrun` 那一半仍在册（`W` 整体仍**未解除**）。
+#     ⚠️ **两极化（该红必红）**：dlopen 探针现取（主链）`[PARACHAIN-SELFTEST] mask=0x0f`（4/4：正极／`UNSOURCED≠NONE`／
+#       反极必拒／**不在链上必拒**）＋ 外部反腿 `NOCHAIN feed=‑10000 find=‑1`；反腿副本（认领**只记不拒** ⇒
+#       静默半通形态）⇒ `mask=0x07`（bit3 灭）＋ 外部反腿 `feed=0 find=‑1` ⇒ **该红必红**。
+#   ⚠️ 波 `T-A70` 重锚（`TASK-0307` 增量 · **`cp↔dcp` 偏移由宿主给定 ＝ 契约 `C4`**／`W` 合取第 ⑤ 条，
+#     `build/MilBridge/P1-ls-provenance-contract.md:72`）：native 侧新增**偏移映射入站通道 ＋ 只校不算校验器 ＋
+#     逐条只读回读面 ＋ 两极化自检**（`WpfLinuxWin32_PtsCpDcpMap{Feed,Count,Find,State,NPoints,CpBase,Offset,Seq,CpAt,DcpAt,Rx,RxGap,Empty,SelfCheck,SelftestMask}`），
+#     并在**托管侧**（生成器 `build/PresentationFramework.Linux/reapply-patches.py` 重产件 `WpfLinuxCpDcpMapProbe.Linux.cs` ＋
+#     `TextParaClient.Linux.cs` 的 `ValidateVisual` 一处调用）把**段落的 (cp,dcp) 偏移映射样本对**在**同一窗内**交给 native；
+#     native **只校不算**（单调／端点／双射／偏移守恒／越界；不符 ⇒ 诚实拒绝，表内不出现该段），随即回读逐点对拍：
+#     `exports 763→778`（**逐名 +15**：上列 15 名，无消失；`nm -D --defined-only` 行数 == `exports.txt` 行数 == 778；逐名 `diff` 零差异）；
+#     `tool/ops/impl/dead/artifact` **未动**（未触碰任何 `PresentationNative` 入口缺口；`stubs` 仍 0）；
+#     `so16 a5e9e090a6a64273→c5acc47490098ff0`（514512→524008 B）；`w66pre16` 未动。
+#     ⚠️ **本增量只校不算，不解除 `W`**：它**不**填任何几何／行盒／`dcp` 区间；**只校 ≠ 对真值** —— 契约 §5 反腿 (a)
+#        "偏移错一"须**外部 LS 真值**（真 LS 会话里的 `dcp`）⇒ 今天**不跑**（随"内容层那一波"）；两条必红反腿
+#        (`(a)`／`(b)`) 仍**未执行**；本趟两极化由**乱序／非双射**承担。
 #   ⚠️ 波 `T-A69` 重锚（`TASK-0307` 增量 · **内容源入站（字符序列）**／`W` 合取第 ② 条 `PRECOND-NO-TEXT-SOURCE`，
 #     `build/MilBridge/P1-layout-content-criteria.md:112`）：native 侧新增**入站通道 ＋ 逐段只读回读面 ＋ 两极化自检**，
 #     并在**托管侧**（生成器 `build/PresentationFramework.Linux/reapply-patches.py` 重产件 `WpfLinuxTextSrcProbe.Linux.cs` ＋

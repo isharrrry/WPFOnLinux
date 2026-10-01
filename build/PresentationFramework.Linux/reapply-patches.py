@@ -137,6 +137,10 @@ PATCH_C = '''  <!-- ============================================================
     <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/WpfLinuxChainProbe.Linux.cs" />
     <!-- T-A69（PRECOND-NO-TEXT-SOURCE）：内容源入站喂料器类本体 -->
     <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/WpfLinuxTextSrcProbe.Linux.cs" />
+    <!-- T-A70（契约 C4 cp↔dcp 偏移由宿主给定）：托管侧"宿主"侧映射交付器类本体 -->
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/WpfLinuxCpDcpMapProbe.Linux.cs" />
+    <!-- T-A71（PRECOND-NO-TEXT-PARA-IN-CHAIN）：文本段落进链交付器类本体 -->
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/WpfLinuxTextParaChainProbe.Linux.cs" />
   </ItemGroup>
 '''
 
@@ -1679,6 +1683,14 @@ TPC_E_VV_REPL = """            PTS.FSTEXTDETAILS textDetails;
             //  见生成器内该块的说明；`WPF_TEXTSRC_FEED=0` ⇒ 整块不发生（反极性腿）。
             WpfLinuxTextSrcProbe.FeedParagraph(_paraHandle, Paragraph);
 
+            // ── `T-A70`（契约 `C4` · **`cp↔dcp` 偏移由宿主给定**，本侧只校不算）─────────
+            //  见生成器内该块的说明；`WPF_CPDCMAP_FEED=0` ⇒ 整块不发生（反极性腿）。
+            WpfLinuxCpDcpMapProbe.FeedParagraph(_paraHandle, Paragraph);
+
+            // ── `T-A71`（`PRECOND-NO-TEXT-PARA-IN-CHAIN` · **文本段落进链**）─────────────
+            //  见生成器内该块的说明；`WPF_PARACHAIN_FEED=0` ⇒ 整块不发生（反极性腿）。
+            WpfLinuxTextParaChainProbe.FeedParagraph(_paraHandle, Paragraph, _pageContext);
+
             VisualCollection visualChildren = _visual.Children;
             ContainerVisual lineContainerVisual = _visual;
 """
@@ -2081,6 +2093,325 @@ namespace MS.Internal.PtsHost
             catch (System.Exception e)
             {
                 Emit("[TEXTSRC] mgd parah=" + Hx(parah) + " cp=" + cp + " v=NO-SOURCE reason=exception:"
+                     + e.GetType().Name);
+            }
+        }
+    }
+}
+'''
+
+# ── `T-A70`（契约 `C4` · **`cp↔dcp` 偏移由宿主给定**，native 只校不算）托管侧交付器 ─────────────
+#  【为什么需要（现取）】契约 `C4`（`build/MilBridge/P1-ls-provenance-contract.md:72`）规定：`cp↔dcp`
+#    偏移**由宿主给定**、native **只校不算**（"本侧**不得**自行推导"）。本移植里"宿主"＝本托管层
+#    （`TextParaClient`）：它持有该段落的**字符位置**（`ParagraphStartCharacterPosition`）与**显示位置**
+#    样本 ⇒ 必须由它把 **(cp, dcp) 样本对**在**同一次调用窗内**交给 native
+#    （`PtsCpDcpMapFeed(parah, cpBase, n, cp, dcp)`），随后 native 当场校验（单调／端点／双射／守恒），
+#    不符即**诚实拒绝**。
+#  【它是什么】一条**只读＋只入站**的台账：`TextParaClient.ValidateVisual` 内，对本段喂**一次**样本对
+#    （连续 `min(len, 16)` 点；按 `_paraHandle` 去重 ＋ 全局上限 64）；喂完即**回读** native 的样本副本
+#    并**逐点对拍**，逐段打一行 `[CPDCMAP] mgd …`。
+#  【诚实声明】本移植链上**无 LS 隐藏文本**（绕过 LS 造型）⇒ 本层"显示偏移"**真值 ＝ 0**（`dcp == cp`），
+#    如实声明、不伪造非零偏移；本侧**不**由 `cp` 推 `dcp`（那正是契约禁止的"自算"）。
+#  【它不做什么】不改任何出参、不删／不放宽断言、不置任何 native 真值、**不填任何几何**；
+#    `WPF_CPDCMAP_FEED=0` ⇒ 整块不发生（逐字回上游行为 ⇒ 反极性腿）。
+CPDCMAP_PROBE_FILE = "WpfLinuxCpDcpMapProbe.Linux.cs"
+CPDCMAP_PROBE_TEXT = '''// ⚠️ 本文件由 build/PresentationFramework.Linux/reapply-patches.py **生成**，不要手改。
+//
+// T-A70（契约 C4 · cp↔dcp 偏移由宿主给定）：托管侧"宿主"侧映射交付器 ＋ 逐点对拍（[CPDCMAP]）。
+//
+// 【射程】只入站 ＋ 只回读对拍：不改任何出参、不删／不放宽任何 Invariant.Assert、不置任何 native 真值。
+// `WPF_CPDCMAP_FEED=0` ⇒ 整个关掉（逐字回上游行为）。
+
+using System;
+using System.Runtime.InteropServices;
+using System.Windows.Documents;
+using DllImport = MS.Internal.PresentationFramework.DllImport;
+
+namespace MS.Internal.PtsHost
+{
+    internal static class WpfLinuxCpDcpMapProbe
+    {
+        private const int MaxFeeds = 64;                 // 有界：单进程最多喂 64 段
+        private const int MaxPts   = 16;                 // 单段最多 16 个样本点
+        private static int _feeds;
+        private static int _enabled = -1;                // -1＝未读；0＝关；1＝开
+        private static readonly System.Collections.Generic.Dictionary<long, int> _done =
+            new System.Collections.Generic.Dictionary<long, int>();
+
+        internal static bool Enabled
+        {
+            get
+            {
+                if (_enabled < 0)
+                {
+                    string s = null;
+                    try { s = System.Environment.GetEnvironmentVariable("WPF_CPDCMAP_FEED"); }
+                    catch (System.Exception) { s = null; }
+                    _enabled = (s == "0") ? 0 : 1;       // 缺省＝开；**只有**显式 "0" 才关
+                }
+                return _enabled == 1;
+            }
+        }
+
+        [DllImport(DllImport.PresentationNative, EntryPoint = "WpfLinuxWin32_PtsCpDcpMapFeed", ExactSpelling = true)]
+        private static extern int PtsCpDcpMapFeed(IntPtr parah, int cpBase, int n, int[] cp, int[] dcp);
+        [DllImport(DllImport.PresentationNative, EntryPoint = "WpfLinuxWin32_PtsCpDcpMapFind", ExactSpelling = true)]
+        private static extern int PtsCpDcpMapFind(IntPtr parah);
+        [DllImport(DllImport.PresentationNative, EntryPoint = "WpfLinuxWin32_PtsCpDcpMapNPoints", ExactSpelling = true)]
+        private static extern int PtsCpDcpMapNPoints(int k);
+        [DllImport(DllImport.PresentationNative, EntryPoint = "WpfLinuxWin32_PtsCpDcpMapCpBase", ExactSpelling = true)]
+        private static extern int PtsCpDcpMapCpBase(int k);
+        [DllImport(DllImport.PresentationNative, EntryPoint = "WpfLinuxWin32_PtsCpDcpMapOffset", ExactSpelling = true)]
+        private static extern int PtsCpDcpMapOffset(int k);
+        [DllImport(DllImport.PresentationNative, EntryPoint = "WpfLinuxWin32_PtsCpDcpMapState", ExactSpelling = true)]
+        private static extern int PtsCpDcpMapState(int k);
+        [DllImport(DllImport.PresentationNative, EntryPoint = "WpfLinuxWin32_PtsCpDcpMapCpAt", ExactSpelling = true)]
+        private static extern int PtsCpDcpMapCpAt(int k, int i);
+        [DllImport(DllImport.PresentationNative, EntryPoint = "WpfLinuxWin32_PtsCpDcpMapDcpAt", ExactSpelling = true)]
+        private static extern int PtsCpDcpMapDcpAt(int k, int i);
+
+        internal static string Hx(IntPtr p)
+        {
+            return "0x" + ((ulong)(long)p).ToString("x", System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        internal static void Emit(string line)
+        {
+            try { System.Console.Error.WriteLine(line); System.Console.Error.Flush(); }
+            catch (System.Exception) { }
+        }
+
+        // 把**本段落的 (cp,dcp) 偏移映射样本对**交给 native（一次／段），随即回读并逐点对拍。
+        internal static void FeedParagraph(IntPtr parah, BaseParagraph para)
+        {
+            if (!Enabled || para == null || parah == IntPtr.Zero) { return; }
+            if (_feeds >= MaxFeeds) { return; }
+            long key = (long)parah;
+            if (_done.ContainsKey(key)) { return; }
+            _done[key] = 1;
+
+            int cpBase = 0;
+            try
+            {
+                TextElement te = para.Element as TextElement;
+                if (te == null) { Emit("[CPDCMAP] mgd parah=" + Hx(parah) + " v=NO-SOURCE reason=element-not-textelement"); return; }
+
+                string text = new TextRange(te.ContentStart, te.ContentEnd).Text;
+                if (text == null) { Emit("[CPDCMAP] mgd parah=" + Hx(parah) + " v=NO-SOURCE reason=null-text"); return; }
+
+                cpBase = para.ParagraphStartCharacterPosition;   // 段落起始字符位置（宿主真值；端点锚）
+                int len = text.Length;
+                int n = (len < MaxPts) ? len : MaxPts;            // 连续前 n 个字符作样本点
+                int[] cp  = new int[n];
+                int[] dcp = new int[n];
+                for (int i = 0; i < n; i++)
+                {
+                    cp[i]  = cpBase + i;
+                    dcp[i] = cp[i];   // 本移植链上无 LS 隐藏文本 ⇒ 显示偏移真值 ＝ 0（如实声明，不伪造）
+                }
+
+                int rc = PtsCpDcpMapFeed(parah, cpBase, n, (n > 0) ? cp : null, (n > 0) ? dcp : null);
+                _feeds++;
+                int k = PtsCpDcpMapFind(parah);
+                int mism = 0;
+                if (k < 0) { mism = -1; }
+                else if (PtsCpDcpMapNPoints(k) != n) { mism = -1; }       // 点数不符 ⇒ 必红
+                else
+                {
+                    for (int i = 0; i < n; i++)
+                    {
+                        if (PtsCpDcpMapCpAt(k, i)  != cp[i])  { mism++; }
+                        if (PtsCpDcpMapDcpAt(k, i) != dcp[i]) { mism++; }
+                    }
+                }
+
+                Emit("[CPDCMAP] mgd parah=" + Hx(parah) + " cp_base=" + cpBase + " n=" + n
+                     + " rc=" + rc + " slot=" + k + " mism=" + mism
+                     + " pair_match=" + ((k >= 0 && mism == 0) ? 1 : 0)
+                     + " off=" + ((k >= 0) ? PtsCpDcpMapOffset(k) : -999)
+                     + " state=" + ((k >= 0) ? PtsCpDcpMapState(k) : -1)
+                     + " v=CP-DCP-MAP-INBOUND");
+            }
+            catch (System.Exception e)
+            {
+                Emit("[CPDCMAP] mgd parah=" + Hx(parah) + " cp_base=" + cpBase + " v=NO-SOURCE reason=exception:"
+                     + e.GetType().Name);
+            }
+        }
+    }
+}
+'''
+
+# ── `T-A71`（`PRECOND-NO-TEXT-PARA-IN-CHAIN` · **文本段落进链**）托管侧交付器 ────────────────────
+#  【为什么需要（现取）】在册前置 `build/MilBridge/P1-layout-content-criteria.md:114`：「`PRECOND-NO-TEXT-PARA-IN-CHAIN`：
+#    现链上是容器段落，`TextParaClient` 是**另一族**」；`P1-tail2-dingrecon.md` §3.2 把它列为 `W` 的**第四条**。
+#    ⇒ 必须让**文本段落**（`TextParaClient` 所代表的段）在 native 的**链**里可寻址、可逐段现取
+#      （段身份／所属页／子轨／`cp` 域／内容源句柄），并与 `T-A69` 的内容源**一一对应**。
+#  【它是什么】一条**只读＋只入站**的台账：`TextParaClient.ValidateVisual` 内，对本段喂**一次**
+#    （按 `_paraHandle` 去重 ＋ 全局上限 64）：交出**段身份**（`_paraHandle`）＋ **页身份**（该段所在页的
+#    同一性序号；同页同号）＋ **`cp` 域**（`[ParagraphStartCharacterPosition, +text.Length)`，宿主真值）。
+#    native 侧**当场认领**（段身份必须是本侧链上的子轨对象 ⇒ 否则诚实拒绝 `not-in-chain`）并把
+#    **内容源句柄**按同一段身份接到 `T-A69` 的内容源表上（⇒ 一一对应）；喂完即回读并逐格对拍，
+#    逐段打一行 `[PARACHAIN] mgd …`。
+#  【为什么落在托管侧】段身份／页身份／`cp` 域都在**宿主**手上（`BaseParaClient._paraHandle`／
+#    `_pageContext`／`Paragraph.ParagraphStartCharacterPosition`）⇒ 只能由托管发起；native 只做
+#    **入站 ＋ 认领校验 ＋ 源解析 ＋ 回读 ＋ 自检**（**不**自造任何一格）。
+#  【它不做什么】不改任何出参、不删／不放宽断言、不置任何 native 真值、**不填任何几何**；
+#    `WPF_PARACHAIN_FEED=0` ⇒ 整块不发生（逐字回上游行为 ⇒ 反极性腿）。
+PARACHAIN_PROBE_FILE = "WpfLinuxTextParaChainProbe.Linux.cs"
+PARACHAIN_PROBE_TEXT = '''// ⚠️ 本文件由 build/PresentationFramework.Linux/reapply-patches.py **生成**，不要手改。
+//
+// T-A71（PRECOND-NO-TEXT-PARA-IN-CHAIN · 文本段落进链）：托管侧交付器 ＋ 逐格对拍（[PARACHAIN]）。
+//
+// 【射程】只入站 ＋ 只回读对拍：不改任何出参、不删／不放宽任何 Invariant.Assert、不置任何 native 真值。
+// `WPF_PARACHAIN_FEED=0` ⇒ 整个关掉（逐字回上游行为）。
+
+using System;
+using System.Runtime.InteropServices;
+using System.Windows.Documents;
+using DllImport = MS.Internal.PresentationFramework.DllImport;
+
+namespace MS.Internal.PtsHost
+{
+    internal static class WpfLinuxTextParaChainProbe
+    {
+        private const int MaxFeeds = 64;                 // 有界：单进程最多喂 64 段
+        private const int MaxPages = 256;                // 有界：页身份表的条目上界
+        private static int _feeds;
+        private static int _enabled = -1;                // -1＝未读；0＝关；1＝开
+        private static readonly System.Collections.Generic.Dictionary<long, int> _done =
+            new System.Collections.Generic.Dictionary<long, int>();
+        // 页身份：**同一 PageContext 实例** ⇒ **同一序号**（引用相等；只作不透明 token 交 native）。
+        private sealed class RefEq : System.Collections.Generic.IEqualityComparer<object>
+        {
+            bool System.Collections.Generic.IEqualityComparer<object>.Equals(object a, object b) { return object.ReferenceEquals(a, b); }
+            int System.Collections.Generic.IEqualityComparer<object>.GetHashCode(object o) { return System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(o); }
+        }
+        private static readonly System.Collections.Generic.Dictionary<object, int> _pages =
+            new System.Collections.Generic.Dictionary<object, int>(new RefEq());
+
+        internal static bool Enabled
+        {
+            get
+            {
+                if (_enabled < 0)
+                {
+                    string s = null;
+                    try { s = System.Environment.GetEnvironmentVariable("WPF_PARACHAIN_FEED"); }
+                    catch (System.Exception) { s = null; }
+                    _enabled = (s == "0") ? 0 : 1;       // 缺省＝开；**只有**显式 "0" 才关
+                }
+                return _enabled == 1;
+            }
+        }
+
+        [DllImport(DllImport.PresentationNative, EntryPoint = "WpfLinuxWin32_PtsParaChainFeed", ExactSpelling = true)]
+        private static extern int PtsParaChainFeed(IntPtr parah, int pageId, int cpFirst, int cpLim);
+        [DllImport(DllImport.PresentationNative, EntryPoint = "WpfLinuxWin32_PtsParaChainFind", ExactSpelling = true)]
+        private static extern int PtsParaChainFind(IntPtr parah);
+        [DllImport(DllImport.PresentationNative, EntryPoint = "WpfLinuxWin32_PtsParaChainState", ExactSpelling = true)]
+        private static extern int PtsParaChainState(int k);
+        [DllImport(DllImport.PresentationNative, EntryPoint = "WpfLinuxWin32_PtsParaChainPageId", ExactSpelling = true)]
+        private static extern int PtsParaChainPageId(int k);
+        [DllImport(DllImport.PresentationNative, EntryPoint = "WpfLinuxWin32_PtsParaChainSubClaimed", ExactSpelling = true)]
+        private static extern int PtsParaChainSubClaimed(int k);
+        [DllImport(DllImport.PresentationNative, EntryPoint = "WpfLinuxWin32_PtsParaChainCpFirst", ExactSpelling = true)]
+        private static extern int PtsParaChainCpFirst(int k);
+        [DllImport(DllImport.PresentationNative, EntryPoint = "WpfLinuxWin32_PtsParaChainCpLim", ExactSpelling = true)]
+        private static extern int PtsParaChainCpLim(int k);
+        [DllImport(DllImport.PresentationNative, EntryPoint = "WpfLinuxWin32_PtsParaChainSrcSlot", ExactSpelling = true)]
+        private static extern int PtsParaChainSrcSlot(int k);
+        [DllImport(DllImport.PresentationNative, EntryPoint = "WpfLinuxWin32_PtsParaChainSrcHandle", ExactSpelling = true)]
+        private static extern IntPtr PtsParaChainSrcHandle(int k);
+        [DllImport(DllImport.PresentationNative, EntryPoint = "WpfLinuxWin32_PtsParaChainLinkOk", ExactSpelling = true)]
+        private static extern int PtsParaChainLinkOk(int k);
+        [DllImport(DllImport.PresentationNative, EntryPoint = "WpfLinuxWin32_PtsTextSrcFind", ExactSpelling = true)]
+        private static extern int PtsTextSrcFind(IntPtr parah);
+        [DllImport(DllImport.PresentationNative, EntryPoint = "WpfLinuxWin32_PtsTextSrcHandle", ExactSpelling = true)]
+        private static extern IntPtr PtsTextSrcHandle(int k);
+
+        internal static string Hx(IntPtr p)
+        {
+            return "0x" + ((ulong)(long)p).ToString("x", System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        internal static void Emit(string line)
+        {
+            try { System.Console.Error.WriteLine(line); System.Console.Error.Flush(); }
+            catch (System.Exception) { }
+        }
+
+        private static int PageId(object pageCtx)
+        {
+            int id;
+            if (_pages.TryGetValue(pageCtx, out id)) { return id; }
+            if (_pages.Count >= MaxPages) { _pages.Clear(); }   // 有界（超出即重开表；页身份只在同窗内比较）
+            id = _pages.Count + 1;
+            _pages[pageCtx] = id;
+            return id;
+        }
+
+        // 把**本段落的链坐标**（段身份／页身份／cp 域）交给 native（一次／段），随即回读并逐格对拍。
+        internal static void FeedParagraph(IntPtr parah, BaseParagraph para, object pageCtx)
+        {
+            if (!Enabled || para == null || parah == IntPtr.Zero) { return; }
+            if (_feeds >= MaxFeeds) { return; }
+            long key = (long)parah;
+            if (_done.ContainsKey(key)) { return; }
+            _done[key] = 1;
+
+            int pageId = 0, cpFirst = 0, cpLim = 0;
+            try
+            {
+                if (pageCtx == null) { _done.Remove(key); Emit("[PARACHAIN] mgd parah=" + Hx(parah) + " v=NO-SOURCE reason=null-page-context"); return; }
+                TextElement te = para.Element as TextElement;
+                if (te == null) { _done.Remove(key); Emit("[PARACHAIN] mgd parah=" + Hx(parah) + " v=NO-SOURCE reason=element-not-textelement"); return; }
+
+                string text = new TextRange(te.ContentStart, te.ContentEnd).Text;
+                if (text == null) { _done.Remove(key); Emit("[PARACHAIN] mgd parah=" + Hx(parah) + " v=NO-SOURCE reason=null-text"); return; }
+
+                pageId  = PageId(pageCtx);
+                cpFirst = para.ParagraphStartCharacterPosition;   // 段起始字符位置（宿主真值）
+                cpLim   = cpFirst + text.Length;                  // 段末字符位置（开区间上界）
+
+                int rc = PtsParaChainFeed(parah, pageId, cpFirst, cpLim);
+                _feeds++;
+                if (rc != 0)
+                {
+                    // 诚实拒绝（**不在链上**／参数不自洽）：**不是**正读数 ⇒ 单列一行，供反腿与判据点名。
+                    Emit("[PARACHAIN] mgd parah=" + Hx(parah) + " page=" + pageId + " cp=[" + cpFirst + "," + cpLim
+                         + ") rc=" + rc + " v=REJECT-NOT-IN-CHAIN");
+                    return;
+                }
+                int k = PtsParaChainFind(parah);
+                int mism = 0;
+                int ts   = PtsTextSrcFind(parah);
+                IntPtr nth = (ts >= 0) ? PtsTextSrcHandle(ts) : IntPtr.Zero;
+                if (k < 0) { mism = -1; }
+                else
+                {
+                    if (PtsParaChainState(k)      != 2)                     { mism++; }   // 必须 SOURCED
+                    if (PtsParaChainPageId(k)     != pageId)                { mism++; }   // 页身份
+                    if (PtsParaChainSubClaimed(k) != 1)                     { mism++; }   // 子轨可认领
+                    if (PtsParaChainCpFirst(k)    != cpFirst)               { mism++; }   // cp 域下界
+                    if (PtsParaChainCpLim(k)      != cpLim)                 { mism++; }   // cp 域上界
+                    if (PtsParaChainSrcSlot(k)    != ts)                    { mism++; }   // 与 T-A69 一一对应（槽）
+                    if (PtsParaChainSrcHandle(k)  != nth)                   { mism++; }   // 与 T-A69 一一对应（句柄）
+                }
+                int link = (k >= 0) ? PtsParaChainLinkOk(k) : 0;
+
+                Emit("[PARACHAIN] mgd parah=" + Hx(parah) + " page=" + pageId
+                     + " cp=[" + cpFirst + "," + cpLim + ") n=" + (cpLim - cpFirst)
+                     + " rc=" + rc + " slot=" + k + " state=" + ((k >= 0) ? PtsParaChainState(k) : -1)
+                     + " sub=" + ((k >= 0) ? PtsParaChainSubClaimed(k) : -1)
+                     + " src_slot=" + ((k >= 0) ? PtsParaChainSrcSlot(k) : -999)
+                     + " src=" + Hx((k >= 0) ? PtsParaChainSrcHandle(k) : IntPtr.Zero)
+                     + " link=" + link + " mism=" + mism + " v=TEXT-PARA-IN-CHAIN");
+            }
+            catch (System.Exception e)
+            {
+                _done.Remove(key);
+                Emit("[PARACHAIN] mgd parah=" + Hx(parah) + " page=" + pageId + " v=NO-SOURCE reason=exception:"
                      + e.GetType().Name);
             }
         }
@@ -2497,6 +2828,14 @@ def materialize_derived():
     textsrc_abs = os.path.join(HERE, TEXTSRC_PROBE_FILE)
     _write_atomic(textsrc_abs, TEXTSRC_PROBE_TEXT)
     made.append((textsrc_abs, 0))
+    # ⏪ `T-A70`：`cp↔dcp` 偏移映射交付器类本体（**非派生**：新建件，`temp+rename`）
+    cpdc_abs = os.path.join(HERE, CPDCMAP_PROBE_FILE)
+    _write_atomic(cpdc_abs, CPDCMAP_PROBE_TEXT)
+    made.append((cpdc_abs, 0))
+    # ⏪ `T-A71`：文本段落进链交付器类本体（**非派生**：新建件，`temp+rename`）
+    pc_abs = os.path.join(HERE, PARACHAIN_PROBE_FILE)
+    _write_atomic(pc_abs, PARACHAIN_PROBE_TEXT)
+    made.append((pc_abs, 0))
     return made
 
 

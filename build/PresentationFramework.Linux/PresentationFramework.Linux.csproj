@@ -1574,6 +1574,12 @@
     <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/documents/FlowDocumentPaginator.cs" />
     <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/FlowDocumentPaginator.Linux.cs" />
     <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/WpfLinuxChainProbe.Linux.cs" />
+    <!-- T-A69（PRECOND-NO-TEXT-SOURCE）：内容源入站喂料器类本体 -->
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/WpfLinuxTextSrcProbe.Linux.cs" />
+    <!-- T-A70（契约 C4 cp↔dcp 偏移由宿主给定）：托管侧"宿主"侧映射交付器类本体 -->
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/WpfLinuxCpDcpMapProbe.Linux.cs" />
+    <!-- T-A71（PRECOND-NO-TEXT-PARA-IN-CHAIN）：文本段落进链交付器类本体 -->
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/WpfLinuxTextParaChainProbe.Linux.cs" />
   </ItemGroup>
 
   <!-- ==== WPF-on-Linux 补丁结束 ==== -->

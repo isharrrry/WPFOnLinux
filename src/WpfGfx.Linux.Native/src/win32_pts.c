@@ -5419,6 +5419,14 @@ unsigned long long WpfLinuxWin32_PtsTextSrcHash(int k)
     wpf_pts_textsrc *s = wpf_pts_textsrc_at(k);
     return s ? s->hash : 0ULL;
 }
+/* ⏪ `T-A71`：**内容源句柄**（供"文本段落进链"把源接上并做**一一对应**核对）。
+   ⚠️ 语义写死：句柄 ＝ 本模块**自持表项的地址**（该表项在册期地址稳定 ⇒ 可作身份比对）；
+      `k` 越界／魔数不符 ⇒ `NULL`（**不**用零值冒充"有源"）。它**不**可 deref（托管只当不透明 token）。 */
+const void *WpfLinuxWin32_PtsTextSrcHandle(int k)
+{
+    wpf_pts_textsrc *s = wpf_pts_textsrc_at(k);
+    return s ? (const void *)s : NULL;
+}
 int WpfLinuxWin32_PtsTextSrcRx(void)     { return g_pts_textsrc_rx; }
 int WpfLinuxWin32_PtsTextSrcRxGap(void)  { return g_pts_textsrc_gap; }
 int WpfLinuxWin32_PtsTextSrcEmpty(void)  { return g_pts_textsrc_empty; }
@@ -5506,6 +5514,543 @@ int WpfLinuxWin32_PtsTextSrcSelfCheck(void)
     return mask;
 }
 int WpfLinuxWin32_PtsTextSrcSelftestMask(void) { return WpfLinuxWin32_PtsTextSrcSelfCheck(); }
+
+/* ══════════════════════════════════════════════════════════════════════════════════════════════
+   ⏪ `T-A70`（`TASK-0307` 增量 · **`cp↔dcp` 偏移由宿主给定** ＝ `W` 合取第 ⑤ 条 · 契约 `C4`）
+   ──────────────────────────────────────────────────────────────────────────────────────────────
+   【在册契约 · 件:行】`build/MilBridge/P1-ls-provenance-contract.md:72`：
+     「`C4`｜`cp ↔ dcp` 偏移｜**宿主**（只能宿主，`t190` 已判本侧无 `dcp`）｜❌ 不存在：全仓无填点
+       ⇒ **须新立**；建议时机＝LS 会话创建时一次性绑定并留痕｜⚠️ **只能"复算校验"，不能自算**：
+       宿主给出偏移后，本侧可校验**自洽性**（同段落内加减守恒、不同段落偏移不得混用、`dcp` 不越界），
+       **不得**自行推导」；§6 `acceptance` ③：「**C4 由宿主给定**并留痕（本侧**不得**自算）」。
+     `build/MilBridge/P1-tail2-dingrecon.md` §3.2 把它列为 `W`（"内容层那一波"准入合取）的**第五条**。
+   【本块做什么】把**字符位置↔显示位置的偏移映射**做成 native 侧的**入站通道 ＋ 校验器（只校不算）**：
+     托管（宿主）在一次调用窗内交出一组 **(cp, dcp) 样本对**（该段落的偏移映射），本侧在窗内**值拷贝**，
+     并**当场校验**其结构自洽性 —— **单调**（`cp`／`dcp` 严格递增）／**端点**（首样本 `cp` 必须等于宿主
+     声明的该段起始 `cp`）／**双射**（严格递增 ⇒ 两两互异）／**偏移守恒**（`dcp[i]-cp[i]` 同段落内恒定）／
+     **越界**（`cp`／`dcp` 非负）；**任一不符 ⇒ 诚实拒绝**（表内不出现该段 ＋ 具名 `[CPDCMAP] rx=REJECT`）。
+     ⇒ 此后**逐条现取**：`Find(parah)` 得槽 ⇒ `cp_base`／`npts`／**`offset`**／`seq`；`CpAt/DcpAt` 逐点回读。
+   【诚实边界（逐条，不许读宽）】
+     1. 🔴 **本侧不是作者、也不自算**：映射由**宿主**给出（源在宿主侧，`P1-layout-content-criteria.md:146`
+        在册）；本块**只收、只校、只回读**。本侧**不**由 `cp` 推 `dcp`（那正是契约 `outOfScope` 的"自算"）。
+     2. 🔴 **只校 ≠ 对真值**：本条校验的是**自洽性**（单调／端点／双射／守恒／越界），**不是**与
+        外部 LS 真值对拍 —— 契约 §5 反腿 (a)"偏移错一"须**外部真值**（真 LS 会话里的 `dcp`）
+        ⇒ 今天**不跑**（随"内容层那一波"）；本趟两极化由**乱序／非双射**承担（`…SelfCheck` 的 bit3）。
+     3. 🔴 **入站 ≠ 排版**：本块**不**填任何几何／行盒／`dcp` 区间／`cLines`；`W` 整体仍**未解除**。
+     4. **有界**：条数 ≤ `WPF_PTS_CPDCMAP_MAX`、单条点数 ≤ `WPF_PTS_CPDCMAP_PT_MAX`；越界**响亮拒**
+        （不截断、不静默）；表满 ⇒ 有界复用最旧槽（具名行带 `slot=`）。
+   ══════════════════════════════════════════════════════════════════════════════════════════════ */
+#define WPF_PTS_CPDCMAP_MAX      8      /* 在册映射条数上界（有界，防异常调用无限增长） */
+#define WPF_PTS_CPDCMAP_PT_MAX   64     /* 单条映射的样本点数上界（越界 ⇒ 拒，不截断） */
+#define WPF_PTS_CPDCMAP_ST_NONE  0      /* 该段**根本没有入站**（≠"空映射"） */
+#define WPF_PTS_CPDCMAP_ST_EMPTY 1      /* 入站了但 `npts==0`（真·空映射） */
+#define WPF_PTS_CPDCMAP_ST_VALUE 2      /* 入站了且有样本点（真实偏移映射） */
+#define WPF_PTS_CPDCMAP_MAGIC    0x43445043u  /* "CPDC"：本模块自认的条目魔数 */
+
+typedef struct {
+    unsigned int magic;
+    const void  *parah;      /* 段落身份（托管给的句柄；本侧**只存、不 deref**） */
+    int          cp_base;    /* 该段起始字符位置（宿主声明；**端点锚**） */
+    int          npts;       /* 样本点数 */
+    int          offset;     /* `dcp[0]-cp[0]`（**由宿主样本给出**，本侧只核其守恒；`npts==0` ⇒ 0） */
+    int          state;      /* `WPF_PTS_CPDCMAP_ST_{NONE,EMPTY,VALUE}` */
+    int          seq;        /* 全局入站序号（只增；"逐条现取"的序） */
+    int          cp[WPF_PTS_CPDCMAP_PT_MAX];    /* **窗内值拷贝**的字符位置样本 */
+    int          dcp[WPF_PTS_CPDCMAP_PT_MAX];   /* **窗内值拷贝**的显示位置样本 */
+} wpf_pts_cpdc;
+
+static wpf_pts_cpdc *g_pts_cpdc[WPF_PTS_CPDCMAP_MAX];
+static int g_pts_cpdc_n     = 0;   /* 在册条数（＝"偏移映射入站"的现取计数） */
+static int g_pts_cpdc_seq   = 0;   /* 全局入站序号（只增） */
+static int g_pts_cpdc_rx    = 0;   /* 成功入站次数 */
+static int g_pts_cpdc_gap   = 0;   /* 被拒（乱序／非双射／不守恒／端点不符／越界／分配失败）次数 */
+static int g_pts_cpdc_empty = 0;   /* `npts==0` 的入站次数（真·空映射；与"没入站"不同形） */
+static int g_pts_cpdc_rr    = 0;   /* 有界表的轮转指针（满时复用最旧槽） */
+
+/* ── 入站（唯一收口）：**先校后写** ＋ 具名行 ────────────────────────────────────────────────
+   ⚠️ **无假值纪律**：任一失败路径 ⇒ **一个字都不写进表**（表内不出现该段）＋ 具名 `[CPDCMAP] rx=REJECT`。 */
+int WpfLinuxWin32_PtsCpDcpMapFeed(const void *parah, int cp_base, int n, const int *cp, const int *dcp)
+{
+    const char *reason = NULL;
+    if (!parah)                              reason = "null-para";
+    else if (n < 0)                          reason = "negative-n";
+    else if (n > WPF_PTS_CPDCMAP_PT_MAX)     reason = "npts-over-bound";
+    else if (n > 0 && !cp)                   reason = "null-cp";
+    else if (n > 0 && !dcp)                  reason = "null-dcp";
+    if (!reason && n > 0) {
+        if (cp[0] != cp_base) { reason = "endpoint-cp-mismatch"; }   /* 端点：首样本 = 段落起点 */
+        for (int i = 0; i < n && !reason; i++) {
+            if (cp[i]  < 0)               { reason = "cp-negative";       break; }   /* 越界 */
+            if (dcp[i] < 0)               { reason = "dcp-negative";      break; }   /* 越界 */
+            if (i > 0) {
+                if      (cp[i]  <= cp[i-1])  { reason = "nonmonotonic-cp";  break; }  /* 单调（严格）＋ 双射 */
+                else if (dcp[i] <= dcp[i-1]) { reason = "nonmonotonic-dcp"; break; }
+            }
+        }
+        if (!reason) {
+            int off = dcp[0] - cp[0];
+            for (int i = 1; i < n; i++)
+                if (dcp[i] - cp[i] != off) { reason = "offset-not-constant"; break; }  /* 同段落内加减守恒 */
+        }
+    }
+    if (reason) {
+        g_pts_cpdc_gap++;
+        fprintf(stderr, "[CPDCMAP] rx=REJECT reason=%s parah=%p cp_base=%d n=%d bound=%d out=UNWRITTEN bytes=0\n",
+                reason, parah, cp_base, n, WPF_PTS_CPDCMAP_PT_MAX);
+        return WPF_PTS_ERR_NOT_IMPLEMENTED;
+    }
+    int slot = -1;
+    for (int i = 0; i < g_pts_cpdc_n; i++)
+        if (g_pts_cpdc[i] && g_pts_cpdc[i]->magic == WPF_PTS_CPDCMAP_MAGIC &&
+            g_pts_cpdc[i]->parah == parah) { slot = i; break; }
+    if (slot < 0) {
+        if (g_pts_cpdc_n < WPF_PTS_CPDCMAP_MAX) {
+            slot = g_pts_cpdc_n;
+            g_pts_cpdc[slot] = (wpf_pts_cpdc *)calloc(1, sizeof(wpf_pts_cpdc));
+            if (!g_pts_cpdc[slot]) {
+                g_pts_cpdc_gap++;
+                fprintf(stderr, "[CPDCMAP] rx=REJECT reason=alloc-failed parah=%p n=%d out=UNWRITTEN bytes=0\n",
+                        parah, n);
+                return WPF_PTS_ERR_NOT_IMPLEMENTED;
+            }
+            g_pts_cpdc_n++;
+        } else {
+            slot = g_pts_cpdc_rr++ % WPF_PTS_CPDCMAP_MAX;         /* 有界复用（最旧） */
+        }
+    }
+    wpf_pts_cpdc *s = g_pts_cpdc[slot];
+    s->magic   = WPF_PTS_CPDCMAP_MAGIC;
+    s->parah   = parah;
+    s->cp_base = cp_base;
+    s->npts    = n;
+    for (int i = 0; i < n; i++) { s->cp[i] = cp[i]; s->dcp[i] = dcp[i]; }   /* ← 窗内值拷贝（唯一取数处） */
+    s->offset  = (n > 0) ? (dcp[0] - cp[0]) : 0;
+    s->seq     = ++g_pts_cpdc_seq;
+    s->state   = (n > 0) ? WPF_PTS_CPDCMAP_ST_VALUE : WPF_PTS_CPDCMAP_ST_EMPTY;
+    g_pts_cpdc_rx++;
+    if (n == 0) g_pts_cpdc_empty++;
+    fprintf(stderr, "[CPDCMAP] rx=OK slot=%d seq=%d parah=%p cp_base=%d npts=%d off=%d dcp0=%d dcpN=%d state=%s "
+                    "v=CP-DCP-MAP-INBOUND\n",
+            slot, s->seq, parah, cp_base, n, s->offset,
+            (n > 0) ? s->dcp[0] : -1, (n > 0) ? s->dcp[n-1] : -1,
+            s->state == WPF_PTS_CPDCMAP_ST_VALUE ? "VALUE" : "EMPTY");
+    return 0;
+}
+
+/* ── 只读回读面（供托管对拍／探针／判据现取；纯读、越界即响亮哨兵）──────────────────────────
+   ⚠️ 回读哨兵取 `-1`（合法样本值域 ≥ 0，见入站校验的 `cp-negative`／`dcp-negative`）。 */
+static wpf_pts_cpdc *wpf_pts_cpdc_at(int k)
+{
+    if (k < 0 || k >= g_pts_cpdc_n) return NULL;
+    wpf_pts_cpdc *s = g_pts_cpdc[k];
+    return (s && s->magic == WPF_PTS_CPDCMAP_MAGIC) ? s : NULL;
+}
+int WpfLinuxWin32_PtsCpDcpMapCount(void)             { return g_pts_cpdc_n; }
+int WpfLinuxWin32_PtsCpDcpMapFind(const void *parah)
+{
+    for (int i = 0; i < g_pts_cpdc_n; i++) {
+        wpf_pts_cpdc *s = wpf_pts_cpdc_at(i);
+        if (s && s->parah == parah) return i;
+    }
+    return -1;
+}
+int WpfLinuxWin32_PtsCpDcpMapState(int k)   { wpf_pts_cpdc *s = wpf_pts_cpdc_at(k); return s ? s->state : -1; }
+int WpfLinuxWin32_PtsCpDcpMapNPoints(int k) { wpf_pts_cpdc *s = wpf_pts_cpdc_at(k); return s ? s->npts : -1; }
+int WpfLinuxWin32_PtsCpDcpMapCpBase(int k)  { wpf_pts_cpdc *s = wpf_pts_cpdc_at(k); return s ? s->cp_base : -1; }
+int WpfLinuxWin32_PtsCpDcpMapOffset(int k)  { wpf_pts_cpdc *s = wpf_pts_cpdc_at(k); return s ? s->offset : -1; }
+int WpfLinuxWin32_PtsCpDcpMapSeq(int k)     { wpf_pts_cpdc *s = wpf_pts_cpdc_at(k); return s ? s->seq : -1; }
+int WpfLinuxWin32_PtsCpDcpMapCpAt(int k, int i)
+{
+    wpf_pts_cpdc *s = wpf_pts_cpdc_at(k);
+    if (!s || i < 0 || i >= s->npts) return -1;
+    return s->cp[i];
+}
+int WpfLinuxWin32_PtsCpDcpMapDcpAt(int k, int i)
+{
+    wpf_pts_cpdc *s = wpf_pts_cpdc_at(k);
+    if (!s || i < 0 || i >= s->npts) return -1;
+    return s->dcp[i];
+}
+int WpfLinuxWin32_PtsCpDcpMapRx(void)     { return g_pts_cpdc_rx; }
+int WpfLinuxWin32_PtsCpDcpMapRxGap(void)  { return g_pts_cpdc_gap; }
+int WpfLinuxWin32_PtsCpDcpMapEmpty(void)  { return g_pts_cpdc_empty; }
+
+/* ── 两极化自检（**正极真值 ∧ 反极必拒 ∧ 该红必红**；纯 native，只用本侧夹具）──────────────────
+   夹具身份用**文件级静态对象**（地址稳定且互不相同 ⇒ `Find` 不会串味）。
+   bit0 ＝ 合法映射入站成功 ∧ **逐点回读对拍** ∧ `offset` 正确（含 `off=0` 与 `off≠0` 两例）；
+   bit1 ＝ `npts==0` ⇒ `EMPTY`（**与"未入站"的 `NONE` 不同形**，且逐点回读越界 ⇒ 哨兵）；
+   bit2 ＝ 反极必拒（空段落／空数组／负长／超上界 ⇒ `-10000`；回读越界 ⇒ `-1`）；
+   bit3 ＝ **该红必红**（乱序 `cp`／非双射 `dcp`（重复／回退）／偏移不守恒／端点不符 ⇒ 全拒）。
+   **-1** ＝ 夹具自身失败（表位不足 ⇒ **不算绿**）。收尾**真销毁**并**复原全部可观测状态**。 */
+static int g_pts_cpdc_fix_a, g_pts_cpdc_fix_b, g_pts_cpdc_fix_c;
+
+int WpfLinuxWin32_PtsCpDcpMapSelfCheck(void)
+{
+    if (g_pts_cpdc_n + 2 > WPF_PTS_CPDCMAP_MAX) return -1;      /* 表位不足 ⇒ 不算绿 */
+    int save_n = g_pts_cpdc_n, save_seq = g_pts_cpdc_seq, save_rr = g_pts_cpdc_rr;
+    int save_rx = g_pts_cpdc_rx, save_gap = g_pts_cpdc_gap, save_empty = g_pts_cpdc_empty;
+    int mask = 0;
+
+    /* bit0：合法映射（首样本 = 段落起点；单调；双射；同段落内偏移守恒）＋ 逐点回读对拍 */
+    {
+        const int n = 5;
+        int wcp[5], wdcp[5];
+        for (int i = 0; i < n; i++) { wcp[i] = 100 + i; wdcp[i] = 100 + i + 7; }   /* off=7（非零，仍守恒） */
+        int rc = WpfLinuxWin32_PtsCpDcpMapFeed(&g_pts_cpdc_fix_a, 100, n, wcp, wdcp);
+        int k  = WpfLinuxWin32_PtsCpDcpMapFind(&g_pts_cpdc_fix_a);
+        int ok = (rc == 0) && (k >= 0)
+              && (WpfLinuxWin32_PtsCpDcpMapNPoints(k) == n)
+              && (WpfLinuxWin32_PtsCpDcpMapCpBase(k)  == 100)
+              && (WpfLinuxWin32_PtsCpDcpMapOffset(k)  == 7)
+              && (WpfLinuxWin32_PtsCpDcpMapState(k)   == WPF_PTS_CPDCMAP_ST_VALUE)
+              && (WpfLinuxWin32_PtsCpDcpMapSeq(k)     == 1);
+        if (ok) for (int i = 0; i < n; i++)
+                    if (WpfLinuxWin32_PtsCpDcpMapCpAt(k, i)  != wcp[i] ||
+                        WpfLinuxWin32_PtsCpDcpMapDcpAt(k, i) != wdcp[i]) { ok = 0; break; }
+        if (ok) mask |= 1 << 0;
+    }
+    /* bit1：`npts==0` ⇒ EMPTY（与"未入站"不同形；越界回读 ⇒ 哨兵） */
+    {
+        int rc = WpfLinuxWin32_PtsCpDcpMapFeed(&g_pts_cpdc_fix_b, 0, 0, NULL, NULL);
+        int k  = WpfLinuxWin32_PtsCpDcpMapFind(&g_pts_cpdc_fix_b);
+        if (rc == 0 && k >= 0 && WpfLinuxWin32_PtsCpDcpMapState(k) == WPF_PTS_CPDCMAP_ST_EMPTY &&
+            WpfLinuxWin32_PtsCpDcpMapNPoints(k) == 0 && WpfLinuxWin32_PtsCpDcpMapOffset(k) == 0 &&
+            WpfLinuxWin32_PtsCpDcpMapCpAt(k, 0) == -1 && WpfLinuxWin32_PtsCpDcpMapDcpAt(k, 0) == -1)
+            mask |= 1 << 1;
+    }
+    /* bit2：反极必拒（该拒必拒；回读越界 → 哨兵） */
+    {
+        const int wcp[3] = { 10, 11, 12 };
+        const int wdcp[3] = { 10, 11, 12 };
+        int ok = (WpfLinuxWin32_PtsCpDcpMapFeed(NULL, 10, 3, wcp, wdcp) == WPF_PTS_ERR_NOT_IMPLEMENTED)
+              && (WpfLinuxWin32_PtsCpDcpMapFeed(&g_pts_cpdc_fix_c, 10, 3, NULL, wdcp) == WPF_PTS_ERR_NOT_IMPLEMENTED)
+              && (WpfLinuxWin32_PtsCpDcpMapFeed(&g_pts_cpdc_fix_c, 10, 3, wcp, NULL) == WPF_PTS_ERR_NOT_IMPLEMENTED)
+              && (WpfLinuxWin32_PtsCpDcpMapFeed(&g_pts_cpdc_fix_c, 10, -1, wcp, wdcp) == WPF_PTS_ERR_NOT_IMPLEMENTED)
+              && (WpfLinuxWin32_PtsCpDcpMapFeed(&g_pts_cpdc_fix_c, 10, WPF_PTS_CPDCMAP_PT_MAX + 1, wcp, wdcp)
+                                                                              == WPF_PTS_ERR_NOT_IMPLEMENTED)
+              && (WpfLinuxWin32_PtsCpDcpMapCpAt(999, 0) == -1)
+              && (WpfLinuxWin32_PtsCpDcpMapState(999) == -1);
+        if (ok) mask |= 1 << 2;
+    }
+    /* bit3：**该红必红**（乱序／非双射／偏移不守恒／端点不符／越界 ⇒ 全拒；且不污染已入站条目） */
+    {
+        const int bad_order_cp[3]  = { 100, 101, 99  };   /* cp 乱序 */
+        const int bad_order_dcp[3] = { 100, 101, 102 };
+        const int dup_cp[3]        = { 100, 101, 102 };
+        const int dup_dcp[3]       = { 100, 101, 101 };   /* dcp 重复（非双射） */
+        const int back_dcp[3]      = { 100, 101, 100 };   /* dcp 回退（非双射） */
+        const int off_cp[3]        = { 100, 101, 102 };
+        const int off_dcp[3]       = { 100, 101, 103 };   /* 偏移不恒定 */
+        const int end_cp[3]        = { 101, 102, 103 };   /* 端点 ≠ 段落起点 */
+        const int end_dcp[3]       = { 101, 102, 103 };
+        int ok = (WpfLinuxWin32_PtsCpDcpMapFeed(&g_pts_cpdc_fix_c, 100, 3, bad_order_cp, bad_order_dcp) == WPF_PTS_ERR_NOT_IMPLEMENTED)
+              && (WpfLinuxWin32_PtsCpDcpMapFeed(&g_pts_cpdc_fix_c, 100, 3, dup_cp,       dup_dcp)       == WPF_PTS_ERR_NOT_IMPLEMENTED)
+              && (WpfLinuxWin32_PtsCpDcpMapFeed(&g_pts_cpdc_fix_c, 100, 3, dup_cp,       back_dcp)      == WPF_PTS_ERR_NOT_IMPLEMENTED)
+              && (WpfLinuxWin32_PtsCpDcpMapFeed(&g_pts_cpdc_fix_c, 100, 3, off_cp,       off_dcp)       == WPF_PTS_ERR_NOT_IMPLEMENTED)
+              && (WpfLinuxWin32_PtsCpDcpMapFeed(&g_pts_cpdc_fix_c, 100, 3, end_cp,       end_dcp)       == WPF_PTS_ERR_NOT_IMPLEMENTED)
+              && (WpfLinuxWin32_PtsCpDcpMapFind(&g_pts_cpdc_fix_c) == -1);   /* 被拒 ⇒ 表内不出现该段 */
+        if (ok) mask |= 1 << 3;
+    }
+    fprintf(stderr, "[CPDCMAP-SELFTEST] mask=0x%02x inbound=%d empty=%d reject=%d reverse=%d legs=%s\n",
+            mask, (mask >> 0) & 1, (mask >> 1) & 1, (mask >> 2) & 1, (mask >> 3) & 1,
+            mask == 0x0f ? "4/4(POS+REJECT)" : "PARTIAL");
+
+    /* 复原一切可观测状态（"自检不许改变可观测状态"） */
+    for (int i = save_n; i < g_pts_cpdc_n; i++) {
+        if (g_pts_cpdc[i]) { g_pts_cpdc[i]->magic = 0; free(g_pts_cpdc[i]); g_pts_cpdc[i] = NULL; }
+    }
+    g_pts_cpdc_n = save_n; g_pts_cpdc_seq = save_seq; g_pts_cpdc_rr = save_rr;
+    g_pts_cpdc_rx = save_rx; g_pts_cpdc_gap = save_gap; g_pts_cpdc_empty = save_empty;
+    if (g_pts_cpdc_n != save_n) return -1;                 /* 泄漏 ⇒ 不算绿 */
+    return mask;
+}
+int WpfLinuxWin32_PtsCpDcpMapSelftestMask(void) { return WpfLinuxWin32_PtsCpDcpMapSelfCheck(); }
+
+/* ══════════════════════════════════════════════════════════════════════════════════════════════
+   ⏪ `T-A71`（`TASK-0307` 增量 · **文本段落进链** ＝ `W` 合取第 ④ 条 `PRECOND-NO-TEXT-PARA-IN-CHAIN`）
+   ──────────────────────────────────────────────────────────────────────────────────────────────
+   【在册前置 · 件:行】`build/MilBridge/P1-layout-content-criteria.md:114`：「**`PRECOND-NO-TEXT-PARA-IN-CHAIN`**：
+   现链上是容器段落，`TextParaClient` 是**另一族**。」`build/MilBridge/P1-tail2-dingrecon.md` §3.2 把它
+   列为 `W`（"内容层那一波"准入合取）的**第四条**；§3.2 第 1 条另要求「LS 会话进链：……文本段落 `nmp`
+   在本侧同一窗内可观测」。
+   【本块做什么】把**文本段落**（`TextParaClient` 所代表的段）在 native 的**链**里做成**可寻址**
+   （按**段身份**查得）的台账条目，并**逐段现取**五格：**段身份**／**所属页**／**子轨**／**`cp` 域**／
+   **内容源句柄**：
+     · 托管在**一次调用窗内**交出该段的 `parah`（＝`BaseParaClient._paraHandle`）＋ **页身份**（该段
+       所在页的**同一性序号**，同页同号）＋ **`cp` 域**（`[cp_first, cp_lim)`，宿主真值）；
+     · native **当场核**：该段身份**必须**能在本侧台账里**按对象身份认领**（`wpf_pts_sub_claim`
+       ⇒ 它**确实**是本侧链上的一个子轨对象）—— 认不出 ⇒ **诚实拒绝**（`not-in-chain`，表内不出现该段）；
+       `cp` 域必须自洽（非负 ∧ `cp_lim ≥ cp_first` ∧ 跨度有界）；
+     · **子轨** ＝ 认领所得的那个本侧子轨对象（现取它的**台账序号** `sub_seq`；认领成功 ⇒ `sub_claimed=1`）；
+     · **内容源句柄** ＝ 在 `T-A69` 的**内容源表**里按**同一段身份**解析出的表项地址
+       （`WpfLinuxWin32_PtsTextSrcHandle`）⇒ 与 `T-A69` 的内容源**一一对应**（同 `parah` ⇒ 同表项，
+       `LinkOk` 为该不变式的机器读数）。
+   ⇒ 此后**逐段可现取**：`Find(parah)` 得槽 ⇒ `Para`／`PageId`／`SubSeq`／`SubClaimed`／`CpFirst`／
+     `CpLim`／`SrcSlot`／`SrcHandle`／`State`／`Seq`。
+   【诚实边界（逐条，不许读宽）】
+     1. 🔴 **本侧不是作者**：段身份／页身份／`cp` 域都由**托管（宿主）**给出（源在宿主侧，
+        `P1-layout-content-criteria.md:146` 在册）；**子轨**与**内容源句柄**是本侧**自己的台账**读出的
+        （认领所得／`T-A69` 表项地址）。本块**只收、只认领、只解析、只回读**，**绝不自造**。
+     2. 🔴 **"进链"是**有牙**的（该红必红）**：段身份**不是**本侧链上对象 ⇒ **必拒**（`not-in-chain`）；
+        这与 `T-A69`／`T-A70` 的"收下即存"不同 —— 那两条**不要求**身份在链上，本条**要求**。
+     3. 🔴 **"进链" ≠ "排版"**：本块**不**填任何几何／行盒／`cLines`／`dcp` 区间；`W` 整体仍**未解除**
+        （`PRECOND-NO-LINE-BREAKER`／`PRECOND-LS-SESSION-DRIVER`／`C2` 的 `plsrun` 那一半仍在册）。
+     4. 🔴 **"页身份"是托管给的同一性序号**（不 deref、不主张"页对象内存"）：同页同号、异页异号；
+        本侧把它当**不透明 token** 存与回读。
+     5. 🔴 **无源 ≠ 有源**：进了链但 `T-A69` 表里查不到该段 ⇒ 状态 `UNSOURCED`（**与"没进链"的 `NONE`
+        不同形**），**不**用零值／假句柄冒充"有源"。
+     6. **有界**：条数 ≤ `WPF_PTS_PC_MAX`、`cp` 跨度 ≤ `WPF_PTS_PC_CP_SPAN_MAX`；越界**响亮拒**
+        （不截断、不静默）；表满 ⇒ 有界复用最旧槽（具名行带 `slot=`）。
+   ══════════════════════════════════════════════════════════════════════════════════════════════ */
+#define WPF_PTS_PC_MAX          8        /* 在册"进链文本段落"条数上界（有界，防异常调用无限增长） */
+#define WPF_PTS_PC_CP_SPAN_MAX  65536    /* 单段 `cp` 域跨度上界（越界 ⇒ 拒，不截断） */
+#define WPF_PTS_PC_ST_NONE      0        /* 该段**根本没有进链**（≠"进了链但无源"） */
+#define WPF_PTS_PC_ST_UNSOURCED 1        /* 进链了，但 `T-A69` 表里**没有**该段的内容源 */
+#define WPF_PTS_PC_ST_SOURCED   2        /* 进链了 ∧ 内容源可解析（与 `T-A69` 一一对应） */
+#define WPF_PTS_PC_MAGIC        0x50435254u  /* "PCRT"：本模块自认的条目魔数 */
+
+typedef struct {
+    unsigned int magic;
+    const void  *parah;      /* 段身份（托管给的 `_paraHandle`；本侧**只存、不 deref**） */
+    int          page_id;    /* 所属页：托管给的**同一性序号**（同页同号；不 deref） */
+    int          sub_claimed;/* 子轨：该段身份能否在本侧台账里**按对象身份认领**（1 ＝ 是） */
+    int          sub_seq;    /* 子轨：认领所得的**本侧子轨对象**的台账序号（`wpf_pts_subtrack.seq`） */
+    int          cp_first;   /* `cp` 域：段起始字符位置（宿主真值） */
+    int          cp_lim;     /* `cp` 域：段末字符位置（开区间上界；宿主真值） */
+    int          src_slot;   /* 内容源句柄：`T-A69` 表里该段的槽（-1 ＝ 无源） */
+    const void  *src_handle; /* 内容源句柄：`T-A69` 表项地址（-1 态时 NULL） */
+    int          state;      /* `WPF_PTS_PC_ST_{NONE,UNSOURCED,SOURCED}` */
+    int          seq;        /* 全局进链序号（只增；"逐段现取"的序） */
+} wpf_pts_parachain;
+
+static wpf_pts_parachain *g_pts_pc[WPF_PTS_PC_MAX];
+static int g_pts_pc_n          = 0;   /* 在册条数（＝"文本段落进链"的现取计数） */
+static int g_pts_pc_seq        = 0;   /* 全局进链序号（只增） */
+static int g_pts_pc_rx         = 0;   /* 成功进链次数 */
+static int g_pts_pc_gap        = 0;   /* 被拒（空身份／坏页号／cp 不自洽／**不在链上**／分配失败）次数 */
+static int g_pts_pc_unsourced  = 0;   /* 进了链但无内容源的次数（与"没进链"不同形） */
+static int g_pts_pc_rr         = 0;   /* 有界表的轮转指针（满时复用最旧槽） */
+
+/* ── 进链（唯一收口）：**先认领后写** ＋ 具名行 ───────────────────────────────────────────────
+   ⚠️ **无假值纪律**：任一失败路径 ⇒ **一个字都不写进表**（表内不出现该段）＋ 具名 `[PARACHAIN] rx=REJECT`。 */
+int WpfLinuxWin32_PtsParaChainFeed(const void *parah, int page_id, int cp_first, int cp_lim)
+{
+    const char *reason = NULL;
+    wpf_pts_subtrack *sub = NULL;
+    if (!parah)                                     reason = "null-para";
+    else if (page_id <= 0)                          reason = "bad-page-id";
+    else if (cp_first < 0)                          reason = "cp-first-negative";
+    else if (cp_lim < cp_first)                     reason = "cp-lim-before-first";
+    else if (cp_lim - cp_first > WPF_PTS_PC_CP_SPAN_MAX) reason = "cp-span-over-bound";
+    else if (!wpf_pts_sub_claim(parah, &sub))       reason = "not-in-chain";   /* ← 该红必红的牙 */
+    if (reason) {
+        g_pts_pc_gap++;
+        fprintf(stderr, "[PARACHAIN] rx=REJECT reason=%s parah=%p page=%d cp=[%d,%d) out=UNWRITTEN\n",
+                reason, parah, page_id, cp_first, cp_lim);
+        return WPF_PTS_ERR_NOT_IMPLEMENTED;
+    }
+    /* 内容源句柄：按**同一段身份**在 `T-A69` 表里解析（⇒ 与 `T-A69` 内容源一一对应） */
+    int src_slot = -1; const void *src_handle = NULL;
+    {
+        int ts = WpfLinuxWin32_PtsTextSrcFind(parah);
+        if (ts >= 0) {
+            wpf_pts_textsrc *t = wpf_pts_textsrc_at(ts);
+            if (t && t->parah == parah) { src_slot = ts; src_handle = (const void *)t; }
+        }
+    }
+    int slot = -1;
+    for (int i = 0; i < g_pts_pc_n; i++)
+        if (g_pts_pc[i] && g_pts_pc[i]->magic == WPF_PTS_PC_MAGIC && g_pts_pc[i]->parah == parah) { slot = i; break; }
+    if (slot < 0) {
+        if (g_pts_pc_n < WPF_PTS_PC_MAX) {
+            slot = g_pts_pc_n;
+            g_pts_pc[slot] = (wpf_pts_parachain *)calloc(1, sizeof(wpf_pts_parachain));
+            if (!g_pts_pc[slot]) {
+                g_pts_pc_gap++;
+                fprintf(stderr, "[PARACHAIN] rx=REJECT reason=alloc-failed parah=%p out=UNWRITTEN\n", parah);
+                return WPF_PTS_ERR_NOT_IMPLEMENTED;
+            }
+            g_pts_pc_n++;
+        } else {
+            slot = g_pts_pc_rr++ % WPF_PTS_PC_MAX;         /* 有界复用（最旧） */
+        }
+    }
+    wpf_pts_parachain *s = g_pts_pc[slot];
+    s->magic       = WPF_PTS_PC_MAGIC;
+    s->parah       = parah;
+    s->page_id     = page_id;
+    s->sub_claimed = 1;                       /* 到了这里就是认领成功的（上面的 `not-in-chain` 已挡掉反面） */
+    s->sub_seq     = sub ? sub->seq : -1;
+    s->cp_first    = cp_first;
+    s->cp_lim      = cp_lim;
+    s->src_slot    = src_slot;
+    s->src_handle  = src_handle;
+    s->state       = (src_slot >= 0) ? WPF_PTS_PC_ST_SOURCED : WPF_PTS_PC_ST_UNSOURCED;
+    s->seq         = ++g_pts_pc_seq;
+    g_pts_pc_rx++;
+    if (src_slot < 0) g_pts_pc_unsourced++;
+    fprintf(stderr, "[PARACHAIN] rx=OK slot=%d seq=%d parah=%p page=%d sub_seq=%d cp=[%d,%d) cch=%d "
+                    "src_slot=%d src=%p state=%s v=TEXT-PARA-IN-CHAIN\n",
+            slot, s->seq, parah, page_id, s->sub_seq, cp_first, cp_lim, cp_lim - cp_first,
+            src_slot, src_handle, s->state == WPF_PTS_PC_ST_SOURCED ? "SOURCED" : "UNSOURCED");
+    return 0;
+}
+
+/* ── 只读回读面（供托管对拍／探针／判据现取；纯读、越界即响亮哨兵）────────────────────────── */
+static wpf_pts_parachain *wpf_pts_pc_at(int k)
+{
+    if (k < 0 || k >= g_pts_pc_n) return NULL;
+    wpf_pts_parachain *s = g_pts_pc[k];
+    return (s && s->magic == WPF_PTS_PC_MAGIC) ? s : NULL;
+}
+int WpfLinuxWin32_PtsParaChainCount(void) { return g_pts_pc_n; }
+int WpfLinuxWin32_PtsParaChainFind(const void *parah)
+{
+    for (int i = 0; i < g_pts_pc_n; i++) {
+        wpf_pts_parachain *s = wpf_pts_pc_at(i);
+        if (s && s->parah == parah) return i;
+    }
+    return -1;
+}
+int WpfLinuxWin32_PtsParaChainState(int k)     { wpf_pts_parachain *s = wpf_pts_pc_at(k); return s ? s->state : -1; }
+int WpfLinuxWin32_PtsParaChainSeq(int k)       { wpf_pts_parachain *s = wpf_pts_pc_at(k); return s ? s->seq : -1; }
+int WpfLinuxWin32_PtsParaChainPageId(int k)    { wpf_pts_parachain *s = wpf_pts_pc_at(k); return s ? s->page_id : -1; }
+int WpfLinuxWin32_PtsParaChainSubClaimed(int k){ wpf_pts_parachain *s = wpf_pts_pc_at(k); return s ? s->sub_claimed : -1; }
+int WpfLinuxWin32_PtsParaChainSubSeq(int k)    { wpf_pts_parachain *s = wpf_pts_pc_at(k); return s ? s->sub_seq : -1; }
+int WpfLinuxWin32_PtsParaChainCpFirst(int k)   { wpf_pts_parachain *s = wpf_pts_pc_at(k); return s ? s->cp_first : -1; }
+int WpfLinuxWin32_PtsParaChainCpLim(int k)     { wpf_pts_parachain *s = wpf_pts_pc_at(k); return s ? s->cp_lim : -1; }
+int WpfLinuxWin32_PtsParaChainSrcSlot(int k)   { wpf_pts_parachain *s = wpf_pts_pc_at(k); return s ? s->src_slot : -1; }
+const void *WpfLinuxWin32_PtsParaChainPara(int k)      { wpf_pts_parachain *s = wpf_pts_pc_at(k); return s ? s->parah : NULL; }
+const void *WpfLinuxWin32_PtsParaChainSrcHandle(int k) { wpf_pts_parachain *s = wpf_pts_pc_at(k); return s ? s->src_handle : NULL; }
+/* **一一对应**的机器读数：该段在链上 ∧ 其内容源句柄**就是** `T-A69` 表里同段身份那一项的地址。 */
+int WpfLinuxWin32_PtsParaChainLinkOk(int k)
+{
+    wpf_pts_parachain *s = wpf_pts_pc_at(k);
+    if (!s || s->src_slot < 0 || !s->src_handle) return 0;
+    wpf_pts_textsrc *t = wpf_pts_textsrc_at(s->src_slot);
+    if (!t) return 0;
+    if (t->parah != s->parah) return 0;                                   /* 同段身份 */
+    if ((const void *)t != s->src_handle) return 0;                       /* 同表项地址 */
+    return (WpfLinuxWin32_PtsTextSrcFind(s->parah) == s->src_slot) ? 1 : 0; /* 反向也指回同一槽 */
+}
+int WpfLinuxWin32_PtsParaChainRx(void)         { return g_pts_pc_rx; }
+int WpfLinuxWin32_PtsParaChainRxGap(void)      { return g_pts_pc_gap; }
+int WpfLinuxWin32_PtsParaChainUnsourced(void)  { return g_pts_pc_unsourced; }
+
+/* ── 两极化自检（**正极真值 ∧ 反极必拒 ∧ 该红必红**；纯 native，只用本侧夹具，不碰应用状态）──────
+   夹具子轨对象用 `wpf_pts_sub_new` **真造**（⇒ 其句柄**在链上可认领**，这是本条的正极前提）；
+   夹具内容源由 `T-A69` 的 `…PtsTextSrcFeed` **真入站**（⇒ 与 `T-A69` 一一对应可真核）。
+   bit0 ＝ 链上段 ∧ 有源 ⇒ `SOURCED` ∧ 五格（身份／页／子轨／`cp` 域／源句柄）逐格相符 ∧ `LinkOk=1`；
+   bit1 ＝ 链上段但**无源** ⇒ `UNSOURCED`（**与"没进链"的 `NONE` 不同形**）；
+   bit2 ＝ 反极必拒（空身份／坏页号／负 `cp`／`cpLim<cpFirst`／跨度超界 ⇒ `-10000`；回读越界 ⇒ 哨兵）；
+   bit3 ＝ **该红必红**（**不在链上**的段身份 ⇒ 必拒 ∧ 表内不出现该段）。
+   **-1** ＝ 夹具自身失败（表位不足 ⇒ **不算绿**）。收尾**真销毁**并**复原全部可观测状态**。 */
+static int g_pts_pc_fix_page_a, g_pts_pc_pc_fix_unclaimed;
+
+int WpfLinuxWin32_PtsParaChainSelfCheck(void)
+{
+    if (g_pts_pc_n + 2 > WPF_PTS_PC_MAX) return -1;              /* 表位不足 ⇒ 不算绿 */
+    if (g_pts_sub_live_n + 2 > WPF_PTS_SUB_MAX) return -1;
+    if (g_pts_textsrc_n + 1 > WPF_PTS_TEXTSRC_MAX) return -1;
+    int save_n = g_pts_pc_n, save_seq = g_pts_pc_seq, save_rr = g_pts_pc_rr;
+    int save_rx = g_pts_pc_rx, save_gap = g_pts_pc_gap, save_uns = g_pts_pc_unsourced;
+    int save_cok = g_pts_sub_claim_ok, save_cbad = g_pts_sub_claim_bad;
+    int save_subn = g_pts_sub_live_n, save_subc = g_pts_sub_created, save_subd = g_pts_sub_destroyed;
+    int save_subseq = g_pts_sub_seq, save_hcr = g_pts_hc_reading;
+    int save_tsn = g_pts_textsrc_n, save_tsseq = g_pts_textsrc_seq, save_tsrr = g_pts_textsrc_rr;
+    int save_tsrx = g_pts_textsrc_rx, save_tsgap = g_pts_textsrc_gap, save_tsempty = g_pts_textsrc_empty;
+    int mask = 0;
+
+    wpf_pts_subtrack *o_a = wpf_pts_sub_new(&g_pts_pc_fix_page_a, NULL);
+    wpf_pts_subtrack *o_b = wpf_pts_sub_new(&g_pts_pc_pc_fix_unclaimed, NULL);
+    if (!o_a || !o_b) {                                          /* 夹具自身失败 ⇒ 不算绿（先复原再返 -1） */
+        if (o_a) wpf_pts_sub_destroy(o_a);
+        if (o_b) wpf_pts_sub_destroy(o_b);
+        g_pts_sub_live_n = save_subn; g_pts_sub_created = save_subc; g_pts_sub_destroyed = save_subd;
+        g_pts_sub_seq = save_subseq; g_pts_hc_reading = save_hcr;
+        return -1;
+    }
+    const void *pa = wpf_pts_sub_handle(o_a);                    /* 链上**可认领**的段身份 */
+    const void *pb = wpf_pts_sub_handle(o_b);
+
+    /* bit0：正极 —— 链上段 ∧ 有内容源 ⇒ SOURCED ∧ 五格逐格相符 ∧ 与 T-A69 一一对应 */
+    {
+        static const unsigned short fix[] = { 'C','H','A','I','N', 0x4E2D, 0x0009 };
+        const int fc = (int)(sizeof(fix) / sizeof(fix[0]));
+        if (WpfLinuxWin32_PtsTextSrcFeed(pa, 5, fix, fc) == 0) {
+            int rc = WpfLinuxWin32_PtsParaChainFeed(pa, 1, 5, 5 + fc);
+            int k  = WpfLinuxWin32_PtsParaChainFind(pa);
+            int ts = WpfLinuxWin32_PtsTextSrcFind(pa);
+            int ok = (rc == 0) && (k >= 0) && (ts >= 0)
+                  && (WpfLinuxWin32_PtsParaChainState(k)      == WPF_PTS_PC_ST_SOURCED)
+                  && (WpfLinuxWin32_PtsParaChainPara(k)       == pa)
+                  && (WpfLinuxWin32_PtsParaChainPageId(k)     == 1)
+                  && (WpfLinuxWin32_PtsParaChainSubClaimed(k) == 1)
+                  && (WpfLinuxWin32_PtsParaChainSubSeq(k)     == o_a->seq)
+                  && (WpfLinuxWin32_PtsParaChainCpFirst(k)    == 5)
+                  && (WpfLinuxWin32_PtsParaChainCpLim(k)      == 5 + fc)
+                  && (WpfLinuxWin32_PtsParaChainSrcSlot(k)    == ts)
+                  && (WpfLinuxWin32_PtsParaChainSrcHandle(k)  == WpfLinuxWin32_PtsTextSrcHandle(ts))
+                  && (WpfLinuxWin32_PtsParaChainLinkOk(k)     == 1);
+            if (ok) mask |= 1 << 0;
+        }
+    }
+    /* bit1：链上段但**无源** ⇒ UNSOURCED（与"没进链"不同形） */
+    {
+        int rc = WpfLinuxWin32_PtsParaChainFeed(pb, 2, 40, 40);
+        int k  = WpfLinuxWin32_PtsParaChainFind(pb);
+        if (rc == 0 && k >= 0
+            && WpfLinuxWin32_PtsParaChainState(k)      == WPF_PTS_PC_ST_UNSOURCED
+            && WpfLinuxWin32_PtsParaChainSubClaimed(k) == 1
+            && WpfLinuxWin32_PtsParaChainSrcSlot(k)    == -1
+            && WpfLinuxWin32_PtsParaChainSrcHandle(k)  == NULL
+            && WpfLinuxWin32_PtsParaChainLinkOk(k)     == 0)
+            mask |= 1 << 1;
+    }
+    /* bit2：反极必拒（该拒必拒；回读越界 → 哨兵） */
+    {
+        int ok = (WpfLinuxWin32_PtsParaChainFeed(NULL, 1, 0, 1)  == WPF_PTS_ERR_NOT_IMPLEMENTED)
+              && (WpfLinuxWin32_PtsParaChainFeed(pa, 0, 0, 1)    == WPF_PTS_ERR_NOT_IMPLEMENTED)
+              && (WpfLinuxWin32_PtsParaChainFeed(pa, 1, -1, 1)   == WPF_PTS_ERR_NOT_IMPLEMENTED)
+              && (WpfLinuxWin32_PtsParaChainFeed(pa, 1, 10, 9)   == WPF_PTS_ERR_NOT_IMPLEMENTED)
+              && (WpfLinuxWin32_PtsParaChainFeed(pa, 1, 0, WPF_PTS_PC_CP_SPAN_MAX + 1) == WPF_PTS_ERR_NOT_IMPLEMENTED)
+              && (WpfLinuxWin32_PtsParaChainState(999)    == -1)
+              && (WpfLinuxWin32_PtsParaChainCpFirst(999)  == -1)
+              && (WpfLinuxWin32_PtsParaChainPara(999)     == NULL)
+              && (WpfLinuxWin32_PtsParaChainLinkOk(999)   == 0);
+        if (ok) mask |= 1 << 2;
+    }
+    /* bit3：**该红必红** —— **不在链上**（不可认领）的段身份 ⇒ 必拒 ∧ 表内不出现该段 */
+    {
+        int ok = (WpfLinuxWin32_PtsParaChainFeed((const void *)&g_pts_pc_fix_page_a, 1, 0, 3) == WPF_PTS_ERR_NOT_IMPLEMENTED)
+              && (WpfLinuxWin32_PtsParaChainFeed((const void *)0x5a5a5a5a,         1, 0, 3) == WPF_PTS_ERR_NOT_IMPLEMENTED)
+              && (WpfLinuxWin32_PtsParaChainFind((const void *)&g_pts_pc_fix_page_a) == -1)
+              && (WpfLinuxWin32_PtsParaChainFind((const void *)0x5a5a5a5a)           == -1);
+        if (ok) mask |= 1 << 3;
+    }
+    fprintf(stderr, "[PARACHAIN-SELFTEST] mask=0x%02x sourced=%d unsourced=%d reject=%d notinchain=%d legs=%s\n",
+            mask, (mask >> 0) & 1, (mask >> 1) & 1, (mask >> 2) & 1, (mask >> 3) & 1,
+            mask == 0x0f ? "4/4(POS+REJECT)" : "PARTIAL");
+
+    /* 复原一切可观测状态（"自检不许改变可观测状态"） */
+    for (int i = save_n; i < g_pts_pc_n; i++) {
+        if (g_pts_pc[i]) { g_pts_pc[i]->magic = 0; free(g_pts_pc[i]); g_pts_pc[i] = NULL; }
+    }
+    g_pts_pc_n = save_n; g_pts_pc_seq = save_seq; g_pts_pc_rr = save_rr;
+    g_pts_pc_rx = save_rx; g_pts_pc_gap = save_gap; g_pts_pc_unsourced = save_uns;
+    wpf_pts_sub_destroy(o_b); wpf_pts_sub_destroy(o_a);
+    g_pts_sub_live_n = save_subn; g_pts_sub_created = save_subc; g_pts_sub_destroyed = save_subd;
+    g_pts_sub_seq = save_subseq; g_pts_hc_reading = save_hcr;
+    for (int i = save_tsn; i < g_pts_textsrc_n; i++) {
+        if (g_pts_textsrc[i]) { g_pts_textsrc[i]->magic = 0; free(g_pts_textsrc[i]); g_pts_textsrc[i] = NULL; }
+    }
+    g_pts_textsrc_n = save_tsn; g_pts_textsrc_seq = save_tsseq; g_pts_textsrc_rr = save_tsrr;
+    g_pts_textsrc_rx = save_tsrx; g_pts_textsrc_gap = save_tsgap; g_pts_textsrc_empty = save_tsempty;
+    g_pts_sub_claim_ok = save_cok; g_pts_sub_claim_bad = save_cbad;
+    if (g_pts_pc_n != save_n) return -1;                          /* 泄漏 ⇒ 不算绿 */
+    return mask;
+}
+int WpfLinuxWin32_PtsParaChainSelftestMask(void) { return WpfLinuxWin32_PtsParaChainSelfCheck(); }
 
 // ── 格 6 · 只读面（`t110`／P1-W35）：`CreateDocContext` 的**独立读取面** ────────────────
 //   为什么要这些口：判据 C9 的判绿**不许**停在"两个句柄不同"（那只是必要条件）；"按对象绑定"
