@@ -31,7 +31,18 @@
 #   并**断言相等**（不等即 `rc=9` 停手 = 基底漂移），再把 `tool/dead/artifact/ops/impl`
 #   交给牙**现算对账**（不等即牙红 —— 那才是"数漂了"，与基底漂移是两回事，分开报）。
 # ══════════════════════════════════════════════════════════════════════════════════
-# PTSGAP-DECL: tool=54 dead=11 artifact=1 ops=42 impl=42 so16=0e15268163bbbd71 exports=747 w66pre16=bf6b683d94549087
+# PTSGAP-DECL: tool=54 dead=11 artifact=1 ops=42 impl=42 so16=a5e9e090a6a64273 exports=763 w66pre16=bf6b683d94549087
+#   ⚠️ 波 `T-A69` 重锚（`TASK-0307` 增量 · **内容源入站（字符序列）**／`W` 合取第 ② 条 `PRECOND-NO-TEXT-SOURCE`，
+#     `build/MilBridge/P1-layout-content-criteria.md:112`）：native 侧新增**入站通道 ＋ 逐段只读回读面 ＋ 两极化自检**，
+#     并在**托管侧**（生成器 `build/PresentationFramework.Linux/reapply-patches.py` 重产件 `WpfLinuxTextSrcProbe.Linux.cs` ＋
+#     `TextParaClient.Linux.cs` 的 `ValidateVisual` 一处调用）把**文本段落的字符序列在同一窗内**交给 native，
+#     随即回读 native 的**逐字节副本**并与托管侧真值**逐字节对拍**（逐字符 ＋ 独立算的 FNV-1a 64）：
+#     `exports 747→763`（**逐名 +16**：`WpfLinuxWin32_PtsTextSrc{Feed,Count,Find,State,Cch,CpOff,Bytes,Claimed,Seq,Char,Hash,Rx,RxGap,Empty,SelfCheck,SelftestMask}`，
+#       无消失；`nm -D --defined-only` 行数 == `exports.txt` 行数 == 763；逐名 `diff` 零差异）；
+#     `tool/ops/impl/dead/artifact` **未动**（未触碰任何 `PresentationNative` 入口缺口；`stubs` 仍 0）；
+#     `so16 0e15268163bbbd71→a5e9e090a6a64273`（504920→514512 B）；`w66pre16` 未动。
+#     ⚠️ **本增量不解除 `W`**：入站 ≠ 排版 —— 它**不**填任何几何／行盒／`dcp` 区间；`PRECOND-NO-LINE-BREAKER`／
+#        `PRECOND-LS-SESSION-DRIVER` 仍在册（`W` 整体仍**未解除**）。
 #   ⚠️ 波 `T-A68` 重锚（`TASK-0307` 增量 · **LS 回调面 ＝ 第二条回调面**／`PRECOND-NEW-CALLBACK-FACE` 的**量＋面**）：
 #     native 侧在 `LoCreateContext` **窗内值化** `LsContextInfo`（前 744 B）＋ `LscbkRedefined`（24 B），登记 **28 槽**
 #     （最小入站面 `LS-CB-M1` **9 槽**；`P1-ls-callback-face-recon.md` §3／§5.1），落**逐槽只读探针**＋**一条真发调通路**

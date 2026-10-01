@@ -5272,6 +5272,241 @@ int WpfLinuxWin32_PtsLscbfSelfCheck(void)
 }
 int WpfLinuxWin32_PtsLscbfSelftestMask(void) { return WpfLinuxWin32_PtsLscbfSelfCheck(); }
 
+/* ══════════════════════════════════════════════════════════════════════════════════════════════
+   ⏪ `T-A69`（`TASK-0307` 增量 · **内容源入站（字符序列）** ＝ `W` 合取第 ② 条 `PRECOND-NO-TEXT-SOURCE`）
+   ──────────────────────────────────────────────────────────────────────────────────────────────
+   【在册前置 · 件:行】`build/MilBridge/P1-layout-content-criteria.md:112`：「**`PRECOND-NO-TEXT-SOURCE`**：
+   本侧无字符/`dcp` 内容源。」`build/MilBridge/P1-tail2-dingrecon.md` §3.2 把它列为 `W`（"内容层那一波"
+   准入合取）的**第二条**。
+   【本块做什么】把**文本段落的字符序列**做成 native 侧的**入站通道**：托管在**一次调用窗内**交出该段的
+   字符序列（只读指针 ＋ 字符数 ＋ 起始偏移），本侧在**该窗内逐字节值拷贝**进本模块自持的表（照 `t141`
+   `fscbk_snap`／`T-A68` `LSCBF` 的**窗内值化**纪律：入参是托管临时内存 ⇒ 只能值拷贝，不许跨调用存指针），
+   此后**越窗可现取**：
+     · **逐段可读**：按段落身份 `Find(parah)` 得槽 ⇒ `cch`／`bytes`／`cp`／`seq`／`claimed`；
+     · **逐字符可读**：`CharAt(k,i)` 取回该段第 `i` 个 UTF-16 code unit（越界 ⇒ `-1`）；
+     · **可对拍**：`Hash(k)` ＝ 对**副本逐字节**算的 FNV-1a 64（托管侧独立算同一串 ⇒ **逐字节对拍**）。
+   【诚实边界（逐条，不许读宽）】
+     1. 🔴 **本侧不是作者**：字符序列由**托管**产出（源在宿主侧 `TextContainer`，`P1-layout-content-criteria.md:146`
+        在册）；本块**只接收、只保管、只回读**，**绝不自造**（自造即红 `P3`／`P8`）。
+     2. 🔴 **入站 ≠ 排版**：本块**不**填任何几何／行盒／`dcp` 区间／`cLines`。它只证「字符序列**可入站、
+        可现取、可与托管真值逐字节对拍**」。它**不**解除 `PRECOND-NO-LINE-BREAKER`／
+        `PRECOND-LS-SESSION-DRIVER`（LS 会话仍由托管驱动那一格 ⇒ `W` 整体仍**未解除**）。
+     3. 🔴 **无源 ≠ 有源**：未入站 ⇒ 表内**没有**该段条目（`Find` 返 `-1`），本块**不**用零值／空串冒充
+        "有源"。`cch==0`（真·空段）与"**根本没入站**"是**两态**（`EMPTY` vs `NONE`），照 `fscbk` 三态体例。
+     4. **有界**：条数 ≤ `WPF_PTS_TEXTSRC_MAX`、单条 ≤ `WPF_PTS_TEXTSRC_CCH_MAX`；越界**响亮拒**
+        （不截断、不静默）；表满 ⇒ 有界复用最旧槽（具名行带 `slot=`）。
+   ══════════════════════════════════════════════════════════════════════════════════════════════ */
+#define WPF_PTS_TEXTSRC_MAX       8        /* 在册内容源条数上界（有界，防异常调用无限增长） */
+#define WPF_PTS_TEXTSRC_CCH_MAX   8192     /* 单条字符数上界（UTF-16 code units；越界 ⇒ 拒，不截断） */
+#define WPF_PTS_TEXTSRC_ST_NONE   0        /* 该段**根本没有入站**（≠"空段"） */
+#define WPF_PTS_TEXTSRC_ST_EMPTY  1        /* 入站了但 `cch==0`（真·空段） */
+#define WPF_PTS_TEXTSRC_ST_VALUE  2        /* 入站了且有字符（真实字符序列） */
+#define WPF_PTS_TEXTSRC_MAGIC     0x54535243u   /* "TSRC"：本模块自认的条目魔数 */
+
+typedef struct {
+    unsigned int magic;
+    const void  *parah;      /* 段落身份（托管给的句柄；本侧**只存、不 deref**） */
+    int          claimed;    /* 该句柄能否在本侧台账里**按对象身份认领**（诊断；不参与收/拒） */
+    int          cp_off;     /* 段落起始字符偏移（托管给出的 `ParagraphStartCharacterPosition`） */
+    int          cch;        /* 字符数（UTF-16 code units） */
+    int          bytes;      /* 字节数 ＝ `cch*2` */
+    int          state;      /* `WPF_PTS_TEXTSRC_ST_{NONE,EMPTY,VALUE}` */
+    int          seq;        /* 全局入站序号（只增；"逐条现取"的序） */
+    unsigned long long hash; /* FNV-1a 64：对**逐字节副本**算（托管侧独立算同一串 ⇒ 对拍） */
+    unsigned short wch[WPF_PTS_TEXTSRC_CCH_MAX];   /* **窗内逐字节值拷贝**（UTF-16 code units） */
+} wpf_pts_textsrc;
+
+static wpf_pts_textsrc *g_pts_textsrc[WPF_PTS_TEXTSRC_MAX];
+static int g_pts_textsrc_n     = 0;   /* 在册条数（＝"内容源入站"的现取计数） */
+static int g_pts_textsrc_seq   = 0;   /* 全局入站序号（只增） */
+static int g_pts_textsrc_rx    = 0;   /* 成功入站次数 */
+static int g_pts_textsrc_gap   = 0;   /* 被拒（空指针／负长／越界／分配失败）次数 */
+static int g_pts_textsrc_empty = 0;   /* `cch==0` 的入站次数（真·空段；与"没入站"不同形） */
+static int g_pts_textsrc_rr    = 0;   /* 有界表的轮转指针（满时复用最旧槽） */
+
+/* FNV-1a 64：托管侧独立算同一串（对**字节流**逐字节），两边必须相等 ⇒ 逐字节对拍。 */
+static unsigned long long wpf_pts_textsrc_fnv1a(const unsigned char *p, size_t n)
+{
+    unsigned long long h = 1469598103934665603ULL;              /* FNV-1a 64 offset basis */
+    for (size_t i = 0; i < n; i++) { h ^= (unsigned long long)p[i]; h *= 1099511628211ULL; }
+    return h;
+}
+
+/* ── 入站（唯一收口）：窗内值拷贝 ＋ 逐字节指纹 ＋ 具名行 ─────────────────────────────────────
+   ⚠️ **无假值纪律**：任一失败路径 ⇒ **一个字都不写进表**（表内不出现该段）＋ 具名 `[TEXTSRC] rx=REJECT`。 */
+int WpfLinuxWin32_PtsTextSrcFeed(const void *parah, int cp_off, const void *pwch, int cch)
+{
+    const char *reason = NULL;
+    if (!parah)                              reason = "null-para";
+    else if (!pwch)                          reason = "null-text";
+    else if (cch < 0)                        reason = "negative-cch";
+    else if (cch > WPF_PTS_TEXTSRC_CCH_MAX)  reason = "cch-over-bound";
+    if (reason) {
+        g_pts_textsrc_gap++;
+        fprintf(stderr, "[TEXTSRC] rx=REJECT reason=%s parah=%p cch=%d bound=%d out=UNWRITTEN bytes=0\n",
+                reason, parah, cch, WPF_PTS_TEXTSRC_CCH_MAX);
+        return WPF_PTS_ERR_NOT_IMPLEMENTED;
+    }
+    int slot = -1;
+    for (int i = 0; i < g_pts_textsrc_n; i++)
+        if (g_pts_textsrc[i] && g_pts_textsrc[i]->magic == WPF_PTS_TEXTSRC_MAGIC &&
+            g_pts_textsrc[i]->parah == parah) { slot = i; break; }
+    if (slot < 0) {
+        if (g_pts_textsrc_n < WPF_PTS_TEXTSRC_MAX) {
+            slot = g_pts_textsrc_n;
+            g_pts_textsrc[slot] = (wpf_pts_textsrc *)calloc(1, sizeof(wpf_pts_textsrc));
+            if (!g_pts_textsrc[slot]) {
+                g_pts_textsrc_gap++;
+                fprintf(stderr, "[TEXTSRC] rx=REJECT reason=alloc-failed parah=%p cch=%d out=UNWRITTEN bytes=0\n",
+                        parah, cch);
+                return WPF_PTS_ERR_NOT_IMPLEMENTED;
+            }
+            g_pts_textsrc_n++;
+        } else {
+            slot = g_pts_textsrc_rr++ % WPF_PTS_TEXTSRC_MAX;         /* 有界复用（最旧） */
+        }
+    }
+    wpf_pts_textsrc *s = g_pts_textsrc[slot];
+    s->magic   = WPF_PTS_TEXTSRC_MAGIC;
+    s->parah   = parah;
+    s->claimed = wpf_pts_sub_claim(parah, NULL);   /* 身份只是**诊断**：认不认得出都不影响收 */
+    s->cp_off  = cp_off;
+    s->cch     = cch;
+    s->bytes   = cch * 2;
+    if (cch > 0) memcpy(s->wch, pwch, (size_t)cch * 2);   /* ← 窗内值拷贝（唯一取字符处） */
+    s->hash    = wpf_pts_textsrc_fnv1a((const unsigned char *)s->wch, (size_t)s->bytes);
+    s->seq     = ++g_pts_textsrc_seq;
+    s->state   = (cch > 0) ? WPF_PTS_TEXTSRC_ST_VALUE : WPF_PTS_TEXTSRC_ST_EMPTY;
+    g_pts_textsrc_rx++;
+    if (cch == 0) g_pts_textsrc_empty++;
+    fprintf(stderr, "[TEXTSRC] rx=OK slot=%d seq=%d parah=%p claimed=%d cp=%d cch=%d bytes=%d hash=%016llx "
+                    "state=%s v=CONTENT-SOURCE-INBOUND\n",
+            slot, s->seq, parah, s->claimed, cp_off, cch, s->bytes, s->hash,
+            s->state == WPF_PTS_TEXTSRC_ST_VALUE ? "VALUE" : "EMPTY");
+    return 0;
+}
+
+/* ── 只读回读面（供托管对拍／探针／判据现取；纯读、越界即响亮哨兵）────────────────────────── */
+static wpf_pts_textsrc *wpf_pts_textsrc_at(int k)
+{
+    if (k < 0 || k >= g_pts_textsrc_n) return NULL;
+    wpf_pts_textsrc *s = g_pts_textsrc[k];
+    return (s && s->magic == WPF_PTS_TEXTSRC_MAGIC) ? s : NULL;
+}
+int WpfLinuxWin32_PtsTextSrcCount(void)                 { return g_pts_textsrc_n; }
+int WpfLinuxWin32_PtsTextSrcFind(const void *parah)
+{
+    for (int i = 0; i < g_pts_textsrc_n; i++) {
+        wpf_pts_textsrc *s = wpf_pts_textsrc_at(i);
+        if (s && s->parah == parah) return i;
+    }
+    return -1;
+}
+int WpfLinuxWin32_PtsTextSrcState(int k)   { wpf_pts_textsrc *s = wpf_pts_textsrc_at(k); return s ? s->state : -1; }
+int WpfLinuxWin32_PtsTextSrcCch(int k)     { wpf_pts_textsrc *s = wpf_pts_textsrc_at(k); return s ? s->cch : -1; }
+int WpfLinuxWin32_PtsTextSrcCpOff(int k)   { wpf_pts_textsrc *s = wpf_pts_textsrc_at(k); return s ? s->cp_off : -1; }
+int WpfLinuxWin32_PtsTextSrcBytes(int k)   { wpf_pts_textsrc *s = wpf_pts_textsrc_at(k); return s ? s->bytes : -1; }
+int WpfLinuxWin32_PtsTextSrcClaimed(int k) { wpf_pts_textsrc *s = wpf_pts_textsrc_at(k); return s ? s->claimed : -1; }
+int WpfLinuxWin32_PtsTextSrcSeq(int k)     { wpf_pts_textsrc *s = wpf_pts_textsrc_at(k); return s ? s->seq : -1; }
+int WpfLinuxWin32_PtsTextSrcChar(int k, int i)
+{
+    wpf_pts_textsrc *s = wpf_pts_textsrc_at(k);
+    if (!s || i < 0 || i >= s->cch) return -1;          /* 越界 ⇒ 哨兵（UTF-16 code unit 恒 ∈ 0..0xFFFF） */
+    return (int)s->wch[i];
+}
+unsigned long long WpfLinuxWin32_PtsTextSrcHash(int k)
+{
+    wpf_pts_textsrc *s = wpf_pts_textsrc_at(k);
+    return s ? s->hash : 0ULL;
+}
+int WpfLinuxWin32_PtsTextSrcRx(void)     { return g_pts_textsrc_rx; }
+int WpfLinuxWin32_PtsTextSrcRxGap(void)  { return g_pts_textsrc_gap; }
+int WpfLinuxWin32_PtsTextSrcEmpty(void)  { return g_pts_textsrc_empty; }
+
+/* ── 两极化自检（**正极真值 ∧ 反极必拒**；纯 native，只用本侧夹具，不碰应用状态）────────────────
+   夹具身份用**文件级静态对象**（地址稳定且互不相同 ⇒ `Find` 不会串味）。
+   bit0 ＝ 入站成功 ∧ **逐字节回读对拍** ∧ 独立算的 FNV-1a 相符（含非 ASCII 与 `\t`／`\r`）；
+   bit1 ＝ `cch==0` ⇒ `EMPTY`（**与"未入站"的 `NONE` 不同形**）；
+   bit2 ＝ 反极必拒（空指针／空文本／负长／越长 ⇒ `-10000`；回读越界 ⇒ `-1`）；
+   bit3 ＝ **无源不漏**（未入站的段落 ⇒ `Find==-1`）。
+   **-1** ＝ 夹具自身失败（表位不足 ⇒ **不算绿**）。收尾**真销毁**并**复原全部可观测状态**。 */
+static int g_pts_textsrc_fix_a, g_pts_textsrc_fix_b, g_pts_textsrc_fix_c;
+
+int WpfLinuxWin32_PtsTextSrcSelfCheck(void)
+{
+    if (g_pts_textsrc_n + 2 > WPF_PTS_TEXTSRC_MAX) return -1;      /* 表位不足 ⇒ 不算绿 */
+    int save_n = g_pts_textsrc_n, save_seq = g_pts_textsrc_seq, save_rr = g_pts_textsrc_rr;
+    int save_rx = g_pts_textsrc_rx, save_gap = g_pts_textsrc_gap, save_empty = g_pts_textsrc_empty;
+    int save_cok = g_pts_sub_claim_ok, save_cbad = g_pts_sub_claim_bad;
+    static const unsigned short fix[] = { 'W','P','F','-','T','E','X','T','S','R','C',
+                                          0x4E2D, 0x6587, 0x0009, 0x000D };   /* 含 CJK ＋ 控制字符 */
+    const int fixc = (int)(sizeof(fix) / sizeof(fix[0]));
+    int mask = 0;
+
+    /* bit0：入站 ＋ 逐字节回读对拍 ＋ 独立 hash 相符 */
+    {
+        int rc = WpfLinuxWin32_PtsTextSrcFeed(&g_pts_textsrc_fix_a, 7, fix, fixc);
+        int k  = WpfLinuxWin32_PtsTextSrcFind(&g_pts_textsrc_fix_a);
+        int ok = (rc == 0) && (k >= 0)
+              && (WpfLinuxWin32_PtsTextSrcCch(k)     == fixc)
+              && (WpfLinuxWin32_PtsTextSrcBytes(k)   == fixc * 2)
+              && (WpfLinuxWin32_PtsTextSrcCpOff(k)   == 7)
+              && (WpfLinuxWin32_PtsTextSrcState(k)   == WPF_PTS_TEXTSRC_ST_VALUE)
+              && (WpfLinuxWin32_PtsTextSrcClaimed(k) == 0)
+              && (WpfLinuxWin32_PtsTextSrcSeq(k)     == 1);
+        if (ok) for (int i = 0; i < fixc; i++)
+                    if (WpfLinuxWin32_PtsTextSrcChar(k, i) != (int)fix[i]) { ok = 0; break; }
+        if (ok) {
+            unsigned long long want = wpf_pts_textsrc_fnv1a((const unsigned char *)fix, (size_t)(fixc * 2));
+            if (WpfLinuxWin32_PtsTextSrcHash(k) != want) ok = 0;
+        }
+        if (ok) mask |= 1 << 0;
+    }
+    /* bit1：`cch==0` ⇒ EMPTY（与"未入站"不同形） */
+    {
+        unsigned short dummy = 0;
+        int rc = WpfLinuxWin32_PtsTextSrcFeed(&g_pts_textsrc_fix_b, 0, &dummy, 0);
+        int k  = WpfLinuxWin32_PtsTextSrcFind(&g_pts_textsrc_fix_b);
+        if (rc == 0 && k >= 0 && WpfLinuxWin32_PtsTextSrcState(k) == WPF_PTS_TEXTSRC_ST_EMPTY &&
+            WpfLinuxWin32_PtsTextSrcCch(k) == 0 && WpfLinuxWin32_PtsTextSrcBytes(k) == 0 &&
+            WpfLinuxWin32_PtsTextSrcChar(k, 0) == -1)
+            mask |= 1 << 1;
+    }
+    /* bit2：反极必拒（该拒必拒；回读越界 → 哨兵） */
+    {
+        int ok = (WpfLinuxWin32_PtsTextSrcFeed(NULL, 0, fix, fixc)    == WPF_PTS_ERR_NOT_IMPLEMENTED)
+              && (WpfLinuxWin32_PtsTextSrcFeed(&g_pts_textsrc_fix_a, 0, NULL, 3)  == WPF_PTS_ERR_NOT_IMPLEMENTED)
+              && (WpfLinuxWin32_PtsTextSrcFeed(&g_pts_textsrc_fix_a, 0, fix, -1)  == WPF_PTS_ERR_NOT_IMPLEMENTED)
+              && (WpfLinuxWin32_PtsTextSrcFeed(&g_pts_textsrc_fix_a, 1, fix, WPF_PTS_TEXTSRC_CCH_MAX + 1)
+                                                                     == WPF_PTS_ERR_NOT_IMPLEMENTED)
+              && (WpfLinuxWin32_PtsTextSrcChar(WpfLinuxWin32_PtsTextSrcFind(&g_pts_textsrc_fix_a), fixc) == -1)
+              && (WpfLinuxWin32_PtsTextSrcChar(999, 0) == -1);
+        if (ok) mask |= 1 << 2;
+    }
+    /* bit3：无源不漏（未入站的段落 ⇒ Find==-1；且"空段"不会把"无源"读成有源） */
+    {
+        int k0 = WpfLinuxWin32_PtsTextSrcFind(&g_pts_textsrc_fix_b);
+        if (WpfLinuxWin32_PtsTextSrcFind(&g_pts_textsrc_fix_c) == -1 &&
+            k0 >= 0 && WpfLinuxWin32_PtsTextSrcState(k0) == WPF_PTS_TEXTSRC_ST_EMPTY &&
+            WpfLinuxWin32_PtsTextSrcFind((const void *)0x5a5a5a5a) == -1)
+            mask |= 1 << 3;
+    }
+    fprintf(stderr, "[TEXTSRC-SELFTEST] mask=0x%02x inbound=%d empty=%d reject=%d nosource=%d legs=%s\n",
+            mask, (mask >> 0) & 1, (mask >> 1) & 1, (mask >> 2) & 1, (mask >> 3) & 1,
+            mask == 0x0f ? "4/4(POS+REJECT)" : "PARTIAL");
+
+    /* 复原一切可观测状态（"自检不许改变可观测状态"） */
+    for (int i = save_n; i < g_pts_textsrc_n; i++) {
+        if (g_pts_textsrc[i]) { g_pts_textsrc[i]->magic = 0; free(g_pts_textsrc[i]); g_pts_textsrc[i] = NULL; }
+    }
+    g_pts_textsrc_n = save_n; g_pts_textsrc_seq = save_seq; g_pts_textsrc_rr = save_rr;
+    g_pts_textsrc_rx = save_rx; g_pts_textsrc_gap = save_gap; g_pts_textsrc_empty = save_empty;
+    g_pts_sub_claim_ok = save_cok; g_pts_sub_claim_bad = save_cbad;
+    if (g_pts_textsrc_n != save_n) return -1;                 /* 泄漏 ⇒ 不算绿 */
+    return mask;
+}
+int WpfLinuxWin32_PtsTextSrcSelftestMask(void) { return WpfLinuxWin32_PtsTextSrcSelfCheck(); }
+
 // ── 格 6 · 只读面（`t110`／P1-W35）：`CreateDocContext` 的**独立读取面** ────────────────
 //   为什么要这些口：判据 C9 的判绿**不许**停在"两个句柄不同"（那只是必要条件）；"按对象绑定"
 //   必须由**字段读回**承担 ⇒ 需要一个**不经过出参**的读回口。`field` 逐字段取值：
