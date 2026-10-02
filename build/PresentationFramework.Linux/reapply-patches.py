@@ -2842,6 +2842,50 @@ CHAIN_FILES = [
             PTS.FSKUPDATE fskupd = trackDesc.fsupdinf.fskupd;
             WpfLinuxChainProbe.Hit("PH.UpdateTrackVisuals", "fskupd=" + (int)trackDesc.fsupdinf.fskupd + " inh=" + (int)fskupdInherited + " pfstrack=" + WpfLinuxChainProbe.Hx(trackDesc.pfstrack));
 """, 1),
+        # ── `T-B4`：**段落 `v` 逐段现取台账**（`[APLV]`）──────────────────────────────────
+        #  【为什么需要】`T-B3` 已让 native `FSPARADESCRIPTION.dvrUsed` 带真段高（`[FSQSPL-DVR]`
+        #    `per_para_dvrUsed=[0:33528,1:25146,2:25146] v_rel=[0:0,1:33528,2:58674]`），但帧面读数
+        #    `[TPCL] rectV=`（`TextParaClient._rect.v`）**逐段仍为 0** ⇒ "几何真而帧不变"的断点
+        #    落在"**哪一处 arrange** 真的消费了这条列表"上，而这一跳**本侧无读数**。
+        #  【它是什么】在 `ArrangeParaList` 内**每段**打一行：`n`（本列表长度）／`idx`／
+        #    `rcTrackContent.v`／`dvrUsed`／`rcPara.v`（＝宿主真算出来的那个值）＋ `parah`。
+        #    与 native `[FSQSPL-DVR]` 的 `per_para_dvrUsed` 逐条对拍 ⇒ "消费/未消费"可判。
+        #  【它不做什么】不动出参、不改任何算术（`rcPara.v` 在**本行已算完之后**才读）。
+        #    `WPF_CHAIN_PROBE=0` ⇒ 整块不发生（逐字回上游行为）。
+        ("""        internal static void ArrangeParaList(
+            PtsContext ptsContext,
+            PTS.FSRECT rcTrackContent,
+            PTS.FSPARADESCRIPTION [] arrayParaDesc,
+            uint fswdirTrack)
+        {
+            // For each paragraph, do following:
+            // (1) Retrieve ParaClient object
+            // (2) Arrange and update paragraph metrics
+            int dvrPara = 0;
+""",
+         """        internal static void ArrangeParaList(
+            PtsContext ptsContext,
+            PTS.FSRECT rcTrackContent,
+            PTS.FSPARADESCRIPTION [] arrayParaDesc,
+            uint fswdirTrack)
+        {
+            // For each paragraph, do following:
+            // (1) Retrieve ParaClient object
+            // (2) Arrange and update paragraph metrics
+            int dvrPara = 0;
+            WpfLinuxChainProbe.Hit("PH.ArrangeParaList-in", "n=" + arrayParaDesc.Length + " rcTrackContent=" + rcTrackContent.u + "," + rcTrackContent.v + "," + rcTrackContent.du + "," + rcTrackContent.dv);
+""", 1),
+        ("""                rcPara.v += dvrPara + dvrTopSpace;
+                rcPara.dv = arrayParaDesc[index].dvrUsed - dvrTopSpace;
+""",
+         """                rcPara.v += dvrPara + dvrTopSpace;
+                rcPara.dv = arrayParaDesc[index].dvrUsed - dvrTopSpace;
+                WpfLinuxChainProbe.Hit("PH.ArrangeParaList", "n=" + arrayParaDesc.Length + " idx=" + index
+                    + " parah=" + WpfLinuxChainProbe.Hx(arrayParaDesc[index].pfspara)
+                    + " rcContent.v=" + rcTrackContent.v + " dvrPara=" + dvrPara
+                    + " dvrUsed=" + arrayParaDesc[index].dvrUsed + " dvrTopSpace=" + dvrTopSpace
+                    + " rcPara.v=" + rcPara.v + " rcPara.dv=" + rcPara.dv);
+""", 1),
         ("""        internal static void UpdateParaListVisuals(
             PtsContext ptsContext,
             VisualCollection visualCollection,

@@ -1,9 +1,9 @@
 // ⚠️ 本文件由 build/PresentationFramework.Linux/reapply-patches.py **生成**，不要手改。
 //
-// 内容 = 上游 `upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/PtsHelper.cs` 逐字复制 + 5 处 W86A（`TASK-0304`/`TASK-0305`）改动。
+// 内容 = 上游 `upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/PtsHelper.cs` 逐字复制 + 7 处 W86A（`TASK-0304`/`TASK-0305`）改动。
 // 每次运行该脚本都会从上游重读重生成；needle 找不到 / 命中数不符时**报错退出**
 // （不会静默产出未打补丁的副本）。改动逐处见：
-//   E1 ／ E2 ／ E3 ／ E4 ／ E5
+//   E1 ／ E2 ／ E3 ／ E4 ／ E5 ／ E6 ／ E7
 //
 // 背景（`D-G70`/`D-G78`）：本移植没有 PTS/原生 LineServices ⇒ 切「富文本」/「流文档」页
 // 曾**整进程 `rc=134`**。本件把它变成「**具名、可判、可见的能力边界**」：
@@ -180,6 +180,7 @@ namespace MS.Internal.PtsHost
             // (1) Retrieve ParaClient object
             // (2) Arrange and update paragraph metrics
             int dvrPara = 0;
+            WpfLinuxChainProbe.Hit("PH.ArrangeParaList-in", "n=" + arrayParaDesc.Length + " rcTrackContent=" + rcTrackContent.u + "," + rcTrackContent.v + "," + rcTrackContent.du + "," + rcTrackContent.dv);
             for (int index = 0; index < arrayParaDesc.Length; index++)
             {
                 // (1) Retrieve ParaClient object
@@ -203,6 +204,11 @@ namespace MS.Internal.PtsHost
                 PTS.FSRECT rcPara = rcTrackContent;
                 rcPara.v += dvrPara + dvrTopSpace;
                 rcPara.dv = arrayParaDesc[index].dvrUsed - dvrTopSpace;
+                WpfLinuxChainProbe.Hit("PH.ArrangeParaList", "n=" + arrayParaDesc.Length + " idx=" + index
+                    + " parah=" + WpfLinuxChainProbe.Hx(arrayParaDesc[index].pfspara)
+                    + " rcContent.v=" + rcTrackContent.v + " dvrPara=" + dvrPara
+                    + " dvrUsed=" + arrayParaDesc[index].dvrUsed + " dvrTopSpace=" + dvrTopSpace
+                    + " rcPara.v=" + rcPara.v + " rcPara.dv=" + rcPara.dv);
 
                 paraClient.Arrange(arrayParaDesc[index].pfspara, rcPara, dvrTopSpace, fswdirTrack);
                 dvrPara += arrayParaDesc[index].dvrUsed;

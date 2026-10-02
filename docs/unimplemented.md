@@ -647,6 +647,6 @@ channel.CommittedCommands    // 成功解码执行的命令数
 
 ## ⏪ **dated 现值位（`T-A75`／本会话 `T-A58..A74` 入册，读时 `2026-10-02T09:08:09+0800`；上文一字未动）**
 
-- **`D-G70` 现值位（现取）**：`.so 22e147d144b901c0`／`exports 846`／`ops 42`（`PTSGAP=PASS tool=54 dead=11 artifact=1 ops=42 impl=42 so16=22e147d144b901c0 exports=846`；`nm -D --defined-only` ＝ `exports.txt` ＝ **846**）／`stubs 0`／`baseline #81`。
+- **`D-G70` 现值位（现取）**：`.so 5e0d7b807c2fc220`／`exports 846`／`ops 42`（`PTSGAP=PASS tool=54 dead=11 artifact=1 ops=42 impl=42 so16=5e0d7b807c2fc220 exports=846`；`nm -D --defined-only` ＝ `exports.txt` ＝ **846**）／`stubs 0`／`baseline #81`。（`so16` 随 `T-B4` 重锚；`T-B3` 的 `.so 22e147d144b901c0` 为其时的现值。）
 - **逐批随动（`TASK-0302` 增量）**：`T-A61`（`Fs*` 族首批 8 条真实现 ⇒ `ops 58→50`／`impl 59→51`／`exports 689→701`）｜`T-A62`（`Lo*`/`Nl*` 族可诚实实现 3 条 ＋ 同族唯一 stub `LoDisposePenaltyModule` 升格 ⇒ `ops 50→47`／`impl 51→47`／**`stubs 1→0`**／`exports 701→718`）｜`T-A65`（47 条逐条分级 ＝ 甲 5／乙 20／丙 6／丁 16）｜`T-A66`（甲类 5 条真实现 ⇒ `ops 47→42`／`impl 47→42`／`exports 718→727`）｜`T-A67`／`T-A74`（丁类 16 条**真依赖 `L1`（native LS 行引擎·度量源）/`L2`（DWrite 脚本分段）**，且 **LS 链已被 shim 替换 ⇒ 无真腿可达 ⇒ 可诚实实施者 0**）｜`T-A68..A73`（`W` 合取落地，`exports 727→846`）。
 - **基线**：`BASELINE-FROZEN gen=#81 sha16=7cd1bc5c37a74e8d`（`T-A58` 重冻；`1,238,130 B`）。

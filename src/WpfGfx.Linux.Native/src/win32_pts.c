@@ -1643,6 +1643,13 @@ struct wpf_pts_subtrack_s {
        填的就是 `wpf_pts_sub_handle(child_objs[j])`（**本侧自有对象的字段地址**）⇒ 托管回问
        `FsQuerySubtrackDetails`／`FsQueryTextDetails` 时可按**对象身份**认领。`NULL` ＝ 未建成。 */
     struct wpf_pts_subtrack_s *child_objs[WPF_PTS_SUB_CHILD_MAX];
+    /* ── ⏪ `T-B4`（缺陷①续「可见重叠」）：**父子边**（`wpf_pts_sub_enum_into` 里建树时写一次，
+       只增不改；`NULL` ＝ 本对象是那棵树的根）。用途**唯一**：把"本段在父轨里的**绝对 v**"算出来
+       （＝ 与宿主 `PtsHelper.ArrangeParaList` 的 `rcPara.v = rcContent.v + Σ_{k<i} dvrUsed[k]`
+       **同一条规则**、同一个操作数 `dvrUsed`）⇒ 行几何（`vr_start`）才能落到**页坐标**上。
+       🔴 不 fake：链上任一跳取不到 extent ⇒ 整个绝对 v 返 **-1**（调用方保持自累加 ＋ 具名）。 */
+    struct wpf_pts_subtrack_s *parent;
+    int          idx_in_parent;         /* 在 `parent->child_objs[]` 里的下标（-1 ＝ 无父） */
     int          depth;                 /* 本对象在窗内建树里的深度（0＝`dp->sub` 的顶层容器） */
     int          obj_no;                /* 台账序号（诊断用；与 `seq` 同源） */
     /* ── ⏪ `T-A61`（`Fs*` 首批）：`FsSynchronizeBottomlessSubtrack` 的**垂直位移累积位** ──────────
@@ -1731,6 +1738,7 @@ static wpf_pts_subtrack *wpf_pts_sub_new(const void *nmp, const void *client)
     o->magic = WPF_PTS_SUB_MAGIC; o->c_paras = 0; o->formatted = 0;
     o->nmp = nmp; o->pfsparaclient = client; o->seq = ++g_pts_sub_seq; o->live = 1;
     o->obj_no = g_pts_sub_created + 1;
+    o->parent = NULL; o->idx_in_parent = -1;   /* ⏪ `T-B4`：缺省无父（根）；建树时由 `sub_enum_into` 填 */
     g_pts_sub_live[g_pts_sub_live_n++] = o;
     g_pts_sub_created++;
     g_pts_hc_reading = 1;          /* ⏪ t172：台账一建即可读（此后再无"没取到"） */
@@ -2339,6 +2347,8 @@ static int wpf_pts_sub_enum_into(wpf_pts_doc *d, const void *container, wpf_pts_
         wpf_pts_subtrack *co = wpf_pts_sub_new(obj->children[k], NULL);
         if (!co) { g_pts_subtree_fail++; obj->child_objs[k] = NULL; continue; }
         obj->child_objs[k] = co;
+        co->parent = obj;                       /* ⏪ `T-B4`：父子边（绝对 v 的链） */
+        co->idx_in_parent = k;
         g_pts_subtree_nodes++;
         wpf_pts_sub_enum_into(d, obj->children[k], co, where, depth + 1);
     }
@@ -2416,11 +2426,14 @@ out:
             wpf_pts_sub_enum_into(d, d->sub_children[j], co, where, 1);
         }
         d->sub_child_objs_n = d->sub_cparas;
-        fprintf(stderr, "[SUBTREE] where=%s root=%p n_children=%d child_objs=%d fail=%d nodes_total=%d "
-                        "depth_max=%d live=%d created=%d depth_lim=%d v=%s\n",
-                where, container, d->sub_cparas, d->sub_child_objs_n, d->sub_child_objs_fail,
+        fprintf(stderr, "[SUBTREE] where=%s root=%p sub=%p n_children=%d child_objs=%d fail=%d nodes_total=%d "
+                        "depth_max=%d live=%d created=%d depth_lim=%d ch0=%p ch1=%p ch2=%p v=%s\n",
+                where, container, (void *)wpf_pts_sub_handle(d->sub), d->sub_cparas, d->sub_child_objs_n, d->sub_child_objs_fail,
                 g_pts_subtree_nodes, g_pts_subtree_depthmax, g_pts_sub_live_n, g_pts_sub_created,
                 WPF_PTS_SUB_MAX_DEPTH,
+                (void *)wpf_pts_sub_handle(d->sub_child_objs[0]),
+                (void *)wpf_pts_sub_handle(d->sub_child_objs[1]),
+                (void *)wpf_pts_sub_handle(d->sub_child_objs[2]),
                 (d->sub_child_objs_fail == 0) ? "IN-WINDOW-SUBTREE-BUILT"
                                               : "IN-WINDOW-SUBTREE-PARTIAL(table-full)");
     }
@@ -7734,6 +7747,51 @@ static int wpf_pts_sub_v_extent(const wpf_pts_subtrack *root)
     }
     return got ? total : -1;
 }
+/* ── ⏪ `T-B4`（缺陷①续「**可见**重叠」）：段（子轨对象）的**绝对 v**（页坐标，`TextDpi`）──────────
+   规则**逐字照抄宿主**：`rcPara.v = rcTrackContent.v + Σ_{k<i}(dvrUsed[k]) + dvrTopSpace[i]`
+   （`PtsHelper.cs:176-180` ／ 生成件 `PtsHelper.Linux.cs:204-208`），其中
+   ① `dvrUsed[j]` ＝ `wpf_pts_sub_v_extent(child_objs[j])`（**同一函数**＝宿主拿到的那条真段高）；
+   ② `rcTrackContent` ＝ `FSSUBTRACKDETAILS.fsrc`，本侧**声明值恒 `(u,v)=(0,0)`**
+      （`[FSQSTD-SRC] u=0 v=0 …`，见 `FsQuerySubtrackDetails` 实现）⇒ 本侧可**复算**；
+   ③ `dvrTopSpace` 本侧**无源**，恒 0（与 `[FSQSPL]` 同一具名）。
+   ⇒ 沿 `parent` 链逐层累加，得该段的**页绝对 v**。
+   🔴 **零假值**：链上任一跳取不到 extent（`-1`）或本对象未在册 ⇒ 返 **-1** ⇒ 调用方**保持**
+   `vr_start=自累加`（具名 `NOINFO=fsgeometry-layout(vrStart=self-accum)`），**绝不**用 0／常数冒充。 */
+static int g_pts_absv_ok = 0, g_pts_absv_short = 0, g_pts_absv_subpage = 0;
+static int g_pts_absv_line_ok = 0, g_pts_absv_line_short = 0;   /* 行几何那一跳的成对计数 */
+static int g_pts_absv_line_reverse = 0;                          /* 反极性腿命中次数（只增） */
+/* ⏪ `T-B4`：**反极性闸**（缺省 `1` ＝本增量的真几何生效；**显式** `WPF_PTS_LINE_ABS_V=0`
+   ⇒ 逐字回本增量**之前**的行为：`vr_start` ＝段内自累加、`FSSUBTRACKDETAILS.fsrc.v` 恒 0）
+   —— 供"撤该修 ⇒ 回原帧"的成对读数用（同一 `.so`，只差一个环境变量）。 */
+static int g_pts_line_absv_gate = -1;
+static int wpf_pts_line_absv_on(void)
+{
+    if (g_pts_line_absv_gate < 0) {
+        const char *e = getenv("WPF_PTS_LINE_ABS_V");
+        g_pts_line_absv_gate = (e && e[0] == '0' && e[1] == 0) ? 0 : 1;
+    }
+    return g_pts_line_absv_gate;
+}
+static int wpf_pts_sub_abs_v(const wpf_pts_subtrack *o)
+{
+    if (!o || o->magic != WPF_PTS_SUB_MAGIC) return -1;
+    int v = 0;
+    const wpf_pts_subtrack *cur = o;
+    int guard = 0;
+    while (cur->parent) {
+        if (++guard > WPF_PTS_SUB_MAX_DEPTH + 2) return -1;      /* 成环守卫（不许死循环） */
+        const wpf_pts_subtrack *p = cur->parent;
+        if (cur->idx_in_parent < 0 || cur->idx_in_parent >= p->c_paras) return -1;
+        if (!p->enum_ok || !p->formatted) return -1;             /* 父未造型 ⇒ 子序无意义（零假值） */
+        for (int k = 0; k < cur->idx_in_parent; k++) {
+            int e = wpf_pts_sub_v_extent(p->child_objs[k]);
+            if (e < 0) return -1;                               /* 前兄弟段高取不到 ⇒ 拒（不猜） */
+            v += e;
+        }
+        cur = p;
+    }
+    return v;
+}
 /* 回填 `FSTEXTDETAILS`（唯一成功路径；**调用者已核** `wpf_pts_fl_usable`）。 */
 static void wpf_pts_tlb_fill_details(wpf_pts_subtrack *o, void *pOut)
 {
@@ -7751,9 +7809,28 @@ static void wpf_pts_tlb_fill_details(wpf_pts_subtrack *o, void *pOut)
     e->full.f_suppress_top_line_spacing = 0;
     e->full.f_update_info_for_lines_present = 0;/* 0 ⇒ 消费者整段重建（不做增量位移） */
 }
-/* 回填 `FSLINEDESCRIPTIONSINGLE` 数组（第 i 条 ← 台账第 i 行）。 */
+/* 回填 `FSLINEDESCRIPTIONSINGLE` 数组（第 i 条 ← 台账第 i 行）。
+   ⏪ `T-B4`：`vr_start` ＝ **本段（子轨对象）的页绝对 v** ＋ 段内自累加 —— 行视觉
+   （`TextParaClient.RenderSimpleLines`：`lineVisual.Offset = (urStart, vrStart)` ／
+   `TextParaClient.Linux.cs:3332`）是**直接**放在页坐标系里的（段落视觉**不带** offset：
+   `BaseParaClient.Arrange` 只写 `_rect`，`PtsHelper.UpdateParaListVisuals` 只 `Insert`
+   ⇒ 上游 `TextParaClient.cs` 的该行逐字未改）⇒ `vr_start` **必须**是页坐标，
+   否则同轨各段的行全从 0 起铺（＝**用户可见的文字重叠**）。
+   🔴 **零假值**：`wpf_pts_sub_abs_v` 取不到 ⇒ **退**回段内自累加（＝本增量前的读数）
+   并在 `[FSQSPL-DVR]`／`[FSQSTD-SRC]` 里具名 `absv=NOINFO(chain-short)`；**不**拿常数/0 冒充。
+   子页内容树（`in_subpage`）坐标系以子页为原点 ⇒ 逐字保持段内自累加。 */
+static int wpf_pts_line_v_base(const wpf_pts_subtrack *o)
+{
+    if (!o || o->in_subpage) return 0;
+    if (!wpf_pts_line_absv_on()) { g_pts_absv_line_reverse++; return 0; }   /* 反极性腿：逐字回自累加 */
+    int av = wpf_pts_sub_abs_v(o);
+    if (av < 0) { g_pts_absv_line_short++; return 0; }
+    g_pts_absv_line_ok++;
+    return av;
+}
 static void wpf_pts_tlb_fill_single(wpf_pts_subtrack *o, wpf_pts_fslds *rg, int n)
 {
+    const int vbase = wpf_pts_line_v_base(o);
     for (int i = 0; i < n; i++) {
         memset((void *)&rg[i], 0, sizeof(rg[i]));
         rg[i].pfslineclient         = (void *)o->fl_line[i].pfsline;     /* 台账行句柄（真返回值） */
@@ -7765,7 +7842,7 @@ static void wpf_pts_tlb_fill_single(wpf_pts_subtrack *o, wpf_pts_fslds *rg, int 
         rg[i].f_allow_hyph          = 0;                                 /* 造型入参 fAllowHyphenation=0 */
         rg[i].ur_bbox               = o->fl_line[i].ur_bbox;
         rg[i].dur_bbox              = o->fl_line[i].dur_bbox;
-        rg[i].vr_start              = wpf_pts_fl_vr_start(o, i);         /* 本侧累加（NOINFO-FSGEOMETRY-LAYOUT） */
+        rg[i].vr_start              = vbase + wpf_pts_fl_vr_start(o, i); /* ⏪ `T-B4`：页绝对 v ＋ 段内累加 */
         rg[i].dvr_ascent            = o->fl_line[i].dvr_ascent;
         rg[i].dvr_descent           = o->fl_line[i].dvr_descent;
         rg[i].f_clear_left          = 0;                                 /* 造型入参 fClearOnLeft=0 */
@@ -7777,11 +7854,12 @@ static void wpf_pts_tlb_fill_single(wpf_pts_subtrack *o, wpf_pts_fslds *rg, int 
 /* 回填 `FSLINEDESCRIPTIONCOMPOSITE` 数组（本侧一行＝一元素；`pline`＝台账行句柄）。 */
 static void wpf_pts_tlb_fill_composite(wpf_pts_subtrack *o, wpf_pts_fsldc *rg, int n)
 {
+    const int vbase = wpf_pts_line_v_base(o);                 /* ⏪ `T-B4`：同上（页绝对 v） */
     for (int i = 0; i < n; i++) {
         memset((void *)&rg[i], 0, sizeof(rg[i]));
         rg[i].pline        = (void *)o->fl_line[i].pfsline;    /* 供 `QueryLineElements` 按行句柄认领 */
         rg[i].c_elements   = 1;                                /* 本侧一行＝一元素 */
-        rg[i].vr_start     = wpf_pts_fl_vr_start(o, i);
+        rg[i].vr_start     = vbase + wpf_pts_fl_vr_start(o, i);
         rg[i].dvr_ascent   = o->fl_line[i].dvr_ascent;
         rg[i].dvr_descent  = o->fl_line[i].dvr_descent;
         rg[i].f_treated_as_first = (i == 0) ? 1 : 0;
@@ -9191,6 +9269,13 @@ int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgPar
                                 for (int k = 0; k < dp->sub_cparas && k < WPF_PTS_SUB_CHILD_MAX; k++) {
                                     dp->sub->child_objs[k] = dp->sub_child_objs[k];
                                     dp->sub_child_objs[k] = NULL;
+                                    /* ⏪ `T-B4`：过继时**补全父子边**（子对象在 `sub_enum` 里创建时
+                                       还没有父对象 —— `dp->sub` 是本次填充才建的）⇒ 否则绝对 v 链断在
+                                       这一层，"同 track 各段的行盒 v"仍全为 0。 */
+                                    if (dp->sub->child_objs[k]) {
+                                        dp->sub->child_objs[k]->parent = dp->sub;
+                                        dp->sub->child_objs[k]->idx_in_parent = k;
+                                    }
                                 }
                                 dp->sub_child_objs_n = 0;
                             }
@@ -9500,7 +9585,25 @@ int FsQuerySubtrackDetails(void *pfscontext, void *pSubTrack, void *pSubTrackDet
         o->fskupd      = 0;                       /* `fskupdInherited`（NOINFO-FSUPDINF-CONSUMER：全树 0 消费者） */
         o->dvr_shifted = 0;                       /* NOINFO-FSUPDINF-SEMANTICS：本侧无更新/位移状态可读 */
         o->nms         = dpx ? (void *)dpx->drive_nmseg : NULL;   /* 透传：同 run `+80` 的 live nmSegment */
-        o->u  = 0; o->v = 0;
+        /* ── ⏪ `T-B4`（缺陷①续「**可见**重叠」）：`fsrc.v` ＝**本子轨在页坐标里的原点** ──────────────
+           上游语义（`Pts.cs:1527-1533`）：`FSSUBTRACKDETAILS.fsrc` ＝ 该子轨的矩形（**页坐标**）。
+           本侧原**恒 0** ⇒ 宿主 `ContainerParaClient.OnArrange` 把该子轨的 `fsrc` 当
+           `rcTrackContent`（`ContainerParaClient.cs:86`）⇒ 子段 `rcPara.v = 0 + Σ dvrUsed`
+           **从 0 起**，即"子轨自己的位置"从未进入子段几何（与 `T-B3` 修好的 `dvrUsed` 联手后
+           仍只是"**子轨内相对**"）。
+           ⇒ 现在按 `wpf_pts_sub_abs_v` 给出**同一规则**（宿主那条 `rcPara.v` 累加）算出的绝对 v。
+           🔴 **零假值**：算不出（链上任一跳无段高）⇒ **保持 0** ＋ 本行具名（`absv=NOINFO`），
+           **绝不**拿 0 冒充实值；子页内容树（`in_subpage`）的坐标系**以子页为原点** ⇒ 不适用本规则，
+           逐字保持 0 并具名。 */
+        {
+            int av = obj->in_subpage ? 0 : wpf_pts_sub_abs_v(obj);
+            o->u  = 0;
+            o->v  = (av >= 0) ? av : 0;
+            if (obj->in_subpage) g_pts_absv_subpage++;
+            else if (av >= 0)    g_pts_absv_ok++;
+            else                 g_pts_absv_short++;
+            if (!wpf_pts_line_absv_on()) o->v = 0;      /* ⏪ 反极性腿：`fsrc.v` 逐字回恒 0 */
+        }
         o->du = obj->in_subpage ? obj->sp_du : WPF_PTS_FSP_FIN_DU;
         o->dv = obj->in_subpage ? obj->sp_dv : WPF_PTS_FSP_FIN_DV;   /* 内容树 ⇒ 子页声明几何；否则本侧页约定 */
 #if WPF_PTS_SUB_CPARAS_FAKE == 1
@@ -9519,9 +9622,15 @@ int FsQuerySubtrackDetails(void *pfscontext, void *pSubTrack, void *pSubTrackDet
                 pfscontext, pSubTrack, g_pts_fsqstd_calls, g_pts_fsqstd_ok, g_pts_fsqstd_gap,
                 g_pts_fsqstd_null, g_pts_fsqstd_unclaim, g_pts_fsqstd_unformatted,
                 o->c_paras, obj->c_paras, (void *)o->nms, "SUBENUM(+136/+144)");
-        fprintf(stderr, "[FSQSTD-SRC] cParas=%d src=subenum(+136/+144) u=0 v=0 du=%d dv=%d nms=%p "
-                        "NOINFO=fsupdinf(no-source),fsrc(declared-geometry)\n",
-                o->c_paras, WPF_PTS_FSP_FIN_DU, WPF_PTS_FSP_FIN_DV, (void *)o->nms);
+        fprintf(stderr, "[FSQSTD-SRC] cParas=%d src=subenum(+136/+144) u=%d v=%d du=%d dv=%d nms=%p "
+                        "absv=%s gate=%d absv_ok=%d absv_short=%d absv_subpage=%d line_rev=%d "
+                        "NOINFO=fsupdinf(no-source),fsrc(du/dv=declared-geometry)\n",
+                o->c_paras, o->u, o->v, o->du, o->dv, (void *)o->nms,
+                obj->in_subpage ? "SUBPAGE-LOCAL(0)"
+                                : ((!wpf_pts_line_absv_on()) ? "REVERSE-LEG(0)"
+                                   : ((wpf_pts_sub_abs_v(obj) >= 0) ? "PAGE-ABS" : "NOINFO(chain-short)")),
+                wpf_pts_line_absv_on(), g_pts_absv_ok, g_pts_absv_short, g_pts_absv_subpage,
+                g_pts_absv_line_reverse);
         return 0;
     }
     /* ── 拒绝面（**零假值／出参一字不写**）：`pSubTrackDetails` **绝不触碰**（`T-A11` §4-D1）。 */
@@ -9760,6 +9869,32 @@ int FsQuerySubtrackParaList(void *pfscontext, void *pSubTrack, int cParas,
                             "v_rule=v_i=rcContent.v+sum_{k<i}(dvrUsed[k])+dvrTopSpace[i] "
                             "win32_pts.c:T-B3 NOINFO=host-side-v-not-native-observable(computed-from-this-row)\n",
                     pSubTrack, cParas, dvrbuf, vbuf);
+        }
+        /* ── ⏪ `T-B4`：**本侧自算的绝对 v 台账**（判"行几何是否落到页坐标"的承重行）──────────────
+           `ch` ＝ 逐子段的**本侧句柄**（＝ `[TPCL] parah=`／`[CHAIN] PH.ArrangeParaList parah=` 的
+           同一枚值）⇒ 可把"哪个父轨交出了被渲染的那几段"**直接对上**；
+           `abs_v` ＝ `wpf_pts_sub_abs_v(child_objs[i])`（-1 ＝ 链上任一跳取不到 ⇒ 拒，不猜）。 */
+        {
+            char chbuf[WPF_PTS_SUB_CHILD_MAX * 24 + 1];
+            char avbuf[WPF_PTS_SUB_CHILD_MAX * 24 + 1];
+            int o1 = 0, o2 = 0;
+            chbuf[0] = 0; avbuf[0] = 0;
+            for (int i = 0; i < cParas && i < WPF_PTS_SUB_CHILD_MAX; i++) {
+                int w = snprintf(chbuf + o1, sizeof(chbuf) - o1, "%s%p",
+                                 i ? "," : "", (void *)wpf_pts_sub_handle(obj->child_objs[i]));
+                if (w <= 0 || o1 + w >= (int)sizeof(chbuf)) break;
+                o1 += w;
+                int av = wpf_pts_sub_abs_v(obj->child_objs[i]);
+                if (av >= 0) g_pts_absv_ok++; else g_pts_absv_short++;
+                int w2 = snprintf(avbuf + o2, sizeof(avbuf) - o2, "%s%d:%d", i ? "," : "", i, av);
+                if (w2 <= 0 || o2 + w2 >= (int)sizeof(avbuf)) break;
+                o2 += w2;
+            }
+            fprintf(stderr, "[FSQSPL-ABSV] psub=%p cParas=%d ch=[%s] abs_v=[%s] ph=%p idx=%d "
+                            "absv_ok=%d absv_short=%d\n",
+                    pSubTrack, cParas, chbuf, avbuf,
+                    (void *)wpf_pts_sub_handle(obj->parent), obj->idx_in_parent,
+                    g_pts_absv_ok, g_pts_absv_short);
         }
         return 0;
     }
