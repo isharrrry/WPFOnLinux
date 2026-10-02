@@ -329,6 +329,17 @@ typedef struct {
        每次 `wpf_pts_sub_enum` 真枚举时 ++；**只增不复用**。认领「本 run 由 `+136`／`+144` 交回的
        段句柄」时要求证据的 `gen` **就是**本值 ⇒ 上一会话（上一窗）留下的同值句柄**不可认领**。 */
     int          prov_gen;
+    /* ── ⏪ `T-B14`：**当前代句柄的逐句柄 liveness 位**（缺省 0 ＝ 尚无句柄，不是"有句柄但已释放"）────
+       语义（**只由本侧自己的动作改**）：`fsp_pl_cur` 是由托管 `+176 CreateParaclient` 真返回的
+       **托管句柄**；本移植里能**释放**这样一个句柄的唯一通道是托管 `pfnDestroyParaclient`
+       （`PtsHost.DestroyParaclient` ⇒ `BaseParaClient.Dispose` ⇒ `PtsContext.ReleaseHandle`），
+       而它**只由本侧发调**（唯一的一处是对 `fsp_pl_prev` 的回收）。
+       ⇒ 本位 ＝ "本侧是否已把**当前这一代**交给 `+192`"：
+            置 1：每一次 `fsp_pl_cur` 被赋成**某次 `+176` 成功返回**的句柄时；
+            置 0：仅当本侧**真的**把同一个值发给了 `+192`（回收）时。
+       ⚠️ 这是"**本侧知道的**已释放"的**下界**（本侧观测不到托管侧自发的释放）——
+          故 `wpf_pts_handle_released()` 的判词必须按此粒度读（见该函数的具名射程句）。 */
+    int          fsp_pl_cur_live;
 } wpf_pts_doc;
 static wpf_pts_doc *g_pts_doc_live[WPF_PTS_DOC_MAX];
 static int g_pts_doc_live_n       = 0;
@@ -369,6 +380,9 @@ static wpf_pts_doc *wpf_pts_doc_ptr(const void *ctx);
 static int wpf_pts_ctx_is_live(const wpf_pts_doc *d);   /* ⏪ t156：该 doc 是否仍在册（未被 DestroyDocContext 移除） */
 /* ⏪ `t146`：驱动探针本体（定义在 `格 6` 之前）；`FsCreatePage*` 两处**调用窗**在本文件里**更早** ⇒ 先给声明（内部助手一律 `static`）。 */
 static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *where);
+/* ⏪ `T-B14`：格式窗内**换新当前代**（定义在 `wpf_pts_drive_probe` 之前）；两处 `FsCreatePage*` 调用点
+   在本文件里比定义**更早**（`FsCreatePageBottomless` 在 ~`:599`）⇒ 先给声明。 */
+static void wpf_pts_fsp_pl_renew(wpf_pts_doc *d, const void *sect, const char *where);
 /* ⏪ `T-A37`：内容排版驱动的运行期闸（定义见 `wpf_pts_qtp_create_safe` 之后）。 */
 static int wpf_pts_att_content_gate(void);
 /* ⏪ `T-A52`／`T-A54`：Floater 内容排版驱动的运行期闸（`T-A54` 起**缺省开**；定义在 `wpf_pts_att_content_gate` 之后）。 */
@@ -452,9 +466,27 @@ typedef struct {
        `1` ＝ 已销毁（再认领必被拒）。`FsUpdateFinitePage` 成功时**重新产出**断页记录 ⇒ 置回 0。
        ⚠️ 本侧**不**声称"释放了真断页记录内存"（具名 `NOINFO=no-breakrec-memory(field-address-only)`）。 */
     int          br_destroyed;
+    /* ── ⏪ `T-B14`：**该页是否真的对外发过断页记录句柄** ────────────────────────────────────
+       1 ＝ 该页的 `&c_paras` 曾被 `FsCreatePageFinite`／`FsUpdateFinitePage` 当
+       `ppfsBRPageOut` 交出去过（⇒ 这个地址**确实是本侧发出的一个断页记录句柄**）。
+       0 ＝ 从未发出（该地址不是本侧发出的断页记录 ⇒ 认领时必须**拒**）。
+       用途见 `FsDestroyPageBreakRecord`：页**已退役**（`FsDestroyPage` 之后）时，唯一还能证明
+       "这个句柄是本侧发的"就是这一位（`magic` 那时已被置 0）。 */
+    int          br_issued;
 } wpf_pts_fsp;
 static wpf_pts_fsp *g_pts_fsp_live[WPF_PTS_FSP_MAX];
 static int g_pts_fsp_live_n     = 0;
+/* ── ⏪ `T-B14`：**已退役**（`FsDestroyPage` 之后）页对象的只读台账 ────────────────────────────
+   【为什么必须有】断页记录句柄 ＝ 页对象内 `c_paras` 字段的**地址** ⇒ 页一退役，`g_pts_fsp_live[]`
+   里就找不到它了，而托管侧**仍会**在关窗（`PtsContext.Dispose`）或换页时把它送来销毁
+   ⇒ 旧实现按"在册表里找不到"判 `unknown-breakrec` ⇒ 返 `-10000`（＝能力缺口码）⇒
+   上游 `PTS.Validate` 抛 `PtsException` ⇒ **关窗 `rc=134`**（现场：`/tmp/hc-run-062409.log` 末三行）。
+   ⚠️ **地址永不复用**是既有承重不变量（`T-A33`：`FsDestroyPage` **摘表但不 `free`**，理由见该处注释）
+   ⇒ 退役对象的地址可长期当身份用；本表只记指针，**一个字节都不 deref**。
+   ⚠️ 有界（同上限 `WPF_PTS_FSP_MAX`）；满 ⇒ **具名** `retired-table-full`（不静默丢）。 */
+static wpf_pts_fsp *g_pts_fsp_retired[WPF_PTS_FSP_MAX];
+static int g_pts_fsp_retired_objs = 0;   /* 已记退役对象数（只增） */
+static int g_pts_fsp_retired_full = 0;   /* 因表满未记入的次数（只增；每满一次留一条具名行） */
 static int g_pts_fsp_ok         = 0;   /* 成功次数（C4 的"成功面"） */
 static int g_pts_fsp_gap        = 0;   /* **返非 0 次数**（C4 的"失败面"：诚实 stub 会让它 ≥1） */
 static int g_pts_fsp_rej        = 0;   /* 被拒次数（形状/身份校验失败；含在 gap 里） */
@@ -623,6 +655,8 @@ int FsCreatePageBottomless(void *pfscontext, const void *fsnmsect, int *pfsfmtrb
             p->sect   = fsnmsect;
             /* ⏪ `t146`：调用窗已齐 ⇒ 真调两条回调（每进程只探第一个窗口；伪 nms 只在副本） */
             wpf_pts_drive_probe(wpf_pts_doc_ptr(pfscontext), fsnmsect, "FsCreatePageBottomless");
+            /* ⏪ `T-B14`：本窗内**换新当前代**（若它已过期）—— 承 T-B3「本窗新造」判据，见该函数件头。 */
+            wpf_pts_fsp_pl_renew(wpf_pts_doc_ptr(pfscontext), fsnmsect, "FsCreatePageBottomless");
             p->result = 0;                     /* `fmtrblGoalReached`（本次调用的结果） */
             p->pg_w = 768; p->pg_h = 576;     /* 页矩形：本模块自持（与装置窗口几何同源） */
             p->bbox_defined = 1;               /* 声明 bbox 有效（否则托管侧按"未定义"处理） */
@@ -2954,6 +2988,36 @@ static int wpf_pts_handle_epoch_stale(const wpf_pts_doc *d)
 {
     return (d && d->fsp_pl_epoch != d->page_destroy_n) ? 1 : 0;
 }
+/* ══════════════════════════════════════════════════════════════════════════════════════════════
+   ⏪ `T-B14`（本增量）· **判据换代**：把"句柄是否已被释放"从**文档级计数器猜测**换成
+   **逐句柄的下界事实**（`fsp_pl_cur_live`）。
+
+   【为什么要换（**现取的判据，不是口味**）】旧判据 `fsp_pl_epoch != page_destroy_n` 把
+   `page_destroy_n`（**本 doc 的页销毁总数**，任一次 `FsDestroyPage` 都 +1）当"这个句柄的槽被回收了"
+   的**代理**。该代理**结构性过宽**：`page_destroy_n` 是文档级量，对**某个具体句柄**没有任何意义；
+   一旦本 doc 发生过**一次**页销毁，`fsp_pl_cur` 就被**永久**判"陈旧"（`fsp_pl_epoch` 只在**窗内**
+   写，而 ③ 换代要求 `quota >= gen_size` ⇒ 配额没到就再也刷不新）。
+   现场读数（`T-B14` 腿 `~/tb14-work/logs/probe-nostrict`，同一 `.so`、只差 `WPF_PTS_HANDLE_STRICT=0`）：
+     · `[FSPARALIST-FILL] … h_epoch=0 page_destroy_n=232`：**962 次**真填**全部**发生在
+       `h_epoch != page_destroy_n` 之下（其中 948 次 `page_destroy_n > 0`，最大 232）；
+     · 同一趟：`[HC-UNHANDLED]=0`、`Unrecoverable=0`、`Handle has been already released=0`
+       ⇒ 那些句柄**全是活的**（托管 `HandleToObject` 每次都过）。
+   ⇒ 旧判据的"陈旧"结论在这条产品路径上是**系统性假阳性**；而它的代价不是"少画一帧"：
+   `FsQueryTrackParaList` 返 `-10000` ⇒ 上游 `PTS.Validate` **抛** `PtsException` ⇒ WPF 重排
+   ⇒ 再抛 ⇒ **闭合重试环**（现取：`base-06` 一趟 46 s 内 **2060 条** `[HC-UNHANDLED]`、
+   峰值 **~150 条/秒**，且该环在关窗时刻仍在跑 —— 这正是"**关窗卡顿**"的可测形态）。
+
+   【新判据的射程（**如实具名，防被读宽**）】`wpf_pts_handle_released()` 报的是
+   「**本侧已把该句柄交给 `+192` 销毁**」这一**下界**；它**不**声称"托管侧一定没释放过它"
+   （本侧观测不到托管侧自发的 `Dispose`）。⇒ 残余风险见 `T-B14` 载体 §残余：现场
+   `hc-run-092614.log` 那次"`Handle has been already released`"本侧**从未复现**
+   （`T-B3` 报告 §5 `NOINFO-1` 同结论），本增量**不拿"没复现"冒充"已证不存在"**。
+   ══════════════════════════════════════════════════════════════════════════════════════════════ */
+static int wpf_pts_handle_released(const wpf_pts_doc *d)
+{
+    /* 有句柄 ∧ 本侧已把该值交给 `+192` ⇒ 已释放（拒发）；无句柄 ⇒ 由上游既有理由拒。 */
+    return (d && d->fsp_pl_cur && !d->fsp_pl_cur_live) ? 1 : 0;
+}
 /* ⏪ `T-A37`：附属对象**内容排版驱动**的运行期闸（缺省 **开**；显式 `WPF_PTS_ATT_CONTENT=0` 关 ⇒
    反极性腿：不调内容回调、不造子页 ⇒ 三色必回 0）。 */
 #ifndef WPF_PTS_ATT_CONTENT_DEFAULT
@@ -3623,6 +3687,110 @@ static void wpf_pts_engine_drive_from(wpf_pts_doc *d, const void *methods_base, 
             (rc3 == 0 && rewritten && claimed) ? "E2-ASSERTS-PASS" : "E2-ASSERTS-PARTIAL");
 }
 #endif   /* WPF_PTS_FSP_PL_ENGINE_DRIVE */
+
+/* ══════════════════════════════════════════════════════════════════════════════════════════════
+   ⏪ `T-B14`（本增量）· **格式窗内换新代**（`PRECOND`：T-B3 的「本窗新造」判据**就地满足**）
+
+   【为什么必须"造"而不是"拒"】`FsQueryTrackParaList` 交出去的 `pfsparaclient` 必须是**活句柄**；
+   而"活"这件事本侧**没有**可读的权威（托管 `PtsContext.HandleToObject` 一旦句柄已释放就
+   `Invariant.FailFast`，**不可捕获** ⇒ 不能拿它当探测器）。本侧唯一**能造出活句柄**的时机 ＝
+   **格式窗内**（`FsCreatePage*` 的调用期内：`+80 GetMainTextSegment` → `+136 GetFirstPara` →
+   `+176 CreateParaclient` —— 与驱动探针**同一组槽**、同一套前提）。
+   ⇒ 本件把"当前代已过期就拒发"（＝闭合重试环 ⇒ `[HC-UNHANDLED]` ~150 条/秒 ⇒ **关窗卡顿**）
+     换成"**当前代已过期就在本窗换一个**"。
+
+   【两极化（现取的成对腿）】
+     · 正极：`fix-01`（本函数**在**）⇒ `FsCreatePageFinite` 之后 `h_epoch == page_destroy_n`
+       （换新成功）⇒ 查询期填充**不再**撞 `stale-paraclient-across-page-destroy`。
+     · 反极：把本函数**编掉**（`WPF_PTS_PL_RENEW=0`）⇒ 逐字回到改前（`stale` 拒发 ＋ 重试环）。
+
+   【旧句柄**不回收**（如实具名，防被读宽）】换新时旧代**直接丢弃**（不调 `+192`）：
+   旧代正是"页销毁之前造的"那个可疑句柄 ⇒ 对它发 `+192` 会走托管
+   `PtsHost.DestroyParaclient` → `HandleToObject` ⇒ **已释放就 FailFast**（不可捕获）
+   ⇒ 用一个"不可捕获的崩溃"换"一个泄漏"是**明确不划算**的。泄漏量＝换新次数 × 一个托管
+   `ContainerParaClient` ＋ 一个 `PtsContext._unmanagedHandles` 槽（`calloc` 侧 0 B）；
+   计数与具名行见 `[FSPARALIST-RENEW]`（**必打**，不设静默阈值）。 */
+#ifndef WPF_PTS_PL_RENEW
+#define WPF_PTS_PL_RENEW 1        /* 0 ⇒ 逐字回到改前（反极性腿；**只在副本**以 -D 覆盖） */
+#endif
+static int g_pts_pl_renew_calls = 0;
+static int g_pts_pl_renew_ok    = 0;
+static int g_pts_pl_renew_gap   = 0;
+static int g_pts_pl_renew_drop  = 0;   /* 换新时**丢弃**（不回收）的旧代数 —— 泄漏面，**如实计数** */
+static void wpf_pts_fsp_pl_renew(wpf_pts_doc *d, const void *sect, const char *where)
+{
+#if WPF_PTS_PL_RENEW
+    if (!d) return;
+    if (d->fscbk_snap_state == WPF_PTS_FSCBK_SNAP_NONE) return;     /* 无快照 ⇒ 无槽可用（具名见下） */
+    if (!wpf_pts_drive_probe_enabled()) return;                     /* 与驱动闸同闸（关 ⇒ 逐字不动） */
+    if (!d->fsp_pl_cur) return;                                     /* 尚无当前代 ⇒ 由既有路径负责 */
+    if (!wpf_pts_handle_epoch_stale(d)) return;                     /* 本代仍"本窗新造" ⇒ 不动 */
+    const void *fp80  = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_GETMAINTEXTSEGMENT);
+    const void *fp136 = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_GETFIRSTPARA);
+    const void *fp176 = wpf_pts_snap_word(d, WPF_PTS_SNAP_IDX_CREATEPARACLIENT);
+    const void *old   = d->fsp_pl_cur;
+    g_pts_pl_renew_calls++;
+    /* ⚠️ **不覆盖**尚未回收的 `prev`（那会凭空漏一代）⇒ 本窗换新让路，等下一次填充把 `prev` 消费掉。 */
+    if (d->fsp_pl_prev) {
+        g_pts_pl_renew_gap++;
+        fprintf(stderr, "[FSPARALIST-RENEW] where=%s rc=-10000 old=%p v=DEFERRED(prev-pending) "
+                        "calls=%d ok=%d gap=%d\n", where, old, g_pts_pl_renew_calls,
+                g_pts_pl_renew_ok, g_pts_pl_renew_gap);
+        return;
+    }
+    if (!sect || !fp80 || !fp136 || !fp176) {
+        g_pts_pl_renew_gap++;
+        fprintf(stderr, "[FSPARALIST-RENEW] where=%s rc=-10000 old=%p v=NO-SLOT-OR-SECT "
+                        "sect=%p s80=%p s136=%p s176=%p calls=%d ok=%d gap=%d\n",
+                where, old, sect, fp80, fp136, fp176, g_pts_pl_renew_calls,
+                g_pts_pl_renew_ok, g_pts_pl_renew_gap);
+        return;
+    }
+    {   /* **格式窗内的三个阶段**：与驱动探针同序（`+80` ⇒ `+136` ⇒ `+176`）。
+           ⚠️ 三个句柄（`seg`／`nmp`／新客户端）都是**本窗产出**的托管对象 ⇒ 本调用期内发调安全
+           （`PtsHost._ptsContext` 在窗内成立）⇒ 临时把 `in_win` 置 1（出口复原）。 */
+        void *seg = NULL, *nmp = NULL, *hnew = NULL;
+        int fsucc = -1;
+        const int in_win_saved = d->in_win;
+        d->in_win = 1;
+        int rc80  = ((wpf_pts_fn_get_main_text_segment)fp80)((const void *)d->p_fsclient, sect, &seg);
+        int rc136 = (rc80 == 0 && seg != NULL)
+                  ? ((wpf_pts_fn_get_first_para)fp136)((const void *)d->p_fsclient, (const void *)seg,
+                                                       &fsucc, &nmp) : -9999;
+        int rc176 = (rc136 == 0 && nmp != NULL)
+                  ? ((wpf_pts_fn_create_paraclient)fp176)((const void *)d->p_fsclient,
+                                                          (const void *)nmp, &hnew) : -9999;
+        d->in_win = in_win_saved;
+        if (rc176 == 0 && hnew != NULL) {
+            /* ⏪ 换新成功：代数 ++、造出代＝**当前**页销毁代（＝"本窗新造 ∧ 在册 live"成立） */
+            d->fsp_pl_cur      = (const void *)hnew;
+            d->fsp_pl_gen++;
+            d->fsp_pl_epoch    = d->page_destroy_n;
+            d->fsp_pl_cur_live = 1;
+            d->fsp_pl_site     = "window-renew";
+            d->drive_nmp       = (const void *)nmp;   /* 同窗产出的 `nmp` 是活的 ⇒ 供后续 ④ 复用 */
+            g_pts_pl_renew_ok++;
+            g_pts_pl_renew_drop++;                    /* 旧代**丢弃**（不回收；理由见件头） */
+            fprintf(stderr, "[FSPARALIST-RENEW] where=%s rc=0 old=%p new=%p gen=%d epoch=%d "
+                            "page_destroy_n=%d dropped=%d calls=%d ok=%d gap=%d "
+                            "v=GENERATION-RENEWED-IN-WINDOW(本窗新造) "
+                            "NOINFO=old-generation-dropped-not-recycled(+192-on-suspect-handle-would-FailFast)\n",
+                    where, old, hnew, d->fsp_pl_gen, d->fsp_pl_epoch, d->page_destroy_n,
+                    g_pts_pl_renew_drop, g_pts_pl_renew_calls, g_pts_pl_renew_ok, g_pts_pl_renew_gap);
+            d->fsp_pl_quota = 0;                      /* 新一代的配额从 0 起 */
+        } else {
+            g_pts_pl_renew_gap++;
+            fprintf(stderr, "[FSPARALIST-RENEW] where=%s rc=%d old=%p v=NOT-RENEWED rc80=%d rc136=%d "
+                            "rc176=%d seg=%p nmp=%p h=%p calls=%d ok=%d gap=%d "
+                            "NOINFO=renew-attempted-in-window\n",
+                    where, rc176, old, rc80, rc136, rc176, seg, nmp, hnew,
+                    g_pts_pl_renew_calls, g_pts_pl_renew_ok, g_pts_pl_renew_gap);
+        }
+    }
+#else
+    (void)d; (void)sect; (void)where;
+#endif
+}
 
 static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *where)
 {
@@ -7335,6 +7503,18 @@ int FsDestroyPage(void *pfscontext, void *pfspage)
                ⇒ 格 8／格 9 自检的 `live_n` 断言不受影响）。代价＝每页约 `sizeof(wpf_pts_fsp)` 字节
                ／进程生命周期，**如实登记**。 */
             g_pts_fsp_retired_n++;
+            /* ⏪ `T-B14`：**退役对象另记一张身份表** —— 断页记录句柄 ＝ `&pg->c_paras`（地址），
+               而托管侧在页销毁之后**仍会**把它送来 `FsDestroyPageBreakRecord`（关窗 `PtsContext.Dispose`
+               与换页两处）；只扫在册表 ⇒ 自己发出的句柄被自己拒（`unknown-breakrec` ⇒ `-10000`）
+               ⇒ 上游抛 `PtsException` ⇒ `rc=134`。本表让认领**跨退役**成立（地址永不复用，`T-A33`）。 */
+            if (g_pts_fsp_retired_objs < WPF_PTS_FSP_MAX) {
+                g_pts_fsp_retired[g_pts_fsp_retired_objs++] = g_pts_fsp_live[i];
+            } else if (!g_pts_fsp_retired_full) {
+                g_pts_fsp_retired_full = 1;
+                fprintf(stderr, "[FSBATCH3] rc=0 entry=FsDestroyPage retired-table-full cap=%d "
+                                "v=RETIRED-LEDGER-SATURATED（此后退役对象的断页记录句柄回到"
+                                "`unknown-breakrec` 拒因；**不静默**）\n", WPF_PTS_FSP_MAX);
+            }
             g_pts_fsp_live[i] = g_pts_fsp_live[--g_pts_fsp_live_n];
             g_pts_fsp_live[g_pts_fsp_live_n] = NULL;
             g_pts_fsp_des_ok++;
@@ -8967,6 +9147,8 @@ int FsCreatePageFinite(void *pfscontext, void *pfsBRPageStart, const void *fsnmS
             p->sect  = fsnmSectStart;
             /* ⏪ `t146`：第二处调用窗（预算已耗则记 `budget-exhausted`，不重复调） */
             wpf_pts_drive_probe(wpf_pts_doc_ptr(pfscontext), fsnmSectStart, "FsCreatePageFinite");
+            /* ⏪ `T-B14`：本窗内**换新当前代**（若它已过期）—— 承 T-B3「本窗新造」判据，见该函数件头。 */
+            wpf_pts_fsp_pl_renew(wpf_pts_doc_ptr(pfscontext), fsnmSectStart, "FsCreatePageFinite");
             p->result = 0;
             p->pg_w = WPF_PTS_FSP_FIN_DU; p->pg_h = WPF_PTS_FSP_FIN_DV;
             p->bbox_defined = 1;
@@ -8975,6 +9157,7 @@ int FsCreatePageFinite(void *pfscontext, void *pfsBRPageStart, const void *fsnmS
             g_pts_fsp_fin_ok++;
             *ppfsPageOut   = (void *)p;
             *ppfsBRPageOut = (void *)&p->c_paras;     /* 断页记录句柄：**本对象内**字段地址（非 NULL、可身份校验） */
+            p->br_issued = 1;                         /* ⏪ `T-B14`：**该地址确实被当断页记录发出过**（认领依据） */
             (void)pfsBRPageStart;
             { int _i = wpf_pts_index("FsCreatePageFinite"); if (_i >= 0) g_pts_seen[_i]++; }
             g_pts_seq++;
@@ -9134,6 +9317,9 @@ int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgPar
                     if (!first) reason = want_out ? "no-out-of-window-client-yet" : "no-in-window-client-yet";
                     else {
                         dp->fsp_pl_cur = first; dp->fsp_pl_gen = 1;
+                        /* ⏪ `T-B14`：`first`（`src_in`／`src_out`）是**某次 `+176` 成功返回**的句柄，
+                           本侧**从不**把它交给 `+192` ⇒ 本位置 1（＝"本侧知道的"：它活着）。 */
+                        dp->fsp_pl_cur_live = 1;
                         /* ⏪ `T-B3`：`first` 是**早先造的**（`src_in`／`src_out`）⇒ 其造出代＝
                            那一次 `+176` 返回时记下的 `fsp_pl_epoch`（**在此不得覆盖** —— 否则会把
                            一个经历过页销毁的陈旧句柄误标成"本窗新造"）。 */
@@ -9146,6 +9332,11 @@ int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgPar
                     const void *prev = dp->fsp_pl_prev;
                     dp->fsp_pl_prev = NULL;
                     int rc192 = ((wpf_pts_fn_destroy_paraclient)fp192f)((const void *)dp->p_fsclient, prev);
+                    /* ⏪ `T-B14`：**本位只在"被销毁的值就是当前代"时清零** —— 这是"逐句柄"的承重点：
+                       回收 `prev` 不牵连 `cur`（旧判据用文档级计数器则会被**任何**页销毁牵连）。
+                       现状：本侧只回收 `prev`（③ 换代时 `cur` 已置 NULL）⇒ 本行在正常路径上**不**触发；
+                       但它把"若将来有人回收当值"这条路的判据**留在原地**（不靠"今天没人这么写"）。 */
+                    if (dp->fsp_pl_cur == prev) dp->fsp_pl_cur_live = 0;
                     g_pts_fsp_pl_teardown_rc = rc192;
                     g_pts_fsp_pl_consumes++;
 #if WPF_PTS_FSP_PL_LMWIT
@@ -9228,22 +9419,42 @@ int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgPar
                         if (rc176 == 0 && hn != NULL) {
                             dp->fsp_pl_cur = (const void *)hn; dp->fsp_pl_gen++;
                             dp->fsp_pl_epoch = dp->page_destroy_n;   /* ⏪ `T-B3`：本句柄的**造出代** */
+                            dp->fsp_pl_cur_live = 1;   /* ⏪ `T-B14`：本侧**刚**从 `+176` 拿到它（活着） */
                             dp->fsp_pl_site = "query-frame";
                         } else reason = "create-paraclient-failed";
                     }
                 }
                 /* ⑤ **真填**（先清零 ⇒ 未初始化内存不许交给上级；**填完才置条数**，判据 §5-P2） */
                 /* ⏪ `T-B3`（缺陷②）：**句柄发放收严 —— 「本窗新造 ∧ 在册 live」**。
-                   句柄的**造出代**（`fsp_pl_epoch`）必须等于**当前页销毁代**（`page_destroy_n`）；
-                   否则它是在某次 `FsDestroyPage` **之前**造的 ⇒ 托管 `PtsContext` 已回收该槽
-                   ⇒ 交出去必撞 `HandleToObject` 的 `Invariant.Assert("Handle has been already released.")`
-                   ⇒ `Environment.FailFast`（不可捕获）。⇒ 照 `:9122` 体例**具名拒发**（出参一字不写）。 */
-                if (!reason && dp->fsp_pl_cur && wpf_pts_handle_strict() && wpf_pts_handle_epoch_stale(dp)
+                   ⏪ `T-B14`：**判据换代** —— 旧形态用**文档级**计数器 `page_destroy_n` 当"这个句柄的槽
+                   被回收了"的代理（结构性过宽：本 doc 只要有过**一次**页销毁，`fsp_pl_cur` 就被永久判陈旧
+                   ⇒ `FsQueryTrackParaList` 恒返 `-10000` ⇒ 上游抛 ⇒ WPF 重排 ⇒ **闭合重试环**，
+                   现取 `[HC-UNHANDLED]` 峰值 ~150 条/秒 ⇒ **关窗卡顿**）。
+                   新形态用**逐句柄的下界事实**：本侧是否已把**这个值**交给 `+192`（回收）——
+                   本移植里能释放该句柄的通道**只有**托管 `pfnDestroyParaclient`（且只由本侧发调），
+                   而它只作用于 `fsp_pl_prev`（**从不**作用于当前代）⇒ 当前代句柄**活着**。
+                   ⚠️ **两极化不撤**：`WPF_PTS_HANDLE_STRICT=2` ⇒ 逐字回到旧判据（旧 token 逐字保留，
+                   供反极性／对照腿）；`=0` ⇒ 逐字回到"不检查"（`T-B10` 用过的既有形态，语义一字不改）；
+                   缺省（未设／其它值）⇒ 新判据。编译腿 `-DWPF_PTS_HANDLE_STRICT_REVERSE=1` 逐字保留
+                   （把"拒发"整条编掉）。 */
+                if (!reason && dp->fsp_pl_cur && wpf_pts_handle_strict()
                     && !WPF_PTS_HANDLE_STRICT_REVERSE) {
-                    reason = "stale-paraclient-across-page-destroy(not-this-window-live;HandleToObject-would-FailFast)";
-                    g_pts_handle_stale_refused++;
+                    if (wpf_pts_handle_released(dp)) {
+                        /* ⏪ `T-B14`：**逐句柄下界**（本侧已把这个值交给 `+192`）—— 正常路径不触发。 */
+                        reason = "released-paraclient-handle(this-side-handed-it-to-+192;"
+                                 "HandleToObject-would-FailFast)";
+                        g_pts_handle_stale_refused++;
+                    } else if (wpf_pts_handle_epoch_stale(dp)) {
+                        /* ⏪ `T-B3` 判据**逐字保留**（现取：撤掉它 ⇒ `fix-01` 腿复现现场那次
+                           `Handle has been already released.` ⇒ `FailFast` ⇒ `rc=134`）。
+                           ⏪ `T-B14` 只在**另一头**改：让本判据**不必**频繁为真（见 `wpf_pts_fsp_pl_renew`
+                           —— 在格式窗内把当前代换成**此刻 `+176` 真造**的句柄）。 */
+                        reason = "stale-paraclient-across-page-destroy(not-this-window-live;"
+                                 "HandleToObject-would-FailFast)";
+                        g_pts_handle_stale_refused++;
+                    }
                 }
-                else if (!reason && dp->fsp_pl_cur) {
+                if (!reason && dp->fsp_pl_cur) {
                     wpf_pts_fsparadesc *rg = (wpf_pts_fsparadesc *)rgParaDesc;
                     /* ⏪ `t162`（队长 `t163` 指引 ＋ 判据 §4(a)）：`pfspara` 的合法来源＝**本侧自有的
                        "子轨对象"**（本仓范式：句柄＝本对象内字段地址；`FsQueryTrackDetails` 同形）。
@@ -9398,14 +9609,15 @@ int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgPar
                     fprintf(stderr, "[FSPARALIST-FILL] rc=0 reason=ok entry=FsQueryTrackParaList cParas=%d n=%d "
                                     "h0=%p src=managed-176 run=site=%s win=%s gen=%d quad=%d hold=%d "
                                     "off16=%d bytes0_32=%s ok=%d gap=%d cur_tid=%lu win_tid=%lu "
-                                    "dvr_used=%d h_epoch=%d page_destroy_n=%d vgeo_ok=%d vgeo_short=%d "
-                                    "stale_refused=%d\n",
+                                    "dvr_used=%d h_epoch=%d page_destroy_n=%d cur_live=%d renewed=%d "
+                                    "vgeo_ok=%d vgeo_short=%d stale_refused=%d\n",
                             cParas, cParas, (void *)dp->fsp_pl_cur, dp->fsp_pl_site,
                             wpf_pts_fsp_pl_win_out() ? "out" : "in", dp->fsp_pl_gen, dp->fsp_pl_quota,
                             (dp->fsp_pl_prev != NULL) ? 1 : 0, (int)offsetof(wpf_pts_fsparadesc, pfsparaclient),
                             dump, g_pts_fsp_pl_ok + 1, g_pts_fsp_pl_gap,
                             (unsigned long)pthread_self(), dp->win_tid,
                             (cParas > 0) ? rg[0].dvr_used : -1, dp->fsp_pl_epoch, dp->page_destroy_n,
+                            dp->fsp_pl_cur_live, g_pts_pl_renew_ok,
                             g_pts_vgeo_ok, g_pts_vgeo_short, g_pts_handle_stale_refused);
                     g_pts_fsp_pl_ok++;
 #if WPF_PTS_FSP_PL_LMWIT || WPF_PTS_FSP_PL_DVR
@@ -9741,7 +9953,16 @@ int FsQuerySubtrackParaList(void *pfscontext, void *pSubTrack, int cParas,
         /* ⏪ `T-B3`（缺陷②）：**本入口的同一收严** —— `obj->child_clients[]` 若造于某次
            `FsDestroyPage` **之前**（造出代 ≠ 当前页销毁代），托管 `PtsContext` 已回收那些槽
            ⇒ 交出去必撞 `HandleToObject` 的 `Invariant.Assert("Handle has been already released.")`
-           ⇒ `Environment.FailFast`（不可捕获）⇒ 具名拒发（出参一字不写）。 */
+           ⇒ `Environment.FailFast`（不可捕获）⇒ 具名拒发（出参一字不写）。
+           ⏪ `T-B14`：**本条**本席**试过**"过期时就地按 `+176` 重建这一批"的形态（实验腿 `fix-04/05`），
+           **未保留** —— 理由是**声音**：重建的**输入**是 `obj->children[]`（**页销毁之前**枚举出的句柄），
+           正是本判据要躲的那一类值；实测（`fix-05`，8 次往返）**721 次重建里 706 次失败**
+           （`+176` 在那些值上返非 0）⇒ 那些槽已被**别的东西**占住（`HandleToObject` 取到的不是
+           `BaseParagraph` ⇒ 可捕获的 `-100002`）。**失败率 98% 说明**：这条路上"可疑句柄"**真的**
+           已陈旧；而"拿它们再发一次"**可能**在槽被**另一个 `BaseParagraph`** 占住时**静默换成错对象**
+           （本侧**没有**可判据的 ABA 检测 ⇒ 那会把"响亮拒"降级成"静默错值" —— 本仓首禁）。
+           ⇒ **保持拒发**；真修法见载体 §6-1（`PRECOND-SUBTREE-REENUM-PER-WINDOW`：把子段枚举
+           与子句柄批**在每一个格式窗重取**，使"本窗新造"在这条路上也成立）。 */
         else if (wpf_pts_handle_strict() && !WPF_PTS_HANDLE_STRICT_REVERSE
                  && obj->child_clients_made > 0 && obj->child_clients_epoch != dp->page_destroy_n) {
             reason = "stale-paraclient-across-page-destroy(subtrack-child-clients-not-this-window-live)";
@@ -10623,6 +10844,7 @@ int FsDestroyPageBreakRecord(void *pfscontext, void *pfsbreakrec)
 {
     const char *reason = NULL;
     wpf_pts_fsp *pg = NULL;
+    int retired = 0;                       /* ⏪ `T-B14`：本次认到的是**已退役**页对象（不是"在册"） */
     if (!pfsbreakrec) reason = "null-breakrec";
     else if ((const void *)pfscontext && !wpf_pts_doc_find(pfscontext)) reason = "unknown-ctx";
     else {
@@ -10630,12 +10852,45 @@ int FsDestroyPageBreakRecord(void *pfscontext, void *pfsbreakrec)
             if (g_pts_fsp_live[i]->magic != WPF_PTS_FSP_MAGIC) continue;
             if ((const void *)&g_pts_fsp_live[i]->c_paras == pfsbreakrec) { pg = g_pts_fsp_live[i]; break; }
         }
-        if (!pg) reason = "unknown-breakrec";
+        if (!pg) {
+            /* ── ⏪ `T-B14`：**页已退役**的断页记录 —— 认领必须跨退役成立（否则：自己发的句柄自己拒）──────
+               【为什么要认】断页记录句柄 ＝ 页对象内 `c_paras` 的地址；页一 `FsDestroyPage` 就从在册表
+               摘掉（`T-A33`：**摘表但不 `free`** ⇒ 地址永不复用），而托管侧**仍会**把它送来销毁：
+                 · 关窗：`PtsContext.Dispose()`（`PtsContext.cs:85`，现场末栈就是它）
+                 · 换页：`PtsContext.OnDestroyBreakRecord`（`PtsContext.cs:524`，后台 dispatcher 项）
+               【为什么旧行为是**错的**（语义，不是"兜底"）】旧实现返 `-10000` ＝ `tserrNotImplemented`
+               ＝"**本引擎没实现这个操作**"。而本入口**已实现**（`T-A66` 甲类 ①）；对一个**本侧自己发出的**
+               句柄返"没实现"，是**类型错误**：调用方无法区分"能力缺口"与"该记录已随页消失"，而
+               上游 `PTS.Validate`（`Pts.cs:40-43`）对**任何**非零都抛 `PtsException`
+               ⇒ 一次假拒 ⇒ `DestroyPTSContexts` 中途抛出 ⇒ 未处理 ⇒ **关窗 `rc=134`**。
+               【正确语义】断页记录是**页对象的字段** ⇒ 页退役时它**已随页消失**，"销毁一个已消失的记录"
+               ＝**幂等成功**（`destroy` 是清理原语，重复清理是正常契约）。本侧**不**声称释放了真记录内存
+               （具名 `NOINFO=no-breakrec-memory(field-address-only)`）。
+               【认领依据（一条都不能少）】① `br_issued==1`（本侧**真的**把该地址当断页记录发过）；
+               ② 地址等值（退役对象身份，**不 deref**）。两条不成立 ⇒ 仍判 `unknown-breakrec`（拒）。 */
+            for (int i = 0; i < g_pts_fsp_retired_objs; i++) {
+                if (g_pts_fsp_retired[i] && (const void *)&g_pts_fsp_retired[i]->c_paras == pfsbreakrec) {
+                    if (g_pts_fsp_retired[i]->br_issued) { pg = g_pts_fsp_retired[i]; retired = 1; }
+                    break;
+                }
+            }
+            if (!pg && !retired) reason = "unknown-breakrec";
+        }
         else if (pg->br_destroyed) reason = "already-destroyed-breakrec";
     }
     if (reason)
         return wpf_pts_b3_gap("FsDestroyPageBreakRecord", 0, reason, pfscontext, pfsbreakrec,
                               "NO-OUTPUT");
+    if (retired) {
+        /* 已随页消失 ⇒ 幂等成功（**不改**任何对象状态：该对象已退役，`br_destroyed` 对它无意义）。 */
+        g_pts_b3_ok[0]++;
+        fprintf(stderr, "[FSBATCH3] rc=0 entry=FsDestroyPageBreakRecord breakrec=%p page=%p ok=%d gap=%d "
+                        "v=BREAKREC-ALREADY-GONE-WITH-PAGE basis=claim-by-object-identity(retired-ledger;"
+                        "address-never-reused)+idempotent-destroy "
+                        "NOINFO=no-breakrec-memory(field-address-only)\n",
+                pfsbreakrec, (void *)pg, g_pts_b3_ok[0], g_pts_b3_gap[0]);
+        return 0;
+    }
     pg->br_destroyed = 1;                       /* 真失效：该句柄此后不可再被本入口认领 */
     g_pts_b3_ok[0]++;
     fprintf(stderr, "[FSBATCH3] rc=0 entry=FsDestroyPageBreakRecord breakrec=%p page=%p ok=%d gap=%d "
@@ -10673,6 +10928,7 @@ int FsUpdateFinitePage(void *pfscontext, void *pfspage, void *pfsBRPageStart,
     pfsfmtrOut[0] = pg->result;                    /* `FSFMTR.kstop` ＝ 本页对象自持结果（同侪同源） */
     pfsfmtrOut[1] = 0; pfsfmtrOut[2] = 0;
     *ppfsBRPageOut = (void *)&pg->c_paras;         /* 断页记录句柄：本对象内字段地址（非 NULL、可身份校验） */
+    pg->br_issued = 1;                             /* ⏪ `T-B14`：**该地址确实被当断页记录发出过**（认领依据） */
     g_pts_b3_ok[1]++;
     fprintf(stderr, "[FSBATCH3] rc=0 entry=FsUpdateFinitePage page=%p sect=%p kstop=%d brk=%p ok=%d gap=%d "
                     "basis=refresh-page-owned-state+reemit-breakrec "
@@ -10855,7 +11111,15 @@ int WpfLinuxWin32_PtsFsBatch3SelfCheck(void)
     for (int i = 0; i < WPF_PTS_B3_N; i++) { save_ok[i] = g_pts_b3_ok[i]; save_gap[i] = g_pts_b3_gap[i]; }
     const int save_fin_ok = g_pts_fsp_fin_ok, save_fin_gap = g_pts_fsp_fin_gap;
     const int save_sp_ok = g_pts_sp_ok, save_sp_gap = g_pts_sp_gap;
-    if (g_pts_fsp_live_n + 1 > WPF_PTS_FSP_MAX) return -1;
+    /* ⏪ `T-B14`：本增量加了格 ⑤（真的建/退役**两个**页对象：一有限、一无限）⇒ 它会动到
+       页对象面的计数与**退役台账**。自检"不许改变可观测状态"这条对本格**同样**成立 ⇒ 一并 save/restore
+       （`live_n` 不保存：收尾必须回 base 正是被断言的性质；`retired_objs` 是**只增台账**，
+       故按值存回 —— 否则同一进程里连跑两次自检会看到台账凭空变长）。 */
+    const int save_fsp_ok = g_pts_fsp_ok, save_fsp_gap = g_pts_fsp_gap, save_fsp_rej = g_pts_fsp_rej;
+    const int save_des_ok = g_pts_fsp_des_ok, save_des_gap = g_pts_fsp_des_gap;
+    const int save_ret_objs = g_pts_fsp_retired_objs, save_ret_n = g_pts_fsp_retired_n;
+    const int save_live_n = g_pts_fsp_live_n;
+    if (g_pts_fsp_live_n + 3 > WPF_PTS_FSP_MAX) return -1;   /* ⏪ `T-B14`：格 ⑤ 另建两个页对象 */
 
     /* ── 页夹具（①／②）────────────────────────────────────────────────────────────────────── */
     wpf_pts_fsctx_probe sc; memset(&sc, 0, sizeof(sc));
@@ -10966,10 +11230,38 @@ int WpfLinuxWin32_PtsFsBatch3SelfCheck(void)
         if (p && n) mask |= 1 << 4;
     }
 
+    /* ⑤ ⏪ `T-B14`（本增量）**跨退役认领**：正极＝**页退役之后**销毁它自己发出过的断页记录必须成功
+          （幂等）＋反极＝**从未发出过**断页记录的那个地址（无限页页对象的同名址）必须仍被拒。
+       【为什么这一格必须存在】本增量改的正是"页退役后能不能认领"这一条 ⇒ 没有它，新行为就是
+       **不可证伪**的（"看起来能跑"）；两半缺一不可：
+         · 正极半：`FsCreatePageFinite` 发 `brf` ⇒ `FsDestroyPage(pf)` 退役 ⇒ `FsDestroyPageBreakRecord(brf)`
+           **必须返 0**（改前是 `-10000` ⇒ 关窗 `rc=134` 的直接成因）；
+         · 反极半：`FsCreatePageBottomless` 造的页对象**从不发**断页记录（`br_issued==0`）⇒ 它退役后
+           把**同一个字段地址**送进来**必须仍被拒**（把"地址在退役表里"与"该地址是本侧发出的断页记录"
+           这两件事分开 —— 少了这半，任何退役页对象的字段地址都会被误认领）。 */
+    {
+        int fmt2[3] = { 9, 9, 9 };
+        void *pf = NULL, *brf = NULL;
+        int fmtrbl = 9; void *pbl = NULL;
+        int p = 0, n = 0;
+        if (FsCreatePageFinite(ctx, NULL, (const void *)0xB63, fmt2, &pf, &brf) == 0 && pf && brf) {
+            p = (FsDestroyPage(ctx, pf) == 0)                          /* 先退役（此后该页不在册） */
+                && (FsDestroyPageBreakRecord(ctx, brf) == 0)           /* ← 本增量：跨退役认领成功 */
+                && (FsDestroyPageBreakRecord(ctx, brf) == 0);          /* 幂等（再销毁仍成功） */
+        }
+        if (FsCreatePageBottomless(ctx, NULL, &fmtrbl, &pbl) == 0 && pbl) {
+            void *notabreakrec = (void *)&((wpf_pts_fsp *)pbl)->c_paras;   /* 地址在退役表里，但**从未**当过断页记录 */
+            n = (FsDestroyPage(ctx, pbl) == 0)
+                && (FsDestroyPageBreakRecord(ctx, notabreakrec) == WPF_PTS_ERR_NOT_IMPLEMENTED);
+        }
+        if (p && n) mask |= 1 << 5;
+    }
+
     fprintf(stderr, "[FSBATCH3-SELFTEST] mask=0x%02x destroy_brk=%d update_finite=%d subpage_bal=%d "
-                    "scrollpos=%d atom=%d legs=%s\n",
+                    "scrollpos=%d atom=%d retired_brk=%d legs=%s\n",
             mask, (mask >> 0) & 1, (mask >> 1) & 1, (mask >> 2) & 1, (mask >> 3) & 1, (mask >> 4) & 1,
-            mask == 0x1f ? "5/5(POS+REJECT)" : "PARTIAL");
+            (mask >> 5) & 1,
+            mask == 0x3f ? "6/6(POS+REJECT)" : "PARTIAL");
 
     /* 收尾：真销毁页对象与上下文（活数回 base；幂等、不逼近上限） */
     if (FsDestroyPage(ctx, pfa) != 0) { DestroyDocContext(ctx); mask = -1; }
@@ -10977,6 +11269,12 @@ int WpfLinuxWin32_PtsFsBatch3SelfCheck(void)
     for (int i = 0; i < WPF_PTS_B3_N; i++) { g_pts_b3_ok[i] = save_ok[i]; g_pts_b3_gap[i] = save_gap[i]; }
     g_pts_fsp_fin_ok = save_fin_ok; g_pts_fsp_fin_gap = save_fin_gap;
     g_pts_sp_ok = save_sp_ok; g_pts_sp_gap = save_sp_gap;
+    /* ⏪ `T-B14`：格 ⑤ 动过的面按值存回（含**退役台账**）—— 并断言 `live_n` 与基线**逐值相等**
+       （"自检不许改变可观测状态"的可证伪面；不等 ⇒ `mask = -1`）。 */
+    g_pts_fsp_ok = save_fsp_ok; g_pts_fsp_gap = save_fsp_gap; g_pts_fsp_rej = save_fsp_rej;
+    g_pts_fsp_des_ok = save_des_ok; g_pts_fsp_des_gap = save_des_gap;
+    g_pts_fsp_retired_objs = save_ret_objs; g_pts_fsp_retired_n = save_ret_n;
+    if (g_pts_fsp_live_n != save_live_n) mask = -1;
     return mask;
 }
 int WpfLinuxWin32_PtsFsBatch3SelftestMask(void) { return WpfLinuxWin32_PtsFsBatch3SelfCheck(); }
