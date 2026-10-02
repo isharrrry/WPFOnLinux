@@ -642,3 +642,11 @@ channel.CommittedCommands    // 成功解码执行的命令数
 
 - **PTS/LineServices 条现值（现取）**：`PTSGAP=PASS tool=71 dead=11 artifact=1 ops=59 impl=60 so16=642019f680d75d87 exports=688`（`rc=0`）⇒ **工具口径 71／可操作缺口 59／实现口径 60**。**逐增量归因**：`T-A52`（`GetFloaterHandlerInfo` 由具名缺口 stub 升真实现）改的是**实现面** —— 缺口五位未动，只 `so16 1dbea9026dd7d3d7 → 1067da454b7ef114`；`T-A53`（Table 族五入口导出 ＋ `GetTableObjHandlerInfo` 真实现）使 `tool 76→71`／`ops 64→59`／`impl 66→60`／`exports 683→688`（`nm -D --defined-only` 逐名 `diff` 零差异）；`T-A54`（两闸转缺省开）只翻两闸缺省常量，缺口五位未动，`so16 → 642019f680d75d87`。
 - **产品面净结果（缺省路径现取）**：`k=24` 第 4 具名色 `LightGoldenrodYellow = 1998 px`、`PTS_COLORANCHOR=PASS k=24 hits=3`（`GhostWhite=18945`／`Beige=910`／`DarkGreen=44`／`LightGoldenrodYellow=1998`）；缺省零回归（三帧与 `T-A53` 开闸腿逐字节同：`boot b21eb530afd3c66c`／`k23 10d0b9d54e649c10`／`k24 64603fc1d8e23e39`）。⚠️ **射程（如实划界）**：第 4 色所在层 ＝ **`TableRow Background`（表行背景）**，只让行背景落像素；`FsQueryTableObjRowDetails` 仍一律报 `cCells=0`（诚实的空）⇒ 表单元文本未绘。载体：`build/MilBridge/P1-tail2-{floatercbk,tableobj,gate-on}-impl-report.md`。
+
+---
+
+## ⏪ **dated 现值位（`T-A75`／本会话 `T-A58..A74` 入册，读时 `2026-10-02T09:08:09+0800`；上文一字未动）**
+
+- **`D-G70` 现值位（现取）**：`.so df27801beb222f05`／`exports 846`／`ops 42`（`PTSGAP=PASS tool=54 dead=11 artifact=1 ops=42 impl=42 so16=df27801beb222f05 exports=846`；`nm -D --defined-only` ＝ `exports.txt` ＝ **846**）／`stubs 0`／`baseline #81`。
+- **逐批随动（`TASK-0302` 增量）**：`T-A61`（`Fs*` 族首批 8 条真实现 ⇒ `ops 58→50`／`impl 59→51`／`exports 689→701`）｜`T-A62`（`Lo*`/`Nl*` 族可诚实实现 3 条 ＋ 同族唯一 stub `LoDisposePenaltyModule` 升格 ⇒ `ops 50→47`／`impl 51→47`／**`stubs 1→0`**／`exports 701→718`）｜`T-A65`（47 条逐条分级 ＝ 甲 5／乙 20／丙 6／丁 16）｜`T-A66`（甲类 5 条真实现 ⇒ `ops 47→42`／`impl 47→42`／`exports 718→727`）｜`T-A67`／`T-A74`（丁类 16 条**真依赖 `L1`（native LS 行引擎·度量源）/`L2`（DWrite 脚本分段）**，且 **LS 链已被 shim 替换 ⇒ 无真腿可达 ⇒ 可诚实实施者 0**）｜`T-A68..A73`（`W` 合取落地，`exports 727→846`）。
+- **基线**：`BASELINE-FROZEN gen=#81 sha16=7cd1bc5c37a74e8d`（`T-A58` 重冻；`1,238,130 B`）。
