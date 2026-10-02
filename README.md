@@ -5,7 +5,7 @@
 > **上游**：`upstream/wpf/`（`dotnet/wpf` 的一个快照，MIT，见 `upstream/wpf/LICENSE.TXT`）；上游**原始 README** 已保留为 [`README-Window.md`](README-Window.md)。
 > **工程规范**（并行车道必须遵守）：[`docs/PORT-SPEC.md`](docs/PORT-SPEC.md)｜**并行路线图**：[`docs/ROUTES.md`](docs/ROUTES.md)｜**文档地图**：[`docs/INDEX.md`](docs/INDEX.md)｜**发 fork / 推分支**：[`docs/FORK-AND-PUSH.md`](docs/FORK-AND-PUSH.md)。
 
-## 0. 现状（现读 2026-09-24；**本段是快照，权威一律以现场为准**）
+## 0. 现状（现读 2026-10-02；**本段是快照，权威一律以现场为准**）
 
 **MVP 成立**：真实 WPF 应用（HandyControl 示例）**从源码编译通过 → 开窗 → 渲染 → 交互**，一条命令跑起来（`bash ~/run-hc.sh`；`--no-sync` 只启动，`--diag` 开输入仪器）。真机口径：hc 示例**逐页实测 29/31 页可用**。
 
@@ -14,18 +14,18 @@
 | **世代与基线** | `docs/CURRENT-STATE.md:9`（现读 `gen=#81`，基线件 `7cd1bc5c37a74e8d`／1,238,130 B） |
 | **交接件（新会话先读这个）** | `build/MilBridge/HANDOFF-NEXT.md`（§5 = **23 条纪律**；§7 = **七条命令**重建存活态） |
 | **路线图（权威状态）** | `docs/ROUTES.md` **§13 树**；`§15x+` = 逐波记录；`§14` = `[Next]` 清单 |
-| **牙齿自检（一条命令）** | `bash build/MilBridge/tools/defect-registry-check.sh`（现读 `DEFREG=PASS declared=149`） |
+| **牙齿自检（一条命令）** | `bash build/MilBridge/tools/defect-registry-check.sh`（现读 `DEFREG=PASS declared=225`） |
 
-**仍然已知的问题（2026-09-24 现读，**只剩 4 条**）**：
+**仍然已知的问题（2026-10-02 现读）**：
 
 | # | 现象 | 状态 / 处置 |
 |---|---|---|
-| ① | 切「富文本」23／「流文档」24 **必死 `rc=134`** | 🔴 真因 = **PTS／原生 LineServices 未实现**（`TASK-0302`，**可操作 42／实现口径 42**，月级长线；旧「111 条 `Fs*`/`Lo*` 缺口」已证 `TOOL-UNSOUND`）；已落**页级可见降级**（洋红占位，不再静默空白） |
-| ② | **PTS／LineServices 真实现** | 🔴 `TASK-0302`（同上，长线） |
-| ③ | 静默 `rc=139`＋0 字节日志 | 🟡 产品修法（UAF 链 `F1/F2/F3/F3b`）**已随 `#55` 冻结落地** ⇒ **本行读数须重取**（`TASK-0201`：用 `SILENT_SEGV_HIT` 逐字判别式 ＋ ≥131 腿/臂） |
-| ④ | 零墨修法的**反极性腿**未跑 | 🟡 `TASK-0301`（正极已成立；**只差这一条腿**） |
+| ① | 切「富文本」23／「流文档」24 | ✅ **已成立（不再是红）** —— 现取 `phase=realized`／`magenta=0`／`[HC-UNHANDLED]=0`（`alive=yes app_rc=143 failfast=0`）；**四具名色锚齐**：`PTS_COLORANCHOR=PASS hits=3`（`GhostWhite=9794`／`Beige=910`／`DarkGreen=44`／`LightGoldenrodYellow=5830`，基线四色全 `0`）；`PTS_GUARD=PASS`（在册证据 `build/MilBridge/tests/PtsPagesProbe/evidence/`）。判据面随 `T-A33..A59` 链闭合 |
+| ② | **PTS／原生 LineServices 真实现** | 🟡 **长线（不再是阻塞项）** —— 现值 `PTSGAP=PASS tool=54 dead=11 artifact=1 ops=42 impl=42`／`.so=df27801beb222f05`／`exports=846`／`stubs=0`（`nm==exports`）；余 42 条**逐条具名且已证为合法终点**：乙 20（本侧无测量源）／丙 6（`Nl*` 在册有意降级）／丁 16（**LS 链已被 shim 替换 ⇒ 无真腿可达 ⇒ 可诚实实施者 0**，`T-A67`／`A74`） |
+| ③ | 静默 `rc=139`＋0 字节日志 | 🟡 **产品侧已修** —— `T-A64`：`wpf_queue_push` 的 `tail` 零解引用守卫（`D-G109` 同根因另一半；反腿 `rc=139`＋`si_addr=0x13a` ⇒ 正腿 `rc=0`）；装置侧可比时间窗已闭（`T-A60`：`BASELINERATE` 由 `VOID-PREMISE` 转**可判定 `FAIL`＋点名**）。⚠️ **率未重取、不宣称清零**（残余窄 `TOCTOU`＝`TASK-0211` 另计） |
+| ④ | 零墨修法的**反极性腿**未跑 | ✅ **已办**（车道 W161A 在 `#64` 现件上真跑，见 `docs/ROUTES.md` §12 区与 `D-G129`） |
 
-> ⏪ **本段原是一张 8 行"已知问题"表（2026-09-20）**，其中 6 条（点页签崩 `D-G66`／启动即死／`PMaxSize` 钉死／双层窗框／顶部菜单条 NRE／Effects 缺 `0x6c`、`0x70`）**均已修**，另 2 条并入上表 ⇒ **该表已删除**；全文可从 git 历史逐字取回（`git -C ~/netTest/GitProj/WPFOnLinux log --oneline -- README.md`）。逐条细节见 `samples/WpfFeatureProbe/KNOWN-DEFECTS.md` 与 `docs/ROUTES.md`。
+> ⏪ **本表上一版是 2026-09-24 的 4 行（①必死 `rc=134`／②`TASK-0302`／③读数须重取／④只差一条腿）**，其逐条更正见下方 `T-A75` dated 行；更早的 8 行版（2026-09-20）已删，全文可从 git 历史逐字取回（`git -C ~/netTest/GitProj/WPFOnLinux log --oneline -- README.md`）。逐条细节见 `samples/WpfFeatureProbe/KNOWN-DEFECTS.md` 与 `docs/ROUTES.md`。
 >
 > ⏪ **dated 更正（`T-A33`，读时 `2026-09-30`；只增不改，上面两行**原文保留**）**：① 行「必死 `rc=134`／洋红占位」**已不成立** —— `T-A33` 落地 **native 查询期文本行回填**（`FsQueryTextDetails`／三入口按**行记录台账**真填出参）后，切「富文本」23／「流文档」24 **不再崩**（`alive=yes app_rc=143 failfast=0`），且**占位图消失、内容区首次出现真实像素**（改前/反极性：占位 `129792` px、`AE(content)=0`；改后：占位 **0** px、`AE(content)=203949`／`174476`）。② 行「PTS／LineServices 真实现」**仍**是长线（`TASK-0302`；`可操作 70／实现口径 73` **未变**）。⚠️ 免读宽：`PTS` 本体仍是**降级实现**，新前沿见 `docs/ROUTES.md` §15x 的 `T-A33` 行与载体 `build/MilBridge/P1-tail2-backfill-impl-report.md`。
 > ⏪ **dated 更正（`T-A36`，读时 `2026-09-30`；只增不改，上面各行**原文保留**）**：`T-A36` 落地 **native「PTS 附属对象回填」**（`Figure`/`Floater` 建台账 ＋ 查询期回填 `cAttachedObjects`，并新增 `FsQueryAttachedObjectList`／`FsQuerySubpageDetails`／`FsQueryFigureObjectDetails`／`FsQueryFloaterDetails` **四导出**）后，`k=24` 帧上**首现具名色块**（`PTS_COLORANCHOR` `hits 0→1`；**`GhostWhite 0→29637 px`**），`colors 654→724`，帧 `fa7df9222ebb199f → 1487caf78fd88886`；症状门**无回归**（`[HC-UNHANDLED]=1`）。⚠️ **免读宽**：**四具名色仍只出 1 个**（`Beige`/`DarkGreen`/`LightGoldenrodYellow` 在 `Figure`/`Floater` 的**内容**里，需"附属对象内容排版"驱动 ⇒ 下一增量）；`PTS` 本体仍是**降级实现**。现值位随动：`可操作 66／实现口径 69`（`.so=21ad5f39ef3c4034`／`exports=681`）。载体 `build/MilBridge/P1-tail2-attach-impl-report.md`。
@@ -42,10 +42,10 @@
 | **开窗 + 渲染**（仓内样本） | `samples/WpfTextDemo`：默认档（**清空全部字体 env**）窗口内 **3960 色**、`14/14` 帧非空、`未画种类 0` | `bash tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpftextdemo.sh 60 --tier both` |
 | **第三方形态（仓内判据）** | `samples/ThirdPartyMini`：只经 `build/third-party/WpfLinux.props` 接线、不进 sln、产物**复制到仓外**再跑；`WindowChrome` ＋ 图片解码（`Bgra32`）＋ 中文/图标 ＋ 数据绑定全部渲染（窗口内 **1485 色**） | `bash samples/ThirdPartyMini/run-thirdparty-mini.sh 25`（`verify-all` 第 `[19]` 步） |
 | **第三方真实应用（仓外实证）** | HandyControl 示例工程：库 + demo **0 error**（148 个 Page 进 BAML）、**开窗并渲染出完整界面**（自定义 chrome ＋ 中文控件名 ＋ 图标 ＋ 图片；窗口内 **1275 色**，**零探针装置**） | 见 §4；⚠️ 该实证在**仓外** ⇒ 它是产品事实，**不单独构成仓内判据**（仓内判据见上一行） |
-| **一键验收** | `verify-all.sh`：**25 步**、871 用例通过、2 跳过、含五臂对拍 / 应用门禁 / 冻结基线核对 / 第三方形态样本 | `bash verify-all.sh` |
+| **一键验收** | `verify-all.sh`：**64 步**、**875 用例通过**、2 跳过，含五臂对拍 / 应用门禁 / 冻结基线核对 / 第三方形态样本（现读 `64 ✅ / 0 ❌`，rc=0） | `bash verify-all.sh` |
 
 **"可复算"是本工程的硬要求**：每个结论都得有一条命令能重算，并且**判据件自己也被看着**
-（`verify-all` 里 24 步中有 12 步是"看仪器的仪器"：门禁自检、输入覆盖面自检、引号陷阱、`pipefail` SIGPIPE 普查、隐形段牙齿、列级下限外挂读者……）。
+（`verify-all` 的 64 步里**相当一部分**是"看仪器的仪器"：门禁自检、输入覆盖面自检、引号陷阱、`pipefail` SIGPIPE 普查、隐形段牙齿、列级下限外挂读者……）。
 
 ---
 
