@@ -1,9 +1,9 @@
 // ⚠️ 本文件由 build/PresentationFramework.Linux/reapply-patches.py **生成**，不要手改。
 //
-// 内容 = 上游 `upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/documents/FlowDocumentView.cs` 逐字复制 + 10 处 W86A（`TASK-0304`/`TASK-0305`）改动。
+// 内容 = 上游 `upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/documents/FlowDocumentView.cs` 逐字复制 + 11 处 W86A（`TASK-0304`/`TASK-0305`）改动。
 // 每次运行该脚本都会从上游重读重生成；needle 找不到 / 命中数不符时**报错退出**
 // （不会静默产出未打补丁的副本）。改动逐处见：
-//   E1 ／ E2 ／ E3 ／ E4 ／ E5 ／ E6 ／ E7 ／ E8 ／ E9 ／ E10
+//   E1 ／ E2 ／ E3 ／ E4 ／ E5 ／ E6 ／ E7 ／ E8 ／ E9 ／ E10 ／ E11
 //
 // 背景（`D-G70`/`D-G78`）：本移植没有 PTS/原生 LineServices ⇒ 切「富文本」/「流文档」页
 // 曾**整进程 `rc=134`**。本件把它变成「**具名、可判、可见的能力边界**」：
@@ -246,6 +246,8 @@ namespace MS.Internal.Documents
                         }
                         _pageVisual = (PageVisual)_formatter.DocumentPage.Visual;
                         AddVisualChild(_pageVisual);
+                        // `T-B11`：让"画得出的那条链"与 `DPV`／`DPH` 有**同口径**读数（只读，不改语义）
+                        WpfLinuxPageViewProbe.ReportFdv(this, _pageVisual);
                     }
 
                     // Set appropriate content offset

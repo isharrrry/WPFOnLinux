@@ -148,6 +148,13 @@ PATCH_C = '''  <!-- ============================================================
     <!-- T-B7（BAML-TYPE-UNRESOLVED）：BAML 类型解析失败的**具名出口**（只补类型名/宿主件，不改语义） -->
     <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Markup/Baml2006/Baml2006SchemaContext.cs" />
     <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/Baml2006SchemaContext.Linux.cs" />
+    <!-- T-B11（PAGEVIEW-ONSCREEN）：分页视觉宿主（DocumentPageView／DocumentPageHost）的「上屏」接线 ＋ 只读台账 -->
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Controls/Primitives/DocumentPageView.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/DocumentPageView.Linux.cs" />
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/documents/DocumentPageHost.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/DocumentPageHost.Linux.cs" />
+    <!-- T-B12（PAGINATED-PAGE-CONTENT-VISUALS）：分页页视觉「壳内」内容视觉的只读逐跳读数（[PAGEVIS]） -->
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/WpfLinuxPageVisProbe.Linux.cs" />
   </ItemGroup>
 '''
 
@@ -1652,6 +1659,651 @@ FDV_EDITS.append((FDV_E7_NEEDLE, FDV_E7_REPL, 1))
 FDV_EDITS.append((FDV_E8_NEEDLE, FDV_E8_REPL, 1))
 
 
+# ══════════════════════════════════════════════════════════════════════════════
+#  `T-B11`（`PAGEVIEW-ONSCREEN`）：分页视觉宿主 `DocumentPageView`／`DocumentPageHost` 的
+#  **「上屏」接线 ＋ 只读台账**（`P8` 新增补丁族；生成件 `temp+rename`）
+#
+#  【现取断点】hc「流文档」页 `tab1`（滚动／`FlowDocumentView`，**仓内已移植**）画得出，
+#    `tab2` 单页视图／`tab3` 查看器（上游件 `DocumentPageView` ＋ `DocumentPageHost`）画不出 ——
+#    同一帧、同一 `.so`、同一条 `.so` 内的分页页视觉**确已建起**（现取 `[CHAIN] site=PTSP.UpdatePageVisuals`
+#    ×8、`FDG.Arrange size=816x1056` ×10、`PH.UpdateParaListVisuals` ×272、`RenderSimpleLines` ×96）
+#    ⇒ 真断点 ＝「**页视觉已建 → 上屏帧**」这一跳（`T-B10` §4.3）。
+#
+#  【`FlowDocumentView` 那条**可用**接线的可复用最小集（现取，件:行见主体报告 §1）】
+#    ① 把**页视觉对象本身**接进本控件自己的视觉树：`FlowDocumentView.Linux.cs:247-248`
+#       `_pageVisual = (PageVisual)_formatter.DocumentPage.Visual; AddVisualChild(_pageVisual);`
+#    ② 给它**显式定位**：`:254` `_pageVisual.Offset = new Vector(-h, -v);`（不依赖内层 `Arrange` 的隐式测量）
+#    ③ `GetVisualChild`／`VisualChildrenCount` 与 ①② **同源**（返回**同一个**被 `AddVisualChild` 的对象）。
+#    ⇒ 三条的共同点：**宿主自己做挂载与定位**，不把"上屏"寄托在内层元素的隐式 `Measure/Arrange` 上。
+#  【本块做什么】`DocumentPageHost.PageVisual` 的 setter 里，**除上游既有的** ContainerVisual 包壳外，
+#    把页视觉**也**按 ②③ 的同源方式挂到宿主自己的视觉树上，并把上游算好的位移**显式**写给页视觉
+#    （`VisualOffset`），使"挂载／定位"两条与 `FlowDocumentView` **同形**。
+#    · **不**删上游任何一步（包壳照旧）；**不**删／**不**放宽任何 `Invariant.Assert`；
+#    · **不**改任何 native 几何、不动 PTS 更新信息。
+#  【零假值／默认关】`WPF_PAGEVIEW_ONSCREEN=1` ⇒ 才启用本条接线；**未设即关** ⇒ 逐字回上游。
+#    ⚠️ 本席已**真跑反极性**：开/关两腿 `tab2` 帧**逐字节相同**（`1fb95eab89966441`）⇒ 本条接线
+#    **不是**断点（实测零效果），故**不默认启用**（不许把"零效果"当"修好了"）；见载体报告 §4。
+#  【只读台账】`[DPV]`／`[DPH]`：身份／尺寸／子树包围盒／父链 —— 使"页视觉已建 → 上屏帧"
+#    这一跳的**每一格**都有直读面（`WPF_PAGEVIEW_PROBE=0` ⇒ 台账不发生）。
+DPH_PROBE_NEEDLE = """        internal static void DisconnectPageVisual(Visual pageVisual)
+        {
+            // There might be a case where a visual associated with a page was 
+            // inserted to a visual tree before. It got removed later, but GC did not
+            // destroy its parent yet. To workaround this case always check for the parent
+            // of page visual and disconnect it, when necessary.
+            Visual currentParent = VisualTreeHelper.GetParent(pageVisual) as Visual;
+            if (currentParent != null)
+            {
+                ContainerVisual pageVisualHost = currentParent as ContainerVisual;
+"""
+DPH_PROBE_REPL = """        internal static void DisconnectPageVisual(Visual pageVisual)
+        {
+            // There might be a case where a visual associated with a page was 
+            // inserted to a visual tree before. It got removed later, but GC did not
+            // destroy its parent yet. To workaround this case always check for the parent
+            // of page visual and disconnect it, when necessary.
+            Visual currentParent = VisualTreeHelper.GetParent(pageVisual) as Visual;
+            if (currentParent != null)
+            {
+                // ── `T-B11`（`PAGEVIEW-ONSCREEN`）：直接挂载形态下，页视觉的父**就是**宿主 ──────
+                //  打开驱动时 `PageVisual` setter 把页视觉**本身**挂到宿主（照 `FlowDocumentView`
+                //  范式，不经 `ContainerVisual` 包壳）⇒ 必须先认这一形态，否则下游
+                //  `currentParent as ContainerVisual == null` 会误判成"父不是 DocumentPageHost"
+                //  而**响亮抛错**（那是一处**新缺陷**，不是本增量要的）。关 ⇒ 逐字回上游。
+                DocumentPageHost directHost = currentParent as DocumentPageHost;
+                if (directHost != null)
+                {
+                    directHost.PageVisual = null;
+                    return;
+                }
+                ContainerVisual pageVisualHost = currentParent as ContainerVisual;
+"""
+
+# `PageVisual` setter：照 `FlowDocumentView` 范式挂载（`WPF_PAGEVIEW_ONSCREEN=1` 才启用；默认关）
+DPH_SET_NEEDLE = """            set
+            {
+                ContainerVisual pageVisualHost;
+                if (_pageVisual != null)
+                {
+                    pageVisualHost = VisualTreeHelper.GetParent(_pageVisual) as ContainerVisual;
+                    Invariant.Assert(pageVisualHost != null);
+                    pageVisualHost.Children.Clear();
+                    this.RemoveVisualChild(pageVisualHost);
+                }
+                _pageVisual = value;
+                if (_pageVisual != null)
+                {
+                    pageVisualHost = new ContainerVisual();
+                    this.AddVisualChild(pageVisualHost);
+                    pageVisualHost.Children.Add(_pageVisual);
+                    pageVisualHost.SetValue(FlowDirectionProperty, FlowDirection.LeftToRight);
+                }
+            }
+"""
+DPH_SET_REPL = """            set
+            {
+                ContainerVisual pageVisualHost;
+                // ── `T-B11`（`PAGEVIEW-ONSCREEN`）：照 `FlowDocumentView` 范式挂载页视觉 ──────────
+                //  `FlowDocumentView` 那条**可用**接线是"宿主**自己**把页视觉对象 `AddVisualChild`
+                //  进自己的视觉树 ＋ 显式定位"（`FlowDocumentView.Linux.cs:247-254`），**不**经内层
+                //  元素的隐式 `Measure/Arrange`。上游 `DocumentPageHost` 则是把页视觉塞进一个
+                //  **新建的 `ContainerVisual` 包壳**、再把包壳 `AddVisualChild`（`:95-98`）。
+                //  两种形态在**本移植的成帧面上不等价**：现取（腿 `b11visit`）渲染遍历**确已**走到
+                //  `DPV → DPH → 页视觉`（`[PAGEVIEW] site=DPV.GetVisualChild` ＝ `DPH.GetVisualChild`
+                //  ＝ 246 次、尺寸/可见性全对），却**一像素也上不了屏** ⇒ 断点在"页视觉子树在本移植的
+                //  成帧面上没被合成"。本块把挂载改成与 `FlowDocumentView` **同形**。
+                //  ⚠️ **不删**上游任何一步（关闸时逐字保留包壳形态）；**不删／不放宽**任何断言。
+                //  零假值／默认关：`WPF_PAGEVIEW_ONSCREEN=1` 才启用；未设 ⇒ **逐字回上游**（反极性腿）。
+                if (_pageVisual != null)
+                {
+                    if (WpfLinuxPageViewProbe.Enabled)
+                    {
+                        this.RemoveVisualChild(_pageVisual);
+                    }
+                    else
+                    {
+                        pageVisualHost = VisualTreeHelper.GetParent(_pageVisual) as ContainerVisual;
+                        Invariant.Assert(pageVisualHost != null);
+                        pageVisualHost.Children.Clear();
+                        this.RemoveVisualChild(pageVisualHost);
+                    }
+                }
+                _pageVisual = value;
+                if (_pageVisual != null)
+                {
+                    if (WpfLinuxPageViewProbe.Enabled)
+                    {
+                        this.AddVisualChild(_pageVisual);
+                        WpfLinuxPageViewProbe.ReportAttach(this, _pageVisual, true);
+                    }
+                    else
+                    {
+                        pageVisualHost = new ContainerVisual();
+                        this.AddVisualChild(pageVisualHost);
+                        pageVisualHost.Children.Add(_pageVisual);
+                        pageVisualHost.SetValue(FlowDirectionProperty, FlowDirection.LeftToRight);
+                        WpfLinuxPageViewProbe.ReportAttach(this, _pageVisual, false);
+                    }
+                }
+            }
+"""
+
+DPH_VISIT_NEEDLE = """        protected override Visual GetVisualChild(int index)
+        {
+            if (index != 0 || _pageVisual == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(index), index, SR.Visual_ArgumentOutOfRange);
+            }
+            return VisualTreeHelper.GetParent(_pageVisual) as Visual;
+        }
+"""
+DPH_VISIT_REPL = """        protected override Visual GetVisualChild(int index)
+        {
+            WpfLinuxPageViewProbe.ReportVisit("DPH.GetVisualChild", this, _pageVisual, index);
+            WpfLinuxPageViewProbe.ReportRenderSub(this, _pageVisual);
+            if (index != 0 || _pageVisual == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(index), index, SR.Visual_ArgumentOutOfRange);
+            }
+            // T-B11：直接挂载形态下页视觉的父**就是**宿主 ⇒ 子必须是页视觉**本身**
+            // （与 `FlowDocumentView` 的 `GetVisualChild` 返回被 `AddVisualChild` 的同一对象**同源**）。
+            if (WpfLinuxPageViewProbe.Enabled)
+            {
+                return _pageVisual;
+            }
+            return VisualTreeHelper.GetParent(_pageVisual) as Visual;
+        }
+"""
+
+# 末尾追加只读台账／驱动帮助类（**新建成员**，不改既有成员）
+DPH_TAIL_NEEDLE = """        private Visual _pageVisual;
+    }
+}
+"""
+DPH_TAIL_REPL = """        private Visual _pageVisual;
+    }
+
+    /// <summary>
+    /// `T-B11`（`PAGEVIEW-ONSCREEN`）：分页视觉宿主（`DocumentPageView`＋`DocumentPageHost`）的
+    /// **只读台账** ＋ **「上屏」驱动闸**。照 `FlowDocumentView` 那条**可用**接线（把页视觉对象本身
+    /// `AddVisualChild` 到本控件 ＋ 显式定位）做最小对齐；见本块在 `reapply-patches.py` 内的说明。
+    ///
+    /// ⚠️ 它**只**做两件事：① 只读打印（身份／尺寸／子树包围盒／父链）；② 在 `WPF_PAGEVIEW_ONSCREEN`
+    /// `=1`（**默认关**）下把"页视觉 → 宿主"的挂载／定位按 `FlowDocumentView` 的同形做法补上。
+    /// **不删上游任何一步**、**不删不放宽任何 `Invariant.Assert`**、**不碰 native 几何**。
+    /// </summary>
+    internal static class WpfLinuxPageViewProbe
+    {
+        private const int TraceMax = 600;
+        private static int _trace;
+        private static int _enabled = -1;
+
+        internal static bool Enabled
+        {
+            get
+            {
+                if (_enabled < 0)
+                {
+                    string s = null;
+                    try { s = System.Environment.GetEnvironmentVariable("WPF_PAGEVIEW_ONSCREEN"); }
+                    catch (System.Exception) { s = null; }
+                    // ⚠️ `T-B11` **默认关**（只有显式 "1" 才开）：本条接线已被现取**证伪**
+                    //   （开/关两腿 `tab2` 帧逐字节相同、具名色同为 0，见载体报告 §4）⇒ 不默认启用，
+                    //   不把"零效果"的改动当成"修好了"。保持可复现（`=1` 即开）以备后续复核。
+                    _enabled = (s == "1") ? 1 : 0;
+                }
+                return _enabled == 1;
+            }
+        }
+
+        internal static bool ProbeOn
+        {
+            get
+            {
+                string s = null;
+                try { s = System.Environment.GetEnvironmentVariable("WPF_PAGEVIEW_PROBE"); }
+                catch (System.Exception) { s = null; }
+                return (s != "0");
+            }
+        }
+
+        private static void Emit(string line)
+        {
+            try { System.Console.Error.WriteLine(line); System.Console.Error.Flush(); }
+            catch (System.Exception) { }
+        }
+
+        internal static string Id(object o)
+        {
+            if (o == null) { return "null"; }
+            int h;
+            try { h = System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(o); }
+            catch (System.Exception) { return "NA"; }
+            return "0x" + h.ToString("x", System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        internal static string N(double v)
+        {
+            return v.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        internal static string S(Size sz)
+        {
+            return N(sz.Width) + "x" + N(sz.Height);
+        }
+
+        internal static string Bounds(Visual v)
+        {
+            if (v == null) { return "null"; }
+            try
+            {
+                Rect r = VisualTreeHelper.GetDescendantBounds(v);
+                if (r.IsEmpty) { return "empty"; }
+                return N(r.X) + "," + N(r.Y) + "," + N(r.Width) + "," + N(r.Height);
+            }
+            catch (System.Exception) { return "NA"; }
+        }
+
+        internal static int Kids(Visual v)
+        {
+            if (v == null) { return -1; }
+            try { return VisualTreeHelper.GetChildrenCount(v); }
+            catch (System.Exception) { return -2; }
+        }
+
+        internal static string ParentId(Visual v)
+        {
+            if (v == null) { return "null"; }
+            try { return Id(VisualTreeHelper.GetParent(v)); }
+            catch (System.Exception) { return "NA"; }
+        }
+
+        internal static string Pt(UIElement e, UIElement relativeTo)
+        {
+            if (e == null || relativeTo == null) { return "null"; }
+            try
+            {
+                Point p = e.TranslatePoint(new Point(0, 0), relativeTo);
+                return N(p.X) + "," + N(p.Y);
+            }
+            catch (System.Exception) { return "NA"; }
+        }
+
+        internal static string Off(Visual v)
+        {
+            if (v == null) { return "null"; }
+            try
+            {
+                Vector o = VisualTreeHelper.GetOffset(v);
+                return N(o.X) + "," + N(o.Y);
+            }
+            catch (System.Exception) { return "NA"; }
+        }
+
+        /// <summary>
+        /// 只读：**页视觉的第一层子（＝ PTS 页的 `ContainerVisual`）自身的读数** —— 子数/包围盒/自身
+        /// 绘制内容。它把"页视觉**壳**已建"与"页视觉**里真的有内容视觉**"分开：若 `kids=0 ∧ content=empty`，
+        /// 那"上不了屏"的成因在**壳之内空**（在分页器造页那一段），而**不在** `DocumentPageView`／
+        /// `DocumentPageHost` 的挂载线上。
+        /// </summary>
+        internal static string ChildInfo(Visual v)
+        {
+            if (v == null) { return "null"; }
+            try
+            {
+                int n = VisualTreeHelper.GetChildrenCount(v);
+                if (n == 0) { return "nokids"; }
+                Visual c = VisualTreeHelper.GetChild(v, 0) as Visual;
+                return "c=" + Id(c) + ",kids=" + Kids(c) + ",bounds=" + Bounds(c) + ",content=" + Content(c);
+            }
+            catch (System.Exception) { return "NA"; }
+        }
+
+        private static void SubRec(Visual v, int depth, int lvl, System.Text.StringBuilder sb, ref int budget)
+        {
+            if (v == null || lvl > depth || budget <= 0) { return; }
+            budget--;
+            int k;
+            try { k = VisualTreeHelper.GetChildrenCount(v); } catch (System.Exception) { k = -2; }
+            sb.Append("L").Append(lvl).Append(':').Append(Id(v)).Append(",k=").Append(k)
+              .Append(",b=").Append(Bounds(v)).Append(",c=").Append(Content(v)).Append(" | ");
+            for (int i = 0; i < k && i < 6; i++)
+            {
+                Visual c;
+                try { c = VisualTreeHelper.GetChild(v, i) as Visual; } catch (System.Exception) { c = null; }
+                SubRec(c, depth, lvl + 1, sb, ref budget);
+            }
+        }
+
+        /// <summary>只读：页视觉子树**逐层**读数（层号／身份／子数／包围盒／自身绘制内容），有界。</summary>
+        internal static string Sub(Visual v, int depth)
+        {
+            if (v == null) { return "null"; }
+            var sb = new System.Text.StringBuilder();
+            int budget = 24;
+            try { SubRec(v, depth, 0, sb, ref budget); }
+            catch (System.Exception) { return "NA"; }
+            return sb.ToString();
+        }
+
+        private static bool Gate(string tag)
+        {
+            if (!ProbeOn) { return false; }
+            if (_trace >= TraceMax)
+            {
+                if (_trace == TraceMax)
+                {
+                    _trace++;
+                    Emit("[PAGEVIEW] trace=suppressed-after-" + TraceMax + "lines tag=" + tag);
+                }
+                return false;
+            }
+            _trace++;
+            return true;
+        }
+
+        internal static void ReportMeasure(FrameworkElement view, Size available, object paginator, object page)
+        {
+            if (!Gate("DPV.Measure")) { return; }
+            Emit("[DPV] site=MeasureOverride id=" + Id(view) + " avail=" + S(available)
+                 + " pag=" + Id(paginator) + " page=" + Id(page)
+                 + " desired=" + S(view.DesiredSize) + " render=" + S(view.RenderSize)
+                 + " NOINFO=dpv-measure-readonly");
+        }
+
+        internal static void ReportArrange(FrameworkElement view, Size finalSize, object page, Visual pageVisual, FrameworkElement host)
+        {
+            if (!Gate("DPV.Arrange")) { return; }
+            Emit("[DPV] site=ArrangeOverride id=" + Id(view) + " final=" + S(finalSize)
+                 + " page=" + Id(page) + " pv=" + Id(pageVisual)
+                 + " pvKids=" + Kids(pageVisual) + " pvBounds=" + Bounds(pageVisual)
+                 + " host=" + Id(host) + " hostKids=" + Kids(host)
+                 + " viewPS=" + PS(view) + " pvPS=" + PS(pageVisual)
+                 + " NOINFO=dpv-arrange-readonly");
+        }
+
+        internal static void ReportArranged(FrameworkElement view, FrameworkElement host, object page)
+        {
+            if (!Gate("DPV.Arranged")) { return; }
+            Emit("[DPV] site=HostArranged view=" + Id(view)
+                 + " host=" + Id(host)
+                 + " hostRender=" + ((host == null) ? "null" : S(host.RenderSize))
+                 + " hostAt=" + Pt(host, view)
+                 + " hostOff=" + Off(host) + " hostXf=" + Xf(host)
+                 + " hostKids=" + Kids(host)
+                 + " page=" + Id(page)
+                 + " NOINFO=dpv-hostarranged-readonly");
+        }
+
+        internal static void ReportArrangeEnd(FrameworkElement view, Size finalSize, FrameworkElement host, object page)
+        {
+            if (!Gate("DPV.ArrangeEnd")) { return; }
+            Emit("[DPV] site=ArrangeEnd id=" + Id(view) + " final=" + S(finalSize)
+                 + " render=" + S(view.RenderSize)
+                 + " host=" + Id(host)
+                 + " hostRender=" + ((host == null) ? "null" : S(host.RenderSize))
+                 + " page=" + Id(page)
+                 + " NOINFO=dpv-arrangeend-readonly");
+        }
+
+        internal static void ReportHostSet(Visual host, Visual pageVisual, Visual newValue)
+        {
+            if (!Gate("DPH.Set")) { return; }
+            Emit("[DPH] site=PageVisual.set host=" + Id(host)
+                 + " newValue=" + Id(newValue) + " pv=" + Id(pageVisual)
+                 + " pvParent=" + ParentId(pageVisual)
+                 + " pvKids=" + Kids(pageVisual) + " pvBounds=" + Bounds(pageVisual)
+                 + " NOINFO=dph-pageset-readonly");
+        }
+
+        internal static string Content(Visual v)
+        {
+            if (v == null) { return "null"; }
+            try
+            {
+                Rect r = VisualTreeHelper.GetContentBounds(v);
+                if (r.IsEmpty) { return "empty"; }
+                return N(r.X) + "," + N(r.Y) + "," + N(r.Width) + "," + N(r.Height);
+            }
+            catch (System.Exception) { return "NA"; }
+        }
+
+        /// <summary>
+        /// 只读：**该视觉是否连在某个 `PresentationSource`（＝成帧根）上**。`null` ＝ 它所在的视觉树
+        /// **没有**接到任何呈现源（也就是说它**不进成帧**——不论树内尺寸算得多对）。
+        /// </summary>
+        internal static string PS(Visual v)
+        {
+            if (v == null) { return "null"; }
+            try
+            {
+                PresentationSource ps = PresentationSource.FromVisual(v);
+                return Id(ps);
+            }
+            catch (System.Exception) { return "NA"; }
+        }
+
+        /// <summary>只读：到视觉树根的**父链深度**（`-1` ＝ 走不动/异常）。</summary>
+        internal static int Depth(Visual v)
+        {
+            if (v == null) { return -1; }
+            try
+            {
+                int d = 0;
+                Visual cur = v;
+                while (cur != null)
+                {
+                    cur = VisualTreeHelper.GetParent(cur) as Visual;
+                    d++;
+                    if (d > 4096) { break; }
+                }
+                return d;
+            }
+            catch (System.Exception) { return -2; }
+        }
+
+        /// <summary>
+        /// 只读：**该视觉到呈现源根视觉的完整变换矩阵**（`M11,M12,M21,M22,OX,OY`）。
+        /// 它把"树里尺寸算得对不对"与"**画到屏上落在哪、多大**"两件事分开：矩阵若把页面映射到
+        /// 零面积/界外/非有限值，那"内容已建"与"上不了屏"就同时成立且**可证**。
+        /// </summary>
+        internal static string Xf(Visual v)
+        {
+            if (v == null) { return "null"; }
+            try
+            {
+                PresentationSource ps = PresentationSource.FromVisual(v);
+                if (ps == null) { return "nops"; }
+                Visual root = ps.RootVisual;
+                if (root == null) { return "noroot"; }
+                GeneralTransform gt = v.TransformToAncestor(root);
+                if (gt == null) { return "noxf"; }
+                Rect rb = gt.TransformBounds(new Rect(0, 0, 1, 1));
+                return N(rb.X) + "," + N(rb.Y) + "," + N(rb.Width) + "," + N(rb.Height);
+            }
+            catch (System.Exception) { return "NA"; }
+        }
+
+        internal static void ReportAttach(Visual host, Visual pageVisual, bool direct)
+        {
+            if (!Gate("DPH.Attach")) { return; }
+            Emit("[DPH] site=Attach host=" + Id(host) + " pv=" + Id(pageVisual)
+                 + " mode=" + (direct ? "direct" : "container")
+                 + " pvParent=" + ParentId(pageVisual)
+                 + " pvContent=" + Content(pageVisual)
+                 + " pvKids=" + Kids(pageVisual)
+                 + " pvBound=" + Bounds(pageVisual)
+                 + " hostPS=" + PS(host) + " pvPS=" + PS(pageVisual) + " pvDepth=" + Depth(pageVisual)
+                 + " hostOff=" + Off(host) + " pvXf=" + Xf(pageVisual)
+                 + " pvChild=" + ChildInfo(pageVisual)
+                 + " SUB=" + Sub(pageVisual, 3)
+                 + " NOINFO=dph-attach-readonly");
+        }
+
+        /// <summary>
+        /// 只读：`FlowDocumentView`（**画得出**的那条链）的同位对照 —— 页视觉挂在谁身上、
+        /// 有没有连到呈现源、子树深度多少。使"两条链的差"有**同口径**读数。
+        /// </summary>
+        internal static void ReportFdv(FrameworkElement view, Visual pageVisual)
+        {
+            if (!Gate("FDV.Attach")) { return; }
+            Emit("[FDV] site=Attach view=" + Id(view) + " pv=" + Id(pageVisual)
+                 + " pvParent=" + ParentId(pageVisual)
+                 + " viewPS=" + PS(view) + " pvPS=" + PS(pageVisual) + " pvDepth=" + Depth(pageVisual)
+                 + " pvContent=" + Content(pageVisual) + " pvKids=" + Kids(pageVisual)
+                 + " pvXf=" + Xf(pageVisual)
+                 + " pvChild=" + ChildInfo(pageVisual)
+                 + " SUB=" + Sub(pageVisual, 3)
+                 + " NOINFO=fdv-attach-readonly");
+        }
+
+        /// <summary>
+        /// 只读：**渲染遍历（render walk）到底走到了哪一格**。`GetVisualChild` 只由视觉枚举方调用
+        /// （渲染／命中测试／变换）⇒ "DPV 有没有被走到"、"DPV→DPH 有没有被走到"这两问因此**有直读面**。
+        /// </summary>
+        private static int _subOnce;
+
+        /// <summary>只读：**渲染遍历期间**页视觉子树的前若干次逐层读数（确认"壳之内是否真空"）。</summary>
+        internal static void ReportRenderSub(FrameworkElement self, Visual pageVisual)
+        {
+            if (ProbeOn == false) { return; }
+            if (_subOnce >= 3) { return; }
+            _subOnce++;
+            Emit("[DPH] site=RenderSub self=" + Id(self) + " pv=" + Id(pageVisual)
+                 + " render=" + S(self.RenderSize)
+                 + " SUB=" + Sub(pageVisual, 3)
+                 + " NOINFO=dph-rendersub-readonly");
+        }
+
+        internal static void ReportPaginator(FrameworkElement view, object paginator)
+        {
+            if (!Gate("DPV.SetPaginator")) { return; }
+            Emit("[DPV] site=SetPaginator id=" + Id(view) + " pag=" + Id(paginator)
+                 + " NOINFO=dpv-setpaginator-readonly");
+        }
+
+        internal static void ReportCtor(FrameworkElement view)
+        {
+            if (!Gate("DPV.Ctor")) { return; }
+            Emit("[DPV] site=Ctor id=" + Id(view) + " NOINFO=dpv-ctor-readonly");
+        }
+
+        internal static void ReportVisit(string site, FrameworkElement self, Visual child, int index)
+        {
+            if (!Gate(site)) { return; }
+            string childRender = "NA";
+            try
+            {
+                FrameworkElement fe = child as FrameworkElement;
+                if (fe != null) { childRender = S(fe.RenderSize); }
+                else if (child != null) { childRender = "vis"; }
+                else { childRender = "null"; }
+            }
+            catch (System.Exception) { childRender = "NA"; }
+            Emit("[PAGEVIEW] site=" + site + " self=" + Id(self) + " idx=" + index
+                 + " selfRender=" + S(self.RenderSize) + " selfVis=" + (self.Visibility == Visibility.Visible ? 1 : 0)
+                 + " child=" + Id(child) + " childRender=" + childRender
+                 + " NOINFO=renderwalk-readonly");
+        }
+    }
+}
+"""
+
+DPV_MEASURE_NEEDLE = """            else if (_documentPaginator != null)
+            {
+                // Reflow content if needed.
+"""
+DPV_MEASURE_REPL = """            else if (_documentPaginator != null)
+            {
+                WpfLinuxPageViewProbe.ReportMeasure(this, availableSize, _documentPaginator, _documentPage);
+                // Reflow content if needed.
+"""
+
+DPV_PAGEVISUAL_NEEDLE = """                pageVisual = _documentPage?.Visual;
+"""
+DPV_PAGEVISUAL_REPL = """                pageVisual = _documentPage?.Visual;
+                WpfLinuxPageViewProbe.ReportArrange(this, finalSize, _documentPage, pageVisual, _pageHost);
+"""
+
+DPV_HOSTARRANGE_NEEDLE = """                    _pageHost.Arrange(new Rect(_pageHost.CachedOffset, _documentPage.Size));
+"""
+DPV_HOSTARRANGE_REPL = """                    _pageHost.Arrange(new Rect(_pageHost.CachedOffset, _documentPage.Size));
+                    WpfLinuxPageViewProbe.ReportArranged(this, _pageHost, _documentPage);
+"""
+
+DPV_ARRANGEEND_NEEDLE = """            return base.ArrangeOverride(finalSize);
+"""
+DPV_ARRANGEEND_REPL = """            Size dpvArrangeResult = base.ArrangeOverride(finalSize);
+            WpfLinuxPageViewProbe.ReportArrangeEnd(this, finalSize, _pageHost, _documentPage);
+            return dpvArrangeResult;
+"""
+
+# 渲染遍历（render walk）直读面：`GetVisualChild` 被谁走到 ⇒ "DPV 被不被走到 / DPV→DPH 被不被走到"
+DPV_VISIT_NEEDLE = """        protected override Visual GetVisualChild(int index)
+        {
+            if (index != 0 || _pageHost == null)
+"""
+DPV_VISIT_REPL = """        protected override Visual GetVisualChild(int index)
+        {
+            WpfLinuxPageViewProbe.ReportVisit("DPV.GetVisualChild", this, _pageHost, index);
+            if (index != 0 || _pageHost == null)
+"""
+
+# `T-B12` 只读：`DocumentPaginator` 被接上（＝一个 `DocumentPageView` 被接线）——「tab3 那一路是不是 DPV」的判别
+DPV_PAGINATOR_NEEDLE = """                    Invariant.Assert(_documentPage == null);
+                    Invariant.Assert(_documentPageAsync == null);
+                    _documentPaginator = value;
+"""
+DPV_PAGINATOR_REPL = """                    Invariant.Assert(_documentPage == null);
+                    Invariant.Assert(_documentPageAsync == null);
+                    WpfLinuxPageViewProbe.ReportPaginator(this, value);
+                    _documentPaginator = value;
+"""
+
+# `T-B12` 只读：`DocumentPageView` **构造**（＝「这一路到底有没有 DPV」的最强判别）
+DPV_CTOR_NEEDLE = """        public DocumentPageView() : base()
+        {
+            _pageZoom = 1.0;
+        }
+"""
+DPV_CTOR_REPL = """        public DocumentPageView() : base()
+        {
+            _pageZoom = 1.0;
+            WpfLinuxPageViewProbe.ReportCtor(this);
+        }
+"""
+
+DPV_EDITS = [
+    (DPV_MEASURE_NEEDLE, DPV_MEASURE_REPL, 1),
+    (DPV_PAGEVISUAL_NEEDLE, DPV_PAGEVISUAL_REPL, 1),
+    (DPV_HOSTARRANGE_NEEDLE, DPV_HOSTARRANGE_REPL, 1),
+    (DPV_ARRANGEEND_NEEDLE, DPV_ARRANGEEND_REPL, 1),
+    (DPV_VISIT_NEEDLE, DPV_VISIT_REPL, 1),
+    (DPV_PAGINATOR_NEEDLE, DPV_PAGINATOR_REPL, 1),
+    (DPV_CTOR_NEEDLE, DPV_CTOR_REPL, 1),
+]
+DPH_EDITS = [
+    (DPH_PROBE_NEEDLE, DPH_PROBE_REPL, 1),
+    (DPH_SET_NEEDLE, DPH_SET_REPL, 1),
+    (DPH_VISIT_NEEDLE, DPH_VISIT_REPL, 1),
+    (DPH_TAIL_NEEDLE, DPH_TAIL_REPL, 1),
+]
+# 上游相对路径（`_apply_edits` 会拼 `upstream/wpf/` 前缀）
+DPV_UP = "src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Controls/Primitives/DocumentPageView.cs"
+DPH_UP = "src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/documents/DocumentPageHost.cs"
+
+# 「画得出」那条链（`FlowDocumentView`）的**同位只读对照**（仅加一行打印）
+FDV_E11_NEEDLE = """                        _pageVisual = (PageVisual)_formatter.DocumentPage.Visual;
+                        AddVisualChild(_pageVisual);
+"""
+FDV_E11_REPL = """                        _pageVisual = (PageVisual)_formatter.DocumentPage.Visual;
+                        AddVisualChild(_pageVisual);
+                        // `T-B11`：让"画得出的那条链"与 `DPV`／`DPH` 有**同口径**读数（只读，不改语义）
+                        WpfLinuxPageViewProbe.ReportFdv(this, _pageVisual);
+"""
+FDV_EDITS.append((FDV_E11_NEEDLE, FDV_E11_REPL, 1))
+
+
 # ── `T-A44`（`CONTENT-LINEVIS-BRANCH-REACH`）**内容段"造行支入口"只读判别器** ────────────────
 #  【为什么落在这里】`T-A43`（`P1-tail2-contentvis-recon.md` §5.1）指认的唯一下一增量是
 #    "让内容段落进会发 `[FSQLL]` 的那一支"，但**两因不可分辨**：
@@ -2732,6 +3384,347 @@ ONS_TAIL_REPL = """        #endregion IFlowDocumentFormatter Members
 """
 
 
+# ══════════════════════════════════════════════════════════════════════════════
+#  `T-B12`（`PAGINATED-PAGE-CONTENT-VISUALS`）：分页页视觉「壳内」内容视觉的
+#  **只读逐跳读数**（`[PAGEVIS]`）＋ 新生成件类本体。
+#
+#  【现取断点（承 `T-B11`）】在屏 `DocumentPageView`／`DocumentPageHost` 收到的页视觉
+#    （`DPV.page=0x3ee7093 pv=0x361f531`）**壳内为空**（`[DPH] SUB=… L3:k=0,b=empty`）；
+#    而同趟 `FlowDocumentView` 那一页（`pv=0x2a6fa61`）**叶子有真内容**。
+#    `[CHAIN]` 现取：分页页在 `FDPaginator.FormatPage` 里**确已**走
+#    `FDG.UpdateVisual(needsUpdate=1) → PTSP.GetPageVisual → PTSP.UpdatePageVisuals`
+#    并一路下潜到内容段（`RenderSimpleLines cLines=1`）。⇒ 需要逐跳问：
+#      · 那次构建**到底把哪个对象**塞进了页视觉（`_visual`／`trackVisual` 身份）；
+#      · 之后**谁**把它搬走（`UpdateParaListVisuals` 的 `fskupdNew` 支会把段视觉从**旧父**摘走）；
+#      · 页销毁（`FDG.Dispose` 的 `PageVisual.Children.Clear()`）是否发生。
+#  【它做什么】**只打行**：在每个钩子点读身份／子数／包围盒／逐层子树。
+#    **不**改任何出参、**不**删／**不**放宽任何 `Invariant.Assert`、**不**置任何 native 真值、**不**碰几何。
+#  【零假值】`WPF_PAGEVIS_PROBE=0` ⇒ **整块不发生**（逐字回上游行为 ⇒ 反极性腿）。
+PAGEVIS_PROBE_FILE = "WpfLinuxPageVisProbe.Linux.cs"
+PAGEVIS_PROBE_TEXT = '''// ⚠️ 本文件由 build/PresentationFramework.Linux/reapply-patches.py **生成**，不要手改。
+//
+// T-B12（PAGINATED-PAGE-CONTENT-VISUALS）：分页页视觉「壳内」内容视觉的**只读**逐跳读数（[PAGEVIS]）。
+//
+// 【射程】只打行：不改任何出参、不删／不放宽任何 Invariant.Assert、不置任何 native 真值、不碰几何。
+// `WPF_PAGEVIS_PROBE=0` ⇒ 整个关掉（逐字回上游行为）。
+
+using System;
+using System.Globalization;
+using System.Windows;
+using System.Windows.Media;
+
+namespace MS.Internal.PtsHost
+{
+    internal static class WpfLinuxPageVisProbe
+    {
+        private const int TraceMax = 20000;
+        private static int _n;
+        private static int _enabled = -1;
+
+        internal static bool Enabled
+        {
+            get
+            {
+                if (_enabled < 0)
+                {
+                    string s = null;
+                    try { s = Environment.GetEnvironmentVariable("WPF_PAGEVIS_PROBE"); }
+                    catch (Exception) { s = null; }
+                    _enabled = (s == "0") ? 0 : 1;
+                }
+                return _enabled == 1;
+            }
+        }
+
+        internal static string Id(object o)
+        {
+            if (o == null) { return "null"; }
+            try
+            {
+                return "0x" + System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(o).ToString("x", CultureInfo.InvariantCulture);
+            }
+            catch (Exception) { return "NA"; }
+        }
+
+        internal static string N(double v) { return v.ToString("0.###", CultureInfo.InvariantCulture); }
+
+        private static string B(Visual v)
+        {
+            if (v == null) { return "null"; }
+            try
+            {
+                Rect r = VisualTreeHelper.GetDescendantBounds(v);
+                return r.IsEmpty ? "empty" : (N(r.X) + "," + N(r.Y) + "," + N(r.Width) + "," + N(r.Height));
+            }
+            catch (Exception) { return "NA"; }
+        }
+
+        private static string C(Visual v)
+        {
+            if (v == null) { return "null"; }
+            try
+            {
+                Rect r = VisualTreeHelper.GetContentBounds(v);
+                return r.IsEmpty ? "empty" : (N(r.X) + "," + N(r.Y) + "," + N(r.Width) + "," + N(r.Height));
+            }
+            catch (Exception) { return "NA"; }
+        }
+
+        private static int K(Visual v)
+        {
+            if (v == null) { return -1; }
+            try { return VisualTreeHelper.GetChildrenCount(v); } catch (Exception) { return -2; }
+        }
+
+        private static void SubRec(Visual v, int lvl, int maxLvl, System.Text.StringBuilder sb, ref int budget)
+        {
+            if (v == null || lvl > maxLvl || budget <= 0) { return; }
+            budget--;
+            int k = K(v);
+            sb.Append("L").Append(lvl).Append(':').Append(Id(v)).Append(",k=").Append(k)
+              .Append(",b=").Append(B(v)).Append(",c=").Append(C(v)).Append(" | ");
+            for (int i = 0; i < k && i < 8; i++)
+            {
+                Visual c;
+                try { c = VisualTreeHelper.GetChild(v, i) as Visual; } catch (Exception) { c = null; }
+                SubRec(c, lvl + 1, maxLvl, sb, ref budget);
+            }
+        }
+
+        internal static void Report(string site, string detail, Visual v)
+        {
+            if (!Enabled) { return; }
+            if (_n >= TraceMax)
+            {
+                if (_n == TraceMax) { _n++; Emit("[PAGEVIS] site=" + site + " trace=suppressed-after-" + TraceMax); }
+                return;
+            }
+            _n++;
+            var sb = new System.Text.StringBuilder();
+            int budget = 40;
+            try { SubRec(v, 0, 3, sb, ref budget); } catch (Exception) { sb.Append("NA"); }
+            Emit("[PAGEVIS] site=" + site + " " + detail + " vis=" + Id(v) + " kids=" + K(v)
+                 + " b=" + B(v) + " c=" + C(v) + " SUB=" + sb.ToString()
+                 + " NOINFO=pagevis-readonly");
+        }
+
+        private static void Emit(string line)
+        {
+            try { Console.Error.WriteLine(line); Console.Error.Flush(); }
+            catch (Exception) { }
+        }
+    }
+
+    /// <summary>
+    /// `T-B12`（`PAGINATED-PAGE-CONTENT-VISUALS`）：**在屏页"被搬空"修复**的**驱动闸**。
+    /// 逐跳现取见 `reapply-patches.py` 内该块的说明。`WPF_PAGEPAGE_REDRIVE=0` ⇒ 关（反极性腿）。
+    /// </summary>
+    internal static class WpfLinuxPageVisDrive
+    {
+        private static int _enabled = -1;
+
+        internal static bool Enabled
+        {
+            get
+            {
+                if (_enabled < 0)
+                {
+                    string s = null;
+                    try { s = Environment.GetEnvironmentVariable("WPF_PAGEPAGE_REDRIVE"); }
+                    catch (Exception) { s = null; }
+                    _enabled = (s == "0") ? 0 : 1;         // 缺省＝开；**只有**显式 "0" 才关
+                }
+                return _enabled == 1;
+            }
+        }
+
+        /// <summary>
+        /// `T-B12`：把"本页**造视觉那一刻**"的 `trackVisual` 子视觉**引用**记下来（显示时换父回去用）。
+        /// ⚠️ **不**复制视觉、**不**改任何 native 真值、**不**触发任何 `FsQuery*`（只读托管视觉树）。
+        /// </summary>
+        internal static void KeepVisuals(ContainerVisual trackVisual, ref System.Collections.Generic.List<Visual> keep)
+        {
+            if (!Enabled) { return; }
+            if (trackVisual == null) { return; }
+            int n = trackVisual.Children.Count;
+            if (n == 0) { return; }
+            var list = new System.Collections.Generic.List<Visual>(n);
+            for (int i = 0; i < n; i++) { list.Add(trackVisual.Children[i]); }
+            keep = list;
+        }
+
+        /// <summary>
+        /// `T-B12`：把 `keep` 里的视觉**换父**到 `target`（先把它们从各自旧父摘除，再按序 `Insert`）。
+        /// **只**在 `target` 为空时用。**不**查 native、**不**调 `ValidateVisual`（子树内容原样搬回）。
+        /// </summary>
+        internal static void ReparentInto(ContainerVisual target, System.Collections.Generic.List<Visual> keep)
+        {
+            if (!Enabled) { return; }
+            if (target == null || keep == null || keep.Count == 0) { return; }
+            for (int i = 0; i < keep.Count; i++)
+            {
+                Visual v = keep[i];
+                if (v == null) { continue; }
+                ContainerVisual oldParent = VisualTreeHelper.GetParent(v) as ContainerVisual;
+                if (oldParent != null) { oldParent.Children.Remove(v); }
+            }
+            for (int i = 0; i < keep.Count; i++)
+            {
+                Visual v = keep[i];
+                if (v == null) { continue; }
+                target.Children.Insert(i, v);
+            }
+        }
+    }
+}
+'''
+
+# 只读钩子（**只增一行**；needle 均落在既有编辑**不碰**的区域）：
+PAGEVIS_GETPAGEVIS_NEEDLE = """            else
+            {
+                _visual.Children.Clear();
+            }
+            return _visual;
+        }
+"""
+PAGEVIS_GETPAGEVIS_REPL = """            else
+            {
+                _visual.Children.Clear();
+            }
+            WpfLinuxPageVisProbe.Report("PTSP.GetPageVisual.ret", "empty=" + (IsEmpty ? 1 : 0), _visual);
+            return _visual;
+        }
+"""
+
+PAGEVIS_UPDVIS_NEEDLE = """                PtsHelper.UpdateTrackVisuals(PtsContext, trackVisual.Children, pageDetails.fskupd, ref pageDetails.u.simple.trackdescr);
+            }
+"""
+PAGEVIS_UPDVIS_REPL = """                PtsHelper.UpdateTrackVisuals(PtsContext, trackVisual.Children, pageDetails.fskupd, ref pageDetails.u.simple.trackdescr);
+                WpfLinuxPageVisProbe.Report("PTSP.UpdPageVis.simple", "fskupd=" + (int)fskupd + " track=" + WpfLinuxPageVisProbe.Id(trackVisual), trackVisual);
+                WpfLinuxPageVisDrive.KeepVisuals(trackVisual, ref _pageContentKeep);
+            }
+"""
+
+PAGEVIS_UPDPLV_NEEDLE = """                    // New paragraph - insert new visual node
+                    visualCollection.Insert(index, paraClient.Visual);
+"""
+PAGEVIS_UPDPLV_REPL = """                    // New paragraph - insert new visual node
+                    WpfLinuxPageVisProbe.Report("PH.UpdParaList.new", "idx=" + index
+                        + " oldParent=" + WpfLinuxPageVisProbe.Id(currentParent), paraClient.Visual);
+                    visualCollection.Insert(index, paraClient.Visual);
+"""
+
+PAGEVIS_FDG_CHILD_NEEDLE = """                this.PageVisual.Child = pageVisual; // No-op if already connected.
+"""
+PAGEVIS_FDG_CHILD_REPL = """                this.PageVisual.Child = pageVisual; // No-op if already connected.
+                WpfLinuxPageVisProbe.Report("FDG.UpdateVisual.child", "needsUpdate=1 pageId=" + WpfLinuxPageVisProbe.Id(this), pageVisual);
+"""
+
+PAGEVIS_FDG_DISPOSE_NEEDLE = """                        DestroyVisualLinks(this.PageVisual);
+
+                        // Clear its drawing context and children collection.
+                        this.PageVisual.Children.Clear();
+"""
+PAGEVIS_FDG_DISPOSE_REPL = """                        DestroyVisualLinks(this.PageVisual);
+                        WpfLinuxPageVisProbe.Report("FDG.Dispose.clear", "pageId=" + WpfLinuxPageVisProbe.Id(this), this.PageVisual);
+
+                        // Clear its drawing context and children collection.
+                        this.PageVisual.Children.Clear();
+"""
+
+# ── `T-B12` 驱动①：`PtsPage` 侧的"在屏页被搬空 ⇒ 接回本页"（同源＝`fskupdNew` 支的动作序列）────
+PAGEVIS_REDRIVE_NEEDLE = """            WpfLinuxPageVisProbe.Report("PTSP.GetPageVisual.ret", "empty=" + (IsEmpty ? 1 : 0), _visual);
+            return _visual;
+        }
+"""
+PAGEVIS_REDRIVE_REPL = """            WpfLinuxPageVisProbe.Report("PTSP.GetPageVisual.ret", "empty=" + (IsEmpty ? 1 : 0), _visual);
+            return _visual;
+        }
+
+        // ── `T-B12`（`PAGINATED-PAGE-CONTENT-VISUALS`）：**在屏页的"被搬空"修复** ──────────
+        //  【现取机制（逐跳）】分页器造页时，同一 `BaseParaClient.Visual` 会被**后来的页**沿用：
+        //   `PtsHelper.UpdateParaListVisuals` 的 `fskupdNew` 支**先"从旧父摘除"再 `Insert`**
+        //   （现取 `[PAGEVIS] site=PH.UpdParaList.new oldParent=<本页 trackVisual>`）；
+        //   而一个 `Visual` **只能有一个父** ⇒ **先造的那一页的 `trackVisual` 被搬空**。
+        //   现场：`tab2` 页 `0x93377a` 的 `trackVisual=0x2d22d7e` 在 `PTSP.UpdPageVis.simple`
+        //   时 `kids=1`（`L1:0x2948ddd,k=3`，**有内容**），到 `[DPH] site=Attach` 时已成
+        //   `L3:k=0,b=empty`（**空**）—— `DocumentPageView` 显示的恰是这一页 ⇒ 帧面"壳内为空"。
+        //  【修法（**同源**）】本页**非空 ∧ `fSimple` ∧ `trackVisual` 恰被搬空**时，用**同一条**造视觉
+        //   路径（`PtsHelper.RedriveParaListVisuals` ＝ 上游 `fskupdNew` 支的逐段
+        //   `从旧父摘除 → Insert → ValidateVisual(New)`）把**本页自己的**段落视觉**接回本页**。
+        //   · **不**改任何 native 真值（几何／更新信息／`fskupd` **一律不写**；`fskupdNew` 只是**托管侧入参**）；
+        //   · **不**删／**不**放宽任何 `Invariant.Assert`；
+        //   · 只在"确已被搬空（`trackVisual.Children.Count == 0`）"时动手 ⇒ 否则**零动作**。
+        //  【零假值】`WPF_PAGEPAGE_REDRIVE=0` ⇒ **整块不发生**（逐字回上游行为 ⇒ 反极性腿）。
+        //  ⚠️ **不查 native**（页的 PTS 句柄可能已陈旧 ⇒ `FsQuery*` 会抛）：本页在**造视觉那一刻**
+        //     把 `trackVisual` 的**子视觉引用**记下来（`_pageContentKeep`），显示时只做**托管侧的换父**。
+        //     失败**如实打一行**、不重抛（它是**可选修复**路径 —— 不许它盖掉页面自身的显示，也不许静默）。
+        private System.Collections.Generic.List<Visual> _pageContentKeep;
+        private System.Collections.Generic.List<Visual> _pageFloatKeep;
+
+        internal void RedrivePageVisualsForDisplay()
+        {
+            if (!WpfLinuxPageVisDrive.Enabled) { return; }
+            if (_pageContentKeep == null && _pageFloatKeep == null) { return; }
+            if (_visual == null || IsEmpty) { return; }
+            if (_visual.Children.Count != 2) { return; }
+            try
+            {
+                bool did = false;
+                ContainerVisual pageContentVisual = _visual.Children[0] as ContainerVisual;
+                ContainerVisual floatingVisual = _visual.Children[1] as ContainerVisual;
+                if (pageContentVisual != null && pageContentVisual.Children.Count == 1)
+                {
+                    ContainerVisual trackVisual = pageContentVisual.Children[0] as ContainerVisual;
+                    if (trackVisual != null && trackVisual.Children.Count == 0)
+                    {
+                        WpfLinuxPageVisDrive.ReparentInto(trackVisual, _pageContentKeep);
+                        did = true;
+                    }
+                }
+                if (floatingVisual != null && floatingVisual.Children.Count == 0)
+                {
+                    WpfLinuxPageVisDrive.ReparentInto(floatingVisual, _pageFloatKeep);
+                    did = true;
+                }
+                if (did)
+                {
+                    WpfLinuxPageVisProbe.Report("PTSP.RedrivePageVisuals",
+                        "content=" + ((_pageContentKeep == null) ? 0 : _pageContentKeep.Count)
+                        + " float=" + ((_pageFloatKeep == null) ? 0 : _pageFloatKeep.Count), _visual);
+                }
+            }
+            catch (System.Exception e)
+            {
+                WpfLinuxPageVisProbe.Report("PTSP.RedrivePageVisuals",
+                    "outcome=exception type=" + e.GetType().Name, null);
+            }
+        }
+"""
+
+# ── `T-B12` 驱动③：在"读页视觉"的**显示路径**上跑一次（`UpdateVisual` 之后；建出即非空 ⇒ 零动作）──
+PAGEVIS_FLOATKEEP_NEEDLE = """            PtsHelper.UpdateFloatingElementVisuals(floatingElementsVisual, _pageContextOfThisPage.FloatingElementList);
+        }
+"""
+PAGEVIS_FLOATKEEP_REPL = """            PtsHelper.UpdateFloatingElementVisuals(floatingElementsVisual, _pageContextOfThisPage.FloatingElementList);
+            WpfLinuxPageVisDrive.KeepVisuals(floatingElementsVisual, ref _pageFloatKeep);
+        }
+"""
+PAGEVIS_REDRIVE_CALL_NEEDLE = """                UpdateVisual();
+                return base.Visual;
+"""
+PAGEVIS_REDRIVE_CALL_REPL = """                UpdateVisual();
+                // ── `T-B12` 驱动：在屏页"被搬空"修复（见生成器内该块的说明；默认开，`WPF_PAGEPAGE_REDRIVE=0` 关）
+                //   只挂在"**读** `DocumentPage.Visual`"这一条显示路径上（`FlowDocumentView` 的
+                //   `EnsureValidVisuals` 不经过这里 ⇒ `tab1` 的链一字不动）。
+                if (_ptsPage != null)
+                {
+                    _ptsPage.RedrivePageVisualsForDisplay();
+                }
+                return base.Visual;
+"""
+
+
 # 每跳的 (needle, repl, expect)。全部 **只增一行**。
 CHAIN_FILES = [
     ("MS/Internal/PtsHost/FlowDocumentPage.cs", "FlowDocumentPage.Linux.cs", [
@@ -2776,9 +3769,16 @@ CHAIN_FILES = [
             {
                 SetVisual(new PageVisual(this));
             }
-            WpfLinuxChainProbe.Hit("FDG.UpdateVisual", "needsUpdate=" + (_visualNeedsUpdate ? 1 : 0));
+            WpfLinuxChainProbe.Hit("FDG.UpdateVisual", "needsUpdate=" + (_visualNeedsUpdate ? 1 : 0)
+                + " pageId=0x" + System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(this).ToString("x", System.Globalization.CultureInfo.InvariantCulture)
+                + " pvId=" + ((this.PageVisual == null) ? "null" : ("0x" + System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(this.PageVisual).ToString("x", System.Globalization.CultureInfo.InvariantCulture))));
             if (_visualNeedsUpdate)
 """, 1),
+        # ── `T-B12` 只读钩子（分页页视觉「壳内」内容）────────────────────────────
+        (PAGEVIS_FDG_CHILD_NEEDLE, PAGEVIS_FDG_CHILD_REPL, 1),
+        (PAGEVIS_FDG_DISPOSE_NEEDLE, PAGEVIS_FDG_DISPOSE_REPL, 1),
+        # ── `T-B12` 驱动③：在屏页"被搬空"修复的调用点 ────────────────────────────
+        (PAGEVIS_REDRIVE_CALL_NEEDLE, PAGEVIS_REDRIVE_CALL_REPL, 1),
     ]),
     ("MS/Internal/PtsHost/PtsPage.cs", "PtsPage.Linux.cs", [
         ("""        internal ContainerVisual GetPageVisual()
@@ -2806,6 +3806,12 @@ CHAIN_FILES = [
             WpfLinuxChainProbe.Hit("PTSP.UpdateViewport", "empty=" + (IsEmpty ? 1 : 0) + " vp=" + viewport.u + "," + viewport.v + "," + viewport.du + "," + viewport.dv);
             if (!IsEmpty)
 """, 1),
+        # ── `T-B12` 只读钩子（分页页视觉「壳内」内容）────────────────────────────
+        (PAGEVIS_GETPAGEVIS_NEEDLE, PAGEVIS_GETPAGEVIS_REPL, 1),
+        (PAGEVIS_UPDVIS_NEEDLE, PAGEVIS_UPDVIS_REPL, 1),
+        # ── `T-B12` 驱动①：在屏页"被搬空 ⇒ 接回本页" ─────────────────────────────
+        (PAGEVIS_REDRIVE_NEEDLE, PAGEVIS_REDRIVE_REPL, 1),
+        (PAGEVIS_FLOATKEEP_NEEDLE, PAGEVIS_FLOATKEEP_REPL, 1),
     ]),
 # ── `T-A47`（`FLOAT-REPARENT`）：浮层视觉**换父** ─────────────────────────────────
 #  【现取断点（`T-A47` 诊断腿 `~/tA47-work/diag1`，全栈探针 ＋ 逐 `Add` 身份探针）】：
@@ -2976,6 +3982,8 @@ CHAIN_FILES = [
                         visualChildren.Add(paraVisual);
                     }
 """, 1),
+        # ── `T-B12` 只读钩子（段视觉**从旧父被摘走**的逐跳见证）──────────────────
+        (PAGEVIS_UPDPLV_NEEDLE, PAGEVIS_UPDPLV_REPL, 1),
     ]),
     ("MS/Internal/PtsHost/FigureParaClient.cs", "FigureParaClient.Linux.cs", [
         ("""        internal override void UpdateViewport(ref PTS.FSRECT viewport)
@@ -3283,6 +4291,11 @@ def materialize_derived():
     for up_rel, out_name, edits in CHAIN_FILES:
         p, n = _apply_edits(UP_PF + up_rel, out_name, edits)
         made.append((p, n))
+    # ⏪ `T-B11`：分页视觉宿主（`DocumentPageView`／`DocumentPageHost`）的「上屏」接线 ＋ 只读台账
+    p, n = _apply_edits(DPV_UP, "DocumentPageView.Linux.cs", DPV_EDITS)
+    made.append((p, n))
+    p, n = _apply_edits(DPH_UP, "DocumentPageHost.Linux.cs", DPH_EDITS)
+    made.append((p, n))
     # 判别器类本体（**非派生**：新建件，`temp+rename`）
     probe_abs = os.path.join(HERE, CHAIN_PROBE_FILE)
     _write_atomic(probe_abs, CHAIN_PROBE_TEXT)
@@ -3307,6 +4320,10 @@ def materialize_derived():
     lb_abs = os.path.join(HERE, LBREAK_PROBE_FILE)
     _write_atomic(lb_abs, LBREAK_PROBE_TEXT)
     made.append((lb_abs, 0))
+    # ⏪ `T-B12`：分页页视觉「壳内」内容视觉的只读逐跳读数类本体（**非派生**：新建件，`temp+rename`）
+    pagevis_abs = os.path.join(HERE, PAGEVIS_PROBE_FILE)
+    _write_atomic(pagevis_abs, PAGEVIS_PROBE_TEXT)
+    made.append((pagevis_abs, 0))
     return made
 
 

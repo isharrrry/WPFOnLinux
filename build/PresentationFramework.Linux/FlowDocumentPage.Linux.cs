@@ -1,9 +1,9 @@
 // ⚠️ 本文件由 build/PresentationFramework.Linux/reapply-patches.py **生成**，不要手改。
 //
-// 内容 = 上游 `upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/FlowDocumentPage.cs` 逐字复制 + 4 处 W86A（`TASK-0304`/`TASK-0305`）改动。
+// 内容 = 上游 `upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/FlowDocumentPage.cs` 逐字复制 + 7 处 W86A（`TASK-0304`/`TASK-0305`）改动。
 // 每次运行该脚本都会从上游重读重生成；needle 找不到 / 命中数不符时**报错退出**
 // （不会静默产出未打补丁的副本）。改动逐处见：
-//   E1 ／ E2 ／ E3 ／ E4
+//   E1 ／ E2 ／ E3 ／ E4 ／ E5 ／ E6 ／ E7
 //
 // 背景（`D-G70`/`D-G78`）：本移植没有 PTS/原生 LineServices ⇒ 切「富文本」/「流文档」页
 // 曾**整进程 `rc=134`**。本件把它变成「**具名、可判、可见的能力边界**」：
@@ -107,6 +107,13 @@ namespace MS.Internal.PtsHost
                     return null;
                 }
                 UpdateVisual();
+                // ── `T-B12` 驱动：在屏页"被搬空"修复（见生成器内该块的说明；默认开，`WPF_PAGEPAGE_REDRIVE=0` 关）
+                //   只挂在"**读** `DocumentPage.Visual`"这一条显示路径上（`FlowDocumentView` 的
+                //   `EnsureValidVisuals` 不经过这里 ⇒ `tab1` 的链一字不动）。
+                if (_ptsPage != null)
+                {
+                    _ptsPage.RedrivePageVisualsForDisplay();
+                }
                 return base.Visual;
             }
         }
@@ -826,6 +833,7 @@ namespace MS.Internal.PtsHost
                         // This is necessary for building proper event route, because
                         // BuildRoute prefers visual tree.
                         DestroyVisualLinks(this.PageVisual);
+                        WpfLinuxPageVisProbe.Report("FDG.Dispose.clear", "pageId=" + WpfLinuxPageVisProbe.Id(this), this.PageVisual);
 
                         // Clear its drawing context and children collection.
                         this.PageVisual.Children.Clear();
@@ -862,7 +870,9 @@ namespace MS.Internal.PtsHost
             {
                 SetVisual(new PageVisual(this));
             }
-            WpfLinuxChainProbe.Hit("FDG.UpdateVisual", "needsUpdate=" + (_visualNeedsUpdate ? 1 : 0));
+            WpfLinuxChainProbe.Hit("FDG.UpdateVisual", "needsUpdate=" + (_visualNeedsUpdate ? 1 : 0)
+                + " pageId=0x" + System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(this).ToString("x", System.Globalization.CultureInfo.InvariantCulture)
+                + " pvId=" + ((this.PageVisual == null) ? "null" : ("0x" + System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(this.PageVisual).ToString("x", System.Globalization.CultureInfo.InvariantCulture))));
             if (_visualNeedsUpdate)
             {
                 // Draw background
@@ -876,6 +886,7 @@ namespace MS.Internal.PtsHost
                     _structuralCache.DetectInvalidOperation();
                 }
                 this.PageVisual.Child = pageVisual; // No-op if already connected.
+                WpfLinuxPageVisProbe.Report("FDG.UpdateVisual.child", "needsUpdate=1 pageId=" + WpfLinuxPageVisProbe.Id(this), pageVisual);
 
                 // DocumentPage.Visual for printing scenarions needs to be always returned
                 // in LeftToRight FlowDirection. Hence, if the document is RightToLeft,

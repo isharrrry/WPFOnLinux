@@ -1,9 +1,9 @@
 // ⚠️ 本文件由 build/PresentationFramework.Linux/reapply-patches.py **生成**，不要手改。
 //
-// 内容 = 上游 `upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/PtsPage.cs` 逐字复制 + 3 处 W86A（`TASK-0304`/`TASK-0305`）改动。
+// 内容 = 上游 `upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/PtsPage.cs` 逐字复制 + 7 处 W86A（`TASK-0304`/`TASK-0305`）改动。
 // 每次运行该脚本都会从上游重读重生成；needle 找不到 / 命中数不符时**报错退出**
 // （不会静默产出未打补丁的副本）。改动逐处见：
-//   E1 ／ E2 ／ E3
+//   E1 ／ E2 ／ E3 ／ E4 ／ E5 ／ E6 ／ E7
 //
 // 背景（`D-G70`/`D-G78`）：本移植没有 PTS/原生 LineServices ⇒ 切「富文本」/「流文档」页
 // 曾**整进程 `rc=134`**。本件把它变成「**具名、可判、可见的能力边界**」：
@@ -632,7 +632,68 @@ namespace MS.Internal.PtsHost
             {
                 _visual.Children.Clear();
             }
+            WpfLinuxPageVisProbe.Report("PTSP.GetPageVisual.ret", "empty=" + (IsEmpty ? 1 : 0), _visual);
             return _visual;
+        }
+
+        // ── `T-B12`（`PAGINATED-PAGE-CONTENT-VISUALS`）：**在屏页的"被搬空"修复** ──────────
+        //  【现取机制（逐跳）】分页器造页时，同一 `BaseParaClient.Visual` 会被**后来的页**沿用：
+        //   `PtsHelper.UpdateParaListVisuals` 的 `fskupdNew` 支**先"从旧父摘除"再 `Insert`**
+        //   （现取 `[PAGEVIS] site=PH.UpdParaList.new oldParent=<本页 trackVisual>`）；
+        //   而一个 `Visual` **只能有一个父** ⇒ **先造的那一页的 `trackVisual` 被搬空**。
+        //   现场：`tab2` 页 `0x93377a` 的 `trackVisual=0x2d22d7e` 在 `PTSP.UpdPageVis.simple`
+        //   时 `kids=1`（`L1:0x2948ddd,k=3`，**有内容**），到 `[DPH] site=Attach` 时已成
+        //   `L3:k=0,b=empty`（**空**）—— `DocumentPageView` 显示的恰是这一页 ⇒ 帧面"壳内为空"。
+        //  【修法（**同源**）】本页**非空 ∧ `fSimple` ∧ `trackVisual` 恰被搬空**时，用**同一条**造视觉
+        //   路径（`PtsHelper.RedriveParaListVisuals` ＝ 上游 `fskupdNew` 支的逐段
+        //   `从旧父摘除 → Insert → ValidateVisual(New)`）把**本页自己的**段落视觉**接回本页**。
+        //   · **不**改任何 native 真值（几何／更新信息／`fskupd` **一律不写**；`fskupdNew` 只是**托管侧入参**）；
+        //   · **不**删／**不**放宽任何 `Invariant.Assert`；
+        //   · 只在"确已被搬空（`trackVisual.Children.Count == 0`）"时动手 ⇒ 否则**零动作**。
+        //  【零假值】`WPF_PAGEPAGE_REDRIVE=0` ⇒ **整块不发生**（逐字回上游行为 ⇒ 反极性腿）。
+        //  ⚠️ **不查 native**（页的 PTS 句柄可能已陈旧 ⇒ `FsQuery*` 会抛）：本页在**造视觉那一刻**
+        //     把 `trackVisual` 的**子视觉引用**记下来（`_pageContentKeep`），显示时只做**托管侧的换父**。
+        //     失败**如实打一行**、不重抛（它是**可选修复**路径 —— 不许它盖掉页面自身的显示，也不许静默）。
+        private System.Collections.Generic.List<Visual> _pageContentKeep;
+        private System.Collections.Generic.List<Visual> _pageFloatKeep;
+
+        internal void RedrivePageVisualsForDisplay()
+        {
+            if (!WpfLinuxPageVisDrive.Enabled) { return; }
+            if (_pageContentKeep == null && _pageFloatKeep == null) { return; }
+            if (_visual == null || IsEmpty) { return; }
+            if (_visual.Children.Count != 2) { return; }
+            try
+            {
+                bool did = false;
+                ContainerVisual pageContentVisual = _visual.Children[0] as ContainerVisual;
+                ContainerVisual floatingVisual = _visual.Children[1] as ContainerVisual;
+                if (pageContentVisual != null && pageContentVisual.Children.Count == 1)
+                {
+                    ContainerVisual trackVisual = pageContentVisual.Children[0] as ContainerVisual;
+                    if (trackVisual != null && trackVisual.Children.Count == 0)
+                    {
+                        WpfLinuxPageVisDrive.ReparentInto(trackVisual, _pageContentKeep);
+                        did = true;
+                    }
+                }
+                if (floatingVisual != null && floatingVisual.Children.Count == 0)
+                {
+                    WpfLinuxPageVisDrive.ReparentInto(floatingVisual, _pageFloatKeep);
+                    did = true;
+                }
+                if (did)
+                {
+                    WpfLinuxPageVisProbe.Report("PTSP.RedrivePageVisuals",
+                        "content=" + ((_pageContentKeep == null) ? 0 : _pageContentKeep.Count)
+                        + " float=" + ((_pageFloatKeep == null) ? 0 : _pageFloatKeep.Count), _visual);
+                }
+            }
+            catch (System.Exception e)
+            {
+                WpfLinuxPageVisProbe.Report("PTSP.RedrivePageVisuals",
+                    "outcome=exception type=" + e.GetType().Name, null);
+            }
         }
 
         #endregion Internal Methods
@@ -1058,6 +1119,8 @@ namespace MS.Internal.PtsHost
                 Debug.Assert(visualChildren.Count == 1 && visualChildren[0] is ContainerVisual);
                 ContainerVisual trackVisual = (ContainerVisual)visualChildren[0];
                 PtsHelper.UpdateTrackVisuals(PtsContext, trackVisual.Children, pageDetails.fskupd, ref pageDetails.u.simple.trackdescr);
+                WpfLinuxPageVisProbe.Report("PTSP.UpdPageVis.simple", "fskupd=" + (int)fskupd + " track=" + WpfLinuxPageVisProbe.Id(trackVisual), trackVisual);
+                WpfLinuxPageVisDrive.KeepVisuals(trackVisual, ref _pageContentKeep);
             }
             else
             {
@@ -1103,6 +1166,7 @@ namespace MS.Internal.PtsHost
             }
 
             PtsHelper.UpdateFloatingElementVisuals(floatingElementsVisual, _pageContextOfThisPage.FloatingElementList);
+            WpfLinuxPageVisDrive.KeepVisuals(floatingElementsVisual, ref _pageFloatKeep);
         }
 
         //-------------------------------------------------------------------

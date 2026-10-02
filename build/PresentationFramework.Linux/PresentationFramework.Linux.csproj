@@ -1587,6 +1587,13 @@
     <!-- T-B7（BAML-TYPE-UNRESOLVED）：BAML 类型解析失败的**具名出口**（只补类型名/宿主件，不改语义） -->
     <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Markup/Baml2006/Baml2006SchemaContext.cs" />
     <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/Baml2006SchemaContext.Linux.cs" />
+    <!-- T-B11（PAGEVIEW-ONSCREEN）：分页视觉宿主（DocumentPageView／DocumentPageHost）的「上屏」接线 ＋ 只读台账 -->
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Controls/Primitives/DocumentPageView.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/DocumentPageView.Linux.cs" />
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/documents/DocumentPageHost.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/DocumentPageHost.Linux.cs" />
+    <!-- T-B12（PAGINATED-PAGE-CONTENT-VISUALS）：分页页视觉「壳内」内容视觉的只读逐跳读数（[PAGEVIS]） -->
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/WpfLinuxPageVisProbe.Linux.cs" />
   </ItemGroup>
 
   <!-- ==== WPF-on-Linux 补丁结束 ==== -->
