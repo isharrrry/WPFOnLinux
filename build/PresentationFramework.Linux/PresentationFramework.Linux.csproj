@@ -1594,6 +1594,12 @@
     <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/DocumentPageHost.Linux.cs" />
     <!-- T-B12（PAGINATED-PAGE-CONTENT-VISUALS）：分页页视觉「壳内」内容视觉的只读逐跳读数（[PAGEVIS]） -->
     <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/WpfLinuxPageVisProbe.Linux.cs" />
+    <!-- T-B13（PRECOND-TAB3-PAGE-HOST）：FlowDocumentReader 内部页宿主（ReaderPageViewer 的模板）可达接线 ＋ 只读台账 -->
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Controls/FlowDocumentReader.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/FlowDocumentReader.Linux.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/WpfLinuxReaderPageHost.Linux.cs" />
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Controls/Primitives/DocumentViewerBase.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/DocumentViewerBase.Linux.cs" />
   </ItemGroup>
 
   <!-- ==== WPF-on-Linux 补丁结束 ==== -->

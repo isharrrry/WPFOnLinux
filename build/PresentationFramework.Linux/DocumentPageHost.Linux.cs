@@ -218,6 +218,13 @@ namespace MS.Internal.Documents
     {
         private const int TraceMax = 600;
         private static int _trace;
+        // ⏪ `T-B13`：渲染遍历读数（`DPV.GetVisualChild`／`DPH.GetVisualChild`，每趟渲染数百行）
+        //   **单独记账**（不再吃 `TraceMax` 的共享预算），且**按元素**各记一份 —— 否则先出现的
+        //   宿主会把全局额度吃光，把**后面的**宿主（tab3 的 `ReaderPageViewer` 那一份）整片吞掉
+        //   （`T-B13` 第一次现取即栽在这里）。
+        private const int VisitPerSelfMax = 200;
+        private static readonly System.Collections.Generic.Dictionary<int, int> _visitPerSelf
+            = new System.Collections.Generic.Dictionary<int, int>();
         private static int _enabled = -1;
 
         internal static bool Enabled
@@ -570,9 +577,36 @@ namespace MS.Internal.Documents
             Emit("[DPV] site=Ctor id=" + Id(view) + " NOINFO=dpv-ctor-readonly");
         }
 
+        /// <summary>
+        /// `T-B13`：`DocumentViewerBase.GetPageViewsCollection` 的**只读**读数 —— 直接回答
+        /// "这个查看器**有没有页宿主**（`DocumentPageView`）"（＝ tab3 断点的**判决面**）。
+        /// </summary>
+        internal static void ReportPageViews(object viewer, int n)
+        {
+            if (!ProbeOn) { return; }
+            Emit("[DVBI] site=GetPageViews self=" + Id(viewer) + " selfType=" + TypeName(viewer)
+                 + " n=" + n.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                 + " NOINFO=dvbi-readonly");
+        }
+
+        internal static string TypeName(object o)
+        {
+            if (o == null) { return "null"; }
+            try { return o.GetType().Name; }
+            catch (System.Exception) { return "NA"; }
+        }
+
         internal static void ReportVisit(string site, FrameworkElement self, Visual child, int index)
         {
-            if (!Gate(site)) { return; }
+            // `T-B13`：渲染遍历读数**按元素各记一份**（不再吃 `TraceMax` 的共享额度）
+            if (!ProbeOn) { return; }
+            int vkey;
+            try { vkey = System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(self); }
+            catch (System.Exception) { vkey = 0; }
+            int vc;
+            _visitPerSelf.TryGetValue(vkey, out vc);
+            if (vc >= VisitPerSelfMax) { return; }
+            _visitPerSelf[vkey] = vc + 1;
             string childRender = "NA";
             try
             {

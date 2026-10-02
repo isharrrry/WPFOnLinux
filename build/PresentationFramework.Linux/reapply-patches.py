@@ -155,6 +155,12 @@ PATCH_C = '''  <!-- ============================================================
     <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/DocumentPageHost.Linux.cs" />
     <!-- T-B12（PAGINATED-PAGE-CONTENT-VISUALS）：分页页视觉「壳内」内容视觉的只读逐跳读数（[PAGEVIS]） -->
     <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/WpfLinuxPageVisProbe.Linux.cs" />
+    <!-- T-B13（PRECOND-TAB3-PAGE-HOST）：FlowDocumentReader 内部页宿主（ReaderPageViewer 的模板）可达接线 ＋ 只读台账 -->
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Controls/FlowDocumentReader.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/FlowDocumentReader.Linux.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/WpfLinuxReaderPageHost.Linux.cs" />
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Controls/Primitives/DocumentViewerBase.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/DocumentViewerBase.Linux.cs" />
   </ItemGroup>
 '''
 
@@ -1836,6 +1842,13 @@ DPH_TAIL_REPL = """        private Visual _pageVisual;
     {
         private const int TraceMax = 600;
         private static int _trace;
+        // ⏪ `T-B13`：渲染遍历读数（`DPV.GetVisualChild`／`DPH.GetVisualChild`，每趟渲染数百行）
+        //   **单独记账**（不再吃 `TraceMax` 的共享预算），且**按元素**各记一份 —— 否则先出现的
+        //   宿主会把全局额度吃光，把**后面的**宿主（tab3 的 `ReaderPageViewer` 那一份）整片吞掉
+        //   （`T-B13` 第一次现取即栽在这里）。
+        private const int VisitPerSelfMax = 200;
+        private static readonly System.Collections.Generic.Dictionary<int, int> _visitPerSelf
+            = new System.Collections.Generic.Dictionary<int, int>();
         private static int _enabled = -1;
 
         internal static bool Enabled
@@ -2188,9 +2201,36 @@ DPH_TAIL_REPL = """        private Visual _pageVisual;
             Emit("[DPV] site=Ctor id=" + Id(view) + " NOINFO=dpv-ctor-readonly");
         }
 
+        /// <summary>
+        /// `T-B13`：`DocumentViewerBase.GetPageViewsCollection` 的**只读**读数 —— 直接回答
+        /// "这个查看器**有没有页宿主**（`DocumentPageView`）"（＝ tab3 断点的**判决面**）。
+        /// </summary>
+        internal static void ReportPageViews(object viewer, int n)
+        {
+            if (!ProbeOn) { return; }
+            Emit("[DVBI] site=GetPageViews self=" + Id(viewer) + " selfType=" + TypeName(viewer)
+                 + " n=" + n.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                 + " NOINFO=dvbi-readonly");
+        }
+
+        internal static string TypeName(object o)
+        {
+            if (o == null) { return "null"; }
+            try { return o.GetType().Name; }
+            catch (System.Exception) { return "NA"; }
+        }
+
         internal static void ReportVisit(string site, FrameworkElement self, Visual child, int index)
         {
-            if (!Gate(site)) { return; }
+            // `T-B13`：渲染遍历读数**按元素各记一份**（不再吃 `TraceMax` 的共享额度）
+            if (!ProbeOn) { return; }
+            int vkey;
+            try { vkey = System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(self); }
+            catch (System.Exception) { vkey = 0; }
+            int vc;
+            _visitPerSelf.TryGetValue(vkey, out vc);
+            if (vc >= VisitPerSelfMax) { return; }
+            _visitPerSelf[vkey] = vc + 1;
             string childRender = "NA";
             try
             {
@@ -4277,6 +4317,215 @@ namespace MS.Internal.PtsHost
 '''
 
 
+# ══════════════════════════════════════════════════════════════════════════════
+#  `T-B13`（`PRECOND-TAB3-PAGE-HOST`）：`FlowDocumentReader`（hc「流文档查看器」）的**页宿主**接线
+# ══════════════════════════════════════════════════════════════════════════════
+#  【现取的断点】上游 `FlowDocumentReader.GetViewerFromMode`（件:行
+#    `upstream/wpf/.../Controls/FlowDocumentReader.cs:1150-1156`）给内部的 `ReaderPageViewer`
+#    （`MS/Internal/documents/IFlowDocumentViewer.cs:452`：`FlowDocumentPageViewer` 子类，
+#     ＝「查看器」的内容宿主）显式设
+#    `Style` ＝ `ComponentResourceKey(typeof(PresentationUIStyleResources), "PUIPageViewStyleKey")`
+#    （键定义见同件 `:2043-2050`）。该资源的**唯一**出处是 PresentationUI 的主题字典
+#    （`upstream/wpf/.../PresentationUI/Themes/Generic.xaml:8675-8699`），其模板里含 `DocumentPageView`。
+#    本移植的 PresentationUI 是**替身**（`build/CycleStub.PresentationUI.Linux`，**无** `Themes/`、
+#    无 `PresentationUIStyleResources` 的类型字典）⇒ 该键解析为空；而 `Style` 已被**本地设值**
+#    （`SetResourceReference`）⇒ 连类型隐式样式也被绕过 ⇒ `ReaderPageViewer` **没有 `ControlTemplate`**
+#    ⇒ 它**从不构造 `DocumentPageView`** ⇒ 分页出来的 `DocumentPage.Visual` **没有宿主**去读
+#    ⇒「查看器」区**空白**（tab2／tab1 各走别的宿主，故不受影响）。
+#
+#  【修（`T-B12` 同范式：同一机制 ＋ 可撤 ＋ 只读台账）】把那一行换成
+#    `MS.Internal.Documents.WpfLinuxReaderPageHost.ApplyPageViewerStyle(_pageViewer, PageViewStyleKey)`：
+#    「先**只读**查该键 ⇒ 查到＝照旧设资源引用（逐字回上游）；查不到＝**补一份与上游等价的模板**
+#      （页宿主 `DocumentPageView`）」。⚠️ 不复制视觉、不改几何、不碰 native、不删／不放宽任何 `Invariant.Assert`。
+#    闸 `WPF_READER_PAGEHOST`（**缺省开**；只有显式 `=0` 才关 ⇒ 整块不发生）。
+
+FDR_UP = "src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Controls/FlowDocumentReader.cs"
+
+FDR_E1_NEEDLE = """                        _pageViewer = new ReaderPageViewer();
+                        _pageViewer.SetResourceReference(StyleProperty, PageViewStyleKey);
+"""
+FDR_E1_REPL = """                        _pageViewer = new ReaderPageViewer();
+                        // `T-B13`（`PRECOND-TAB3-PAGE-HOST`）：本移植的 PresentationUI 是替身（无 Themes/Generic.xaml）
+                        //   ⇒ `PUIPageViewStyleKey` 解析为空 ⇒ 页宿主（模板里的 `DocumentPageView`）**从不存在**。
+                        //   改为「先只读查资源：查到＝照旧；查不到＝补等价模板」。见 `WpfLinuxReaderPageHost` 头注。
+                        MS.Internal.Documents.WpfLinuxReaderPageHost.ApplyPageViewerStyle(_pageViewer, PageViewStyleKey);
+"""
+# 只读台账：`SwitchViewingModeCore` 的"接上新查看器"那一步（判"到底有没有接上内容宿主"）
+FDR_E2_NEEDLE = """                    // Attach new viewer
+                    _contentHost.Child = feViewer;
+                    AttachViewer(viewer);
+"""
+FDR_E2_REPL = """                    // Attach new viewer
+                    _contentHost.Child = feViewer;
+                    AttachViewer(viewer);
+                    // `T-B13`：只读台账 —— 已接上／内容宿主类型（判"查看器到底有没有接上内容宿主"）
+                    MS.Internal.Documents.WpfLinuxReaderPageHost.ReportAttached(feViewer, _contentHost);
+"""
+FDR_EDITS = [
+    (FDR_E1_NEEDLE, FDR_E1_REPL, 1),
+    (FDR_E2_NEEDLE, FDR_E2_REPL, 1),
+]
+
+DVBI_UP = "src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Controls/Primitives/DocumentViewerBase.cs"
+DVBI_E1_NEEDLE = """            changed = true;
+            return new ReadOnlyCollection<DocumentPageView>(pageViewList);
+"""
+DVBI_E1_REPL = """            // `T-B13`：只读台账 —— 这个查看器到底收到几个页宿主（判决 tab3「页宿主是谁」）
+            MS.Internal.Documents.WpfLinuxPageViewProbe.ReportPageViews(this, pageViewList.Count);
+            changed = true;
+            return new ReadOnlyCollection<DocumentPageView>(pageViewList);
+"""
+DVBI_EDITS = [
+    (DVBI_E1_NEEDLE, DVBI_E1_REPL, 1),
+]
+
+READERPAGE_PROBE_FILE = "WpfLinuxReaderPageHost.Linux.cs"
+READERPAGE_PROBE_TEXT = '''// ⚠️ 本文件由 build/PresentationFramework.Linux/reapply-patches.py **生成**，不要手改。
+//
+// T-B13（`PRECOND-TAB3-PAGE-HOST`）：`FlowDocumentReader` 内部页宿主的接线 ＋ 只读台账（[READERHOST]）。
+// 断点、件:行与依据见生成器内同名块。`WPF_READER_PAGEHOST=0` ⇒ 整块不发生（反极性腿）。
+
+using System;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Documents;
+
+namespace MS.Internal.Documents
+{
+    internal static class WpfLinuxReaderPageHost
+    {
+        private static int _enabled = -1;
+        private static Style _fallback;
+
+        internal static bool Enabled
+        {
+            get
+            {
+                if (_enabled < 0)
+                {
+                    string s = null;
+                    try { s = Environment.GetEnvironmentVariable("WPF_READER_PAGEHOST"); }
+                    catch (Exception) { s = null; }
+                    // ⚠️ `T-B13` **默认关**（只有显式 "1" 才开）：本条接线**已现取**它把页宿主
+                    //   **接出来了**（`[DVBI] selfType=ReaderPageViewer n=1`），但**帧面不绿**
+                    //   （`tab3` 色数／具名色不变）且**新增一条 `COMException E_HANDLE`** ⇒ 不默认启用，
+                    //   不把"接出来了却仍不上屏"当成"修好了"。保持可复现（`=1` 即开）以备后续复核。
+                    _enabled = (s == "1") ? 1 : 0;
+                }
+                return _enabled == 1;
+            }
+        }
+
+        /// <summary>
+        /// 上游行为 ＝ 无条件 `SetResourceReference(StyleProperty, key)`。本移植里该键（`PUIPageViewStyleKey`）
+        /// 在 PresentationUI 替身中**不存在** ⇒ 先**只读**查一次：查到 ⇒ 逐字回上游；查不到 ⇒ 补等价模板。
+        /// </summary>
+        internal static void ApplyPageViewerStyle(FrameworkElement viewer, ResourceKey key)
+        {
+            if (viewer == null) { return; }
+            if (!Enabled)
+            {
+                viewer.SetResourceReference(FrameworkElement.StyleProperty, key);
+                return;
+            }
+            object found = null;
+            try { found = viewer.TryFindResource(key); }
+            catch (Exception) { found = null; }
+            if (found is Style)
+            {
+                viewer.SetResourceReference(FrameworkElement.StyleProperty, key);
+                Emit("[READERHOST] site=ApplyViewerStyle viewerType=" + TypeOf(viewer)
+                     + " key=PUIPageViewStyleKey found=1 fallback=0 viewer=" + Id(viewer));
+                return;
+            }
+            // ② 该键缺失 ⇒ **先**用"控件类型隐式样式"（＝"上游在 Windows 上本来会拿到的那份等价物"，
+            //    只是由 app 提供；查到就用它，等价于**不给 `Style` 留本地值** ⇒ 隐式查找照旧生效）。
+            Style implicitStyle = null;
+            try { implicitStyle = viewer.TryFindResource(typeof(FlowDocumentPageViewer)) as Style; }
+            catch (Exception) { implicitStyle = null; }
+            if (implicitStyle != null)
+            {
+                viewer.Style = implicitStyle;
+                Emit("[READERHOST] site=ApplyViewerStyle viewerType=" + TypeOf(viewer)
+                     + " key=PUIPageViewStyleKey found=0 fallback=implicit targetType="
+                     + (implicitStyle.TargetType == null ? "null" : implicitStyle.TargetType.Name)
+                     + " viewer=" + Id(viewer));
+                return;
+            }
+            Style fb = Fallback;
+            viewer.Style = fb;
+            Emit("[READERHOST] site=ApplyViewerStyle viewerType=" + TypeOf(viewer)
+                 + " key=PUIPageViewStyleKey found=0 fallback=equiv targetType="
+                 + (fb.TargetType == null ? "null" : fb.TargetType.Name)
+                 + " viewer=" + Id(viewer));
+        }
+
+        /// <summary>
+        /// 与上游 `PresentationUI/Themes/Generic.xaml:8675-8699` 的 `PUIPageViewStyleKey` **等价**的
+        /// `FlowDocumentPageViewer` 样式：`AdornerDecorator(ClipToBounds)` → `Border` →
+        /// `DocumentPageView(IsMasterPage=True, ClipToBounds)`。**只**在该资源键解析为空时使用。
+        /// </summary>
+        private static Style Fallback
+        {
+            get
+            {
+                if (_fallback == null)
+                {
+                    FrameworkElementFactory dpv = new FrameworkElementFactory(typeof(DocumentPageView));
+                    dpv.SetValue(UIElement.ClipToBoundsProperty, true);
+                    dpv.SetValue(DocumentViewerBase.IsMasterPageProperty, true);
+                    FrameworkElementFactory border = new FrameworkElementFactory(typeof(Border));
+                    border.AppendChild(dpv);
+                    FrameworkElementFactory adorner = new FrameworkElementFactory(typeof(AdornerDecorator));
+                    adorner.SetValue(UIElement.ClipToBoundsProperty, true);
+                    adorner.AppendChild(border);
+                    ControlTemplate tmpl = new ControlTemplate(typeof(FlowDocumentPageViewer));
+                    tmpl.VisualTree = adorner;
+                    Style st = new Style(typeof(FlowDocumentPageViewer));
+                    st.Setters.Add(new Setter(Control.TemplateProperty, tmpl));
+                    _fallback = st;
+                }
+                return _fallback;
+            }
+        }
+
+        /// <summary>`T-B13`：只读台账 —— 「接上新查看器」那一步的现场（查看器／内容宿主各是什么）。</summary>
+        internal static void ReportAttached(FrameworkElement viewer, object contentHost)
+        {
+            if (!Enabled) { return; }
+            Emit("[READERHOST] site=Attach viewerType=" + TypeOf(viewer) + " viewer=" + Id(viewer)
+                 + " contentHostType=" + TypeOf(contentHost));
+        }
+
+        private static string TypeOf(object o)
+        {
+            if (o == null) { return "null"; }
+            try { return o.GetType().Name; }
+            catch (Exception) { return "NA"; }
+        }
+
+        internal static string Id(object o)
+        {
+            if (o == null) { return "null"; }
+            try
+            {
+                return "0x" + System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(o)
+                    .ToString("x", System.Globalization.CultureInfo.InvariantCulture);
+            }
+            catch (Exception) { return "NA"; }
+        }
+
+        private static void Emit(string line)
+        {
+            try { Console.Error.WriteLine(line); Console.Error.Flush(); }
+            catch (Exception) { }
+        }
+    }
+}
+'''
+
+
 def materialize_derived():
     """生成补丁 C 的两个派生源文件。needle 校验失败 ⇒ 抛（由 main 转成 rc≠0）。"""
     made = []
@@ -4324,6 +4573,14 @@ def materialize_derived():
     pagevis_abs = os.path.join(HERE, PAGEVIS_PROBE_FILE)
     _write_atomic(pagevis_abs, PAGEVIS_PROBE_TEXT)
     made.append((pagevis_abs, 0))
+    # ⏪ `T-B13`：`FlowDocumentReader` 内部页宿主（`ReaderPageViewer` 的模板）可达接线 ＋ 台账
+    p, n = _apply_edits(FDR_UP, "FlowDocumentReader.Linux.cs", FDR_EDITS)
+    made.append((p, n))
+    p, n = _apply_edits(DVBI_UP, "DocumentViewerBase.Linux.cs", DVBI_EDITS)
+    made.append((p, n))
+    readerpage_abs = os.path.join(HERE, READERPAGE_PROBE_FILE)
+    _write_atomic(readerpage_abs, READERPAGE_PROBE_TEXT)
+    made.append((readerpage_abs, 0))
     return made
 
 
