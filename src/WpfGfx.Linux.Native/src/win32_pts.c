@@ -260,6 +260,16 @@ typedef struct {
     int          fsp_pl_quota;      /* 当前代已服务的填充次数 */
     int          fsp_pl_gen;        /* 代数（1 = 探针造的第一代） */
     const char  *fsp_pl_site;       /* 当前代**在哪造的**：`probe-in`／`probe-out`／`query-frame` */
+    /* ── ⏪ `T-B3`（缺陷②「跨窗陈旧句柄」）：「**本窗新造 ∧ 在册 live**」的**可判**形式 ──────────
+       托管 `PtsContext._unmanagedHandles` 的槽在**页销毁**（`FsDestroyPage`）时被回收 ⇒ 之前造出的
+       `pfsparaclient` 句柄**当场变陈旧**；再交给 `PtsHelper.ArrangeParaList` 的 `HandleToObject`
+       就撞 `PtsContext.cs:248 Invariant.Assert("Handle has been already released.")`
+       ⇒ `Environment.FailFast`（**不可捕获**）⇒ `rc=134`。
+       ⇒ 收严判据＝**句柄的"造出代"必须等于"当前页销毁代"**（＝此后未再销毁 ⇒ 托管未回收它）。
+       `page_destroy_n` 只由 `FsDestroyPage` 递增（**只增**）；`fsp_pl_epoch` 在**每一次**
+       `+176 CreateParaclient` 真返回时被写成当时的 `page_destroy_n`。 */
+    int          fsp_pl_epoch;      /* 句柄（`src_in`／`src_out`／`cur`）**造出时**的 `page_destroy_n` */
+    int          page_destroy_n;    /* `FsDestroyPage` 次数（页销毁代；`calloc` ⇒ 初值 0） */
     const void  *fsp_pl_aba_stale;  /* ABA 反腿：被回收后又拿来填充的**陈旧值** */
     int          fsp_pl_aba_seen;   /* ABA 反腿：是否已制造过 ABA */
     /* ── ⏪ `T-A33`：**格式窗所在线程**（`FsCreatePage*` 内由 `wpf_pts_drive_probe` 记下）──────
@@ -1625,6 +1635,9 @@ struct wpf_pts_subtrack_s {
     const void  *children[WPF_PTS_SUB_CHILD_MAX];
     const void  *child_clients[WPF_PTS_SUB_CHILD_MAX];
     int          child_clients_made;
+    /* ⏪ `T-B3`（缺陷②）：`child_clients[]` 的**造出代**（＝造它们时的 `doc->page_destroy_n`）——
+       页销毁后托管回收那些槽 ⇒ 交出去必撞 `HandleToObject` 的 `Invariant.Assert`（不可捕获）。 */
+    int          child_clients_epoch;
     /* ── ⏪ `T-A25`（本增量）：**本对象的每个子段各自的本侧对象** ──────────────────────────────
        `child_objs[j]` 与 `children[j]` 一一对应：`FsQuerySubtrackParaList` 交回 `pfspara` 时
        填的就是 `wpf_pts_sub_handle(child_objs[j])`（**本侧自有对象的字段地址**）⇒ 托管回问
@@ -2898,6 +2911,36 @@ static int wpf_pts_qtp_live_narrow(void)
     }
     return cached;
 }
+/* ── ⏪ `T-B3`（缺陷②「跨窗陈旧句柄 ⇒ 第三 tab `FailFast`」）：**句柄发放收严** ────────────────
+   判据＝「**本窗新造 ∧ 在册 live**」的可判形式：句柄的**造出代**（`fsp_pl_epoch`）必须等于
+   **当前页销毁代**（`page_destroy_n`）—— `FsDestroyPage` 之后托管 `PtsContext` 已回收该页槽，
+   之前造的 `pfsparaclient` **当场变陈旧**，再交出去 ⇒ `HandleToObject` 撞
+   `Invariant.Assert("Handle has been already released.")` ⇒ `Environment.FailFast`（**不可捕获**）⇒ `rc=134`。
+   ⚠️ 闸门变量：`WPF_PTS_HANDLE_STRICT`（缺省 `1`＝收严生效）；显式 `0` ⇒ 逐字回改前（交陈旧句柄）
+   ＝**反极性腿**（该红必红：应复现 `FailFast`）。 */
+#ifndef WPF_PTS_HANDLE_STRICT_DEFAULT
+#define WPF_PTS_HANDLE_STRICT_DEFAULT 1
+#endif
+#ifndef WPF_PTS_HANDLE_STRICT_REVERSE
+/* ⏪ `T-B3` 反腿（**只在副本**以 `-DWPF_PTS_HANDLE_STRICT_REVERSE=1` 编译）：把收严**编掉**
+   ⇒ 逐字回"交陈旧句柄"形态 ＝ **该红必红**（应复现 `FailFast`／`rc=134`）。缺省 0。 */
+#define WPF_PTS_HANDLE_STRICT_REVERSE 0
+#endif
+static int g_pts_handle_stale_refused = 0;   /* ⏪ `T-B3`：收严**拒发**次数（两处填充支共用） */
+static int wpf_pts_handle_strict(void)
+{
+    static int cached = -1;
+    if (cached < 0) {
+        const char *e = getenv("WPF_PTS_HANDLE_STRICT");
+        cached = e ? atoi(e) : WPF_PTS_HANDLE_STRICT_DEFAULT;
+    }
+    return cached;
+}
+/* 「本窗新造 ∧ 在册 live」的**反面**：句柄造出代 ≠ 当前页销毁代 ⇒ 托管已回收它。 */
+static int wpf_pts_handle_epoch_stale(const wpf_pts_doc *d)
+{
+    return (d && d->fsp_pl_epoch != d->page_destroy_n) ? 1 : 0;
+}
 /* ⏪ `T-A37`：附属对象**内容排版驱动**的运行期闸（缺省 **开**；显式 `WPF_PTS_ATT_CONTENT=0` 关 ⇒
    反极性腿：不调内容回调、不造子页 ⇒ 三色必回 0）。 */
 #ifndef WPF_PTS_ATT_CONTENT_DEFAULT
@@ -3302,6 +3345,7 @@ static void wpf_pts_drive_probe2_oow(void *pfscontext, const char *where)
             /* ⏪ `t160`（W-2 第一代）：**窗外**腿造出的客户端**保留**下来当本腿的第一代（不回收） */
             dp->fsp_pl_src_out = (const void *)hO;
             dp->fsp_pl_src_rc_out = 0;
+            dp->fsp_pl_epoch = dp->page_destroy_n;   /* ⏪ `T-B3`：本句柄的**造出代** */
             g_pts_fsp_pl_src_out = 1;
             rc192o = -7777;                       /* 保留标记（**不是**回收失败） */
         } else if (hO) {
@@ -3764,6 +3808,7 @@ static void wpf_pts_drive_probe(wpf_pts_doc *d, const void *sect, const char *wh
             if (rcK == 0 && hK != NULL && d->fsp_pl_src_in == NULL) {
                 d->fsp_pl_src_in = (const void *)hK;
                 d->fsp_pl_src_rc_in = rcK;
+                d->fsp_pl_epoch = d->page_destroy_n;   /* ⏪ `T-B3`：本句柄的**造出代**（判「本窗新造」） */
                 g_pts_fsp_pl_src_in = 1;
             } else if (rcK == 0 && hK != NULL) {
                 /* 本 doc 的第一代已就位 ⇒ 这一只**多余**，就地回收（**不是**"回收要交出去的句柄"：
@@ -7259,7 +7304,7 @@ int FsDestroyPage(void *pfscontext, void *pfspage)
        `+136 pfnGetFirstPara` 会撞 `PtsContext.HandleToObject` 的
        `Invariant.Assert("Handle has been already released.")` ⇒ 不可捕获 `FailFast`，`app_rc 134`）。
        如实留痕：`[DRIVE-PROBE2-OOW] … v136=REFUSED-NONLIVE-HANDLE`。 */
-    { wpf_pts_doc *ddp = wpf_pts_doc_ptr(pfscontext); if (ddp) ddp->drive_handles_live = 0; }
+    { wpf_pts_doc *ddp = wpf_pts_doc_ptr(pfscontext); if (ddp) { ddp->drive_handles_live = 0; ddp->page_destroy_n++; } }
     wpf_pts_drive_probe2_oow(pfscontext, "FsDestroyPage");
     if (!pfspage)                     reason = "null-page";
     else if ((const void *)pfscontext && !wpf_pts_doc_find(pfscontext)) reason = "unknown-ctx";
@@ -7657,6 +7702,37 @@ static int wpf_pts_fl_vr_start(const wpf_pts_subtrack *o, int idx)
     for (int k = 0; k < idx && k < o->fl_nlines; k++)
         vr += o->fl_line[k].dvr_ascent + o->fl_line[k].dvr_descent;
     return vr;
+}
+/* ── ⏪ `T-B3`（缺陷①「流文档视图文字重叠」）：段（子轨对象）的**真垂直占位** ──────────────────
+   ＝ 其**子树**逐叶段 Σ 行(`dvrAscent`+`dvrDescent`)。几何源＝`pfnFormatLine` 的**真返回值**行台账
+   （与 `[FSTEXTDETAILS].c_lines`／`ur_start` 同源同操作数）；"本侧页几何约定"一条如实具名。
+   🔴 **零假值**：任一无可用台账（`fl_ok!=1`／0 行／未收束／撞界）⇒ 返 **-1** ⇒ 调用方
+   **保持 0 ＋ 具名**，**绝不**拿 0 或常数冒充（承 `wpf_pts_tbl_cell_tree_dv` 的同一判据）。
+   用途：`FsQueryTrackParaList`／`FsQuerySubtrackParaList` 的 `FSPARADESCRIPTION.dvrUsed(+36)`
+   —— 宿主 `PtsHelper.cs:177-180` 的 `dvrPara += dvrUsed`／`rcPara.dv = dvrUsed - dvrTopSpace`
+   直接消费它；恒 0 会让**同 track 各段共 `v`**（互相压在同一 v 上）。 */
+static int g_pts_vgeo_ok = 0, g_pts_vgeo_short = 0;
+static int wpf_pts_sub_v_extent(const wpf_pts_subtrack *root)
+{
+    if (!root || root->magic != WPF_PTS_SUB_MAGIC) return -1;
+    int total = 0, got = 0;
+    wpf_pts_subtrack *stack[WPF_PTS_SUB_MAX]; int sp = 0;
+    stack[sp++] = (wpf_pts_subtrack *)root;
+    while (sp > 0) {
+        wpf_pts_subtrack *o = stack[--sp];
+        int nc = (o->enum_ok) ? o->c_paras : 0;
+        if (nc == 0) {                                       /* 叶 ⇒ `TextParagraph` 类：真行台账 */
+            if (wpf_pts_fl_usable(o)) {
+                for (int k = 0; k < o->fl_nlines; k++)
+                    total += o->fl_line[k].dvr_ascent + o->fl_line[k].dvr_descent;
+                got = 1;
+            }
+            continue;
+        }
+        for (int k = 0; k < nc && k < WPF_PTS_SUB_CHILD_MAX; k++)
+            if (o->child_objs[k] && sp < WPF_PTS_SUB_MAX) stack[sp++] = o->child_objs[k];
+    }
+    return got ? total : -1;
 }
 /* 回填 `FSTEXTDETAILS`（唯一成功路径；**调用者已核** `wpf_pts_fl_usable`）。 */
 static void wpf_pts_tlb_fill_details(wpf_pts_subtrack *o, void *pOut)
@@ -8980,6 +9056,9 @@ int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgPar
                     if (!first) reason = want_out ? "no-out-of-window-client-yet" : "no-in-window-client-yet";
                     else {
                         dp->fsp_pl_cur = first; dp->fsp_pl_gen = 1;
+                        /* ⏪ `T-B3`：`first` 是**早先造的**（`src_in`／`src_out`）⇒ 其造出代＝
+                           那一次 `+176` 返回时记下的 `fsp_pl_epoch`（**在此不得覆盖** —— 否则会把
+                           一个经历过页销毁的陈旧句柄误标成"本窗新造"）。 */
                         dp->fsp_pl_site = want_out ? "probe-out" : "probe-in";
                         g_pts_fsp_pl_last_rc176 = want_out ? dp->fsp_pl_src_rc_out : dp->fsp_pl_src_rc_in;
                     }
@@ -9070,12 +9149,23 @@ int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgPar
                         g_pts_fsp_pl_last_rc176 = rc176;
                         if (rc176 == 0 && hn != NULL) {
                             dp->fsp_pl_cur = (const void *)hn; dp->fsp_pl_gen++;
+                            dp->fsp_pl_epoch = dp->page_destroy_n;   /* ⏪ `T-B3`：本句柄的**造出代** */
                             dp->fsp_pl_site = "query-frame";
                         } else reason = "create-paraclient-failed";
                     }
                 }
                 /* ⑤ **真填**（先清零 ⇒ 未初始化内存不许交给上级；**填完才置条数**，判据 §5-P2） */
-                if (!reason && dp->fsp_pl_cur) {
+                /* ⏪ `T-B3`（缺陷②）：**句柄发放收严 —— 「本窗新造 ∧ 在册 live」**。
+                   句柄的**造出代**（`fsp_pl_epoch`）必须等于**当前页销毁代**（`page_destroy_n`）；
+                   否则它是在某次 `FsDestroyPage` **之前**造的 ⇒ 托管 `PtsContext` 已回收该槽
+                   ⇒ 交出去必撞 `HandleToObject` 的 `Invariant.Assert("Handle has been already released.")`
+                   ⇒ `Environment.FailFast`（不可捕获）。⇒ 照 `:9122` 体例**具名拒发**（出参一字不写）。 */
+                if (!reason && dp->fsp_pl_cur && wpf_pts_handle_strict() && wpf_pts_handle_epoch_stale(dp)
+                    && !WPF_PTS_HANDLE_STRICT_REVERSE) {
+                    reason = "stale-paraclient-across-page-destroy(not-this-window-live;HandleToObject-would-FailFast)";
+                    g_pts_handle_stale_refused++;
+                }
+                else if (!reason && dp->fsp_pl_cur) {
                     wpf_pts_fsparadesc *rg = (wpf_pts_fsparadesc *)rgParaDesc;
                     /* ⏪ `t162`（队长 `t163` 指引 ＋ 判据 §4(a)）：`pfspara` 的合法来源＝**本侧自有的
                        "子轨对象"**（本仓范式：句柄＝本对象内字段地址；`FsQueryTrackDetails` 同形）。
@@ -9144,6 +9234,16 @@ int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgPar
                         rg[i].pfspara       = (void *)para_val;
                         rg[i].pfsparaclient = (void *)dp->fsp_pl_cur;
                         rg[i].nmp           = (void *)dp->drive_nmp;
+                        /* ⏪ `T-B3`（缺陷① 真 v 几何）：容器段的**真段高**（＝该子树逐叶 Σ 行高；
+                           几何源＝本侧行台账，`win32_pts.c` 的 `pfnFormatLine` 真返回值）
+                           ⇒ 宿主 `PtsHelper.cs:177-180` 的 `dvrPara += dvrUsed`／`rcPara.dv` 得真值。
+                           🔴 **取不到 ⇒ 保持 0 ＋ 具名**（`g_pts_vgeo_short`），**绝不**用 0/常数冒充；
+                           `dvrTopSpace` 本侧**无源** ⇒ 恒 0（`NOINFO=no-top-space-source`，下同两处）。 */
+                        {
+                            int hv = wpf_pts_sub_v_extent(para_obj);
+                            if (hv >= 0) { rg[i].dvr_used = hv; g_pts_vgeo_ok++; }
+                            else         { g_pts_vgeo_short++; }
+                        }
 #if WPF_PTS_FSP_PL_DVR
                         /* ⏪ `t198` (甲)：**描述符字段求真值** —— 值只从 LM-1 段账取（作者性见 `wpf_pts_lm1_led_add`）。
                            🔴 段账条数不足（`led_n < cParas`）⇒ **不写**（保持 `memset` 后的 0）＋具名降级，
@@ -9212,12 +9312,16 @@ int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgPar
                     for (int i = 0; i < 32; i++) snprintf(dump + i * 3, 4, "%02x ", bp[i]);
                     fprintf(stderr, "[FSPARALIST-FILL] rc=0 reason=ok entry=FsQueryTrackParaList cParas=%d n=%d "
                                     "h0=%p src=managed-176 run=site=%s win=%s gen=%d quad=%d hold=%d "
-                                    "off16=%d bytes0_32=%s ok=%d gap=%d cur_tid=%lu win_tid=%lu\n",
+                                    "off16=%d bytes0_32=%s ok=%d gap=%d cur_tid=%lu win_tid=%lu "
+                                    "dvr_used=%d h_epoch=%d page_destroy_n=%d vgeo_ok=%d vgeo_short=%d "
+                                    "stale_refused=%d\n",
                             cParas, cParas, (void *)dp->fsp_pl_cur, dp->fsp_pl_site,
                             wpf_pts_fsp_pl_win_out() ? "out" : "in", dp->fsp_pl_gen, dp->fsp_pl_quota,
                             (dp->fsp_pl_prev != NULL) ? 1 : 0, (int)offsetof(wpf_pts_fsparadesc, pfsparaclient),
                             dump, g_pts_fsp_pl_ok + 1, g_pts_fsp_pl_gap,
-                            (unsigned long)pthread_self(), dp->win_tid);
+                            (unsigned long)pthread_self(), dp->win_tid,
+                            (cParas > 0) ? rg[0].dvr_used : -1, dp->fsp_pl_epoch, dp->page_destroy_n,
+                            g_pts_vgeo_ok, g_pts_vgeo_short, g_pts_handle_stale_refused);
                     g_pts_fsp_pl_ok++;
 #if WPF_PTS_FSP_PL_LMWIT || WPF_PTS_FSP_PL_DVR
                     {   /* ⏪ `t198`：**每次成功填充必打的到达读数行**（`t196` §6：禁静默阈值）
@@ -9415,7 +9519,7 @@ int FsQuerySubtrackDetails(void *pfscontext, void *pSubTrack, void *pSubTrackDet
                 pfscontext, pSubTrack, g_pts_fsqstd_calls, g_pts_fsqstd_ok, g_pts_fsqstd_gap,
                 g_pts_fsqstd_null, g_pts_fsqstd_unclaim, g_pts_fsqstd_unformatted,
                 o->c_paras, obj->c_paras, (void *)o->nms, "SUBENUM(+136/+144)");
-        fprintf(stderr, "[FSQSTD-SRC] cParas=%d src=subenum(+136/+144) du=%d dv=%d nms=%p "
+        fprintf(stderr, "[FSQSTD-SRC] cParas=%d src=subenum(+136/+144) u=0 v=0 du=%d dv=%d nms=%p "
                         "NOINFO=fsupdinf(no-source),fsrc(declared-geometry)\n",
                 o->c_paras, WPF_PTS_FSP_FIN_DU, WPF_PTS_FSP_FIN_DV, (void *)o->nms);
         return 0;
@@ -9525,6 +9629,15 @@ int FsQuerySubtrackParaList(void *pfscontext, void *pSubTrack, int cParas,
         else if (WPF_PTS_DRIVEPROBE_OOW_LIVE_GUARD && !dp->drive_handles_live
                  && !(wpf_pts_qtp_live_narrow() && obj->child_clients_made >= cParas))
             reason = "drive-handles-released(page-destroyed)";
+        /* ⏪ `T-B3`（缺陷②）：**本入口的同一收严** —— `obj->child_clients[]` 若造于某次
+           `FsDestroyPage` **之前**（造出代 ≠ 当前页销毁代），托管 `PtsContext` 已回收那些槽
+           ⇒ 交出去必撞 `HandleToObject` 的 `Invariant.Assert("Handle has been already released.")`
+           ⇒ `Environment.FailFast`（不可捕获）⇒ 具名拒发（出参一字不写）。 */
+        else if (wpf_pts_handle_strict() && !WPF_PTS_HANDLE_STRICT_REVERSE
+                 && obj->child_clients_made > 0 && obj->child_clients_epoch != dp->page_destroy_n) {
+            reason = "stale-paraclient-across-page-destroy(subtrack-child-clients-not-this-window-live)";
+            g_pts_handle_stale_refused++;
+        }
         else {
             /* ⏪ `T-A25`：**每个子段必须已有本侧对象**（窗内建树时建 ⇒ 补其缺失）——缺失 ⇒ **拒绝整个填充**
                （**绝不**退回托管段句柄 ⇒ 那正是要消掉的 `unclaimable-*`；也**绝不**伪造指针）。 */
@@ -9541,6 +9654,7 @@ int FsQuerySubtrackParaList(void *pfscontext, void *pSubTrack, int cParas,
                 if (rc != 0 || h == NULL) { reason = "create-paraclient-failed"; break; }
                 obj->child_clients[i] = (const void *)h;
                 obj->child_clients_made = i + 1;
+                obj->child_clients_epoch = dp->page_destroy_n;   /* ⏪ `T-B3`：这批句柄的**造出代** */
                 g_pts_fsqspl_cli_made++;
                 /* ⏪ `T-A22`（`N1`）：`+176` 交回的**客户端句柄**入册为**来源证据**（通道 `'C'`）——
                    它**与段句柄同值即 ABA**（§2.3 实证）⇒ 通道判据把这两类分开。 */
@@ -9580,13 +9694,18 @@ int FsQuerySubtrackParaList(void *pfscontext, void *pSubTrack, int cParas,
                             ra == 0 ? "AUTOFIT-ON-REAL-CLIENT" : "AUTOFIT-FAIL");
                 }
             }
-            /* ⏪ `T-A37`：**内容子页树**里，段高取该段**真行台账**的 `Σ(ascent+descent)`（否则为 0 ⇒
-               零高矩形 ⇒ 内容不可见）；非内容树逐字保持 `0` ＋ 既有 `NOINFO`。 */
-            if (obj->in_subpage && obj->child_objs[i] && obj->child_objs[i]->fl_ok) {
-                int hh = 0;
-                for (int k = 0; k < obj->child_objs[i]->fl_nlines; k++)
-                    hh += obj->child_objs[i]->fl_line[k].dvr_ascent + obj->child_objs[i]->fl_line[k].dvr_descent;
-                rg[i].dvr_used = hh;
+            /* ── ⏪ `T-B3`（缺陷①「同 track 各段共 v」）：**真 v 几何**（**不再限定 `in_subpage`**）──────
+               段高 ＝ 该段（子树）逐叶 Σ 行(`dvrAscent`+`dvrDescent`)（几何源＝`pfnFormatLine` 真返回值
+               行台账；承 `T-A37` 的**同一操作数**，射程从"内容子页树"扩到**本入口交出的每一段**）。
+               🔴 恒 0 的后果（现取）：同一子轨（例 `cParas=3` ＝ 文本段 ＋ `Figure` ＋ `Floater`）
+               各段 `rcPara.v = rcTrackContent.v + Σ(前段 dvrUsed)` 恒等于首段的 `v`
+               ⇒ **互相压在同一 v 上**（渲染帧里 `Figure`/`Floater` 盒与文本行带**共 y**）。
+               🔴 **取不到 ⇒ 保持 0 ＋ 具名**（`g_pts_vgeo_short`／本行 `NOINFO`）——**绝不**用 0/常数冒充；
+               `dvrTopSpace` 本侧**无源** ⇒ 恒 0 并具名。 */
+            {
+                int hv = wpf_pts_sub_v_extent(obj->child_objs[i]);
+                if (hv >= 0) { rg[i].dvr_used = hv; g_pts_vgeo_ok++; }
+                else         { g_pts_vgeo_short++; }
             }
             /* ⏪ `T-A22`（`N1`）：**本侧真把该段句柄交出去过**（写进 `FSPARADESCRIPTION.pfspara`）
                ⇒ 记进来源证据（强化面；托管随后把它当 `_paraHandle` 送回时即可**按来源证据认领**）。 */
@@ -9612,10 +9731,36 @@ int FsQuerySubtrackParaList(void *pfscontext, void *pSubTrack, int cParas,
         fprintf(stderr, "[FSQSPL] rc=0 reason=ok entry=FsQuerySubtrackParaList ctx=%p psub=%p cParas=%d "
                         "made=%d cli_total=%d src=SUBENUM(+136/+144)+managed-176 calls=%d ok=%d gap=%d "
                         "consume_ok=%d consume_bad=%d "
-                        "NOINFO=subtrack-para-geometry(dvrUsed/dvrTopSpace/bbox=0)\n",
+                        "dvr_used=%d vgeo_ok=%d vgeo_short=%d stale_refused=%d "
+                        "NOINFO=dvrTopSpace/bbox=0(no-top-space-source,no-bbox-source)\n",
                 pfscontext, pSubTrack, cParas, obj->child_clients_made, g_pts_fsqspl_cli_made,
                 g_pts_fsqspl_calls, g_pts_fsqspl_ok, g_pts_fsqspl_gap,
-                g_pts_fsqspl_consume_ok, g_pts_fsqspl_consume_bad);
+                g_pts_fsqspl_consume_ok, g_pts_fsqspl_consume_bad,
+                (cParas > 0) ? rg->dvr_used : -1, g_pts_vgeo_ok, g_pts_vgeo_short,
+                g_pts_handle_stale_refused);
+        /* ⏪ `T-B3`（缺陷① 判据 `D1-3` 的**逐段 `v` 现取**）：把**每条**段的 `dvrUsed` 落一行
+           ⇒ 宿主 `PtsHelper.cs:177-180` 的 `rcPara.v = rcTrackContent.v + Σ_{k<i}(dvrUsed[k]) + dvrTopSpace[i]`
+           可**复算**（`rcTrackContent` ＝ `FSSUBTRACKDETAILS.fsrc`，同一 `[FSQSTD-SRC]` 行给 du/dv）。 */
+        {
+            char dvrbuf[WPF_PTS_SUB_CHILD_MAX * 24 + 1];
+            char vbuf[WPF_PTS_SUB_CHILD_MAX * 24 + 1];
+            int off2 = 0, off3 = 0, cum = 0;
+            dvrbuf[0] = 0; vbuf[0] = 0;
+            for (int i = 0; i < cParas && i < WPF_PTS_SUB_CHILD_MAX; i++) {
+                int w = snprintf(dvrbuf + off2, sizeof(dvrbuf) - off2, "%s%d:%d", i ? "," : "", i, rg[i].dvr_used);
+                if (w <= 0 || off2 + w >= (int)sizeof(dvrbuf)) break;
+                off2 += w;
+                /* 宿主 `PtsHelper.ArrangeParaList` 的 `rcPara.v`（`dvrTopSpace` 本侧恒 0）：相对量 */
+                int w2 = snprintf(vbuf + off3, sizeof(vbuf) - off3, "%s%d:%d", i ? "," : "", i, cum);
+                if (w2 <= 0 || off3 + w2 >= (int)sizeof(vbuf)) break;
+                off3 += w2;
+                cum += rg[i].dvr_used;
+            }
+            fprintf(stderr, "[FSQSPL-DVR] psub=%p cParas=%d per_para_dvrUsed=[%s] v_rel=[%s] "
+                            "v_rule=v_i=rcContent.v+sum_{k<i}(dvrUsed[k])+dvrTopSpace[i] "
+                            "win32_pts.c:T-B3 NOINFO=host-side-v-not-native-observable(computed-from-this-row)\n",
+                    pSubTrack, cParas, dvrbuf, vbuf);
+        }
         return 0;
     }
     g_pts_fsqspl_gap++;
