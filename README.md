@@ -98,7 +98,7 @@ bash tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpftextdemo.sh 60 --tier bo
 ### 2.4 一键验收（要一个 X server，`verify-all.sh` 自己会用 `:99`）
 
 ```bash
-bash verify-all.sh          # 24 步；含构建、测试、五臂对拍、应用门禁、冻结基线核对、时间分辨画面读者
+bash verify-all.sh          # 64 步；含构建、测试、五臂对拍、应用门禁、冻结基线核对、时间分辨画面读者
 ```
 
 ---
@@ -155,7 +155,7 @@ GDI+ 的**图像编解码族**只做到"应用能起来"；`ntdll` 面只有 `Rt
 
 | 机制 | 一句话 |
 |---|---|
-| `verify-all.sh`（24 步） | 构建 + 测试 + 五臂对拍 + 应用门禁 + 一堆"看仪器的仪器"；`NOINFO` 一律不许当绿 |
+| `verify-all.sh`（64 步） | 构建 + 测试 + 五臂对拍 + 应用门禁 + 一堆"看仪器的仪器"；`NOINFO` 一律不许当绿 |
 | `build/integration-wave.sh` | 移植 + 构建的唯一入口；波必须**认领**（`WAVE_OWNER`）并留审计行 |
 | 五臂对拍（`tline`/`tab-*`/`textlineproto`） | Linux 与 Windows 真值逐行比；臂日志 sha 有机器声明 |
 | 应用门禁（两档 × 3 rep） | 真开窗、真截屏、真数色；`BASELINE … result=PASS` 机读行 |
