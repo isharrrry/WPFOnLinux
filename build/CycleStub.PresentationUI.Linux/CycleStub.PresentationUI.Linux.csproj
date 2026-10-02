@@ -28,7 +28,7 @@
       「PF → PresentationUI 替身 → 真 PF」的**编译期**循环（运行期允许、编译期不行）。
 
     身份与运行期语义：
-      · AssemblyName = **PresentationUI**、AssemblyVersion 10.0.0.0、WCP 公开签名
+      · AssemblyName = **PresentationUI**、AssemblyVersion 4.0.0.1、WCP 公开签名
         → 身份与未来真移植的 PresentationUI.dll 相同，可直接替换。
       · 本替身**就是**当前运行期的 PresentationUI（未移植真件），因此
         PF 对 FindToolBar 的调用会走到这里的空实现：工具条**不含任何模板/按钮**，

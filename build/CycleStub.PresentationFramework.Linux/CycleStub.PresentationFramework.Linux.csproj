@@ -24,7 +24,7 @@
          DocumentReferenceCollection；成员逐个来自真源码签名，出处写在文件里。
 
     身份与运行期语义：
-      · AssemblyName = **PresentationFramework**、AssemblyVersion 10.0.0.0、WCP 公开签名
+      · AssemblyName = **PresentationFramework**、AssemblyVersion 4.0.0.1、WCP 公开签名
         → 与真 PresentationFramework.dll 身份一致；本替身只参与 System.Printing / ReachFramework
         的**编译**，运行期由真 PresentationFramework.dll 顶替（同名同版本同公钥）。
       · 参考方一律 <Private>false</Private>，绝不进输出目录（**绝不允许两个同名程序集同时出现**）。

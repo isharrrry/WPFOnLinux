@@ -95,7 +95,7 @@ namespace MS.Internal.Text.TextInterface.Linux.Tests
             foreach (KeyValuePair<string, string> kv in smoke) _output.WriteLine($"{kv.Key}={kv.Value}");
 
             // 程序集身份（证明加载的是我们接线的那份骨架）
-            Assert.StartsWith("DirectWriteForwarder 10.0.0.0", smoke["ASSEMBLY"]);
+            Assert.StartsWith("DirectWriteForwarder 4.0.0.1", smoke["ASSEMBLY"]);
 
             // 集合与族
             Assert.Equal("1", smoke["COLLECTION_FAMILYCOUNT"]);

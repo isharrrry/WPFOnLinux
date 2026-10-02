@@ -173,9 +173,9 @@ print_plan() {
 # ── deps.json / runtimeconfig.json 生成（最小内容，仿 Microsoft.NETCore.App 形态）──
 #
 #   ⚠️ `assemblyVersion` **必须有**（前置①实测）：
-#     留空 ⇒ 宿主为该框架件建出的 TPA 条目版本为空 ⇒ 与应用的 `AssemblyRef 10.0.0.0`
+#     留空 ⇒ 宿主为该框架件建出的 TPA 条目版本为空 ⇒ 与应用的 `AssemblyRef 4.0.0.1`
 #     对不上（连 `Microsoft.NETCore.App` 里那份 4.0.0.0 的空门面也比它"高"）
-#     ⇒ 启动即 `FileNotFoundException: WindowsBase, Version=10.0.0.0`。
+#     ⇒ 启动即 `FileNotFoundException: WindowsBase, Version=4.0.0.1`。
 #     版本**从文件里现读**（`read_assembly_versions`），不写死、不猜。
 read_assembly_versions() {  # $1.. = dll 路径；输出 "<name>\t<version>"
 python3 - "$@" <<'PY'

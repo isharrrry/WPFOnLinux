@@ -49,7 +49,7 @@ D. 接上 DirectWriteForwarder.Linux —— **必需**
 ------------------------------------
 A. 门面程序集遮蔽：Microsoft.NETCore.App.Ref 的 WindowsBase.dll 门面（v4.0.0.0）曾按
    「版本高者胜」压过自产 WindowsBase（0.0.0.0），造成 6000 条级联错误。现由
-   build/shims/LinuxAssemblyIdentity.cs（AssemblyVersion 10.0.0.0）根治，port-lib 自动
+   build/shims/LinuxAssemblyIdentity.cs（AssemblyVersion 4.0.0.1）根治，port-lib 自动
    注入到每个移植工程 → A 变冗余，不再注入。
 C. 9 条 Compile Remove（A 类误纳文件）：port-lib 现在同时识别
    <EnableDefaultItems>false</EnableDefaultItems>，且 excludes 过滤已移到流水线末尾

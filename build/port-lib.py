@@ -494,15 +494,7 @@ def port(name):
     # 用 `InternalsVisibleTo("X, PublicKey=<WCP>")` 授权友元，未签名的消费方会被 CS0281 全量拒绝
     # （实测 PF 不签名 → CS0281×720）。.NET Core 不校验强名称，公开签名即可满足 IVT 匹配。
     # 统一在此声明可让所有移植工程一致签名，并消掉「被引用方未签名」的 CS8002 噪声。
-    #
-    # ⚠️【L2 令牌对齐（`WIN-INTEROP.md` §7.3 / §7.5）】官方 *仅* `System.Xaml` 与
-    #   `System.Windows.Input.Manipulations` 用 **ECMA 令牌** `b77a5c561934e089`
-    #   （公钥 = 16 字节 `00000000000000000400000000000000`），其余 8 件用 WCP 公钥
-    #   （令牌 `31bf3856ad364e35`）。⇒ 这两件改用 `EcmaPublicKey.snk`，其余照旧 WCP。
-    #   实测（官方 ref pack 10.0.11 逐件现读）：`publicKeyLen=16 / PKT=b77a5c561934e089`。
-    _ecma_tokened = {"System.Xaml", "System.Windows.Input.Manipulations"}
-    key = os.path.join(HERE, "keys",
-                       "EcmaPublicKey.snk" if name in _ecma_tokened else "WcpPublicKey.snk")
+    key = os.path.join(HERE, "keys", "WcpPublicKey.snk")
     if os.path.exists(key):
         out.append("    <SignAssembly>true</SignAssembly>")
         out.append("    <PublicSign>true</PublicSign>")
@@ -625,7 +617,7 @@ def port(name):
     # 详见 build/shims/LinuxAssemblyIdentity.cs 的文件头注释。
     identity = os.path.join(HERE, "shims", "LinuxAssemblyIdentity.cs")
     if os.path.exists(identity):
-        out.append("  <!-- 自产程序集身份：AssemblyVersion 10.0.0.0（官方对齐；仍 > 框架门面的 4.0.0.0）-->")
+        out.append("  <!-- 自产程序集身份：AssemblyVersion 4.0.0.1，必须 > 框架门面的 4.0.0.0 -->")
         out.append("  <ItemGroup>")
         out.append("    <Compile Include=\"%s\" />" % relocatable(identity))
         out.append("  </ItemGroup>")

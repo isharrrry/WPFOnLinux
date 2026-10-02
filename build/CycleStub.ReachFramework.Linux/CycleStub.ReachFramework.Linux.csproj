@@ -25,7 +25,7 @@
                                            ← ReachFramework/Packaging/XpsInterleavingPolicy.cs:102
 
     身份与运行期语义（关键）：
-      · AssemblyName **就是 ReachFramework**、AssemblyVersion 10.0.0.0、WCP 公开签名
+      · AssemblyName **就是 ReachFramework**、AssemblyVersion 4.0.0.1、WCP 公开签名
         —— 与真 ReachFramework.dll 身份一致，因此 System.Printing.dll 里对这些类型的
         引用在**运行期自动绑定到真 ReachFramework.dll**（本替身只参与编译，不参与运行）。
       · 参考方一律 <Private>false</Private>，绝不进任何输出目录，避免出现两个同名程序集。
