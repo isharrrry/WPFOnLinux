@@ -21,7 +21,7 @@
 | # | 现象 | 状态 / 处置 |
 |---|---|---|
 | ① | 切「富文本」23／「流文档」24 | ✅ **已成立（不再是红）** —— 现取 `phase=realized`／`magenta=0`／`[HC-UNHANDLED]=0`（`alive=yes app_rc=143 failfast=0`）；**四具名色锚齐**：`PTS_COLORANCHOR=PASS hits=3`（`GhostWhite=9794`／`Beige=910`／`DarkGreen=44`／`LightGoldenrodYellow=5830`，基线四色全 `0`）；`PTS_GUARD=PASS`（在册证据 `build/MilBridge/tests/PtsPagesProbe/evidence/`）。判据面随 `T-A33..A59` 链闭合 |
-| ② | **PTS／原生 LineServices 真实现** | 🟡 **长线（不再是阻塞项）** —— 现值 `PTSGAP=PASS tool=54 dead=11 artifact=1 ops=42 impl=42`／`.so=df27801beb222f05`／`exports=846`／`stubs=0`（`nm==exports`）；余 42 条**逐条具名且已证为合法终点**：乙 20（本侧无测量源）／丙 6（`Nl*` 在册有意降级）／丁 16（**LS 链已被 shim 替换 ⇒ 无真腿可达 ⇒ 可诚实实施者 0**，`T-A67`／`A74`） |
+| ② | **PTS／原生 LineServices 真实现** | 🟡 **长线（不再是阻塞项）** —— 现值 `PTSGAP=PASS tool=54 dead=11 artifact=1 ops=42 impl=42`／`.so=df27801beb222f05`／`exports=846`／`stubs=0`（`nm==exports`），即 **可操作 42／实现口径 42**；余 42 条**逐条具名且已证为合法终点**：乙 20（本侧无测量源）／丙 6（`Nl*` 在册有意降级）／丁 16（**LS 链已被 shim 替换 ⇒ 无真腿可达 ⇒ 可诚实实施者 0**，`T-A67`／`A74`） |
 | ③ | 静默 `rc=139`＋0 字节日志 | 🟡 **产品侧已修** —— `T-A64`：`wpf_queue_push` 的 `tail` 零解引用守卫（`D-G109` 同根因另一半；反腿 `rc=139`＋`si_addr=0x13a` ⇒ 正腿 `rc=0`）；装置侧可比时间窗已闭（`T-A60`：`BASELINERATE` 由 `VOID-PREMISE` 转**可判定 `FAIL`＋点名**）。⚠️ **率未重取、不宣称清零**（残余窄 `TOCTOU`＝`TASK-0211` 另计） |
 | ④ | 零墨修法的**反极性腿**未跑 | ✅ **已办**（车道 W161A 在 `#64` 现件上真跑，见 `docs/ROUTES.md` §12 区与 `D-G129`） |
 

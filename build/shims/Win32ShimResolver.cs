@@ -499,6 +499,16 @@ namespace WpfLinux.Shims.UIAutomation
             if (!string.IsNullOrEmpty(baseDir))
                 yield return Path.Combine(baseDir, shimFileName);
 
+            // ②' 本程序集所在目录 —— **共享框架布局**（`L1 路线①`）专用档。
+            //     `windowsdesktop-app-linux-framework.sh` 把 12 件托管件与四个 .so 一起放进
+            //     `<dotnet root>/shared/Microsoft.WindowsDesktop.App/<ver>/`；此时
+            //     `AppContext.BaseDirectory` 仍是**应用**目录，够不到框架目录 ⇒ 少这一档就必然
+            //     `DllNotFoundException: 已映射到 libwpfwin32.so，但没找到可加载的 shim 库`。
+            //     语义不变：只**追加**一档（应用目录在前，仍优先）；app-local 部署行为逐字不变。
+            string asmDir = AssemblyDirectory;
+            if (!string.IsNullOrEmpty(asmDir) && !string.Equals(asmDir, baseDir, StringComparison.Ordinal))
+                yield return Path.Combine(asmDir, shimFileName);
+
             if (useWicCandidates)
             {
                 // ③ 仓库 build/DirectWrite.Linux/wic-shim/（T2 的开发期产物位置）
@@ -539,6 +549,27 @@ namespace WpfLinux.Shims.UIAutomation
 
         /// <summary>诊断用：实际加载到的 **Win32** shim 路径（未加载时为 null）。</summary>
         internal static string LoadedPath => _cachedPath;
+
+        /// <summary>
+        /// 本解析器所在程序集的目录。共享框架布局（`L1 路线①`）下 = 框架目录
+        /// （`<dotnet root>/shared/Microsoft.WindowsDesktop.App/<ver>/`）。
+        /// 单文件发布或取不到 Location 时返回 null（那一档就不产生候选）。
+        /// </summary>
+        internal static string AssemblyDirectory
+        {
+            get
+            {
+                try
+                {
+                    string loc = typeof(Win32ShimResolver).Assembly.Location;
+                    return string.IsNullOrEmpty(loc) ? null : Path.GetDirectoryName(loc);
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
+            }
+        }
 
         /// <summary>诊断用：实际加载到的 **WIC** shim 路径（未加载时为 null）。</summary>
         internal static string WicLoadedPath =>

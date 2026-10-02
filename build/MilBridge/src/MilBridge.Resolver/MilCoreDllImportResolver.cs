@@ -127,6 +127,29 @@ namespace WpfGfx.Linux.Bridge
                 if (File.Exists(p)) return p;
             }
 
+            // 4b) 本程序集所在目录 —— **共享框架布局**（`L1 路线①`）专用档：
+            //     12 件托管件与四个 .so 一起放进
+            //     `<dotnet root>/shared/Microsoft.WindowsDesktop.App/<ver>/` 时，
+            //     `AppContext.BaseDirectory`（= 应用目录）够不到框架目录 ⇒ 多这一档。
+            //     语义不变：只**追加**一档，前面的候选顺序逐字不动。
+            try
+            {
+                string asmLoc = typeof(MilCoreDllImportResolver).Assembly.Location;
+                if (!string.IsNullOrEmpty(asmLoc))
+                {
+                    string asmDir = Path.GetDirectoryName(asmLoc);
+                    if (!string.IsNullOrEmpty(asmDir) && !string.Equals(asmDir, app, StringComparison.Ordinal))
+                    {
+                        string p = Path.Combine(asmDir, MilCoreSharedObjectName);
+                        if (File.Exists(p)) return p;
+                    }
+                }
+            }
+            catch
+            {
+                // 取不到 Location（单文件发布等）就当没有这一档
+            }
+
             // 5) 开发树布局：从应用目录向上找 build/MilBridge/.artifacts/publish/**。
             //    只为"在仓库里直接 dotnet run"方便，找不到就放弃。
             try
