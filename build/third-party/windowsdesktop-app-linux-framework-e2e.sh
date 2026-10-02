@@ -92,7 +92,7 @@ if [ -n "$WID" ]; then
   DISPLAY="$DISPLAY_OPT" import -window "$WID" "$WORK/shot.png" 2>/dev/null || true
   [ -s "$WORK/shot.png" ] && identify -format 'window: %wx%h colors=%k\n' "$WORK/shot.png" || true
 fi
-echo "-- 应用自己报的读数（行模型/滚动）--"; grep -E "WPTD_SCROLL" "$WORK/run.log" | head -3
+echo "-- 应用自己报的读数（行模型/滚动）--"; grep -E "WPTD_SCROLL" "$WORK/run.log" > "$WORK/_scroll.txt" || true; head -3 "$WORK/_scroll.txt"
 echo "-- .so 落点（/proc/$RUNPID/maps）--"
 grep -oE "/[^ ]*\.so" "/proc/$RUNPID/maps" | sort -u | grep -E "Microsoft.WindowsDesktop|libwpf|wpfgfx" || true
 echo "-- 框架目录被引用的 map 行数 --"; grep -c "Microsoft.WindowsDesktop.App" "/proc/$RUNPID/maps" || true
