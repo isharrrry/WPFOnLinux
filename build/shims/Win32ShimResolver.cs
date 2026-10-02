@@ -27,6 +27,14 @@
 //   托管实现补齐，接线属于 M7c）、`WindowsCodecs.dll`（WIC，109 条）、
 //   `PenIMC_cor3.dll`、`mshwgst.dll`、`ole32.dll` 等**仍然是明确的
 //   DllNotFoundException**——这是刻意的：不假装成功，缺失面一眼可见。
+//
+// ── Windows 平台短路（L3 · `WIN-INTEROP.md` §7.4 ①）───────────────────────
+//   同一份产物要"在 Linux 上跑本栈实现、在 Windows 上跑官方件"。本文件是这条路上
+//   唯一会**主动劫持** Win32 名字的地方 ⇒ 它是唯一需要平台门的地方。做法：
+//     `Register()` 首行 `if (OperatingSystem.IsWindows()) return;`
+//   ——Windows 上不注册任何解析器（含 ALC 级钩子），P/Invoke 全交回默认探测 ⇒ 官方件；
+//      Linux 上该条件恒 false ⇒ 本文件既有行为**一位不差**。详见
+//      `build/MilBridge/P1-wininteropL3-impl-report.md`。
 
 using System;
 using System.IO;
@@ -205,6 +213,21 @@ namespace WpfLinux.Shims.UIAutomation
         [ModuleInitializer]
         internal static void Register()
         {
+            // ── L3（`WIN-INTEROP.md` §7.4 ①）：**Windows 平台短路** ──────────────────────
+            //   本 shim 的全部意义是"在 Linux 上把 user32/gdi32/… 这些 Win32 名字接到
+            //   `libwpfwin32.so`"。到了 **Windows**，那些名字本来就由官方系统 DLL 提供，
+            //   而 `libwpfwin32.so` 是 ELF（Windows 加载不了）⇒ 不短路就是 §7.4 复现过的码路：
+            //   首个 P/Invoke 处 `DllNotFoundException: 'user32.dll' 已映射到 libwpfwin32.so，
+            //   但没找到可加载的 shim 库。`（离成因很远地掀掉整个应用）。
+            //   ⇒ Windows 上**什么都不注册**：既不装 ALC 级钩子，也不占本程序集的解析器槽位，
+            //     一切 P/Invoke 交回默认探测 ⇒ 走的正是**官方系统件**。
+            //   ⚠️ 平台判定用运行期 API（`OperatingSystem.IsWindows()`），不是编译期 `#if`
+            //     —— 同一份产物要能在两个平台各自行为正确（编译期门控做不到）。
+            //   ⚠️ 本行是**本文件唯一**的平台分支点：Linux 上它恒为 false ⇒ 下方所有既有行为
+            //     逐字不变（"一位不差"）。
+            if (OperatingSystem.IsWindows())
+                return;
+
             // ── `#35` 波：**默认 ALC 级钩子**（第三方程序集的 P/Invoke 也要够得着本 shim）──
             //   `SetDllImportResolver` 是**按程序集**生效的，只对我们自己那几个程序集装了；
             //   第三方应用（`HandyControl.dll` 的 `[DllImport("user32.dll")]`）走**默认探测**
