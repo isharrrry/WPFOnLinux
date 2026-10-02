@@ -1584,6 +1584,9 @@
     <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/WpfLinuxLsSessionProbe.Linux.cs" />
     <!-- T-A73（PRECOND-NO-LINE-BREAKER · 行断器）：行断器触发器类本体 -->
     <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/WpfLinuxLineBreakProbe.Linux.cs" />
+    <!-- T-B7（BAML-TYPE-UNRESOLVED）：BAML 类型解析失败的**具名出口**（只补类型名/宿主件，不改语义） -->
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Markup/Baml2006/Baml2006SchemaContext.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/Baml2006SchemaContext.Linux.cs" />
   </ItemGroup>
 
   <!-- ==== WPF-on-Linux 补丁结束 ==== -->

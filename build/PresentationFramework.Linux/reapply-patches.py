@@ -145,6 +145,9 @@ PATCH_C = '''  <!-- ============================================================
     <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/WpfLinuxLsSessionProbe.Linux.cs" />
     <!-- T-A73（PRECOND-NO-LINE-BREAKER · 行断器）：行断器触发器类本体 -->
     <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/WpfLinuxLineBreakProbe.Linux.cs" />
+    <!-- T-B7（BAML-TYPE-UNRESOLVED）：BAML 类型解析失败的**具名出口**（只补类型名/宿主件，不改语义） -->
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Markup/Baml2006/Baml2006SchemaContext.cs" />
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/Baml2006SchemaContext.Linux.cs" />
   </ItemGroup>
 '''
 
@@ -3074,6 +3077,38 @@ CHAIN_FILES = [
             }
 
             // NOTE: May execute external code, so it is possible to get
+""", 1),
+    ]),
+    # ── ⏪ `T-B7`（`BAML-TYPE-UNRESOLVED`）：BAML 类型解析失败的**具名出口** ────────────────
+    #  【它做什么】`Baml2006SchemaContext.ResolveBamlType` 解析不出类型时，上游抛的是**无参**
+    #    `NotImplementedException`（消息恒为 "The method or operation is not implemented."）——
+    #    **没有类型名、没有宿主程序集**；而它外面还套着 `System.Xaml` 的 InitializationGuard /
+    #    ProvideValue 三层 `XamlParseException` ⇒ 现场（hc demo）只剩不可读的 5 条 `[HC-UNHANDLED]`。
+    #  【本处只补信息，不改语义】仍抛 `NotImplementedException`（调用方逐字不动），
+    #    但带上 类型名 / 程序集 id / 程序集名，并打一条**只读**诊断行 `[BAML-TYPE-UNRESOLVED]`。
+    #  【零假值】只加打印与异常消息，不吞异常、不改解析结果、不碰任何 `Invariant.Assert`。
+    ("System/Windows/Markup/Baml2006/Baml2006SchemaContext.cs", "Baml2006SchemaContext.Linux.cs", [
+        ("""            throw new NotImplementedException();
+""",
+         """            // ── WPF-on-Linux `T-B7`：BAML 类型解析失败的**具名出口**（只加名字，不改语义）──
+            //   上游此处是**无参** `NotImplementedException` ⇒ 日志只剩一句
+            //   "The method or operation is not implemented."（**没有类型名、没有宿主件**）；
+            //   现场 hc demo 里它被三层 XamlParseException 套娃包住 ⇒ 完全不可读。
+            //   本处**只补信息**：仍抛 `NotImplementedException`（调用方语义一字不动），
+            //   但带上 类型名 / 程序集 id / 程序集名，并打一条**只读**诊断行 ⇒ 失败不许静默。
+            string _wpfBamlAsm = null;
+            try { _wpfBamlAsm = GetAssemblyName(bamlType.AssemblyId); }
+            catch (System.Exception) { _wpfBamlAsm = null; }
+            System.Console.Error.WriteLine(
+                "[BAML-TYPE-UNRESOLVED] type='" + bamlType.Name + "'"
+                + " assemblyId=" + bamlType.AssemblyId
+                + " assembly='" + (_wpfBamlAsm ?? "<unknown>") + "'"
+                + " —— 该类型在其 BAML 记录的宿主程序集里 GetType 取不到"
+                + "（常见因：宿主件**版本/身份**与 BAML 记录不一致，或该类型未编入本移植）");
+            System.Console.Error.Flush();
+            throw new NotImplementedException(
+                "BAML type not resolvable: '" + bamlType.Name + "'"
+                + " (assemblyId=" + bamlType.AssemblyId + ", assembly='" + (_wpfBamlAsm ?? "<unknown>") + "')");
 """, 1),
     ]),
 ]
