@@ -25,7 +25,7 @@
       它们是本工程**移植出来的上游代码**，构建链是 port-lib + dotnet build，
       与测试代码的编译节奏不同（M7b 明确要求复用已构建产物）。
       HintPath + Private=true → 产物被复制到测试输出目录，app-local 解析。
-      AssemblyVersion 4.0.0.1 > SDK 门面的 4.0.0.0，按「版本高者胜」胜出。
+      AssemblyVersion 10.0.0.0 > SDK 门面的 4.0.0.0，按「版本高者胜」胜出。
   -->
 
   <PropertyGroup>
