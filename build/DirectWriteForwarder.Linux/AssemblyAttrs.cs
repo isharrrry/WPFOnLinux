@@ -6,7 +6,7 @@
 // 已核对与 build/keys/WcpPublicKey.snk 逐字节相同（本工程公开签名用同一把公钥）。
 //
 // AssemblyVersion/FileVersion/InformationalVersion **不在此声明**：由
-// build/shims/LinuxAssemblyIdentity.cs 统一提供（主控约定 4.0.0.1，重复声明会 CS0579）。
+// build/shims/LinuxAssemblyIdentity.cs 统一提供（主控约定 10.0.0.0，重复声明会 CS0579）。
 
 using System.Runtime.CompilerServices;
 

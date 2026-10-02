@@ -51,7 +51,7 @@
     <AssemblyOriginatorKeyFile>$(WpfLinuxRoot)build/keys/WcpPublicKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <!-- 程序集身份版本（4.0.0.1）：全工程统一，由主控的 LinuxAssemblyIdentity shim 提供 -->
+    <!-- 程序集身份版本（10.0.0.0）：全工程统一，由主控的 LinuxAssemblyIdentity shim 提供 -->
     <Compile Include="$(WpfLinuxRoot)build/shims/LinuxAssemblyIdentity.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AssemblyAttrs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NativeMirrors.cs" />
@@ -78,7 +78,7 @@
       <Private>true</Private>
     </Reference>
   </ItemGroup>
-  <!-- 与 PresentationCore 同源：摘掉目标包注入的 WindowsBase 门面引用（身份版本已是 4.0.0.1，
+  <!-- 与 PresentationCore 同源：摘掉目标包注入的 WindowsBase 门面引用（身份版本已是 10.0.0.0，
        这里是冗余保险，保证在 WindowsBase 尚未重建时也能编译）。 -->
   <Target Name="WpfLinux_DropFrameworkWindowsBase"
           BeforeTargets="_HandlePackageFileConflicts"

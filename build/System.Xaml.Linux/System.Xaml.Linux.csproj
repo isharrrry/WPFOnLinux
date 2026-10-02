@@ -20,7 +20,7 @@
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
     <SignAssembly>true</SignAssembly>
     <PublicSign>true</PublicSign>
-    <AssemblyOriginatorKeyFile>$(WpfLinuxRoot)build/keys/WcpPublicKey.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>$(WpfLinuxRoot)build/keys/EcmaPublicKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Security.Permissions" Version="9.0.0" />
@@ -228,7 +228,7 @@
     <Compile Include="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/System.Xaml/ms/Internal/Markup/TypeConverterValueSerializer.cs" />
     <Compile Include="$(WpfLinuxRoot)build/System.Xaml.Linux/SR.g.cs" />
   </ItemGroup>
-  <!-- 自产程序集身份：AssemblyVersion 4.0.0.1，必须 > 框架门面的 4.0.0.0 -->
+  <!-- 自产程序集身份：AssemblyVersion 10.0.0.0（官方对齐；仍 > 框架门面的 4.0.0.0）；令牌对齐官方 ECMA（b77a5c561934e089） -->
   <ItemGroup>
     <Compile Include="$(WpfLinuxRoot)build/shims/LinuxAssemblyIdentity.cs" />
   </ItemGroup>

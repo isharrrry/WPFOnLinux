@@ -8,7 +8,7 @@
     WIN-INTEROP.md §7.1 的「零改动编译」在 Linux 上能编出 `net10.0-windows` 的产物，
     但那个产物的 `AssemblyRef` 指向**官方身份**（`PresentationFramework, Version=10.0.0.0`，
     `System.Xaml, ... PublicKeyToken=b77a…`），运行期只有官方实现能满足 ⇒ 本栈给不了。
-    本 props 把**编译面**换成自产件（`Version=4.0.0.1`），同时**保留**
+    本 props 把**编译面**换成自产件（`Version=10.0.0.0`），同时**保留**
     `runtimeconfig.json` 里的 `Microsoft.WindowsDesktop.App` 框架声明（因为最后跑的是
     「装一次框架」的共享框架布局，见 `docs/P1-wininteropL1-impl-report` 与
     `build/third-party/windowsdesktop-app-linux-framework.sh`）。
@@ -20,7 +20,7 @@
        `Microsoft.WindowsDesktop.App` 写进 `runtimeconfig.json`（`UseWPF=false` 时 SDK
        自己**不会**加这一条；实测：只靠 `-windows` TFM 不够）。
     3. 官方 ref 面（`Microsoft.WindowsDesktop.App.Ref` 带来的 `Reference`）**被同名自产件遮蔽者
-       逐条丢弃** —— 否则冲突解析按「程序集版本高者胜」把自产件（4.0.0.1）换成官方门面
+       逐条丢弃** —— 否则冲突解析按「程序集版本高者胜」把自产件（10.0.0.0）换成官方门面
        （10.0.0.0），于是编译期身份又变回官方，本件就白做了。
        （同一族坑与修法见 `build/Directory.Upstream.props` 的 M3 三段；这里只是把
         `Microsoft.NETCore.App.Ref` 换成 `Microsoft.WindowsDesktop.App.Ref`。）

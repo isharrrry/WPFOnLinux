@@ -5,14 +5,14 @@
 #   只覆盖 src 时 `state=ok` 是**必要不充分**（源没变、peer 变了 ⇒ 产物照样变）。
 # 排除：build/WindowsBase.Linux/{bin,obj}/**、.artifacts/**、本文件自己
 # 重算比对：python3 build/artifact-src-fp.py --check（缺本文件 / 缺被引产物 / 旧格式 ⇒ noinfo，**不报绿**）
-fp=d8e289bb176fed09
+fp=1ec6b47078b62767
 n=327
-peer_fp=2a2ed993f748365d
+peer_fp=4e7d9de9a7329e97
 peer_n=2
 tool_sha256=e856e2e65e6c59cadd8e68b6a39c00b483992f9fdd459fb94c8b0221f8e597fd
 # 被引产物（sha256 前 16 + 仓库相对路径；**产物字节**，不是源）
 peer=4499439dff4b1e54  build/System.Windows.Extensions.Linux/bin/Debug/System.Windows.Extensions.dll
-peer=856b84d2af114acb  build/System.Xaml.Linux/bin/Debug/System.Xaml.dll
+peer=eb2f5dc09c2b2639  build/System.Xaml.Linux/bin/Debug/System.Xaml.dll
 # 逐文件（**源侧**）：sha256 前 16 + 仓库相对路径；只列**本仓自有输入**（`upstream/**` 不列，用 --list 看全量）
 file=2985c671c57c7775  build/WindowsBase.Linux/DependencyObject.Linux.cs
 file=ec8259ed4c14fd3a  build/WindowsBase.Linux/Dispatcher.Linux.cs
@@ -24,10 +24,10 @@ file=69a3eb85b65e3dea  build/WindowsBase.Linux/SR.g.cs
 file=77568d3be60cdf67  build/WindowsBase.Linux/SecurityHelper.Linux.cs
 file=92c2ab584b4e48a0  build/WindowsBase.Linux/TextServicesLoader.Linux.cs
 file=05314aa6f39446a1  build/WindowsBase.Linux/reapply-patches.py
-file=900dad4a3d1ca2d2  build/port-lib.py
+file=39b201e4429fbb86  build/port-lib.py
 file=28fb0e85318f343e  build/shims/Accessibility.Shim.cs
-file=693b56ac590ef85d  build/shims/LinuxAssemblyIdentity.cs
-file=670d4e37592c3a64  build/shims/Win32ShimResolver.cs
+file=0036a60be5ddd4a4  build/shims/LinuxAssemblyIdentity.cs
+file=726534483afffdfc  build/shims/Win32ShimResolver.cs
 file=b20e7c9c01668123  build/shims/WindowsBase.EventTrace.Shim.cs
 file=3387fb7ce53ad117  build/shims/WindowsWin32.Shim.cs
 file=0a52507b8acd350d  src/WpfGfx.Linux.Native/tools/patch-presentationcore-apartment.py

@@ -3,7 +3,7 @@
 #  windowsdesktop-app-linux-framework-e2e.sh
 #  —— L1 路线① 的**端到端复现**：把 samples/WpfTextDemo 的**源码**在一个仓外目录里
 #     按「共享框架接入形态」重编（runtimeconfig 里带 Microsoft.WindowsDesktop.App，
-#     编译身份 = 自产 4.0.0.1），再 `dotnet <app>.dll` 跑起来。
+#     编译身份 = 自产 10.0.0.0），再 `dotnet <app>.dll` 跑起来。
 # ============================================================================
 #  【为什么用 WpfTextDemo 的源码】
 #    · 它是"源码重编"形态的真 WPF 应用（XAML/BAML 真编、真开窗、真渲染、真滚动）；
@@ -12,7 +12,7 @@
 #
 #  【它证明什么】
 #    ① 编译产物 `runtimeconfig.json` 里**自动**带 `Microsoft.WindowsDesktop.App`（未手改）；
-#    ② 产物的 `AssemblyRef` 是自产身份（`Version=4.0.0.1`）；
+#    ② 产物的 `AssemblyRef` 是自产身份（`Version=10.0.0.0`）；
 #    ③ 应用输出目录里**没有**那 12 件 WPF 托管件（由共享框架提供）；
 #    ④ 4 个 `.so` 从**框架目录**加载（`/proc/<pid>/maps` 现取）。
 #

@@ -15,7 +15,7 @@
 //   * 这里**只**补 CLSCompliant：与上游 System.Windows.Primitives/AssemblyInfo.cs
 //     的 [assembly: CLSCompliant(false)] 同值（WPF 全仓口径：公开面大量使用非 CLS 类型）。
 //   * **不声明** AssemblyVersion/FileVersion/InformationalVersion：
-//     由 build/shims/LinuxAssemblyIdentity.cs 统一提供（4.0.0.1），重复声明会 CS0579。
+//     由 build/shims/LinuxAssemblyIdentity.cs 统一提供（10.0.0.0），重复声明会 CS0579。
 //   * 恢复条件：若将来 port-lib 支持搬运 Arcade 生成的 assembly 特性，本文件可删除。
 using System;
 

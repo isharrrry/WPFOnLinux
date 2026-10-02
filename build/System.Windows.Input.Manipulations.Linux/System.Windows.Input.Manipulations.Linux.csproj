@@ -20,7 +20,7 @@
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
     <SignAssembly>true</SignAssembly>
     <PublicSign>true</PublicSign>
-    <AssemblyOriginatorKeyFile>$(WpfLinuxRoot)build/keys/WcpPublicKey.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>$(WpfLinuxRoot)build/keys/EcmaPublicKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/Common/src/System/SR.cs" />
@@ -49,7 +49,7 @@
     <Compile Include="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/System.Windows.Input.Manipulations/System/Windows/Input/Manipulations/VectorF.cs" />
     <Compile Include="$(WpfLinuxRoot)build/System.Windows.Input.Manipulations.Linux/SR.g.cs" />
   </ItemGroup>
-  <!-- 自产程序集身份：AssemblyVersion 4.0.0.1，必须 > 框架门面的 4.0.0.0 -->
+  <!-- 自产程序集身份：AssemblyVersion 10.0.0.0（官方对齐；仍 > 框架门面的 4.0.0.0）；令牌对齐官方 ECMA（b77a5c561934e089） -->
   <ItemGroup>
     <Compile Include="$(WpfLinuxRoot)build/shims/LinuxAssemblyIdentity.cs" />
   </ItemGroup>
