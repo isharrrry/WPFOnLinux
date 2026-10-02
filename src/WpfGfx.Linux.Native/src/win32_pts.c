@@ -1647,8 +1647,10 @@ const char *WpfLinuxWin32_PtsFsParaListParaLastSrc(void) { return g_pts_fsp_pl_p
           （⇒ 判据 §5.4「只许靠来源证据」在本侧有了**可判**的形态：NULL／栈地址／外来值**必被拒**）
    ⚠️ `formatted` **今天恒 0**：本对象**未被造型** ⇒ **`c_paras` 不是"0 个孩子"的断言**，
       而是"**尚未造型**"；⇒ (b) 必须读 `formatted` 而**不得**据 `c_paras==0` 走叶子分支（判据 §5.2 的 P8 防线）。 */
-/* ⏪ `T-A28`：每段行记录上界（有界 ⇒ 撞界即 `fl_truncated=1` 并**拒绝回查**，绝不静默截断）。 */
-#define WPF_PTS_FL_MAXLINE 32
+/* ⏪ `T-A28`：每段行记录上界（有界 ⇒ 撞界即 `fl_truncated=1` 并**拒绝回查**，绝不静默截断）。
+   ⏪ `T-B15`：`32 → 64` —— 浮动绕排把含浮动的段**再断行**（行宽收缩 ⇒ 行数成倍）⇒ 旧上界会让
+   该段 `fl_truncated=1`（`fl_ok=0`）⇒ 连带把 `T-B3`／`T-B4` 的段高链打成 `-1`。上界只增不减。 */
+#define WPF_PTS_FL_MAXLINE 64
 /* ⏪ `T-A36`：每段**附属对象**（`Figure`/`Floater`）台账上界（有界 ⇒ 撞界即停止记账并具名留痕）。 */
 #define WPF_PTS_FL_ATT_MAX 8
 /* ⏪ `T-A28`：窗内被驱的段数上界（每窗最多驱这么多 `TextParagraph`；防异常调用失控）。 */
@@ -1717,6 +1719,12 @@ struct wpf_pts_subtrack_s {
            `ppbrlineOut`（已随台账接管；**不**调 `DestroyLineBreakRecord` ⇒ 句柄保持有效）。 */
         const void *pbr_in;
         const void *pbr_out;
+        /* ── ⏪ `T-B15`：**造型本行时的入参**（回查必须逐行复现，见写点处的注释）─────────────
+           `dur_line` ＝ 本行 `pfnFormatLine` 的 `durLine`（`T-B15` 之后 = 绕排收缩值）；
+           `f_clr_left`／`f_clr_right` ＝ 同一次调用的 `fClearOnLeft`／`fClearOnRight`。 */
+        int dur_line;
+        int f_clr_left;
+        int f_clr_right;
     } fl_line[WPF_PTS_FL_MAXLINE];
     /* ── ⏪ `T-A36`（`NATIVE-PTS-ATTACHED-OBJECTS-BACKFILL`）：**附属对象台账**（`Figure`/`Floater`）
        内容**只**来自 `pfnGetNumberAttachedObjectsInTextLine`（计数）＋ `pfnGetAttachedObjectsInTextLine`
@@ -1745,6 +1753,15 @@ struct wpf_pts_subtrack_s {
         struct wpf_pts_subpage_s *sub_obj;   /* 子页对象（native 侧，按身份认领用） */
     } fl_att[WPF_PTS_FL_ATT_MAX];
 };
+/* ── ⏪ `T-B15`（`PRECOND-FLOAT-AVOIDANCE`）：**浮动绕排**的先行声明 ─────────────────────────────
+   `wpf_pts_format_one_para` 改由两层组成：本声明是**外壳**（先"发现趟"取浮动几何，再"真驱趟"带
+   收缩后的行宽），实现在 `wpf_pts_att_geometry` 之后（那里才有附属对象几何的唯一真值函数）。
+   `wpf_pts_fl_walk`／`wpf_pts_fl_walk_c`（更早）与新旧两处调用点共用本签名。 */
+static int  wpf_pts_format_one_para(wpf_pts_doc *d, wpf_pts_subtrack *leaf,
+                                    const void *fpFL, const void *fp176, const void *fp192,
+                                    const char *where);
+static int  wpf_pts_float_avoid_plan(const wpf_pts_subtrack *leaf,
+                                     int *avail, unsigned char *clr, int maxline);
 #define WPF_PTS_SUB_MAGIC 0x57535054u     /* "WSPT" */
 /* ⏪ `T-A25`：台账上限（窗内建树 ⇒ 一个容器对象 ＋ 每子段一个对象，**递归**）
    ⇒ 从 16 提到 512（每对象约 0.8 KiB ⇒ 满表约 400 KiB）。表满 ⇒ `wpf_pts_sub_new` 返 NULL
@@ -2557,9 +2574,11 @@ static int g_pts_fl_win_attempt = 0; /* 本窗尝试驱的段数（窗级） */
 static int g_pts_fl_incomplete= 0;   /* 行记录**未收束于段尾**（撞界／无进展）的段数 */
 static const char *g_pts_fl_last_v = "NOT-RUN";
 
-static int wpf_pts_format_one_para(wpf_pts_doc *d, wpf_pts_subtrack *leaf,
-                                   const void *fpFL, const void *fp176, const void *fp192,
-                                   const char *where)
+static int wpf_pts_format_one_para_ex(wpf_pts_doc *d, wpf_pts_subtrack *leaf,
+                                      const void *fpFL, const void *fp176, const void *fp192,
+                                      const char *where,
+                                      const int *line_avail, const unsigned char *line_clear,
+                                      int discover_only)
 {
     wpf_pts_fn_format_line fl = (wpf_pts_fn_format_line)fpFL;
     void *cli = NULL;
@@ -2585,12 +2604,19 @@ static int wpf_pts_format_one_para(wpf_pts_doc *d, wpf_pts_subtrack *leaf,
         void *pfsline = NULL, *ppbr = NULL;
         int dcpLine = 0, fforced = 0, fslres = -1;
         int asc = 0, desc = 0, ubb = 0, dbb = 0, dep = 0, rfmt = 0;
+        /* ── ⏪ `T-B15`：**本行的绕排约束**（`line_avail[i]` ＝ 收缩后的 `durLine`；`line_clear[i]`
+           的 bit0 ＝ `fClearOnLeft`、bit1 ＝ `fClearOnRight`）。`NULL` ⇒ 逐字回改前行为
+           （全宽 `du`、两 clear 位为 0）。**收缩值只来自** `wpf_pts_float_avoid_plan`（＝ 附属对象
+           几何的唯一真值函数 `wpf_pts_att_geometry`），**不**在此处另造几何。 */
+        int dur = (line_avail && line_avail[i] > 0 && line_avail[i] < du) ? line_avail[i] : du;
+        int clrL = line_clear ? (line_clear[i] & 1) : 0;
+        int clrR = line_clear ? ((line_clear[i] >> 1) & 1) : 0;
         int rc = fl((const void *)d->p_fsclient, (const void *)cli, (const void *)leaf->nmp,
                     0 /*iArea 恒 0（托管 Invariant.Assert(iArea==0)）*/,
                     dcp, (const void *)pbrin, 0u /*fswdir*/,
-                    0, du /*urStartLine,durLine*/, 0, du /*urStartTrack,durTrack*/,
+                    0, dur /*urStartLine,durLine*/, 0, dur /*urStartTrack,durTrack*/,
                     0 /*urPageLeftMargin*/,
-                    0 /*fAllowHyphenation*/, 0 /*fClearOnLeft*/, 0 /*fClearOnRight*/,
+                    0 /*fAllowHyphenation*/, clrL /*fClearOnLeft*/, clrR /*fClearOnRight*/,
                     (i == 0) ? 1 : 0 /*fTreatAsFirstInPara*/, 0 /*fTreatAsLastInPara*/,
                     0 /*fSuppressTopSpace*/,
                     &pfsline, &dcpLine, &ppbr, &fforced, &fslres, &asc, &desc,
@@ -2599,9 +2625,9 @@ static int wpf_pts_format_one_para(wpf_pts_doc *d, wpf_pts_subtrack *leaf,
         leaf->fl_last_rc = rc;
         fprintf(stderr, "[FORMATLINE-LINE] where=%s para=%p i=%d dcp=%d rc=%d pfsline=%p "
                         "dcpLine=%d fsflres=%d fforced=%d ascent=%d descent=%d urbbox=%d durbbox=%d "
-                        "dep=%d rfmt=%d\n",
+                        "dep=%d rfmt=%d durline=%d clrL=%d clrR=%d\n",
                 where, (void *)leaf->nmp, i, dcp, rc, pfsline, dcpLine, fslres, fforced,
-                asc, desc, ubb, dbb, dep, rfmt);
+                asc, desc, ubb, dbb, dep, rfmt, dur, clrL, clrR);
         if (rc != 0) break;                        /* 失败 ⇒ **不记账**（零假值） */
         if (dcpLine <= 0) break;                   /* 成环守卫：无进展 ⇒ 停（不收束） */
         leaf->fl_line[i].dcp_first   = dcp;
@@ -2615,6 +2641,14 @@ static int wpf_pts_format_one_para(wpf_pts_doc *d, wpf_pts_subtrack *leaf,
         leaf->fl_line[i].pfsline     = pfsline;
         leaf->fl_line[i].pbr_in      = pbrin;      /* ⏪ `T-A33`：本行**入参**断行记录（回填源） */
         leaf->fl_line[i].pbr_out     = ppbr;       /* ⏪ `T-A33`：本行**产出**断行记录（真返回值） */
+        /* ── ⏪ `T-B15`：**造型本行时用的三个入参**逐行入账（`durLine`／`fClearOnLeft`／`fClearOnRight`）
+           —— 回查（`FSLINEDESCRIPTIONSINGLE`／`FSLINEELEMENT`）**必须**给出**同一个** `dur`，
+           否则托管 `TextParaClient.RenderSimpleLines` 会拿它**重排**同一条行，再断言
+           `line.SafeLength == dcpLim - dcpFirst`（生成件 `TextParaClient.Linux.cs:3336`）⇒ 长度不符即
+           `Invariant.FailFast("Line length is out of sync")`（不可捕获）。 */
+        leaf->fl_line[i].dur_line    = dur;
+        leaf->fl_line[i].f_clr_left  = clrL;
+        leaf->fl_line[i].f_clr_right = clrR;
         /* ── ⏪ `T-A36`（`NATIVE-PTS-ATTACHED-OBJECTS-BACKFILL`）：**窗内**为附属对象建台账 ───────
            对刚排出的这一行：① 问托管「该行附着几个附属对象（`Figure`/`Floater`）」（`num`，`+512`）；
            ② 有 >0 则取对象名／`idobj`／锚点（`objects`，`+520`）；③ 为每个附属对象段落**在窗内**造
@@ -2661,7 +2695,7 @@ static int wpf_pts_format_one_para(wpf_pts_doc *d, wpf_pts_subtrack *leaf,
                         leaf->fl_att[slot].obj_rc     = -9999;
                         leaf->fl_att[slot].content_rc = -9999;
                         leaf->fl_att[slot].sub_obj    = NULL;
-                        if (objs[a] && fp176 && d->in_win) {
+                        if (!discover_only && objs[a] && fp176 && d->in_win) {
                             void *oc = NULL;
                             int rco = ((wpf_pts_fn_create_paraclient)fp176)(
                                 (const void *)d->p_fsclient, (const void *)objs[a], &oc);
@@ -8018,15 +8052,15 @@ static void wpf_pts_tlb_fill_single(wpf_pts_subtrack *o, wpf_pts_fslds *rg, int 
         rg[i].dcp_first             = o->fl_line[i].dcp_first;
         rg[i].dcp_lim               = o->fl_line[i].dcp_lim;
         rg[i].ur_start              = o->fl_line[i].ur_bbox;             /* 本侧约定：urStartLine=0 ⇒ =urBBox */
-        rg[i].dur                   = WPF_PTS_FL_DU;                     /* 造型时用的页宽（本侧约定） */
+        rg[i].dur                   = o->fl_line[i].dur_line;            /* ⏪ `T-B15`：造型时的真入参（回查复现） */
         rg[i].f_allow_hyph          = 0;                                 /* 造型入参 fAllowHyphenation=0 */
         rg[i].ur_bbox               = o->fl_line[i].ur_bbox;
         rg[i].dur_bbox              = o->fl_line[i].dur_bbox;
         rg[i].vr_start              = vbase + wpf_pts_fl_vr_start(o, i); /* ⏪ `T-B4`：页绝对 v ＋ 段内累加 */
         rg[i].dvr_ascent            = o->fl_line[i].dvr_ascent;
         rg[i].dvr_descent           = o->fl_line[i].dvr_descent;
-        rg[i].f_clear_left          = 0;                                 /* 造型入参 fClearOnLeft=0 */
-        rg[i].f_clear_right         = 0;                                 /* 造型入参 fClearOnRight=0 */
+        rg[i].f_clear_left          = o->fl_line[i].f_clr_left;          /* ⏪ `T-B15`：造型入参（回查复现） */
+        rg[i].f_clear_right         = o->fl_line[i].f_clr_right;         /* ⏪ `T-B15`：造型入参（回查复现） */
         rg[i].f_treated_as_first    = (i == 0) ? 1 : 0;                  /* 造型入参 fTreatAsFirstInPara */
         rg[i].f_force_broken        = o->fl_line[i].f_forced;
     }
@@ -8079,7 +8113,7 @@ static void wpf_pts_tlb_fill_element(wpf_pts_subtrack *o, int idx, wpf_pts_fslin
     e->pfsbreakreclineclient = (void *)o->fl_line[idx].pbr_in;
     e->dcp_lim               = o->fl_line[idx].dcp_lim;
     e->ur_start              = o->fl_line[idx].ur_bbox;
-    e->dur                   = WPF_PTS_FL_DU;
+    e->dur                   = o->fl_line[idx].dur_line;      /* ⏪ `T-B15`：造型时的真入参（回查复现） */
     e->f_allow_hyph          = 0;
     e->ur_bbox               = o->fl_line[idx].ur_bbox;
     e->dur_bbox              = o->fl_line[idx].dur_bbox;
@@ -8087,8 +8121,8 @@ static void wpf_pts_tlb_fill_element(wpf_pts_subtrack *o, int idx, wpf_pts_fslin
     e->dur_lr_word           = 0;
     e->dvr_ascent            = o->fl_line[idx].dvr_ascent;
     e->dvr_descent           = o->fl_line[idx].dvr_descent;
-    e->f_clear_left          = 0;
-    e->f_clear_right         = 0;
+    e->f_clear_left          = o->fl_line[idx].f_clr_left;    /* ⏪ `T-B15`：造型入参（回查复现） */
+    e->f_clear_right         = o->fl_line[idx].f_clr_right;   /* ⏪ `T-B15`：造型入参（回查复现） */
     e->f_hit_by_polygon      = 0;
     e->f_force_broken        = o->fl_line[idx].f_forced;
     e->f_clear_left_lr_word  = 0;
@@ -8473,6 +8507,100 @@ static void wpf_pts_att_geometry(int idx, int is_figure, wpf_pts_fsrect *out)
     out->dv = is_figure ? WPF_PTS_ATT_FIG_DV : WPF_PTS_ATT_FLO_DV;
     out->u  = 30000 + (idx % 4) * 30000;
     out->v  = wpf_pts_att_page_anchor_v(idx);
+}
+/* ══ ⏪ `T-B15`（`PRECOND-FLOAT-AVOIDANCE`）：**浮动绕排**（行宽按浮动对象收缩 ＋ `fClearOnLeft/Right`）
+   【要解决什么】`T-B8` §3.2／`T-B4` §6-① 现取：hc 流文档页 `tab1` 里 `Figure`／`Floater` 的**矩形**与
+   同一段的**正文行**在**同 x 列**上共 `y` ⇒ 正文被浮动盒压住（`Beige` 盒 96 px 宽，被压的行只剩
+   33–52 px 未被盖）。根因＝`pfnFormatLine` 一直以 `0,du,0,du`（`du=180000`＝600 DIP 全宽）＋
+   `fClearOnLeft=0`／`fClearOnRight=0` 驱动（`wpf_pts_format_one_para_ex` 的调用点写在 `:2591`），
+   行断器**不知道**浮动盒的矩形 ⇒ 正文不绕排。
+
+   【本增量做什么（最小可证）】在**同一格式窗内**两趟：
+     · **发现趟**（`discover_only=1`）：照改前参数驱一遍该段的行，**只为**取 ① 每行真返回值里的行高
+       （`dvr_ascent+dvr_descent`）与 ② 附属对象台账（`fl_att[]`：`idobj` ＋ 所属行序）。
+       **不**为附属对象造客户端、**不**驱内容 ⇒ 不产生第二份视觉（不改帧的发现趟）。
+     · **真驱趟**：按逐行算出的 `avail[i]`／`clear[i]` 重驱；本趟的行台账即最终台账（下游
+       `FsQueryTextDetails` 回填的就是它 ⇒ 帧面消费的就是绕排后的行）。
+
+   【行宽怎么算（可复算，**不另造几何**）】对第 `i` 行：
+     `v0 = Σ_{k<i}(行高_k)`、`v1 = v0 + 行高_i`（行高 ＝ 发现趟里 `pfnFormatLine` 的**真返回值**）；
+     对发现趟记下的每个附属对象 `a`（矩形 ＝ `wpf_pts_att_geometry(a, idobj==-2)`，**与托管侧
+     `FsQueryFigureObjectDetails`／`FsQueryFloaterDetails` 消费的是同一个函数、同一个矩形**）：
+       · `[v0,v1)` 与 `[R.v, R.v+R.dv)` **无交** ⇒ 该对象不影响本行；
+       · 相交且 `R.u > 0`（盒在**行起点右侧**）⇒ `avail[i] = min(avail[i], R.u)` ＋ `fClearOnRight=1`；
+       · 相交且 `R.u <= 0`（盒压在**行起点**上）⇒ `fClearOnLeft=1`。
+
+   【零假值／射程（如实划界）】
+     · 行高与附属对象**逐项取自** `pfnFormatLine`／`pfnGetAttachedObjectsInTextLine` 的**真返回值**；
+     · 浮动盒**矩形**沿用本移植既有的**自约定**几何（`wpf_pts_att_geometry`），具名
+       `NOINFO=float-rect-self-convention` —— 该矩形**同时**是托管侧 `ArrangeFigure/Floater` 的输入
+       ⇒ 两侧**同源**；它**不是**"上游真几何"；
+     · 段的**页内 v 原点**本侧无源（`urStartTrack` 一直传 0，承 `NOINFO-FSGEOMETRY-LAYOUT`）⇒
+       `v0/v1` 按**段内**累计读（与 `T-B4` 的 `vr_start` 同参照）；
+     · 行起点**右移**（`urStartLine`／`urPageLeftMargin`）在托管 `TextParagraph.ReconstructLineVariant`
+       里**没有消费面**（`FormatLineCore(line, pbrlineIn, ctx, dcp, durLine, durTrack, …)` 只带
+       `durLine`／`durTrack`）⇒ 左压盒只能置 `fClearOnLeft` 并**具名**，不假造右移。 */
+#ifndef WPF_PTS_FLOAT_AVOID_DEFAULT
+#define WPF_PTS_FLOAT_AVOID_DEFAULT 1
+#endif
+static int g_pts_fa_gate = -1;
+static int g_pts_fa_plans = 0, g_pts_fa_narrow = 0, g_pts_fa_listen = 0;
+static int wpf_pts_float_avoid_on(void)
+{
+    if (g_pts_fa_gate < 0) {
+        const char *e = getenv("WPF_PTS_FLOAT_AVOID");
+        g_pts_fa_gate = (e && e[0] == '0' && e[1] == 0) ? 0 : WPF_PTS_FLOAT_AVOID_DEFAULT;
+    }
+    return g_pts_fa_gate;
+}
+static int wpf_pts_float_avoid_plan(const wpf_pts_subtrack *leaf,
+                                    int *avail, unsigned char *clr, int maxline)
+{
+    if (!leaf || leaf->magic != WPF_PTS_SUB_MAGIC) return 0;
+    const int n  = leaf->fl_nlines;      /* 发现趟的行数（真台账） */
+    const int na = leaf->fl_att_n;       /* 发现趟的附属对象数（真台账） */
+    if (n <= 0 || na <= 0 || !avail || !clr || maxline <= 0) return 0;
+    int v0 = 0, narrowed = 0;
+    for (int i = 0; i < maxline; i++) {
+        const int src = (i < n) ? i : (n - 1);   /* 真驱趟行数可能多于发现趟 ⇒ 沿用末行约束 */
+        const int h  = leaf->fl_line[src].dvr_ascent + leaf->fl_line[src].dvr_descent;
+        const int v1 = v0 + h;
+        int a_sel = WPF_PTS_FL_DU; int c = 0;
+        for (int a = 0; a < na; a++) {
+            wpf_pts_fsrect R;
+            wpf_pts_att_geometry(a, leaf->fl_att[a].idobj == -2, &R);
+            if (R.dv <= 0) continue;
+            if (!(v1 > R.v && v0 < R.v + R.dv)) continue;    /* 与 [R.v, R.v+R.dv) 无交 */
+            if (R.u > 0 && R.u < a_sel) { a_sel = R.u; c |= 2; }
+            else if (R.u <= 0)          { c |= 1; }
+        }
+        avail[i] = a_sel; clr[i] = (unsigned char)c;
+        if (a_sel < WPF_PTS_FL_DU) narrowed++;
+        v0 = v1;
+    }
+    if (narrowed > 0) g_pts_fa_plans++;
+    fprintf(stderr, "[FLOATAVOID] para=%p nmp=%p nlines=%d natt=%d avail0=%d availN=%d narrowed=%d "
+                    "gate=1 src=wpf_pts_att_geometry NOINFO=float-rect-self-convention\n",
+            (void *)leaf, (void *)leaf->nmp, n, na, avail[0], avail[maxline - 1], narrowed);
+    return narrowed;
+}
+static int wpf_pts_format_one_para(wpf_pts_doc *d, wpf_pts_subtrack *leaf,
+                                   const void *fpFL, const void *fp176, const void *fp192,
+                                   const char *where)
+{
+    if (!wpf_pts_float_avoid_on())        /* 反极性闸（显式 `WPF_PTS_FLOAT_AVOID=0`）⇒ 逐字回改前 */
+        return wpf_pts_format_one_para_ex(d, leaf, fpFL, fp176, fp192, where, NULL, NULL, 0);
+    /* ① 发现趟：不驱内容、不为附属对象造客户端（⇒ 本趟不产生任何视觉） */
+    wpf_pts_format_one_para_ex(d, leaf, fpFL, fp176, fp192, where, NULL, NULL, 1);
+    if (leaf->fl_att_n <= 0)              /* 本段无附属对象 ⇒ 发现趟即终态（与改前逐字同形） */
+        return leaf->fl_ok;
+    /* ② 真驱趟：带逐行绕排约束；本趟台账覆盖发现趟台账（下游回查的是本趟） */
+    int avail[WPF_PTS_FL_MAXLINE]; unsigned char clr[WPF_PTS_FL_MAXLINE];
+    int narrowed = wpf_pts_float_avoid_plan(leaf, avail, clr, WPF_PTS_FL_MAXLINE);
+    int ok = wpf_pts_format_one_para_ex(d, leaf, fpFL, fp176, fp192, where, avail, clr, 0);
+    g_pts_fa_narrow += narrowed;
+    if (leaf->fl_nlines > g_pts_fa_listen) g_pts_fa_listen = leaf->fl_nlines;
+    return ok;
 }
 // `FsQueryAttachedObjectList`：按**文本段落**认领，返回该段附属对象描述数组（`Figure`/`Floater`）。
 int FsQueryAttachedObjectList(void *pfscontext, void *pPara, int cAttachedObject,

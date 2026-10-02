@@ -31,7 +31,7 @@
 #   并**断言相等**（不等即 `rc=9` 停手 = 基底漂移），再把 `tool/dead/artifact/ops/impl`
 #   交给牙**现算对账**（不等即牙红 —— 那才是"数漂了"，与基底漂移是两回事，分开报）。
 # ══════════════════════════════════════════════════════════════════════════════════
-# PTSGAP-DECL: tool=54 dead=11 artifact=1 ops=42 impl=42 so16=c1cf5e6a8d14cd46 exports=846 w66pre16=bf6b683d94549087
+# PTSGAP-DECL: tool=54 dead=11 artifact=1 ops=42 impl=42 so16=5f9ed647c68197ae exports=846 w66pre16=bf6b683d94549087
 #   ⚠️ 波 `T-A72` 重锚（`TASK-0307` 增量 · **LS 会话进链 ＝ `PRECOND-LS-SESSION-DRIVER`**（`W` 合取第 ① 条）＋
 #     **契约 `C2` 的 `ploc` 一半**，`build/MilBridge/P1-ls-callback-face-recon.md:85` ／
 #     `build/MilBridge/P1-ls-provenance-contract.md:70` ／ `build/MilBridge/P1-tail2-dingrecon.md:91`）：
