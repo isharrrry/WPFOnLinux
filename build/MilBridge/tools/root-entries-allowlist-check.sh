@@ -114,6 +114,7 @@ wpf-linux.sln	移植面：移植侧解决方案（区别于已退役的 `Microso
 multi.txt	工作树独有：`P0` 迁移从 `#76` 冻结树带回来的 **0 字节**件（`O` 独有；仓内零读者；未入库、本地 exclude）；**待清**：若要删须独立成波并同步本条（见 P0 报告 §10-4）
 .agent-teams	工作树独有：AgentTeams 状态目录（harness 造、本地 `.git/info/exclude` 排除、**从不入库**）
 .narnat	工作树独有：Narnat Agent 运行状态目录（harness 造、本地 `.git/info/exclude` 排除、**从不入库**）
+.agents	工作树独有：Narnat Agent 运行时目录（`plans/`＋`skills/`；harness 造、仓内 `.gitignore` 已忽略、**从不入库**）
 ALLOWLIST
 }
 
