@@ -1153,4 +1153,196 @@ namespace WpfGfx.Linux.Interop
             }
         }
     }
+
+    /// <summary>
+    /// `wpfgfx_cor3.so`（AOT 桥）里 **SkiaSharp 的 `libSkiaSharp`** 的 P/Invoke 解析器。
+    ///
+    /// 【它解决什么（R-GATE 现场；见 `build/MilBridge/P1-rgate-regress-report.md`）】
+    ///   `wpfgfx_cor3.so` 是 NativeAOT 共享库 —— 它内部的 `AppContext.BaseDirectory` **不是**
+    ///   宿主应用目录（实测是 dotnet 根目录 `~/.dotnet`）⇒ SkiaSharp 的 `[DllImport("libSkiaSharp")]`
+    ///   在默认探测里必然落空 ⇒ SkiaSharp 类型初始化抛 `TypeInitializationException`
+    ///   ⇒ `RenderChannel` 抛 ⇒ 呈现返回 `E_FAIL` ⇒ `DUCE.Channel.Commit()` 抛未捕获
+    ///   `COMException(0x80004005)` ⇒ **应用 abort**（`WM_SIZE` 第一帧就死，R-GATE 因此恒红）。
+    ///
+    /// 【为什么候选里必须有"应用局部 NuGet 原生布局"这一档】
+    ///   部署契约是"`libSkiaSharp.so` 与 `wpfgfx_cor3.so` 同目录"。而 .NET SDK 把
+    ///   `SkiaSharp.NativeAssets.Linux` 的原生资产放进 `runtimes/&lt;rid&gt;/native/`（**不是**输出根）
+    ///   ⇒ "整目录拷贝一个应用目录"装配出来的宿主里，`libSkiaSharp.so` **只可能**出现在
+    ///   `&lt;应用目录&gt;/runtimes/&lt;rid&gt;/native/`。只看"与 .so 同目录"的旧解析器在这类宿主上
+    ///   恒加载失败（历史绿靠 `samples/*/bin` 里**手工留的陈旧副本**撑着）。
+    ///
+    /// 【与 `MilBridge.NativeSearchPath` 的关系（**不是第二份判据**）】
+    ///   `SetDllImportResolver` **按程序集**生效且只能装一次。MilBridge 给 SkiaSharp 装过一次；
+    ///   本文件的 `[ModuleInitializer]` 实测先跑（`WpfGfx.Linux` 是依赖方）⇒ 由本文件接管，
+    ///   MilBridge 那次 `SetDllImportResolver` 抛 `InvalidOperationException` 并被它自己 catch（它的既有设计）。
+    ///   ⇒ 本件的候选集**必须覆盖** MilBridge 原本覆盖的那几档（同目录 ＋ `dladdr` 自定位 ＋
+    ///   `AppContext.BaseDirectory` ＋ `LD_LIBRARY_PATH`），**只追加** `runtimes/&lt;rid&gt;/native/` 一档。
+    ///   ⚠️ 全部落空时**返回 0**（交回默认探测，让它报带完整路径的错）——**不伪造成功**。
+    /// </summary>
+    internal static unsafe class MilBridgeSkiaResolver
+    {
+        /// <summary>SkiaSharp 的 P/Invoke 目标库名（其 `DllImport` 用的裸名）。</summary>
+        private const string SkiaLibraryName = "libSkiaSharp.so";
+
+        /// <summary>显式覆盖（诊断/多版本并存场景；与 `MILBRIDGE_MILCORE_SO` 同族）。</summary>
+        private const string SkiaPathEnvVar = "MILBRIDGE_SKIA_SO";
+
+        private static int _installed;
+
+        [System.Runtime.CompilerServices.ModuleInitializer]
+        internal static void Install()
+        {
+            if (System.Threading.Interlocked.Exchange(ref _installed, 1) != 0) return;
+            try
+            {
+                // SkiaSharp 是被 AOT 编进本镜像的；它的 P/Invoke 归**它自己那个程序集**的解析器管。
+                System.Reflection.Assembly skia = typeof(SkiaSharp.SKBitmap).Assembly;
+                NativeLibrary.SetDllImportResolver(skia, Resolve);
+            }
+            catch (InvalidOperationException)
+            {
+                // 已有别的解析器（MilBridge 抢先）——让位，退回它的候选集（与该文件独立时的历史一致）。
+            }
+            catch
+            {
+                // 解析器装不上不影响主链路：默认探测照旧
+            }
+        }
+
+        private static IntPtr Resolve(string libraryName, System.Reflection.Assembly assembly,
+                                      DllImportSearchPath? searchPath)
+        {
+            if (string.IsNullOrEmpty(libraryName) ||
+                libraryName.IndexOf("SkiaSharp", StringComparison.Ordinal) < 0)
+            {
+                return IntPtr.Zero;   // 不是我们管的库
+            }
+
+            foreach (string candidate in Candidates())
+            {
+                if (string.IsNullOrEmpty(candidate)) continue;
+                try
+                {
+                    if (System.IO.File.Exists(candidate)) return NativeLibrary.Load(candidate);
+                }
+                catch
+                {
+                    // 试下一档
+                }
+            }
+
+            return IntPtr.Zero;       // 找不到 ⇒ 交回默认探测（**报错必须响亮**）
+        }
+
+        private static string[] Candidates()
+        {
+            var list = new System.Collections.Generic.List<string>();
+            string[] rids = Rids();
+
+            void AddDir(string dir)
+            {
+                if (string.IsNullOrEmpty(dir)) return;
+                list.Add(System.IO.Path.Combine(dir, SkiaLibraryName));                       // 部署契约：与 .so 同目录
+                foreach (string rid in rids)
+                    list.Add(System.IO.Path.Combine(dir, "runtimes", rid, "native", SkiaLibraryName)); // NuGet/应用局部原生布局
+            }
+
+            string env = Environment.GetEnvironmentVariable(SkiaPathEnvVar);
+            if (!string.IsNullOrEmpty(env)) list.Add(env);
+
+            AddDir(SelfDirectory);                                // 本 .so 所在目录（dladdr 自定位）
+            AddDir(MilExternalHandleBridge.SearchDirectory);      // 宿主注入的"本 .so 所在目录"
+            AddDir(AppContext.BaseDirectory);                     // 宿主应用目录（AOT 里常是 dotnet 根 ⇒ 兜底）
+
+            string ldPath = Environment.GetEnvironmentVariable("LD_LIBRARY_PATH");
+            if (!string.IsNullOrEmpty(ldPath))
+                foreach (string dir in ldPath.Split(':'))
+                    if (!string.IsNullOrEmpty(dir)) list.Add(System.IO.Path.Combine(dir, SkiaLibraryName));
+
+            return list.ToArray();
+        }
+
+        private static string[] Rids()
+        {
+            string rid = RuntimeInformation.RuntimeIdentifier;
+            if (string.IsNullOrEmpty(rid)) return new[] { "linux-x64" };
+            // Linux/x64 上 `linux-x64` 是唯一实用值；其余（arm64…）以本机 RID 为准，仍带上 x64 兜底。
+            return string.Equals(rid, "linux-x64", StringComparison.Ordinal)
+                ? new[] { rid } : new[] { rid, "linux-x64" };
+        }
+
+        // ==================================================================
+        //  自我定位（dladdr）—— 与 `MilBridge.NativeSearchPath.SelfDirectory` 同一手法：
+        //  取本镜像里某个 `[UnmanagedCallersOnly]` 方法的地址，dladdr 据此回报 .so 路径
+        //  （纯 C 宿主直接 dlopen 本 .so、没有托管解析器注入目录时也能定位）。
+        // ==================================================================
+        private static string _selfDir;
+        private static bool _selfDirProbed;
+
+        internal static string SelfDirectory
+        {
+            get
+            {
+                if (!_selfDirProbed)
+                {
+                    _selfDirProbed = true;
+                    try
+                    {
+                        delegate* unmanaged<byte*, int> self = &SelfProbe;
+                        if (TryDladdr((IntPtr)self, out string path) && !string.IsNullOrEmpty(path))
+                            _selfDir = System.IO.Path.GetDirectoryName(System.IO.Path.GetFullPath(path));
+                    }
+                    catch
+                    {
+                        // 定位不了 ⇒ 退回落链的后面几档
+                    }
+                }
+                return _selfDir;
+            }
+        }
+
+        /// <summary>只为提供"本 .so 里一个稳定地址"（无 EntryPoint ⇒ **不新增任何导出**）。</summary>
+        [UnmanagedCallersOnly]
+        private static int SelfProbe(byte* ignored) => 0;
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct DlInfo
+        {
+            public IntPtr dli_fname;
+            public IntPtr dli_fbase;
+            public IntPtr dli_sname;
+            public IntPtr dli_saddr;
+        }
+
+        [DllImport("libdl.so.2", EntryPoint = "dladdr")]
+        private static extern int DladdrLibdl(IntPtr addr, out DlInfo info);
+
+        [DllImport("libc.so.6", EntryPoint = "dladdr")]
+        private static extern int DladdrLibc(IntPtr addr, out DlInfo info);
+
+        private static bool TryDladdr(IntPtr addr, out string path)
+        {
+            path = null;
+            DlInfo info;
+            int rc;
+            try
+            {
+                rc = DladdrLibdl(addr, out info);
+            }
+            catch (DllNotFoundException)
+            {
+                // glibc ≥ 2.34 把 dladdr 并进 libc（libdl 只是兼容壳）
+                try { rc = DladdrLibc(addr, out info); }
+                catch { return false; }
+            }
+            catch
+            {
+                return false;
+            }
+
+            if (rc == 0 || info.dli_fname == IntPtr.Zero) return false;
+            path = Marshal.PtrToStringUTF8(info.dli_fname);
+            return !string.IsNullOrEmpty(path);
+        }
+    }
 }
