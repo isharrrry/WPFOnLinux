@@ -75,3 +75,6 @@ tests/parity/windows/layout-b34/windows-results.json
 #   tests/parity/windows/**/PROVENANCE.md —— 真值的来源与可追溯信息
 #   docs/CURRENT-STATE.md                 —— 当前状态一页纸（含唯一 BASELINE-FROZEN 机器行）
 # ══════════════════════════════════════════════════════════════════════════════
+
+# narnat 框架运行时目录（非仓内容；勿提交）
+.agents/
