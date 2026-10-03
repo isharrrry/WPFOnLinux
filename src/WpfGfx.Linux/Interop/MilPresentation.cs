@@ -860,12 +860,34 @@ namespace WpfGfx.Linux.Interop
                 }
 
                 int orphans = 0;
-                foreach (MilVisualNode v in all) if (!reach.Contains(v.Handle.Value)) orphans++;
+                var orphanInfo = new System.Text.StringBuilder();
+                foreach (MilVisualNode v in all)
+                {
+                    if (reach.Contains(v.Handle.Value)) continue;
+                    orphans++;
+                    if (orphanInfo.Length > 600) continue;
+                    // T-B19 只读：孤立子树的规模与"带内容"节点数（判"页视觉是否没被投影"）。
+                    int sub = 0, subContent = 0;
+                    var st = new System.Collections.Generic.Stack<DUCE.ResourceHandle>();
+                    st.Push(v.Handle);
+                    var seen = new System.Collections.Generic.HashSet<uint>();
+                    while (st.Count > 0)
+                    {
+                        DUCE.ResourceHandle hh = st.Pop();
+                        if (hh.IsNull || !seen.Add(hh.Value)) continue;
+                        sub++;
+                        MilVisualNode nn = channel.GetVisual(hh);
+                        if (nn == null) continue;
+                        if (!nn.Content.IsNull) subContent++;
+                        foreach (DUCE.ResourceHandle c in nn.Children) st.Push(c);
+                    }
+                    orphanInfo.Append($" [孤立 h=0x{v.Handle.Value:x} 子树={sub} 带内容={subContent}]");
+                }
 
                 Trace($"ROOTDIAG 通道{channel.Id} target.Root=0x{target.Root.Value:x}"
                       + $" 快照子={snapChildren} 活投影子={liveChildren}"
                       + $" 镜像visual={all.Count} 从根可达={reach.Count} 孤立={orphans}"
-                      + $" 资源={channel.Resources.Count}");
+                      + $" 资源={channel.Resources.Count}{orphanInfo}");
             }
             catch (Exception ex)
             {
@@ -1138,6 +1160,7 @@ namespace WpfGfx.Linux.Interop
             {
                 frame = RenderChannel(channel, root, width, height, target.ClearColor);
                 drawn = DrawnCommands; notDrawn = NotDrawnCommands; notDrawnSummary = NotDrawnSummary;
+                MilPresentProbe.OnPresent(callNo, hwnd, width, height, drawn, notDrawn, root, channel);
             }
             catch (Exception ex)
             {

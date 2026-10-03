@@ -496,6 +496,19 @@ namespace System.Windows.Controls.Primitives
         protected override Visual GetVisualChild(int index)
         {
             WpfLinuxPageViewProbe.ReportVisit("DPV.GetVisualChild", this, _pageHost, index);
+            // ── `T-B19`（`TAB3-PAGE-RENDER`）：`T-B12` 的"在屏页被搬空"修复**挂晚了** ──────────
+            //  【现取】`T-B12` 的 `RedrivePageVisualsForDisplay` 只挂在 `FlowDocumentPage.Visual`
+            //   的 **getter** 上（＝`ArrangeOverride` 里读 `_documentPage.Visual` 那一刻）⇒ 本代树上
+            //   `[PAGEVIS] site=PTSP.RedrivePageVisuals` **11 趟腿全 0 次**（＝一次都没动手）。
+            //   而页子树的容器（`trackVisual`／`floatingElementsVisual`）是在**布局之后、成帧之前**
+            //   被搬空的（`[PAGEVIEW] site=PH.UpdParaList.new oldParent=<本页 trackVisual>`）
+            //   ⇒ `Arrange` 结束时还"非空"、渲染遍历时已"空"。
+            //  【修法（**同源**）】把**同一条**修复挪到**渲染遍历入口**（`GetVisualChild` 是渲染/命中
+            //   遍历枚举子节点的唯一出口，`[PAGEVIEW] site=DPV.GetVisualChild` 现取每趟数百次）。
+            //   · **不**新增任何几何/native 真值；**不**删/放宽断言；**不**改 `T-B12` 原有的挂钩；
+            //   · 修复体**只在"确已空"时**动手（`trackVisual.Children.Count == 0` / `floating.Children.Count == 0`）
+            //   · 闸沿用 `T-B12` 的 `WPF_PAGEPAGE_REDRIVE`（缺省开 ⇒ `=0` 即反极性回上游行为）。
+            WpfLinuxPageViewProbe.RedrivePageVisuals(_documentPage);
             if (index != 0 || _pageHost == null)
             {
                 throw new ArgumentOutOfRangeException(nameof(index), index, SR.Visual_ArgumentOutOfRange);

@@ -107,6 +107,7 @@ namespace MS.Internal.Documents
             set
             {
                 ContainerVisual pageVisualHost;
+                WpfLinuxPageViewProbe.ReportHostSetSeq(this, _pageVisual, value);
                 // ── `T-B11`（`PAGEVIEW-ONSCREEN`）：照 `FlowDocumentView` 范式挂载页视觉 ──────────
                 //  `FlowDocumentView` 那条**可用**接线是"宿主**自己**把页视觉对象 `AddVisualChild`
                 //  进自己的视觉树 ＋ 显式定位"（`FlowDocumentView.Linux.cs:247-254`），**不**经内层
@@ -601,6 +602,62 @@ namespace MS.Internal.Documents
                  + " hostRender=" + ((host == null) ? "null" : S(host.RenderSize))
                  + " page=" + Id(page)
                  + " NOINFO=dpv-arrangeend-readonly");
+        }
+
+        // ── `T-B19`：`PageVisual` setter 的**每一次调用**逐条（独立 env，不共享 `Gate` 的 trace 预算）──
+        //  【要回答的问题】`tab3` 稳态呈现里页子树**不在** milcore 树里；`[DPH] site=Attach` 只在
+        //    `Gate`（TraceMax=600）里各 1 条 ⇒ "setter 被调了几次、旧值被清掉后有没有再挂回来"
+        //    没有直读面。本节把它变成**逐条**读数。只读；`WPF_DPH_SET_PROBE=1` 才开（缺省零输出）。
+        private static int _setProbeOn = -1;
+        internal static bool SetProbeOn2
+        {
+            get
+            {
+                if (_setProbeOn < 0)
+                {
+                    string s = null;
+                    try { s = System.Environment.GetEnvironmentVariable("WPF_DPH_SET_PROBE"); }
+                    catch (System.Exception) { s = null; }
+                    _setProbeOn = (s == "1") ? 1 : 0;
+                }
+                return _setProbeOn == 1;
+            }
+        }
+
+        private static long _setSeqNo;
+
+        internal static void ReportHostSetSeq(Visual host, Visual oldVal, Visual newVal)
+        {
+            if (!SetProbeOn2) { return; }
+            try
+            {
+                string shell = (oldVal == null) ? "null" : ParentId(oldVal);
+                Emit("[DPHSET] seq=" + (++_setSeqNo) + " host=" + Id(host)
+                     + " old=" + Id(oldVal) + " new=" + Id(newVal)
+                     + " same=" + (ReferenceEquals(oldVal, newVal) ? 1 : 0)
+                     + " oldParent=" + shell
+                     + " oldKids=" + Kids(oldVal) + " oldBounds=" + Bounds(oldVal)
+                     + " newKids=" + Kids(newVal) + " newBounds=" + Bounds(newVal)
+                     + " oldPS=" + PS(oldVal) + " newPS=" + PS(newVal)
+                     + " NOINFO=dphsetseq-readonly");
+            }
+            catch (System.Exception) { }
+        }
+
+        // ── `T-B19`：把 `T-B12` 的"在屏页被搬空"修复挪到**渲染遍历入口**（见 `DPV_VISIT_REPL` 的说明）──
+        //  `DocumentPageView.GetVisualChild` 是渲染/命中遍历枚举页宿主的**唯一出口**；在那里把
+        //  "本页自己的段落/浮动视觉"接回本页（只在容器**确已空**时动手；闸沿用 `WPF_PAGEPAGE_REDRIVE`）。
+        //  只读之外**只做托管侧换父**；任何失败**不重抛**（它是可选修复路径，不许盖掉页面自身显示）。
+        internal static void RedrivePageVisuals(object page)
+        {
+            if (page == null) { return; }
+            try
+            {
+                MS.Internal.PtsHost.FlowDocumentPage fdp = page as MS.Internal.PtsHost.FlowDocumentPage;
+                if (fdp == null) { return; }
+                fdp.RedrivePageVisualsOnly();
+            }
+            catch (System.Exception) { }
         }
 
         internal static void ReportHostSet(Visual host, Visual pageVisual, Visual newValue)
