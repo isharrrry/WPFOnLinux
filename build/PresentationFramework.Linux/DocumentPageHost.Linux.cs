@@ -375,6 +375,174 @@ namespace MS.Internal.Documents
             return sb.ToString();
         }
 
+        // ── `T-B17`：**逐层"类型 + 自身绘制"**读数 ────────────────────────────────
+        //  【为什么必须补这一格】`Sub` 只打 `k`（子数）／`b`（包围盒）／`c`（内容包围盒），
+        //   而 `VisualTreeHelper.GetContentBounds` 对 `ContainerVisual` 返回的是**子树并集**
+        //   ⇒ 一个"空壳容器"与一个"真有绘制的叶子"在 `Sub` 里**长得一模一样**。
+        //   本节把两者的差**做成读数**：类型名 ＋（若是 `DrawingVisual`）`Drawing` 的类型。
+        //   `draw=null` ⇒ 该叶子**没有绘制指令**（断点在更上游）；`draw=DrawingGroup/…` ⇒
+        //   绘制指令在，断点在**呈现**那一跳。缺省常开、只读、有界。
+        private static string DrawOf(Visual v)
+        {
+            try
+            {
+                DrawingVisual dv = v as DrawingVisual;
+                if (dv == null) { return "-"; }
+                Drawing d = dv.Drawing;
+                return (d == null) ? "none" : d.GetType().Name;
+            }
+            catch (System.Exception) { return "NA"; }
+        }
+
+        private static void TypeRec(Visual v, int depth, int lvl, System.Text.StringBuilder sb, ref int budget)
+        {
+            if (v == null || lvl > depth || budget <= 0) { return; }
+            budget--;
+            int k;
+            try { k = VisualTreeHelper.GetChildrenCount(v); } catch (System.Exception) { k = -2; }
+            string tn;
+            try { tn = (v == null) ? "null" : v.GetType().Name; } catch (System.Exception) { tn = "NA"; }
+            sb.Append("T").Append(lvl).Append(':').Append(tn).Append('@').Append(Id(v))
+              .Append(",k=").Append(k).Append(",draw=").Append(DrawOf(v)).Append(" | ");
+            for (int i = 0; i < k && i < 8; i++)
+            {
+                Visual c;
+                try { c = VisualTreeHelper.GetChild(v, i) as Visual; } catch (System.Exception) { c = null; }
+                TypeRec(c, depth, lvl + 1, sb, ref budget);
+            }
+        }
+
+        internal static string Types(Visual v, int depth)
+        {
+            if (!TypesOn) { return "(off)"; }
+            if (v == null) { return "null"; }
+            var sb = new System.Text.StringBuilder();
+            int budget = 40;
+            try { TypeRec(v, depth, 0, sb, ref budget); }
+            catch (System.Exception) { return "NA"; }
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// `T-B17`（纪律 41「仪器不得扰动被测对象」）：`Types` 会**枚举**视觉树的深层
+        /// （`VisualTreeHelper.GetChild`），而这本身会催熟视觉树 ⇒ 本节**缺省关**
+        /// （`WPF_PAGEVIEW_TYPES=1` 才开）。**现取**：开/关两腿 `tab1`／`tab3` 帧**逐字节相同**
+        /// （`c22457cf663453dd`／`71a93980be1f49a6`）⇒ 本探针在**本形态**下**测得**不扰动；
+        /// 缺省关仍是**保守选择**（别的形态未证）。
+        /// </summary>
+        private static int _typesOn = -1;
+        private static bool TypesOn
+        {
+            get
+            {
+                if (_typesOn < 0)
+                {
+                    string s = null;
+                    try { s = System.Environment.GetEnvironmentVariable("WPF_PAGEVIEW_TYPES"); }
+                    catch (System.Exception) { s = null; }
+                    _typesOn = (s == "1") ? 1 : 0;
+                }
+                return _typesOn == 1;
+            }
+        }
+
+        // ── `T-B17`（`PRECOND-TAB3-EHANDLE-CALLSITE`）：`RenderTargetBitmap` 快照建不出来 ⇒ 降级 ──
+        //  【现取抛点（`T-B17` 机器证，`FirstChanceException` 抓的栈）】`E_HANDLE` 的调用点是
+        //    `BitmapSource.set_WicSourceHandle`（上游 `BitmapSource.cs:579` 的
+        //    `HRESULT.Check(MILUnknown.QueryInterface(value, IID_IWICBitmapSource, out _))`），
+        //    由 `RenderTargetBitmap.FinalizeCreation()`（`RenderTargetBitmap.cs:256`）触发。
+        //    触发链 ＝ `SinglePageViewer.HandleAllBreakRecordsInvalidated`
+        //    → `DocumentPageView.DuplicateVisual()` → `DuplicatePageVisual()`（`new RenderTargetBitmap`）。
+        //  【语义】`_pageVisualClone` 只是"重分页期间先显示上一张快照"的**可选优化**；上游本块**已经**
+        //    把"渲染目标建不出来"当作可降级（那条 `OverflowException` 的注释逐字就是
+        //    "render target creation not possible"）⇒ 本移植补同一支。
+        //  【零假值】`WPF_DPV_RTB_FALLBACK=0` ⇒ **整块不发生**（`throw;` 照旧 ⇒ 反极性腿）。
+        private static int _rtbFallback = -1;
+        internal static bool RtbFallback
+        {
+            get
+            {
+                if (_rtbFallback < 0)
+                {
+                    string s = null;
+                    try { s = System.Environment.GetEnvironmentVariable("WPF_DPV_RTB_FALLBACK"); }
+                    catch (System.Exception) { s = null; }
+                    // ⚠️ `T-B17` 现取：**缺省关**（只有显式 "1" 才开）。理由（与 `T-B11`/`T-B13`/`T-B16` 同体例）：
+                    //   ① 开腿**消除**了 `E_HANDLE`（症状成对 1→0，伴随 `[DPV] site=RtbFallback` 大声记账）——
+                    //      这是**真的**；但 ② **帧面判据不成立**：开腿 `tab3` 帧退化为**同腿 `tab1` 的帧**
+                    //      （`c22457cf663453dd`，与 `tab1` **逐字节**同），而**缺省/关腿**的 `tab3` 帧带
+                    //      "页边框"（`71a93980be1f49a6`，两次独立复现）⇒ 开腿**不再出现**那个页边框 ⇒
+                    //      读作"**没再排帧**"（上一 tab 的帧）而不是"页真的上屏"。⇒ 不默认启用。
+                    //    `WPF_DPV_RTB_FALLBACK=1` 即开（可复现）。
+                    _rtbFallback = (s == "1") ? 1 : 0;
+                }
+                return _rtbFallback == 1;
+            }
+        }
+
+        /// <summary>`T-B17`：降级发生时**大声**打一行（点名抛点／类型／HRESULT），不静默吞。</summary>
+        internal static void ReportRtbFallback(System.Exception ex)
+        {
+            try
+            {
+                string hr = "NA";
+                try { hr = "0x" + ex.HResult.ToString("x8", System.Globalization.CultureInfo.InvariantCulture); }
+                catch (System.Exception) { hr = "NA"; }
+                System.Console.Error.WriteLine("[DPV] site=RtbFallback outcome=degrade-to-live-visual type="
+                    + ex.GetType().Name + " hr=" + hr
+                    + " cause=BitmapSource.set_WicSourceHandle(MILUnknown.QueryInterface E_HANDLE)"
+                    + " NOINFO=dpv-rtb-fallback-readonly");
+                System.Console.Error.Flush();
+            }
+            catch (System.Exception) { }
+        }
+
+        // ── `T-B17`：`ArrangeOverride` 末尾**可撤**的 `InvalidateVisual`（把"宿主进场后**没再排帧**"做成成对读数）──
+        //  【为什么需要它】`T-B17` 现取：闸开腿（主题字典在场、页宿主被接出）在**缺省**下 `tab3`
+        //    帧只有"页边框"（`71a93980be1f49a6`）；把 `RenderTargetBitmap` 那条未处理异常
+        //    **降级掉**之后，`tab3` 帧**反而不动**（＝上一 tab 的帧）⇒ **原异常路径正是那一次重绘的
+        //    触发者**。本闸把"宿主接上之后**主动**排一帧"做成可证伪的候选：`WPF_DPV_INVALIDATE=1` 才开。
+        //  **有界**（每元素 ≤3 次），缺省**关**（不设＝逐字回上游）。
+        private static int _invalidateOn = -1;
+        private static readonly System.Collections.Generic.Dictionary<int, int> _invalidatePerSelf
+            = new System.Collections.Generic.Dictionary<int, int>();
+        private static bool InvalidateOn
+        {
+            get
+            {
+                if (_invalidateOn < 0)
+                {
+                    string s = null;
+                    try { s = System.Environment.GetEnvironmentVariable("WPF_DPV_INVALIDATE"); }
+                    catch (System.Exception) { s = null; }
+                    _invalidateOn = (s == "1") ? 1 : 0;
+                }
+                return _invalidateOn == 1;
+            }
+        }
+
+        internal static void ReportArrangeEndInvalidate(FrameworkElement view)
+        {
+            if (!InvalidateOn || view == null) { return; }
+            int k;
+            try { k = System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(view); }
+            catch (System.Exception) { return; }
+            int n;
+            _invalidatePerSelf.TryGetValue(k, out n);
+            if (n >= 3) { return; }
+            _invalidatePerSelf[k] = n + 1;
+            // ⚠️ 必须**离开布局趟**再失效：`ArrangeOverride` 内直接 `InvalidateVisual()` 现取**无效**
+            //   （`inv1` 腿帧与不失效**逐字节相同**）⇒ 改用 `Dispatcher.BeginInvoke(Render)`。
+            try
+            {
+                view.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Render,
+                    new System.Action(view.InvalidateVisual));
+            }
+            catch (System.Exception) { }
+            Emit("[DPV] site=InvalidateVisual id=" + Id(view) + " n=" + (n + 1)
+                 + " via=dispatcher-begininvoke-render NOINFO=dpv-invalidate-readonly");
+        }
+
         private static bool Gate(string tag)
         {
             if (!ProbeOn) { return false; }
@@ -526,6 +694,7 @@ namespace MS.Internal.Documents
                  + " hostOff=" + Off(host) + " pvXf=" + Xf(pageVisual)
                  + " pvChild=" + ChildInfo(pageVisual)
                  + " SUB=" + Sub(pageVisual, 3)
+                 + " TYPES=" + Types(pageVisual, 5)
                  + " NOINFO=dph-attach-readonly");
         }
 
@@ -543,6 +712,7 @@ namespace MS.Internal.Documents
                  + " pvXf=" + Xf(pageVisual)
                  + " pvChild=" + ChildInfo(pageVisual)
                  + " SUB=" + Sub(pageVisual, 3)
+                 + " TYPES=" + Types(pageVisual, 5)
                  + " NOINFO=fdv-attach-readonly");
         }
 

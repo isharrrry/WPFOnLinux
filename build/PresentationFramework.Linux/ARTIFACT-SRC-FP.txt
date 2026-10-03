@@ -5,30 +5,32 @@
 #   只覆盖 src 时 `state=ok` 是**必要不充分**（源没变、peer 变了 ⇒ 产物照样变）。
 # 排除：build/PresentationFramework.Linux/{bin,obj}/**、.artifacts/**、本文件自己
 # 重算比对：python3 build/artifact-src-fp.py --check（缺本文件 / 缺被引产物 / 旧格式 ⇒ noinfo，**不报绿**）
-fp=2d9850ef7730f884
-n=1370
-peer_fp=0df97b53a934c1f0
+fp=c4ed6824b45a16f7
+n=1371
+peer_fp=b5904d57ecf804ed
 peer_n=8
 tool_sha256=e856e2e65e6c59cadd8e68b6a39c00b483992f9fdd459fb94c8b0221f8e597fd
 # 被引产物（sha256 前 16 + 仓库相对路径；**产物字节**，不是源）
 peer=794b4e370cdc10f6  build/CycleStub.PresentationUI.Linux/bin/Debug/PresentationUI.dll
-peer=8e0234c89b452487  build/PresentationCore.Linux/bin/Debug/PresentationCore.dll
+peer=eb3f61e282265518  build/PresentationCore.Linux/bin/Debug/PresentationCore.dll
 peer=4ad865dc4dae33d0  build/System.Printing.Linux/bin/Debug/System.Printing.dll
 peer=4499439dff4b1e54  build/System.Windows.Extensions.Linux/bin/Debug/System.Windows.Extensions.dll
 peer=420cbceacd88a781  build/System.Xaml.Linux/bin/Debug/System.Xaml.dll
 peer=dfa312b2111c42f1  build/UIAutomationProvider.Linux/bin/Debug/UIAutomationProvider.dll
 peer=62da3e2b3e9b73e6  build/UIAutomationTypes.Linux/bin/Debug/UIAutomationTypes.dll
-peer=0b54a1e3f9d37ab1  build/WindowsBase.Linux/bin/Debug/WindowsBase.dll
+peer=05bdde9b5527bfde  build/WindowsBase.Linux/bin/Debug/WindowsBase.dll
 # 逐文件（**源侧**）：sha256 前 16 + 仓库相对路径；只列**本仓自有输入**（`upstream/**` 不列，用 --list 看全量）
 file=651568e88e93d82b  build/PresentationFramework.Linux/Baml2006SchemaContext.Linux.cs
 file=7dfa5450402095f3  build/PresentationFramework.Linux/ContainerParaClient.Linux.cs
 file=6d508ccc41d0e07b  build/PresentationFramework.Linux/DeferredTextReference.Linux.cs
-file=6fcc728a65843f22  build/PresentationFramework.Linux/DocumentPageHost.Linux.cs
+file=36fa131ef4aef134  build/PresentationFramework.Linux/DocumentPageHost.Linux.cs
 file=70ae72ea3e452774  build/PresentationFramework.Linux/DocumentPageView.Linux.cs
+file=70e395afa5348418  build/PresentationFramework.Linux/DocumentViewerBase.Linux.cs
 file=9364faea7ce43e1d  build/PresentationFramework.Linux/FigureParaClient.Linux.cs
 file=5270d9391aa9bce4  build/PresentationFramework.Linux/FlowDocumentFormatter.Linux.cs
 file=2630c4d441f403d6  build/PresentationFramework.Linux/FlowDocumentPage.Linux.cs
 file=5b6035354f0f1a72  build/PresentationFramework.Linux/FlowDocumentPaginator.Linux.cs
+file=ba6ac9596b58f4df  build/PresentationFramework.Linux/FlowDocumentReader.Linux.cs
 file=87c24a24095e6362  build/PresentationFramework.Linux/FlowDocumentView.Linux.cs
 file=3af06981155e89aa  build/PresentationFramework.Linux/FrameworkElement.Linux.cs
 file=3297abe6ad00d4ad  build/PresentationFramework.Linux/PtsCache.Linux.cs
@@ -48,9 +50,10 @@ file=9e8867f91e12207f  build/PresentationFramework.Linux/WpfLinuxCpDcpMapProbe.L
 file=519fd5889d979537  build/PresentationFramework.Linux/WpfLinuxLineBreakProbe.Linux.cs
 file=47207a1a5a616fca  build/PresentationFramework.Linux/WpfLinuxLsSessionProbe.Linux.cs
 file=4463d080a91b7f20  build/PresentationFramework.Linux/WpfLinuxPageVisProbe.Linux.cs
+file=64fd9a7d67dcb22f  build/PresentationFramework.Linux/WpfLinuxReaderPageHost.Linux.cs
 file=a1a8eea8212f23c1  build/PresentationFramework.Linux/WpfLinuxTextParaChainProbe.Linux.cs
 file=d0d77fc5a7a822dc  build/PresentationFramework.Linux/WpfLinuxTextSrcProbe.Linux.cs
-file=131e1181b5fc8269  build/PresentationFramework.Linux/reapply-patches.py
+file=e98a615ff5c376bc  build/PresentationFramework.Linux/reapply-patches.py
 file=900dad4a3d1ca2d2  build/port-lib.py
 file=693b56ac590ef85d  build/shims/LinuxAssemblyIdentity.cs
 file=4429ff9a973a8375  build/shims/PresentationFramework.AssemblyAttrs.Shim.cs

@@ -161,6 +161,8 @@ PATCH_C = '''  <!-- ============================================================
     <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/WpfLinuxReaderPageHost.Linux.cs" />
     <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Controls/Primitives/DocumentViewerBase.cs" />
     <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/DocumentViewerBase.Linux.cs" />
+    <!-- T-B17（PRECOND-TAB3-EHANDLE-CALLSITE）：E_HANDLE 抛点的只读捕获器（FirstChanceException） -->
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/WpfLinuxEHandleProbe.Linux.cs" />
   </ItemGroup>
 '''
 
@@ -1999,6 +2001,174 @@ DPH_TAIL_REPL = """        private Visual _pageVisual;
             return sb.ToString();
         }
 
+        // ── `T-B17`：**逐层"类型 + 自身绘制"**读数 ────────────────────────────────
+        //  【为什么必须补这一格】`Sub` 只打 `k`（子数）／`b`（包围盒）／`c`（内容包围盒），
+        //   而 `VisualTreeHelper.GetContentBounds` 对 `ContainerVisual` 返回的是**子树并集**
+        //   ⇒ 一个"空壳容器"与一个"真有绘制的叶子"在 `Sub` 里**长得一模一样**。
+        //   本节把两者的差**做成读数**：类型名 ＋（若是 `DrawingVisual`）`Drawing` 的类型。
+        //   `draw=null` ⇒ 该叶子**没有绘制指令**（断点在更上游）；`draw=DrawingGroup/…` ⇒
+        //   绘制指令在，断点在**呈现**那一跳。缺省常开、只读、有界。
+        private static string DrawOf(Visual v)
+        {
+            try
+            {
+                DrawingVisual dv = v as DrawingVisual;
+                if (dv == null) { return "-"; }
+                Drawing d = dv.Drawing;
+                return (d == null) ? "none" : d.GetType().Name;
+            }
+            catch (System.Exception) { return "NA"; }
+        }
+
+        private static void TypeRec(Visual v, int depth, int lvl, System.Text.StringBuilder sb, ref int budget)
+        {
+            if (v == null || lvl > depth || budget <= 0) { return; }
+            budget--;
+            int k;
+            try { k = VisualTreeHelper.GetChildrenCount(v); } catch (System.Exception) { k = -2; }
+            string tn;
+            try { tn = (v == null) ? "null" : v.GetType().Name; } catch (System.Exception) { tn = "NA"; }
+            sb.Append("T").Append(lvl).Append(':').Append(tn).Append('@').Append(Id(v))
+              .Append(",k=").Append(k).Append(",draw=").Append(DrawOf(v)).Append(" | ");
+            for (int i = 0; i < k && i < 8; i++)
+            {
+                Visual c;
+                try { c = VisualTreeHelper.GetChild(v, i) as Visual; } catch (System.Exception) { c = null; }
+                TypeRec(c, depth, lvl + 1, sb, ref budget);
+            }
+        }
+
+        internal static string Types(Visual v, int depth)
+        {
+            if (!TypesOn) { return "(off)"; }
+            if (v == null) { return "null"; }
+            var sb = new System.Text.StringBuilder();
+            int budget = 40;
+            try { TypeRec(v, depth, 0, sb, ref budget); }
+            catch (System.Exception) { return "NA"; }
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// `T-B17`（纪律 41「仪器不得扰动被测对象」）：`Types` 会**枚举**视觉树的深层
+        /// （`VisualTreeHelper.GetChild`），而这本身会催熟视觉树 ⇒ 本节**缺省关**
+        /// （`WPF_PAGEVIEW_TYPES=1` 才开）。**现取**：开/关两腿 `tab1`／`tab3` 帧**逐字节相同**
+        /// （`c22457cf663453dd`／`71a93980be1f49a6`）⇒ 本探针在**本形态**下**测得**不扰动；
+        /// 缺省关仍是**保守选择**（别的形态未证）。
+        /// </summary>
+        private static int _typesOn = -1;
+        private static bool TypesOn
+        {
+            get
+            {
+                if (_typesOn < 0)
+                {
+                    string s = null;
+                    try { s = System.Environment.GetEnvironmentVariable("WPF_PAGEVIEW_TYPES"); }
+                    catch (System.Exception) { s = null; }
+                    _typesOn = (s == "1") ? 1 : 0;
+                }
+                return _typesOn == 1;
+            }
+        }
+
+        // ── `T-B17`（`PRECOND-TAB3-EHANDLE-CALLSITE`）：`RenderTargetBitmap` 快照建不出来 ⇒ 降级 ──
+        //  【现取抛点（`T-B17` 机器证，`FirstChanceException` 抓的栈）】`E_HANDLE` 的调用点是
+        //    `BitmapSource.set_WicSourceHandle`（上游 `BitmapSource.cs:579` 的
+        //    `HRESULT.Check(MILUnknown.QueryInterface(value, IID_IWICBitmapSource, out _))`），
+        //    由 `RenderTargetBitmap.FinalizeCreation()`（`RenderTargetBitmap.cs:256`）触发。
+        //    触发链 ＝ `SinglePageViewer.HandleAllBreakRecordsInvalidated`
+        //    → `DocumentPageView.DuplicateVisual()` → `DuplicatePageVisual()`（`new RenderTargetBitmap`）。
+        //  【语义】`_pageVisualClone` 只是"重分页期间先显示上一张快照"的**可选优化**；上游本块**已经**
+        //    把"渲染目标建不出来"当作可降级（那条 `OverflowException` 的注释逐字就是
+        //    "render target creation not possible"）⇒ 本移植补同一支。
+        //  【零假值】`WPF_DPV_RTB_FALLBACK=0` ⇒ **整块不发生**（`throw;` 照旧 ⇒ 反极性腿）。
+        private static int _rtbFallback = -1;
+        internal static bool RtbFallback
+        {
+            get
+            {
+                if (_rtbFallback < 0)
+                {
+                    string s = null;
+                    try { s = System.Environment.GetEnvironmentVariable("WPF_DPV_RTB_FALLBACK"); }
+                    catch (System.Exception) { s = null; }
+                    // ⚠️ `T-B17` 现取：**缺省关**（只有显式 "1" 才开）。理由（与 `T-B11`/`T-B13`/`T-B16` 同体例）：
+                    //   ① 开腿**消除**了 `E_HANDLE`（症状成对 1→0，伴随 `[DPV] site=RtbFallback` 大声记账）——
+                    //      这是**真的**；但 ② **帧面判据不成立**：开腿 `tab3` 帧退化为**同腿 `tab1` 的帧**
+                    //      （`c22457cf663453dd`，与 `tab1` **逐字节**同），而**缺省/关腿**的 `tab3` 帧带
+                    //      "页边框"（`71a93980be1f49a6`，两次独立复现）⇒ 开腿**不再出现**那个页边框 ⇒
+                    //      读作"**没再排帧**"（上一 tab 的帧）而不是"页真的上屏"。⇒ 不默认启用。
+                    //    `WPF_DPV_RTB_FALLBACK=1` 即开（可复现）。
+                    _rtbFallback = (s == "1") ? 1 : 0;
+                }
+                return _rtbFallback == 1;
+            }
+        }
+
+        /// <summary>`T-B17`：降级发生时**大声**打一行（点名抛点／类型／HRESULT），不静默吞。</summary>
+        internal static void ReportRtbFallback(System.Exception ex)
+        {
+            try
+            {
+                string hr = "NA";
+                try { hr = "0x" + ex.HResult.ToString("x8", System.Globalization.CultureInfo.InvariantCulture); }
+                catch (System.Exception) { hr = "NA"; }
+                System.Console.Error.WriteLine("[DPV] site=RtbFallback outcome=degrade-to-live-visual type="
+                    + ex.GetType().Name + " hr=" + hr
+                    + " cause=BitmapSource.set_WicSourceHandle(MILUnknown.QueryInterface E_HANDLE)"
+                    + " NOINFO=dpv-rtb-fallback-readonly");
+                System.Console.Error.Flush();
+            }
+            catch (System.Exception) { }
+        }
+
+        // ── `T-B17`：`ArrangeOverride` 末尾**可撤**的 `InvalidateVisual`（把"宿主进场后**没再排帧**"做成成对读数）──
+        //  【为什么需要它】`T-B17` 现取：闸开腿（主题字典在场、页宿主被接出）在**缺省**下 `tab3`
+        //    帧只有"页边框"（`71a93980be1f49a6`）；把 `RenderTargetBitmap` 那条未处理异常
+        //    **降级掉**之后，`tab3` 帧**反而不动**（＝上一 tab 的帧）⇒ **原异常路径正是那一次重绘的
+        //    触发者**。本闸把"宿主接上之后**主动**排一帧"做成可证伪的候选：`WPF_DPV_INVALIDATE=1` 才开。
+        //  **有界**（每元素 ≤3 次），缺省**关**（不设＝逐字回上游）。
+        private static int _invalidateOn = -1;
+        private static readonly System.Collections.Generic.Dictionary<int, int> _invalidatePerSelf
+            = new System.Collections.Generic.Dictionary<int, int>();
+        private static bool InvalidateOn
+        {
+            get
+            {
+                if (_invalidateOn < 0)
+                {
+                    string s = null;
+                    try { s = System.Environment.GetEnvironmentVariable("WPF_DPV_INVALIDATE"); }
+                    catch (System.Exception) { s = null; }
+                    _invalidateOn = (s == "1") ? 1 : 0;
+                }
+                return _invalidateOn == 1;
+            }
+        }
+
+        internal static void ReportArrangeEndInvalidate(FrameworkElement view)
+        {
+            if (!InvalidateOn || view == null) { return; }
+            int k;
+            try { k = System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(view); }
+            catch (System.Exception) { return; }
+            int n;
+            _invalidatePerSelf.TryGetValue(k, out n);
+            if (n >= 3) { return; }
+            _invalidatePerSelf[k] = n + 1;
+            // ⚠️ 必须**离开布局趟**再失效：`ArrangeOverride` 内直接 `InvalidateVisual()` 现取**无效**
+            //   （`inv1` 腿帧与不失效**逐字节相同**）⇒ 改用 `Dispatcher.BeginInvoke(Render)`。
+            try
+            {
+                view.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Render,
+                    new System.Action(view.InvalidateVisual));
+            }
+            catch (System.Exception) { }
+            Emit("[DPV] site=InvalidateVisual id=" + Id(view) + " n=" + (n + 1)
+                 + " via=dispatcher-begininvoke-render NOINFO=dpv-invalidate-readonly");
+        }
+
         private static bool Gate(string tag)
         {
             if (!ProbeOn) { return false; }
@@ -2150,6 +2320,7 @@ DPH_TAIL_REPL = """        private Visual _pageVisual;
                  + " hostOff=" + Off(host) + " pvXf=" + Xf(pageVisual)
                  + " pvChild=" + ChildInfo(pageVisual)
                  + " SUB=" + Sub(pageVisual, 3)
+                 + " TYPES=" + Types(pageVisual, 5)
                  + " NOINFO=dph-attach-readonly");
         }
 
@@ -2167,6 +2338,7 @@ DPH_TAIL_REPL = """        private Visual _pageVisual;
                  + " pvXf=" + Xf(pageVisual)
                  + " pvChild=" + ChildInfo(pageVisual)
                  + " SUB=" + Sub(pageVisual, 3)
+                 + " TYPES=" + Types(pageVisual, 5)
                  + " NOINFO=fdv-attach-readonly");
         }
 
@@ -2275,6 +2447,7 @@ DPV_ARRANGEEND_NEEDLE = """            return base.ArrangeOverride(finalSize);
 """
 DPV_ARRANGEEND_REPL = """            Size dpvArrangeResult = base.ArrangeOverride(finalSize);
             WpfLinuxPageViewProbe.ReportArrangeEnd(this, finalSize, _pageHost, _documentPage);
+            WpfLinuxPageViewProbe.ReportArrangeEndInvalidate(this);
             return dpvArrangeResult;
 """
 
@@ -2313,6 +2486,62 @@ DPV_CTOR_REPL = """        public DocumentPageView() : base()
         }
 """
 
+# ── `T-B17`（`DPV-CLIPTOBOUNDS`）：`DocumentPageView` 的 `ClipToBounds` 覆盖 —— 可撤闸 ────────
+#  上游此处**无条件**把 `ClipToBounds` 覆盖为 `true`。`T-B17` 现取：`DPV` 子树的**托管结构**与
+#  `FDV`（**画得出**）那条链**同构**（`PageVisual` 自带 `DrawingGroup`、`ParagraphVisual` 叶也带
+#  `DrawingGroup`），两链差的只有"挂在谁身上" ⇒ 怀疑本覆盖让整棵子树在本移植的成帧面上被裁掉。
+#  `WPF_DPV_CLIPTOBOUNDS=0` ⇒ **跳过覆盖**（＝回 `FrameworkElement` 缺省 `false`），把"是不是裁"
+#  做成**成对读数**。⚠️ 缺省仍是**上游行为**（覆盖为 `true`）—— 不设该变量时逐字不变（反极性腿）。
+DPV_CLIP_NEEDLE = """        static DocumentPageView()
+        {
+            ClipToBoundsProperty.OverrideMetadata(typeof(DocumentPageView), new PropertyMetadata(BooleanBoxes.TrueBox));
+        }
+"""
+DPV_CLIP_REPL = """        static DocumentPageView()
+        {
+            string dpvClip = null;
+            try { dpvClip = System.Environment.GetEnvironmentVariable("WPF_DPV_CLIPTOBOUNDS"); }
+            catch (System.Exception) { dpvClip = null; }
+            if (dpvClip != "0")
+            {
+                ClipToBoundsProperty.OverrideMetadata(typeof(DocumentPageView), new PropertyMetadata(BooleanBoxes.TrueBox));
+            }
+        }
+"""
+
+# ── `T-B17`（`PRECOND-TAB3-EHANDLE-CALLSITE`）：`RenderTargetBitmap` 快照建不出来 ⇒ **降级** ──────
+#  【现取（`T-B17` 机器证）】`WPF_EHANDLE_PROBE=1` 的 `FirstChanceException` 抓到的栈是
+#    `MS.Internal.HRESULT.Check` ← `BitmapSource.set_WicSourceHandle`（上游 `BitmapSource.cs:579`
+#    的 `HRESULT.Check(MILUnknown.QueryInterface(value, IID_IWICBitmapSource, out _))`）
+#    ← `RenderTargetBitmap.FinalizeCreation()`（`RenderTargetBitmap.cs:256`）。
+#    触发链 ＝ `SinglePageViewer.HandleAllBreakRecordsInvalidated` → `DocumentPageView.DuplicateVisual()`
+#    → `DuplicatePageVisual()`（`new RenderTargetBitmap(…)`）。
+#  【为什么"降级"是**上游同源**而不是"吞异常"】上游本块**已经**把"渲染目标建不出来"当可降级 ——
+#    紧邻的 `catch(System.OverflowException)` 的注释逐字就是 "render target creation not possible
+#    under current memory conditions"。本移植的 WIC 离屏位图**不存在**（`MILQueryInterface` 对
+#    RTB 的位图句柄答 `E_HANDLE`）⇒ 属**同一语义**的第二种"建不出来"。降级后 `_pageVisualClone`
+#    保持 `null`，`ArrangeOverride` 自然走"显示**实时**页视觉"那一支（不伪造任何几何/内容）。
+#  **大声**（点名抛点＋HRESULT），`WPF_DPV_RTB_FALLBACK=0` ⇒ 整块不发生（反极性腿）。
+DPV_RTB_NEEDLE = """                catch(System.OverflowException)
+                {
+                    // Ignore overflow exception - caused by render target creation not possible under current memory conditions.
+                }
+"""
+DPV_RTB_REPL = """                catch(System.OverflowException)
+                {
+                    // Ignore overflow exception - caused by render target creation not possible under current memory conditions.
+                }
+                catch(System.Runtime.InteropServices.COMException dpvRtbEx)
+                {
+                    // `T-B17`：本移植的 `RenderTargetBitmap` 建不出来（见生成器内该块）⇒ 与上一条**同义**降级。
+                    if (!WpfLinuxPageViewProbe.RtbFallback)
+                    {
+                        throw;
+                    }
+                    WpfLinuxPageViewProbe.ReportRtbFallback(dpvRtbEx);
+                }
+"""
+
 DPV_EDITS = [
     (DPV_MEASURE_NEEDLE, DPV_MEASURE_REPL, 1),
     (DPV_PAGEVISUAL_NEEDLE, DPV_PAGEVISUAL_REPL, 1),
@@ -2321,6 +2550,8 @@ DPV_EDITS = [
     (DPV_VISIT_NEEDLE, DPV_VISIT_REPL, 1),
     (DPV_PAGINATOR_NEEDLE, DPV_PAGINATOR_REPL, 1),
     (DPV_CTOR_NEEDLE, DPV_CTOR_REPL, 1),
+    (DPV_CLIP_NEEDLE, DPV_CLIP_REPL, 1),
+    (DPV_RTB_NEEDLE, DPV_RTB_REPL, 1),
 ]
 DPH_EDITS = [
     (DPH_PROBE_NEEDLE, DPH_PROBE_REPL, 1),
@@ -4526,6 +4757,93 @@ namespace MS.Internal.Documents
 '''
 
 
+EHANDLE_PROBE_FILE = "WpfLinuxEHandleProbe.Linux.cs"
+EHANDLE_PROBE_TEXT = '''// ⚠️ 本文件由 build/PresentationFramework.Linux/reapply-patches.py **生成**，不要手改。
+//
+// `T-B17`（`PRECOND-TAB3-EHANDLE-CALLSITE`）：`E_HANDLE`(`0x80070006`) 抛点的**只读**捕获器。
+//
+// 【它答的问题】`T-B16` 现取：闸开腿上 `[HC-UNHANDLED]` **恒 +1 条** `COMException … E_HANDLE`，
+//   首帧只能拿到 `MS.Internal.HRESULT.Check(Int32 hr)`（那是**抛点**，不是**调用点**）⇒
+//   "谁把 `hr=0x80070006` 交给 `Check`"**没有直读面**。本件用
+//   `AppDomain.CurrentDomain.FirstChanceException`（**首次异常**，比 `DispatcherUnhandledException`
+//   早、且**不改变**异常是否被处理）只读地把**当时的栈**打出来 ⇒ 调用点具名。
+//
+// 【不扰动的保证】① 缺省**全关**（`WPF_EHANDLE_PROBE=1` 才装钩子）；② 钩子**只读**（不 rethrow、
+//   不改 `Handled`、不吞异常）；③ 输出**有界**（≤8 条 × 栈 ≤28 层）；④ 只写 stderr、内部 try/catch 兜底。
+
+using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+namespace MS.Internal.Documents
+{
+    internal static class WpfLinuxEHandleProbe
+    {
+        private const int EHandle = unchecked((int)0x80070006);
+        private const int MaxHits = 8;
+        private const int MaxFrames = 28;
+
+        private static int _on = -1;
+        private static int _hits;
+
+        private static bool On
+        {
+            get
+            {
+                if (_on < 0)
+                {
+                    string s = null;
+                    try { s = Environment.GetEnvironmentVariable("WPF_EHANDLE_PROBE"); }
+                    catch (Exception) { s = null; }
+                    _on = (s == "1") ? 1 : 0;
+                }
+                return _on == 1;
+            }
+        }
+
+#pragma warning disable CA2255
+        [ModuleInitializer]
+        internal static void Install()
+        {
+            if (!On) { return; }
+            try { AppDomain.CurrentDomain.FirstChanceException += OnFirstChance; }
+            catch (Exception) { }
+        }
+#pragma warning restore CA2255
+
+        private static void OnFirstChance(object sender,
+            System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs e)
+        {
+            try
+            {
+                COMException ce = e.Exception as COMException;
+                if (ce == null || ce.HResult != EHandle) { return; }
+                if (_hits >= MaxHits) { return; }
+                _hits++;
+
+                string st = null;
+                try { st = ce.StackTrace; } catch (Exception) { st = null; }
+                if (string.IsNullOrEmpty(st))
+                {
+                    try { st = Environment.StackTrace; } catch (Exception) { st = "<no-stack>"; }
+                }
+                string[] lines = st.Split('\\n');
+                var sb = new System.Text.StringBuilder();
+                sb.Append("[EHANDLE] #").Append(_hits).Append(" msg=").Append(ce.Message);
+                for (int i = 0; i < lines.Length && i < MaxFrames; i++)
+                {
+                    sb.Append("\\n[EHANDLE]   ").Append(lines[i].Trim());
+                }
+                Console.Error.WriteLine(sb.ToString());
+                Console.Error.Flush();
+            }
+            catch (Exception) { }
+        }
+    }
+}
+'''
+
+
 def materialize_derived():
     """生成补丁 C 的两个派生源文件。needle 校验失败 ⇒ 抛（由 main 转成 rc≠0）。"""
     made = []
@@ -4581,6 +4899,10 @@ def materialize_derived():
     readerpage_abs = os.path.join(HERE, READERPAGE_PROBE_FILE)
     _write_atomic(readerpage_abs, READERPAGE_PROBE_TEXT)
     made.append((readerpage_abs, 0))
+    # ⏪ `T-B17`：`E_HANDLE` 抛点/调用点的只读捕获器（首次异常）本体（**非派生**：新建件）
+    ehandle_abs = os.path.join(HERE, EHANDLE_PROBE_FILE)
+    _write_atomic(ehandle_abs, EHANDLE_PROBE_TEXT)
+    made.append((ehandle_abs, 0))
     return made
 
 

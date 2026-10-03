@@ -1,9 +1,9 @@
 // ⚠️ 本文件由 build/PresentationFramework.Linux/reapply-patches.py **生成**，不要手改。
 //
-// 内容 = 上游 `upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Controls/Primitives/DocumentPageView.cs` 逐字复制 + 7 处 W86A（`TASK-0304`/`TASK-0305`）改动。
+// 内容 = 上游 `upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Controls/Primitives/DocumentPageView.cs` 逐字复制 + 9 处 W86A（`TASK-0304`/`TASK-0305`）改动。
 // 每次运行该脚本都会从上游重读重生成；needle 找不到 / 命中数不符时**报错退出**
 // （不会静默产出未打补丁的副本）。改动逐处见：
-//   E1 ／ E2 ／ E3 ／ E4 ／ E5 ／ E6 ／ E7
+//   E1 ／ E2 ／ E3 ／ E4 ／ E5 ／ E6 ／ E7 ／ E8 ／ E9
 //
 // 背景（`D-G70`/`D-G78`）：本移植没有 PTS/原生 LineServices ⇒ 切「富文本」/「流文档」页
 // 曾**整进程 `rc=134`**。本件把它变成「**具名、可判、可见的能力边界**」：
@@ -62,7 +62,13 @@ namespace System.Windows.Controls.Primitives
         /// </summary>
         static DocumentPageView()
         {
-            ClipToBoundsProperty.OverrideMetadata(typeof(DocumentPageView), new PropertyMetadata(BooleanBoxes.TrueBox));
+            string dpvClip = null;
+            try { dpvClip = System.Environment.GetEnvironmentVariable("WPF_DPV_CLIPTOBOUNDS"); }
+            catch (System.Exception) { dpvClip = null; }
+            if (dpvClip != "0")
+            {
+                ClipToBoundsProperty.OverrideMetadata(typeof(DocumentPageView), new PropertyMetadata(BooleanBoxes.TrueBox));
+            }
         }
 
         #endregion
@@ -479,6 +485,7 @@ namespace System.Windows.Controls.Primitives
 
             Size dpvArrangeResult = base.ArrangeOverride(finalSize);
             WpfLinuxPageViewProbe.ReportArrangeEnd(this, finalSize, _pageHost, _documentPage);
+            WpfLinuxPageViewProbe.ReportArrangeEndInvalidate(this);
             return dpvArrangeResult;
         }
 
@@ -994,6 +1001,15 @@ namespace System.Windows.Controls.Primitives
                 catch(System.OverflowException)
                 {
                     // Ignore overflow exception - caused by render target creation not possible under current memory conditions.
+                }
+                catch(System.Runtime.InteropServices.COMException dpvRtbEx)
+                {
+                    // `T-B17`：本移植的 `RenderTargetBitmap` 建不出来（见生成器内该块）⇒ 与上一条**同义**降级。
+                    if (!WpfLinuxPageViewProbe.RtbFallback)
+                    {
+                        throw;
+                    }
+                    WpfLinuxPageViewProbe.ReportRtbFallback(dpvRtbEx);
                 }
             }
             return drawingVisual;

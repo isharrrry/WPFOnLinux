@@ -1600,6 +1600,8 @@
     <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/WpfLinuxReaderPageHost.Linux.cs" />
     <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Controls/Primitives/DocumentViewerBase.cs" />
     <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/DocumentViewerBase.Linux.cs" />
+    <!-- T-B17（PRECOND-TAB3-EHANDLE-CALLSITE）：E_HANDLE 抛点的只读捕获器（FirstChanceException） -->
+    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/WpfLinuxEHandleProbe.Linux.cs" />
   </ItemGroup>
 
   <!-- ==== WPF-on-Linux 补丁结束 ==== -->
