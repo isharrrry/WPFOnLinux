@@ -3932,3 +3932,13 @@ SELFDESC_WIRING=FAIL examined=1 wired=1 unwired=0 undeclared=0 fails=1 run_step=
 - **逐批归因（`TASK-0302` 增量）**：`T-A61`（`Fs*` 首批 8 条 ⇒ `ops 58→50`／`exports 689→701`）｜`T-A62`（`Lo*`/`Nl*` 3 条 ＋ 同族唯一 stub 升格 ⇒ `ops 50→47`／`stubs 1→0`／`exports 701→718`）｜`T-A65`（分级 甲 5／乙 20／丙 6／丁 16）｜`T-A66`（甲类 5 条 ⇒ `ops 47→42`／`exports 718→727`）｜`T-A67`／`T-A74`（丁类 16 条**真依赖 `L1`/`L2`** ＋ **LS 链已被 shim 替换** ⇒ **可诚实实施者 0**）｜`T-A68..A73`（`W` 合取落地 `exports 727→846`）。
 - **产品面**：`T-A64` 修 `D-G109` 同根因另一半（`wpf_queue_push` 的 `tail` 零解引用守卫 ⇒ 确定性静默 SEGV 消除；⚠️ 率未重取、不宣称清零）；`D-G190`（`WpfLinuxWin32_PumpOnce` 写越界）**仍在册**（修法未做）。
 - **基线**：`baseline #81`（`BASELINE-FROZEN gen=#81 sha16=7cd1bc5c37a74e8d`；`T-A58` 重冻）。
+
+---
+
+### ⏪ `T-B1..T-B19`（hc demo 修复链）**dated 现值位**（读时 `2026-10-03`；**只增不改**）
+
+- **`D-G70` 现值位（现取）**：`.so 5f9ed647c68197ae`／`exports 846`／`ops 42`／`impl 42`／`stubs 0`（`PTSGAP=PASS tool=54 dead=11 artifact=1 ops=42 impl=42 so16=5f9ed647c68197ae exports=846`；`nm -D --defined-only` ＝ `exports.txt` ＝ **846**）。
+- **本链增量（native，`src/WpfGfx.Linux.Native/src/win32_pts.c`）**：`T-B3`（真 `v` 几何 `wpf_pts_sub_v_extent` ＋ 跨窗陈旧句柄具名拒发）／`T-B14`（关窗 `rc=134` 修：`FsDestroyPageBreakRecord` 退役对象地址等值认领）／`T-B15`（tab1 浮动绕排：`wpf_pts_att_geometry`）—— **实现面／失败面改动，缺口五位未动**（`ops 42`／`impl 42`）。
+- **hc demo 三 tab**：tab1 绕排（`T-B15`）／tab2 单页视图（`T-B12`）／tab3 查看器（`T-B16`／`T-B17`／`T-B18`／`T-B19`）现全部可用；关窗 `rc=0`（`T-B14`）。
+- **基线**：`baseline #81`（`BASELINE-FROZEN gen=#81 sha16=7cd1bc5c37a74e8d`）。
+- **载**：`docs/ROUTES.md` `§15bg`；汇总 `build/MilBridge/P1-hcbookkeep-report.md`。
