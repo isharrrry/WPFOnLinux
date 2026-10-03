@@ -308,6 +308,38 @@ namespace WpfGfx.Linux.Interop
     }
 
     /// <summary>
+    /// 离屏渲染目标（`MILRenderTargetBitmap.GetBitmap` 交出的位图句柄）的设备对象负载：
+    /// 与 <see cref="MilBackBufferView"/> 同理，是**指向**渲染目标状态的一张"接口视图"，
+    /// **不拥有**它 —— 那张 `SKBitmap` 归创建它的 RTB 主设备对象
+    /// （`MilDeviceObjectKind.BitmapRenderTarget` 的 `MilRenderTargetState`）所有。
+    ///
+    /// 【为什么需要它】上游 `RenderTargetBitmap.FinalizeCreation`（`RenderTargetBitmap.cs:256`）
+    ///   把 `GetBitmap` 的产物赋给 `WicSourceHandle`，紧接着
+    ///   `BitmapSource.set_WicSourceHandle`（`BitmapSource.cs:584`）对该句柄调
+    ///   `MILQueryInterface(handle, IID_IWICBitmapSource, out _)`。这个句柄此前只在
+    ///   `MilPixelBufferTable` 里 —— MIL 设备对象表与 WIC 所有者都认不出它 ⇒ `E_HANDLE`。
+    ///   挂视图后由 <see cref="MilBackBufferSourceTable"/> 把它别名到一个 `WicBitmapSource`
+    ///   设备对象 ⇒ QI 走 MIL 自己那张账放行（不落进外部句柄路径，避免两边账本单边）。
+    ///   引用计数归零时 `DisposePayload` 对 `IMilNonOwningPayload` 显式跳过 ⇒ 不会误释放
+    ///   仍在用的位图。
+    /// </summary>
+    public sealed class MilRenderTargetView : IMilNonOwningPayload
+    {
+        public readonly MilRenderTargetState Target;
+
+        /// <summary>像素缓冲令牌（= `MILRenderTargetBitmap.GetBitmap` 交出去的那个句柄）。</summary>
+        public readonly IntPtr Token;
+
+        public MilRenderTargetView(MilRenderTargetState target, IntPtr token)
+        {
+            Target = target;
+            Token = token;
+        }
+
+        public override string ToString() => $"render-target view token=0x{Token.ToInt64():X}";
+    }
+
+    /// <summary>
     /// CWIC wrapper 设备对象的负载：**引用计数归零时回收物化出来的位图**（#24）。
     /// 与 `MilBackBufferView` 相反：那个是"借来的视图、不拥有负载"，这个是**拥有**的
     /// （位图是本工程为了包装 WIC 源而物化出来的）。

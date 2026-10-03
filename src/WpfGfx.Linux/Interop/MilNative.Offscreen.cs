@@ -398,15 +398,73 @@ namespace WpfGfx.Linux.Interop
             var target = (MilRenderTargetState)obj.Payload;
             if (target == null) return HResult.E_HANDLE;
 
-            if (target.BitmapHandle == IntPtr.Zero)
+            if (target.BitmapHandle == IntPtr.Zero && target.Bitmap != null)
             {
                 target.BitmapHandle = MilPixelBufferTable.RegisterBorrowed(
                     target.Bitmap, "RenderTargetBitmap");
+
+                // ── WIC 离屏渲染目标面（`PRECOND-WIC-RTB`）──────────────────────
+                // 【为什么在这一跳补】上游 `RenderTargetBitmap.FinalizeCreation`
+                //   （`RenderTargetBitmap.cs:256`）把本句柄赋给 `WicSourceHandle`，紧接着
+                //   `BitmapSource.set_WicSourceHandle`（`BitmapSource.cs:584`）对它调
+                //   `MILQueryInterface(handle, IID_IWICBitmapSource, out _)`；随后
+                //   `UpdateCachedSettings()` 又会走 WIC 的三个只读 proxy。
+                //   句柄此前只在 `MilPixelBufferTable` 里 ⇒ 设备对象表查不到、WIC 所有者不认领
+                //   ⇒ `E_HANDLE`。这里照 `MILSwDoubleBufferedBitmapCreate` 的**同一套体例**补两件事：
+                //     ① 别名到一个 `WicBitmapSource` 设备对象 ⇒ QI 走 MIL 自己那张账放行
+                //        （见 `MilBackBufferSourceTable` 的类注释）；
+                //     ② 登记成 shim 的 WIC **外来源** ⇒ `IWICBitmapSource_GetSize/GetPixelFormat/
+                //        GetResolution`（以及借了像素的 `CopyPixels`）能在 proxy 层派发 ——
+                //        只放行 QI 而不补这条，`UpdateCachedSettings()` 立刻在 proxy 层拿 E_INVALIDARG。
+                // 【像素借用】沿用双缓冲那条的语义：`pixels` 指向 `target.Bitmap`，
+                //   在 `MilRenderTargetState.Dispose` 注销之前必须一直有效（见那里的拆除顺序）。
+                MilDeviceObject wicObj = MilDeviceObjectTable.Register(
+                    MilDeviceObjectKind.WicBitmapSource,
+                    new MilRenderTargetView(target, target.BitmapHandle),
+                    $"rtb bitmap {target.Width}x{target.Height}");
+                target.WicSourceDeviceHandle = wicObj.Handle;
+                MilBackBufferSourceTable.Alias(target.BitmapHandle, wicObj.Handle);
+
+                Guid foreignFormat = WicGuidForPixelFormat(target.PixelFormat);
+                bool isOpaque = IsOpaquePixelFormat(target.PixelFormat);
+                IntPtr pixels = target.Bitmap.GetPixels();
+                uint rowBytes = (uint)target.Bitmap.RowBytes;
+
+                int regHr = MilExternalHandleBridge.RegisterForeignSource(
+                    target.BitmapHandle, ref foreignFormat, (uint)target.Width, (uint)target.Height,
+                    isOpaque, pixels, rowBytes);
+                if (HResult.Succeeded(regHr))
+                    MilDiagnostics.Note(
+                        $"MILRenderTargetBitmapGetBitmap: 位图 0x{(long)target.BitmapHandle:x} 已登记为 WIC **外来源**" +
+                        $"（{target.Width}x{target.Height} format={foreignFormat} isOpaque={(isOpaque ? 1 : 0)}；" +
+                        $"借用像素=0x{(long)pixels:x} rowBytes={rowBytes}（**注销前必须有效**）；" +
+                        "记账未变（引用计数仍全在 MilDeviceObjectTable））");
+                else
+                    MilDiagnostics.Note(
+                        $"MILRenderTargetBitmapGetBitmap: WIC 外来源登记未生效（hr=0x{regHr:x8}）⇒ " +
+                        "proxy 层仍 E_INVALIDARG（fail-safe；QI 本身不受影响，语义与接线前一致）");
             }
 
             ppIBitmap = target.BitmapHandle;
             return HResult.S_OK;
         }
+
+        /// <summary>
+        /// `MilPixelFormatEnum` → WIC 像素格式 GUID。WIC 的像素格式 GUID 只有**最后一个字节**
+        /// 承载格式号（基础 `{6fddc324-4e03-4bfe-b185-3d7776 8dc9 00}`，末字节 = 枚举值）；
+        /// 上游 `PixelFormat.GetPixelFormat(Guid)`（`PixelFormat.cs:517-523`）正是按 `guidBytes[15]`
+        /// 反查 ⇒ 两个方向互为证据。取值与 <see cref="MilPixelFormats"/> 的常量一致（如 `Pbgra32 = …0x10`）。
+        /// </summary>
+        private static Guid WicGuidForPixelFormat(MilPixelFormatEnum format) =>
+            new Guid(0x6fddc324, 0x4e03, 0x4bfe, 0xb1, 0x85, 0x3d, 0x77, 0x76, 0x8d, 0xc9, (byte)format);
+
+        /// <summary>
+        /// 该像素格式是否不透明。与 <see cref="MILFactoryCreateBitmapRenderTarget"/> 里
+        /// `alphaType` 的判定同源（不透明的那几种），供 shim 的 `isOpaque` 入参用。
+        /// </summary>
+        private static bool IsOpaquePixelFormat(MilPixelFormatEnum format) =>
+            format is MilPixelFormatEnum.Rgb24 or MilPixelFormatEnum.Bgr24 or
+                      MilPixelFormatEnum.Bgr32 or MilPixelFormatEnum.Gray8;
 
         /// <summary>把渲染目标清成透明黑（SKColors.Transparent），并复位脏矩形记录。</summary>
         public static int MILRenderTargetBitmapClear(IntPtr THIS_PTR)
@@ -896,12 +954,33 @@ namespace WpfGfx.Linux.Interop
         /// <summary>GetBitmap 发放出去的位图句柄（同一目标只发一个）。</summary>
         public IntPtr BitmapHandle;
 
+        /// <summary>该位图句柄别名到的 `WicBitmapSource` 设备对象句柄（见 `MILRenderTargetBitmapGetBitmap`）。</summary>
+        public IntPtr WicSourceDeviceHandle;
+
         public int ClearCount;
         public int DirtyRectCount;
         public MilInt32Rect? LastDirtyRect;
 
         public void Dispose()
         {
+            // 【顺序（与 `MilDoubleBufferedState.Dispose` 同一口径）】
+            //   ① 先注销 shim 的 WIC 外来源登记（shim 手上借的是 `Bitmap` 的像素）→
+            //   ② 摘别名设备对象 → ③ 摘像素缓冲句柄 → ④ 释放 SKBitmap。
+            //   ① 必须在 ④ **之前**：否则 shim 会继续拿着指向已释放位图的指针（野内存）。
+            if (BitmapHandle != IntPtr.Zero)
+            {
+                int unregHr = MilExternalHandleBridge.UnregisterForeignSource(BitmapHandle);
+                if (HResult.Failed(unregHr))
+                    MilDiagnostics.Note(
+                        $"RenderTargetBitmap.Dispose: 注销 WIC 外来源未生效（hr=0x{unregHr:x8}）" +
+                        "（旧 shim 无此导出 / 从未登记过 —— 都属预期，不影响拆除）");
+
+                MilBackBufferSourceTable.Forget(BitmapHandle);
+                MilPixelBufferTable.Unregister(BitmapHandle, force: true);
+                BitmapHandle = IntPtr.Zero;
+            }
+            WicSourceDeviceHandle = IntPtr.Zero;
+
             if (OwnsBitmap) Bitmap?.Dispose();
             Bitmap = null;
         }
