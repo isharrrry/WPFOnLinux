@@ -44,7 +44,7 @@ import subprocess
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT_DEFAULT = os.path.normpath(os.path.join(HERE, "..", "..", ".."))   # src/Linux/build/MilBridge/tools → 仓库根
+ROOT_DEFAULT = os.path.normpath(os.path.join(HERE, "..", "..", "..", "..", ".."))   # src/Linux/build/MilBridge/tools → 仓库根
 TOOLS_REL = "src/WpfGfx.Linux.Native/tools"
 WAVE_DEFAULT = "src/Linux/build/integration-wave.sh"
 

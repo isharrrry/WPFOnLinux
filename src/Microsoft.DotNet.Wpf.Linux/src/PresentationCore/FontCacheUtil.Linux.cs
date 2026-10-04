@@ -448,11 +448,11 @@ namespace MS.Internal.FontCache
         /// <returns>
         /// Returns true if the location part is empty or is a simple file name with no path
         /// characters (e.g., "#ARIAL" or "arial.ttf#ARIAL"). Returns false if the location
-        /// is invalid or includes a path (e.g., "#ARIAL", "..#ARIAL", "fonts/#ARIAL").
+        /// is invalid or includes a path (e.g., "./#ARIAL", "..#ARIAL", "fonts/#ARIAL").
         /// </returns>
         /// <remarks>
         /// This code is important for correcly interpreting font family references.
-        /// For example if it returns true for ../../../Linux/build/arial.ttf#Arial (it shouldnt) then downstream code
+        /// For example if it returns true for ../arial.ttf#Arial (it shouldnt) then downstream code
         /// could be fooled into skipping a demand when loading data from a ttf file outside the 
         /// Windows Fonts folder.
         /// </remarks>

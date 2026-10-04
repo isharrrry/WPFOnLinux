@@ -160,7 +160,7 @@
 set -uo pipefail
 REPO="${AUTH_ROOT:-$(cd "$(dirname "$0")/../../../../.." && pwd)}"
 # ★ `#39` 阶段 2/3：**权威件的配置**跟随唯一声明（本表原先在 94 处写死 `bin/Debug`，而每行理由里还写着"Debug 权威" ⇒ 切配置必红）。散文/夹具里的 `Debug` 字样**保持不动**。
-. "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/../../../build/selfbuilt-config.sh"
+. "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/../../../../../src/Linux/build/selfbuilt-config.sh"
 # 【`D-A2` 覆盖缺口（W23C，2026-09-16 补齐）】`$REPO/tools` 原先**不在任何一个扫描根里** ⇒
 #   `src/Linux/tools/GeometryOracle/bin/Debug/net10.0/WpfGfx.Linux.dll`（`16baacfccfcf1df0`，288,768 B；
 #   该目录有 `GeometryOracle.runtimeconfig.json` ⇒ **是启动宿主**）**连枚举都没有过** ⇒ 连 sha 都没被打印。
@@ -717,7 +717,7 @@ if [ "${1:-}" = "--selftest" ]; then
     #     所以下面**只改夹具的摆法**：权威目录一律写成 `bin/$SELFBUILT_CONFIG`（判据、计数器、exit 口径一字未改）。
     echo "=== 自检 E：权威件换 sha ⇒ 必须报红；还原 ⇒ 必须回绿（两极化）==="
     mkdir -p "$tmp/authB/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim" "$tmp/authB/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/$SELFBUILT_CONFIG" \
-             "$tmp/authB/src/WpfGfx.Linux.Native/bin" "$tmp/authB/src/WpfGfx.Linux/bin/$SELFBUILT_CONFIG/net10.0" \
+             "$tmp/authB/src/WpfGfx.Linux.Native/bin" "$tmp/authB/src/Microsoft.DotNet.Wpf.Linux/src/WpfGfx/bin/$SELFBUILT_CONFIG/net10.0" \
              "$tmp/authB/src/Microsoft.DotNet.Wpf.Linux/src/ReachFramework/bin/$SELFBUILT_CONFIG" "$tmp/authB/src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/$SELFBUILT_CONFIG" \
              "$tmp/authB/src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/bin/$SELFBUILT_CONFIG" "$tmp/authB/src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/bin/$SELFBUILT_CONFIG" \
              "$tmp/hostE/App/bin/Debug" "$tmp/hostE/prov/bin/Debug"
@@ -726,7 +726,7 @@ if [ "${1:-}" = "--selftest" ]; then
     cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/$SELFBUILT_CONFIG/$PROV" "$tmp/hostE/prov/bin/Debug/$PROV"
     cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/libwpfwic.so" "$tmp/authB/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/"
     cp "$REPO/src/WpfGfx.Linux.Native/bin/libwpfwin32.so"    "$tmp/authB/src/WpfGfx.Linux.Native/bin/"
-    cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/WpfGfx/bin/$SELFBUILT_CONFIG/net10.0/WpfGfx.Linux.dll" "$tmp/authB/src/WpfGfx.Linux/bin/$SELFBUILT_CONFIG/net10.0/"
+    cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/WpfGfx/bin/$SELFBUILT_CONFIG/net10.0/WpfGfx.Linux.dll" "$tmp/authB/src/Microsoft.DotNet.Wpf.Linux/src/WpfGfx/bin/$SELFBUILT_CONFIG/net10.0/"
     cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/$SELFBUILT_CONFIG/$PROV" "$tmp/authB/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/$SELFBUILT_CONFIG/$PROV"
     cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/ReachFramework/bin/$SELFBUILT_CONFIG/ReachFramework.dll"             "$tmp/authB/src/Microsoft.DotNet.Wpf.Linux/src/ReachFramework/bin/$SELFBUILT_CONFIG/"
     cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/$SELFBUILT_CONFIG/PresentationCore.dll"         "$tmp/authB/src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/$SELFBUILT_CONFIG/"
@@ -961,13 +961,13 @@ if [ "${1:-}" = "--selftest" ]; then
     #    第三趟 `cp -p` 整份还原 ⇒ 必须回 rc=0（同一命令形态、同一沙箱）。
     echo "=== 自检 O（D-G8）：权威件整份不见 ⇒ 必须 rc≠0（修复前这里印 PASS）==="
     mkdir -p "$tmp/authO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim" "$tmp/authO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/$SELFBUILT_CONFIG" \
-             "$tmp/authO/src/WpfGfx.Linux.Native/bin" "$tmp/authO/src/WpfGfx.Linux/bin/$SELFBUILT_CONFIG/net10.0" \
+             "$tmp/authO/src/WpfGfx.Linux.Native/bin" "$tmp/authO/src/Microsoft.DotNet.Wpf.Linux/src/WpfGfx/bin/$SELFBUILT_CONFIG/net10.0" \
              "$tmp/authO/src/Microsoft.DotNet.Wpf.Linux/src/ReachFramework/bin/$SELFBUILT_CONFIG" "$tmp/authO/src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/$SELFBUILT_CONFIG" \
              "$tmp/authO/src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/bin/$SELFBUILT_CONFIG" "$tmp/authO/src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/bin/$SELFBUILT_CONFIG" \
              "$tmp/hostO/App/bin/Debug" "$tmp/hostO/prov/bin/Debug"
     cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/libwpfwic.so"          "$tmp/authO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/"
     cp "$REPO/src/WpfGfx.Linux.Native/bin/libwpfwin32.so"            "$tmp/authO/src/WpfGfx.Linux.Native/bin/"
-    cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/WpfGfx/bin/$SELFBUILT_CONFIG/net10.0/WpfGfx.Linux.dll"   "$tmp/authO/src/WpfGfx.Linux/bin/$SELFBUILT_CONFIG/net10.0/"
+    cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/WpfGfx/bin/$SELFBUILT_CONFIG/net10.0/WpfGfx.Linux.dll"   "$tmp/authO/src/Microsoft.DotNet.Wpf.Linux/src/WpfGfx/bin/$SELFBUILT_CONFIG/net10.0/"
     cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/$SELFBUILT_CONFIG/$PROV"      "$tmp/authO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/$SELFBUILT_CONFIG/$PROV"
     cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/ReachFramework/bin/$SELFBUILT_CONFIG/ReachFramework.dll"     "$tmp/authO/src/Microsoft.DotNet.Wpf.Linux/src/ReachFramework/bin/$SELFBUILT_CONFIG/"
     cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/$SELFBUILT_CONFIG/PresentationCore.dll" "$tmp/authO/src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/$SELFBUILT_CONFIG/"
@@ -1007,7 +1007,7 @@ if [ "${1:-}" = "--selftest" ]; then
     PNAT="$PREPO/src/Linux/build/MilBridge/.artifacts/bin/MilBridge.Linux/release_linux-x64/native"
     mkdir -p "$PPUB" "$PNAT" "$tmp/P/host/bin/Debug" "$PREPO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim" \
              "$PREPO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/$SELFBUILT_CONFIG" "$PREPO/src/WpfGfx.Linux.Native/bin" \
-             "$PREPO/src/WpfGfx.Linux/bin/$SELFBUILT_CONFIG/net10.0" "$PREPO/src/Microsoft.DotNet.Wpf.Linux/src/ReachFramework/bin/$SELFBUILT_CONFIG" \
+             "$PREPO/src/Microsoft.DotNet.Wpf.Linux/src/WpfGfx/bin/$SELFBUILT_CONFIG/net10.0" "$PREPO/src/Microsoft.DotNet.Wpf.Linux/src/ReachFramework/bin/$SELFBUILT_CONFIG" \
              "$PREPO/src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/$SELFBUILT_CONFIG" \
              "$PREPO/src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/bin/$SELFBUILT_CONFIG" "$PREPO/src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/bin/$SELFBUILT_CONFIG"
     cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/libwpfwic.so"               "$PREPO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/"
@@ -1023,7 +1023,7 @@ if [ "${1:-}" = "--selftest" ]; then
     #   夹具修法 = 把**同一份声明**复制进沙箱（真仓也有这个文件 ⇒ 沙箱更像"真形态"）；判据与断言一字未改。
     cp "$REPO/src/Linux/build/SelfBuiltConfig.props" "$PREPO/src/Linux/build/SelfBuiltConfig.props"
     cp "$REPO/src/WpfGfx.Linux.Native/bin/libwpfwin32.so"                  "$PREPO/src/WpfGfx.Linux.Native/bin/"
-    cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/WpfGfx/bin/$SELFBUILT_CONFIG/net10.0/WpfGfx.Linux.dll"         "$PREPO/src/WpfGfx.Linux/bin/$SELFBUILT_CONFIG/net10.0/"
+    cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/WpfGfx/bin/$SELFBUILT_CONFIG/net10.0/WpfGfx.Linux.dll"         "$PREPO/src/Microsoft.DotNet.Wpf.Linux/src/WpfGfx/bin/$SELFBUILT_CONFIG/net10.0/"
     cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/$SELFBUILT_CONFIG/$PROV"            "$PREPO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/$SELFBUILT_CONFIG/$PROV"
     cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/ReachFramework/bin/$SELFBUILT_CONFIG/ReachFramework.dll"     "$PREPO/src/Microsoft.DotNet.Wpf.Linux/src/ReachFramework/bin/$SELFBUILT_CONFIG/"
     cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/$SELFBUILT_CONFIG/PresentationCore.dll" "$PREPO/src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/$SELFBUILT_CONFIG/"

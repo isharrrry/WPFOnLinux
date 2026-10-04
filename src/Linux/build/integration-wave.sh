@@ -121,9 +121,9 @@ done
 #    （"只有部分工程被重新生成过"）。现在改为**逐个探测、全部重放**，新增应用器无需再改本文件。
 step "2/4 重放各工程补丁（幂等）"
 for p in WindowsBase PresentationCore ReachFramework PresentationFramework; do
-    if [ -f "src/Linux/build/$p.Linux/reapply-patches.py" ]; then
+    if [ -f "src/Microsoft.DotNet.Wpf.Linux/src/$p/reapply-patches.py" ]; then
         printf '  %-42s ' "$p"
-        python3 "src/Linux/build/$p.Linux/reapply-patches.py" 2>&1 | tail -1
+        python3 "src/Microsoft.DotNet.Wpf.Linux/src/$p/reapply-patches.py" 2>&1 | tail -1
     fi
 done
 # 生成式应用器：**显式顺序** + **自动兜底**。
@@ -440,7 +440,7 @@ ORDER=(
 )
 for p in "${ORDER[@]}"; do
     # ORDER 项可以是 src/Linux/build/<Name> 目录，也可以直接是 csproj 的相对路径（Provider 这种嵌套手写工程）。
-    if [[ "$p" == *.csproj ]]; then proj="$p"; else proj=$(ls src/Linux/build/$p/*.csproj 2>/dev/null | head -1); fi
+    if [[ "$p" == *.csproj ]]; then proj="$p"; else proj=$(ls "src/Microsoft.DotNet.Wpf.Linux/src/${p%.Linux}"/*.csproj 2>/dev/null | head -1); fi
     label="$(basename "${proj%.csproj}")"; [ -z "$label" ] && label="$p"
     if [ -z "$proj" ]; then printf '  %-42s %s\n' "$label" '⚠ 找不到工程（计为失败）'; fail=$((fail + 1)); continue; fi
     # ★ `#39` 阶段 2/3：波**按唯一声明**构建（`src/Linux/build/SelfBuiltConfig.props`），
@@ -555,7 +555,7 @@ step "4/4 身份自检（每个自产程序集：按项目名精确取件 + 是�
 for d in System.Xaml.Linux WindowsBase.Linux PresentationCore.Linux \
          PresentationFramework.Linux DirectWriteForwarder.Linux; do
     want="${d%.Linux}.dll"
-    dll="src/Linux/build/$d/bin/Debug/$want"
+    dll="src/Microsoft.DotNet.Wpf.Linux/src/${d%.Linux}/bin/Debug/$want"
     if [ ! -f "$dll" ]; then
         printf '  %-52s ❌ 找不到（期望 %s）\n' "$d" "$want"
         fail=$((fail + 1)); continue
