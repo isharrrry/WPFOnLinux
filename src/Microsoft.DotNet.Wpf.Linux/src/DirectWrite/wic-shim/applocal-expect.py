@@ -102,7 +102,7 @@ ITEMS = [
     ("libwpfwic.so", REPO + "/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/libwpfwic.so"),
     ("libwpfwin32.so", REPO + "/src/WpfGfx.Linux.Native/bin/libwpfwin32.so"),
     ("DirectWrite.Linux.Provider.dll", REPO + "/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/" + CFG + "/DirectWrite.Linux.Provider.dll"),
-    ("WpfGfx.Linux.dll", REPO + "/src/WpfGfx.Linux/bin/" + CFG + "/net10.0/WpfGfx.Linux.dll"),
+    ("WpfGfx.Linux.dll", REPO + "/src/Microsoft.DotNet.Wpf.Linux/src/WpfGfx/bin/" + CFG + "/net10.0/WpfGfx.Linux.dll"),
     ("ReachFramework.dll", REPO + "/src/Microsoft.DotNet.Wpf.Linux/src/ReachFramework/bin/" + CFG + "/ReachFramework.dll"),
     # 【W23C / `D-A2`，2026-09-16】PC 原先**两张 ITEMS 表里都没有** ⇒ 它既没有逐份判据（check 侧），
     #   也没有声明式期望（本侧）⇒ **删掉任何一份 PC 副本连 `MISSING` 都不会报**（那是另一半洞）。
