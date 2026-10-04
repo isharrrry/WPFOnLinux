@@ -128,7 +128,7 @@ awk '$1=="PresentationNative_cor3.dll"{print $2}' "$RAW" | LC_ALL=C sort >"$GAP"
 TOOL=$(wc -l < "$GAP" | tr -d ' ')
 [ "${TOOL:-0}" -gt 0 ] || { echo "PTSGAP=NOINFO reason=empty-gap"; exit 3; }
 
-DEAD=$(python3 - "$R/upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/Pts.cs" "$GAP" <<'PYX'
+DEAD=$(python3 - "$R/src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/Pts.cs" "$GAP" <<'PYX'
 import re, sys
 L = open(sys.argv[1], encoding='utf-8', errors='replace').read().split('\n')
 gap = set(l.strip() for l in open(sys.argv[2], encoding='utf-8') if l.strip())

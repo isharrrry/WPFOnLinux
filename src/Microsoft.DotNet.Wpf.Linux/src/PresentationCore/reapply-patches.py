@@ -57,6 +57,7 @@ C. 9 条 Compile Remove（A 类误纳文件）：port-lib 现在同时识别
    无需 csproj 侧兜底。
 """
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -198,9 +199,9 @@ PATCH_D = '''  <!-- ============================================================
        [InternalsVisibleTo("PresentationCore", <WCP>)] → internal 类型可见
        （与上游 C++/CLI 的 IVT 等价）。
        ============================================================================ -->
-  <ItemGroup Condition="Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/DirectWriteForwarder/bin/Debug/DirectWriteForwarder.dll')">
+  <ItemGroup Condition="Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/DirectWriteForwarder/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWriteForwarder.dll')">
     <Reference Include="DirectWriteForwarder">
-      <HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/DirectWriteForwarder/bin/Debug/DirectWriteForwarder.dll</HintPath>
+      <HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/DirectWriteForwarder/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWriteForwarder.dll</HintPath>
       <Private>true</Private>
     </Reference>
   </ItemGroup>
@@ -217,9 +218,9 @@ PATCH_F = '''  <!-- ============================================================
        构造重载（FontFile/FontFace/FontCollection），C# 绑定 `new FontFace(ptr)` 时会检查
        整个重载集 → 未引用即 CS0012（实测 4 条：Factory.cs:162/227/285/321）。
        ============================================================================ -->
-  <ItemGroup Condition="Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/Debug/DirectWrite.Linux.Provider.dll')">
+  <ItemGroup Condition="Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWrite.Linux.Provider.dll')">
     <Reference Include="DirectWrite.Linux.Provider">
-      <HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/Debug/DirectWrite.Linux.Provider.dll</HintPath>
+      <HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWrite.Linux.Provider.dll</HintPath>
       <Private>true</Private>
     </Reference>
   </ItemGroup>
@@ -270,8 +271,14 @@ def main():
     with open(CSPROJ, "w", encoding="utf-8") as f:
         f.write(text)
 
-    root = os.path.dirname(os.path.dirname(HERE))
-    dwf = os.path.join(root, "src", "Microsoft.DotNet.Wpf.Linux", "src", "DirectWriteForwarder", "bin", "Debug", "DirectWriteForwarder.dll")
+    root = os.path.abspath(os.path.join(HERE, "..", "..", "..", ".."))
+    _sbc = os.path.join(root, "src", "Linux", "build", "SelfBuiltConfig.props")
+    try:
+        cfg = re.search(r"<WpfLinuxSelfBuiltConfiguration[^>]*>([^<]*)<",
+                        open(_sbc, encoding="utf-8").read()).group(1).strip()
+    except (OSError, AttributeError):
+        cfg = "<声明解析失败>"
+    dwf = os.path.join(root, "src", "Microsoft.DotNet.Wpf.Linux", "src", "DirectWriteForwarder", "bin", cfg, "DirectWriteForwarder.dll")
     print(f"[OK] 已注入补丁 B（PublicSign）+ D（DirectWriteForwarder 引用）"
           f"+ F（DirectWrite.Linux.Provider 引用）+ G（Linux 版 Factory + 令牌桥）；"
           f"补丁 E 已退役（port-lib 原生覆盖资源管线）→ {CSPROJ}")
@@ -279,7 +286,7 @@ def main():
         print(f"[注意] {dwf} 尚不存在 → 补丁 D 的 ItemGroup 条件不满足；"
               f"请先构建 src/Microsoft.DotNet.Wpf.Linux/src/DirectWriteForwarder/DirectWriteForwarder.Linux.csproj")
 
-    provider = os.path.join(root, "src", "Microsoft.DotNet.Wpf.Linux", "src", "DirectWrite", "Provider", "bin", "Debug",
+    provider = os.path.join(root, "src", "Microsoft.DotNet.Wpf.Linux", "src", "DirectWrite", "Provider", "bin", cfg,
                             "DirectWrite.Linux.Provider.dll")
     if not os.path.exists(provider):
         print(f"[注意] {provider} 尚不存在 → 补丁 F 的 ItemGroup 条件不满足；"

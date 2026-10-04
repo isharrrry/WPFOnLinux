@@ -19,19 +19,20 @@ import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-REPO = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
+# 仓根：`src/Linux/build/MilBridge/tools/` 上溯 **5** 级（结构上游化把本件从仓根挪深 3 级）。
+REPO = os.path.abspath(os.path.join(HERE, "..", "..", "..", "..", ".."))
 
 # 权威来源（两份副本必须一致）
 UPSTREAM_SOURCES = [
-    "upstream/wpf/src/Microsoft.DotNet.Wpf/src/Common/Graphics/wgx_exports.cs",
-    "upstream/wpf/src/Microsoft.DotNet.Wpf/src/WpfGfx/include/wgx_exports.cs",
+    "src/Microsoft.DotNet.Wpf/src/Common/Graphics/wgx_exports.cs",
+    "src/Microsoft.DotNet.Wpf/src/WpfGfx/include/wgx_exports.cs",
 ]
 
 # 我们的抄写处
 OUR_SOURCE = "src/Microsoft.DotNet.Wpf.Linux/src/WpfGfx/Interop/MilNative.Misc.cs"
 
 # PC 里 IWICBitmapSource 的 [Guid(...)] 特性（第三处独立证据）
-PC_BITMAPSOURCE = ("upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationCore/"
+PC_BITMAPSOURCE = ("src/Microsoft.DotNet.Wpf/src/PresentationCore/"
                    "System/Windows/Media/Imaging/BitmapSource.cs")
 
 NAME = "IID_IWICBitmapSource"

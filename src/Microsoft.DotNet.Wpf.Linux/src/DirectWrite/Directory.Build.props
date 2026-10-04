@@ -17,12 +17,12 @@
 <Project>
 
   <PropertyGroup>
-    <!-- 仓库根：src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/../.. -->
-    <RepoRoot>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', '..'))</RepoRoot>
+    <!-- 仓库根：src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/../../../.. -->
+    <RepoRoot>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', '..', '..', '..'))</RepoRoot>
     <!-- 本目录根 -->
     <DwRoot>$(MSBuildThisFileDirectory)</DwRoot>
-    <!-- 打包字体目录（确定性前提：SHA256SUMS 锁定的 4 份 Noto Sans） -->
-    <FontsDir>$([MSBuild]::NormalizeDirectory('$(RepoRoot)', 'build', 'fonts'))</FontsDir>
+    <!-- 打包字体目录（确定性前提：SHA256SUMS 锁定的 4 份 Noto Sans）——落点在 src/Linux/build/fonts -->
+    <FontsDir>$([MSBuild]::NormalizeDirectory('$(RepoRoot)', 'src', 'Linux', 'build', 'fonts'))</FontsDir>
   </PropertyGroup>
 
   <PropertyGroup>

@@ -43,7 +43,7 @@ TARGET = os.path.join(WB_DIR, "Invariant.Linux.cs")
 CSPROJ = os.path.join(WB_DIR, "WindowsBase.Linux.csproj")
 
 UPSTREAM_REL = "Shared/MS/Internal/Invariant.cs"
-UPSTREAM = os.path.join(ROOT, "upstream", "wpf", "src", "Microsoft.DotNet.Wpf", "src", UPSTREAM_REL)
+UPSTREAM = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf", "src", UPSTREAM_REL)
 
 CSPROJ_MARKER = '  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />'
 CSPROJ_UPSTREAM_INCLUDE = ('    <Compile Include="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/'

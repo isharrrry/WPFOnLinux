@@ -65,7 +65,7 @@ CSPROJ = os.path.join(PF_DIR, "PresentationFramework.Linux.csproj")
 GEN = os.path.join(PF_DIR, "Window.Linux.cs")
 
 UP_REL = "src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Window.cs"
-UP = os.path.join(ROOT, "upstream", "wpf", UP_REL)
+UP = os.path.join(ROOT, UP_REL)
 
 MARKER_BEGIN = "  <!-- ==== WPF-on-Linux 补丁：Window 的 min/max 声明告示（TASK-0108 P3）=== -->"
 MARKER_END = "  <!-- ==== WPF-on-Linux 补丁结束（TASK-0108 P3）==== -->"

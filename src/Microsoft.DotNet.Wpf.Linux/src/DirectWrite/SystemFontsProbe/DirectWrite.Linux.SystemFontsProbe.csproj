@@ -37,7 +37,7 @@
       这里显式引用一次（读它们的产物，不改它们）。
     -->
     <Reference Include="WindowsBase">
-      <HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/bin/Debug/WindowsBase.dll</HintPath>
+      <HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/bin/$(WpfLinuxSelfBuiltConfiguration)/WindowsBase.dll</HintPath>
       <Private>true</Private>
     </Reference>
     <!-- SkiaSharp：Provider 的运行期依赖（PC→Provider 用的是 Reference，不走传递拷贝） -->
@@ -60,7 +60,7 @@
   -->
   <Target Name="WpfLinux_DropFrameworkWindowsBase"
           BeforeTargets="_HandlePackageFileConflicts"
-          Condition="Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/bin/Debug/WindowsBase.dll')">
+          Condition="Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/bin/$(WpfLinuxSelfBuiltConfiguration)/WindowsBase.dll')">
     <ItemGroup>
       <Reference Remove="@(Reference)"
                  Condition="'%(Reference.Filename)' == 'WindowsBase' and '%(Reference.HintPath)' == ''" />

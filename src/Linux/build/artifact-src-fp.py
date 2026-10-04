@@ -124,6 +124,10 @@ def referenced_artifacts(proj, root=None):
     #   （别的 HintPath 都是写死 `bin/Debug/` 的，本行对它们零影响。样本用的
     #    `$(WpfLinuxSelfBuiltConfiguration)` 不在本工具的扫描面内。）
     text = text.replace('$(Configuration)', CFG)
+    # ★ `#39` 阶段 2/R4：自产件引用已按**唯一声明**改写（`bin/$(WpfLinuxSelfBuiltConfiguration)/`），
+    #   本工具若不展开它 ⇒ 会被当成**字面路径** ⇒ 报"缺被引产物"、指纹记无信息（peer 维度失效）。
+    #   两者在本仓**同值**（构建恒以 `-c $SELFBUILT_CONFIG` 进行），故都展开成声明处的取值。
+    text = text.replace('$(WpfLinuxSelfBuiltConfiguration)', CFG)
     for m in re.finditer(r'<HintPath>\s*\$\(WpfLinuxRoot\)([^<"]+?)\s*</HintPath>', text):
         rels.add(m.group(1).replace("\\", "/").lstrip("/"))
     for m in re.finditer(r'<ProjectReference\s+Include="\$\(WpfLinuxRoot\)([^"]+\.csproj)"', text):
@@ -210,7 +214,7 @@ def appliers_of(proj):
 def upstream_csproj(proj):
     """上游 `<Proj>.csproj`（port-lib 的输入）。多个匹配就全收（排序）。"""
     found = []
-    up = os.path.join(ROOT, "upstream", "wpf")
+    up = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf")
     for dirpath, dirnames, filenames in os.walk(up):
         dirnames[:] = [d for d in dirnames if d not in ("bin", "obj", ".git")]
         if proj + ".csproj" in filenames:
@@ -225,11 +229,11 @@ def manifest(proj):
         return None, err
     entries, missing = {}, []
     for rel in sorted(ups):
-        p = os.path.join(ROOT, "upstream", "wpf", rel)
+        p = os.path.join(ROOT, rel)
         if os.path.exists(p):
-            entries["upstream/wpf/" + rel] = sha256_file(p)
+            entries[rel] = sha256_file(p)
         else:
-            missing.append("upstream/wpf/" + rel)
+            missing.append(rel)
     for rel in sorted(repos):
         p = os.path.join(ROOT, rel)
         if os.path.exists(p):
@@ -333,9 +337,9 @@ def do_write():
             #   `upstream/**` 不逐条列（会把文件吹到 ~150KB 且无新信息，`fp=` 已覆盖其聚合）⇒ 用 `--list` 看全量。
             #   ⚠️ 诚实边界：本段只记**源的样子**（写入时刻该文件的 sha），**不证明产物里真的编进了它**；
             #      "产物内 sha" 另需 build 侧手段（构建时把内容哈希生成进产物 / 读 PDB 编译单元哈希）。
-            f.write("# 逐文件（**源侧**）：sha256 前 16 + 仓库相对路径；只列**本仓自有输入**（`upstream/**` 不列，用 --list 看全量）\n")
+            f.write("# 逐文件（**源侧**）：sha256 前 16 + 仓库相对路径；只列**本仓自有输入**（上游 `src/Microsoft.DotNet.Wpf/**` 不列，用 --list 看全量）\n")
             for rel, sha in d["entries"]:
-                if not rel.startswith("upstream/"):
+                if not rel.startswith("src/Microsoft.DotNet.Wpf/"):
                     f.write("file=%s  %s\n" % (sha[:16], rel))
             if d["missing_peers"]:
                 f.write("# ⚠️ 缺被引产物（未纳入）：" + ", ".join(d["missing_peers"]) + "\n")
@@ -445,7 +449,7 @@ def do_selftest():
     ups, repos, err = parse_csproj_inputs(proj)
     target = None
     for rel in sorted(ups or []):
-        p = os.path.join(ROOT, "upstream", "wpf", rel)
+        p = os.path.join(ROOT, rel)
         if os.path.exists(p):
             target = p
             break

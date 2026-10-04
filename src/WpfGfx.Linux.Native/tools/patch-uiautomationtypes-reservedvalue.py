@@ -43,7 +43,7 @@ TARGET = os.path.join(UA_DIR, "UiaCoreTypesApi.Linux.cs")
 CSPROJ = os.path.join(UA_DIR, "UIAutomationTypes.Linux.csproj")
 
 UPSTREAM_REL = ("UIAutomation/UIAutomationTypes/MS/Internal/Automation/UiaCoreTypesApi.cs")
-UPSTREAM = os.path.join(ROOT, "upstream", "wpf", "src", "Microsoft.DotNet.Wpf", "src", UPSTREAM_REL)
+UPSTREAM = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf", "src", UPSTREAM_REL)
 
 CSPROJ_MARKER = '  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />'
 MARKER_BEGIN = ("  <!-- ==== WPF-on-Linux D2：UIA 保留值短路"

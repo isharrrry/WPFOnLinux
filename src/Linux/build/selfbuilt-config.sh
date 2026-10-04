@@ -62,16 +62,18 @@ case "${1:-}" in
     ;;
   --debt)
     # 阶段 3 的欠账单：还写死 `bin/Debug` 的处数（**只许减少**，见 --debt-check）
-    n="$(cd "$SBC_REPO" && grep -rn "bin/Debug" --include="*.sh" --include="*.py" build src tests Guide.Linux/verify-all.sh 2>/dev/null \
+    #   ⚠️ 射程随**落点**更新：`build`/`tests` 已不在仓根（现为 `src/Linux/build`、`src/Linux/tests`）
+    #      ⇒ 收进 `src` 一并扫（覆盖面与旧写法**等价**，实测处数不变）。
+    n="$(cd "$SBC_REPO" && grep -rn "bin/Debug" --include="*.sh" --include="*.py" src Guide.Linux/verify-all.sh 2>/dev/null \
                 | grep -v "^src/Linux/build/selfbuilt-config.sh:" | wc -l)"
     echo "SELFCONFIG_DEBT=$n（写死 bin/Debug 的处数；权威件消费点已全部走唯一声明）"
-    (cd "$SBC_REPO" && grep -rc "bin/Debug" --include="*.sh" --include="*.py" build src tests Guide.Linux/verify-all.sh 2>/dev/null | grep -v "^src/Linux/build/selfbuilt-config.sh:" | awk -F: '$2>0' | sort -t: -k2 -rn | head -8)
+    (cd "$SBC_REPO" && grep -rc "bin/Debug" --include="*.sh" --include="*.py" src Guide.Linux/verify-all.sh 2>/dev/null | grep -v "^src/Linux/build/selfbuilt-config.sh:" | awk -F: '$2>0' | sort -t: -k2 -rn | head -8)
     ;;
   --debt-check)
     # 🦷 棘轮：**欠账只许减少**。上限是一个**字面量常量**（不做成可覆盖的环境变量 —— 与
     #   `build-hygiene-import-check.sh` 的 `CAND_MIN` 同族：可覆盖就等于没有牙）。
     DEBT_MAX=167   # 见下方注释：本文件自身的匹配串已被排除在计数之外
-    n="$(cd "$SBC_REPO" && grep -rn "bin/Debug" --include="*.sh" --include="*.py" build src tests Guide.Linux/verify-all.sh 2>/dev/null \
+    n="$(cd "$SBC_REPO" && grep -rn "bin/Debug" --include="*.sh" --include="*.py" src Guide.Linux/verify-all.sh 2>/dev/null \
                 | grep -v "^src/Linux/build/selfbuilt-config.sh:" | wc -l)"
     if [ "$n" -le "$DEBT_MAX" ]; then
       echo "SELFCONFIG_DEBT_CHECK=PASS live=$n max=$DEBT_MAX（只许减少；降到 0 = 阶段 3 完成）"

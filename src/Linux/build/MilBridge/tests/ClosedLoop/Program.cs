@@ -1040,7 +1040,7 @@ namespace MilBridge.ClosedLoop
 
             // ③ 开发树：T2 的 wic-shim 产物（首次部署的来源）
             var di = new DirectoryInfo(AppContext.BaseDirectory);
-            for (int up = 0; up < 9 && di != null; up++, di = di.Parent)
+            for (int up = 0; up < 12 && di != null; up++, di = di.Parent)
             {
                 string p = Path.Combine(di.FullName, "src", "Microsoft.DotNet.Wpf.Linux", "src", "DirectWrite", "wic-shim", "libwpfwic.so");
                 if (File.Exists(p)) return p;
@@ -1051,7 +1051,7 @@ namespace MilBridge.ClosedLoop
         private static string FindProbePng()
         {
             var di = new DirectoryInfo(AppContext.BaseDirectory);
-            for (int up = 0; up < 9 && di != null; up++, di = di.Parent)
+            for (int up = 0; up < 12 && di != null; up++, di = di.Parent)
             {
                 string p = Path.Combine(di.FullName, "src", "Linux", "tests", "artifacts", "rendering", "solid_rectangle.png");
                 if (File.Exists(p)) return p;
@@ -1158,7 +1158,7 @@ namespace MilBridge.ClosedLoop
             if (!string.IsNullOrEmpty(env) && System.IO.File.Exists(env)) return env;
 
             var di = new System.IO.DirectoryInfo(AppContext.BaseDirectory);
-            for (int up = 0; up < 9 && di != null; up++, di = di.Parent)
+            for (int up = 0; up < 12 && di != null; up++, di = di.Parent)
             {
                 string p = System.IO.Path.Combine(di.FullName, "src", "Linux", "build", "fonts", "NotoSans-Regular.ttf");
                 if (System.IO.File.Exists(p)) return p;

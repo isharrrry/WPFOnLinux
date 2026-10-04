@@ -75,7 +75,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
 PC_DIR = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "PresentationCore")
 CSPROJ = os.path.join(PC_DIR, "PresentationCore.Linux.csproj")
-UP = os.path.join(ROOT, "upstream", "wpf", "src", "Microsoft.DotNet.Wpf", "src",
+UP = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf", "src",
                   "PresentationCore", "System", "Windows", "Input")
 
 MARKER_BEGIN = ("  <!-- ==== WPF-on-Linux M7c 补丁 J：输入栈的 Registry null 守卫"

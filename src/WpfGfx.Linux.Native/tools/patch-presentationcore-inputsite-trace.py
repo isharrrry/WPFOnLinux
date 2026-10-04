@@ -106,7 +106,7 @@ def _sha(t):
 
 
 def _build(check_only=False):
-    up = os.path.join(ROOT, "upstream", "wpf", UP_REL)
+    up = os.path.join(ROOT, UP_REL)
     if not os.path.exists(up):
         print(f"[失败] 找不到上游 {up}")
         return None, 1
@@ -153,7 +153,7 @@ def _header():
 
 
 def prove():
-    up = os.path.join(ROOT, "upstream", "wpf", UP_REL)
+    up = os.path.join(ROOT, UP_REL)
     with open(up, encoding="utf-8-sig") as f:
         text = f.read()
     if os.path.exists(GEN):

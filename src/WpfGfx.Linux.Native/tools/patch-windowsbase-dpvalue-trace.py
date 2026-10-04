@@ -1057,7 +1057,7 @@ def _header():
 
 
 def _build():
-    up = os.path.join(ROOT, "upstream", "wpf", UP_REL)
+    up = os.path.join(ROOT, UP_REL)
     if not os.path.exists(up):
         print(f"[失败] 找不到上游 {up}")
         return None, 1
@@ -1110,7 +1110,7 @@ def _build():
 
 
 def prove():
-    with open(os.path.join(ROOT, "upstream", "wpf", UP_REL), encoding="utf-8-sig") as f:
+    with open(os.path.join(ROOT, UP_REL), encoding="utf-8-sig") as f:
         text = f.read()
     body, where = None, None
     if os.path.exists(GEN):

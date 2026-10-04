@@ -79,8 +79,8 @@ PATCH_F = '''  <!-- ============================================================
 
 # ── 补丁 G 的生成器 ────────────────────────────────────────────────────────
 UPSTREAM_SECURITY_HELPER = os.path.join(
-    os.path.dirname(os.path.dirname(HERE)),
-    "upstream", "wpf", "src", "Microsoft.DotNet.Wpf", "src",
+    HERE, "..", "..", "..", "..",
+    "src", "Microsoft.DotNet.Wpf", "src",
     "Shared", "MS", "Internal", "SecurityHelper.cs")
 GENERATED_SECURITY_HELPER = os.path.join(HERE, "SecurityHelper.Linux.cs")
 
@@ -163,7 +163,7 @@ def main():
     with open(CSPROJ, "w", encoding="utf-8") as f:
         f.write(text)
 
-    shim = os.path.join(os.path.dirname(os.path.dirname(HERE)),
+    shim = os.path.join(HERE, "..", "..", "..", "..",
                         "src", "Microsoft.DotNet.Wpf.Linux", "src", "shims", "WindowsBase.EventTrace.Shim.cs")
     print(f"[OK] 已注入补丁 G（SecurityHelper null 守卫）+ F（Linux 版 EventTrace）→ {CSPROJ}")
     if not os.path.exists(shim):

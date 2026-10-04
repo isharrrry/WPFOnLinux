@@ -98,9 +98,9 @@ UIAD_SKIPDIRS='obj bin .artifacts __pycache__ .vs TestResults'
 #   ⇒ 不排除 ⇒ 本件**给自己造了一个生产者** ⇒ `prod` 假 ≥1（这正是本仓"仪器读到自己"那一家族）。
 UIAD_SKIP_PREFIXES='src/Linux/build/MilBridge'
 # 「路」的覆盖面（只数 live_calls）：编译进来的上游真源码（W72A 报告 §2.1 的三处宿主）
-UIAD_PATH_ROOTS='upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationCore
-                 upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationFramework
-                 upstream/wpf/src/Microsoft.DotNet.Wpf/src/UIAutomation/UIAutomationProvider'
+UIAD_PATH_ROOTS='src/Microsoft.DotNet.Wpf/src/PresentationCore
+                 src/Microsoft.DotNet.Wpf/src/PresentationFramework
+                 src/Microsoft.DotNet.Wpf/src/UIAutomation/UIAutomationProvider'
 UIAD_PATH_EXTS='.cs'
 # 生产者形状的**声明动词**（`WM_GETOBJECT` 必须是这些调用的**实参**）
 UIAD_VERBS='SendMessage|SendMessageTimeout|SendMessageW|PostMessage|PostMessageW|SendNotifyMessage|push_message|post_message|send_message|push|post|emit|raise|dispatch|notify'
@@ -109,7 +109,7 @@ UIAD_LIVE_PAT='AutomationInteropProvider\.[A-Za-z_]+|AutomationProvider\.[A-Za-z
 # 锚（`strict` 模式要求的**仓内专有**件；别的树用 `UIAD_ANCHORS=off`）
 UIAD_ANCHORS_LIST='src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/HwndTarget.Linux.cs
                    src/Microsoft.DotNet.Wpf.Linux/src/shims/Win32ShimResolver.cs
-                   upstream/wpf/src/Microsoft.DotNet.Wpf/src/UIAutomation/UIAutomationProvider/MS/Internal/Automation/UiaCoreProviderApi.cs'
+                   src/Microsoft.DotNet.Wpf/src/UIAutomation/UIAutomationProvider/MS/Internal/Automation/UiaCoreProviderApi.cs'
 # 压成单行（bash 把换行当分隔符；压平后传 argv 更稳、打印也更整齐）
 UIAD_PATH_ROOTS="$(printf '%s' "$UIAD_PATH_ROOTS" | tr -s '[:space:]' ' ' | sed 's/^ //; s/ $//')"
 UIAD_ANCHORS_LIST="$(printf '%s' "$UIAD_ANCHORS_LIST" | tr -s '[:space:]' ' ' | sed 's/^ //; s/ $//')"

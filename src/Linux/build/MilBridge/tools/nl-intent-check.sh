@@ -68,7 +68,7 @@ HC_XAML="${HC_XAML:-/home/links-dev/hc-linux/src/Shared/HandyControlDemo_Shared/
 NL_SRC_NAME="PresentationFramework/System/Windows/Documents/NaturalLanguageHyphenator.cs"
 TP_SRC_NAME="PresentationFramework/MS/Internal/PtsHost/TextParagraph.cs"
 NAMES="NlCreateHyphenator NlDestroyHyphenator NlGetClassObject NlHyphenate NlLoad NlUnload"
-UP="$R/upstream/wpf/src/Microsoft.DotNet.Wpf/src"
+UP="$R/src/Microsoft.DotNet.Wpf/src"
 NL_SRC="$UP/$NL_SRC_NAME"
 TP_SRC="$UP/$TP_SRC_NAME"
 

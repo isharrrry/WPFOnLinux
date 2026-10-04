@@ -50,11 +50,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="PresentationCore"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/Debug/PresentationCore.dll</HintPath><Private>true</Private></Reference>
-    <Reference Include="System.Xaml"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/System.Xaml/bin/Debug/System.Xaml.dll</HintPath><Private>true</Private></Reference>
-    <Reference Include="WindowsBase"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/bin/Debug/WindowsBase.dll</HintPath><Private>true</Private></Reference>
-    <Reference Include="UIAutomationTypes"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/UIAutomationTypes/bin/Debug/UIAutomationTypes.dll</HintPath><Private>true</Private></Reference>
-    <Reference Include="UIAutomationProvider"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/UIAutomationProvider/bin/Debug/UIAutomationProvider.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="PresentationCore"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationCore.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="System.Xaml"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/System.Xaml/bin/$(WpfLinuxSelfBuiltConfiguration)/System.Xaml.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="WindowsBase"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/bin/$(WpfLinuxSelfBuiltConfiguration)/WindowsBase.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="UIAutomationTypes"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/UIAutomationTypes/bin/$(WpfLinuxSelfBuiltConfiguration)/UIAutomationTypes.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="UIAutomationProvider"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/UIAutomationProvider/bin/$(WpfLinuxSelfBuiltConfiguration)/UIAutomationProvider.dll</HintPath><Private>true</Private></Reference>
   </ItemGroup>
 
   <!-- CycleBreakers 替身（编译期专用，<Private>false</Private> 绝不进输出）：
@@ -62,11 +62,11 @@
        **不存在** → 用 src/Linux/build/CycleStub.* 的等价替身。替身的 AssemblyName 就是真程序集名
        （PresentationFramework / ReachFramework），故 System.Printing.dll 里的类型引用在**运行期**
        自动绑定到真程序集（替身只参与编译）。详见两个替身工程的头部注释。 -->
-  <ItemGroup Condition="Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/CycleStub.PresentationFramework/bin/Debug/PresentationFramework.dll')">
-    <Reference Include="PresentationFramework"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/CycleStub.PresentationFramework/bin/Debug/PresentationFramework.dll</HintPath><Private>false</Private></Reference>
+  <ItemGroup Condition="Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/CycleStub.PresentationFramework/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationFramework.dll')">
+    <Reference Include="PresentationFramework"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/CycleStub.PresentationFramework/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationFramework.dll</HintPath><Private>false</Private></Reference>
   </ItemGroup>
-  <ItemGroup Condition="Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/CycleStub.ReachFramework/bin/Debug/ReachFramework.dll')">
-    <Reference Include="ReachFramework"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/CycleStub.ReachFramework/bin/Debug/ReachFramework.dll</HintPath><Private>false</Private></Reference>
+  <ItemGroup Condition="Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/CycleStub.ReachFramework/bin/$(WpfLinuxSelfBuiltConfiguration)/ReachFramework.dll')">
+    <Reference Include="ReachFramework"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/CycleStub.ReachFramework/bin/$(WpfLinuxSelfBuiltConfiguration)/ReachFramework.dll</HintPath><Private>false</Private></Reference>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.IO.Packaging" Version="9.0.0" />

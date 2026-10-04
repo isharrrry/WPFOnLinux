@@ -60,7 +60,7 @@ ROOT = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
 PC_DIR = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "PresentationCore")
 CSPROJ = os.path.join(PC_DIR, "PresentationCore.Linux.csproj")
 GENERATED = os.path.join(PC_DIR, "OleServicesContext.Linux.cs")
-UPSTREAM = os.path.join(ROOT, "upstream", "wpf", "src", "Microsoft.DotNet.Wpf", "src",
+UPSTREAM = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf", "src",
                         "PresentationCore", "System", "Windows", "OleServicesContext.cs")
 
 MARKER_BEGIN = ("  <!-- ==== WPF-on-Linux M7c 补丁 K：OleServicesContext 的 STA 检查与 OLE 初始化"

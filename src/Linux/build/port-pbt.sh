@@ -12,9 +12,9 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 readonly SCRIPT_DIR
-readonly UPSTREAM_ROOT="${UPSTREAM_WPF_ROOT:-$(cd "${SCRIPT_DIR}/../../.." && pwd)/upstream/wpf}"
+readonly UPSTREAM_ROOT="${UPSTREAM_WPF_ROOT:-$(cd "${SCRIPT_DIR}/../../.." && pwd)}"
 readonly UPSTREAM_CSPROJ="${UPSTREAM_ROOT}/src/Microsoft.DotNet.Wpf/src/PresentationBuildTasks/PresentationBuildTasks.csproj"
-readonly OUT_DIR="${SCRIPT_DIR}/PresentationBuildTasks.Linux"
+readonly OUT_DIR="${SCRIPT_DIR}/../../../Microsoft.DotNet.Wpf.Linux/src/PresentationBuildTasks"
 readonly OUT_CSPROJ="${OUT_DIR}/PresentationBuildTasks.Linux.csproj"
 
 # 目标框架：锁 net10.0，与 T0 锁定的 SDK 10.0.111 对齐
@@ -169,7 +169,7 @@ props = """
     <WpfSourceDir>$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/</WpfSourceDir>
     <WpfSharedDir>$(WpfSourceDir)Shared/</WpfSharedDir>
     <WpfCommonDir>$(WpfSourceDir)Common/</WpfCommonDir>
-    <UpstreamWpfRoot Condition="'$(UpstreamWpfRoot)'==''">$(MSBuildThisFileDirectory)../../upstream/wpf/</UpstreamWpfRoot>
+    <UpstreamWpfRoot Condition="'$(UpstreamWpfRoot)'==''">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../../../../'))/</UpstreamWpfRoot>
     <!-- 改动7：上游 PresentationBuildTasks 源文件目录（本工程不含源码副本，全部从上游编译） -->
     <UpstreamPbtDir>$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationBuildTasks/</UpstreamPbtDir>
     <!-- 改动5：Arcade 注入的包版本号，此处写死，避免版本漂移 -->
@@ -193,7 +193,7 @@ cat > "${OUT_DIR}/Directory.Build.props" <<'EOF'
   <!-- 改动4：切断对上游 Arcade SDK 的继承，使本工程自包含 -->
   <PropertyGroup>
     <UpstreamWpfRoot Condition="'$(UpstreamWpfRoot)' == '' and '$(UPSTREAM_WPF_ROOT)' != ''">$(UPSTREAM_WPF_ROOT)</UpstreamWpfRoot>
-    <UpstreamWpfRoot Condition="'$(UpstreamWpfRoot)' == ''">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../../upstream/wpf'))/</UpstreamWpfRoot>
+    <UpstreamWpfRoot Condition="'$(UpstreamWpfRoot)' == ''">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../../../../'))/</UpstreamWpfRoot>
     <!-- 关掉会干扰的 SDK 默认行为 -->
     <Nullable>disable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>

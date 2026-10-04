@@ -30,15 +30,15 @@
 
   <ItemGroup>
     <Reference Include="PresentationCore">
-      <HintPath>$(MSBuildThisFileDirectory)../../PresentationCore/bin/Debug/PresentationCore.dll</HintPath>
+      <HintPath>$(MSBuildThisFileDirectory)../../PresentationCore/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationCore.dll</HintPath>
       <Private>true</Private>
     </Reference>
     <Reference Include="WindowsBase">
-      <HintPath>$(MSBuildThisFileDirectory)../../WindowsBase/bin/Debug/WindowsBase.dll</HintPath>
+      <HintPath>$(MSBuildThisFileDirectory)../../WindowsBase/bin/$(WpfLinuxSelfBuiltConfiguration)/WindowsBase.dll</HintPath>
       <Private>true</Private>
     </Reference>
     <Reference Include="DirectWriteForwarder">
-      <HintPath>$(MSBuildThisFileDirectory)../../DirectWriteForwarder/bin/Debug/DirectWriteForwarder.dll</HintPath>
+      <HintPath>$(MSBuildThisFileDirectory)../../DirectWriteForwarder/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWriteForwarder.dll</HintPath>
       <Private>true</Private>
     </Reference>
   </ItemGroup>

@@ -448,7 +448,7 @@ def _sha(t):
 
 
 def _build_one(rel, gen_name, edits):
-    up = os.path.join(ROOT, "upstream", "wpf", rel)
+    up = os.path.join(ROOT, rel)
     if not os.path.exists(up):
         print(f"[失败] 找不到上游 {up}")
         return None, 1
@@ -513,7 +513,7 @@ def _build_all():
 def prove():
     rc_all = 0
     for rel, gen_name, edits in TARGETS:
-        up = os.path.join(ROOT, "upstream", "wpf", rel)
+        up = os.path.join(ROOT, rel)
         gen = os.path.join(PF_DIR, gen_name)
         with open(up, encoding="utf-8-sig") as f:
             text = f.read()

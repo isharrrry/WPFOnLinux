@@ -212,7 +212,7 @@ roster_names() {   # 印在册名（每行一个）；源缺失／表头锚取�
 #   依据（现场）：`entry=` 在 native 台账零行时取自**内层异常的入口名**
 #   （`src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/PtsCache.Linux.cs` 的 `Describe()`）⇒ 取值域 ＝ **DllImport 入口名**，
 #   不必属 PTS（实测 `LoSetDoc` 属 LineServices 族：`upstream/…/TextFormatting/LineServices.cs` 的 `DllImport` 行）。
-DECL_TREE="${PTS_G10_DECL_TREE:-$(cd "$SELF_DIR/../../../../.." && pwd)/upstream/wpf}"
+DECL_TREE="${PTS_G10_DECL_TREE:-$(cd "$SELF_DIR/../../../../.." && pwd)/src/Microsoft.DotNet.Wpf}"
 #   ⏪ dated **收紧（`t82`／scribe，2026-09-28；`t77` 的 `F1` 真缺陷）**：旧锚只要求「同一行同时出现
 #     `DllImport` 与 `EntryPoint="<名>"`」⇒ **不分辨「声明」与「注释/字面量」**：一条注释里写下这两串
 #     就能把任意名字判绿（现取复现：假树只有一行注释 ⇒ `PASS observed=… domains=dllimport-entry`）。
@@ -1171,10 +1171,10 @@ ENFE_EOF
             _o26="$(judge_legs "$T/c26" 2>&1)" || true
             DECL_TREE="$_save_tree"
             chk PASS "$(out "$_o26")" "G10c·非PTS真名 ⇒ 不红"
-            if grep -qF 'domains=dllimport-entry' <<< "$_o26" && grep -qE 'decl=[^ ]*(upstream/wpf/.*\.cs|ft-real/A\.cs):[0-9]+' <<< "$_o26"; then
+            if grep -qF 'domains=dllimport-entry' <<< "$_o26" && grep -qE 'decl=[^ ]*(src/Microsoft\.DotNet\.Wpf/.*\.cs|ft-real/A\.cs):[0-9]+' <<< "$_o26"; then
               npass=$((npass+1)); printf '  %-34s => %-6s ok\n' "G10c·非PTS真名 ⇒ 声明位点名" "yes"
             else
-              nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "G10c·非PTS真名 ⇒ 声明位点名" "no" "domains=dllimport-entry+decl=<…>/(upstream/wpf|ft-real)/*.cs:<line>"
+              nfail=$((nfail+1)); printf '  %-34s => %-6s ✗ 期望 %s\n' "G10c·非PTS真名 ⇒ 声明位点名" "no" "domains=dllimport-entry+decl=<…>/(src/Microsoft.DotNet.Wpf|ft-real)/*.cs:<line>"
             fi
   # ㉗ 非 PTS 域**假名** ⇒ `FAIL`
   good c27; printf 'TAB entry=NoSuchDeclaredEntryZZ\n' > "$T/c27/app_g1.log"

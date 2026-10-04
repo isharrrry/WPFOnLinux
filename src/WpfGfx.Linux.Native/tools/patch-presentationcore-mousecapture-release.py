@@ -72,7 +72,7 @@ XAML_IMPORT_ANCHOR = '  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 # =====================================================================================
 
 UP_REL_M1 = ("src/Microsoft.DotNet.Wpf/src/PresentationCore/System/Windows/Input/MouseDevice.cs")
-UP_M1 = os.path.join(ROOT, "upstream", "wpf", UP_REL_M1)
+UP_M1 = os.path.join(ROOT, UP_REL_M1)
 GEN_M1 = os.path.join(PC_DIR, "MouseDevice.Linux.cs")
 
 ANCHOR_M1 = "                        mouseInputProvider.ReleaseMouseCapture();\n"
@@ -110,7 +110,7 @@ REQUIRED_M1 = [
 
 UP_REL_M2 = ("src/Microsoft.DotNet.Wpf/src/PresentationCore/System/Windows/InterOp/"
              "HwndMouseInputProvider.cs")
-UP_M2 = os.path.join(ROOT, "upstream", "wpf", UP_REL_M2)
+UP_M2 = os.path.join(ROOT, UP_REL_M2)
 GEN_M2 = os.path.join(PC_DIR, "HwndMouseInputProvider.Linux.cs")
 
 ANCHOR_M2 = "                        if(!IsOurWindow(lParam) && _active)\n"

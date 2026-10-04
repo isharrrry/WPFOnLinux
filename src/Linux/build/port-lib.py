@@ -15,8 +15,8 @@
 用法：
     python3 src/Linux/build/port-lib.py WindowsBase [PresentationCore ...]
 产物：
-    src/Linux/build/<Name>.Linux/<Name>.Linux.csproj
-    src/Linux/build/<Name>.Linux/PORT-CHANGES.md
+    src/Microsoft.DotNet.Wpf.Linux/src/<Name>/<Name>.Linux.csproj
+    src/Microsoft.DotNet.Wpf.Linux/src/<Name>/PORT-CHANGES.md
 """
 import os
 import re
@@ -25,16 +25,27 @@ import glob as globmod
 import subprocess
 import xml.etree.ElementTree as ET
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-OUTROOT = os.path.dirname(HERE)
+HERE = os.path.dirname(os.path.abspath(__file__))          # <仓根>/src/Linux/build
+
+# ★ OUTROOT 的语义 = **仓根**（不是 src/Linux）。
+#   结构上游化把 `src/Linux/build/` 从仓根挪到深度 3（`<仓根>/src/Linux/build/`），
+#   于是 `dirname(HERE)`（= src/Linux）**不再是仓根**；旧写法让所有落点派生指错
+#   （例如 `src/Linux/upstream/wpf` 不存在）。此处恢复其唯一语义：仓库根。
+OUTROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))    # <仓根>
+# 自产覆盖层（`*.Linux.csproj` + 生成件）与 shim 的最终落点。
+LINUX_SRC = os.path.join(OUTROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src")
+SHIMS_DIR = os.path.join(LINUX_SRC, "shims")
 
 
 def _upstream_repo():
-    """上游 dotnet/wpf 仓库根：优先环境变量，缺省为本仓库 upstream/wpf 只读副本。"""
+    """上游 dotnet/wpf 仓库根：优先环境变量，缺省为本仓内 `src/` 之上的仓根本身。
+
+    结构上游化后，上游 `src/Microsoft.DotNet.Wpf/**` 直接落在**本仓根**下 ⇒
+    「上游仓库根」与「本仓根」在本图里是同一个路径（`$(UpstreamWpfRoot)` == `$(WpfLinuxRoot)`）。"""
     env = os.environ.get("UPSTREAM_WPF_ROOT") or os.environ.get("UpstreamWpfRoot")
     if env:
         return os.path.normpath(env)
-    return os.path.join(OUTROOT, "upstream", "wpf")
+    return OUTROOT
 
 
 def upstream_nowarn(proj_dir):
@@ -149,6 +160,7 @@ def _declared_config():
     `hits[-1]`（排序最后一个），而 Debug 与 Release 同时在盘上时那等于**由字典序**决定
     引用指向哪个配置 —— 正是"同一语义多处 ⇒ 必然分叉"那一族。现在以声明为准。"""
     decl = os.path.join(OUTROOT, "src", "Linux", "build", "SelfBuiltConfig.props")
+    # ↑ OUTROOT 语义 = 仓根（见文件头）；本件在 src/Linux/build/ 下，相对仓根不变。
     try:
         txt = open(decl, encoding="utf-8").read()
     except OSError:
@@ -158,14 +170,14 @@ def _declared_config():
 
 
 def find_built_dll(proj_name):
-    """在本工程 src/Linux/build/<Name>.Linux/bin/<声明配置>/ 下找已编译出的同名 DLL。"""
+    """在本工程 src/Microsoft.DotNet.Wpf.Linux/src/<Name>/bin/<声明配置>/ 下找已编译出的同名 DLL。"""
     cfg = _declared_config()
     if cfg:
-        want = os.path.join(OUTROOT, "build", proj_name + ".Linux", "bin", cfg, proj_name + ".dll")
+        want = os.path.join(LINUX_SRC, proj_name, "bin", cfg, proj_name + ".dll")
         if os.path.exists(want):
             return want
         print(f"[{proj_name}] ⚠️ 声明配置 {cfg} 下没有构建物（{want}）⇒ 回退 glob 兜底（**如实报出**，不许静默）")
-    pat = os.path.join(OUTROOT, "build", proj_name + ".Linux", "bin", "**", proj_name + ".dll")
+    pat = os.path.join(LINUX_SRC, proj_name, "bin", "**", proj_name + ".dll")
     hits = [p for p in sorted(globmod.glob(pat, recursive=True))
             if "/ref/" not in p and "/obj/" not in p]
     return hits[-1] if hits else None
@@ -195,7 +207,7 @@ def port(name):
     raw = open(src_csproj, encoding="utf-8-sig", errors="ignore").read()
 
     changes = []
-    outdir = os.path.join(OUTROOT, "build", name + ".Linux")
+    outdir = os.path.join(LINUX_SRC, name)
     os.makedirs(outdir, exist_ok=True)
 
     # ---------- 1. 收集 Compile 项 ----------
@@ -433,8 +445,8 @@ def port(name):
         """绝对路径 → $(UpstreamWpfRoot)/$(WpfLinuxRoot) 变量形式，保证生成物可搬迁。
 
         两个变量的值约定**以斜杠结尾**（Directory.Upstream.props 里 EnsureTrailingSlash
-        保证）。注意：本脚本的 UPSTREAM 指向 <上游仓库>/src/Microsoft.DotNet.Wpf/src，
-        而变量 $(UpstreamWpfRoot) 指向 <上游仓库> 根——拼回时要补上中间两段。"""
+        保证）。注意：本脚本的 UPSTREAM 指向 <仓根>/src/Microsoft.DotNet.Wpf/src，
+        而变量 $(UpstreamWpfRoot) 指向**仓根**（结构上游化后 == 上游仓库根）——拼回时要补上中间两段。"""
         rp = os.path.normpath(p).replace(os.sep, "/")
         up = os.path.normpath(UPSTREAM).replace(os.sep, "/")
         repo = os.path.normpath(OUTROOT).replace(os.sep, "/")
@@ -443,7 +455,7 @@ def port(name):
         if rp.startswith(repo + "/"):
             rel = rp[len(repo) + 1:]
             # ⚠️【`#39` 阶段 2/3】仓库内的自产件路径**不许写死配置**：
-            #   `src/Linux/build/<X>.Linux/bin/Debug/<X>.dll` ⇒ `src/Linux/build/<X>.Linux/bin/$(Configuration)/<X>.dll`，
+            #   `src/Microsoft.DotNet.Wpf.Linux/src/<X>/bin/Debug/<X>.dll` ⇒ `…/bin/$(Configuration)/<X>.dll`，
             #   否则"切 Release"必须逐个重生成 + 逐个 sed（本仓已登记同族教训）。
             rel = re.sub(r"(?<=/bin/)(?:Debug|Release)(?=/)", "$(Configuration)", rel, count=1)
             return "$(WpfLinuxRoot)" + rel
@@ -521,7 +533,7 @@ def port(name):
         out.append("  </ItemGroup>")
 
     # 上游 ProjectReference -> 本工程内已编译通过的本地 DLL
-    # （上游依赖链由 Arcade 串起，这里改为按名字在本工程 src/Linux/build/ 下查找产物）
+    # （上游依赖链由 Arcade 串起，这里改为按名字在本工程 src/Microsoft.DotNet.Wpf.Linux/src/ 下查找产物）
     local_refs, unresolved_refs = [], []
     for pr in re.findall(r"<ProjectReference\s+Include=\"([^\"]+)\"", raw):
         # 必须先统一分隔符再取 basename：Linux 下 os.path.basename 不认反斜杠
@@ -597,7 +609,7 @@ def port(name):
     # 全仓共享的 WindowsWin32.Shim.cs 不自动注入——各项目在清单里显式列出，
     # 避免给不需要的项目（如 System.Xaml）平添编译面。
     shims = []
-    shim_list = os.path.join(HERE, "shims", name + ".shims.txt")
+    shim_list = os.path.join(SHIMS_DIR, name + ".shims.txt")
     if os.path.exists(shim_list):
         for line in open(shim_list, encoding="utf-8"):
             line = line.strip()
@@ -615,7 +627,7 @@ def port(name):
     # 不注入它，自产程序集 AssemblyVersion 会是 0.0.0.0，被 net10.0 框架里同名门面
     # （Microsoft.NETCore.App/.../WindowsBase.dll，4.0.0.0）在编译期与运行期双重遮蔽。
     # 详见 src/Microsoft.DotNet.Wpf.Linux/src/shims/LinuxAssemblyIdentity.cs 的文件头注释。
-    identity = os.path.join(HERE, "shims", "LinuxAssemblyIdentity.cs")
+    identity = os.path.join(SHIMS_DIR, "LinuxAssemblyIdentity.cs")
     if os.path.exists(identity):
         out.append("  <!-- 自产程序集身份：AssemblyVersion 4.0.0.1，必须 > 框架门面的 4.0.0.0 -->")
         out.append("  <ItemGroup>")
@@ -748,7 +760,7 @@ def port(name):
     print(f"          → {dst}")
     if unresolved_refs:
         print(f"          ⚠ 未解析的本地引用：{unresolved_refs}"
-              f" —— 请先构建 src/Linux/build/<Name>.Linux 产出 DLL 后重跑本脚本")
+              f" —— 请先构建 src/Microsoft.DotNet.Wpf.Linux/src/<Name> 产出 DLL 后重跑本脚本")
     if still_missing:
         for inc, ap in still_missing[:8]:
             print(f"          缺失: {inc}  ->  {ap}")

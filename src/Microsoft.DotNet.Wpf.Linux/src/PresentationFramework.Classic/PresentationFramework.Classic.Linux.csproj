@@ -24,10 +24,10 @@
     <AssemblyOriginatorKeyFile>$(WpfLinuxRoot)src/Linux/build/keys/WcpPublicKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System.Xaml"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/System.Xaml/bin/Debug/System.Xaml.dll</HintPath><Private>true</Private></Reference>
-    <Reference Include="WindowsBase"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/bin/Debug/WindowsBase.dll</HintPath><Private>true</Private></Reference>
-    <Reference Include="PresentationCore"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/Debug/PresentationCore.dll</HintPath><Private>true</Private></Reference>
-    <Reference Include="PresentationFramework"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/bin/Debug/PresentationFramework.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="System.Xaml"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/System.Xaml/bin/$(WpfLinuxSelfBuiltConfiguration)/System.Xaml.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="WindowsBase"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/bin/$(WpfLinuxSelfBuiltConfiguration)/WindowsBase.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="PresentationCore"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationCore.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="PresentationFramework"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationFramework.dll</HintPath><Private>true</Private></Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/Shared/RefAssemblyAttrs.cs" />
@@ -64,8 +64,8 @@
 
   <!-- ③ PresentationUI：上游引用 PresentationUI.csproj（Classic.xaml 的 ui:PresentationUIStyleResources）；
        port-lib 找不到 src/Linux/build/PresentationUI.Linux（本移植由 CycleStub.PresentationUI 顶替）→ 显式接回 -->
-  <ItemGroup Condition="Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/CycleStub.PresentationUI/bin/Debug/PresentationUI.dll')">
-    <Reference Include="PresentationUI"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/CycleStub.PresentationUI/bin/Debug/PresentationUI.dll</HintPath><Private>true</Private></Reference>
+  <ItemGroup Condition="Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/CycleStub.PresentationUI/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationUI.dll')">
+    <Reference Include="PresentationUI"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/CycleStub.PresentationUI/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationUI.dll</HintPath><Private>true</Private></Reference>
   </ItemGroup>
 
   <ItemGroup>

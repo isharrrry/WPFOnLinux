@@ -60,7 +60,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))   # …/src/WpfGfx.Linux.Native/tools -> 仓库根
 
 UPSTREAM = os.path.join(
-    REPO, "upstream", "wpf", "src", "Microsoft.DotNet.Wpf", "src",
+    REPO, "src", "Microsoft.DotNet.Wpf", "src",
     "Shared", "MS", "Internal", "SecurityHelper.cs")
 
 GEN_DIR = os.path.join(REPO, "src", "Microsoft.DotNet.Wpf.Linux", "src", "PresentationCore")

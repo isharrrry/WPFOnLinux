@@ -49,8 +49,8 @@ CSPROJ = os.path.join(PC_DIR, "PresentationCore.Linux.csproj")
 UP_REL_HS = ("src/Microsoft.DotNet.Wpf/src/PresentationCore/System/Windows/InterOp/HwndSource.cs")
 UP_REL_HK = ("src/Microsoft.DotNet.Wpf/src/PresentationCore/System/Windows/InterOp/"
              "HwndKeyboardInputProvider.cs")
-UPSTREAM_HS = os.path.join(ROOT, "upstream", "wpf", UP_REL_HS)
-UPSTREAM_HK = os.path.join(ROOT, "upstream", "wpf", UP_REL_HK)
+UPSTREAM_HS = os.path.join(ROOT, UP_REL_HS)
+UPSTREAM_HK = os.path.join(ROOT, UP_REL_HK)
 GEN_HS = os.path.join(PC_DIR, "HwndSource.Linux.cs")
 GEN_HK = os.path.join(PC_DIR, "HwndKeyboardInputProvider.Linux.cs")
 

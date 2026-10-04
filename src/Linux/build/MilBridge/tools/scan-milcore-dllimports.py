@@ -11,8 +11,9 @@ import os
 import re
 import sys
 
-REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-UP = os.path.join(REPO, "upstream", "wpf", "src", "Microsoft.DotNet.Wpf", "src")
+# 仓根：`src/Linux/build/MilBridge/tools/` 上溯 **5** 级（结构上游化把本件从仓根挪深 3 级）。
+REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", ".."))
+UP = os.path.join(REPO, "src", "Microsoft.DotNet.Wpf", "src")
 
 # 扫描集合：M7a 固化的 8 个 in-tree 文件 + Common/Graphics 2 个
 FILES = [

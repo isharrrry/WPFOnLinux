@@ -319,7 +319,7 @@
     <WpfSourceDir>$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/</WpfSourceDir>
     <WpfSharedDir>$(WpfSourceDir)Shared/</WpfSharedDir>
     <WpfCommonDir>$(WpfSourceDir)Common/</WpfCommonDir>
-    <UpstreamWpfRoot Condition="'$(UpstreamWpfRoot)'==''">$(MSBuildThisFileDirectory)../../upstream/wpf/</UpstreamWpfRoot>
+    <UpstreamWpfRoot Condition="'$(UpstreamWpfRoot)'==''">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../../../../'))/</UpstreamWpfRoot>
     <!-- 改动7：上游 PresentationBuildTasks 源文件目录（本工程不含源码副本，全部从上游编译） -->
     <UpstreamPbtDir>$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationBuildTasks/</UpstreamPbtDir>
     <!-- 改动5：Arcade 注入的包版本号，此处写死，避免版本漂移 -->

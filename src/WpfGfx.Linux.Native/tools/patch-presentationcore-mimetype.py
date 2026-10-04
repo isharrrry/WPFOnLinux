@@ -60,7 +60,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 
 UPSTREAM_REL = "src/Microsoft.DotNet.Wpf/src/Shared/MS/Internal/MimeTypeMapper.cs"
-UPSTREAM = os.path.join(ROOT, "upstream", "wpf", UPSTREAM_REL)
+UPSTREAM = os.path.join(ROOT, UPSTREAM_REL)
 PC_DIR = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "PresentationCore")
 GENERATED = os.path.join(PC_DIR, "MimeTypeMapper.Linux.cs")
 CSPROJ = os.path.join(PC_DIR, "PresentationCore.Linux.csproj")

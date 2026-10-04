@@ -1,4 +1,10 @@
 <Project>
+  <!-- 自产件配置的**唯一声明**（`$(WpfLinuxSelfBuiltConfiguration)` 的来源）。本目录下并非每个
+       探针都自带这条 import ⇒ 在此兜底引入；已定义（例如经 `BuildHygiene.props` 引入过）则不重复
+       导入，免得 MSBuild 报 `MSB4011`（同一文件重复导入）。 -->
+  <Import Project="$(MSBuildThisFileDirectory)../../SelfBuiltConfig.props"
+          Condition="'$(WpfLinuxSelfBuiltConfiguration)' == ''" />
+
   <!-- ==========================================================================
        让 Release 构建**显式**把权威 Provider 拷进探针的启动目录（债务 #20 同族）。
 
@@ -12,7 +18,7 @@
        口径与校验：src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh（只报不改）。
        ========================================================================== -->
   <PropertyGroup>
-    <ProviderAuthorityPath Condition="'$(ProviderAuthorityPath)' == ''">$(MSBuildThisFileDirectory)../../../../Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/Debug/DirectWrite.Linux.Provider.dll</ProviderAuthorityPath>
+    <ProviderAuthorityPath Condition="'$(ProviderAuthorityPath)' == ''">$(MSBuildThisFileDirectory)../../../../Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWrite.Linux.Provider.dll</ProviderAuthorityPath>
   </PropertyGroup>
 
   <Target Name="SyncProviderAuthority"

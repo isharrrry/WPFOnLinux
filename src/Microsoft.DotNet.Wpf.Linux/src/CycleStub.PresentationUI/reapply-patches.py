@@ -38,9 +38,9 @@ import os
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-REPO = os.path.abspath(os.path.join(HERE, "..", ".."))
+REPO = os.path.abspath(os.path.join(HERE, "..", "..", "..", ".."))
 UPSTREAM_GENERIC = os.path.join(
-    REPO, "upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationUI/Themes/Generic.xaml")
+    REPO, "src/Microsoft.DotNet.Wpf/src/PresentationUI/Themes/Generic.xaml")
 CSPROJ = os.path.join(HERE, "CycleStub.PresentationUI.Linux.csproj")
 THEMES_DIR = os.path.join(HERE, "Themes")
 GENERIC_XAML = os.path.join(THEMES_DIR, "Generic.xaml")

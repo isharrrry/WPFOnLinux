@@ -163,7 +163,7 @@ def _sha(text):
 
 def _build():
     """读上游 → 锚点/守恒自检 → 替换 → 结构断言。返回 (generated_text 或 None, rc)。"""
-    upstream = os.path.join(ROOT, "upstream", "wpf", UP_REL)
+    upstream = os.path.join(ROOT, UP_REL)
     if not os.path.exists(upstream):
         print(f"[失败] 找不到上游 {upstream}")
         return None, 1
@@ -225,7 +225,7 @@ def _header():
 
 def prove():
     """「只改那一处」机械证明：把修法**逆代**回去后必须与上游 sha256 逐字节相同。"""
-    upstream = os.path.join(ROOT, "upstream", "wpf", UP_REL)
+    upstream = os.path.join(ROOT, UP_REL)
     with open(upstream, encoding="utf-8-sig") as f:
         text = f.read()
 

@@ -2,7 +2,7 @@
   <!-- 改动4：切断对上游 Arcade SDK 的继承，使本工程自包含 -->
   <PropertyGroup>
     <UpstreamWpfRoot Condition="'$(UpstreamWpfRoot)' == '' and '$(UPSTREAM_WPF_ROOT)' != ''">$(UPSTREAM_WPF_ROOT)</UpstreamWpfRoot>
-    <UpstreamWpfRoot Condition="'$(UpstreamWpfRoot)' == ''">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../../upstream/wpf'))/</UpstreamWpfRoot>
+    <UpstreamWpfRoot Condition="'$(UpstreamWpfRoot)' == ''">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../../../../'))/</UpstreamWpfRoot>
     <!-- 关掉会干扰的 SDK 默认行为 -->
     <Nullable>disable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>

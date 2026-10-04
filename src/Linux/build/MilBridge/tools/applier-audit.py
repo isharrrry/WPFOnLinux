@@ -199,7 +199,7 @@ def resolve_upstream(root, m, rel_hint=None):
     if isinstance(up, str) and isinstance(rel, str):
         return os.path.join(up, rel)
     if isinstance(rel, str) and rel.startswith("src/Microsoft.DotNet.Wpf/"):
-        return os.path.join(root, "upstream", "wpf", rel)
+        return os.path.join(root, rel)
     if isinstance(rel, str) and isinstance(up, str):
         return os.path.join(up, rel)
     return None

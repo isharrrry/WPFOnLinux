@@ -70,7 +70,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
 PF_DIR = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "PresentationFramework")
 CSPROJ = os.path.join(PF_DIR, "PresentationFramework.Linux.csproj")
-UP = os.path.join(ROOT, "upstream", "wpf", "src", "Microsoft.DotNet.Wpf", "src",
+UP = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf", "src",
                   "PresentationFramework")
 UP_REL = "System/Windows/SystemResources.cs"
 GEN_NAME = "SystemResources.Linux.cs"

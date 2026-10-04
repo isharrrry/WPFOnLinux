@@ -110,7 +110,7 @@ IMEL_DECL_REG='已登记|已在册|在册裁定|已裁|裁定|✅'
 IMEL_DECL_PROPOSAL='必须|要求|建议|应当|需要登记|需在册|未落地|只登记|要登记|待登记'
 IMEL_DECL_ZEROLAND='零落点|一处都没有|无落点|落点都没有'
 # `imm32` 断头规模（**读数，不判**）
-IMEL_IMMDECL_FILE='upstream/wpf/src/Microsoft.DotNet.Wpf/src/Shared/MS/Win32/UnsafeNativeMethodsCLR.cs'
+IMEL_IMMDECL_FILE='src/Microsoft.DotNet.Wpf/src/Shared/MS/Win32/UnsafeNativeMethodsCLR.cs'
 IMEL_IMMDECL_PAT='ExternDll\.Imm32'
 # TSF 门（**读数，不判**）：门 1 的两处守卫（显式关闭，有理由 ⇒ 与门 2 的"巧合"刻意分开）
 IMEL_TSF_FILE='src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/TextServicesLoader.Linux.cs'
@@ -349,7 +349,7 @@ txt = readtext(os.path.join(root, tsf_file))
 if txt is not None:
     tsf_guard = len(RE_TSF.findall(txt))
 imm_chain = 0
-for p in glob.glob(os.path.join(root, 'upstream/wpf/src/**/*.cs'), recursive=True):
+for p in glob.glob(os.path.join(root, 'src/Microsoft.DotNet.Wpf/src/**/*.cs'), recursive=True):
     t = readtext(p)
     if t:
         imm_chain += t.count('IMMENABLED')

@@ -30,7 +30,7 @@ PC_DIR = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "Present
 CSPROJ = os.path.join(PC_DIR, "PresentationCore.Linux.csproj")
 
 UP_REL = "src/Microsoft.DotNet.Wpf/src/PresentationCore/System/Windows/InterOp/HwndTarget.cs"
-UPSTREAM = os.path.join(ROOT, "upstream", "wpf", UP_REL)
+UPSTREAM = os.path.join(ROOT, UP_REL)
 GEN = os.path.join(PC_DIR, "HwndTarget.Linux.cs")
 
 MARKER_BEGIN = "  <!-- ==== WPF-on-Linux 波46 D-G54：HwndTarget 设根链只读插桩（本文件由 src/Linux/tools/patch-presentationcore-hwndtarget-trace.py 生成）==== -->"

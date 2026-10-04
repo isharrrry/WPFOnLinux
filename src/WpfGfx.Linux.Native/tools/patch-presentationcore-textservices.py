@@ -93,7 +93,7 @@ TARGET = os.path.join(WB_DIR, "TextServicesLoader.Linux.cs")
 CSPROJ = os.path.join(WB_DIR, "WindowsBase.Linux.csproj")
 
 UPSTREAM_REL = "Shared/MS/Internal/TextServicesLoader.cs"
-UPSTREAM = os.path.join(ROOT, "upstream", "wpf", "src", "Microsoft.DotNet.Wpf", "src", UPSTREAM_REL)
+UPSTREAM = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf", "src", UPSTREAM_REL)
 
 # csproj 接线：锚点与"上游 Include 行"都逐字取自现状，改不动就报错（不猜）
 CSPROJ_MARKER = '  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />'

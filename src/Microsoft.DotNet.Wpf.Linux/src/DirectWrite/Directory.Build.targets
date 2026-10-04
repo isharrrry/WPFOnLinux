@@ -27,7 +27,7 @@
          另一份（T1b 车道用），本文件是**本车道**的；两者都指向同一个权威路径。
        ========================================================================== -->
   <PropertyGroup>
-    <ProviderAuthorityPath Condition="'$(ProviderAuthorityPath)' == ''">$(MSBuildThisFileDirectory)Provider/bin/Debug/DirectWrite.Linux.Provider.dll</ProviderAuthorityPath>
+    <ProviderAuthorityPath Condition="'$(ProviderAuthorityPath)' == ''">$(MSBuildThisFileDirectory)Provider/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWrite.Linux.Provider.dll</ProviderAuthorityPath>
   </PropertyGroup>
 
   <Target Name="SyncProviderAuthority"

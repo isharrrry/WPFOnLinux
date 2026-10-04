@@ -81,7 +81,7 @@ ROOT = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
 PC_DIR = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "PresentationCore")
 CSPROJ = os.path.join(PC_DIR, "PresentationCore.Linux.csproj")
 GENERATED = os.path.join(PC_DIR, "InputManager.Linux.cs")
-UPSTREAM = os.path.join(ROOT, "upstream", "wpf", "src", "Microsoft.DotNet.Wpf",
+UPSTREAM = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf",
                         "src", "PresentationCore", "System", "Windows", "Input", "InputManager.cs")
 
 MARKER_BEGIN = "  <!-- ==== WPF-on-Linux M7b 补丁 H：InputManager 的 STA 检查（由 src/Linux/tools/patch-presentationcore-apartment.py 注入）==== -->"

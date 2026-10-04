@@ -178,11 +178,11 @@ PATCH_B = '''  <!-- ============================================================
           而它是 System.Printing 的**唯一托管面**（实现是 C++）→ src/Microsoft.DotNet.Wpf.Linux/src/System.Printing 产出。
        两者都带 Exists() 条件，产物缺失时留下真实编译错误（不静默掩盖）。
        ============================================================================ -->
-  <ItemGroup Condition="Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/CycleStub.PresentationUI/bin/Debug/PresentationUI.dll')">
-    <Reference Include="PresentationUI"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/CycleStub.PresentationUI/bin/Debug/PresentationUI.dll</HintPath><Private>true</Private></Reference>
+  <ItemGroup Condition="Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/CycleStub.PresentationUI/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationUI.dll')">
+    <Reference Include="PresentationUI"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/CycleStub.PresentationUI/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationUI.dll</HintPath><Private>true</Private></Reference>
   </ItemGroup>
-  <ItemGroup Condition="Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/System.Printing/bin/Debug/System.Printing.dll')">
-    <Reference Include="System.Printing"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/System.Printing/bin/Debug/System.Printing.dll</HintPath><Private>true</Private></Reference>
+  <ItemGroup Condition="Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/System.Printing/bin/$(WpfLinuxSelfBuiltConfiguration)/System.Printing.dll')">
+    <Reference Include="System.Printing"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/System.Printing/bin/$(WpfLinuxSelfBuiltConfiguration)/System.Printing.dll</HintPath><Private>true</Private></Reference>
   </ItemGroup>
 '''
 
@@ -204,7 +204,7 @@ PATCH_B = '''  <!-- ============================================================
 # ══════════════════════════════════════════════════════════════════════════════
 
 UP_PF = "src/Microsoft.DotNet.Wpf/src/PresentationFramework/"
-REPO = os.path.normpath(os.path.join(HERE, "..", ".."))
+REPO = os.path.normpath(os.path.join(HERE, "..", "..", "..", ".."))
 
 DERIVED_HEADER = """// ⚠️ 本文件由 src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/reapply-patches.py **生成**，不要手改。
 //
@@ -238,7 +238,7 @@ def _write_atomic(path, text):
 
 def _apply_edits(upstream_rel, out_name, edits):
     """从上游重读、逐处 needle 替换、写生成物。needle 命中数不符 ⇒ 抛异常（不静默）。"""
-    up_abs = os.path.join(REPO, "upstream", "wpf", upstream_rel)
+    up_abs = os.path.join(REPO, "src", "Microsoft.DotNet.Wpf", upstream_rel)
     if not os.path.isfile(up_abs):
         raise RuntimeError("上游文件不存在：%s" % up_abs)
     with open(up_abs, encoding="utf-8-sig") as f:
@@ -254,7 +254,7 @@ def _apply_edits(upstream_rel, out_name, edits):
     out_abs = os.path.join(HERE, out_name)
     # ⏪ `T-A41`：落盘一律 **temp + rename**（本仓纪律：写盘原子化 ⇒ 半个文件不会留在盘上；
     #    `T-A39`/`T-A37` 报告里"生成件 temp+rename"的口径由此**在生成器内**成立，不靠调用者）。
-    _write_atomic(out_abs, DERIVED_HEADER.format(up="upstream/wpf/" + upstream_rel, n=len(edits), edits=names)
+    _write_atomic(out_abs, DERIVED_HEADER.format(up="src/Microsoft.DotNet.Wpf/" + upstream_rel, n=len(edits), edits=names)
                   + text)
     return out_abs, len(edits)
 

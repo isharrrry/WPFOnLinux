@@ -80,8 +80,8 @@ PATCH_A_BEFORE = '''  <!-- =====================================================
 
   <!-- ③ PresentationUI：上游引用 PresentationUI.csproj（Classic.xaml 的 ui:PresentationUIStyleResources）；
        port-lib 找不到 src/Linux/build/PresentationUI.Linux（本移植由 CycleStub.PresentationUI 顶替）→ 显式接回 -->
-  <ItemGroup Condition="Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/CycleStub.PresentationUI/bin/Debug/PresentationUI.dll')">
-    <Reference Include="PresentationUI"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/CycleStub.PresentationUI/bin/Debug/PresentationUI.dll</HintPath><Private>true</Private></Reference>
+  <ItemGroup Condition="Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/CycleStub.PresentationUI/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationUI.dll')">
+    <Reference Include="PresentationUI"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/CycleStub.PresentationUI/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationUI.dll</HintPath><Private>true</Private></Reference>
   </ItemGroup>
 
   <ItemGroup>

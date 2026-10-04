@@ -1635,9 +1635,9 @@
        [InternalsVisibleTo("PresentationCore", <WCP>)] → internal 类型可见
        （与上游 C++/CLI 的 IVT 等价）。
        ============================================================================ -->
-  <ItemGroup Condition="Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/DirectWriteForwarder/bin/Debug/DirectWriteForwarder.dll')">
+  <ItemGroup Condition="Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/DirectWriteForwarder/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWriteForwarder.dll')">
     <Reference Include="DirectWriteForwarder">
-      <HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/DirectWriteForwarder/bin/Debug/DirectWriteForwarder.dll</HintPath>
+      <HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/DirectWriteForwarder/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWriteForwarder.dll</HintPath>
       <Private>true</Private>
     </Reference>
   </ItemGroup>
@@ -1652,9 +1652,9 @@
        构造重载（FontFile/FontFace/FontCollection），C# 绑定 `new FontFace(ptr)` 时会检查
        整个重载集 → 未引用即 CS0012（实测 4 条：Factory.cs:162/227/285/321）。
        ============================================================================ -->
-  <ItemGroup Condition="Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/Debug/DirectWrite.Linux.Provider.dll')">
+  <ItemGroup Condition="Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWrite.Linux.Provider.dll')">
     <Reference Include="DirectWrite.Linux.Provider">
-      <HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/Debug/DirectWrite.Linux.Provider.dll</HintPath>
+      <HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWrite.Linux.Provider.dll</HintPath>
       <Private>true</Private>
     </Reference>
   </ItemGroup>

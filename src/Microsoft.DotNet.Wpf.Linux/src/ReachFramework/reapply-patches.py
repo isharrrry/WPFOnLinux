@@ -88,21 +88,21 @@ PATCH_C = '''  <!-- ============================================================
                「RF 对替身的全部使用在真 PF 上依然成立」（这是替身保真度的硬验证：
                 任何成员签名/继承链差异都会变成编译错误，不会留到运行期）。
        两步都是同一条命令：python3 src/Microsoft.DotNet.Wpf.Linux/src/ReachFramework/reapply-patches.py && dotnet build … -->
-  <ItemGroup Condition="Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/bin/Debug/PresentationFramework.dll')">
-    <Reference Include="PresentationFramework"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/bin/Debug/PresentationFramework.dll</HintPath><Private>true</Private></Reference>
+  <ItemGroup Condition="Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationFramework.dll')">
+    <Reference Include="PresentationFramework"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationFramework.dll</HintPath><Private>true</Private></Reference>
   </ItemGroup>
-  <ItemGroup Condition="!Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/bin/Debug/PresentationFramework.dll') and Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/CycleStub.PresentationFramework/bin/Debug/PresentationFramework.dll')">
-    <Reference Include="PresentationFramework"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/CycleStub.PresentationFramework/bin/Debug/PresentationFramework.dll</HintPath><Private>false</Private></Reference>
+  <ItemGroup Condition="!Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationFramework.dll') and Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/CycleStub.PresentationFramework/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationFramework.dll')">
+    <Reference Include="PresentationFramework"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/CycleStub.PresentationFramework/bin/$(WpfLinuxSelfBuiltConfiguration)/PresentationFramework.dll</HintPath><Private>false</Private></Reference>
   </ItemGroup>
-  <ItemGroup Condition="Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/System.Printing/bin/Debug/System.Printing.dll')">
-    <Reference Include="System.Printing"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/System.Printing/bin/Debug/System.Printing.dll</HintPath><Private>true</Private></Reference>
+  <ItemGroup Condition="Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/System.Printing/bin/$(WpfLinuxSelfBuiltConfiguration)/System.Printing.dll')">
+    <Reference Include="System.Printing"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/System.Printing/bin/$(WpfLinuxSelfBuiltConfiguration)/System.Printing.dll</HintPath><Private>true</Private></Reference>
   </ItemGroup>
   <!-- ③ DirectWriteForwarder：上游 RF 引用 DirectWriteForwarder.vcxproj（port-lib 丢弃 vcxproj）。
        实测 RF 经 PresentationCore 的公开 API 拿到 DWrite 类型 →
        报 CS0012 "类型 Font 在未引用的程序集 DirectWriteForwarder 中定义"。
        PC 轮产出的托管等价程序集已在，直接接回。 -->
-  <ItemGroup Condition="Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/Debug/DirectWriteForwarder.dll')">
-    <Reference Include="DirectWriteForwarder"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/Debug/DirectWriteForwarder.dll</HintPath><Private>true</Private></Reference>
+  <ItemGroup Condition="Exists('$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWriteForwarder.dll')">
+    <Reference Include="DirectWriteForwarder"><HintPath>$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/$(WpfLinuxSelfBuiltConfiguration)/DirectWriteForwarder.dll</HintPath><Private>true</Private></Reference>
   </ItemGroup>
 '''
 

@@ -5,23 +5,23 @@
 #   只覆盖 src 时 `state=ok` 是**必要不充分**（源没变、peer 变了 ⇒ 产物照样变）。
 # 排除：src/Linux/build/PresentationFramework.Linux/{bin,obj}/**、.artifacts/**、本文件自己
 # 重算比对：python3 src/Linux/build/artifact-src-fp.py --check（缺本文件 / 缺被引产物 / 旧格式 ⇒ noinfo，**不报绿**）
-fp=6fb03ab7b7d35473
+fp=4d8cc20fb56ada8c
 n=1371
-peer_fp=6f6a678dc548a4ca
+peer_fp=c8b833771a698a7d
 peer_n=9
-tool_sha256=2847651d7e33100313685bfb1a3a55bda82fe994b409496cfd182ef120cc397b
+tool_sha256=e978d6f4a345e4f90432ea63440cf507a11eaffb96c601e0e75dc04c197ee660
 # 被引产物（sha256 前 16 + 仓库相对路径；**产物字节**，不是源）
-peer=794b4e370cdc10f6  src/Microsoft.DotNet.Wpf.Linux/src/CycleStub.PresentationUI/bin/Debug/PresentationUI.dll
-peer=4787a25976adc64b  src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/Release/PresentationCore.dll
-peer=7493d6440a5d977a  src/Microsoft.DotNet.Wpf.Linux/src/ReachFramework/bin/Release/ReachFramework.dll
-peer=4ad865dc4dae33d0  src/Microsoft.DotNet.Wpf.Linux/src/System.Printing/bin/Debug/System.Printing.dll
-peer=b3008f9eaa8ab2a6  src/Microsoft.DotNet.Wpf.Linux/src/System.Windows.Extensions/bin/Release/System.Windows.Extensions.dll
-peer=b649344a5ec8638e  src/Microsoft.DotNet.Wpf.Linux/src/System.Xaml/bin/Release/System.Xaml.dll
-peer=813fd5f0e4768627  src/Microsoft.DotNet.Wpf.Linux/src/UIAutomationProvider/bin/Release/UIAutomationProvider.dll
-peer=78e0203a37b20b51  src/Microsoft.DotNet.Wpf.Linux/src/UIAutomationTypes/bin/Release/UIAutomationTypes.dll
-peer=2f6127a160278547  src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/bin/Release/WindowsBase.dll
-# 逐文件（**源侧**）：sha256 前 16 + 仓库相对路径；只列**本仓自有输入**（`upstream/**` 不列，用 --list 看全量）
-file=70f9515ab18d2702  src/Linux/build/port-lib.py
+peer=e2ec6be93180bec2  src/Microsoft.DotNet.Wpf.Linux/src/CycleStub.PresentationUI/bin/Release/PresentationUI.dll
+peer=db5b76de95489984  src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/Release/PresentationCore.dll
+peer=b29c3a1be33f7358  src/Microsoft.DotNet.Wpf.Linux/src/ReachFramework/bin/Release/ReachFramework.dll
+peer=1da218f9517d8306  src/Microsoft.DotNet.Wpf.Linux/src/System.Printing/bin/Release/System.Printing.dll
+peer=c49530e46f2d2cd6  src/Microsoft.DotNet.Wpf.Linux/src/System.Windows.Extensions/bin/Release/System.Windows.Extensions.dll
+peer=8c99cdd501a0a7f2  src/Microsoft.DotNet.Wpf.Linux/src/System.Xaml/bin/Release/System.Xaml.dll
+peer=9588f7e3721f7e62  src/Microsoft.DotNet.Wpf.Linux/src/UIAutomationProvider/bin/Release/UIAutomationProvider.dll
+peer=56de2087da2403b4  src/Microsoft.DotNet.Wpf.Linux/src/UIAutomationTypes/bin/Release/UIAutomationTypes.dll
+peer=6ab12e8058195e1b  src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/bin/Release/WindowsBase.dll
+# 逐文件（**源侧**）：sha256 前 16 + 仓库相对路径；只列**本仓自有输入**（上游 `src/Microsoft.DotNet.Wpf/**` 不列，用 --list 看全量）
+file=4de55cfd29f35265  src/Linux/build/port-lib.py
 file=11fc4321da8b3e43  src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/Baml2006SchemaContext.Linux.cs
 file=fbfbe70bec8806d1  src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/ContainerParaClient.Linux.cs
 file=6d508ccc41d0e07b  src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/DeferredTextReference.Linux.cs
@@ -59,9 +59,9 @@ file=a895f2a6dd654ad1  src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/
 file=1f252d8d7cf9372c  src/Microsoft.DotNet.Wpf.Linux/src/shims/LinuxAssemblyIdentity.cs
 file=8b26028f141b6959  src/Microsoft.DotNet.Wpf.Linux/src/shims/PresentationFramework.AssemblyAttrs.Shim.cs
 file=a76b6a7edd8bfd8a  src/Microsoft.DotNet.Wpf.Linux/src/shims/PresentationFramework.NrbfFrameworkObjects.Shim.cs
-file=b4398b6d47d95f01  src/WpfGfx.Linux.Native/tools/patch-presentationframework-mirror-trace.py
-file=b5e156aaf0245d05  src/WpfGfx.Linux.Native/tools/patch-presentationframework-textbox-textdp-trace.py
-file=40cab735102519b5  src/WpfGfx.Linux.Native/tools/patch-presentationframework-texteditor-trace.py
-file=1bae3b51cd7b1292  src/WpfGfx.Linux.Native/tools/patch-presentationframework-window-minmax-notify.py
-file=0e4d9b0b13c7901e  src/WpfGfx.Linux.Native/tools/patch-presentationframework-xamlaccess.py
+file=92e3ab95b890416c  src/WpfGfx.Linux.Native/tools/patch-presentationframework-mirror-trace.py
+file=31bddc43cceb79d3  src/WpfGfx.Linux.Native/tools/patch-presentationframework-textbox-textdp-trace.py
+file=577ccb08c7e356ee  src/WpfGfx.Linux.Native/tools/patch-presentationframework-texteditor-trace.py
+file=7417118e0925d425  src/WpfGfx.Linux.Native/tools/patch-presentationframework-window-minmax-notify.py
+file=d9030585b4e8959d  src/WpfGfx.Linux.Native/tools/patch-presentationframework-xamlaccess.py
 file=0f0091cf3e564312  src/WpfGfx.Linux.Native/tools/patch-swe-linux.py

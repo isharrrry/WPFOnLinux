@@ -34,7 +34,8 @@ import collections
 HERE = os.path.dirname(os.path.abspath(__file__))
 NATIVE_ROOT = os.path.normpath(os.path.join(HERE, ".."))
 ROOT = os.path.normpath(os.path.join(NATIVE_ROOT, "..", ".."))
-UP = os.path.join(ROOT, "upstream", "wpf")
+# `UP` = `$(UpstreamWpfRoot)` 的取值：结构上游化后 = **仓根**（上游 `src/Microsoft.DotNet.Wpf/**` 就在仓根下）。
+UP = ROOT
 SRC = os.path.join(UP, "src", "Microsoft.DotNet.Wpf", "src")
 EXPORTS = os.path.join(NATIVE_ROOT, "bin", "exports.txt")
 

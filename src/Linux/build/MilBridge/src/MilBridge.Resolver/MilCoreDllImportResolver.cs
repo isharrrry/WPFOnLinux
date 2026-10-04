@@ -152,10 +152,17 @@ namespace WpfGfx.Linux.Bridge
 
             // 5) 开发树布局：从应用目录向上找 src/Linux/build/MilBridge/.artifacts/publish/**。
             //    只为"在仓库里直接 dotnet run"方便，找不到就放弃。
+            //
+            //    ⚠️ 上溯层数随**落点加深**重算（结构上游化把测试/探针从仓根挪到
+            //    `src/Linux/{tests,build/MilBridge/tests}/…` ⇒ 应用目录到仓根多了 2～3 级）。
+            //    实测：`ManagedLayer.Tests/bin/Release/net10.0` 到仓根是 **8** 级，
+            //    而旧上界 `8` 最多只走到 `…/src` ⇒ 开发树这一档形同不存在 ⇒
+            //    DP1/M7c 一批用例报 `DllNotFoundException: wpfgfx_cor3.dll`。
+            //    与 `src/Linux/tests/**` 里那些 `handoff.md` 上溯循环同口径取 12（留余量）。
             try
             {
                 var di = new DirectoryInfo(app);
-                for (int up = 0; up < 8 && di != null; up++, di = di.Parent)
+                for (int up = 0; up < 12 && di != null; up++, di = di.Parent)
                 {
                     string root = Path.Combine(di.FullName, "src", "Linux", "build", "MilBridge", ".artifacts", "publish");
                     if (Directory.Exists(root))

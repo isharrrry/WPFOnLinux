@@ -2,20 +2,21 @@
   <!--
     上游 dotnet/wpf 源码根（只读，上游仓库零改动）。
 
-    默认：$(WpfLinuxRoot)/upstream/wpf/（本仓库自带的只读副本）。
+    默认：$(WpfLinuxRoot)（结构上游化后，上游 `src/Microsoft.DotNet.Wpf/**` 直接落在**仓根**下，
+          即「上游仓库根」==「本仓根」；`$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/…` 才是上游 src）。
     覆盖：MSBuild 属性或环境变量 UPSTREAM_WPF_ROOT / UpstreamWpfRoot
           （环境变量会被 MSBuild 当全局属性读入，优先级高于此处默认值）。
 
-    本文件由所有 src/Linux/build/*.Linux/*.csproj 在 Sdk.props 之后 Import，
+    本文件由所有 src/Microsoft.DotNet.Wpf.Linux/src/*/*.csproj 在 Sdk.props 之后 Import，
     使 $(UpstreamWpfRoot) 与 $(WpfLinuxRoot) 在工程内统一可用。
   -->
-  <!-- ★ `#39`：**自产件配置的唯一声明**（本图所有 `src/Linux/build/*.Linux/*.csproj` 由此拿到它） -->
+  <!-- ★ `#39`：**自产件配置的唯一声明**（本图所有 `src/Microsoft.DotNet.Wpf.Linux/src/*/*.csproj` 由此拿到它） -->
   <Import Project="$(MSBuildThisFileDirectory)SelfBuiltConfig.props" />
 
   <PropertyGroup>
     <WpfLinuxRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../../..'))/</WpfLinuxRoot>
     <UpstreamWpfRoot Condition="'$(UpstreamWpfRoot)' == '' and '$(UPSTREAM_WPF_ROOT)' != ''">$([MSBuild]::EnsureTrailingSlash('$(UPSTREAM_WPF_ROOT)'))</UpstreamWpfRoot>
-    <UpstreamWpfRoot Condition="'$(UpstreamWpfRoot)' == ''">$(WpfLinuxRoot)upstream/wpf/</UpstreamWpfRoot>
+    <UpstreamWpfRoot Condition="'$(UpstreamWpfRoot)' == ''">$(WpfLinuxRoot)</UpstreamWpfRoot>
   </PropertyGroup>
 
   <!--
