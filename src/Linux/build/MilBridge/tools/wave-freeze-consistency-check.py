@@ -59,7 +59,7 @@
 import argparse, ast, glob, hashlib, json, os, re, shutil, subprocess, sys, tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SELF_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))   # src/Linux/build/MilBridge/tools → 仓根
+SELF_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(HERE)))))   # src/Linux/build/MilBridge/tools → 仓根
 
 # ══ 档 ① 的**谓词**（派生式扫描域；`t19` 加）═════════════════════════════════════════
 SCAN_ROOTS = ['.', 'build', 'tests', 'src']   # `.` = 仓根**顶层**（非递归）—— `Guide.Linux/verify-all.sh` 就在那儿

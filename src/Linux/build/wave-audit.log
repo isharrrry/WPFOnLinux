@@ -600,3 +600,12 @@ echo "WAVE_START=$(date +%FT%T)"; (date +%FT%T; time env WAVE_OWNER=w48a bash bu
 2026-10-04T21:11:38+08:00  owner=close-wave:links-dev  pid=1000649  ppid=999589  tty=-  cwd=/home/links-dev/netTest/GitProj/WPFOnLinux  cmd=bash src/Linux/build/integration-wave.sh 
     ppid_cmd=bash src/Linux/build/close-wave.sh --native --skip-verify-all 
     ppid2_cmd=/usr/bin/bash -c cd /home/links-dev/netTest/GitProj/WPFOnLinux && bash src/Linux/build/close-wave.sh --native --skip-verify-all > /tmp/cw4.log 2>&1; echo "rc=$?" >> /tmp/cw4.log; tail -22 /tmp/cw4.log 
+2026-10-04T21:16:33+08:00  owner=close-wave:links-dev  pid=1061517  ppid=1060457  tty=-  cwd=/home/links-dev/netTest/GitProj/WPFOnLinux  cmd=bash src/Linux/build/integration-wave.sh 
+    ppid_cmd=bash src/Linux/build/close-wave.sh --native --skip-verify-all 
+    ppid2_cmd=/usr/bin/bash -c cd /home/links-dev/netTest/GitProj/WPFOnLinux && bash src/Linux/build/close-wave.sh --native --skip-verify-all > /tmp/cw5.log 2>&1; echo "rc=$?" >> /tmp/cw5.log; tail -24 /tmp/cw5.log 
+2026-10-04T21:20:28+08:00  owner=close-wave:links-dev  pid=1121987  ppid=1120923  tty=-  cwd=/home/links-dev/netTest/GitProj/WPFOnLinux  cmd=bash src/Linux/build/integration-wave.sh 
+    ppid_cmd=bash src/Linux/build/close-wave.sh --native --skip-verify-all 
+    ppid2_cmd=/usr/bin/bash -c cd /home/links-dev/netTest/GitProj/WPFOnLinux && bash src/Linux/build/close-wave.sh --native --skip-verify-all > /tmp/cw6.log 2>&1; echo "rc=$?" >> /tmp/cw6.log; tail -28 /tmp/cw6.log 
+2026-10-04T21:25:04+08:00  owner=close-wave:links-dev  pid=1187217  ppid=1186153  tty=-  cwd=/home/links-dev/netTest/GitProj/WPFOnLinux  cmd=bash src/Linux/build/integration-wave.sh 
+    ppid_cmd=bash src/Linux/build/close-wave.sh --native --skip-verify-all 
+    ppid2_cmd=/usr/bin/bash -c cd /home/links-dev/netTest/GitProj/WPFOnLinux && bash src/Linux/build/close-wave.sh --native --skip-verify-all > /tmp/cw7.log 2>&1; echo "rc=$?" >> /tmp/cw7.log; tail -30 /tmp/cw7.log 

@@ -61,7 +61,19 @@ import subprocess
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.dirname(os.path.dirname(HERE))
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
+
+def _selfbuilt_config():
+    import re as _re
+    try:
+        t = io.open(os.path.join(ROOT, "src", "Linux", "build", "SelfBuiltConfig.props"), encoding="utf-8").read()
+    except OSError:
+        return "Debug"
+    m = _re.search(r"<WpfLinuxSelfBuiltConfiguration[^>]*>([^<]*)<", t)
+    v = m.group(1).strip() if m else ""
+    return v if v in ("Debug", "Release") else "Debug"
+
+CFG = _selfbuilt_config()
 PROJECTS = ("PresentationCore", "WindowsBase", "PresentationFramework")
 FP_NAME = "ARTIFACT-SRC-FP.txt"
 TOOLS_REL = "src/WpfGfx.Linux.Native/tools"
@@ -111,14 +123,14 @@ def referenced_artifacts(proj, root=None):
     #   工具报"缺被引产物" ⇒ `ARTIFACT_SRC_FP … state=written note=；⚠️ 缺被引产物` ⇒ 指纹记为**无信息**。
     #   （别的 HintPath 都是写死 `bin/Debug/` 的，本行对它们零影响。样本用的
     #    `$(WpfLinuxSelfBuiltConfiguration)` 不在本工具的扫描面内。）
-    text = text.replace('$(Configuration)', 'Debug')
+    text = text.replace('$(Configuration)', CFG)
     for m in re.finditer(r'<HintPath>\s*\$\(WpfLinuxRoot\)([^<"]+?)\s*</HintPath>', text):
         rels.add(m.group(1).replace("\\", "/").lstrip("/"))
     for m in re.finditer(r'<ProjectReference\s+Include="\$\(WpfLinuxRoot\)([^"]+\.csproj)"', text):
         rel = m.group(1).replace("\\", "/").lstrip("/")
         name = os.path.basename(rel)[:-len(".csproj")]           # 例如 X.Linux
         asm = name[:-len(".Linux")] if name.endswith(".Linux") else name
-        rels.add("src/Microsoft.DotNet.Wpf.Linux/src/%s/bin/Debug/%s.dll" % (name, asm))
+        rels.add("src/Microsoft.DotNet.Wpf.Linux/src/%s/bin/%s/%s.dll" % (name, CFG, asm))
     out, missing = [], []
     for rel in sorted(rels):
         if os.path.basename(rel) == proj + ".dll":               # **自指排除**

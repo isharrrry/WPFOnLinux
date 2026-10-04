@@ -16,7 +16,13 @@
     <RootNamespace>WpfGfx.Linux</RootNamespace>
     <ImplicitUsings>disable</ImplicitUsings>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);CS0649;CS0169</NoWarn>
+    <!--
+      `CA2255`（`[ModuleInitializer]` 仅建议用于应用程序代码／源生成器）：本件**有意**在库形态下
+      用 `ModuleInitializer` 接管 SkiaSharp 解析（见 `Interop/MilNative.Misc.cs:1192` 的注释）⇒
+      这是**既有的**、经裁定的用法；`integration-wave.sh` 的「0 错 0 警」闸在全量重建时会点名它，
+      故按卫生口径显式登记（结构上游化·合并波）。
+    -->
+    <NoWarn>$(NoWarn);CS0649;CS0169;CA2255</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
