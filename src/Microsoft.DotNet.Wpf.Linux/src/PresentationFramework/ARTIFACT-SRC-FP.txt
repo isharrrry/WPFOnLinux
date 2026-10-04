@@ -7,19 +7,19 @@
 # 重算比对：python3 src/Linux/build/artifact-src-fp.py --check（缺本文件 / 缺被引产物 / 旧格式 ⇒ noinfo，**不报绿**）
 fp=6fb03ab7b7d35473
 n=1371
-peer_fp=851c3073b3d890d3
+peer_fp=6f6a678dc548a4ca
 peer_n=9
 tool_sha256=2847651d7e33100313685bfb1a3a55bda82fe994b409496cfd182ef120cc397b
 # 被引产物（sha256 前 16 + 仓库相对路径；**产物字节**，不是源）
 peer=794b4e370cdc10f6  src/Microsoft.DotNet.Wpf.Linux/src/CycleStub.PresentationUI/bin/Debug/PresentationUI.dll
-peer=b8fbb9e5cfbff5e8  src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/Release/PresentationCore.dll
-peer=94299d32eea52c99  src/Microsoft.DotNet.Wpf.Linux/src/ReachFramework/bin/Release/ReachFramework.dll
+peer=4787a25976adc64b  src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/Release/PresentationCore.dll
+peer=7493d6440a5d977a  src/Microsoft.DotNet.Wpf.Linux/src/ReachFramework/bin/Release/ReachFramework.dll
 peer=4ad865dc4dae33d0  src/Microsoft.DotNet.Wpf.Linux/src/System.Printing/bin/Debug/System.Printing.dll
-peer=60c32c0abfc0d679  src/Microsoft.DotNet.Wpf.Linux/src/System.Windows.Extensions/bin/Release/System.Windows.Extensions.dll
-peer=ff39eef47ff0ae4f  src/Microsoft.DotNet.Wpf.Linux/src/System.Xaml/bin/Release/System.Xaml.dll
-peer=f8f5d483e8c3b014  src/Microsoft.DotNet.Wpf.Linux/src/UIAutomationProvider/bin/Release/UIAutomationProvider.dll
-peer=19bb5b25049cd8c2  src/Microsoft.DotNet.Wpf.Linux/src/UIAutomationTypes/bin/Release/UIAutomationTypes.dll
-peer=2168a09ecd9a8fd9  src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/bin/Release/WindowsBase.dll
+peer=b3008f9eaa8ab2a6  src/Microsoft.DotNet.Wpf.Linux/src/System.Windows.Extensions/bin/Release/System.Windows.Extensions.dll
+peer=b649344a5ec8638e  src/Microsoft.DotNet.Wpf.Linux/src/System.Xaml/bin/Release/System.Xaml.dll
+peer=813fd5f0e4768627  src/Microsoft.DotNet.Wpf.Linux/src/UIAutomationProvider/bin/Release/UIAutomationProvider.dll
+peer=78e0203a37b20b51  src/Microsoft.DotNet.Wpf.Linux/src/UIAutomationTypes/bin/Release/UIAutomationTypes.dll
+peer=2f6127a160278547  src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/bin/Release/WindowsBase.dll
 # 逐文件（**源侧**）：sha256 前 16 + 仓库相对路径；只列**本仓自有输入**（`upstream/**` 不列，用 --list 看全量）
 file=70f9515ab18d2702  src/Linux/build/port-lib.py
 file=11fc4321da8b3e43  src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/Baml2006SchemaContext.Linux.cs

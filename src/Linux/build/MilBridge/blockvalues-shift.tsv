@@ -35,3 +35,7 @@ windowsbase	96554b5419761f0a	None	2168a09ecd9a8fd9	D-G92	结构上游化·合并
 provider	4f01368cec2a728b	4f01368cec2a728b	0b17cb087f2f6ea7	D-G92	结构上游化·合并波具名位移（close-wave 口径）；live 现取 2026-10-04
 hbtextline	e2fa9ec9be1a6cf1	None	a40fe0a1151ebd0f	D-G92	结构上游化·合并波具名位移（close-wave 口径）；live 现取 2026-10-04
 dwf	e0fcfd13ad86b2b4	None	e2545874909d4537	D-G92	结构上游化·合并波具名位移（close-wave 口径）；live 现取 2026-10-04
+key	block9	tier	live	registered	why
+pc	83c71acfb20f26d7	83c71acfb20f26d7	b8fbb9e5cfbff5e8	D-G92	结构上游化·合并波具名位移（close-wave 口径 --root/--template auto；现读数已稳定）；live 现取 2026-10-04
+pf	7ef0dbb210db54e3	7ef0dbb210db54e3	da10e3a46becac8b	D-G92	结构上游化·合并波具名位移（close-wave 口径；已验 PresentationFramework.dll 连构建两次同 sha ⇒ 确定）；live 现取 2026-10-04
+dwf	e0fcfd13ad86b2b4	None	8febc6b7e5b9d50d	D-G92	结构上游化·合并波具名位移（close-wave 口径）；live 现取 2026-10-04
