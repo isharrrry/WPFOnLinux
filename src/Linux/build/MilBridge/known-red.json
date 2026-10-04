@@ -40,7 +40,7 @@
     "label": "wave23 · 默认 env（出货行为）；`D-T6-b`（帧原点＝段落起点，**Option 1**：新增 `_paragraphOrigin`，`_lineStart` 语义不变）+ `D-F2`（三个只写不读的计数器接出口）落地后的世代",
     "instr_run_sh": "07aa2d181f4eef440ea21b2eebb9cc27a3394a2354ea3cffc2bee84d5ef89fb7",
     "instr_program_cs": "536a78a2f0f8e84d9c7294c6033c851f8ce979eb263c18c4e4acedb043dd7d33",
-    "instr_shim": "e2fa9ec9be1a6cf15736c97712721110f732a4e9c45466b010e71fc0cd3d33c0",
+    "instr_shim": "a40fe0a1151ebd0f8fd385d475fe36039ddf8e3a2276f7370a674187928751f6",
     "instr_pc": "7b47a7b3d69ad62f",
     "evidence_log": "src/Linux/build/MilBridge/arm-logs/tline.log",
     "evidence_log_sha256": "e1cdf3628952f5c5",
