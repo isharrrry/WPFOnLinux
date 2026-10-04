@@ -14,8 +14,8 @@ site	src/Linux/build/MilBridge/tests/PtsPagesProbe/session_inner.sh	SELF_DIR	beb
 site	src/Linux/build/MilBridge/tests/RGateClickProbe/run-r-gate-legs.sh	HERE	8c3fee02743e5375	0	benign
 site	src/Linux/build/MilBridge/tests/SilentHitProbe/run-silenthit-legs.sh	SELF_DIR	beb3d156ae949bc4	0	benign
 site	src/Linux/build/MilBridge/tests/W81AWindowProbe/run-w81a-legs.sh	HERE	8c3fee02743e5375	0	benign
-site	src/Linux/build/MilBridge/tests/W81AWindowProbe/w81a-a0-analyze.py	_ROOT77	124cde6650f36841	0	benign
-site	src/Linux/build/MilBridge/tools/analyze-layout-b34.py	ROOT	c788a70d8f9b6622	0	benign
+site	src/Linux/build/MilBridge/tests/W81AWindowProbe/w81a-a0-analyze.py	_ROOT77	18ecb374c17941e1	0	root
+site	src/Linux/build/MilBridge/tools/analyze-layout-b34.py	ROOT	303b414f509ad585	0	root
 site	src/Linux/build/MilBridge/tools/applier-audit.py	HERE	23b6448daffea694	0	benign
 site	src/Linux/build/MilBridge/tools/arm-log-sha-check.sh	HERE	130c8056b00c40f4	0	benign
 site	src/Linux/build/MilBridge/tools/arm-log-sha-check.sh	ST_SELF	843ea9e0ca978816	0	benign
@@ -30,7 +30,7 @@ site	src/Linux/build/MilBridge/tools/column-floor-check.sh	ST_SELF	843ea9e0ca978
 site	src/Linux/build/MilBridge/tools/defect-registry-check.sh	HERE	130c8056b00c40f4	0	benign
 site	src/Linux/build/MilBridge/tools/defect-registry-check.sh	ST_SELF	843ea9e0ca978816	0	benign
 site	src/Linux/build/MilBridge/tools/display-lease-gate.sh	SELF_DIR	beb3d156ae949bc4	0	benign
-site	src/Linux/build/MilBridge/tools/extract-layout-b34.py	ROOT	c788a70d8f9b6622	0	benign
+site	src/Linux/build/MilBridge/tools/extract-layout-b34.py	ROOT	303b414f509ad585	0	root
 site	src/Linux/build/MilBridge/tools/fp-inputs-hygiene-check.sh	HERE	130c8056b00c40f4	0	benign
 site	src/Linux/build/MilBridge/tools/fp-inputs-hygiene-check.sh	ST_SELF	843ea9e0ca978816	0	benign
 site	src/Linux/build/MilBridge/tools/fp-manifest-step.sh	HERE	130c8056b00c40f4	0	benign
@@ -87,7 +87,7 @@ site	src/Linux/build/MilBridge/tools/t1b-ls-tripwire.sh	SELF_DIR	beb3d156ae949bc
 site	src/Linux/build/MilBridge/tools/t1b-ls-tripwire.sh	ST_SELF	843ea9e0ca978816	0	benign
 site	src/Linux/build/MilBridge/tools/t1c-census.sh	ROOT	04f481b6ccae41d0	0	root
 site	src/Linux/build/MilBridge/tools/t1c-census.sh	SUMMARY	0fd24a4494910501	0	benign
-site	src/Linux/build/MilBridge/tools/t1c-inputtrace-verify.py	ROOT	c788a70d8f9b6622	0	benign
+site	src/Linux/build/MilBridge/tools/t1c-inputtrace-verify.py	ROOT	303b414f509ad585	0	root
 site	src/Linux/build/MilBridge/tools/t1d-probe.sh	ROOT	04f481b6ccae41d0	0	root
 site	src/Linux/build/MilBridge/tools/t2d-extent-detail.sh	ROOT	04f481b6ccae41d0	0	root
 site	src/Linux/build/MilBridge/tools/tab-gap-check.sh	HERE	8c3fee02743e5375	0	benign
@@ -145,7 +145,7 @@ site	src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/applocal-expect.py	
 site	src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh		5752b445a106dfbd	0	err
 site	src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/frames-check.sh	HERE	8c3fee02743e5375	0	benign
 site	src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/frames-gen.py	HERE	23b6448daffea694	0	benign
-site	src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/frames-gen.py	REPO	60641b462fb338c7	0	benign
+site	src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/frames-gen.py	REPO	097c685549cab52a	0	root
 site	src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/sync-applocal-authority.sh	HERE	130c8056b00c40f4	0	benign
 site	src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/reapply-patches.py	HERE	23b6448daffea694	0	benign
 site	src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework.Classic/reapply-patches.py	HERE	23b6448daffea694	0	benign

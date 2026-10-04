@@ -29,7 +29,7 @@ import re
 import subprocess
 import sys
 
-ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))   # 波 `#77` 旧路径重指向：由仓根现推
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))))   # 波 `#77` 旧路径重指向：由仓根现推
 APPLIER = os.path.join(ROOT, "src/WpfGfx.Linux.Native/tools/patch-presentationcore-inputtrace.py")
 GEN_HS = os.path.join(ROOT, "src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/HwndSource.Linux.cs")
 GEN_HK = os.path.join(ROOT, "src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/HwndKeyboardInputProvider.Linux.cs")

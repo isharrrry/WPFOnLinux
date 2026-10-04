@@ -7,18 +7,18 @@
 # 重算比对：python3 src/Linux/build/artifact-src-fp.py --check（缺本文件 / 缺被引产物 / 旧格式 ⇒ noinfo，**不报绿**）
 fp=db4f0a149cb565c7
 n=1373
-peer_fp=81c4912bd262ad76
+peer_fp=8f4b612863dc4cf8
 peer_n=8
 tool_sha256=2847651d7e33100313685bfb1a3a55bda82fe994b409496cfd182ef120cc397b
 # 被引产物（sha256 前 16 + 仓库相对路径；**产物字节**，不是源）
-peer=60cd4d897f8ba4d0  src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/Debug/DirectWrite.Linux.Provider.dll
+peer=0b17cb087f2f6ea7  src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/Debug/DirectWrite.Linux.Provider.dll
 peer=11b983efa4c8a09d  src/Microsoft.DotNet.Wpf.Linux/src/DirectWriteForwarder/bin/Debug/DirectWriteForwarder.dll
-peer=f109d95be2c50fd8  src/Microsoft.DotNet.Wpf.Linux/src/System.Windows.Extensions/bin/Release/System.Windows.Extensions.dll
+peer=60c32c0abfc0d679  src/Microsoft.DotNet.Wpf.Linux/src/System.Windows.Extensions/bin/Release/System.Windows.Extensions.dll
 peer=9f9b481a4ec0bb7a  src/Microsoft.DotNet.Wpf.Linux/src/System.Windows.Input.Manipulations/bin/Release/System.Windows.Input.Manipulations.dll
-peer=8c2bae584f3ed4ae  src/Microsoft.DotNet.Wpf.Linux/src/System.Xaml/bin/Release/System.Xaml.dll
-peer=3c7a291f1332e81b  src/Microsoft.DotNet.Wpf.Linux/src/UIAutomationProvider/bin/Release/UIAutomationProvider.dll
-peer=03f4f495a5de9273  src/Microsoft.DotNet.Wpf.Linux/src/UIAutomationTypes/bin/Release/UIAutomationTypes.dll
-peer=f0cafa773177be9c  src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/bin/Release/WindowsBase.dll
+peer=ff39eef47ff0ae4f  src/Microsoft.DotNet.Wpf.Linux/src/System.Xaml/bin/Release/System.Xaml.dll
+peer=f8f5d483e8c3b014  src/Microsoft.DotNet.Wpf.Linux/src/UIAutomationProvider/bin/Release/UIAutomationProvider.dll
+peer=19bb5b25049cd8c2  src/Microsoft.DotNet.Wpf.Linux/src/UIAutomationTypes/bin/Release/UIAutomationTypes.dll
+peer=2168a09ecd9a8fd9  src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/bin/Release/WindowsBase.dll
 # 逐文件（**源侧**）：sha256 前 16 + 仓库相对路径；只列**本仓自有输入**（`upstream/**` 不列，用 --list 看全量）
 file=dc7a6caa4e7af164  src/Linux/build/MilBridge/src/MilBridge.Resolver/MilCoreDllImportResolver.cs
 file=70f9515ab18d2702  src/Linux/build/port-lib.py

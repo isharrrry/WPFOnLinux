@@ -358,7 +358,7 @@ def sec_rootdefault(root, sites_path=None):
         if suffix is not None:
             cons_rows += 1
             a = os.path.exists(os.path.join(root, suffix))
-            b = os.path.exists(os.path.join(root, 'build', suffix))
+            b = os.path.exists(os.path.join(root, 'src', 'Linux', 'build', suffix))
             if a and not b:
                 cons_ok += 1
             else:
@@ -474,7 +474,7 @@ def sec_nineauth(root, pairs=None):
 
 # ── 档 ④（`t19` 新加；`D-G166`）──────────────────────────────────────────────────
 def _cfg_of(root):
-    p = os.path.join(root, 'build', 'SelfBuiltConfig.props')
+    p = os.path.join(root, 'src', 'Linux', 'build', 'SelfBuiltConfig.props')
     for l in read_lines(p):
         m = re.search(r'>(Release|Debug)<', l)
         if m: return m.group(1)
@@ -532,7 +532,7 @@ def load_shifts(root, shifts_path):
 
 def declared_ids(root):
     """读 `defect-registry-declared.tsv` 的 ID 集（`None` = 取不到 ⇒ 该守卫不判，免得把取数失败当红）。"""
-    p = os.path.join(root, 'build', 'MilBridge', 'tools', 'defect-registry-declared.tsv')
+    p = os.path.join(root, 'src', 'Linux', 'build', 'MilBridge', 'tools', 'defect-registry-declared.tsv')
     if not os.path.exists(p):
         return None
     ids = set()
@@ -583,7 +583,7 @@ def _freezer_record_txt(freezer):
 
 
 def sec_blockvalues(root, shifts_path=None, template=None, freezer=None):
-    base = os.path.join(root, 'samples', 'WpfTextDemo', 'ACCEPTANCE-BASELINE.md')
+    base = os.path.join(root, 'src', 'Linux', 'samples', 'WpfTextDemo', 'ACCEPTANCE-BASELINE.md')
     blines = read_lines(base)
     if not blines:
         print('WFREEZE_BLOCKVALUES=NOINFO reason=baseline-absent path=%s' % base)
