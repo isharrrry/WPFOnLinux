@@ -1037,7 +1037,7 @@ if [ "${1:-}" = "--selftest" ]; then
     PGOOD="$(sha256sum "$PPUB/wpfgfx_cor3.so" | awk '{print $1}')"
     pRec() { { echo "BRIDGE_SRC_FP=<selftest 合成>"; [ -n "${1:-}" ] && echo "BRIDGE_SO_SHA256=$1"; echo "PUBLISHED_AT=2026-01-01T00:00:00+08:00"; } > "$PPUB/bridge-src-fp.txt"; }
     pRec "$PGOOD"
-    pRun() { SCAN_ROOTS="$PREPO/build" HINTPATH_ROOTS="$PREPO" AUTH_ROOT="$PREPO" "$0"; }
+    pRun() { SCAN_ROOTS="$PREPO/src/Linux/build" HINTPATH_ROOTS="$PREPO" AUTH_ROOT="$PREPO" "$0"; }
     pL()   { printf '%s' "$1" | grep -m1 '^计数：'; }                      # 只取摘要行 ⇒ 断言不打偏
     pLold(){ pL "$1" | sed -e 's/  BRIDGE-ANCHOR=[0-9]*//' -e 's/  BRIDGE-NOINFO=[0-9]*//'; }
     pN()   { printf '%s' "$1" | grep -c "$2"; }

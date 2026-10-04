@@ -158,7 +158,7 @@ CSPROJ_BLOCK = MARKER_BEGIN + "\n" + CSHARP + MARKER_END + "\n"
 CSPROJ_ANCHOR = '  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />'
 
 # 机械自检：生成物内容必须逐字节等于这份字面量（防"改内容忘了改期望"）
-TARGETS_SHA256_PIN = "3127e82b76ce8c2431869687ec2ee808bfbcea0911afee7277c4a91b91712d7a"
+TARGETS_SHA256_PIN = "608a687bddf1b86249605490e6063129098701ee94dc13f5fdca8444b9e3ffa3"
 
 # ── applier-audit.py 的接口（**别改坏**：审计 A 级从这些声明重算期望文本）─────────
 # ── 审计 A 级接口（applier-audit.py）──────────────────────────────────────────
