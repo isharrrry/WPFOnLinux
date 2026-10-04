@@ -56,7 +56,7 @@ def _decl_candidates():
     """
     here = os.path.dirname(os.path.abspath(__file__))
     return [os.path.join(REPO, "src", "Linux", "build", "SelfBuiltConfig.props"),
-            os.path.normpath(os.path.join(here, "..", "..", "..", "src", "Linux", "build", "SelfBuiltConfig.props"))]
+            os.path.normpath(os.path.join(here, "..", "..", "..", "..", "..", "src", "Linux", "build", "SelfBuiltConfig.props"))]
 
 
 def _selfbuilt_config():
