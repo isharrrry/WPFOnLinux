@@ -112,7 +112,7 @@ compositefont() {
 
 tline() {
   echo "== T1b/B2 · HbTextLine 对拍 harness（**驱动真 shim 源**：73 例 CJK + 真机 oracle 614 例）=="
-  local SHIM="$MB/../shims/PresentationCore.HbTextLine.cs"
+  local SHIM="$MB/../../../Microsoft.DotNet.Wpf.Linux/src/shims/PresentationCore.HbTextLine.cs"
   local SHA; SHA=$(sha256sum "$SHIM" | cut -d' ' -f1)
   echo "被测文件 = src/Microsoft.DotNet.Wpf.Linux/src/shims/PresentationCore.HbTextLine.cs"
   echo "           sha256=$SHA  大小=$(wc -c < "$SHIM") B  行数=$(wc -l < "$SHIM")"
@@ -125,12 +125,15 @@ tline() {
   fi
   # ① 直构分支编译闸门（PC 内形态：靠 PC 的 IVT 让 internal 可见）+ **默认值语义自检**
   echo "-- [1/3] 直构分支编译闸门 + 默认值语义自检（TEXTLINE_SHIM_DIRECT，PC 内形态）--"
-  refresh_applocal "$MB/tests/HbTextLineParity/bin/Release"
   ( cd "$MB/tests/DirectBranchCheck" && dotnet build -c Release -m:1 --nologo -p:HbShimSrc="$SHIM" 2>&1 | tail -2 \
     && cd bin/Release && dotnet PresentationCore.Tests.dll )
   # ② 对拍主体
   echo "-- [2/3] 对拍主体（反射分支；直构分支由主控重建 PC 后验）--"
   ( cd "$MB/tests/HbTextLineParity" && dotnet build -c Release -m:1 --nologo -p:HbShimSrc="$SHIM" >/dev/null )
+  # ⚠️ app-local 同步**必须在 build 之后**：`dotnet build` 会把 PC 的传递依赖（`bin/Debug` 里那两件）
+  #   拷进探针目录 ⇒ build 之前同步会被覆盖 ⇒ 探针实际加载的副本 ≠ 权威件（T0.7 恒红）。
+  #   本件原先把同步放在 build 之前（探针目录未建时它直接 return 0，等于没跑）。
+  refresh_applocal "$MB/tests/HbTextLineParity/bin/Release"
   local rc=0
   ( cd "$MB/tests/HbTextLineParity/bin/Release" && T1B_SHIM_SHA256="$SHA" dotnet MilBridge.HbTextLineParity.dll ) || rc=$?
   # ③ LS 绊线装置自证（装置自己必须先证明不撒谎）
@@ -192,10 +195,10 @@ refresh_applocal() {   # $1 = 探针 bin/Release 目录
   #   正常情况下 bin/Release 的副本与权威件 sha 相同（实测 PresentationCore.dll 两侧同为 455ddb38…）；
   #   但"复制语义"依赖 build 的增量判断 ⇒ 这个函数把它变成**无条件 cp -f + 打印两侧 sha**（可核对）。
   local pairs=(
-    "$ROOT/DirectWriteForwarder.Linux/bin/$SELFBUILT_CONFIG/DirectWriteForwarder.dll"
-    "$ROOT/DirectWrite.Linux/Provider/bin/$SELFBUILT_CONFIG/DirectWrite.Linux.Provider.dll"
-    "$ROOT/PresentationCore.Linux/bin/$SELFBUILT_CONFIG/PresentationCore.dll"
-    "$ROOT/WindowsBase.Linux/bin/$SELFBUILT_CONFIG/WindowsBase.dll"
+    "$ROOT/../../Microsoft.DotNet.Wpf.Linux/src/DirectWriteForwarder/bin/$SELFBUILT_CONFIG/DirectWriteForwarder.dll"
+    "$ROOT/../../Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/$SELFBUILT_CONFIG/DirectWrite.Linux.Provider.dll"
+    "$ROOT/../../Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/$SELFBUILT_CONFIG/PresentationCore.dll"
+    "$ROOT/../../Microsoft.DotNet.Wpf.Linux/src/WindowsBase/bin/$SELFBUILT_CONFIG/WindowsBase.dll"
   )
   local f base a b MISSING=0
   for f in "${pairs[@]}"; do

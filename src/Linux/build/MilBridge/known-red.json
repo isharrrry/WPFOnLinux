@@ -38,18 +38,18 @@
   "generation": {
     "id": "#23",
     "label": "wave23 · 默认 env（出货行为）；`D-T6-b`（帧原点＝段落起点，**Option 1**：新增 `_paragraphOrigin`，`_lineStart` 语义不变）+ `D-F2`（三个只写不读的计数器接出口）落地后的世代",
-    "instr_run_sh": "07aa2d181f4eef440ea21b2eebb9cc27a3394a2354ea3cffc2bee84d5ef89fb7",
-    "instr_program_cs": "536a78a2f0f8e84d9c7294c6033c851f8ce979eb263c18c4e4acedb043dd7d33",
+    "instr_run_sh": "9fd39e0bed4167a5870f55b7ae56072ab87db24fc563e0d88afd74ee28574f53",
+    "instr_program_cs": "cf3039d7f7af17306c5ee81013f9d7220a5acbfb5a68d04ff33b759b48005dc0",
     "instr_shim": "a40fe0a1151ebd0f8fd385d475fe36039ddf8e3a2276f7370a674187928751f6",
     "instr_pc": "7b47a7b3d69ad62f",
     "evidence_log": "src/Linux/build/MilBridge/arm-logs/tline.log",
-    "evidence_log_sha256": "e1cdf3628952f5c5",
+    "evidence_log_sha256": "650a7d54a6483e00",
     "arm_logs": {
-      "tline": "7a9d01383567fc09e0934af17d74004dac542c22a1d5f0073864734ea959fd32",
+      "tline": "650a7d54a6483e00e2496291fa20d363ada4cd138ba9bc53831fb323fd43fc68",
       "tab-zero": "0153dfa86315b4f29c4d3b3da67912667a5b355e1bea911c7451aeca7796e02b",
       "tab-anchor": "89fb3ad961285bac81174507ebb5beee64b0151bac70763b7c0f3072ce366e24",
       "tab-rtl": "d9850553c26cddad1d8584d2e7caddbfb5fb39688a89a41cae2fd7edb0ecfc24",
-      "textlineproto": "43a526031ed5f9ac9720e18c533f203448943bb85a2d957908696301a64ba57d"
+      "textlineproto": "1f37005e6fa4669e5c5ceaaf61c7bae0337976fd208f59f782a38111a17b4f88"
     },
     "probes": {
       "why": "`D-G26` **探针身份声明**（落地 = 车道 `W30B`；方案 = `W29E`）。读者 = `src/Linux/build/MilBridge/tools/tline-gate.sh` 的 `probe` 段：它按本节核「产出本臂日志的那个**探针源文件**，与日志里**自报**的身份是否同一版」。背景缺口：`CoverageProbe/Program.cs` **既不在 `GEN_KEYS`**（那里的 `instr_program_cs` 指的是**另一个** `Program.cs` = `HbTextLineParity/Program.cs`）、**也不在 `close-wave.sh` 的 `fp_inputs()`**、臂日志头原先**也不记它的 sha** ⇒ 改测量代码**零机器红**（`#26` W26A 真改过它：`dea2a02cf8bab55a → 2477901979795979`，当年只靠人工记账跟住）。`generation.arm_logs` 只覆盖「改探针 ∧ **重取臂**」、弱配对只看 **shim** mtime ⇒ **未覆盖窗口恰是「改探针 ∧ 未重取臂」**，本键 + 自报行正是补这个窗口。键 = **臂名**（与 `column_gate.arms`/`gate-readings.json` 的臂名同一套，不是文件名主干）；值 = 该臂日志的产出探针**源文件仓库相对路径**。三态：本节缺失 / 键缺失 ⇒ 对该臂**不判**（射程纪律，刻意不声明的臂放行）；声明了但日志里无 `TAB_LINES_PROBE sha256=` 自报行 ⇒ **NOINFO**（老日志 ⇒ 探针身份未知，**必须重取臂**）；自报行 >1 条且值矛盾 ⇒ **FAIL**；声明的源不在盘上 ⇒ **NOINFO**；自报值 ≠ 现场 sha256（**全 64 位逐字**）⇒ **FAIL `probe-sha-mismatch`**。为什么比 64 位、不比 16 位前缀 = 本仓法条「前缀相等不是内容相等」（`src/Linux/build/MilBridge/tools/ShimShaReader/Program.cs:12`、`arm-log-sha-check.sh:9`）。为什么身份必须**落在日志里**（而不是只记在本表）：本表只能证「**表**与现场同版」，证不了「**这份日志**出自哪一版」；事后核对的承重主张要求拿一份旧日志就能定它的产出者。⚠️ 落本键当趟**必须连带重取三支 `tab-*` 臂**（老日志没有自报行），见 `generation.arms_retaken`。",
@@ -301,9 +301,9 @@
       "generation": "#23",
       "caliber": {
         "judgment_version": "t1b3-tline-gate/7",
-        "instr_run_sh": "711f39f468f61cc867b94ec14d9f0b267b677095809986195573698ab42c75eb",
-        "instr_program_cs": "dda989bb024d20e604f1863a7d11d53d97600d4500692c3880347ae1d6a57372",
-        "instr_shim": "e2fa9ec9be1a6cf15736c97712721110f732a4e9c45466b010e71fc0cd3d33c0"
+        "instr_run_sh": "9fd39e0bed4167a5870f55b7ae56072ab87db24fc563e0d88afd74ee28574f53",
+        "instr_program_cs": "cf3039d7f7af17306c5ee81013f9d7220a5acbfb5a68d04ff33b759b48005dc0",
+        "instr_shim": "a40fe0a1151ebd0f8fd385d475fe36039ddf8e3a2276f7370a674187928751f6"
       },
       "expected_reading": "折叠判定一致 1298/1298；真折叠 236 行，明细全等 232/236（折后宽度最大差 9.680667 DIP，最差在 F_nbsp_zwsp_w80 行#0）",
       "red_authority": "读数 pair_lt（明细全等 < 真折叠行数）**或** 判据 T3 == FAIL",
@@ -321,9 +321,9 @@
       "generation": "#23",
       "caliber": {
         "judgment_version": "t1b3-tline-gate/7",
-        "instr_run_sh": "711f39f468f61cc867b94ec14d9f0b267b677095809986195573698ab42c75eb",
-        "instr_program_cs": "dda989bb024d20e604f1863a7d11d53d97600d4500692c3880347ae1d6a57372",
-        "instr_shim": "e2fa9ec9be1a6cf15736c97712721110f732a4e9c45466b010e71fc0cd3d33c0"
+        "instr_run_sh": "9fd39e0bed4167a5870f55b7ae56072ab87db24fc563e0d88afd74ee28574f53",
+        "instr_program_cs": "cf3039d7f7af17306c5ee81013f9d7220a5acbfb5a68d04ff33b759b48005dc0",
+        "instr_shim": "a40fe0a1151ebd0f8fd385d475fe36039ddf8e3a2276f7370a674187928751f6"
       },
       "expected_reading": "[② Extent 余差清单] 共 1242 条（主对拍集 1202 + LH 组 40；容差 0.01 DIP）（`#16` 为 95 条；`#49` 零墨修法把墨迹盒改宽 ⇒ 条数随之变，见 reason 与 note）",
       "red_authority": "读数 count>0",
@@ -343,9 +343,9 @@
       "unlocated": true,
       "caliber": {
         "judgment_version": "t1b3-tline-gate/7",
-        "instr_run_sh": "711f39f468f61cc867b94ec14d9f0b267b677095809986195573698ab42c75eb",
-        "instr_program_cs": "dda989bb024d20e604f1863a7d11d53d97600d4500692c3880347ae1d6a57372",
-        "instr_shim": "e2fa9ec9be1a6cf15736c97712721110f732a4e9c45466b010e71fc0cd3d33c0"
+        "instr_run_sh": "9fd39e0bed4167a5870f55b7ae56072ab87db24fc563e0d88afd74ee28574f53",
+        "instr_program_cs": "cf3039d7f7af17306c5ee81013f9d7220a5acbfb5a68d04ff33b759b48005dc0",
+        "instr_shim": "a40fe0a1151ebd0f8fd385d475fe36039ddf8e3a2276f7370a674187928751f6"
       },
       "expected_reading": "❌ T3b 折叠明细**契约级**断言（① 判别式 ② 起止==真机 ③ |cr.Width−真机| < 0.34）",
       "red_authority": "判据 T3b == FAIL（读数 = 该判据的 ❌/✅）",
@@ -363,9 +363,9 @@
       "generation": "#23",
       "caliber": {
         "judgment_version": "t1b3-tline-gate/7",
-        "instr_run_sh": "711f39f468f61cc867b94ec14d9f0b267b677095809986195573698ab42c75eb",
-        "instr_program_cs": "dda989bb024d20e604f1863a7d11d53d97600d4500692c3880347ae1d6a57372",
-        "instr_shim": "e2fa9ec9be1a6cf15736c97712721110f732a4e9c45466b010e71fc0cd3d33c0",
+        "instr_run_sh": "9fd39e0bed4167a5870f55b7ae56072ab87db24fc563e0d88afd74ee28574f53",
+        "instr_program_cs": "cf3039d7f7af17306c5ee81013f9d7220a5acbfb5a68d04ff33b759b48005dc0",
+        "instr_shim": "a40fe0a1151ebd0f8fd385d475fe36039ddf8e3a2276f7370a674187928751f6",
         "shim_declared_by_log": false
       },
       "expected_reading": "TAB_LINES CASE notab-control@w40@em24@RTL@tab0 … 结构=FAIL（本世代实测）",
@@ -392,9 +392,9 @@
         "instrument": "src/Linux/build/MilBridge/tools/uia-door-check.sh",
         "instrument_sha16": "d8f23e91ade01453",
         "judgment_version": "known-red-arms/1",
-        "instr_run_sh": "711f39f468f61cc867b94ec14d9f0b267b677095809986195573698ab42c75eb",
-        "instr_program_cs": "dda989bb024d20e604f1863a7d11d53d97600d4500692c3880347ae1d6a57372",
-        "instr_shim": "e2fa9ec9be1a6cf15736c97712721110f732a4e9c45466b010e71fc0cd3d33c0"
+        "instr_run_sh": "9fd39e0bed4167a5870f55b7ae56072ab87db24fc563e0d88afd74ee28574f53",
+        "instr_program_cs": "cf3039d7f7af17306c5ee81013f9d7220a5acbfb5a68d04ff33b759b48005dc0",
+        "instr_shim": "a40fe0a1151ebd0f8fd385d475fe36039ddf8e3a2276f7370a674187928751f6"
       }
     }
   ]

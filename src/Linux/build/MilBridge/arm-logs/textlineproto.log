@@ -16,15 +16,29 @@ WindowsBase      = WindowsBase, Version=4.0.0.1, Culture=neutral, PublicKeyToken
       TextRunBounds: public ctor=0  non-public ctor=1
   PASS  P3  TextBounds 只能反射构造（public ctor = 0）
         反射成功：Rectangle=0,0,10,10（ctor 参数 3 个）
-  PASS  P4  new DrawingVisual().RenderOpen() 在纯 PC 下可用
-        拿到 DrawingContext 并画了一个矩形（Draw 覆盖可以被真正驱动）
+  FAIL  P4  new DrawingVisual().RenderOpen() 在纯 PC 下可用
+        DllNotFoundException: Unable to load shared library 'wpfgfx_cor3.dll' or one of its dependencies. In order to help diagnose loading problems, consider using a tool like strace. If you're using glibc, consider setting the LD_DEBUG environment variable: 
+/home/links-dev/netTest/GitProj/WPFOnLinux/src/Linux/build/MilBridge/tests/ContractProbe/bin/Release/runtimes/linux-x64/native/wpfgfx_cor3.dll.so: cannot open shared object file: No such file or directory
+/home/links-dev/.dotnet/shared/Microsoft.NETCore.App/10.0.11/wpfgfx_cor3.dll.so: cannot open shared object file: No such file or directory
+/home/links-dev/netTest/GitProj/WPFOnLinux/src/Linux/build/MilBridge/tests/ContractProbe/bin/Release/wpfgfx_cor3.dll.so: cannot open shared object file: No such file or directory
+/home/links-dev/netTest/GitProj/WPFOnLinux/src/Linux/build/MilBridge/tests/ContractProbe/bin/Release/runtimes/linux-x64/native/libwpfgfx_cor3.dll.so: cannot open shared object file: No such file or directory
+/home/links-dev/.dotnet/shared/Microsoft.NETCore.App/10.0.11/libwpfgfx_cor3.dll.so: cannot open shared object file: No such file or directory
+/home/links-dev/netTest/GitProj/WPFOnLinux/src/Linux/build/MilBridge/tests/ContractProbe/bin/Release/libwpfgfx_cor3.dll.so: cannot open shared object file: No such file or directory
+/home/links-dev/netTest/GitProj/WPFOnLinux/src/Linux/build/MilBridge/tests/ContractProbe/bin/Release/runtimes/linux-x64/native/wpfgfx_cor3.dll: cannot open shared object file: No such file or directory
+/home/links-dev/.dotnet/shared/Microsoft.NETCore.App/10.0.11/wpfgfx_cor3.dll: cannot open shared object file: No such file or directory
+/home/links-dev/netTest/GitProj/WPFOnLinux/src/Linux/build/MilBridge/tests/ContractProbe/bin/Release/wpfgfx_cor3.dll: cannot open shared object file: No such file or directory
+/home/links-dev/netTest/GitProj/WPFOnLinux/src/Linux/build/MilBridge/tests/ContractProbe/bin/Release/runtimes/linux-x64/native/libwpfgfx_cor3.dll: cannot open shared object file: No such file or directory
+/home/links-dev/.dotnet/shared/Microsoft.NETCore.App/10.0.11/libwpfgfx_cor3.dll: cannot open shared object file: No such file or directory
+/home/links-dev/netTest/GitProj/WPFOnLinux/src/Linux/build/MilBridge/tests/ContractProbe/bin/Release/libwpfgfx_cor3.dll: cannot open shared object file: No such file or directory
+
+        栈: at System.Windows.Media.MediaContextNotificationWindow.MilContent_AttachToHwnd(IntPtr hwnd) | at System.Windows.Media.MediaContextNotificationWindow.MilContent_AttachToHwnd(IntPtr hwnd) | at System.Windows.Media.MediaContextNotificationWindow..ctor(MediaContext ownerMediaContext) in /home/links-dev/netTest/GitProj/WPFOnLinux/upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationCore/System/Windows/Media/MediaContextNotificationWindow.cs:line 75 | 
   PASS  P5  DWF Font → GlyphTypeface(内部 ctor) → **真 GlyphTypeface**
         GlyphCount=3884 Version=2.015 Baseline=1.0690 FaceNames=1
   FAIL  P6  BeginInit + 属性 setter 构造 GlyphRun
         InvalidOperationException: The operation fails because the object is not fully initialized.
         栈: at System.Windows.Media.GlyphRun.CheckInitialized() in /home/links-dev/netTest/GitProj/WPFOnLinux/upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationCore/System/Windows/Media/GlyphRun.cs:line 2344 | at System.Windows.Media.GlyphRun.get_GlyphIndices() in /home/links-dev/netTest/GitProj/WPFOnLinux/upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationCore/System/Windows/Media/GlyphRun.cs:line 1072 | at MilBridge.ContractProbe.Program.Main() in /home/links-dev/netTest/GitProj/WPFOnLinux/src/Linux/build/MilBridge/tests/ContractProbe/Program.cs:line 211 | 
 
-== 探针：通过 4 / 失败 2 ==
+== 探针：通过 3 / 失败 3 ==
 
 == 轨道A · TextLine 契约限时原型 ==
 libharfbuzz = 2.7.4

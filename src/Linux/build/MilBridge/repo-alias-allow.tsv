@@ -42,3 +42,9 @@
 #   · **为什么不是甲**：删输出侧 ＝ **写仓外**（`~/t67-runner/**` 不在 `T-W2` 写域内）；且硬链接是 `arm-logs/README.md:3-8` 的**明文约定**（`cp` 顶 mtime／`ln -s` 被 `find -type f` 漏 —— 两处都实测定死）。⇒ 甲案须队长授权动仓外件，本趟择乙。
 #   · 另：`arm-log-sha-check.sh:53-55` 现取明写「`nlink=` **信息性、不参与判定**」⇒ 即使走甲案（nlink 掉到 `1`）那件**也不会红**（此点为择案记录，非本趟落地路径）。
 /home/links-dev/p1-tail2-run/arms82	5	T-A49（E5 重取臂）的输出落点（五臂日志 tab-anchor/tab-rtl/tab-zero/tline/textlineproto）。按 arm-logs/README.md:3-8 约定，仓内 arm-logs/ 下同名件**必须是硬链接**（cp 顶 mtime ⇒ 架空弱配对判据）⇒ 该孪生是设计意图、非写穿事故；五件全是臂日志、不是产品件。上限 = 现读孪生计数 5。若该树张过 5 ⇒ 应当红。
+#
+# ⏪ **dated 新增第三数据行（结构上游化·合并波 R3，读时 2026-10-04T23:10:00+0800）**：`tline-gate（五臂）` 转绿需重取五臂（旧 tline 臂日志因 `run.sh` 的 SHIM 陈旧路径而残缺）。
+#   · 重取输出落点 = `/home/links-dev/wfp-runs/armsR3b/`（五臂日志同前五名）。按 `arm-logs/README.md:3-8` 的约定，仓内 `arm-logs/` 下同名件**必须是硬链接** ⇒ 该孪生是**设计意图**、非写穿事故；五件全是**臂日志**、不是产品件。
+#   · 上限 = 现读孪生计数 `5`。若该树张过 `5` ⇒ **应当红**（请连同本上限一起复核，别直接抬高）。
+#   · 🔴 上方口径句**逐字仍有效**：**"允许清单是声明式豁免，不是把牙关掉。"**
+/home/links-dev/wfp-runs/armsR3b	5	结构上游化·合并波 R3：`tline-gate（五臂）` 转绿的五臂重取输出落点（tab-anchor/tab-rtl/tab-zero/tline/textlineproto）。按 arm-logs/README.md:3-8 约定，仓内 arm-logs/ 下同名件**必须是硬链接**（cp 顶 mtime ⇒ 架空弱配对判据；ln -s 被门禁 find -type f 漏）⇒ 该孪生是设计意图、非写穿事故；五件全是臂日志、不是产品件。上限 = 现读孪生计数 5。若该树张过 5 ⇒ 应当红。

@@ -1,0 +1,7 @@
+# T1b · **行级**记账不一致清单（用例 | 行号 | 期望 | 实得 | 归类桶）
+# 被测 shim 源 sha256（本 harness 直接编入） = A40FE0A1151EBD0F8FD385D475FE36039DDF8E3A2276F7370A674187928751F6
+# PC 内 shim sha256                         = unknown(FP 里有该文件的行但行内无 sha256)
+# hbtextline_shim_stale                     = false   （口径=源 mtime 1791125025 vs PC 产物 mtime 1791125339（basis=auth，与 run-wpfprobe.sh 的 hbt_stale() 同谓词）；**mtime 谓词、非内容比对** ⇒ 同内容重写会假阳（已登记为已知仪器局限；内容比对需要 PC 侧逐文件 sha，当前不可得））
+# 仪器 = run.sh 416E37BA1401082B / Program.cs CF3039D7F7AF1730   pc=9057C011E4F5245D   applocal=3/4 一致（**不一致/缺件** ⇒ 本次读数不可信）
+# 测量对象（app-local 副本，应与权威一致）： PC=F7436108A2BF911E WB=592537CB1C49DE09 DWF=3BA5913F78ADECBD Provider=5223491C088B47EB
+# 条数 = 0（**无上限，未截断**）
