@@ -30,7 +30,7 @@
         at MS.Internal.FontFace.CompositeFontParser.ParseFontFamilyCollectionElement()  CompositeFontParser.cs:344
 
   **它会以"任何找不到的字体名"为入口炸出来**，与"字体装没装"无关。实测调用序列
-  （`build/MilBridge/tests/CompositeFontProbe`，S2/S2b 两段）：
+  （`src/Linux/build/MilBridge/tests/CompositeFontProbe`，S2/S2b 两段）：
       new FontFamily("Arial")                                  → canonical 名 = ARIAL（1 个 token）
       new Typeface(family, Normal, Normal, Normal)             → 兜底族 = FontFamily.FontFamilyGlobalUI
                                                                  （FontFamily.cs:40 "#GLOBAL USER INTERFACE"，
@@ -49,7 +49,7 @@
 
 【✅ 修法：短路 + 把这一层回退交给 provider】
   4 个 `Global*.CompositeFont` 是 **Windows 平台的族链表资源**，干的是"某个字符落到哪个字体"的
-  **回退映射**；本移植里这件事**已由 provider 承担**（`build/DirectWrite.Linux/Provider/FaceSelector.cs`
+  **回退映射**；本移植里这件事**已由 provider 承担**（`src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/FaceSelector.cs`
   + `LinuxFontCollection.cs`）⇒ 上游这一层在 Linux 上是**冗余的第二套回退**，不是缺失的能力。
   两条：
     ① 非 Windows 上 `GetCompositeFontFamilyAtIndex` 直接返回 null（**连 `new FontSource(...)` /
@@ -57,7 +57,7 @@
     ② `FamilyCollection.LookupFamily` 在"系统回退族"这个名字上**返回 provider 的默认族**
        （T2 的公开 API `DefaultFontFamily.SelectFamilyName`；`#GLOBAL USER INTERFACE` 的角色就是
         "找不到字体时的兜底入口"）。**不再用 `_fontCollection[0]`** —— 实测它会随扫到的目录漂
-        （只给 build/fonts → `Noto Sans`；带上 /usr/share/fonts → `AR PL UKai CN` 楷体），
+        （只给 src/Linux/build/fonts → `Noto Sans`；带上 /usr/share/fonts → `AR PL UKai CN` 楷体），
         而 `SelectFamilyName` 在同样两种配置下**都选 `Noto Sans`**（主控 ① 要求 2 的漂移实测）。
 
 【⚠️ 为什么必须做 ② （这一条是**实测**出来的，不是推测）】
@@ -92,7 +92,7 @@
       （② 要返回 `PhysicalFontFamily`）。唯一调用点是 `LookupFamily`（本文件 :340）。
 
 【T1c 实测结论（**必读**）：这一层当前**不在 CJK 的活路上** —— 方案 A 已落地但**不改变画面**】
-  读数（默认档；装置 `build/MilBridge/tools/t1c-census.sh`；PC = 波前 `/tmp` 构建件；开关缺省语义见下）：
+  读数（默认档；装置 `src/Linux/build/MilBridge/tools/t1c-census.sh`；PC = 波前 `/tmp` 构建件；开关缺省语义见下）：
     · `Wrap` 被调到（自报行在）**但 `WrapperMapCalls=0`** ⇒ 包装族的
       `IFontFamily.GetMapTargetFamilyNameAndScale` **一次都没被问过**（诊断开着，前 8 次必打）；
     · 上游 `GetShapeableText`（喂 `TypefaceMap`/`GlyphingCache` 的入口）在**托管 PC 里没有任何调用者**
@@ -106,7 +106,7 @@
       `maxId 3540 → 63151` ⇒ 选面发生在"**run 的 Typeface**"这一层、且**一个 run 只用一个字体文件**。
   ⇒ 方案 A 的代码是**正确实现**（关/开 A/B：`id0`、`skia 指令数`、截图颜色数、PNG 逐项相同），
     但它**不在活路上** ⇒ **不要**把它当成"CJK 已修好"。真正的修法在 shim 的字体解析
-    （`build/shims/PresentationCore.HbTextLine.cs` 的 `TryResolveFont` / `HbTextLineFactory.FormatParagraph`：
+    （`src/Microsoft.DotNet.Wpf.Linux/src/shims/PresentationCore.HbTextLine.cs` 的 `TryResolveFont` / `HbTextLineFactory.FormatParagraph`：
     按 run 取字体 + 按码点覆盖回退到多字体整形）—— **那是别的车道**（T1b 的 v7，本研究不改它）。
 
 【T1c 开关的**未设语义**（本项目栽过"设计说默认开、实现却默认关"）】
@@ -130,7 +130,7 @@
 
 【验证】
   python3 src/WpfGfx.Linux.Native/tools/patch-presentationcore-compositefont.py --check     # 0=已就位
-  bash build/MilBridge/run.sh compositefont    # 探针：PC 重建前后各跑一次（同一份程序）
+  bash src/Linux/build/MilBridge/run.sh compositefont    # 探针：PC 重建前后各跑一次（同一份程序）
   重放顺序：port-lib.py → reapply-patches.py(F/D/G) → patch-presentationcore-apartment.py(H)
             → patch-presentationcore-fontcache.py(I) → **本脚本(J)** → 集成波重建 PC
 """
@@ -141,7 +141,7 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
-PC_DIR = os.path.join(ROOT, "build", "PresentationCore.Linux")
+PC_DIR = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "PresentationCore")
 CSPROJ = os.path.join(PC_DIR, "PresentationCore.Linux.csproj")
 GENERATED = os.path.join(PC_DIR, "FamilyCollection.Linux.cs")
 UPSTREAM = os.path.join(ROOT, "upstream", "wpf", "src", "Microsoft.DotNet.Wpf", "src",
@@ -150,7 +150,7 @@ UPSTREAM = os.path.join(ROOT, "upstream", "wpf", "src", "Microsoft.DotNet.Wpf", 
 UPSTREAM_REL = "src/Microsoft.DotNet.Wpf/src/PresentationCore/MS/internal/FontCache/FamilyCollection.cs"
 
 MARKER_BEGIN = ("  <!-- ==== WPF-on-Linux M7d 补丁 J：非 Windows 短路系统复合字体解析"
-                "（由 tools/patch-presentationcore-compositefont.py 注入）==== -->")
+                "（由 src/Linux/tools/patch-presentationcore-compositefont.py 注入）==== -->")
 MARKER_END = "  <!-- ==== WPF-on-Linux M7d 补丁 J 结束 ==== -->"
 
 # =====================================================================================
@@ -166,10 +166,10 @@ ANCHOR1 = (
 
 REPLACEMENT1 = '''            internal static CompositeFontFamily GetCompositeFontFamilyAtIndex(int index)
             {
-                // ── WPF-on-Linux M7d 补丁 J ①：短路点（由 tools/patch-presentationcore-compositefont.py 插入）──
+                // ── WPF-on-Linux M7d 补丁 J ①：短路点（由 src/Linux/tools/patch-presentationcore-compositefont.py 插入）──
                 // 4 个 Global*.CompositeFont 是 **Windows 平台的族链表资源**：它们干的是
                 // "某个字符落到哪个字体"的**回退映射**。本移植里这件事**已由 provider 承担**
-                // （build/DirectWrite.Linux/Provider/FaceSelector.cs + LinuxFontCollection.cs：
+                // （src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/FaceSelector.cs + LinuxFontCollection.cs：
                 // 族内选面 / 缺字回退）⇒ 上游这一层在 Linux 上是冗余的第二套回退，不是缺失能力。
                 //
                 // 不短路的话：LoadXml → CompositeFontParser.ParseFontFamilyCollectionElement 按 `OS`
@@ -329,7 +329,7 @@ REPLACEMENT5 = '''        /// <summary>
         /// 用 T2 的公开 API `DefaultFontFamily.SelectFamilyName(LinuxFontCollection)`
         /// （偏好序 → fontconfig sans-serif → 族名序，见 Provider/DefaultFontFamily.cs），
         /// **不是** `_fontCollection[0]` —— 实测漂移（主控 ① 要求 2，两种目录配置）：
-        ///     _fontCollection[0]      : 只 build/fonts → `Noto Sans`；+ /usr/share/fonts → `AR PL UKai CN`（楷体）
+        ///     _fontCollection[0]      : 只 src/Linux/build/fonts → `Noto Sans`；+ /usr/share/fonts → `AR PL UKai CN`（楷体）
         ///     SelectFamilyName        : 两种配置**都** `Noto Sans`（reason=preferred-list）
         /// 默认 UI 字体不该随"扫到了哪些目录"变（Windows 的默认 UI 字体是固定族 Segoe UI）。
         ///
@@ -1783,7 +1783,7 @@ ANCHOR9 = (
     '        }\n'
 )
 
-REPLACEMENT9 = '''            // ── WPF-on-Linux T1c 方案 A：按码点覆盖感知的回退（由 tools/patch-presentationcore-compositefont.py 插入）──
+REPLACEMENT9 = '''            // ── WPF-on-Linux T1c 方案 A：按码点覆盖感知的回退（由 src/Linux/tools/patch-presentationcore-compositefont.py 插入）──
             // ⚠️ 为什么这一处也要包：`LookupFamily` 的入参**只有族名**，看不到该 run 的字符 ⇒
             //    "当前族不覆盖该 run 的码点"只能在**字符区间**那一层判（`IFontFamily.
             //    GetMapTargetFamilyNameAndScale`，上游**复合字体协议**的钩子；补丁 J 短路掉的
@@ -1860,7 +1860,7 @@ HEADER = """// ⚠️ 本文件由 src/WpfGfx.Linux.Native/tools/patch-presentat
 //   而是：① 非 Windows 上系统复合字体一律不加载（短路，连 LoadXml 都不执行）；
 //          ② "系统回退族"（#GLOBAL USER INTERFACE，Typeface 的 FallbackFontFamily）改由
 //             **provider 的首个可用族**回答 —— 不做 ② 的话 Typeface.cs:786 会解引用 null 抛 NRE
-//             （实测见 build/MilBridge/T1-report.md 的 M7d 段；这条链上"诚实失败"被
+//             （实测见 src/Linux/build/MilBridge/T1-report.md 的 M7d 段；这条链上"诚实失败"被
 //              CachedTypeface.cs:42 的 Invariant.Assert 堵死）。
 //          ③④ 枚举循环 null 守卫 + FamilyCount 同步（否则尾部 null / Debug.Assert 失败）；
 //          ⑤ FindFamily 返回类型 → IFontFamily（② 要返回 PhysicalFontFamily）。
@@ -1873,7 +1873,7 @@ HEADER = """// ⚠️ 本文件由 src/WpfGfx.Linux.Native/tools/patch-presentat
 //    `IFontFamily.GetMapTargetFamilyNameAndScale` **一次都没被问到**（`WrapperMapCalls=0`），
 //    因为喂 `TypefaceMap` 的 `GetShapeableText` 在本移植里**没有托管调用者**（LS 已被托管 shim 取代），
 //    而 shim 是"一段一个字体文件"（无覆盖回退）。⇒ **不要**把本文件当成"CJK 已修好"。
-//    真正的修法在 `build/shims/PresentationCore.HbTextLine.cs` 的字体解析那一层（别的车道）。
+//    真正的修法在 `src/Microsoft.DotNet.Wpf.Linux/src/shims/PresentationCore.HbTextLine.cs` 的字体解析那一层（别的车道）。
 //
 // ↓↓↓ 以下为上游原文（仅 9 处标记：7 处 M7d 补丁 J + 2 处 T1c 方案 A）↓↓↓
 """
@@ -1960,7 +1960,7 @@ def generate(check_only):
     block = (MARKER_BEGIN + "\n"
              "  <ItemGroup>\n"
              f'    <Compile Remove="$(UpstreamWpfRoot){UPSTREAM_REL}" />\n'
-             '    <Compile Include="$(WpfLinuxRoot)build/PresentationCore.Linux/FamilyCollection.Linux.cs" />\n'
+             '    <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/FamilyCollection.Linux.cs" />\n'
              "  </ItemGroup>\n"
              + MARKER_END + "\n")
     csproj = csproj.replace(anchor, block + anchor, 1)
@@ -1969,7 +1969,7 @@ def generate(check_only):
     print(f"[接线] 已注入 2 行到 {os.path.relpath(CSPROJ, ROOT)}"
           "（Remove 之后于上游 Include，见 §接线坑②）")
     print("\n下一步（**不要在这里重建 PC**，留给集成波）：")
-    print("  dotnet msbuild build/PresentationCore.Linux/PresentationCore.Linux.csproj -m:1 --nologo \\")
+    print("  dotnet msbuild src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/PresentationCore.Linux.csproj -m:1 --nologo \\")
     print("      -getItem:Compile -p:Configuration=Debug | grep -i FamilyCollection")
     print("  # 期望只剩 FamilyCollection.Linux.cs（上游那条被 Remove 掉）")
     return 0

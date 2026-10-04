@@ -21,7 +21,7 @@ The upstream snapshot lives in `upstream/wpf/` (a read-only copy of `dotnet/wpf`
 | **One-command acceptance** | `verify-all.sh`: **64 steps** (current `64 ✅ / 0 ❌`, `rc=0`) | `bash verify-all.sh` |
 | **Frozen baseline** | `docs/CURRENT-STATE.md:9` = `gen=#82` / `sha16=05c5e521c3b14ace` / `1,248,947 B` | `bash build/MilBridge/tools/baseline-sha-check.sh` |
 | **Registered defects** | `DEFREG=PASS declared=225` | `bash build/MilBridge/tools/defect-registry-check.sh` |
-| **PTS / native LineServices** | 🟡 **long-run item (not a blocker)**: reading **可操作 42／实现口径 42**; every remaining entry is named and has been proven a legitimate end point | `bash build/MilBridge/tools/pts-gap-count-check.sh` |
+| **PTS / native LineServices** | 🟡 **long-run item (not a blocker)**: reading **可操作 42／实现口径 42**; every remaining entry is named and has been proven a legitimate end point | `bash src/Linux/build/MilBridge/tools/pts-gap-count-check.sh` |
 
 **"Re-computable" is a hard requirement here**: every conclusion has a command that recomputes it, and the criterion files are themselves watched (a good part of the 64 steps are instruments for the instruments).
 

@@ -1,2 +1,0 @@
-build/shims/Win32ShimResolver.cs
-build/shims/Accessibility.Shim.cs

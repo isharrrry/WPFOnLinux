@@ -41,7 +41,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
 
-PC_DIR = os.path.join(ROOT, "build", "PresentationCore.Linux")
+PC_DIR = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "PresentationCore")
 CSPROJ = os.path.join(PC_DIR, "PresentationCore.Linux.csproj")
 
 UP_REL = "src/Microsoft.DotNet.Wpf/src/PresentationCore/System/Windows/Input/InputProviderSite.cs"
@@ -226,7 +226,7 @@ def generate(check_only):
         block = (MARKER_BEGIN + "\n"
                  "  <ItemGroup>\n"
                  f'    <Compile Remove="$(UpstreamWpfRoot){UP_REL}" />\n'
-                 '    <Compile Include="$(WpfLinuxRoot)build/PresentationCore.Linux/InputProviderSite.Linux.cs" />\n'
+                 '    <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/InputProviderSite.Linux.cs" />\n'
                  "  </ItemGroup>\n"
                  + MARKER_END + "\n")
         csproj = csproj.replace(anchor, block + anchor, 1)
@@ -234,7 +234,7 @@ def generate(check_only):
             f.write(csproj)
         print(f"[接线] 已注入 2 行到 {os.path.relpath(CSPROJ, ROOT)}（Remove 落在上游 Include 之后）")
 
-    print("[注意] `build/port-lib.py PresentationCore` 会整份重写 csproj ⇒ 本块会被抹掉；"
+    print("[注意] `src/Linux/build/port-lib.py PresentationCore` 会整份重写 csproj ⇒ 本块会被抹掉；"
           "重写后必须重跑本脚本。接线丢失**不会报编译错**，只会一行都不打 ⇒ 别把空输出读成结论。")
 
     if check_only:

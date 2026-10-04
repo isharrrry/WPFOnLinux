@@ -1,0 +1,144 @@
+<!--
+  ============================================================================
+  WpfLinux.props —— 让**外部（第三方）WPF 工程**在 Linux 上针对本仓自产的 WPF 栈编译
+  ============================================================================
+
+  【怎么用】把本文件拷到你自己的工程目录，然后在 csproj 里这样接：
+
+      <Project>
+        <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />     （ 必须最先 ）
+        <Import Project="WpfLinux.props" />                        （ 本文件 ）
+        ... 你的 PropertyGroup / ItemGroup / 页面 ...
+        <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />    （ 必须最后 ）
+        <Import Project="$(MSBuildSDKsPath)/../Microsoft.NET.Sdk.WindowsDesktop/targets/Microsoft.WinFX.targets"
+                Condition="Exists('...')" />                        （ XAML 编译（见 §3） ）
+      </Project>
+
+  【必须给的两个值】（不给就**大声失败**，不猜）
+      WpfLinuxRoot  本仓（wpf-linux）仓根绝对路径
+      WpfLinuxBuildConfiguration  自产件的配置：Debug（当前默认）| Release
+  ============================================================================
+-->
+<Project>
+
+  <!--
+    ── ⚠️【`#49` 主控修 · `C1c` 根因】"配置"这件事**只许有一个源头** ─────────────────────
+    现场（2026-09-21 主控实测，读数逐条留档在 `docs/WAVE49-PREREGISTRATION.md` §13.4 ②）：
+      本文件原先**自带**一句默认值 `Debug`，而全仓的**唯一声明**是
+      `src/Linux/build/SelfBuiltConfig.props` 的 `WpfLinuxSelfBuiltConfiguration = **Release**`
+      ⇒ **同一个语义两处声明 ⇒ 必然分叉**（`#39` 那份文件头警告的正是这一族）。
+    后果是**真的、可量的**：`src/Linux/samples/ThirdPartyMini` 的 runner 用 `-c $SELFBUILT_CONFIG`（= Release）
+    构建**应用**，却没传本文件的 `WpfLinuxBuildConfiguration` ⇒ 它引用的是 **Debug** 的自产件，
+    副本落进 `bin/Release/net10.0/` 之后与**权威（Release）**不符 ⇒ 应用门禁当场报
+    **4 条 `UNEXPECTED-DIFF`（硬红：内容不同的未声明副本）**，即 `C1c` 那四条。
+    ⇒ **根因不是"该不该带 PF/WB"、也不是"要不要刷新"，而是"配方自己发了一份配置声明"。**
+
+    修法：**import 唯一声明处**，本文件的默认值**从它派生**（不再抄一个字面量）。
+    · `WpfLinuxBuildConfiguration` 这个名字**保留**：外部仍可**显式覆盖**（= "我故意跨配置"），
+      但覆盖之后应用门禁的 app-local 检查器会把跨配置副本**照样判红**（`CROSS-CONFIG` 格，`D-G62`）
+      ⇒ 跨配置是**可见的**，不是被允许的。
+    · `Condition="Exists(…)"`：`WpfLinuxRoot` 没给时这里**不静默吞** —— 下面
+      `WpfLinuxPropsCheck` 会**大声失败**（本文件的原则：不给就喊，不猜）。
+  -->
+  <Import Project="$(WpfLinuxRoot)/src/Linux/build/SelfBuiltConfig.props" Condition="Exists('$(WpfLinuxRoot)/src/Linux/build/SelfBuiltConfig.props')" />
+  <PropertyGroup>
+    <WpfLinuxRoot Condition="'$(WpfLinuxRoot)' == ''"></WpfLinuxRoot>
+    <WpfLinuxBuildConfiguration Condition="'$(WpfLinuxBuildConfiguration)' == ''">$(WpfLinuxSelfBuiltConfiguration)</WpfLinuxBuildConfiguration>
+
+    <TargetFramework Condition="'$(TargetFramework)' == ''">net10.0</TargetFramework>
+    <!-- ⚠️ 必须是 false：本工程不用 Windows Desktop SDK 的 WPF 实现，改用自产件 -->
+    <UseWPF>false</UseWPF>
+    <Nullable>disable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <DefaultXamlRuntime Condition="'$(DefaultXamlRuntime)' == ''">Wpf</DefaultXamlRuntime>
+
+    <!-- PBT（自产 PresentationBuildTasks）：XAML 编译由它执行；必须在 WinFX targets 之前赋值 -->
+    <PbtLinuxDir Condition="'$(PbtLinuxDir)' == ''">$(WpfLinuxRoot)/src/Microsoft.DotNet.Wpf.Linux/src/PresentationBuildTasks/</PbtLinuxDir>
+    <PbtLinuxConfiguration Condition="'$(PbtLinuxConfiguration)' == ''">Release</PbtLinuxConfiguration>
+    <_PresentationBuildTasksAssembly>$([System.IO.Path]::GetFullPath('$(PbtLinuxDir)bin/$(PbtLinuxConfiguration)/net10.0/PresentationBuildTasks.dll'))</_PresentationBuildTasksAssembly>
+
+    <WpfLinuxBinDir>$(WpfLinuxRoot)/src/Microsoft.DotNet.Wpf.Linux/src</WpfLinuxBinDir>
+  </PropertyGroup>
+
+  <!-- 响亮失败：没给仓根就不要往下走（比 MSBuild 的一堆"找不到文件"好读） -->
+  <Target Name="WpfLinuxPropsCheck" BeforeTargets="ResolveAssemblyReferences">
+    <Error Condition="'$(WpfLinuxRoot)' == ''"
+           Text="WpfLinux.props：请在 csproj 里设置 &lt;WpfLinuxRoot&gt;（wpf-linux 仓根绝对路径），或用 -p:WpfLinuxRoot=… 传入。" />
+    <!-- `#49` 主控加：唯一声明处取不到 ⇒ **必须喊**（否则 HintPath 会塌成 `bin//X.dll`，错误长得像"文件不存在"） -->
+    <Error Condition="'$(WpfLinuxBuildConfiguration)' == ''"
+           Text="WpfLinux.props：自产件配置取不到 —— 期望从 $(WpfLinuxRoot)/src/Linux/build/SelfBuiltConfig.props 的 WpfLinuxSelfBuiltConfiguration 派生，但该文件缺失或值为空。请检查仓根是否给对（WpfLinuxRoot=$(WpfLinuxRoot)）。" />
+    <Error Condition="!Exists('$(WpfLinuxBinDir)/PresentationCore/bin/$(WpfLinuxBuildConfiguration)/PresentationCore.dll')"
+           Text="WpfLinux.props：在 $(WpfLinuxBinDir) 下找不到自产件（配置 $(WpfLinuxBuildConfiguration)）。先在仓内跑：WAVE_OWNER=you bash src/Linux/build/integration-wave.sh" />
+  </Target>
+
+  <!-- ── 自产 WPF 栈（8 件 ＋ 主题件 ＋ DWrite provider）────────────────────── -->
+  <ItemGroup>
+    <Reference Include="WindowsBase">
+      <HintPath>$(WpfLinuxBinDir)/WindowsBase/bin/$(WpfLinuxBuildConfiguration)/WindowsBase.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="System.Xaml">
+      <HintPath>$(WpfLinuxBinDir)/System.Xaml/bin/$(WpfLinuxBuildConfiguration)/System.Xaml.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="PresentationCore">
+      <HintPath>$(WpfLinuxBinDir)/PresentationCore/bin/$(WpfLinuxBuildConfiguration)/PresentationCore.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="PresentationFramework">
+      <HintPath>$(WpfLinuxBinDir)/PresentationFramework/bin/$(WpfLinuxBuildConfiguration)/PresentationFramework.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="DirectWriteForwarder">
+      <HintPath>$(WpfLinuxBinDir)/DirectWriteForwarder/bin/$(WpfLinuxBuildConfiguration)/DirectWriteForwarder.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="UIAutomationTypes">
+      <HintPath>$(WpfLinuxBinDir)/UIAutomationTypes/bin/$(WpfLinuxBuildConfiguration)/UIAutomationTypes.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="UIAutomationProvider">
+      <HintPath>$(WpfLinuxBinDir)/UIAutomationProvider/bin/$(WpfLinuxBuildConfiguration)/UIAutomationProvider.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="System.Windows.Input.Manipulations">
+      <HintPath>$(WpfLinuxBinDir)/System.Windows.Input.Manipulations/bin/$(WpfLinuxBuildConfiguration)/System.Windows.Input.Manipulations.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="PresentationFramework.Classic">
+      <HintPath>$(WpfLinuxBinDir)/PresentationFramework.Classic/bin/$(WpfLinuxBuildConfiguration)/PresentationFramework.Classic.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="DirectWrite.Linux.Provider">
+      <HintPath>$(WpfLinuxBinDir)/DirectWrite/Provider/bin/$(WpfLinuxBuildConfiguration)/DirectWrite.Linux.Provider.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- ── Provider 背后的 Skia 依赖图 ＋ 自产件在共享框架之外的 OOB BCL 依赖 ──
+       ⚠️ SkiaSharp 托管包与 `SkiaSharp.NativeAssets.Linux` **必须成对**：
+       只装前者 ⇒ 运行期 `DllNotFoundException: libSkiaSharp`。 -->
+  <ItemGroup>
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.88.9" />
+    <PackageReference Include="System.IO.Packaging" Version="9.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.0" />
+    <PackageReference Include="System.Diagnostics.EventLog" Version="9.0.0" />
+    <PackageReference Include="System.Formats.Nrbf" Version="9.0.0" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="9.0.0" />
+    <PackageReference Include="System.Security.Permissions" Version="9.0.0" />
+    <!-- ── `System.Windows.Extensions`：官方包在非 Windows 上把 `XamlAccessLevel`/`SoundPlayer`/
+         `X509Certificate2UI` 实现成**必抛**桩 ⇒ 用本仓的 Linux 原生替身（`#38` 打通）。
+         ⚠️ **必须留一个"排除 compile/runtime 资产的占位包引用"**：`System.Security.Permissions 9.0.0`
+         **传递依赖** SWE ⇒ 整条删掉它 restore 仍会把包拉回来（带签名身份），RAR 就按包解析、
+         最终 `PresentationFramework` 报 `CS0012`。排除 `compile;runtime` ⇒ 包在编译期一个字都不出现。 -->
+    <PackageReference Include="System.Windows.Extensions" Version="9.0.0" ExcludeAssets="compile;runtime" />
+    <Reference Include="System.Windows.Extensions">
+      <HintPath>$(WpfLinuxRoot)/src/Microsoft.DotNet.Wpf.Linux/src/System.Windows.Extensions/bin/$(WpfLinuxBuildConfiguration)/System.Windows.Extensions.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <PackageReference Include="Microsoft.Win32.SystemEvents" Version="9.0.0" />
+  </ItemGroup>
+
+</Project>

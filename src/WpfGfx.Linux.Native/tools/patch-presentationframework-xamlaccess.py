@@ -47,7 +47,7 @@
 
 【生成式补丁（与 F/G/H/I/J/K 同一套机制）】
   从 upstream 逐字读入 → 只把那一行包进 `if (System.OperatingSystem.IsWindows())` →
-  写到 `build/PresentationFramework.Linux/SystemResources.Linux.cs`，
+  写到 `src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/SystemResources.Linux.cs`，
   csproj 侧 Remove 上游 + Include 生成物。锚点/计数对不上 → **报错退出**。
   重放顺序：port-lib.py → reapply-patches.py(F/D/G) → patch-presentationcore-apartment.py(H)
             → patch-presentationcore-fontcache.py(I) → patch-presentationcore-registry.py(J)
@@ -68,7 +68,7 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
-PF_DIR = os.path.join(ROOT, "build", "PresentationFramework.Linux")
+PF_DIR = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "PresentationFramework")
 CSPROJ = os.path.join(PF_DIR, "PresentationFramework.Linux.csproj")
 UP = os.path.join(ROOT, "upstream", "wpf", "src", "Microsoft.DotNet.Wpf", "src",
                   "PresentationFramework")
@@ -76,7 +76,7 @@ UP_REL = "System/Windows/SystemResources.cs"
 GEN_NAME = "SystemResources.Linux.cs"
 
 MARKER_BEGIN = ("  <!-- ==== WPF-on-Linux M7c 补丁 L：主题字典路径上的 XamlAccessLevel"
-                "（由 tools/patch-presentationframework-xamlaccess.py 注入）==== -->")
+                "（由 src/Linux/tools/patch-presentationframework-xamlaccess.py 注入）==== -->")
 MARKER_END = "  <!-- ==== WPF-on-Linux M7c 补丁 L 结束 ==== -->"
 
 OLD = "                        owSettings.AccessLevel = XamlAccessLevel.AssemblyAccessTo(assembly);\n"
@@ -159,15 +159,15 @@ def generate(check_only):
         MARKER_BEGIN,
         "  <ItemGroup>",
         f'    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/{UP_REL}" />',
-        f'    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/{GEN_NAME}" />',
+        f'    <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/{GEN_NAME}" />',
         "  </ItemGroup>",
         MARKER_END,
     ]
     csproj = csproj.replace(anchor, "\n".join(lines) + "\n" + anchor, 1)
     with open(CSPROJ, "w", encoding="utf-8") as f:
         f.write(csproj)
-    print("[接线] 已注入 2 行到 build/PresentationFramework.Linux/PresentationFramework.Linux.csproj")
-    print("\n下一步：dotnet build build/PresentationFramework.Linux/PresentationFramework.Linux.csproj -m:1")
+    print("[接线] 已注入 2 行到 src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/PresentationFramework.Linux.csproj")
+    print("\n下一步：dotnet build src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/PresentationFramework.Linux.csproj -m:1")
     return 0
 
 

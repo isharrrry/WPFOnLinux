@@ -18,7 +18,7 @@ import argparse, os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
-WB_DIR = os.path.join(ROOT, "build", "WindowsBase.Linux")
+WB_DIR = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "WindowsBase")
 TARGET = os.path.join(WB_DIR, "HwndWrapper.Linux.cs")
 CSPROJ = os.path.join(WB_DIR, "WindowsBase.Linux.csproj")
 UPSTREAM_REL = "Shared/MS/Win32/HwndWrapper.cs"
@@ -27,7 +27,7 @@ UPSTREAM = os.path.join(ROOT, "upstream", "wpf", "src", "Microsoft.DotNet.Wpf", 
 CSPROJ_MARKER = '  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />'
 CSPROJ_UPSTREAM_INCLUDE = ('    <Compile Include="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/'
                            + UPSTREAM_REL + '" />')
-MARKER_BEGIN = ("  <!-- ==== WPF-on-Linux M7b 补丁 P：建窗失败诊断（由 tools/patch-shared-hwndwrapper-diag.py 注入）==== -->")
+MARKER_BEGIN = ("  <!-- ==== WPF-on-Linux M7b 补丁 P：建窗失败诊断（由 src/Linux/tools/patch-shared-hwndwrapper-diag.py 注入）==== -->")
 MARKER_END = "  <!-- ==== WPF-on-Linux M7b 补丁 P 结束 ==== -->"
 
 ANCHOR_FAIL = """                if(_handle == 0)
@@ -142,7 +142,7 @@ def wire_csproj(check_only):
         MARKER_BEGIN,
         "  <ItemGroup>",
         f'    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/{UPSTREAM_REL}" />',
-        '    <Compile Include="$(WpfLinuxRoot)build/WindowsBase.Linux/HwndWrapper.Linux.cs" />',
+        '    <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/HwndWrapper.Linux.cs" />',
         "  </ItemGroup>",
         MARKER_END,
         "",

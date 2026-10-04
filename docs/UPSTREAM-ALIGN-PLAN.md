@@ -513,6 +513,9 @@ docs.Linux/          ← 【移植 / Linux 侧】
 | 12 | **多语言门面范围** | ason 有 en/zh-CN/es；本仓正文是中文 | 已裁定：**README 三语 ＋ `docs.Linux/**` 各篇也出 `.zh-CN`/`.es` 副本** |
 | 13 | **新增/删除根条目要过"根级允许清单"牙** | `build/MilBridge/tools/root-entries-allowlist-check.sh`（`verify-all.sh` 的 `ROOT-ENTRIES` 步）用**内嵌 ALLOWLIST** 判"根级条目 ⊆ 清单"；**阶段 0 建 `docs.Linux/` 当场把它打红**，已按工具设计补行恢复 PASS | 合并波要**同趟**：删 `build tests samples tools verify-all.sh wpf-linux.sln upstream`，加 `src/Linux`、`Guide.Linux`、`Guide`（`why` 以「移植面：」开头）；⚠️ 该件在 `fp_inputs()` 覆盖面内 ⇒ 改它必移 `inputs_fp` |
 | 14 | **`static-jaws-check.sh` 时效性抖动** | 它"捕获式"跑一批裸静态牙，含 40 s 级 `frame-step` ⇒ 偶发 `fails=1`/超时（治全黑趟也见过同样首趟红、复跑绿） | 判"本波是否新增红"时，**该件首趟红要复跑一次再定罪**；不属本方案引入 |
+| 15 | **"断言面内容不动" × "路径必须更新" 的正面冲突** | `docs/ROUTES.md`（断言面）里含**功能性引用**（`bash build/MilBridge/tools/pts-gap-count-check.sh`），
+而 `pts-gap-count-check.sh` 会断言"被引用的件真存在" ⇒ 搬迁后 `PTSGAP_CITED=FAIL` | **裁定**：该处是"**引用路径**"而非"被断言的数值" ⇒ **允许只改那一处路径字符串**；但必须"改前三牙读数 → 改 → 改后三牙"，**任一颗变红即改回**并升为待裁决。**禁止**用 `PTSGAP_CITED_STRICT` 之类开关削弱判据来过关 |
+| 16 | **`fp_inputs()` 的"拦截口径"要同趟收口** | 第 2 轮实测 `FP-INPUTS-HYGIENE=NOINFO interception-perturbed` —— 光改 `find` 根不够，它还有一层"拦截/扰动"判定 | 视作 20 处登记的**同一处**，必须与 `find` 根一起改、一起验证（`FP_INPUTS_HYGIENE=PASS coverage_n=…`） |
 
 ---
 

@@ -50,9 +50,9 @@
 DECL-BOUNDARY-COUNT: 2
 DECL-BOUNDARY-BYSTANDERS: expect=2
 
-DECL-BOUNDARY: id=W68-UNWIRED-PRODUCER family=WIRING target=build/MilBridge/tests/SilentHitProbe/run-silenthit-legs.sh expect=unwired-in-step key=producer restates=WAVE68-PREREGISTRATION.md#producer=UNWIRED-IN-STEP,WAVE73-PREREGISTRATION.md#producer=WIRED-ON-DEMAND
+DECL-BOUNDARY: id=W68-UNWIRED-PRODUCER family=WIRING target=src/Linux/build/MilBridge/tests/SilentHitProbe/run-silenthit-legs.sh expect=unwired-in-step key=producer restates=WAVE68-PREREGISTRATION.md#producer=UNWIRED-IN-STEP,WAVE73-PREREGISTRATION.md#producer=WIRED-ON-DEMAND
 
-DECL-BOUNDARY: id=W68-LEGACY-COPIES family=COPY-CENSUS target=build/MilBridge/tests/SilentHitProbe/run-silenthit-legs.sh n=7 enum-from=WAVE68-PREREGISTRATION.md#legacy-copies=DEPRECATED×7 key=legacy-copies restates=WAVE68-PREREGISTRATION.md#legacy-copies=DEPRECATED×7,WAVE73-PREREGISTRATION.md#legacy-copies=DEPRECATED×7
+DECL-BOUNDARY: id=W68-LEGACY-COPIES family=COPY-CENSUS target=src/Linux/build/MilBridge/tests/SilentHitProbe/run-silenthit-legs.sh n=7 enum-from=WAVE68-PREREGISTRATION.md#legacy-copies=DEPRECATED×7 key=legacy-copies restates=WAVE68-PREREGISTRATION.md#legacy-copies=DEPRECATED×7,WAVE73-PREREGISTRATION.md#legacy-copies=DEPRECATED×7
 
 **旁观上限（`DECL-BOUNDARY-BYSTANDERS: expect=2`）**：语料里「**行首即声明位**」但**不属于任何记录键集**的令牌
 （本波现读 **2** 条：`WAVE16-PREREGISTRATION.md:203 caliber=OK`／`WAVE46-PREREGISTRATION.md:38 detail=N`）

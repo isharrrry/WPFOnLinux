@@ -25,7 +25,7 @@
   删掉声明会让"上游改了这段"变得不可见；这里**保留声明并逐字注释说明它为什么在 Linux 上不可用**
   （`#if false` 包裹 + 原注释），改动面最小、可逆、可核对。
 
-【csproj 接线】`build/UIAutomationTypes.Linux/UIAutomationTypes.Linux.csproj:43` 是上游那句；
+【csproj 接线】`src/Microsoft.DotNet.Wpf.Linux/src/UIAutomationTypes/UIAutomationTypes.Linux.csproj:43` 是上游那句；
   本脚本注入自己的块（Remove 上游 + Include 生成物），**波的第 1 步 port-lib 会重生成 csproj ⇒ 每次波都要重放本脚本**。
 
 【重放顺序】port-lib.py → wire-uiautomation-resolver.py(D1) → **本脚本(D2)**
@@ -38,7 +38,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
 
-UA_DIR = os.path.join(ROOT, "build", "UIAutomationTypes.Linux")
+UA_DIR = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "UIAutomationTypes")
 TARGET = os.path.join(UA_DIR, "UiaCoreTypesApi.Linux.cs")
 CSPROJ = os.path.join(UA_DIR, "UIAutomationTypes.Linux.csproj")
 
@@ -47,7 +47,7 @@ UPSTREAM = os.path.join(ROOT, "upstream", "wpf", "src", "Microsoft.DotNet.Wpf", 
 
 CSPROJ_MARKER = '  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />'
 MARKER_BEGIN = ("  <!-- ==== WPF-on-Linux D2：UIA 保留值短路"
-                "（由 tools/patch-uiautomationtypes-reservedvalue.py 注入）==== -->")
+                "（由 src/Linux/tools/patch-uiautomationtypes-reservedvalue.py 注入）==== -->")
 MARKER_END = "  <!-- ==== WPF-on-Linux D2 结束 ==== -->"
 
 ANCHOR_NOTSUPPORTED = '''        internal static object UiaGetReservedNotSupportedValue()
@@ -170,7 +170,7 @@ def wire_csproj(csproj_path, check_only):
         MARKER_BEGIN,
         "  <ItemGroup>",
         f'    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/{UPSTREAM_REL}" />',
-        '    <Compile Include="$(WpfLinuxRoot)build/UIAutomationTypes.Linux/UiaCoreTypesApi.Linux.cs" />',
+        '    <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/UIAutomationTypes/UiaCoreTypesApi.Linux.cs" />',
         "  </ItemGroup>",
         MARKER_END,
         "",
@@ -218,7 +218,7 @@ def generate(check_only, csproj_path=None, out_path=None):
         rc = 0
 
     wire_rc = wire_csproj(csproj_path or CSPROJ, check_only)
-    print("\n下一步：python3 build/port-lib.py UIAutomationTypes && dotnet build build/UIAutomationTypes.Linux/UIAutomationTypes.Linux.csproj -m:1")
+    print("\n下一步：python3 src/Linux/build/port-lib.py UIAutomationTypes && dotnet build src/Microsoft.DotNet.Wpf.Linux/src/UIAutomationTypes/UIAutomationTypes.Linux.csproj -m:1")
     return 0 if (rc == 0 and wire_rc == 0) else 1
 
 

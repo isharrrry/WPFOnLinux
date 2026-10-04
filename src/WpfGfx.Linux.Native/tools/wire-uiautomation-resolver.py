@@ -14,7 +14,7 @@
   `PresentationNative_cor3.dll` 也**已经在** resolver 的 `MappedLibraries` 里（:83）。
 
 【⚠️ 一个必须同时处理的陷阱（否则"照既有做法加个文件"会直接编不过）】
-  `build/shims/Win32ShimResolver.cs:37-43` 是
+  `src/Microsoft.DotNet.Wpf.Linux/src/shims/Win32ShimResolver.cs:37-43` 是
 
       #if WINDOWS_BASE      → namespace WpfLinux.Shims.WindowsBase
       #elif PRESENTATION_CORE → namespace WpfLinux.Shims.PresentationCore
@@ -37,7 +37,7 @@
   现在改为**合并**：保留既有行、只补缺失行；`--check` 只报"缺哪几行"。
 
 【为什么用 shims.txt 而不是直接写 csproj】
-  `build/port-lib.py:568-586` 会读 `build/shims/<项目名>.shims.txt` 并注入 `<Compile Include>`。
+  `src/Linux/build/port-lib.py:568-586` 会读 `src/Microsoft.DotNet.Wpf.Linux/src/shims/<项目名>.shims.txt` 并注入 `<Compile Include>`。
   ⇒ **波的第 1 步重生成 csproj 之后，这两行会自己回来**，不需要额外重放步骤。
 
 【重放顺序】port-lib.py → reapply-patches.py → 各 patch-*.py →（需要时）本脚本
@@ -52,8 +52,8 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
 
-RESOLVER = os.path.join(ROOT, "build", "shims", "Win32ShimResolver.cs")
-SHIMS_DIR = os.path.join(ROOT, "build", "shims")
+RESOLVER = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "shims", "Win32ShimResolver.cs")
+SHIMS_DIR = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "shims")
 
 
 def set_root(root):
@@ -64,8 +64,8 @@ def set_root(root):
     """
     global ROOT, RESOLVER, SHIMS_DIR
     ROOT = os.path.normpath(root)
-    RESOLVER = os.path.join(ROOT, "build", "shims", "Win32ShimResolver.cs")
-    SHIMS_DIR = os.path.join(ROOT, "build", "shims")
+    RESOLVER = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "shims", "Win32ShimResolver.cs")
+    SHIMS_DIR = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "shims")
 
 # 每个工程**必须包含**的 shim 行（相对仓库根的路径）。
 #
@@ -78,11 +78,11 @@ REQUIRED = {
         # UnsafeNativeMethodsCLR.cs（UIAutomationTypes 编译集里有它）要一个**可访问**的
         # `Accessibility.IAccessible`；上游那个是 internal ⇒ 必须带这份 shim。
         # 证据：不带它时 `UnsafeNativeMethodsCLR.cs(219,113): CS0122 "IAccessible" 不可访问`。
-        "build/shims/Accessibility.Shim.cs",
-        "build/shims/Win32ShimResolver.cs",
+        "src/Microsoft.DotNet.Wpf.Linux/src/shims/Accessibility.Shim.cs",
+        "src/Microsoft.DotNet.Wpf.Linux/src/shims/Win32ShimResolver.cs",
     ],
     "UIAutomationProvider.shims.txt": [
-        "build/shims/Win32ShimResolver.cs",
+        "src/Microsoft.DotNet.Wpf.Linux/src/shims/Win32ShimResolver.cs",
     ],
 }
 
@@ -115,7 +115,7 @@ namespace WpfLinux.Shims.UIAutomation
 #   本检查必须**变红并点名**，而不是等到运行期才炸。
 # 【口径（= 红旗①的反面）】**字符串级子串**扫描，不是语法级、不是词边界：
 #   反射用法 `GetMethod("UiaLookupId")` 与 `EntryPoint = "UiaLookupId"` 同样会被看见。
-SCAN_DIRS = ("upstream", "build", "src", "tests", "samples")
+SCAN_DIRS = ("upstream", "src", "Linux", "build", "src", "tests", "samples")
 SCAN_SKIP_DIRS = {"bin", "obj", ".artifacts", "node_modules", ".git"}
 NEEDLE = "UiaLookupId"                          # 子串 ⇒ 同时覆盖 `RawUiaLookupId`
 POSITIVE_CONTROL = "SupportsWin7Identifiers"    # 正对照：同 pattern 形状，**必须有 ≥1 个调用点**

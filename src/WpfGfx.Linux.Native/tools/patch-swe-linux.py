@@ -8,7 +8,7 @@
 而 `XamlReader.LoadBaml` 只要程序集里生成了 `GeneratedInternalTypeHelper` 就**必然**调 `XamlAccessLevel.AssemblyAccessTo`
 ⇒ 任何正常构建的第三方 WPF 程序集一装 BAML 就崩（实测：HandyControl 示例工程）。
 
-本仓已有 Linux 原生替身 `build/System.Windows.Extensions.Linux/`（AssemblyName 同名、
+本仓已有 Linux 原生替身 `src/Microsoft.DotNet.Wpf.Linux/src/System.Windows.Extensions/`（AssemblyName 同名、
 `AssemblyVersion=9.0.0.0` 与 deps.json 对齐、**不抛**实现，见该目录 `PORT-CHANGES.md`）。
 
 ⚠️ **为什么不能只加 `ExcludeAssets="runtime"` 而保留包引用**：实测那样 RAR 仍认包资产是权威，
@@ -35,13 +35,13 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 
 TARGETS = [
-    "build/System.Xaml.Linux/System.Xaml.Linux.csproj",
-    "build/WindowsBase.Linux/WindowsBase.Linux.csproj",
-    "build/PresentationCore.Linux/PresentationCore.Linux.csproj",
-    "build/PresentationFramework.Linux/PresentationFramework.Linux.csproj",
-    "samples/HelloWpf/HelloWpf.csproj",
-    "samples/WpfFeatureProbe/WpfFeatureProbe.csproj",
-    "samples/WpfTextDemo/WpfTextDemo.csproj",
+    "src/Microsoft.DotNet.Wpf.Linux/src/System.Xaml/System.Xaml.Linux.csproj",
+    "src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/WindowsBase.Linux.csproj",
+    "src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/PresentationCore.Linux.csproj",
+    "src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/PresentationFramework.Linux.csproj",
+    "src/Linux/samples/HelloWpf/HelloWpf.csproj",
+    "src/Linux/samples/WpfFeatureProbe/WpfFeatureProbe.csproj",
+    "src/Linux/samples/WpfTextDemo/WpfTextDemo.csproj",
 ]
 
 # ① 原始形态：官方包引用（整条换掉）
@@ -81,15 +81,15 @@ NEW_BLOCK = '''{ind}<!-- ── `#38` 波：官方包换成 Linux 原生替身�
 {ind}    依赖图里 SWE 的**运行期**资产被排除 ⇒ 包那份 dll **不会**被拷进输出，替身会（`<Private>true</Private>`）。 -->
 {ind}{excl}
 {ind}<Reference Include="System.Windows.Extensions">
-{ind}  <HintPath>{prefix}build/System.Windows.Extensions.Linux/bin/$(Configuration)/System.Windows.Extensions.dll</HintPath>
+{ind}  <HintPath>{prefix}src/Microsoft.DotNet.Wpf.Linux/src/System.Windows.Extensions/bin/$(Configuration)/System.Windows.Extensions.dll</HintPath>
 {ind}  <Private>true</Private>
 {ind}</Reference>
 '''
 
 def _prefix(rel):
-    """九件套 csproj 里 `$(WpfLinuxRoot)` 由 `build/Directory.Upstream.props` 提供；
-       而**样本工程不 import 那份 props**（实测）⇒ 用 `$(MSBuildThisFileDirectory)../../`（样本在 `samples/<名>/`）。"""
-    return "$(WpfLinuxRoot)" if rel.startswith("build/") else "$(MSBuildThisFileDirectory)../../"
+    """九件套 csproj 里 `$(WpfLinuxRoot)` 由 `src/Linux/build/Directory.Upstream.props` 提供；
+       而**样本工程不 import 那份 props**（实测）⇒ 用 `$(MSBuildThisFileDirectory)../../`（样本在 `src/Linux/samples/<名>/`）。"""
+    return "$(WpfLinuxRoot)" if rel.startswith("src/Linux/build/") else "$(MSBuildThisFileDirectory)../../"
 
 
 def main():
@@ -107,10 +107,10 @@ def main():
             continue
         with open(p, encoding="utf-8-sig") as f:
             s = f.read()
-        want = _prefix(rel) + "build/System.Windows.Extensions.Linux/"
+        want = _prefix(rel) + "src/Microsoft.DotNet.Wpf.Linux/src/System.Windows.Extensions/"
         # ⚠️ 判据要**整条正确**、不能只看前缀：实测前缀曾被重复拼过
-        #   （`…Linux/build/System.Windows.Extensions.Linux/bin/…`）而"前缀在"照样为真 ⇒ 会被判成"已就位"。
-        want_line = want + "bin/$(Configuration)/System.Windows.Extensions.dll</HintPath>"   # `want` 已含 `build/System.Windows.Extensions.Linux/`
+        #   （`…Linux/src/Microsoft.DotNet.Wpf.Linux/src/System.Windows.Extensions/bin/…`）而"前缀在"照样为真 ⇒ 会被判成"已就位"。
+        want_line = want + "bin/$(Configuration)/System.Windows.Extensions.dll</HintPath>"   # `want` 已含 `src/Microsoft.DotNet.Wpf.Linux/src/System.Windows.Extensions/`
         # ⚠️【`#38`】"已就位"必须**两件都在**：① 替身 `<Reference>` 的 HintPath 正确；
         #   ② **排除包资产的占位包引用**（`ExcludeAssets="compile;runtime"`）——
         #   缺后者时，`System.Security.Permissions` 的传递依赖会把**包**拉回来，RAR 按包解析 ⇒ `CS0012`。

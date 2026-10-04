@@ -25,7 +25,7 @@
 # 【为什么旧数写在正文里也没救】`#66` 在**同一波里**既更正数、又落了 `P03`（新增 3 条 `LsErr`
 #   诚实失败导出 ⇒ `exports 547→550`）⇒ 那 3 个 `Lo*` 名字当场离开缺口名单 ⇒ 更正**那一刻**
 #   写下的 `103／91` 就已经是 `100／88`。今天没有任何在跑读数会响（四个候选牙在
-#   `verify-all.sh`／`integration-wave.sh`／`known-red.json` 里全 0 命中）⇒ 本件就是那道闸。
+#   `Guide.Linux/verify-all.sh`／`integration-wave.sh`／`known-red.json` 里全 0 命中）⇒ 本件就是那道闸。
 #
 # 【落仓那刻必须重取】下面这行是**声明值**；`landing.sh` 会现取 `so16`／`exports`／`w66pre16`
 #   并**断言相等**（不等即 `rc=9` 停手 = 基底漂移），再把 `tool/dead/artifact/ops/impl`
@@ -33,13 +33,13 @@
 # ══════════════════════════════════════════════════════════════════════════════════
 # PTSGAP-DECL: tool=54 dead=11 artifact=1 ops=42 impl=42 so16=5f9ed647c68197ae exports=846 w66pre16=bf6b683d94549087
 #   ⚠️ 波 `T-A72` 重锚（`TASK-0307` 增量 · **LS 会话进链 ＝ `PRECOND-LS-SESSION-DRIVER`**（`W` 合取第 ① 条）＋
-#     **契约 `C2` 的 `ploc` 一半**，`build/MilBridge/P1-ls-callback-face-recon.md:85` ／
-#     `build/MilBridge/P1-ls-provenance-contract.md:70` ／ `build/MilBridge/P1-tail2-dingrecon.md:91`）：
+#     **契约 `C2` 的 `ploc` 一半**，`src/Linux/build/MilBridge/P1-ls-callback-face-recon.md:85` ／
+#     `src/Linux/build/MilBridge/P1-ls-provenance-contract.md:70` ／ `src/Linux/build/MilBridge/P1-tail2-dingrecon.md:91`）：
 #     native 侧新增**会话↔段落进链台账 ＋ 逐条只读回读面（含回调面指纹与两结构指针一致性）＋ 两极化自检**
 #     （`WpfLinuxWin32_PtsLsSess{Feed,Count,Find,State,Seq,Session,Para,InfoPtr,RedefPtr,PtrOk,CbfState,
 #     CbfNonzero,CbfMinNonzero,CbfRedefNonzero,CbfLayOk,CbfFp,SrcSlot,ChainSlot,ParaLink,LiveSessions,
 #     DistinctSessions,Rx,RxGap,Unbound,SelfCheck,SelftestMask}` 26 名）；并在**托管侧**（生成器
-#     `build/PresentationFramework.Linux/reapply-patches.py` 重产件 `WpfLinuxLsSessionProbe.Linux.cs` ＋
+#     `src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/reapply-patches.py` 重产件 `WpfLinuxLsSessionProbe.Linux.cs` ＋
 #     `PtsCache.Linux.cs` 的 `CreatePTSContext` 一处 `NoteContext` ＋ `TextParaClient.Linux.cs` 的
 #     `ValidateVisual` 一处 `Feed`）把 **LS 会话身份**（`LoCreateContext` 的 `ploc`）与**文本段落**
 #     （`_paraHandle`）在**同一窗内**交给 native；`ploc` **必须**在本侧会话登记表里**按对象身份认领**
@@ -58,11 +58,11 @@
 #       外部反腿 `feed=0 find=-1 COUNT=1` ⇒ **该红必红**。
 
 #   ⚠️ 波 `T-A73` 重锚（`TASK-0307` 增量 · **行断器 ＝ `PRECOND-NO-LINE-BREAKER`**／`W` 合取第 ③ 条，
-#     `build/MilBridge/P1-layout-content-criteria.md:113`）：native 侧新增**行断点台账 ＋ 逐断点只读回读面
+#     `src/Linux/build/MilBridge/P1-layout-content-criteria.md:113`）：native 侧新增**行断点台账 ＋ 逐断点只读回读面
 #     （断点 `cp` 序列 ＋ 逐断点最小 `LsLInfo` 骨架）＋ 两极化自检**
 #     （`WpfLinuxWin32_PtsLineBreak{Feed,Count,Find,State,Seq,Para,CpFirst,CpLim,Cch,NHard,NBrk,Mono,FirstOk,
 #     CoverOk,DcpAt,CpAt,Info,Rx,RxGap,Mism,SelfCheck,SelftestMask}` 22 名）；并在**托管侧**（生成器
-#     `build/PresentationFramework.Linux/reapply-patches.py` 重产件 `WpfLinuxLineBreakProbe.Linux.cs` ＋
+#     `src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/reapply-patches.py` 重产件 `WpfLinuxLineBreakProbe.Linux.cs` ＋
 #     `TextParaClient.Linux.cs` 的 `ValidateVisual` 一处调用）按**段身份**触发本侧收口。
 #     入站**三面牙**（任一不成立 ⇒ **诚实拒绝**，表内不出现该段）：① 段身份须能 `wpf_pts_sub_claim` 认领
 #     （`not-in-chain`，承 `T-A71` 进链）；② 须有 `T-A69` 内容源（`no-text-source`）；③ 须有**托管真排版**
@@ -89,11 +89,11 @@
 #       行 **0 条**；三腿四帧**逐字节相同**（零回归）。
 
 #   ⚠️ 波 `T-A71` 重锚（`TASK-0307` 增量 · **文本段落进链 ＝ `PRECOND-NO-TEXT-PARA-IN-CHAIN`**／`W` 合取第 ④ 条，
-#     `build/MilBridge/P1-layout-content-criteria.md:114`）：native 侧新增**进链台账（可寻址）＋ 逐段只读回读面 ＋
+#     `src/Linux/build/MilBridge/P1-layout-content-criteria.md:114`）：native 侧新增**进链台账（可寻址）＋ 逐段只读回读面 ＋
 #     两极化自检**（`WpfLinuxWin32_PtsParaChain{Feed,Count,Find,State,Para,PageId,SubSeq,SubClaimed,CpFirst,CpLim,
 #     SrcSlot,SrcHandle,LinkOk,Seq,Rx,RxGap,Unsourced,SelfCheck,SelftestMask}` 19 名）＋ 一条**内容源句柄访问器**
 #     `WpfLinuxWin32_PtsTextSrcHandle`（＝`T-A69` 内容源表项的地址，供"一一对应"核对）；并在**托管侧**（生成器
-#     `build/PresentationFramework.Linux/reapply-patches.py` 重产件 `WpfLinuxTextParaChainProbe.Linux.cs` ＋
+#     `src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/reapply-patches.py` 重产件 `WpfLinuxTextParaChainProbe.Linux.cs` ＋
 #     `TextParaClient.Linux.cs` 的 `ValidateVisual` 一处调用）把**文本段落的链坐标**（段身份 `_paraHandle`／
 #     页身份 `_pageContext` 的同一性序号／`cp` 域 `[ParagraphStartCharacterPosition, +text.Length)`）在**同一窗内**
 #     交给 native；native **当场按对象身份认领**（`wpf_pts_sub_claim`）—— 段身份**不是**本侧链上对象 ⇒ **诚实拒绝**
@@ -109,9 +109,9 @@
 #       反极必拒／**不在链上必拒**）＋ 外部反腿 `NOCHAIN feed=‑10000 find=‑1`；反腿副本（认领**只记不拒** ⇒
 #       静默半通形态）⇒ `mask=0x07`（bit3 灭）＋ 外部反腿 `feed=0 find=‑1` ⇒ **该红必红**。
 #   ⚠️ 波 `T-A70` 重锚（`TASK-0307` 增量 · **`cp↔dcp` 偏移由宿主给定 ＝ 契约 `C4`**／`W` 合取第 ⑤ 条，
-#     `build/MilBridge/P1-ls-provenance-contract.md:72`）：native 侧新增**偏移映射入站通道 ＋ 只校不算校验器 ＋
+#     `src/Linux/build/MilBridge/P1-ls-provenance-contract.md:72`）：native 侧新增**偏移映射入站通道 ＋ 只校不算校验器 ＋
 #     逐条只读回读面 ＋ 两极化自检**（`WpfLinuxWin32_PtsCpDcpMap{Feed,Count,Find,State,NPoints,CpBase,Offset,Seq,CpAt,DcpAt,Rx,RxGap,Empty,SelfCheck,SelftestMask}`），
-#     并在**托管侧**（生成器 `build/PresentationFramework.Linux/reapply-patches.py` 重产件 `WpfLinuxCpDcpMapProbe.Linux.cs` ＋
+#     并在**托管侧**（生成器 `src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/reapply-patches.py` 重产件 `WpfLinuxCpDcpMapProbe.Linux.cs` ＋
 #     `TextParaClient.Linux.cs` 的 `ValidateVisual` 一处调用）把**段落的 (cp,dcp) 偏移映射样本对**在**同一窗内**交给 native；
 #     native **只校不算**（单调／端点／双射／偏移守恒／越界；不符 ⇒ 诚实拒绝，表内不出现该段），随即回读逐点对拍：
 #     `exports 763→778`（**逐名 +15**：上列 15 名，无消失；`nm -D --defined-only` 行数 == `exports.txt` 行数 == 778；逐名 `diff` 零差异）；
@@ -121,8 +121,8 @@
 #        "偏移错一"须**外部 LS 真值**（真 LS 会话里的 `dcp`）⇒ 今天**不跑**（随"内容层那一波"）；两条必红反腿
 #        (`(a)`／`(b)`) 仍**未执行**；本趟两极化由**乱序／非双射**承担。
 #   ⚠️ 波 `T-A69` 重锚（`TASK-0307` 增量 · **内容源入站（字符序列）**／`W` 合取第 ② 条 `PRECOND-NO-TEXT-SOURCE`，
-#     `build/MilBridge/P1-layout-content-criteria.md:112`）：native 侧新增**入站通道 ＋ 逐段只读回读面 ＋ 两极化自检**，
-#     并在**托管侧**（生成器 `build/PresentationFramework.Linux/reapply-patches.py` 重产件 `WpfLinuxTextSrcProbe.Linux.cs` ＋
+#     `src/Linux/build/MilBridge/P1-layout-content-criteria.md:112`）：native 侧新增**入站通道 ＋ 逐段只读回读面 ＋ 两极化自检**，
+#     并在**托管侧**（生成器 `src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/reapply-patches.py` 重产件 `WpfLinuxTextSrcProbe.Linux.cs` ＋
 #     `TextParaClient.Linux.cs` 的 `ValidateVisual` 一处调用）把**文本段落的字符序列在同一窗内**交给 native，
 #     随即回读 native 的**逐字节副本**并与托管侧真值**逐字节对拍**（逐字符 ＋ 独立算的 FNV-1a 64）：
 #     `exports 747→763`（**逐名 +16**：`WpfLinuxWin32_PtsTextSrc{Feed,Count,Find,State,Cch,CpOff,Bytes,Claimed,Seq,Char,Hash,Rx,RxGap,Empty,SelfCheck,SelftestMask}`，
@@ -184,7 +184,7 @@
 #       **不**用 `-10000`）。
 #     🔴 **计数下降 ≠ 能力前进**（件头第 ① 条同口径）：本增量把**缺符号**变成**有符号的真实现**，
 #       但 5 条入口在现产品路径**未被调用** ⇒ 两腿三帧**逐字节相同**（`AE=0`）、症状门逐格同 ⇒ 页仍**未全绘**。
-#     成对腿与探针读数见载体 `build/MilBridge/P1-tail2-gapbatch3-impl-report.md`。
+#     成对腿与探针读数见载体 `src/Linux/build/MilBridge/P1-tail2-gapbatch3-impl-report.md`。
 #   ⚠️ 波 `T-A64` 重锚（`TASK-0201` 产品侧静默 `rc=139` 残余：`win32_msg.c` 队列链遍历的**对称守卫**；
 #     `D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
 #     `src/WpfGfx.Linux.Native/src/win32_msg.c` 的 `wpf_queue_push` 在 F1（`tail==NULL ∧ head!=NULL`）之外，
@@ -228,7 +228,7 @@
 #       **今天不存在、须"内容层那一波"新立**（本侧**不得**自算 `dcp`/`plsrun`）⇒ **未解除**；`R-4`（回收正确性）
 #       仍 `NOINFO`＋具名 `PRECOND-NO-HANDLE-ACCOUNTING`；`resolve=wrong-object` 在 `subtrack-path` 上**取不到**
 #       （本侧从不 `+192` 回收子段客户端 ⇒ 无"回收后解析"观测面）⇒ 该格**不冒充**。载体
-#       `build/MilBridge/P1-tail2-lsprov-impl-report.md`。
+#       `src/Linux/build/MilBridge/P1-tail2-lsprov-impl-report.md`。
 #   ⚠️ 波 `T-A62` 重锚（`TASK-0302` 增量：**`Lo*` 族缺口首批（可诚实实现子集 3 条）＋ 同族唯一诚实 stub 升格**；
 #     `D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
 #     `src/WpfGfx.Linux.Native/src/win32_pts.c` 新增**导出** 3 条 `Lo*` 入口（由「会
@@ -254,7 +254,7 @@
 #       反腿副本（去掉 `LoDisposePenaltyModule` 的对象身份认领）⇒ `mask=0x07`（该位**必红**））。
 #     🔴 **计数下降 ≠ 能力前进**（件头第 ① 条同口径）：本增量把**缺符号**变成**有符号的真实现**，
 #       但 4 条入口在现产品路径**未被调用**（本侧 LS 面已被托管 `pfnFormatLine` 链取代，见
-#       `build/MilBridge/P1-tail2-hostline-recon.md` §3 判 native LS「不必要」）⇒ 页仍**未全绘**。
+#       `src/Linux/build/MilBridge/P1-tail2-hostline-recon.md` §3 判 native LS「不必要」）⇒ 页仍**未全绘**。
 #     ⚠️ **前提不成立（如实记）**：任务所写「`Lo*`/`Nl*` 族**至少 8 条**真实现」在本侧**不可诚实满足** ——
 #       该族除本 4 条外，其余 11 `Lo*`／6 `Nl*` **均**因「出参含真几何（无测量源）」或「在册语义＝有意降级」而
 #       **不可诚实实现** ⇒ 本趟按硬边界「**诚实拒绝优于假成功**」只做**可诚实实现者**，其余**保持现状并如实划界**。
@@ -286,7 +286,7 @@
 #     ⚠️ **两极化（该红必红）**：本趟新增导出 `WpfLinuxWin32_PtsFsBatch1SelfCheck()`（dlopen 探针**现取**：
 #       改前 8 名 `present=0/8`；改后 `present=8/8` 且 `[FSBATCH1-SELFTEST] mask=0xff`＝8/8「正极真值 ∧ 反极必拒」；
 #       反腿副本（去掉 `FsClearUpdateInfoInSubtrack` 的对象身份认领）⇒ `mask=0xfd`（该位**必红**））。
-#     成对腿与探针读数见载体 `build/MilBridge/P1-tail2-gapbatch1-impl-report.md`。
+#     成对腿与探针读数见载体 `src/Linux/build/MilBridge/P1-tail2-gapbatch1-impl-report.md`。
 #   ⚠️ 波 `T-A57` 重锚（`TASK-0302` 增量：翻 `WPF_PTS_TABLECELL` 为**缺省开**；
 #     `D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
 #     `src/WpfGfx.Linux.Native/src/win32_pts.c` 的运行期闸缺省值由 `WPF_PTS_TABLECELL_DEFAULT 0` 翻为 `1`
@@ -303,7 +303,7 @@
 #       （`[FSTABLECELL] v=CELL-SUBPAGE ×16`、`[FS_CLRUPD]=2000`、`[HC-UNHANDLED]=0`；与 `T-A56` 开闸腿
 #       `cell1` **逐帧 `AE=0`**）；显式 `WPF_PTS_TABLECELL=0` ⇒ 单元内容回缺（`LightGoldenrodYellow=1998`、
 #       表区 `dark=2869`、`fr_sha=64603fc1d8e23e39`＝改前缺省，与 `T-A56` `default2` **逐帧 `AE=0`**）。
-#     成对腿与症状门读数见载体 `build/MilBridge/P1-tail2-cellgate-on-impl-report.md`。
+#     成对腿与症状门读数见载体 `src/Linux/build/MilBridge/P1-tail2-cellgate-on-impl-report.md`。
 #   ⚠️ 波 `T-A56` 重锚（`TASK-0302` 增量：**表单元内容排版**（`pfnFormatCellFinite`）＋ 新增导出
 #     `FsClearUpdateInfoInSubpage`；`D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
 #     `src/WpfGfx.Linux.Native/src/win32_pts.c` 新增**导出** `FsClearUpdateInfoInSubpage`
@@ -320,8 +320,8 @@
 #     ⚠️ **计数下降 ≠ 能力前进**（件头第 ① 条同口径）：本增量把**缺符号**变成**有符号**，并让**表单元**内容
 #        真排版（`pfnGetCells`／`pfnFormatCellFinite`／`pfnSetCellHeight` 三个托管回调**窗内**真发调；
 #        行高由单元内容台账 `Σ(ascent+descent)` 派生）；页仍**未全绘**（症状门由腿读数给）。
-#     ⚠️ **正文复述位本趟已随动**（`docs/ROUTES.md` 三处／`README.md`／`build/MilBridge/HANDOFF-NEXT.md`／
-#        `samples/WpfFeatureProbe/KNOWN-DEFECTS.md` 两处／`docs/unimplemented.md`／
+#     ⚠️ **正文复述位本趟已随动**（`docs/ROUTES.md` 三处／`README.md`／`src/Linux/build/MilBridge/HANDOFF-NEXT.md`／
+#        `src/Linux/samples/WpfFeatureProbe/KNOWN-DEFECTS.md` 两处／`docs/unimplemented.md`／
 #        `src/WpfGfx.Linux.Native/src/win32_classification.c`）⇒ 本牙现取 **`PTSGAP=PASS`**（零 `SITE-DRIFT`）。
 #   ⚠️ 波 `T-A54` 重锚（`TASK-0302` 增量：翻 `WPF_PTS_FLOATER_CBK`／`WPF_PTS_TABLEOBJ` 为**缺省开**；
 #     `D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
@@ -334,7 +334,7 @@
 #     🔴 **翻闸的理由**：`T-A52`／`T-A53` 当年缺省关的现场依据（Table 族未落地 ⇒ 驱动后
 #     `FsQueryTableObjDetails` 缺符号 ⇒ `EntryPointNotFoundException` ⇒ 整页空白）已由 `T-A53` 解除
 #     （Table 族五入口真服务 ⇒ `entry point named` 归 0）；⇒ 本增量照 `T-A28→T-A31` 体例让**缺省路径**
-#     即含第 4 色。成对腿与症状门读数见载体 `build/MilBridge/P1-tail2-gate-on-impl-report.md`。
+#     即含第 4 色。成对腿与症状门读数见载体 `src/Linux/build/MilBridge/P1-tail2-gate-on-impl-report.md`。
 #   ⚠️ 波 `T-A53` 重锚（`TASK-0302` 增量：native `NATIVE-PTS-TABLEOBJ`（Table 族五入口 ＋
 #     `GetTableObjHandlerInfo`／`FSTABLEOBJCBK`）；`D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
 #     `src/WpfGfx.Linux.Native/src/win32_pts.c` 三处：
@@ -359,7 +359,7 @@
 #       `colors=910`、**`LightGoldenrodYellow=1998 px`（≥200）** ⇒ `PTS_COLORANCHOR=PASS hits=3`。
 #       反极（`WPF_PTS_FLOATER_CBK=1 WPF_PTS_TABLEOBJ=0`）⇒ 无模型 ⇒ `FsQueryTableObjDetails` 诚实拒
 #       （`reason=no-table-model`）⇒ 整页空白（`colors=383`）⇒ `PTS_GUARD=FAIL`（**该红必红**）。
-#     载体 `build/MilBridge/P1-tail2-tableobj-impl-report.md`。
+#     载体 `src/Linux/build/MilBridge/P1-tail2-tableobj-impl-report.md`。
 #   ⚠️ 波 `T-A52` 重锚（`TASK-0302` 增量：native `NATIVE-PTS-FLOATERCBK`（`FSFLOATERCBK`／`GetFloaterHandlerInfo`）；
 #     `D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
 #     `src/WpfGfx.Linux.Native/src/win32_pts.c` 两处：
@@ -389,10 +389,10 @@
 #     🔴 **判据 ① 未达（如实）**：`LightGoldenrodYellow` 仍 `0 px` ⇒ `PTS_COLORANCHOR=PASS hits=2`（未退）。
 #     具名下一靶 ＝ **`NATIVE-PTS-TABLEOBJ`**（`FsQueryTableObjDetails`／`FsQueryTableObjTableProperDetails`／
 #     `FsQueryTableObjRowList`／`FsQueryTableObjRowDetails`／`FsQueryTableObjCellList` 五入口 ＋
-#     `GetTableObjHandlerInfo`／`FSTABLEOBJCBK`）。⇒ 见载体 `build/MilBridge/P1-tail2-floatercbk-impl-report.md`。
+#     `GetTableObjHandlerInfo`／`FSTABLEOBJCBK`）。⇒ 见载体 `src/Linux/build/MilBridge/P1-tail2-floatercbk-impl-report.md`。
 #   ⚠️ 波 `T-A47` 重锚（`TASK-0302` 增量：`FLOAT-REPARENT`（托管）＋ `QTP-LIVE-NARROW`（native）；
 #     `D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
-#     ① `build/PresentationFramework.Linux/reapply-patches.py`（生成器）⇒ 生成件
+#     ① `src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/reapply-patches.py`（生成器）⇒ 生成件
 #        `PtsHelper.Linux.cs`：`UpdateFloatingElementVisuals` 里**补浮层视觉的换父**（照上游自己的
 #        `UpdateParaListVisuals` 同形先例；`WPF_FLOAT_REPARENT=0` ⇒ 逐字回上游）。
 #     ② `src/WpfGfx.Linux.Native/src/win32_pts.c`：`drive-handles-released(page-destroyed)` 两处拒因
@@ -406,7 +406,7 @@
 #     `WPF_FLOAT_REPARENT=0` ⇒ 该 `ArgumentException` 回；`WPF_PTS_QTP_LIVE_NARROW=0` ⇒ 回
 #     `PtsException … '-10000'`）。腿现取 **`PTS_COLORANCHOR=PASS k=24 hits=2`（`Beige=910`／`DarkGreen=44`，
 #     基线全 0）**、`k24 fr_sha=791696291d51470b`（**逐字节未变**）；⇒ 见载体
-#     `build/MilBridge/P1-tail2-hcres-impl-report.md`。
+#     `src/Linux/build/MilBridge/P1-tail2-hcres-impl-report.md`。
 #   ⚠️ 波 `T-A42` 重锚（`TASK-0302` 增量：native「内容段入站几何自洽」`NATIVE-PTS-CONTENT-VIEWPORT-V-SELFREF`；
 #     `D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
 #     `src/WpfGfx.Linux.Native/src/win32_pts.c` —— 附属对象页矩形锚的 `v`（决定托管 `FigureParaClient.ContentRect.v`）
@@ -419,7 +419,7 @@
 #     ⚠️ **计数未动 ≠ 能力未动**（件头第 ① 条同口径）：本增量改的是**附属对象页矩形的 v 参照**；
 #     腿现取：`k=24` 帧 `fr_sha 1487caf78fd88886→2d89d393157b0df6`（几何**真进渲染面**：`GhostWhite`
 #     `bbox y 223→153`），但**余 3 具名色仍 0 px**（`PTS_COLORANCHOR hits=1` 未变）⇒ 判据 ② **未达**
-#     ⇒ 见载体 `build/MilBridge/P1-tail2-vgeom-impl-report.md`。
+#     ⇒ 见载体 `src/Linux/build/MilBridge/P1-tail2-vgeom-impl-report.md`。
 #   ⚠️ 波 `T-A37` 重锚（`TASK-0302` 增量：native「附属对象内容排版」`NATIVE-PTS-ATTACHED-CONTENT-LAYOUT`；
 #     `D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
 #     `src/WpfGfx.Linux.Native/src/win32_pts.c` —— **窗内**驱动附属对象**内容排版**（照 `T-A33` 回填体例）：
@@ -436,9 +436,9 @@
 #     ⚠️ **计数下降 ≠ 能力前进**（件头第 ① 条同口径）：本增量的前沿是"附属对象**内容排版链首次跑通**"——
 #       全链 `rc=0`（`[SUBPAGE]`／`[FSATT-CONTENT]`／`[FSPARALIST-FILL-SP]`／`[FSQSTD]` 逐条现取）且**零回归**；
 #       但 `k=24` 帧上**余 3 具名色（`Beige`／`DarkGreen`／`LightGoldenrodYellow`）仍 0 px**（帧 `sha16` 与
-#       `T-A36` 逐字节相同 ⇒ `PTS_COLORANCHOR hits=1` 未变）⇒ 见载体 `build/MilBridge/P1-tail2-attachcontent-impl-report.md`。
+#       `T-A36` 逐字节相同 ⇒ `PTS_COLORANCHOR hits=1` 未变）⇒ 见载体 `src/Linux/build/MilBridge/P1-tail2-attachcontent-impl-report.md`。
 #     ⚠️ **正文复述位随动**：`docs/ROUTES.md`／`README.md`／`docs/unimplemented.md`／
-#       `samples/WpfFeatureProbe/KNOWN-DEFECTS.md`／`build/MilBridge/HANDOFF-NEXT.md`／
+#       `src/Linux/samples/WpfFeatureProbe/KNOWN-DEFECTS.md`／`src/Linux/build/MilBridge/HANDOFF-NEXT.md`／
 #       `src/WpfGfx.Linux.Native/src/win32_classification.c` 的现值位（`工具口径`／`可操作`／`实现口径`）
 #       本趟**同改**（`tool 76`／`ops 64`／`impl 67`／`exports=683`／`so16=606dad49ae7b34a1`）⇒ `PTSGAP=PASS`。
 #   ⚠️ 波 `T-A36` 重锚（`TASK-0302` 增量：native「PTS 附属对象回填」`NATIVE-PTS-ATTACHED-OBJECTS-BACKFILL`；
@@ -453,10 +453,10 @@
 #     `tool 82→78`（每新增一个真实现入口，该入口即离开缺口名单；`tool = ops + dead + artifact` 恒式保持）。
 #     ⚠️ **计数下降 ≠ 能力前进**（件头第 ① 条同口径）：本增量的**前沿跳**是"附属对象从**零台账**变为
 #       **有台账并落位**"——`k=24` 帧上首现具名色块（`GhostWhite 0→29637 px`，`PTS_COLORANCHOR hits 0→1`），
-#       见载体 `build/MilBridge/P1-tail2-attach-impl-report.md`；`Figure`/`Floater` 的**内容**色
+#       见载体 `src/Linux/build/MilBridge/P1-tail2-attach-impl-report.md`；`Figure`/`Floater` 的**内容**色
 #       （`Beige`/`DarkGreen`/`LightGoldenrodYellow`）仍**未**落位（需"附属对象内容排版"驱动，下一增量）。
 #     ⚠️ **正文复述位随动**：`docs/ROUTES.md`／`README.md`／`docs/unimplemented.md`／
-#       `samples/WpfFeatureProbe/KNOWN-DEFECTS.md`／`build/MilBridge/HANDOFF-NEXT.md`／
+#       `src/Linux/samples/WpfFeatureProbe/KNOWN-DEFECTS.md`／`src/Linux/build/MilBridge/HANDOFF-NEXT.md`／
 #       `src/WpfGfx.Linux.Native/src/win32_classification.c` 的现值位（`工具口径`／`可操作`／`实现口径`）
 #       本趟**同改**（`tool 78`／`ops 66`／`impl 69`／`exports=681`／`so16=21ad5f39ef3c4034`）⇒ `PTSGAP=PASS`。
 #   ⚠️ 波 `T-A33` 重锚（`TASK-0302` 增量：native「查询期文本行回填」`NATIVE-QUERY-PHASE-TEXT-LINE-BACKFILL`；
@@ -482,9 +482,9 @@
 #     `ops=70`／`impl=73` 全未动，**只有 `so16` 跟权威件换**：`ac002caa324a496f→04f6d354b0a71888`。
 #     ⚠️ **计数未动 ≠ 能力未动**（件头第 ① 条同口径）：本增量把**查询期文本行模型**从"恒拒"推进为
 #       "按台账回填"；帧面成对读数（改前/反极性：占位 129792 px／`AE(content)=0`；改后：占位 **0** px／
-#       `AE(content)=203949`）见载体 `build/MilBridge/P1-tail2-backfill-impl-report.md`。
+#       `AE(content)=203949`）见载体 `src/Linux/build/MilBridge/P1-tail2-backfill-impl-report.md`。
 #     ⚠️ **正文复述位本趟已随动**（`docs/ROUTES.md`／`README.md`／`docs/unimplemented.md`／
-#       `samples/WpfFeatureProbe/KNOWN-DEFECTS.md`／`build/MilBridge/HANDOFF-NEXT.md`／
+#       `src/Linux/samples/WpfFeatureProbe/KNOWN-DEFECTS.md`／`src/Linux/build/MilBridge/HANDOFF-NEXT.md`／
 #       `src/WpfGfx.Linux.Native/src/win32_classification.c`）
 #   ⚠️ 波 `T-A28` 重锚（`TASK-0302` 增量：native 侧**驱动 `cbktxt.pfnFormatLine`**；`D-G70` 形态又一实例；
 #     **产品改动 ⇒ 在册数必须跟随权威件**）：
@@ -505,7 +505,7 @@
 #     ⚠️ **计数不变 ≠ 无改动**：本增量把 `grep cbktxt.` ＝ 0 的"从不驱动"变成"**有具名驱动格 ＋ 闸**"，
 #     且**行记录台账真的装进了回调返回值**（`rc=0`／`pfsline` 句柄／`dcpLine`／`dvrAscent` 现场可读）；
 #     但**产品行为逐字不变**（两页仍**未绘出内容**）⇒ 见载体
-#     `build/MilBridge/P1-tail2-formatline-impl-report.md`。
+#     `src/Linux/build/MilBridge/P1-tail2-formatline-impl-report.md`。
 #   ⚠️ 波 `T-A31` 重锚（`TASK-0302` 增量：翻 `WPF_PTS_FL_DRIVE` 为**缺省开**；`D-G70` 形态又一实例；
 #     **产品改动 ⇒ 在册数必须跟随权威件**）：
 #     `src/WpfGfx.Linux.Native/src/win32_pts.c` 的**运行期闸缺省值**由 `WPF_PTS_FL_DEFAULT 0` 翻为 `1`
@@ -518,7 +518,7 @@
 #     `Invariant.FailFast("We do not expect any Blocks inside Paragraphs")` ⇒ `app_rc=134`）已由
 #     `T-A30` 在**行模型写域**内解除（段末行交回源自己的 `ParagraphBreakRun` ⇒ 段末收束 `fsflres=2`、
 #     不再越界）；`T-A30` 闸开读数 `failfast=0 app_rc=143`、`[FORMATLINE] 7/7`。⇒ 本增量让**缺省路径**
-#     也驱动行模型（成对腿与症状门读数见载体 `build/MilBridge/P1-tail2-fldrive-impl-report.md`）。
+#     也驱动行模型（成对腿与症状门读数见载体 `src/Linux/build/MilBridge/P1-tail2-fldrive-impl-report.md`）。
 #   ⚠️ 波 `T-A26` 重锚（`TASK-0302` 增量：native「文本行模型」三入口；`D-G70` 形态又一实例；
 #     **产品改动 ⇒ 在册数必须跟随权威件**）：
 #     `src/WpfGfx.Linux.Native/src/win32_pts.c` 新增**导出** `FsQueryLineListSingle`（声明 `Pts.cs:3756-3761`；
@@ -534,10 +534,10 @@
 #     ⚠️ **计数下降 ≠ 能力前进**（件头第 ① 条同口径；`P1-ptsname-result.md` 裁定：**"`ENFE` 归零"本身不构成
 #        任何证据**）：本增量只把**缺符号**变成**有符号的诚实拒绝**；**文本行模型本侧仍无源**
 #        （行盒要「行断器＋字符源＋度量」三样，本侧一个都没有 ⇒ 见载体
-#        `build/MilBridge/P1-tail2-textline-impl-report.md`）⇒ 两页仍**未绘出内容**（症状门由腿读数给；
+#        `src/Linux/build/MilBridge/P1-tail2-textline-impl-report.md`）⇒ 两页仍**未绘出内容**（症状门由腿读数给；
 #        帧面成对读数：改前后逐字节相同）。
-#     ⚠️ **正文复述位本趟已随动**（`docs/ROUTES.md` 三处／`README.md`／`build/MilBridge/HANDOFF-NEXT.md`／
-#        `samples/WpfFeatureProbe/KNOWN-DEFECTS.md`／`docs/unimplemented.md`／
+#     ⚠️ **正文复述位本趟已随动**（`docs/ROUTES.md` 三处／`README.md`／`src/Linux/build/MilBridge/HANDOFF-NEXT.md`／
+#        `src/Linux/samples/WpfFeatureProbe/KNOWN-DEFECTS.md`／`docs/unimplemented.md`／
 #        `src/WpfGfx.Linux.Native/src/win32_classification.c`）⇒ 本牙现取 **`PTSGAP=PASS`**（零 `SITE-DRIFT`）。
 #   ⚠️ 波 `T-A25` 重锚（`TASK-0302` 增量：native「查询期内容模型」`NATIVE-QUERY-PHASE-CONTENT-MODEL`；
 #     `D-G70` 形态又一实例；**产品改动 ⇒ 在册数必须跟随权威件**）：
@@ -625,7 +625,7 @@
 #     ⚠️ **计数下降 ≠ 能力前进**：本增量只把 `cParas` 的**源**建起来（枚举计数），页仍**未绘出内容**
 #        （`magenta=0`／`colors=383`／`ink=480000`／帧 `ef3fd6765f18f51b` **逐字段不变**）；缺口面只是
 #        **位移**（`[FSQSTD] rc=-10000` `1217→394`；新增 `[FSQSPL] rc=0 1012`）⇒ 同一口径（件头第 ① 条）。
-#     ⚠️ **正文复述位（`docs/ROUTES.md`／`README.md`／`build/MilBridge/HANDOFF-NEXT.md`／`samples/**`／
+#     ⚠️ **正文复述位（`docs/ROUTES.md`／`README.md`／`src/Linux/build/MilBridge/HANDOFF-NEXT.md`／`src/Linux/samples/**`／
 #        `src/WpfGfx.Linux.Native/src/win32_classification.c` ∕ `docs/unimplemented.md`，现值 `ops=77`／`impl=80`／
 #        `tool=89`）本趟未同改** —— 那些件在 `T-A12` 写域（**黑名单** `docs/**`）之外 ⇒
 #        `pts-gap-count-check.sh` 会因此报 `SITE-DRIFT`（**已如实记、待裁决**，与 `T-A4` 同形态）；
@@ -633,7 +633,7 @@
 #   ⚠️ 波 `T-A15` 重锚（`TASK-0302` 增量：`FsQueryPageDetails` 的 `FSPAGEDETAILS.fskupd` 语义；`D-G70` 形态又一实例）：
 #     `src/WpfGfx.Linux.Native/src/win32_pts.c` 的 `FsQueryPageDetails` 不再恒写 `fskupd=0`（＝上游
 #     `Pts.cs:1695` 明示不可能的 `fskupdInherited`）：**首次查询 ⇒ `fskupdNew(2)`／见证到轨视觉建起后
-#     ⇒ `fskupdNoChange(1)`**（判据 `D1–D5` 见 `build/MilBridge/P1-tail2-aoore-recon.md` §4.2）＋ 同趟
+#     ⇒ `fskupdNoChange(1)`**（判据 `D1–D5` 见 `src/Linux/build/MilBridge/P1-tail2-aoore-recon.md` §4.2）＋ 同趟
 #     加 `[QPD]`／`[VIS]` 机读留痕。**导出面一字未动**（`exports=671` 不变，`nm -D --defined-only`
 #     行数 == `exports.txt` 行数 == 671）；不新增/不删除任何 `wpf_pts_gap(...)` stub ⇒
 #     `tool/dead/artifact/ops/impl` 全未动，**只有 `so16` 跟权威件换**：`so16 e887b27a86b275ff→3cb3ad48ef27d13d`。
@@ -652,8 +652,8 @@
 #     `so16 3cb3ad48ef27d13d→63f0eb7c4d2fc8cd`；`dead/artifact/w66pre16` 未动。
 #     ⚠️ **计数下降 ≠ 能力前进**（件头第 ① 条同口径）：本增量只把**缺符号**变成**有符号**，
 #        并把"清增量"落成**可现取**的状态复位；页仍**未绘出内容**（症状门由腿读数给）。
-#     ⚠️ **正文复述位本趟已随动**（`docs/ROUTES.md` 三处／`README.md`／`build/MilBridge/HANDOFF-NEXT.md`／
-#        `samples/WpfFeatureProbe/KNOWN-DEFECTS.md`／`docs/unimplemented.md`／
+#     ⚠️ **正文复述位本趟已随动**（`docs/ROUTES.md` 三处／`README.md`／`src/Linux/build/MilBridge/HANDOFF-NEXT.md`／
+#        `src/Linux/samples/WpfFeatureProbe/KNOWN-DEFECTS.md`／`docs/unimplemented.md`／
 #        `src/WpfGfx.Linux.Native/src/win32_classification.c`）⇒ 本牙现取 **`PTSGAP=PASS`**（零 `SITE-DRIFT`）。
 #   ⚠️ 波 `T-A17` 重锚（`TASK-0302` 前置修复：`PRECOND-DRIVEPROBE-OOW-STALE-HANDLE-FAILFAST`；`D-G70` 形态又一实例）：
 #     `src/WpfGfx.Linux.Native/src/win32_pts.c` 的**驱动探针**新增**句柄 liveness 判据**
@@ -682,8 +682,8 @@
 #     `dead/artifact/w66pre16` 未动。
 #     ⚠️ **计数下降 ≠ 能力前进**（件头第 ① 条同口径）：本增量只把**缺符号**变成**有符号**，
 #        并把"页对象自持状态的刷新"落成**可现取**；页仍**未绘出内容**（症状门由腿读数给）。
-#     ⚠️ **正文复述位本趟已随动**（`docs/ROUTES.md` 三处／`README.md`／`build/MilBridge/HANDOFF-NEXT.md`／
-#        `samples/WpfFeatureProbe/KNOWN-DEFECTS.md`／`docs/unimplemented.md`／
+#     ⚠️ **正文复述位本趟已随动**（`docs/ROUTES.md` 三处／`README.md`／`src/Linux/build/MilBridge/HANDOFF-NEXT.md`／
+#        `src/Linux/samples/WpfFeatureProbe/KNOWN-DEFECTS.md`／`docs/unimplemented.md`／
 #        `src/WpfGfx.Linux.Native/src/win32_classification.c`）⇒ 本牙现取 **`PTSGAP=PASS`**（零 `SITE-DRIFT`）。
 #   ⚠️ 波 `T-A20` 重锚（`TASK-0302` 增量：**新增导出 `FsQueryTextDetails`**；`D-G70` 形态又一实例；
 #     **产品改动 ⇒ 在册数必须跟随权威件**）：
@@ -700,6 +700,6 @@
 #     ⚠️ **计数下降 ≠ 能力前进**（件头第 ① 条同口径；`P1-ptsname-result.md` 裁定：**"`ENFE` 归零"
 #        本身不构成任何证据**）：本增量只把**缺符号**变成**有符号的诚实拒绝**；页仍**未绘出内容**
 #        （症状门由腿读数给）。
-#     ⚠️ **正文复述位本趟已随动**（`docs/ROUTES.md` 三处／`README.md`／`build/MilBridge/HANDOFF-NEXT.md`／
-#        `samples/WpfFeatureProbe/KNOWN-DEFECTS.md`／`docs/unimplemented.md`／
+#     ⚠️ **正文复述位本趟已随动**（`docs/ROUTES.md` 三处／`README.md`／`src/Linux/build/MilBridge/HANDOFF-NEXT.md`／
+#        `src/Linux/samples/WpfFeatureProbe/KNOWN-DEFECTS.md`／`docs/unimplemented.md`／
 #        `src/WpfGfx.Linux.Native/src/win32_classification.c`）⇒ 本牙现取 **`PTSGAP=PASS`**（零 `SITE-DRIFT`）。

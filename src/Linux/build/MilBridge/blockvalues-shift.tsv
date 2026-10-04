@@ -1,0 +1,21 @@
+# blockvalues-shift.tsv —— 档 `WFREEZE_BLOCKVALUES` 的**具名位移声明**（`t19` 建；每行一条，**逐条上屏、不许静默**）
+#
+# 语义（**先写死**）：
+#   · 本表**只**给"块的记录值 ≠ 落地后现取值"这一件事**放行**，条件是**逐键逐值声明**；
+#   · `block9`＝该键在 `# RE-FROZEN` 块**九位行**里的值；`tier`＝同块 `BASELINE tier=` 机读行里的值（缺 ⇒ 写 `-`）；
+#     `live`＝**现取**值；三格**都必须与现场逐位相同**才认这条声明 ⇒ **`live=` 被钉住：现取值再漂一次仍然红**；
+#   · `registered=` 必须是**已入册**的缺陷号（在 `src/Linux/build/MilBridge/tools/defect-registry-declared.tsv` 的 ID 域里）；
+#     挂一个没入册的号 ⇒ `WFREEZE_BLOCKVALUES_HIT kind=declaration-unregistered`（红）；
+#   · **本表不是"把牙关掉"**：未声明的键照旧红；已声明的键照旧**逐条打印** `WFREEZE_BLOCKVALUES_SHIFT`。
+#   · 口径句：**"声明只能把『已知、在册、具名』的位移从红降成可见，不能把『未知』降成绿。"**
+#
+# ⚠️【2026-09-27 主控更正 · 口径】`tier` 列**缺**时必须写 **`None`**（**实现为准**；本表早先文档写 "缺 ⇒ 写 `-`" 与实现不符 —— 已登记为待修项，改法二选一：改实现认 `-`，或本文档改口径）。
+# 列序（TAB 分隔）：key<TAB>block9<TAB>tier<TAB>live<TAB>registered<TAB>why
+key	block9	tier	live	registered	why
+# ⚠️【t46 · #80 重出】数据行由 t46 在整波（重建之后）**机械重出**：来源＝牙自己的 WFREEZE_BLOCKVALUES_HIT **与** SHIFT 行（两者都采，否则已声明键会被漏 ⇒ 只剩 3 行）；**重钉后不再重跑整波**（先例：`#79` 整波 `close-wave-142038` 此档同样 FAIL、续链）。
+pc	38ae477949238306	38ae477949238306	5b6cfda3e12b84fc	D-G92	#80（t46）具名位移声明：block9/tier 取最新块（#79）授权行（牙自印 prob=nine-vs-live,tier-vs-live）、live 现取于 2026-09-28T10:31:35+08:00；成因＝整波重建（[1/6] integration-wave ＋ [2/6] native shim）⇒ D-G92 重建族；逐条上屏不进红、live= 被钉住
+pf	12fb36e7b0df1802	12fb36e7b0df1802	b9a4f3a0e48e688d	D-G92	#80（t46）具名位移声明：block9/tier 取最新块（#79）授权行（牙自印 prob=nine-vs-live,tier-vs-live）、live 现取于 2026-09-28T10:31:35+08:00；成因＝整波重建（[1/6] integration-wave ＋ [2/6] native shim）⇒ D-G92 重建族；逐条上屏不进红、live= 被钉住
+windowsbase	ed04eb65081c2d3a	None	9e860cbeecb352e1	D-G92	#80（t46）具名位移声明：block9/tier 取最新块（#79）授权行（牙自印 prob=nine-vs-live）、live 现取于 2026-09-28T10:31:35+08:00；成因＝整波重建（[1/6] integration-wave ＋ [2/6] native shim）⇒ D-G92 重建族；逐条上屏不进红、live= 被钉住
+provider	759ac1686e5ef87d	759ac1686e5ef87d	7e8a217b4165a6b9	D-G92	#80（t46）具名位移声明：block9/tier 取最新块（#79）授权行（牙自印 prob=nine-vs-live,tier-vs-live）、live 现取于 2026-09-28T10:31:35+08:00；成因＝整波重建（[1/6] integration-wave ＋ [2/6] native shim）⇒ D-G92 重建族；逐条上屏不进红、live= 被钉住
+win32shim	e8127a3d7128d417	e8127a3d7128d417	6825dd7071387a46	D-G92	#80（t46）具名位移声明：block9/tier 取最新块（#79）授权行（牙自印 prob=nine-vs-live,tier-vs-live）、live 现取于 2026-09-28T10:31:35+08:00；成因＝整波重建（[1/6] integration-wave ＋ [2/6] native shim）⇒ D-G92 重建族；逐条上屏不进红、live= 被钉住
+dwf	0d25f64a7dbb4c78	None	c83be96f18759edc	D-G92	#80（t46）具名位移声明：block9/tier 取最新块（#79）授权行（牙自印 prob=nine-vs-live）、live 现取于 2026-09-28T10:31:35+08:00；成因＝整波重建（[1/6] integration-wave ＋ [2/6] native shim）⇒ D-G92 重建族；逐条上屏不进红、live= 被钉住

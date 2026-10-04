@@ -9,29 +9,29 @@
 
 【为什么需要】
   `hbtextline_shim_stale` 这条位原本只能给出**下界**：T17A 的
-  `build/MilBridge/tools/shim-in-artifact.sh` 在**编译后 DLL 的托管堆**里找"只有最新
+  `src/Linux/build/MilBridge/tools/shim-in-artifact.sh` 在**编译后 DLL 的托管堆**里找"只有最新
   shim 修订才有的标识符"，所以一次**不引入新符号**的 shim 改动会让它退化（它自己写明了
   这条边界）。本件把"产物里写着哪个 shim 内容"变成**直接读数**：
-    · 构建时算 `build/shims/PresentationCore.HbTextLine.cs` 的 sha256；
+    · 构建时算 `src/Microsoft.DotNet.Wpf.Linux/src/shims/PresentationCore.HbTextLine.cs` 的 sha256；
     · 写进程序集级 `AssemblyMetadata`；
-    · 读侧 `build/MilBridge/tests/ShimShaReader/`（PEReader + MetadataReader，**不加载程序集**）
+    · 读侧 `src/Linux/build/MilBridge/tests/ShimShaReader/`（PEReader + MetadataReader，**不加载程序集**）
       把"产物说的"与"现树算的"逐字比 ⇒ `no` / `yes` / `NOINFO` 三态。
   ⇒ 判据从"有没有新符号"里解耦：**纯注释改动也会让等号变红**（实测见 W17C 报告 §4/§6.2）。
 
 【为什么要有这个应用器（2026-09-16 的事故，本件就是它的修法）】
-  W17C 第一版是**手改** `build/PresentationCore.Linux/PresentationCore.Linux.csproj`
+  W17C 第一版是**手改** `src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/PresentationCore.Linux.csproj`
   插入 `<Import Project="HbTextLineShimSha.targets" />`。而这一份 csproj 是
-  **port-lib 的生成物**：波 `close-wave-w17` 第 1 步 `python3 build/port-lib.py PresentationCore`
+  **port-lib 的生成物**：波 `close-wave-w17` 第 1 步 `python3 src/Linux/build/port-lib.py PresentationCore`
   **整份重写**它 ⇒ 那 6 行（468 B）被**静默**抹掉（实测：csproj 由 `26ce64b8f4452ed4`
   变回 `e2558faa0cc6b5d1`，`grep -c HbTextLineShimSha` = 0），权威 `pc` 随之失去元数据
   （`ac16320a14f549d4`，读侧给 `NOINFO reason=attribute-absent`）。
   ⇒ **改生成物 = 白改**。本应用器把接线放进**可重放的生成通道**：
-    · 生成 `build/PresentationCore.Linux/HbTextLineShimSha.targets`（**单一写者 = 本脚本**，
+    · 生成 `src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/HbTextLineShimSha.targets`（**单一写者 = 本脚本**，
       与 apartment/lineheight-trace 的"一个应用器一个生成物"同款纪律）；
     · 往 csproj 的 `Sdk.targets` 锚点前**只插入** 3 行（MARKER_BEGIN / Import / MARKER_END）；
     · `integration-wave.sh` 的 `patch-presentation*` 兜底 glob 会自动执行本脚本
       （作者未把它写进 `APPLIERS_EXPLICIT`，因为那是**别人**的脚本，且兜底本来就覆盖它）
-      —— 它已被登记进 `build/MilBridge/tools/applier-audit-expected.txt`，于是"被摘掉"会**判红**。
+      —— 它已被登记进 `src/Linux/build/MilBridge/tools/applier-audit-expected.txt`，于是"被摘掉"会**判红**。
 
 【幂等 / 回滚】
   · 重复运行 0 改动（逐字节比对内容，相同就不重写，避免动时间戳触发全量重编）。
@@ -40,7 +40,7 @@
 
 【注意（本应用器**不**改任何行为）】
   · 只加一条 assembly 级 attribute ⇒ 改的是**身份**，不是渲染/排版语义；
-  · 生成物落在 `$(IntermediateOutputPath)`（仓内 `obj/`，`build/artifact-src-fp.py` 把
+  · 生成物落在 `$(IntermediateOutputPath)`（仓内 `obj/`，`src/Linux/build/artifact-src-fp.py` 把
     `bin/obj/.artifacts` **排除**在指纹输入之外）⇒ **不动** `ARTIFACT-SRC-FP`；
   · 生成文件的内容只有 sha256 的十六进制串 ⇒ **无时间戳、无路径、无主机名**（确定性）。
 """
@@ -52,16 +52,16 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
-PC_DIR = os.path.join(ROOT, "build", "PresentationCore.Linux")
+PC_DIR = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "PresentationCore")
 CSPROJ = os.path.join(PC_DIR, "PresentationCore.Linux.csproj")
 TARGETS_PATH = os.path.join(PC_DIR, "HbTextLineShimSha.targets")   # ⚠️ 不能叫 TARGETS_PATH：
 # applier-audit 把模块级 `TARGETS_PATH` 当成"多文件编辑表"（[label, 生成物, [(..)]]），
 # 撞名会让审计去迭代一个字符串（我实测过：报"缺生成物 <Project>"）。
-SHIM = os.path.join(ROOT, "build", "shims", "PresentationCore.HbTextLine.cs")
-READER = os.path.join("build", "MilBridge", "tests", "ShimShaReader")
+SHIM = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "shims", "PresentationCore.HbTextLine.cs")
+READER = os.path.join("src", "Linux", "build", "MilBridge", "tests", "ShimShaReader")
 
 MARKER_BEGIN = ("  <!-- ==== WAVE17 · W17C：shim 内容 sha256 进程序集元数据"
-                "（由 tools/patch-presentationcore-hbtextline-shimsha.py 注入）==== -->")
+                "（由 src/Linux/tools/patch-presentationcore-hbtextline-shimsha.py 注入）==== -->")
 MARKER_END = "  <!-- ==== WAVE17 · W17C：shim sha 接线 结束 ==== -->"
 
 # ── 生成物内容（逐字）────────────────────────────────────────────────────────
@@ -82,7 +82,7 @@ TARGETS_CONTENT = '''<Project>
        本件判据与 mtime 无关：产物里存的 sha 是"编译那一刻的源内容"的函数。
 
        形态：构建时生成一个只含**一行** assembly attribute 的 .cs，放进
-       $(IntermediateOutputPath)（仓内 obj/，被 build/artifact-src-fp.py 显式排除：
+       $(IntermediateOutputPath)（仓内 obj/，被 src/Linux/build/artifact-src-fp.py 显式排除：
        它第 34 行把 bin/obj/.artifacts 排除，故本件**不动** ARTIFACT-SRC-FP）。
        不新增仓内被跟踪的源文件、不要求任何应用器改 csproj 的 Compile 列表。
 
@@ -95,12 +95,12 @@ TARGETS_CONTENT = '''<Project>
             10.0.111 的 Microsoft.Build.Tasks.Core.dll 里有该任务，见 W17C 报告
             §2；`GetFileHash` 返回**大写**十六进制 ⇒ 这里显式 ToLowerInvariant()）。
 
-       读取侧：build/MilBridge/tests/ShimShaReader/
+       读取侧：src/Linux/build/MilBridge/tests/ShimShaReader/
        （PEReader + MetadataReader，**不加载程序集**；三态 no / yes / NOINFO）。
        ============================================================================ -->
   <PropertyGroup>
     <!-- 被嵌 sha 的那个源文件；可用 -p: 覆盖（便于做"属性缺省是否生效"的对照） -->
-    <HbTextLineShimSrcFile Condition="'$(HbTextLineShimSrcFile)' == ''">$(WpfLinuxRoot)build/shims/PresentationCore.HbTextLine.cs</HbTextLineShimSrcFile>
+    <HbTextLineShimSrcFile Condition="'$(HbTextLineShimSrcFile)' == ''">$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/shims/PresentationCore.HbTextLine.cs</HbTextLineShimSrcFile>
     <!-- 生成物文件名（固定，不含时间戳） -->
     <HbTextLineShimShaGeneratedFileName>HbTextLineShimSha.g.cs</HbTextLineShimShaGeneratedFileName>
   </PropertyGroup>
@@ -123,7 +123,7 @@ TARGETS_CONTENT = '''<Project>
     <!-- 生成文件的内容 = 固定头部两行 + 一行 attribute。没有时间戳/路径/版本号。 -->
     <ItemGroup>
       <_HbTextLineShimShaLine Include="#nullable enable" />
-      <_HbTextLineShimShaLine Include="// 由 build/PresentationCore.Linux/HbTextLineShimSha.targets 生成；请勿手改。" />
+      <_HbTextLineShimShaLine Include="// 由 src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/HbTextLineShimSha.targets 生成；请勿手改。" />
       <_HbTextLineShimShaLine Include="[assembly: System.Reflection.AssemblyMetadata(&quot;HbTextLineShimSha&quot;, &quot;$(HbTextLineShimSha256)&quot;)]" />
     </ItemGroup>
     <WriteLinesToFile File="$(HbTextLineShimShaGeneratedFile)"
@@ -287,8 +287,8 @@ def generate(check_only):
     with open(CSPROJ, "w", encoding="utf-8") as f:
         f.write(csproj)
     print(f"[接线] 已注入 3 行到 {os.path.relpath(CSPROJ, ROOT)}（Sdk.targets 之前；纯插入）")
-    print("\n下一步：dotnet build build/PresentationCore.Linux/PresentationCore.Linux.csproj -m:1")
-    print("       读侧：dotnet build/MilBridge/tests/ShimShaReader → SHIM_SHA=no|yes|NOINFO")
+    print("\n下一步：dotnet build src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/PresentationCore.Linux.csproj -m:1")
+    print("       读侧：dotnet src/Linux/build/MilBridge/tests/ShimShaReader → SHIM_SHA=no|yes|NOINFO")
     return 0
 
 

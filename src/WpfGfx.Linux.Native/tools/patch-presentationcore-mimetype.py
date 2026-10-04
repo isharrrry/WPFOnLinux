@@ -19,10 +19,10 @@
 我们自己的语料没覆盖过它，因为样本应用走的是 `BitmapImage` + **文件路径**（WIC 解码器路径），
 从来没有"XAML 里按 URI 引用图片"的形状。
 
-同源先例：**补丁 H**（`build/PresentationCore.Linux/SecurityHelper.Linux.cs`）——同一个模式
+同源先例：**补丁 H**（`src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/SecurityHelper.Linux.cs`）——同一个模式
 （上游要 marshal urlmon 的 COM 指针 ⇒ Linux 上换成短路实现）。
 
-【生成物】build/PresentationCore.Linux/MimeTypeMapper.Linux.cs
+【生成物】src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/MimeTypeMapper.Linux.cs
   = 上游逐字 + 3 处锚点替换 + 文件头横幅：
     ① `GetMimeTypeFromUri` 的初始化块：合并内置表（图片格式）；
     ② 调用点 `GetMimeTypeFromUrlMon(uriSource)` → `GetMimeTypeFromBuiltInTable(completeExt)`；
@@ -46,7 +46,7 @@
     python3 src/WpfGfx.Linux.Native/tools/patch-presentationcore-mimetype.py --check   # 0=生成物同步且已接线
 
 【复现（接线求值，不读 XML）】
-    dotnet msbuild build/PresentationCore.Linux/PresentationCore.Linux.csproj -m:1 --nologo \\
+    dotnet msbuild src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/PresentationCore.Linux.csproj -m:1 --nologo \\
         -getItem:Compile -p:Configuration=Release | grep -i MimeTypeMapper
     # 期望只剩 MimeTypeMapper.Linux.cs（上游那条被 Remove 掉）
 """
@@ -61,7 +61,7 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 
 UPSTREAM_REL = "src/Microsoft.DotNet.Wpf/src/Shared/MS/Internal/MimeTypeMapper.cs"
 UPSTREAM = os.path.join(ROOT, "upstream", "wpf", UPSTREAM_REL)
-PC_DIR = os.path.join(ROOT, "build", "PresentationCore.Linux")
+PC_DIR = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "PresentationCore")
 GENERATED = os.path.join(PC_DIR, "MimeTypeMapper.Linux.cs")
 CSPROJ = os.path.join(PC_DIR, "PresentationCore.Linux.csproj")
 
@@ -326,7 +326,7 @@ def generate(check_only):
              "       走内置表。生成物 = 上游逐字 + 3 处锚点替换。 -->\n"
              "  <ItemGroup>\n"
              f'    <Compile Remove="$(UpstreamWpfRoot){UPSTREAM_REL}" />\n'
-             '    <Compile Include="$(WpfLinuxRoot)build/PresentationCore.Linux/MimeTypeMapper.Linux.cs" />\n'
+             '    <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/MimeTypeMapper.Linux.cs" />\n'
              "  </ItemGroup>\n"
              + MARKER_END + "\n")
     csproj = csproj.replace(anchor, block + anchor, 1)
@@ -334,7 +334,7 @@ def generate(check_only):
         f.write(csproj)
     print(f"[接线] 已注入 2 行到 {os.path.relpath(CSPROJ, ROOT)}（Remove 之后于上游 Include）")
     print("\n下一步（**不要在这里重建 PC**，留给集成波）：")
-    print("  dotnet msbuild build/PresentationCore.Linux/PresentationCore.Linux.csproj -m:1 --nologo \\")
+    print("  dotnet msbuild src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/PresentationCore.Linux.csproj -m:1 --nologo \\")
     print("      -getItem:Compile -p:Configuration=Release | grep -i MimeTypeMapper")
     print("  # 期望只剩 MimeTypeMapper.Linux.cs（上游那条被 Remove 掉）")
     return 0

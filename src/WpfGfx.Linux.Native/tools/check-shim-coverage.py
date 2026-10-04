@@ -90,7 +90,7 @@ def find_attrs(text):
 def strip_comments(text):
     """去掉 `//` 行注释后再扫。
 
-    【为什么必须做】`build/shims/Win32ShimResolver.cs` 的文件头注释里有一行**示例**：
+    【为什么必须做】`src/Microsoft.DotNet.Wpf.Linux/src/shims/Win32ShimResolver.cs` 的文件头注释里有一行**示例**：
 
         //   [DllImport("user32.dll")]  [DllImport("gdi32.dll")]  [DllImport("kernel32.dll")]
 
@@ -104,13 +104,13 @@ def strip_comments(text):
 def load_mapped():
     """从 **resolver 源码**解析 MappedLibraries，不硬编码。
 
-    【为什么要解析而不是写死】这份清单在 `build/`（本轮边界外）里，且**已经变过两次**
+    【为什么要解析而不是写死】这份清单在 `src/Linux/build/`（本轮边界外）里，且**已经变过两次**
     （父级陆续加了 `uxtheme.dll` / `wtsapi32.dll`）。硬编码的副本会悄悄漂移：
     工具说"imm32 已映射"，实际 resolver 里根本没有 imm32 —— 于是 14 条 imm32 声明
     被算成 EntryPointNotFound，而运行时抛的其实是 DllNotFoundException（两回事）。
     让工具直接读 ground truth，这类漂移就不可能再发生。
     """
-    p = os.path.join(ROOT, "build", "shims", "Win32ShimResolver.cs")
+    p = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "shims", "Win32ShimResolver.cs")
     if not os.path.exists(p):
         return set(), None
     text = strip_comments(open(p, encoding="utf-8-sig", errors="replace").read())
@@ -193,11 +193,11 @@ def main():
     known = load_constants()
     all_e = []
     for name in ["WindowsBase", "PresentationCore", "PresentationFramework"]:
-        p = os.path.join(ROOT, f"build/{name}.Linux/{name}.Linux.csproj")
+        p = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", name, f"{name}.Linux.csproj")
         if os.path.exists(p):
             all_e += scan(compiles(p), known)
     # 本工程自产件（samples 也算；这里只取 HelloWpf）
-    p = os.path.join(ROOT, "samples/HelloWpf/HelloWpf.csproj")
+    p = os.path.join(ROOT, "src/Linux/samples/HelloWpf/HelloWpf.csproj")
     if os.path.exists(p):
         all_e += scan(compiles(p), known)
 

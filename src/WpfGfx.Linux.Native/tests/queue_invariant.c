@@ -11,7 +11,7 @@
 //
 // 怎么跑（**主控构建之后**；本文件不参与构建，只是源码）：
 //   cd src/WpfGfx.Linux.Native
-//   gcc -std=gnu11 -O1 -Isrc tests/queue_invariant.c -o /tmp/queue_invariant -Lbin -lwpfwin32
+//   gcc -std=gnu11 -O1 -Isrc src/Linux/tests/queue_invariant.c -o /tmp/queue_invariant -Lbin -lwpfwin32
 //       -Wl,-rpath,"$PWD/bin" -lX11 -ldl -lpthread
 //   /tmp/queue_invariant            # 期望末行 `QUEUE_INVARIANT=PASS`
 //   （不想动 .so 时，把 -Lbin -lwpfwin32 换成 obj/*.o 也可以）

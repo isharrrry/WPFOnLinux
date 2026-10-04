@@ -35,7 +35,7 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
-PC_DIR = os.path.join(ROOT, "build", "PresentationCore.Linux")
+PC_DIR = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "PresentationCore")
 CSPROJ = os.path.join(PC_DIR, "PresentationCore.Linux.csproj")
 GENERATED = os.path.join(PC_DIR, "SimpleTextLine.Linux.cs")
 UPSTREAM = os.path.join(ROOT, "upstream", "wpf", "src", "Microsoft.DotNet.Wpf", "src",
@@ -44,7 +44,7 @@ UPSTREAM_REL = ("src/Microsoft.DotNet.Wpf/src/PresentationCore/MS/internal/TextF
                 "SimpleTextLine.cs")
 
 MARKER_BEGIN = ("  <!-- ==== WPF-on-Linux T1c/D：SimpleTextLine 行高/行偏移只读插桩"
-                "（由 tools/patch-presentationcore-lineheight-trace.py 注入）==== -->")
+                "（由 src/Linux/tools/patch-presentationcore-lineheight-trace.py 注入）==== -->")
 MARKER_END = "  <!-- ==== WPF-on-Linux T1c/D 结束 ==== -->"
 
 # =====================================================================================
@@ -340,7 +340,7 @@ def generate(check_only):
     block = (MARKER_BEGIN + "\n"
              "  <ItemGroup>\n"
              f'    <Compile Remove="$(UpstreamWpfRoot){UPSTREAM_REL}" />\n'
-             '    <Compile Include="$(WpfLinuxRoot)build/PresentationCore.Linux/SimpleTextLine.Linux.cs" />\n'
+             '    <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/SimpleTextLine.Linux.cs" />\n'
              "  </ItemGroup>\n"
              + MARKER_END + "\n")
     csproj = csproj.replace(anchor, block + anchor, 1)
@@ -348,7 +348,7 @@ def generate(check_only):
         f.write(csproj)
     print(f"[接线] 已注入 2 行到 {os.path.relpath(CSPROJ, ROOT)}（Remove 之后于上游 Include）")
     print("\n下一步（**不要在这里重建权威 PC**；编到 /tmp 做闸门）：")
-    print("  dotnet msbuild build/PresentationCore.Linux/PresentationCore.Linux.csproj -m:1 --nologo \\")
+    print("  dotnet msbuild src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/PresentationCore.Linux.csproj -m:1 --nologo \\")
     print("      -getItem:Compile -p:Configuration=Debug | grep -i SimpleTextLine")
     print("  # 期望只剩 SimpleTextLine.Linux.cs（上游那条被 Remove 掉）")
     return 0

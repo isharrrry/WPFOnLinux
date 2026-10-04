@@ -48,7 +48,7 @@
 
 【为什么用生成式补丁】
   与补丁 G/H/I 同一套机制：从 upstream 逐字读入 → 只做上述替换 → 写到
-  `build/PresentationCore.Linux/<Name>.Linux.cs`（与 SR.g.cs 同为生成物），
+  `src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/<Name>.Linux.cs`（与 SR.g.cs 同为生成物），
   csproj 侧 Remove 上游 + Include 生成物。锚点/替换计数对不上 → **报错退出**（不静默降级）。
   重放顺序：port-lib.py → reapply-patches.py(F/D/G) → patch-presentationcore-apartment.py(H)
             → patch-presentationcore-fontcache.py(I) → 本脚本(J)
@@ -73,13 +73,13 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
-PC_DIR = os.path.join(ROOT, "build", "PresentationCore.Linux")
+PC_DIR = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "PresentationCore")
 CSPROJ = os.path.join(PC_DIR, "PresentationCore.Linux.csproj")
 UP = os.path.join(ROOT, "upstream", "wpf", "src", "Microsoft.DotNet.Wpf", "src",
                   "PresentationCore", "System", "Windows", "Input")
 
 MARKER_BEGIN = ("  <!-- ==== WPF-on-Linux M7c 补丁 J：输入栈的 Registry null 守卫"
-                "（由 tools/patch-presentationcore-registry.py 注入）==== -->")
+                "（由 src/Linux/tools/patch-presentationcore-registry.py 注入）==== -->")
 MARKER_END = "  <!-- ==== WPF-on-Linux M7c 补丁 J 结束 ==== -->"
 
 # (上游相对路径, 生成物文件名, [(原文, 替换, 期望出现次数)])
@@ -252,14 +252,14 @@ def generate(check_only):
     for rel, gen_name in csproj_added:
         lines.append(f'    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/'
                      f'PresentationCore/System/Windows/Input/{rel}" />')
-        lines.append(f'    <Compile Include="$(WpfLinuxRoot)build/PresentationCore.Linux/{gen_name}" />')
+        lines.append(f'    <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/{gen_name}" />')
     lines.append("  </ItemGroup>")
     lines.append(MARKER_END)
     csproj = csproj.replace(anchor, "\n".join(lines) + "\n" + anchor, 1)
     with open(CSPROJ, "w", encoding="utf-8") as f:
         f.write(csproj)
-    print(f"[接线] 已注入 {len(csproj_added) * 2} 行到 build/PresentationCore.Linux/PresentationCore.Linux.csproj")
-    print("\n下一步：dotnet build build/PresentationCore.Linux/PresentationCore.Linux.csproj -m:1")
+    print(f"[接线] 已注入 {len(csproj_added) * 2} 行到 src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/PresentationCore.Linux.csproj")
+    print("\n下一步：dotnet build src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/PresentationCore.Linux.csproj -m:1")
     return 0
 
 
@@ -303,7 +303,7 @@ def prove():
             raw = f.read()
         if raw.startswith(head):
             body = raw[len(head):]
-            where = f"落盘生成物 build/PresentationCore.Linux/{gen_name}"
+            where = f"落盘生成物 src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/{gen_name}"
 
     if body is not None:
         restored, why = reverse(body)

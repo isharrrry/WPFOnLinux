@@ -19,7 +19,7 @@
        at System.Windows.ResourceDictionary.GetValue(...)                      (PF ResourceDictionary.cs:485)
     ⇒ **进程死**（概率性：启动期只要 UI 线程在锁上被争用就发）。
 
-三句话的机制（都已实测，见 `build/MilBridge/W56A-report.md`）：
+三句话的机制（都已实测，见 `src/Linux/build/MilBridge/W56A-report.md`）：
   ① `DispatcherSynchronizationContext` 的构造函数调用 `SetWaitNotificationRequired()`
      ⇒ **CLR 在锁阻塞时会把「等待」交给当前 SynchronizationContext**（`Monitor.Enter_Slowpath` 那一帧）。
   ② `Wait` 上游按 `_dispatcher._disableProcessingCount > 0` 分叉：非零时改调 **Win32**
@@ -60,7 +60,7 @@ ROOT = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
 
 UP_REL = ("src/Microsoft.DotNet.Wpf/src/WindowsBase/System/Windows/Threading/"
           "DispatcherSynchronizationContext.cs")
-WB_DIR = os.path.join(ROOT, "build", "WindowsBase.Linux")
+WB_DIR = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "WindowsBase")
 CSPROJ = os.path.join(WB_DIR, "WindowsBase.Linux.csproj")
 GEN = os.path.join(WB_DIR, "DispatcherSynchronizationContext.Linux.cs")
 
@@ -100,7 +100,7 @@ REPLACEMENT = '''        public override int Wait(IntPtr[] waitHandles, bool wai
             //      时抛 `Win32Exception`（`Shared/MS/Win32/UnsafeNativeMethodsOther.cs:135`）。
             //   ② 于是只要 UI 线程在锁上被争用（CLR 把"等待"通知给当前 SynchronizationContext），
             //      而此刻该计数非零 ⇒ `Win32Exception (50)` ⇒ 未处理异常 ⇒ **进程死**。
-            //      最小复现与两极化读数见 `build/MilBridge/W56A-report.md`。
+            //      最小复现与两极化读数见 `src/Linux/build/MilBridge/W56A-report.md`。
             //   ③ 托管 `SynchronizationContext.WaitHelper` 在 Linux 上**真等待**（实测：
             //      无信号 300 ms ⇒ 返回 258 `WAIT_TIMEOUT`；400 ms 后置信号 ⇒ 返回 0
             //      `WAIT_OBJECT_0`），且它只碰 .NET 的等待子系统、**不碰任何 Win32 消息队列**
@@ -301,7 +301,7 @@ def generate(check_only):
         block = (MARKER_BEGIN + "\n"
                  "  <ItemGroup>\n"
                  f'    <Compile Remove="$(UpstreamWpfRoot){UP_REL}" />\n'
-                 '    <Compile Include="$(WpfLinuxRoot)build/WindowsBase.Linux/DispatcherSynchronizationContext.Linux.cs" />\n'
+                 '    <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/DispatcherSynchronizationContext.Linux.cs" />\n'
                  "  </ItemGroup>\n"
                  + MARKER_END + "\n")
         csproj = csproj.replace(anchor, block + anchor, 1)
@@ -310,7 +310,7 @@ def generate(check_only):
         print(f"[接线] 已注入到 {os.path.relpath(CSPROJ, ROOT)}（Remove 上游 + Include 生成物）")
 
     # ---- 假绿防线：生成物在、接线丢了 ⇒ 上游那份会被编译、修法**静默消失** ----
-    print("[注意] `build/port-lib.py WindowsBase` 会**整份重写** csproj ⇒ 本块会被抹掉；"
+    print("[注意] `src/Linux/build/port-lib.py WindowsBase` 会**整份重写** csproj ⇒ 本块会被抹掉；"
           "重写后必须重跑本脚本（不带 --check）。")
     print("        接线丢失**不会报编译错**、也不会改任何 rc，只会让 `Win32Exception (50)` 回来 ⇒ 别把绿读成修好了。")
 
@@ -320,8 +320,8 @@ def generate(check_only):
         return 0 if up_to_date else 1
 
     print("\n下一步（重建权威 `windowsbase`）：")
-    print("  . build/selfbuilt-config.sh   # ⇒ SELFBUILT_CONFIG")
-    print("  dotnet build build/WindowsBase.Linux/WindowsBase.Linux.csproj -c \"$SELFBUILT_CONFIG\" -m:1 --nologo")
+    print("  . src/Linux/build/selfbuilt-config.sh   # ⇒ SELFBUILT_CONFIG")
+    print("  dotnet build src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/WindowsBase.Linux.csproj -c \"$SELFBUILT_CONFIG\" -m:1 --nologo")
     return 0
 
 

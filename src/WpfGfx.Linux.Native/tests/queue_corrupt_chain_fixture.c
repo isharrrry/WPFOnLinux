@@ -12,14 +12,14 @@
 //     `t10` 的读数**同一形态**，可逐字对照。
 //
 // 【为什么要在**同一件里**放两个模式（覆盖面的理由，别拆成两件）】
-//   `build/close-wave.sh` 的 `fp_inputs()` 用
+//   `src/Linux/build/close-wave.sh` 的 `fp_inputs()` 用
 //     `find src/WpfGfx.Linux.Native -type f \( -name '*.c' -o -name '*.h' \)`
 //   收录**该目录下所有 C 源**（`R-CSRC` 那条：原生 C 源必须进覆盖面）⇒ **每多一件 `.c` 就多一格
 //   覆盖面**（件数 +1、`inputs_fp` 位移）。⇒ 两个夹具**合并成一件**，把代际位移压到**最小的一格**。
 //
 // 【`calibrate` 模式的判据（`si_addr` 到底可不可信）】
 //   `D-G109` 里那句"不许把 `siaddr=0x0` 当依据"的**理由**（"该字段与指令语义不符"）**已被证伪**
-//   （2026-09-28 车道 `t45` 的 dated 更正，落 `samples/WpfFeatureProbe/KNOWN-DEFECTS.md`）：
+//   （2026-09-28 车道 `t45` 的 dated 更正，落 `src/Linux/samples/WpfFeatureProbe/KNOWN-DEFECTS.md`）：
 //   真值为 **`si_addr = P + 0x38`**，与 shim 里那条指令**逐字同形**：
 //     `win32_msg.c` 的 `p = p->next` ⇒ 反汇编 `48 8b 40 38  mov 0x38(%rax),%rax`
 //   ⇒ 本模式就用**同一条指令**去载入 `P + 0x38`，由 `SA_SIGINFO` 的 `si_addr` 读出故障地址：
@@ -31,13 +31,13 @@
 //
 // 【怎么跑（**不参与构建**，只是源码；构建入口 `Makefile` 只收 `src/` 下的件）】
 //   cd src/WpfGfx.Linux.Native
-//   gcc -std=gnu11 -O1 -Isrc tests/queue_corrupt_chain_fixture.c -o /tmp/qcfixture \
+//   gcc -std=gnu11 -O1 -Isrc src/Linux/tests/queue_corrupt_chain_fixture.c -o /tmp/qcfixture \
 //       -Lbin -lwpfwin32 -Wl,-rpath,$PWD/bin -ldl -lpthread
 //   /tmp/qcfixture corrupt  0x102      # 坏链注入
 //   /tmp/qcfixture calibrate 0         # 校准第一点
 //   /tmp/qcfixture calibrate 0x102     # 校准第二点
 //
-// 【期望读数（单变量：**只换 `libwpfwin32.so`**；两臂见 `build/MilBridge/P0-mvp-segv-report.md`）】
+// 【期望读数（单变量：**只换 `libwpfwin32.so`**；两臂见 `src/Linux/build/MilBridge/P0-mvp-segv-report.md`）】
 //   `corrupt 0x102`：
 //     · 修前件 `abf6879c027c5e73` ⇒ `rc=139`、`T10_SEGV si_addr=0x13a`（＝ `0x102 + 0x38`）
 //     · 修后件 `e8127a3d7128d417`（波 `#79` 冻结九位之一）⇒ `rc=0` ＋ 修法的具名台账

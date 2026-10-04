@@ -12,7 +12,7 @@
 #   du -sh --exclude=bin --exclude=obj --exclude=.artifacts .
 # ══════════════════════════════════════════════════════════════════════════════
 
-# ── 1. 构建产物（可重建；权威件由 build/integration-wave.sh 现场产生）──────────
+# ── 1. 构建产物（可重建；权威件由 src/Linux/build/integration-wave.sh 现场产生）──────────
 bin/
 obj/
 .artifacts/
@@ -23,12 +23,12 @@ obj/
 # ── 2. 原生构建产物 ───────────────────────────────────────────────────────────
 src/WpfGfx.Linux.Native/bin/
 src/WpfGfx.Linux.Native/obj/
-build/DirectWrite.Linux/wic-shim/libwpfwic.so
-build/DirectWrite.Linux/wic-shim/libwpfwic.so.*
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/libwpfwic.so
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/libwpfwic.so.*
 # ⚠️ `libSkiaSharp.so` 是**第三方二进制**（来自 NuGet 包
 #   `SkiaSharp.NativeAssets.Linux` 2.88.9，被 wic-shim 的构建脚本拷到这里做运行期 dlopen）
 #   ⇒ **不入库**：体积 8.9 MB、且许可/来源都随 NuGet 包走，重建时由 `dotnet restore` 提供。
-build/DirectWrite.Linux/wic-shim/libSkiaSharp.so
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/libSkiaSharp.so
 *.o
 
 # ── 3. Python / 编辑器 / 系统 ─────────────────────────────────────────────────
@@ -42,13 +42,13 @@ __pycache__/
 
 # ── 3b. 两份"大件"（**实测后**刻意排除；理由逐条见 docs/RELEASE-READINESS.md §1）────────
 #   ① 探针**输出**、且**全仓没有任何读者**（只有 u14 的 *工程* 被引；JSON 本身没人读）
-#      ⇒ 排除零损失：重算方式 = 跑 tests/parity/geometry/u14/U14.csproj（语料 cases-u14.json 在仓内）。
+#      ⇒ 排除零损失：重算方式 = 跑 src/Linux/tests/parity/geometry/u14/U14.csproj（语料 cases-u14.json 在仓内）。
 #      ⚠️ 它 118.2 MB > GitHub 单文件 100 MB 硬限 ⇒ **不排除就推不上去**。
-tests/parity/geometry/u14/linux-results-u14.json
+src/Linux/tests/parity/geometry/u14/linux-results-u14.json
 #   ② 53 MB 的 Windows 真机 dump：**当前所有读者都走仓内的派生件**
-#      （build/MilBridge/gen/layout-b34-compact.json 3.1 MB ＋ ProductEntryArm/inputs.json 4.7 KB）
+#      （src/Linux/build/MilBridge/gen/layout-b34-compact.json 3.1 MB ＋ ProductEntryArm/inputs.json 4.7 KB）
 #      ⇒ 排除它不改变任何现有判定；只在"换字段集重新抽取"时才需要 Windows 侧重录。
-tests/parity/windows/layout-b34/windows-results.json
+src/Linux/tests/parity/windows/layout-b34/windows-results.json
 
 # ── 4. 运行期/临时（截图、采样、一次性日志）───────────────────────────────────
 /tmp-*
@@ -58,21 +58,21 @@ tests/parity/windows/layout-b34/windows-results.json
 # ══════════════════════════════════════════════════════════════════════════════
 # 【2026-09-20 · 推送前硬约束：GitHub **拒收 >100 MB 的单文件**】
 #   本仓已有两条规则排掉两个大件（见上面 ①② 两条，各有理由与复算方式）：
-#     · tests/parity/geometry/u14/linux-results-u14.json      118.2 MB —— 探针输出、无读者、可重算
-#     · tests/parity/windows/layout-b34/windows-results.json   53.0 MB —— Windows 侧 dump；
-#       现所有读者都走仓内派生件 build/MilBridge/gen/layout-b34-compact.json（3.1 MB）
+#     · src/Linux/tests/parity/geometry/u14/linux-results-u14.json      118.2 MB —— 探针输出、无读者、可重算
+#     · src/Linux/tests/parity/windows/layout-b34/windows-results.json   53.0 MB —— Windows 侧 dump；
+#       现所有读者都走仓内派生件 src/Linux/build/MilBridge/gen/layout-b34-compact.json（3.1 MB）
 #   推送前自查（期望 0 行）：
 #     find . -type f -not -path '*/bin/*' -not -path '*/obj/*' -not -path '*/.artifacts/*' -size +100M
 # ══════════════════════════════════════════════════════════════════════════════
 # 刻意**不忽略**的东西（它们是**被声明的证据**，必须入库；写在这里防止后来者"顺手"加规则）
 #
-#   build/wave-audit.log                  —— 每一趟波的责任溯源审计行（谁/何时/什么命令）
-#   build/MilBridge/arm-logs/*.log        —— 五臂日志（sha256 有机器声明，见 known-red.json）
-#   build/MilBridge/known-red.json        —— 已知红与臂声明（判据件本身）
-#   build/fonts/*.ttf + LICENSE-OFL.txt   —— 测试字体（golden 测试地基；系统字体不算数）
-#   samples/WpfTextDemo/ACCEPTANCE-BASELINE.md —— **冻结基线（唯一权威）**
-#   tests/parity/**/out/*.json、*.json    —— Windows 侧真值语料（对拍的地基）
-#   tests/parity/windows/**/PROVENANCE.md —— 真值的来源与可追溯信息
+#   src/Linux/build/wave-audit.log                  —— 每一趟波的责任溯源审计行（谁/何时/什么命令）
+#   src/Linux/build/MilBridge/arm-logs/*.log        —— 五臂日志（sha256 有机器声明，见 known-red.json）
+#   src/Linux/build/MilBridge/known-red.json        —— 已知红与臂声明（判据件本身）
+#   src/Linux/build/fonts/*.ttf + LICENSE-OFL.txt   —— 测试字体（golden 测试地基；系统字体不算数）
+#   src/Linux/samples/WpfTextDemo/ACCEPTANCE-BASELINE.md —— **冻结基线（唯一权威）**
+#   src/Linux/tests/parity/**/out/*.json、*.json    —— Windows 侧真值语料（对拍的地基）
+#   src/Linux/tests/parity/windows/**/PROVENANCE.md —— 真值的来源与可追溯信息
 #   docs/CURRENT-STATE.md                 —— 当前状态一页纸（含唯一 BASELINE-FROZEN 机器行）
 # ══════════════════════════════════════════════════════════════════════════════
 

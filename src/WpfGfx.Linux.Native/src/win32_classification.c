@@ -16,7 +16,7 @@
 //       "这一串是不是空格"（`CharacterSpace`，LineServices 回调读它）；
 //     · `Script` 参与 `GetScript(ch)==GetScript(baseChar)` 的字体回退判断与 `isDigit/isLatin`；
 //     · `BiDi` 参与 `SimpleTextLine` 的空白判定与 bidi 分析。
-//   所以本文件的数据是**从真实 UCD 推出的**（见 tools/gen-unicode-tables.py 的文件头：
+//   所以本文件的数据是**从真实 UCD 推出的**（见 src/Linux/tools/gen-unicode-tables.py 的文件头：
 //   数据源是本机 Python 3 `unicodedata`，UCD 13.0.0 的 category/bidirectional/combining/
 //   mirrored/name）。**这不是手写常量，也不是占位。**
 
@@ -199,7 +199,7 @@ int WpfLinuxWin32_EscStringSelfCheck(void)
    本增量不动本文的"缺口/分类"口径（`tool`／`dead`／`artifact`／`ops`／`impl` 五位全未动；
    `so16 5b7d0ac101673900→1dbea9026dd7d3d7`）。它改的是**失败面**：缺省路径残留的 1 条
    `[HC-UNHANDLED]`（`ArgumentException: Specified Visual is already a child …`）⇒ `=0`。
-   落点两处：① 托管生成件 `build/PresentationFramework.Linux/PtsHelper.Linux.cs` 的
+   落点两处：① 托管生成件 `src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/PtsHelper.Linux.cs` 的
    `UpdateFloatingElementVisuals`（**浮层视觉换父**；生成器 `reapply-patches.py` 产出）；
    ② 本文同族的 `src/WpfGfx.Linux.Native/src/win32_pts.c`（`drive-handles-released(page-destroyed)`
-   两处拒因**收窄**）。载体：`build/MilBridge/P1-tail2-hcres-impl-report.md`。 */
+   两处拒因**收窄**）。载体：`src/Linux/build/MilBridge/P1-tail2-hcres-impl-report.md`。 */

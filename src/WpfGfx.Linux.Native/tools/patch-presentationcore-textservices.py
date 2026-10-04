@@ -4,7 +4,7 @@
 （**无参运行 = 应用**，与家族其余应用器一致）。
 
     python3 src/WpfGfx.Linux.Native/tools/patch-presentationcore-textservices.py
-        → 生成 build/WindowsBase.Linux/TextServicesLoader.Linux.cs **并**给 csproj 接线（幂等）
+        → 生成 src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/TextServicesLoader.Linux.cs **并**给 csproj 接线（幂等）
 
     python3 src/WpfGfx.Linux.Native/tools/patch-presentationcore-textservices.py --check
         → 只检查（不写盘）：生成物是否最新、csproj 是否已接线；**未就位 ⇒ 退出码 1**
@@ -69,7 +69,7 @@
     而 csproj 会被 `port-lib.py` 重生成 ⇒ 运行时判定把接线面收敛为 0（本文件的头注已记这条教训）。
 
   ⚠️ **目标程序集是 WindowsBase，不是 PresentationCore**（实测：启动钩子逐程序集找类型时 PC 里没有它）：
-     `build/WindowsBase.Linux/WindowsBase.Linux.csproj:281` 正是那句
+     `src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/WindowsBase.Linux.csproj:281` 正是那句
      `<Compile Include="$(UpstreamWpfRoot)src/…/Shared/MS/Internal/TextServicesLoader.cs" />`。
      崩溃栈里它被 PC 的 `TextServicesManager` 调到，是因为 PC 对 WB 的 internal 有 IVT。
      **打错程序集 = 一行都不生效。**
@@ -88,7 +88,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
 
-WB_DIR = os.path.join(ROOT, "build", "WindowsBase.Linux")
+WB_DIR = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "WindowsBase")
 TARGET = os.path.join(WB_DIR, "TextServicesLoader.Linux.cs")
 CSPROJ = os.path.join(WB_DIR, "WindowsBase.Linux.csproj")
 
@@ -101,7 +101,7 @@ CSPROJ_UPSTREAM_INCLUDE = ('    <Compile Include="$(UpstreamWpfRoot)src/Microsof
                            + UPSTREAM_REL + '" />')
 
 MARKER_BEGIN = ("  <!-- ==== WPF-on-Linux M7c 补丁 M：TSF 的 Registry null 守卫"
-                "（由 tools/patch-presentationcore-textservices.py 注入）==== -->")
+                "（由 src/Linux/tools/patch-presentationcore-textservices.py 注入）==== -->")
 MARKER_END = "  <!-- ==== WPF-on-Linux M7c 补丁 M 结束 ==== -->"
 
 # 两处锚点：逐字来自 upstream，改不动就报错
@@ -238,7 +238,7 @@ def wire_csproj(csproj_path, check_only):
         MARKER_BEGIN,
         "  <ItemGroup>",
         f'    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/{UPSTREAM_REL}" />',
-        '    <Compile Include="$(WpfLinuxRoot)build/WindowsBase.Linux/TextServicesLoader.Linux.cs" />',
+        '    <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/TextServicesLoader.Linux.cs" />',
         "  </ItemGroup>",
         MARKER_END,
         "",
@@ -299,7 +299,7 @@ def generate(check_only, out_path=None, csproj_path=None, show_diff=False):
         rc = 0
 
     wire_rc = wire_csproj(csproj_path or CSPROJ, check_only)
-    print("\n下一步：dotnet build build/WindowsBase.Linux/WindowsBase.Linux.csproj -m:1")
+    print("\n下一步：dotnet build src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/WindowsBase.Linux.csproj -m:1")
     return 0 if (rc == 0 and wire_rc == 0) else 1
 
 
@@ -310,7 +310,7 @@ def main():
     ap.add_argument("--out", metavar="PATH", help="额外写一份生成物到指定路径（便于核对）")
     ap.add_argument("--diff", action="store_true", help="打印改动前后的那些行")
     ap.add_argument("--csproj", metavar="PATH",
-                    help="覆盖 csproj 路径（自测用；默认 build/WindowsBase.Linux/WindowsBase.Linux.csproj）")
+                    help="覆盖 csproj 路径（自测用；默认 src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/WindowsBase.Linux.csproj）")
     args = ap.parse_args()
     return generate(args.check, args.out, args.csproj, args.diff)
 

@@ -9,7 +9,7 @@
 为什么必须改（实测证据，不是推断）
 ============================================================================
 `BitmapImage(fileUri)` 在 Linux 上**走不到 WIC**：四个 CHECK 的完整异常栈首帧逐字相同
-（harness: build/DirectWrite.Linux/WicClosedLoop，`DISPLAY=:99`）：
+（harness: src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/WicClosedLoop，`DISPLAY=:99`）：
 
     at MS.Win32.UnsafeNativeMethods.CoInternetCreateSecurityManager(
            Object pIServiceProvider, Object& ppISecurityManager, Int32 dwReserved)
@@ -35,14 +35,14 @@ LocalMachine…）。Linux 上**没有 urlmon、没有 IE zone、没有 Mark-of-
 而**不是**伪造一个 COM 对象或假装调用成功。
 
 本工程既有同一套逻辑的先例：非 Windows 上不设 `XamlAccessLevel`（理由：CAS 已不存在）；
-`build/WindowsBase.Linux/reapply-patches.py` 的补丁 G 也是"从这里摘掉上游文件、换成 Linux 版"。
+`src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/reapply-patches.py` 的补丁 G 也是"从这里摘掉上游文件、换成 Linux 版"。
 **注意**：`UnsafeNativeMethodsOther.cs` 那条 urlmon 声明**保留不动** —— 改完之后它不可达，留着无害；
 删它反而会牵动别的程序集（该文件也是共享源）。
 
 ============================================================================
 生成约定（与既有应用器一致）
 ============================================================================
-  · 从上游**逐字读入** → **只替换那一个方法** → 写 `build/PresentationCore.Linux/SecurityHelper.Linux.cs`
+  · 从上游**逐字读入** → **只替换那一个方法** → 写 `src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/SecurityHelper.Linux.cs`
   · csproj：`<Compile Remove>` 上游路径 + `<Compile Include>` 生成物（带 marker，幂等）
   · 锚点/计数不符 → **报错退出**（绝不"改到一半还继续"）
   · `--check`：重新生成到内存并与磁盘上的生成物逐字节比较 + 检查 csproj 两条目；不一致退出码 2
@@ -63,13 +63,13 @@ UPSTREAM = os.path.join(
     REPO, "upstream", "wpf", "src", "Microsoft.DotNet.Wpf", "src",
     "Shared", "MS", "Internal", "SecurityHelper.cs")
 
-GEN_DIR = os.path.join(REPO, "build", "PresentationCore.Linux")
+GEN_DIR = os.path.join(REPO, "src", "Microsoft.DotNet.Wpf.Linux", "src", "PresentationCore")
 GEN_FILE = os.path.join(GEN_DIR, "SecurityHelper.Linux.cs")
 CSPROJ = os.path.join(GEN_DIR, "PresentationCore.Linux.csproj")
 
 # csproj 里的上游引用（PC 实际引用的那条路径，逐字；Remove 必须精确匹配它）
 CSPROJ_UPSTREAM_PATH = "$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/Shared/MS/Internal/SecurityHelper.cs"
-CSPROJ_GEN_PATH = "$(WpfLinuxRoot)build/PresentationCore.Linux/SecurityHelper.Linux.cs"
+CSPROJ_GEN_PATH = "$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/SecurityHelper.Linux.cs"
 
 MARKER_BEGIN = "  <!-- ==== T2 · 补丁 H：URL 安全区域短路（SecurityHelper） BEGIN ==== -->"
 MARKER_END = "  <!-- ==== T2 · 补丁 H：URL 安全区域短路（SecurityHelper） END ==== -->"
@@ -277,7 +277,7 @@ def main():
 
     print()
     print("[下一步] 重建 PresentationCore（由主控在合并波里做；本脚本不触发构建）：")
-    print("  dotnet build build/PresentationCore.Linux/PresentationCore.Linux.csproj -m:1")
+    print("  dotnet build src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/PresentationCore.Linux.csproj -m:1")
     return 0
 
 

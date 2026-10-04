@@ -6,15 +6,15 @@
     python3 src/WpfGfx.Linux.Native/tools/wire-managed-layer.py --check  # 只检查，不改
 
 【为什么需要这个脚本，而不是直接改 csproj】
-    `build/*.Linux/*.csproj` 是 **port-lib.py 的生成物**（每次运行整份重写），
+    `src/Linux/build/*.Linux/*.csproj` 是 **port-lib.py 的生成物**（每次运行整份重写），
     所以任何额外内容都必须有「可重放的出处」。本工程的既有出处有两处：
-      · `build/shims/<Name>.shims.txt`（每行一个 shim 源文件）—— port-lib 会读它；
-      · `build/<Name>.Linux/reapply-patches.py` —— 生成后再补的块。
-    M7b 已经把 `build/shims/Win32ShimResolver.cs` 追加进了**两个** shims.txt，
+      · `src/Microsoft.DotNet.Wpf.Linux/src/shims/<Name>.shims.txt`（每行一个 shim 源文件）—— port-lib 会读它；
+      · `src/Linux/build/<Name>.Linux/reapply-patches.py` —— 生成后再补的块。
+    M7b 已经把 `src/Microsoft.DotNet.Wpf.Linux/src/shims/Win32ShimResolver.cs` 追加进了**两个** shims.txt，
     所以**下一次 port-lib 重生成会自动带上这一行**。
 
 【那为什么还要这个脚本】
-    `build/PresentationCore.Linux/` 当前有另一个 agent 在做资源审计，
+    `src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/` 当前有另一个 agent 在做资源审计，
     直接 `port-lib.py PresentationCore` 会整份重写它正在动的目录（有竞态风险）。
     本脚本只做**一件事**：把缺失的那一行 `<Compile Include>` 插进去；
     已经存在（例如 port-lib 刚重生成过）就原样不动。
@@ -32,16 +32,16 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
 
-SHIM_REL = "build/shims/Win32ShimResolver.cs"
-SHIM_LINE = '    <Compile Include="$(WpfLinuxRoot)build/shims/Win32ShimResolver.cs" />'
+SHIM_REL = "src/Microsoft.DotNet.Wpf.Linux/src/shims/Win32ShimResolver.cs"
+SHIM_LINE = '    <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/shims/Win32ShimResolver.cs" />'
 
 TARGETS = [
-    ("WindowsBase", "build/WindowsBase.Linux/WindowsBase.Linux.csproj"),
-    ("PresentationCore", "build/PresentationCore.Linux/PresentationCore.Linux.csproj"),
+    ("WindowsBase", "src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/WindowsBase.Linux.csproj"),
+    ("PresentationCore", "src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/PresentationCore.Linux.csproj"),
 ]
 
 # 插在「shim ItemGroup」的末尾：找到 __shim_anchor__ 标记的 ItemGroup 的开标签，
-# 或者任意一个已经包含 build/shims/ 的 ItemGroup。都不在时退回 Sdk.targets 之前。
+# 或者任意一个已经包含 src/Microsoft.DotNet.Wpf.Linux/src/shims/ 的 ItemGroup。都不在时退回 Sdk.targets 之前。
 ITEMGROUP_RE = re.compile(r"^  <ItemGroup>\n(?:.*\n)*?  </ItemGroup>$", re.M)
 
 
@@ -53,7 +53,7 @@ def find_shim_itemgroup_inner_end(text):
     （本轮真实踩过）。"""
     for m in ITEMGROUP_RE.finditer(text):
         block = m.group(0)
-        if "build/shims/" in block:
+        if "src/Microsoft.DotNet.Wpf.Linux/src/shims/" in block:
             close = block.rindex("  </ItemGroup>")
             return m.start() + close
     return None
@@ -84,7 +84,7 @@ def patch(path, check_only):
         if marker not in text:
             print(f"[失败] {path}：既没有 shim ItemGroup，也找不到 Sdk.targets 锚点")
             return 1
-        block = ('  <!-- M7b：Win32 子集 shim 的 DllImportResolver（见 build/shims/Win32ShimResolver.cs） -->\n'
+        block = ('  <!-- M7b：Win32 子集 shim 的 DllImportResolver（见 src/Microsoft.DotNet.Wpf.Linux/src/shims/Win32ShimResolver.cs） -->\n'
                  '  <ItemGroup>\n' + SHIM_LINE + '\n  </ItemGroup>\n')
         new_text = text.replace(marker, block + marker, 1)
         how = "新建 ItemGroup（Sdk.targets 之前）"

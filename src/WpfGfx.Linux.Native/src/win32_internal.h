@@ -3,7 +3,7 @@
 // 【HWND 是什么】
 //   本 shim 里 **HWND == X11 Window（XID）**，不做任何再包装。选这条的理由：
 //     · M7a 的 `MilVisualTarget_AttachToHwnd(hwnd)` / `MilContent_AttachToHwnd(hwnd)`
-//       在 `src/WpfGfx.Linux/Interop/MilNative.Window.cs` 里就是**身份映射**，
+//       在 `src/Microsoft.DotNet.Wpf.Linux/src/WpfGfx/Interop/MilNative.Window.cs` 里就是**身份映射**，
 //       它记下的 nint 将来要能落到一个真实 X11 窗口上；让 XID 直接当 HWND，
 //       M7c 接线时零转换（`X11PresentationTarget.NativeHandle` 也已经是 nint）。
 //     · `GetDesktopWindow()` 可以直接返回 `XRootWindow(dpy, screen)` —— 那本来
@@ -343,7 +343,7 @@ typedef struct wpf_window {
     //   `hints_map_declared` 终态）：W93A 实测它们都是"**用次数近似值变化**"，
     //   而近似在两侧都出错 —— ①问出过一次声明即**终态** ⇒ 运行期再改**永不重发**；
     //   ②上限计的是"**问**"不是"**改**" ⇒ 4 次无意义的 `HIDE/SHOW` 花光预算后
-    //   **连第一次真声明都发不出去**（`build/MilBridge/W93A-report.md` §2.5）。
+    //   **连第一次真声明都发不出去**（`src/Linux/build/MilBridge/W93A-report.md` §2.5）。
     //   现在直接比较**上次已发布的那组值**（下面 5 个字段）⇒ 幂等、无消息风暴。
     //   见 `win32_core.c` 的 `wpf_hints_publish`（写 X 的**唯一**入口）。
     int       hints_pub_valid;      // 是否已有"上次发布"（首次发布前 = 0 ⇒ 一定要发一次）
@@ -485,7 +485,7 @@ void wpf_note_message(const WPF_MSG *m);
 // 而我们的 MilCore 端没有消息循环也没有 X 连接，所以由 shim（两者都有）按**真值**代发。
 void wpf_notify_display_devices_available(void);
 
-// win32_unicode_tables.c（**自动生成**，见 tools/gen-unicode-tables.py）：
+// win32_unicode_tables.c（**自动生成**，见 src/Linux/tools/gen-unicode-tables.py）：
 // `MILGetClassificationTables` 要交出去的那几张真表。声明必须与生成物逐字一致 ——
 // 尤其是 `const uintptr_t *const`：第二级条目是"小整数(<472) 或叶子指针"共用一格。
 #ifndef WPF_TBL

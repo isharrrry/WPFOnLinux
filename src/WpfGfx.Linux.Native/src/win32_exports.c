@@ -208,7 +208,7 @@ const char *WpfLinuxWin32_GetClassName(HWND hwnd)
 //   单纯「原生侧打印自己的 offset」只能证明原生侧自洽；真正要证明的是
 //   **原生布局 == 托管布局**。所以这里把原生的逐字段 offset 交出去，
 //   由托管测试拿 `Marshal.OffsetOf` / `Marshal.SizeOf` 的**同一批结构体**
-//   逐项比对（见 tests/.../ManagedLayer.Tests/Win32AbiLayoutTests.cs）。
+//   逐项比对（见 src/Linux/tests/.../ManagedLayer.Tests/Win32AbiLayoutTests.cs）。
 //
 //   为什么不用「托管侧去读原生静态变量」：静态变量只能给值，给不了 offset；
 //   而 offset 正是这里唯一值得断言的东西。

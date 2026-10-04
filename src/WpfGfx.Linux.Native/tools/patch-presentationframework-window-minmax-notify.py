@@ -48,7 +48,7 @@
     ⇒ **报错退出**（绝不静默产出未打补丁的副本）。
   · `port-lib.py PresentationFramework` 会**整份重写** csproj ⇒ 接线必须每次都重放；本脚本自带
     `MARKER_BEGIN` 幂等接线（与 `patch-presentationframework-xamlaccess.py` 同款），
-    `build/integration-wave.sh` 的 `patch-presentation*` 通配**每波都会重放它**。
+    `src/Linux/build/integration-wave.sh` 的 `patch-presentation*` 通配**每波都会重放它**。
   · ⚠️ 本脚本**不改任何既有语句、不删任何守卫**：`D-G83` 的修法语义与
     `DefWindowProcW` 的 `WM_GETMINMAXINFO` no-op 一个字节都不在射程内。
 """
@@ -60,7 +60,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
 
-PF_DIR = os.path.join(ROOT, "build", "PresentationFramework.Linux")
+PF_DIR = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "PresentationFramework")
 CSPROJ = os.path.join(PF_DIR, "PresentationFramework.Linux.csproj")
 GEN = os.path.join(PF_DIR, "Window.Linux.cs")
 
@@ -182,7 +182,7 @@ A_MAXW = tail_anchor("                        UpdateHwndSizeOnWidthHeightChange(
 
 # ── 编辑表（**唯一声明处**）：applier-audit 的 A 级"变换等价"就按这张表从上游重算期望 ──────────
 # 形如 (上游相对路径, 生成物文件名【相对本应用器的 csproj 目录】, [(锚点, 替换, 期望命中次数), …])
-# ⚠️ 条目**必须**是 3 元组 `(锚点, 替换, 次数)` —— `build/MilBridge/tools/applier-audit.py`
+# ⚠️ 条目**必须**是 3 元组 `(锚点, 替换, 次数)` —— `src/Linux/build/MilBridge/tools/applier-audit.py`
 #    的 `declarations()`/`edits_of()` 按这个形状解析（4 元组会被当成"没有声明表"⇒ 掉到 C 级）。
 PATCHES = [
     (UP_REL, "Window.Linux.cs", [
@@ -247,15 +247,15 @@ def generate(check_only):
         MARKER_BEGIN,
         "  <ItemGroup>",
         '    <Compile Remove="$(UpstreamWpfRoot)%s" />' % UP_REL,
-        '    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/Window.Linux.cs" />',
+        '    <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/Window.Linux.cs" />',
         "  </ItemGroup>",
         MARKER_END,
     ]
     csproj = csproj.replace(MARKERV, "\n".join(lines) + "\n" + MARKERV, 1)
     with open(CSPROJ, "w", encoding="utf-8") as f:
         f.write(csproj)
-    print("[接线] 已注入 2 行到 build/PresentationFramework.Linux/PresentationFramework.Linux.csproj")
-    print("\n下一步：dotnet build build/PresentationFramework.Linux/PresentationFramework.Linux.csproj -m:1")
+    print("[接线] 已注入 2 行到 src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/PresentationFramework.Linux.csproj")
+    print("\n下一步：dotnet build src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/PresentationFramework.Linux.csproj -m:1")
     return 0
 
 

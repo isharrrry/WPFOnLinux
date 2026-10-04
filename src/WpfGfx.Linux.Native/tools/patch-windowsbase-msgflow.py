@@ -64,7 +64,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
 
 UP_REL = "src/Microsoft.DotNet.Wpf/src/WindowsBase/System/Windows/Threading/Dispatcher.cs"
-WB_DIR = os.path.join(ROOT, "build", "WindowsBase.Linux")
+WB_DIR = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "WindowsBase")
 CSPROJ = os.path.join(WB_DIR, "WindowsBase.Linux.csproj")
 GEN = os.path.join(WB_DIR, "Dispatcher.Linux.cs")
 
@@ -509,7 +509,7 @@ def generate(check_only):
         block = (MARKER_BEGIN + "\n"
                  "  <ItemGroup>\n"
                  f'    <Compile Remove="$(UpstreamWpfRoot){UP_REL}" />\n'
-                 '    <Compile Include="$(WpfLinuxRoot)build/WindowsBase.Linux/Dispatcher.Linux.cs" />\n'
+                 '    <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/Dispatcher.Linux.cs" />\n'
                  "  </ItemGroup>\n"
                  + MARKER_END + "\n")
         csproj = csproj.replace(anchor, block + anchor, 1)
@@ -518,7 +518,7 @@ def generate(check_only):
         print(f"[接线] 已注入 2 行到 {os.path.relpath(CSPROJ, ROOT)}（Remove 落在上游 Include 之后）")
 
     # ---- 假绿防线：生成物在、接线丢了 ⇒ 上游那份会被编译、探针**静默消失** ----
-    print("[注意] `build/port-lib.py WindowsBase` 会**整份重写** csproj ⇒ 本块会被抹掉；"
+    print("[注意] `src/Linux/build/port-lib.py WindowsBase` 会**整份重写** csproj ⇒ 本块会被抹掉；"
           "重写后必须重跑本脚本（不带 --check）。接线丢失**不会报编译错**，只会一行都不打 ⇒ 别把空输出读成「没消息」。")
 
     if check_only:
@@ -527,9 +527,9 @@ def generate(check_only):
         return 0 if up_to_date else 1
 
     print("\n下一步（**不要在这里重建 WindowsBase 权威产物**；编到 /tmp 做闸门）：")
-    print("  dotnet msbuild build/WindowsBase.Linux/WindowsBase.Linux.csproj -m:1 --nologo \\")
+    print("  dotnet msbuild src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/WindowsBase.Linux.csproj -m:1 --nologo \\")
     print("      -getItem:Compile | grep -i 'Threading/Dispatcher'")
-    print("  # 期望只剩 build/WindowsBase.Linux/Dispatcher.Linux.cs（上游那条被 Remove 掉）")
+    print("  # 期望只剩 src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/Dispatcher.Linux.cs（上游那条被 Remove 掉）")
     return 0
 
 

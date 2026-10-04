@@ -8,7 +8,7 @@
 
 ======================================================================================
 【根因（实测，非推断）】
-  Linux 上没有 LineServices。实测走查（`build/MilBridge/gen/t1b-ls-live-*.txt`，装置 =
+  Linux 上没有 LineServices。实测走查（`src/Linux/build/MilBridge/gen/t1b-ls-live-*.txt`，装置 =
   ld.so 的 `LD_DEBUG=symbols` 符号查找日志）：
 
     WpfTextDemo : `LoCreateContext` 被查找 **27 次**，`libwpfwin32.so` 里该符号**不存在**
@@ -33,11 +33,11 @@
 
 【同时接线】`DefineConstants` 追加 `TEXTLINE_SHIM_DIRECT`：
   现在 PC 里编的是 shim 的**反射分支**（能跑，但每次构造走反射）；加上它才走**直构分支**
-  （`build/MilBridge/tests/DirectBranchCheck/` 已用 PC 的 IVT 名额把那一支单独编过，0 错 0 警）。
+  （`src/Linux/build/MilBridge/tests/DirectBranchCheck/` 已用 PC 的 IVT 名额把那一支单独编过，0 错 0 警）。
 
 【为什么是"生成物 + csproj 接线"而不是改上游】
   上游 `upstream/wpf/**` 只读（本工程铁律：上游零改动）。生成物落在
-  `build/PresentationCore.Linux/`，csproj 用 `Compile Remove` 去掉上游那条、`Compile Include` 换上生成物。
+  `src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/`，csproj 用 `Compile Remove` 去掉上游那条、`Compile Include` 换上生成物。
 
 【幂等】重复运行：内容一致则不重写；csproj 里见到 MARKER 就不再注入。
 【锚点纪律】锚点必须**逐字**匹配且**恰好出现一次**，否则**报错退出**（绝不静默产出未打补丁的副本）。
@@ -48,7 +48,7 @@ import os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
-PC_DIR = os.path.join(ROOT, "build", "PresentationCore.Linux")
+PC_DIR = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "PresentationCore")
 CSPROJ = os.path.join(PC_DIR, "PresentationCore.Linux.csproj")
 GENERATED = os.path.join(PC_DIR, "TextFormatterImp.Linux.cs")
 UPSTREAM = os.path.join(ROOT, "upstream", "wpf", "src", "Microsoft.DotNet.Wpf", "src",
@@ -56,7 +56,7 @@ UPSTREAM = os.path.join(ROOT, "upstream", "wpf", "src", "Microsoft.DotNet.Wpf", 
 UPSTREAM_REL = "src/Microsoft.DotNet.Wpf/src/PresentationCore/MS/internal/TextFormatting/TextFormatterImp.cs"
 
 MARKER_BEGIN = ("  <!-- ==== WPF-on-Linux T1b/D3：FullTextLine 回退接到托管路径"
-                "（由 tools/patch-presentationcore-textline-fallback.py 注入）==== -->")
+                "（由 src/Linux/tools/patch-presentationcore-textline-fallback.py 注入）==== -->")
 MARKER_END = "  <!-- ==== WPF-on-Linux T1b/D3 结束 ==== -->"
 
 HEADER = """// ⚠️ 本文件由 src/WpfGfx.Linux.Native/tools/patch-presentationcore-textline-fallback.py **生成**，不要手改。
@@ -272,8 +272,8 @@ REPLACEMENT_3 = r"""    /// <summary>
         /// 由 `esc.szHidden` 赋值 `:86`）—— 那个哨兵**由 LS 自己消费、不整形** ⇒ 我方**不能照抄那个码位**
         /// （我们会把它交给 HarfBuzz 整形）。
         /// 取 `U+200B ZWSP`：**零宽**是它的定义性质；HarfBuzz 对 default-ignorable 一律给 0 advance。
-        /// 仓内实测佐证：`tests/parity/windows/layout-b34` 的 `A1_nbsp_zwsp_*` 族（文本含 **2 个** U+200B）
-        /// 在 `tline` 臂与**真机**逐行一致（`build/MilBridge/arm-logs/tline.log`，该族唯一不一致的是一例
+        /// 仓内实测佐证：`src/Linux/tests/parity/windows/layout-b34` 的 `A1_nbsp_zwsp_*` 族（文本含 **2 个** U+200B）
+        /// 在 `tline` 臂与**真机**逐行一致（`src/Linux/build/MilBridge/arm-logs/tline.log`，该族唯一不一致的是一例
         /// `Collapse hasCollapsed` 期望，**宽度契约全过**）⇒ ZWSP 在我方管线里**贡献 0 宽度**。
         /// ⚠️ **如实登记的偏差**：UAX#14 里 ZWSP = **可断**（ZW 类）而真机的 Ghost run **不产生断点**
         /// ⇒ 本修法会在"原本会 abort 的段落"上**多出断点**（这些段落修前必然 abort ⇒ 不会让任何**现有**
@@ -344,12 +344,12 @@ REPLACEMENT_3 = r"""    /// <summary>
             eolRun = null;
             // ── T1c/#13：只**记位置**，不改平铺/len 口径 ──────────────────────────
             //   ⭐ **`D-T2-c`（WAVE32 §1 W32A 本波修）**：**零宽跨度**的终点 `modifierScopeEnd` 现在真的被收集。
-            //   两个**互不相同**的量（分工见 `build/MilBridge/T1d-tab-and-modifier.md:1058` 逐字）：
+            //   两个**互不相同**的量（分工见 `src/Linux/build/MilBridge/T1d-tab-and-modifier.md:1058` 逐字）：
             //     · `modifierScopeEnd` = **覆盖终点**（半开；-1 ⇒ 到段末）⇒ **只喂「零宽跨度」**；
             //     · `modifierCloseIndex` = 客户端配对 `TextEndOfSegment` 的下标（-1 ⇒ 从不）⇒ **只喂 `lbNull`**。
             //   【来源 ①】**`TextModifier` run 自己的字符范围**：客户端在 `cp` 处返回的 `TextModifier`
             //     覆盖 `[cp, cp + run.Length)`。真机**同形**：`OracleModifier.Length` = `ModifierEnd - ModifierStart`
-            //     = 39 ⇒ 覆盖 `[6,45)`（`tests/parity/windows/layout-b34/src/LayoutOracle/TextModel.cs:55-68`
+            //     = 39 ⇒ 覆盖 `[6,45)`（`src/Linux/tests/parity/windows/layout-b34/src/LayoutOracle/TextModel.cs:55-68`
             //     + `Cases.cs:288-305`）。而真机真值把这件事**逐字印了出来**：`M_modifier_w200.lines[0].runs`
             //     = `[[0,6,0,45.9667],[45,17,45.9667,110.95]]` ⇒ 该 run 覆盖的 39 个字符**整体 Ghost（零宽）**、
             //     可见的只有 `[0,6)+[45,63)`（`w=156.9167`）⇒ 重基到收集串：
@@ -621,7 +621,7 @@ REPLACEMENT_3 = r"""    /// <summary>
                 //   修前形态：max 传了 `modifierOpenIndex/modifierCloseIndex`，min **一个都不传**
                 //   ⇒ `modifierOpenIndex >= 0` 时 max 走"`[open, 段末)` 零宽"、min 走"完全无作用域"
                 //   ⇒ 读出 **`min > max`**，而真机契约（`TextFormatterImp.cs:257-258`）排除了它。
-                //   实测（W17D 车道，`build/MilBridge/tests/MinMaxProbe/`，权威 `pc 1280323c9173bcde`）：
+                //   实测（W17D 车道，`src/Linux/build/MilBridge/tests/MinMaxProbe/`，权威 `pc 1280323c9173bcde`）：
                 //     修前 `MINMAX CASE mod0 RESULT min=22.652344 max=0.000000 rel=gt`（阴性对照 `rel=lt`）。
                 //   ⚠️ 本件**只**补这一处的参数对等（`#25` 前的形态）；max 那条 `modifierScopeEnd = -1`
                 //     （"到段末"）曾是**已知错**的跨度（shim `:3854-3858` 自述）—— 那是另一个登记
@@ -839,7 +839,7 @@ REQUIRED_IN_OUTPUT = [
 ]
 
 CS_DEFINE_BLOCK = """  <!-- WPF-on-Linux T1b/D3：让编进 PC 的 shim 走**直构分支**（internal 直接构造），
-       而不是反射分支。已由 build/MilBridge/tests/DirectBranchCheck 单独编过（0 错 0 警）。 -->
+       而不是反射分支。已由 src/Linux/build/MilBridge/tests/DirectBranchCheck 单独编过（0 错 0 警）。 -->
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);TEXTLINE_SHIM_DIRECT</DefineConstants>
   </PropertyGroup>
@@ -1251,7 +1251,7 @@ def generate(check_only):
         csproj = f.read()
 
     if MARKER_BEGIN in csproj:
-        wired = (f'<Compile Include="$(WpfLinuxRoot)build/PresentationCore.Linux/' + os.path.basename(GENERATED) + '" />') in csproj
+        wired = (f'<Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/' + os.path.basename(GENERATED) + '" />') in csproj
         has_define = "<DefineConstants>$(DefineConstants);TEXTLINE_SHIM_DIRECT</DefineConstants>" in csproj
         print(f"[接线] csproj 已就位（幂等，不改）；生成物 Include={wired}；TEXTLINE_SHIM_DIRECT={has_define}")
         ok = (not check_only or (up_to_date and wired and has_define))
@@ -1273,7 +1273,7 @@ def generate(check_only):
     block = (MARKER_BEGIN + "\n"
              "  <ItemGroup>\n"
              f'    <Compile Remove="$(UpstreamWpfRoot){UPSTREAM_REL}" />\n'
-             f'    <Compile Include="$(WpfLinuxRoot)build/PresentationCore.Linux/{os.path.basename(GENERATED)}" />\n'
+             f'    <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/{os.path.basename(GENERATED)}" />\n'
              "  </ItemGroup>\n"
              + CS_DEFINE_BLOCK
              + MARKER_END + "\n")
@@ -1284,7 +1284,7 @@ def generate(check_only):
           f"Remove 上游 TextFormatterImp.cs + Include {os.path.basename(GENERATED)} + "
           "DefineConstants 加 TEXTLINE_SHIM_DIRECT")
     print("\n下一步（**不要在这里重建 PC**，留给集成波）：")
-    print("  dotnet msbuild build/PresentationCore.Linux/PresentationCore.Linux.csproj -m:1 --nologo \\")
+    print("  dotnet msbuild src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/PresentationCore.Linux.csproj -m:1 --nologo \\")
     print("      -getItem:Compile -p:Configuration=Debug | grep -i TextFormatterImp")
     print("  # 期望只剩 TextFormatterImp.Linux.cs（上游那条被 Remove 掉）")
     return 0

@@ -43,7 +43,7 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
-PC_DIR = os.path.join(ROOT, "build", "PresentationCore.Linux")
+PC_DIR = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "PresentationCore")
 CSPROJ = os.path.join(PC_DIR, "PresentationCore.Linux.csproj")
 
 UP_REL_HS = ("src/Microsoft.DotNet.Wpf/src/PresentationCore/System/Windows/InterOp/HwndSource.cs")
@@ -55,7 +55,7 @@ GEN_HS = os.path.join(PC_DIR, "HwndSource.Linux.cs")
 GEN_HK = os.path.join(PC_DIR, "HwndKeyboardInputProvider.Linux.cs")
 
 MARKER_BEGIN = ("  <!-- ==== WPF-on-Linux T1c：输入链只读插桩（WM_CHAR→TextInput）"
-                "（由 tools/patch-presentationcore-inputtrace.py 注入）==== -->")
+                "（由 src/Linux/tools/patch-presentationcore-inputtrace.py 注入）==== -->")
 MARKER_END = "  <!-- ==== WPF-on-Linux T1c 输入插桩 结束 ==== -->"
 
 # =====================================================================================
@@ -744,8 +744,8 @@ def generate(check_only):
                  "  <ItemGroup>\n"
                  f'    <Compile Remove="$(UpstreamWpfRoot){UP_REL_HS}" />\n'
                  f'    <Compile Remove="$(UpstreamWpfRoot){UP_REL_HK}" />\n'
-                 '    <Compile Include="$(WpfLinuxRoot)build/PresentationCore.Linux/HwndSource.Linux.cs" />\n'
-                 '    <Compile Include="$(WpfLinuxRoot)build/PresentationCore.Linux/HwndKeyboardInputProvider.Linux.cs" />\n'
+                 '    <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/HwndSource.Linux.cs" />\n'
+                 '    <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/HwndKeyboardInputProvider.Linux.cs" />\n'
                  "  </ItemGroup>\n"
                  + MARKER_END + "\n")
         csproj = csproj.replace(anchor, block + anchor, 1)
@@ -759,7 +759,7 @@ def generate(check_only):
         return 0 if up_to_date else 1
 
     print("\n下一步（**不要在这里重建 PC**；编到 /tmp 做闸门）：")
-    print("  dotnet msbuild build/PresentationCore.Linux/PresentationCore.Linux.csproj -m:1 --nologo \\")
+    print("  dotnet msbuild src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/PresentationCore.Linux.csproj -m:1 --nologo \\")
     print("      -getItem:Compile -p:Configuration=Debug | grep -iE 'HwndSource|HwndKeyboardInputProvider'")
     print("  # 期望只剩两个 .Linux.cs（上游那两条被 Remove 掉）")
     return 0

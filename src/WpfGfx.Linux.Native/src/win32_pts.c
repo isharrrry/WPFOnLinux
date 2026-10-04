@@ -2,7 +2,7 @@
 // ============================================================================
 //
 // 【这一件要解决什么】`D-G70`：切「富文本」/「流文档」页 ⇒ 整进程 `rc=134`。
-//   W81A 的 `A0` 实测把第一跳钉死（`build/MilBridge/W81A-report.md` §2.2）：
+//   W81A 的 `A0` 实测把第一跳钉死（`src/Linux/build/MilBridge/W81A-report.md` §2.2）：
 //     ld.so 自己写的日志里 `CreateInstalledObjectsInfo` 冲 shim 找了 **9 次、9 个库全落空**，
 //     紧接着托管侧抛 `EntryPointNotFoundException: … in shared library 'PresentationNative_cor3.dll'`。
 //   形态上这是**绑定期**失败：P/Invoke 边界就抛了，**我们的台账挂不上去**，
@@ -28,7 +28,7 @@
 //      ⇒ 自检对这两条断言的是「**成功（0）＋ 真对象 ＋ 摧毁后无泄漏 ＋ 重复/未知名释放必被拒**」，
 //      对其余 **7** 条 stub 仍断言「返回 `-10000` 且出参清空」（`entries=7`）。
 //   谁把 stub 改成返回 0 ⇒ 它立刻变 0）；② `W78A-report.md` §3.2 的 `N2` 反极性
-//   （真去改成 0 ⇒ 产品判据必须变红；读数见 `build/MilBridge/W86A-report.md` §5）。
+//   （真去改成 0 ⇒ 产品判据必须变红；读数见 `src/Linux/build/MilBridge/W86A-report.md` §5）。
 //
 // 【台账形状】与仓内既有的具名台账同一风格（`seq=` 序号 + `entry=` 名字 + 数值字段）：
 //     PTS_GAP entry=CreateInstalledObjectsInfo seq=1 err=-10000 calls=1
@@ -402,7 +402,7 @@ static int wpf_pts_index(const char *entry);
 
 // ── 格 7（`t123`／P1-W46 · W8 第五步）：`FsCreatePageBottomless` 真实现（**Fs 族第一跳**）──────
 //   上游声明（`Pts.cs:3127-3132`，**裸名**；模块名经 `Pts.cs:25` 别名 → `RefAssemblyAttrs.cs:69`
-//   → `PresentationNative_cor3.dll` → `build/shims/Win32ShimResolver.cs:60/:92` → **`libwpfwin32.so`**
+//   → `PresentationNative_cor3.dll` → `src/Microsoft.DotNet.Wpf.Linux/src/shims/Win32ShimResolver.cs:60/:92` → **`libwpfwin32.so`**
 //   ⇒ 与 PTS/LS 那几步**同一个域**）：
 //     int FsCreatePageBottomless(IntPtr pfscontext, IntPtr fsnmsect, out FSFMTRBL pfsfmtrbl, out IntPtr ppfspage);
 //   ⚠️ `FSFMTRBL` 是 **`int` 枚举**（4 字节出参）⇒ native 侧是 `int *`；`ppfspage` 是 `void **`。
@@ -441,7 +441,7 @@ typedef struct {
        **身份即可直接指针比较**（不是全局常量、不是伪值、无需偏移推算）。 */
     int          c_paras;               /* 这条 track 的段数（按**对象**给，非全局常量） */
     /* ── `T-A15`：`FsQueryPageDetails` 的 `FSPAGEDETAILS.fskupd` 语义（逐字照
-       `build/MilBridge/P1-tail2-aoore-recon.md` §4.1：**首次 `fskupdNew`／稳态 `fskupdNoChange`**，
+       `src/Linux/build/MilBridge/P1-tail2-aoore-recon.md` §4.1：**首次 `fskupdNew`／稳态 `fskupdNoChange`**，
        **永不再写** `fskupdInherited`）────────────────────────────────────────────
        上游契约（`Pts.cs:1693-1696`）：`fskupd` 只可能是 `fskupdNew`／`fskupdChangeInside`／
        `fskupdNoChange`；`PtsPage.cs:999` 用 `== fskupdNoChange` 提前返回、`:1029` 用 `== fskupdNew`
@@ -4372,7 +4372,7 @@ int GetTableObjHandlerInfo(const void *pfstableobjinit, void *pTableObjectInfo)
 //   ⇒ 清理路径 `TextFormatterContext.Destroy()`（`upstream/.../TextFormatterContext.cs:243`，由
 //   `TextFormatterImp.CleanupInternal()` 逐上下文调用）会去调 `LoDestroyContext`；该入口修前**未导出**
 //   （托管侧声明 18 个 `Lo*`，shim 只导出 3 个）⇒ `EntryPointNotFoundException` ⇒ 本端口注释点名的
-//   `abort(134)`（`build/PresentationCore.Linux/TextFormatterImp.Linux.cs:30/160/745`）。
+//   `abort(134)`（`src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/TextFormatterImp.Linux.cs:30/160/745`）。
 //   ⇒ **格 2 一次给两条**：create 成功 ⇒ destroy 必须存在且真能收（否则把"优雅降级"换成"清理期崩"）。
 // 【安全边界（真销毁的纪律）】只认**本模块自己分配并登记**的句柄：未知／伪造／重复句柄**一律拒绝返回失败**，
 //   **绝不 deref 任意指针** —— 先按**指针身份**在登记表里查，查不到就直接失败（不读它的任何字段）。
@@ -4885,7 +4885,7 @@ int WpfLinuxWin32_PtsPenaltyInternalGets(void) { return g_pts_inth_sets; }
         （承 `t97`/`t103` 的对象身份认领范式）；未知／NULL／重复一律拒。
 
    【为什么只有这 4 条（诚实准入铁律）】本侧**只**是本模块**自持对象**的作者 —— `LineServices` 的**排版引擎**
-   本侧**不实现**（取证：`build/MilBridge/P1-native-para-model-report.md` 立 `PRECOND-NO-TEXT-SOURCE`（本侧无字符源）＋
+   本侧**不实现**（取证：`src/Linux/build/MilBridge/P1-native-para-model-report.md` 立 `PRECOND-NO-TEXT-SOURCE`（本侧无字符源）＋
    `PRECOND-LS-SESSION-DRIVER`（本侧须成"被托管调用、再回调托管"的重入方）；`P1-tail2-hostline-recon.md` §3 判定
    native LS「**不必要** ∧ 代价极高」）。故只收**无几何出参**、且**不依赖行/字符内容**的入口：
      · **本块 4 条**全部是「上下文/会话/罚分模块」的**生命周期与状态搬运**（无字盒、无度量、无 bbox）；
@@ -4895,7 +4895,7 @@ int WpfLinuxWin32_PtsPenaltyInternalGets(void) { return g_pts_inth_sets; }
        `LoAcquireBreakRecord`／`LoDisposeLine`／`LoDisposeBreakRecord`／`LoCloneBreakRecord`／`LoRelievePenaltyResource`
        ／`LocbkGetObjectHandlerInfo`（native 对象处理器信息）—— 这 **11 条保持缺口**（如实划界）；其根对象（行／断行记录）
        因**无诚实创造者**故其生命周期对端亦无源。
-     · `Nl*` 6 条在册语义 ＝ **有意降级**（`build/MilBridge/tools/nl-intent-check.sh` 段①：6 名**一个都不许导出**）
+     · `Nl*` 6 条在册语义 ＝ **有意降级**（`src/Linux/build/MilBridge/tools/nl-intent-check.sh` 段①：6 名**一个都不许导出**）
        ⇒ 本趟**不动**（如实划界，**不**造 `IntPtr` 假句柄＝`docs/ROUTES.md:402` 的 `D-G76` 口径）。
 
    【两极化（该红必红）】每条都**先按对象身份认领**再动作；`NULL`／未知／外来值／已失效值 ⇒ 返 `-10000`
@@ -5535,8 +5535,8 @@ int WpfLinuxWin32_PtsLscbfSelftestMask(void) { return WpfLinuxWin32_PtsLscbfSelf
 /* ══════════════════════════════════════════════════════════════════════════════════════════════
    ⏪ `T-A69`（`TASK-0307` 增量 · **内容源入站（字符序列）** ＝ `W` 合取第 ② 条 `PRECOND-NO-TEXT-SOURCE`）
    ──────────────────────────────────────────────────────────────────────────────────────────────
-   【在册前置 · 件:行】`build/MilBridge/P1-layout-content-criteria.md:112`：「**`PRECOND-NO-TEXT-SOURCE`**：
-   本侧无字符/`dcp` 内容源。」`build/MilBridge/P1-tail2-dingrecon.md` §3.2 把它列为 `W`（"内容层那一波"
+   【在册前置 · 件:行】`src/Linux/build/MilBridge/P1-layout-content-criteria.md:112`：「**`PRECOND-NO-TEXT-SOURCE`**：
+   本侧无字符/`dcp` 内容源。」`src/Linux/build/MilBridge/P1-tail2-dingrecon.md` §3.2 把它列为 `W`（"内容层那一波"
    准入合取）的**第二条**。
    【本块做什么】把**文本段落的字符序列**做成 native 侧的**入站通道**：托管在**一次调用窗内**交出该段的
    字符序列（只读指针 ＋ 字符数 ＋ 起始偏移），本侧在**该窗内逐字节值拷贝**进本模块自持的表（照 `t141`
@@ -5778,12 +5778,12 @@ int WpfLinuxWin32_PtsTextSrcSelftestMask(void) { return WpfLinuxWin32_PtsTextSrc
 /* ══════════════════════════════════════════════════════════════════════════════════════════════
    ⏪ `T-A70`（`TASK-0307` 增量 · **`cp↔dcp` 偏移由宿主给定** ＝ `W` 合取第 ⑤ 条 · 契约 `C4`）
    ──────────────────────────────────────────────────────────────────────────────────────────────
-   【在册契约 · 件:行】`build/MilBridge/P1-ls-provenance-contract.md:72`：
+   【在册契约 · 件:行】`src/Linux/build/MilBridge/P1-ls-provenance-contract.md:72`：
      「`C4`｜`cp ↔ dcp` 偏移｜**宿主**（只能宿主，`t190` 已判本侧无 `dcp`）｜❌ 不存在：全仓无填点
        ⇒ **须新立**；建议时机＝LS 会话创建时一次性绑定并留痕｜⚠️ **只能"复算校验"，不能自算**：
        宿主给出偏移后，本侧可校验**自洽性**（同段落内加减守恒、不同段落偏移不得混用、`dcp` 不越界），
        **不得**自行推导」；§6 `acceptance` ③：「**C4 由宿主给定**并留痕（本侧**不得**自算）」。
-     `build/MilBridge/P1-tail2-dingrecon.md` §3.2 把它列为 `W`（"内容层那一波"准入合取）的**第五条**。
+     `src/Linux/build/MilBridge/P1-tail2-dingrecon.md` §3.2 把它列为 `W`（"内容层那一波"准入合取）的**第五条**。
    【本块做什么】把**字符位置↔显示位置的偏移映射**做成 native 侧的**入站通道 ＋ 校验器（只校不算）**：
      托管（宿主）在一次调用窗内交出一组 **(cp, dcp) 样本对**（该段落的偏移映射），本侧在窗内**值拷贝**，
      并**当场校验**其结构自洽性 —— **单调**（`cp`／`dcp` 严格递增）／**端点**（首样本 `cp` 必须等于宿主
@@ -6029,8 +6029,8 @@ int WpfLinuxWin32_PtsCpDcpMapSelftestMask(void) { return WpfLinuxWin32_PtsCpDcpM
 /* ══════════════════════════════════════════════════════════════════════════════════════════════
    ⏪ `T-A71`（`TASK-0307` 增量 · **文本段落进链** ＝ `W` 合取第 ④ 条 `PRECOND-NO-TEXT-PARA-IN-CHAIN`）
    ──────────────────────────────────────────────────────────────────────────────────────────────
-   【在册前置 · 件:行】`build/MilBridge/P1-layout-content-criteria.md:114`：「**`PRECOND-NO-TEXT-PARA-IN-CHAIN`**：
-   现链上是容器段落，`TextParaClient` 是**另一族**。」`build/MilBridge/P1-tail2-dingrecon.md` §3.2 把它
+   【在册前置 · 件:行】`src/Linux/build/MilBridge/P1-layout-content-criteria.md:114`：「**`PRECOND-NO-TEXT-PARA-IN-CHAIN`**：
+   现链上是容器段落，`TextParaClient` 是**另一族**。」`src/Linux/build/MilBridge/P1-tail2-dingrecon.md` §3.2 把它
    列为 `W`（"内容层那一波"准入合取）的**第四条**；§3.2 第 1 条另要求「LS 会话进链：……文本段落 `nmp`
    在本侧同一窗内可观测」。
    【本块做什么】把**文本段落**（`TextParaClient` 所代表的段）在 native 的**链**里做成**可寻址**
@@ -6317,12 +6317,12 @@ int WpfLinuxWin32_PtsParaChainSelftestMask(void) { return WpfLinuxWin32_PtsParaC
    ＋ 契约 `C2` 的 `ploc` 一半）
    ──────────────────────────────────────────────────────────────────────────────────────────────
    【在册出处 · 件:行】
-     · `build/MilBridge/P1-ls-callback-face-recon.md:85`：「⇒ 新增具名前置：**`PRECOND-LS-SESSION-DRIVER`**
+     · `src/Linux/build/MilBridge/P1-ls-callback-face-recon.md:85`：「⇒ 新增具名前置：**`PRECOND-LS-SESSION-DRIVER`**
        —— 一旦实现 LS，本侧要成为**重入方**（托管→我们→托管），其寿命/重入口径**不在 `t166` 的射程内**。」
-     · `build/MilBridge/P1-ls-provenance-contract.md:70`（契约 `C2`）：「LS 会话标识（`plsrun` 起点 或
+     · `src/Linux/build/MilBridge/P1-ls-provenance-contract.md:70`（契约 `C2`）：「LS 会话标识（`plsrun` 起点 或
        `LoCreateContext` 的 `ploc`）｜**宿主 + LS**｜❌ **不存在于我们的链上**……**须新立**（本侧今天不在该
        调用链上）｜❌ **不能** ⇒ 只能**接收并保管**」。
-     · `build/MilBridge/P1-tail2-dingrecon.md:91`（§3.2 第 1 条）：「**LS 会话进链**：`LoCreateContext` 的
+     · `src/Linux/build/MilBridge/P1-tail2-dingrecon.md:91`（§3.2 第 1 条）：「**LS 会话进链**：`LoCreateContext` 的
        `ploc` 与文本段落 `nmp` 在本侧**同一窗内**可观测」。
    【本块做什么】把 **LS 会话**（`LoCreateContext` 真产出的 `ploc`）与**文本段落**（`nmp`／`_paraHandle`）
    在**同一窗内**做成一条**可对账的进链台账**：托管在**一次调用窗内**同时交出 `(ploc, para)`，native：
@@ -7258,7 +7258,7 @@ static int g_pts_selfcheck_f4_binding(void)
 //   调用本身会动台账 ⇒ 自检**保存/复原**计数，跑完台账与本进程"自检前"一致（可重复跑）。
 //   ⏪ **`t102`／P1-W28 · `F-5` 口径句（实现不动，只落纪律）**：反腿判据（P1/P3/P4/P7）里期望的
 //     `reason=decl-vs-live-mismatch`／`entry-name-not-backtraceable`／`cross-run-pairing`／
-//     `symptom-column-not-derived` **在 `build/MilBridge/tools/**` 里命中 0**（只有
+//     `symptom-column-not-derived` **在 `src/Linux/build/MilBridge/tools/**` 里命中 0**（只有
 //     `ledger-nonzero-frontier-unchanged` 在册，来自 `pts-gap-count-check.sh` 的 FAKE-PROGRESS 腿）
 //     ⇒ **那几条反腿只能人工判定**。**判据不得因为"看到某个 `reason=` token"而发绿，也不得因为
 //     "没有这个 token"而判红**；承重点在**点名**（缺 `reason=`／缺 `file:`／缺字段名 ⇒ 该条判不成立）。
@@ -8310,7 +8310,7 @@ int FsQueryTextDetails(void *pfscontext, void *pPara, void *pTextDetails)
      · 出参 `rgLineDesc`／`rgLineDescription`／`rgLineElement`（行盒：`dcpFirst`/`dcpLim`/`dur`/
        `urStart`/`urBBox`/`dvrAscent`/`dvrDescent`/`vrStart`/`pfslineclient`…）：**本侧无源** ——
        行盒要「**行断器** ＋ **字符源（`dcp`↔字符）** ＋ **度量（字宽/字体）**」三样，本侧**一个都没有**
-       （判据件 `build/MilBridge/P1-layout-content-criteria.md` §3.3／§4.1：LS 族 27 入口 22 缺、
+       （判据件 `src/Linux/build/MilBridge/P1-layout-content-criteria.md` §3.3／§4.1：LS 族 27 入口 22 缺、
        回调面 30 槽一个未接；`T-A25` 载体 §5-3 同结论）。**源在宿主侧**，取它要**新开一条与
        LineServices 同规模的链**（越级，另派）。
    🔴 **诚实形态（本增量）**：三入口**导出符号**（离开"会 `EntryPointNotFoundException` 的缺口"名单）
@@ -11795,8 +11795,8 @@ int WpfLinuxWin32_PtsGapSelfCheckDiag(void) { return g_pts_selfcheck_rc; }
 /* ══════════════════════════════════════════════════════════════════════════════════════════════
    ⏪ `T-A73`（`TASK-0307` 增量 · **行断器** ＝ `W` 合取第 ③ 条 `PRECOND-NO-LINE-BREAKER`）
    ──────────────────────────────────────────────────────────────────────────────────────────────
-   【在册前置 · 件:行】`build/MilBridge/P1-layout-content-criteria.md:113`：「**`PRECOND-NO-LINE-BREAKER`**：
-   本侧无行断器（LS 族 0 实现）。」`build/MilBridge/P1-tail2-dingrecon.md` §3.2 把它列为 `W`
+   【在册前置 · 件:行】`src/Linux/build/MilBridge/P1-layout-content-criteria.md:113`：「**`PRECOND-NO-LINE-BREAKER`**：
+   本侧无行断器（LS 族 0 实现）。」`src/Linux/build/MilBridge/P1-tail2-dingrecon.md` §3.2 把它列为 `W`
    （"内容层那一波"准入合取）的**第三条**（`:93`）。
    【本块做什么】把**行断点集合**做成 native 侧一条**可现取、可对拍、可两极化**的台账：
      · **断点 cp 序列**：对给定段，逐断点给出 `cp`（＝`cp_first + dcp`，`cp_first` 取自 `T-A69`

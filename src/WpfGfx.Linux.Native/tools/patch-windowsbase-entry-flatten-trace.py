@@ -28,7 +28,7 @@
    本条登记在报告里（也是"Linux 上哪些断言还活着"的一个实例）。
 
 **依赖**：本文件用 `WpfLinuxDpValueTrace`（tracer 类定义在**另一个**生成物
-`build/WindowsBase.Linux/DependencyObject.Linux.cs` 里，由 `patch-windowsbase-dpvalue-trace.py` 生成/接线）。
+`src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/DependencyObject.Linux.cs` 里，由 `patch-windowsbase-dpvalue-trace.py` 生成/接线）。
 两者同 namespace（`System.Windows`）同程序集 ⇒ 调用点**不必全限定**。
 `--check` 会显式核对"那一批的接线已在 csproj 里"，否则报错（避免"只有一个 applier 被应用"时的 CS0103）。
 
@@ -45,7 +45,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
 
-WB_DIR = os.path.join(ROOT, "build", "WindowsBase.Linux")
+WB_DIR = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "WindowsBase")
 CSPROJ = os.path.join(WB_DIR, "WindowsBase.Linux.csproj")
 UP_REL = "src/Microsoft.DotNet.Wpf/src/WindowsBase/System/Windows/EffectiveValueEntry.cs"
 GEN = os.path.join(WB_DIR, "EffectiveValueEntry.Linux.cs")
@@ -294,14 +294,14 @@ def generate(check_only):
     block = (MARKER_BEGIN + "\n"
              "  <ItemGroup>\n"
              f'    <Compile Remove="$(UpstreamWpfRoot){UP_REL}" />\n'
-             '    <Compile Include="$(WpfLinuxRoot)build/WindowsBase.Linux/EffectiveValueEntry.Linux.cs" />\n'
+             '    <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/EffectiveValueEntry.Linux.cs" />\n'
              "  </ItemGroup>\n"
              + MARKER_END + "\n")
     csproj = csproj.replace(anchor, block + anchor, 1)
     with open(CSPROJ, "w", encoding="utf-8") as f:
         f.write(csproj)
     print(f"[接线] 已注入 2 行到 {os.path.relpath(CSPROJ, ROOT)}")
-    print("[注意] `build/port-lib.py WindowsBase` 会整份重写 csproj ⇒ 本块与第 5 批那块都会被抹掉；"
+    print("[注意] `src/Linux/build/port-lib.py WindowsBase` 会整份重写 csproj ⇒ 本块与第 5 批那块都会被抹掉；"
           "重写后必须重跑两个应用器。")
     return 0
 

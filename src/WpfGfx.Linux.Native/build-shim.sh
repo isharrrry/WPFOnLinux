@@ -61,7 +61,7 @@ build() {
 
 abi_check() {
     mkdir -p bin
-    "$CC" "$CSTD" "$OPT" $WARN -Isrc -o bin/abi-layout tests/abi_layout.c $LDLIBS \
+    "$CC" "$CSTD" "$OPT" $WARN -Isrc -o bin/abi-layout src/Linux/tests/abi_layout.c $LDLIBS \
         || die "编译 ABI 自检"
     echo
     ./bin/abi-layout || die "ABI 布局自检不通过"

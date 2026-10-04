@@ -26,14 +26,14 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
-PC_DIR = os.path.join(ROOT, "build", "PresentationCore.Linux")
+PC_DIR = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "PresentationCore")
 CSPROJ = os.path.join(PC_DIR, "PresentationCore.Linux.csproj")
 
 UP_REL = "src/Microsoft.DotNet.Wpf/src/PresentationCore/System/Windows/InterOp/HwndTarget.cs"
 UPSTREAM = os.path.join(ROOT, "upstream", "wpf", UP_REL)
 GEN = os.path.join(PC_DIR, "HwndTarget.Linux.cs")
 
-MARKER_BEGIN = "  <!-- ==== WPF-on-Linux 波46 D-G54：HwndTarget 设根链只读插桩（本文件由 tools/patch-presentationcore-hwndtarget-trace.py 生成）==== -->"
+MARKER_BEGIN = "  <!-- ==== WPF-on-Linux 波46 D-G54：HwndTarget 设根链只读插桩（本文件由 src/Linux/tools/patch-presentationcore-hwndtarget-trace.py 生成）==== -->"
 MARKER_END = "  <!-- ==== /波46 D-G54 ==== -->"
 
 HEADER = """// ⚠️ 本文件由 src/WpfGfx.Linux.Native/tools/patch-presentationcore-hwndtarget-trace.py **生成**，不要手改。
@@ -191,7 +191,7 @@ def generate(check_only):
         block = (MARKER_BEGIN + "\n"
                  "  <ItemGroup>\n"
                  f'    <Compile Remove="$(UpstreamWpfRoot){UP_REL}" />\n'
-                 '    <Compile Include="$(WpfLinuxRoot)build/PresentationCore.Linux/HwndTarget.Linux.cs" />\n'
+                 '    <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/HwndTarget.Linux.cs" />\n'
                  "  </ItemGroup>\n"
                  + MARKER_END + "\n")
         csproj = csproj.replace(anchor, block + anchor, 1)

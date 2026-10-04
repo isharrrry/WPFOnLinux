@@ -980,7 +980,7 @@ BOOL WTSFreeMemory(void *p) { (void)p; return 1; }
 //   "写了一堆空串但声称成功"让上层拿着空主题名继续跑。
 //
 // 【映射注意（已解决）】`uxtheme.dll` 曾被登记为缺口："不在
-//   build/shims/Win32ShimResolver.cs 的 MappedLibraries 里"。**父级已修**：该文件的
+//   src/Microsoft.DotNet.Wpf.Linux/src/shims/Win32ShimResolver.cs 的 MappedLibraries 里"。**父级已修**：该文件的
 //   MappedLibraries 现在同时含 `"uxtheme.dll"` 与 `"wtsapi32.dll"`（第 87/88 行），
 //   所以这 6 个符号不再是"防御性导出"，而是真会被敲到的入口。本轮补上它们的 `W`
 //   变体（见文件末尾"双门牌补齐"一节），runner 里的 app-local 同名拷贝保留为双保险。
@@ -1013,7 +1013,7 @@ BOOL EndPanningFeedback(HWND hwnd, BOOL animate)
 { (void)hwnd; (void)animate; wpf_set_last_error(50); return 0; }
 
 // ══════════════════════════════════════════════════════════════════════════
-//  M7c Phase 2 批量补齐：`tools/check-shim-coverage.py` 静态扫出来的缺口
+//  M7c Phase 2 批量补齐：`src/Linux/tools/check-shim-coverage.py` 静态扫出来的缺口
 // ══════════════════════════════════════════════════════════════════════════
 // 【★ 一条被实测纠正的规则：Unix 上 .NET **不会**给 DllImport 名补 `A` 后缀】
 //   实测：`IntGetModuleFileName` 声明成
@@ -1311,7 +1311,7 @@ UINT GetDpiForWindowW(HWND h) { return GetDpiForWindow(h); }
 BOOL GetIconInfo(HICON ic, void *info) { return GetIconInfoImpl(ic, info); }
 
 // ── uxtheme ────────────────────────────────────────────────────────────────
-//   注：`uxtheme.dll` 现已由 build/shims/Win32ShimResolver.cs 的 MappedLibraries
+//   注：`uxtheme.dll` 现已由 src/Microsoft.DotNet.Wpf.Linux/src/shims/Win32ShimResolver.cs 的 MappedLibraries
 //   映射到本 shim（父级已加），所以这 6 个符号是**真的会被敲到**的，不是防御性代码。
 int IsThemeActiveW(void) { return IsThemeActive(); }
 int GetCurrentThemeNameW(void *themeFile, int cchThemeFile, void *colorBuff,

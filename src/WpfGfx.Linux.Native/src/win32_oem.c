@@ -9,7 +9,7 @@
 //   实测症状（不是"少一个功能"，而是"应用直接被掀掉"）：
 //     · `EntryPointNotFoundException: Unable to find an entry point named 'ExtractIconEx'`
 //     · `DllNotFoundException: gdiplus.dll`（派生 `TypeInitializationException`）
-//   ⇒ 本文件把**这些名字下、调用方真正会碰到的入口**补上，并让解析器（`build/shims/Win32ShimResolver.cs`）
+//   ⇒ 本文件把**这些名字下、调用方真正会碰到的入口**补上，并让解析器（`src/Microsoft.DotNet.Wpf.Linux/src/shims/Win32ShimResolver.cs`）
 //     把它们也映射到本 shim。
 //
 // 【口径（明说，不许沉默扩权）】

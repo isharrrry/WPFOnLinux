@@ -12,7 +12,7 @@
   ⇒ 之后窗口内的点击**全被路由给 ComboBox**（`freshhit=Border` 却收到 `EVT combo.down`）
   ⇒ `ListBox` 项点不中、`TextBox` 拿不到焦点（用户看到的就是"点了没反应"）。
 
-  车道 W87A 的**只读**诊断（`build/MilBridge/W87A-report.md` `f1fb2a8894486248`）取到了分界读数：
+  车道 W87A 的**只读**诊断（`src/Linux/build/MilBridge/W87A-report.md` `f1fb2a8894486248`）取到了分界读数：
     · **受控 A/B**：同一条腿型、**同一个释放消息**（`hwnd=0x200005 / wp=0x0 / lp=0x0` 都派发过）——
       下拉"点外面"关（按下落**主窗口**）⇒ `captured=null`；下拉"点选项"关（按下落**弹窗窗口**）⇒ `captured=ComboBox`。
     · **唯一自变量 = 按下落在哪个 X 窗口** ⇒ 失败点在**托管侧**：按下落在弹窗 ⇒ 活跃输入源翻转到弹窗，
@@ -62,7 +62,7 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
-PC_DIR = os.path.join(ROOT, "build", "PresentationCore.Linux")
+PC_DIR = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "PresentationCore")
 CSPROJ = os.path.join(PC_DIR, "PresentationCore.Linux.csproj")
 
 XAML_IMPORT_ANCHOR = '  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />'
@@ -138,13 +138,13 @@ HEADER = """// ⚠️ 本文件由 src/WpfGfx.Linux.Native/tools/patch-presentat
 //        逐字复制 + 1 处 `D-G85` 注入（{what}）。
 // 每次运行该脚本都会从上游重读重生成；锚点找不到 / 计数不符时**报错退出**，不会静默产出未打补丁的副本。
 //
-// 为什么打（`D-G85`，见 `build/MilBridge/W87A-report.md`）：
+// 为什么打（`D-G85`，见 `src/Linux/build/MilBridge/W87A-report.md`）：
 //   点选 ComboBox 下拉项之后 `Mouse.Captured` 恒为 ComboBox ⇒ 之后窗口内的点击被误路由。
 //   分界读数指向**托管侧**：清捕获被上游托付给 `WM_CAPTURECHANGED` 回声，而回声要过
 //   `HwndMouseInputProvider.cs:730`（`_active`）与 `MouseDevice.cs:1444-1445`（活跃源门前）两道门。
 """
 
-# ⚠️ `TARGETS` **只声明缺省变体（M1）** —— 它是给 `build/MilBridge/tools/applier-audit.py` 读的
+# ⚠️ `TARGETS` **只声明缺省变体（M1）** —— 它是给 `src/Linux/build/MilBridge/tools/applier-audit.py` 读的
 #    "被登记了就必须生效"声明表（A 级：每条 `repl` 在生成物里必须**恰好出现 1 次**）。
 #    M2（`--variant=m2` 的可证伪实验）**故意不声明**：缺省状态下它**必须不存在**
 #    （生成物被删、接线被拆），若把它写进来，审计会对一个**合法状态**报 miss（实测：
@@ -168,7 +168,7 @@ VARIANT_ATTR = {
         anchor=ANCHOR_M1, repl=REPLACEMENT_M1,
         required=REQUIRED_M1,
         marker_begin=("  <!-- ==== WPF-on-Linux D-G85-M1：MouseDevice 主动释放捕获时同步清托管状态"
-                      "（由 tools/patch-presentationcore-mousecapture-release.py 注入）==== -->"),
+                      "（由 src/Linux/tools/patch-presentationcore-mousecapture-release.py 注入）==== -->"),
         marker_end="  <!-- ==== WPF-on-Linux D-G85-M1 结束 ==== -->",
         banner_what="在 `Capture(null)` 的释放分支补一次 `ChangeMouseCapture(null, null, CaptureMode.None, timeStamp)`",
     ),
@@ -179,7 +179,7 @@ VARIANT_ATTR = {
         anchor=ANCHOR_M2, repl=REPLACEMENT_M2,
         required=REQUIRED_M2,
         marker_begin=("  <!-- ==== WPF-on-Linux D-G85-M2 实验：放宽门(i) 的 `&& _active`"
-                      "（由 tools/patch-presentationcore-mousecapture-release.py 注入）==== -->"),
+                      "（由 src/Linux/tools/patch-presentationcore-mousecapture-release.py 注入）==== -->"),
         marker_end="  <!-- ==== WPF-on-Linux D-G85-M2 结束 ==== -->",
         banner_what="去掉门(i) 的 `&& _active`（**M2 可证伪实验**，不是修法）",
     ),
@@ -326,7 +326,7 @@ def wire_csproj(check_only, specs):
         block += (s["marker_begin"] + "\n"
                   "  <ItemGroup>\n"
                   '    <Compile Remove="$(UpstreamWpfRoot)%s" />\n' % s["up_rel"]
-                  + '    <Compile Include="$(WpfLinuxRoot)build/PresentationCore.Linux/%s" />\n'
+                  + '    <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/%s" />\n'
                   % os.path.basename(s["gen"])
                   + "  </ItemGroup>\n"
                   + s["marker_end"] + "\n")
@@ -375,7 +375,7 @@ def main():
 
     if rc == 0:
         print("\n下一步（**不要在这里重建权威 PC 之外的东西**）：")
-        print("  dotnet msbuild build/PresentationCore.Linux/PresentationCore.Linux.csproj -m:1 --nologo \\")
+        print("  dotnet msbuild src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/PresentationCore.Linux.csproj -m:1 --nologo \\")
         print("      -getItem:Compile -p:Configuration=Release | grep -i -e MouseDevice -e MouseInputProvider")
         print("  # 期望：被选中的变体只剩生成物那条（上游那条被 Remove 掉）")
     return rc

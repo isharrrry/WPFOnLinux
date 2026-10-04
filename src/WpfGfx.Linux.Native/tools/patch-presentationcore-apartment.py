@@ -38,10 +38,10 @@
   `OperatingSystem.IsWindows()` 在 Linux 上恒 false ⇒ 完全不影响 Windows 语义。
 
 【为什么用"生成"而不是"改上游"】
-  与 `build/WindowsBase.Linux/reapply-patches.py` 的补丁 G 同一套机制：
+  与 `src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/reapply-patches.py` 的补丁 G 同一套机制：
     · 从 `upstream/` 逐字读入 `InputManager.cs`；
     · 锚点找不到 → **报错退出**（不静默产出一个没打补丁的副本）；
-    · 写出 `build/PresentationCore.Linux/InputManager.Linux.cs`（与本目录的
+    · 写出 `src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/InputManager.Linux.cs`（与本目录的
       `SR.g.cs` 同为生成物），csproj 侧 Remove 上游 + Include 生成物。
   于是上游仍是唯一事实源，`port-lib.py` 重生成后重跑本脚本即可恢复。
 
@@ -78,19 +78,19 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
-PC_DIR = os.path.join(ROOT, "build", "PresentationCore.Linux")
+PC_DIR = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "PresentationCore")
 CSPROJ = os.path.join(PC_DIR, "PresentationCore.Linux.csproj")
 GENERATED = os.path.join(PC_DIR, "InputManager.Linux.cs")
 UPSTREAM = os.path.join(ROOT, "upstream", "wpf", "src", "Microsoft.DotNet.Wpf",
                         "src", "PresentationCore", "System", "Windows", "Input", "InputManager.cs")
 
-MARKER_BEGIN = "  <!-- ==== WPF-on-Linux M7b 补丁 H：InputManager 的 STA 检查（由 tools/patch-presentationcore-apartment.py 注入）==== -->"
+MARKER_BEGIN = "  <!-- ==== WPF-on-Linux M7b 补丁 H：InputManager 的 STA 检查（由 src/Linux/tools/patch-presentationcore-apartment.py 注入）==== -->"
 MARKER_END = "  <!-- ==== WPF-on-Linux M7b 补丁 H 结束 ==== -->"
 
 ANCHOR = "            if(Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)"
-REPLACEMENT = """            // ── WPF-on-Linux M7b 补丁 H（由 tools/patch-presentationcore-apartment.py 插入）──
+REPLACEMENT = """            // ── WPF-on-Linux M7b 补丁 H（由 src/Linux/tools/patch-presentationcore-apartment.py 插入）──
             // Linux 上线程永远报告 ApartmentState.Unknown，且 SetApartmentState(STA) 不被接受
-            // （实测见 tests/.../ManagedLayer.Tests/LinuxEnvironmentDiagnosticsTests.cs 的
+            // （实测见 src/Linux/tests/.../ManagedLayer.Tests/LinuxEnvironmentDiagnosticsTests.cs 的
             //   ApartmentState_NeverReportsSTA_OnLinux）。这条检查在非 Windows 上没有对象：
             // 它注释里点名的 Cicero(TSF)/OLE/COM 三样在 Linux 上都不存在
             // （TSF 走"无 TSF"分支、OLE 已是 PlatformNotSupportedException 的诚实 stub）。
@@ -341,14 +341,14 @@ def generate(check_only):
     block = (MARKER_BEGIN + "\n"
              "  <ItemGroup>\n"
              '    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationCore/System/Windows/Input/InputManager.cs" />\n'
-             '    <Compile Include="$(WpfLinuxRoot)build/PresentationCore.Linux/InputManager.Linux.cs" />\n'
+             '    <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/InputManager.Linux.cs" />\n'
              "  </ItemGroup>\n"
              + MARKER_END + "\n")
     csproj = csproj.replace(anchor, block + anchor, 1)
     with open(CSPROJ, "w", encoding="utf-8") as f:
         f.write(csproj)
     print(f"[接线] 已注入 2 行到 {os.path.relpath(CSPROJ, ROOT)}")
-    print("\n下一步：dotnet build build/PresentationCore.Linux/PresentationCore.Linux.csproj -m:1")
+    print("\n下一步：dotnet build src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/PresentationCore.Linux.csproj -m:1")
     return 0
 
 

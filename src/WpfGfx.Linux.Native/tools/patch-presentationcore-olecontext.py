@@ -30,7 +30,7 @@
   | `OnDispatcherShutdown` | 直接返回 | 没有 `OleInitialize` 需要 `OleUninitialize` 配平 |
   | `OleRegisterDragDrop` | **返回 S_OK 的 no-op** | 没有 OLE drop target 可注册；`HwndSource.Initialize` 无条件调它 ⇒ **绝不能抛**，否则窗口建不出来 |
   | `OleRevokeDragDrop` | **返回 S_OK 的 no-op** | 同上（窗口关闭时调） |
-  | `OleDoDragDrop` | 抛 **`PlatformNotSupportedException`** | OLE 拖放本身不存在。用 PNSE 而不是 ThreadStateException：后者会误导成"调用方线程用错了"；PNSE 说的是"这台机器上没有 OLE" —— 与 M4 对 OLE 公开 API 的裁决（`build/shims/PresentationCore.OleApi.Stubs.cs`，消息含 U13）**同一口径** |
+  | `OleDoDragDrop` | 抛 **`PlatformNotSupportedException`** | OLE 拖放本身不存在。用 PNSE 而不是 ThreadStateException：后者会误导成"调用方线程用错了"；PNSE 说的是"这台机器上没有 OLE" —— 与 M4 对 OLE 公开 API 的裁决（`src/Microsoft.DotNet.Wpf.Linux/src/shims/PresentationCore.OleApi.Stubs.cs`，消息含 U13）**同一口径** |
 
   ⚠️ `OleDoDragDrop` 是**唯一**一个仍然抛异常的：它对应"用户真的发起了一次拖放"，
   那件事在 Linux 上确实做不到，必须响亮失败；而 register/revoke 是**基础设施调用**，
@@ -38,7 +38,7 @@
 
 【为什么用生成式补丁】
   与 G/H/I/J 同一套：从 upstream 逐字读入 → 只替换上面 5 个块 → 写到
-  `build/PresentationCore.Linux/OleServicesContext.Linux.cs`（与 SR.g.cs 同为生成物），
+  `src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/OleServicesContext.Linux.cs`（与 SR.g.cs 同为生成物），
   csproj 侧 Remove 上游 + Include 生成物。**锚点必须逐个唯一命中**，否则报错退出。
 
   重放顺序：port-lib.py → reapply-patches.py(F/D/G) → patch-presentationcore-apartment.py(H)
@@ -57,14 +57,14 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
-PC_DIR = os.path.join(ROOT, "build", "PresentationCore.Linux")
+PC_DIR = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "PresentationCore")
 CSPROJ = os.path.join(PC_DIR, "PresentationCore.Linux.csproj")
 GENERATED = os.path.join(PC_DIR, "OleServicesContext.Linux.cs")
 UPSTREAM = os.path.join(ROOT, "upstream", "wpf", "src", "Microsoft.DotNet.Wpf", "src",
                         "PresentationCore", "System", "Windows", "OleServicesContext.cs")
 
 MARKER_BEGIN = ("  <!-- ==== WPF-on-Linux M7c 补丁 K：OleServicesContext 的 STA 检查与 OLE 初始化"
-                "（由 tools/patch-presentationcore-olecontext.py 注入）==== -->")
+                "（由 src/Linux/tools/patch-presentationcore-olecontext.py 注入）==== -->")
 MARKER_END = "  <!-- ==== WPF-on-Linux M7c 补丁 K 结束 ==== -->"
 
 STA_BLOCK = """        if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
@@ -83,7 +83,7 @@ PATCHES = [
         // Linux 上线程永远不是 STA，而且 OLE 拖放**本身不存在**。
         // 抛 PlatformNotSupportedException（而不是 ThreadStateException）：后者会
         // 误导成"调用方线程用错了"，而真相是"这台机器上没有 OLE" ——
-        // 与 M4 对 OLE 公开 API 的裁决同一口径（见 build/shims/PresentationCore.OleApi.Stubs.cs）。
+        // 与 M4 对 OLE 公开 API 的裁决同一口径（见 src/Microsoft.DotNet.Wpf.Linux/src/shims/PresentationCore.OleApi.Stubs.cs）。
         if (!System.OperatingSystem.IsWindows())
         {
             throw new System.PlatformNotSupportedException(
@@ -215,14 +215,14 @@ def generate(check_only):
     block = (MARKER_BEGIN + "\n"
              "  <ItemGroup>\n"
              '    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationCore/System/Windows/OleServicesContext.cs" />\n'
-             '    <Compile Include="$(WpfLinuxRoot)build/PresentationCore.Linux/OleServicesContext.Linux.cs" />\n'
+             '    <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/OleServicesContext.Linux.cs" />\n'
              "  </ItemGroup>\n"
              + MARKER_END + "\n")
     csproj = csproj.replace(anchor, block + anchor, 1)
     with open(CSPROJ, "w", encoding="utf-8") as f:
         f.write(csproj)
-    print("[接线] 已注入 2 行到 build/PresentationCore.Linux/PresentationCore.Linux.csproj")
-    print("\n下一步：dotnet build build/PresentationCore.Linux/PresentationCore.Linux.csproj -m:1")
+    print("[接线] 已注入 2 行到 src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/PresentationCore.Linux.csproj")
+    print("\n下一步：dotnet build src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/PresentationCore.Linux.csproj -m:1")
     return 0
 
 

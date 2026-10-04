@@ -39,7 +39,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
 
-PF_DIR = os.path.join(ROOT, "build", "PresentationFramework.Linux")
+PF_DIR = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "PresentationFramework")
 CSPROJ = os.path.join(PF_DIR, "PresentationFramework.Linux.csproj")
 PREFIX = "src/Microsoft.DotNet.Wpf/src/PresentationFramework/"
 
@@ -524,7 +524,7 @@ def prove():
                 raw = f.read()
             if raw.startswith(head):
                 body = raw[len(head):]
-                where = f"落盘生成物 build/PresentationFramework.Linux/{gen_name}"
+                where = f"落盘生成物 src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/{gen_name}"
             else:
                 print(f"[注意] {gen_name} 文件头与当前脚本不一致（上一版产的）⇒ 退化为**内存**证明")
         if body is None:
@@ -569,9 +569,9 @@ def generate(check_only):
             if not check_only:
                 with open(gen, "w", encoding="utf-8") as f:
                     f.write(full)
-                print(f"[生成] build/PresentationFramework.Linux/{gen_name}：已从上游重生成 sha256={_sha(full)}")
+                print(f"[生成] src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/{gen_name}：已从上游重生成 sha256={_sha(full)}")
         else:
-            print(f"[生成] build/PresentationFramework.Linux/{gen_name}：内容已是最新（未重写）sha256={_sha(full)}")
+            print(f"[生成] src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/{gen_name}：内容已是最新（未重写）sha256={_sha(full)}")
 
     if not os.path.exists(CSPROJ):
         print(f"[失败] 找不到 {os.path.relpath(CSPROJ, ROOT)}")
@@ -596,14 +596,14 @@ def generate(check_only):
     lines = [MARKER_BEGIN, "  <ItemGroup>"]
     for rel, gen_name, _e in TARGETS:
         lines.append(f'    <Compile Remove="$(UpstreamWpfRoot){rel}" />')
-        lines.append(f'    <Compile Include="$(WpfLinuxRoot)build/PresentationFramework.Linux/{gen_name}" />')
+        lines.append(f'    <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/{gen_name}" />')
     lines.append("  </ItemGroup>")
     lines.append(MARKER_END)
     csproj = csproj.replace(anchor, "\n".join(lines) + "\n" + anchor, 1)
     with open(CSPROJ, "w", encoding="utf-8") as f:
         f.write(csproj)
     print(f"[接线] 已注入 {len(TARGETS) * 2} 行到 {os.path.relpath(CSPROJ, ROOT)}")
-    print("[注意] `build/port-lib.py PresentationFramework` 会整份重写 csproj ⇒ 必须重跑本脚本。")
+    print("[注意] `src/Linux/build/port-lib.py PresentationFramework` 会整份重写 csproj ⇒ 必须重跑本脚本。")
     return 0
 
 

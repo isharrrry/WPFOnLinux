@@ -1,0 +1,176 @@
+# wfreeze-root-sites.tsv —— 档 ① 的**派生式 roster**（`wave-freeze-consistency-check.py --emit-roster` 生成）
+#   谓词：`dirname` ∧（`${BASH_SOURCE[0]}` ∨ `abspath(__file__)`）；域：src/Linux/build/ src/Linux/tests/ src/ 下的 *.sh/*.py
+#   ⚠️ **锚是内容锚，不是行号**（本仓教训「内容锚、禁行号」）：`rel<TAB>var<TAB>linehash16<TAB>idx`，
+#      `linehash` = 该行 `strip()` 后 sha256 前 16 ⇒ **行号漂移不红**（同一行搬到别处仍绿），
+#      **该行内容被改** ⇒ key 变 ⇒ 红（必须重发本表）。
+#   state=root ⇒ **逐条真跑判值必须 == 仓根**；state=benign/err ⇒ 只钉**集合与状态**（不钉值）。
+#   ⚠️ 本表**由牙自己重算**：任何新增/删除/改状态 ⇒ 红，必须重发本表（"逼后来者显式声明"）。
+# WFROOT-SITES-TOTAL derived=168 files=136
+site	src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/FallbackCriteria/eval-df1-criteria.py	HERE	23b6448daffea694	0	benign
+site	src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/FallbackCriteria/run-df1-criteria.sh	HERE	130c8056b00c40f4	0	benign
+site	src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/applocal-expect.py	here	987ea7ce4231ee70	0	benign
+site	src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh		73af76fdc68d402a	0	err
+site	src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/frames-check.sh	HERE	8c3fee02743e5375	0	benign
+site	src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/frames-gen.py	HERE	23b6448daffea694	0	benign
+site	src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/frames-gen.py	REPO	38c6285386cc9904	0	root
+site	src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/sync-applocal-authority.sh	HERE	130c8056b00c40f4	0	benign
+site	src/Linux/build/MilBridge/run.sh		d676e88b0c62f0c1	0	err
+site	src/Linux/build/MilBridge/run.sh	MB	c8f5d429db361a1a	0	benign
+site	src/Linux/build/MilBridge/tests/PtsPagesProbe/run-pts-pages-legs.sh	REPO	13739d1f3c160839	0	root
+site	src/Linux/build/MilBridge/tests/PtsPagesProbe/session_inner.sh	SELF_DIR	beb3d156ae949bc4	0	benign
+site	src/Linux/build/MilBridge/tests/RGateClickProbe/run-r-gate-legs.sh	HERE	8c3fee02743e5375	0	benign
+site	src/Linux/build/MilBridge/tests/SilentHitProbe/run-silenthit-legs.sh	SELF_DIR	beb3d156ae949bc4	0	benign
+site	src/Linux/build/MilBridge/tests/W81AWindowProbe/run-w81a-legs.sh	HERE	8c3fee02743e5375	0	benign
+site	src/Linux/build/MilBridge/tests/W81AWindowProbe/w81a-a0-analyze.py	_ROOT77	bc463248867dda6a	0	root
+site	src/Linux/build/MilBridge/tools/analyze-layout-b34.py	ROOT	20096ba5a9631c79	0	root
+site	src/Linux/build/MilBridge/tools/applier-audit.py	HERE	23b6448daffea694	0	benign
+site	src/Linux/build/MilBridge/tools/arm-log-sha-check.sh	HERE	130c8056b00c40f4	0	benign
+site	src/Linux/build/MilBridge/tools/arm-log-sha-check.sh	ST_SELF	843ea9e0ca978816	0	benign
+site	src/Linux/build/MilBridge/tools/backup-completeness-gate.sh	BCG_DEFROOT	66cd42d6ffab9535	0	root
+site	src/Linux/build/MilBridge/tools/baseline-sha-check.sh	HERE	130c8056b00c40f4	0	benign
+site	src/Linux/build/MilBridge/tools/baseline-sha-check.sh	ST_SELF	843ea9e0ca978816	0	benign
+site	src/Linux/build/MilBridge/tools/build-hygiene-import-check.sh	HERE	130c8056b00c40f4	0	benign
+site	src/Linux/build/MilBridge/tools/build-hygiene-import-check.sh	ST_SELF	843ea9e0ca978816	0	benign
+site	src/Linux/build/MilBridge/tools/check-export-numbers.py	HERE	23b6448daffea694	0	benign
+site	src/Linux/build/MilBridge/tools/check-mil-guids.py	HERE	23b6448daffea694	0	benign
+site	src/Linux/build/MilBridge/tools/column-floor-check.sh	ST_SELF	843ea9e0ca978816	0	benign
+site	src/Linux/build/MilBridge/tools/defect-registry-check.sh	HERE	130c8056b00c40f4	0	benign
+site	src/Linux/build/MilBridge/tools/defect-registry-check.sh	ST_SELF	843ea9e0ca978816	0	benign
+site	src/Linux/build/MilBridge/tools/display-lease-gate.sh	SELF_DIR	beb3d156ae949bc4	0	benign
+site	src/Linux/build/MilBridge/tools/extract-layout-b34.py	ROOT	20096ba5a9631c79	0	root
+site	src/Linux/build/MilBridge/tools/fp-inputs-hygiene-check.sh	HERE	130c8056b00c40f4	0	benign
+site	src/Linux/build/MilBridge/tools/fp-inputs-hygiene-check.sh	ST_SELF	843ea9e0ca978816	0	benign
+site	src/Linux/build/MilBridge/tools/fp-manifest-step.sh	HERE	130c8056b00c40f4	0	benign
+site	src/Linux/build/MilBridge/tools/fp-manifest-teeth-check.sh	HERE	130c8056b00c40f4	0	benign
+site	src/Linux/build/MilBridge/tools/frame-step.sh		73af76fdc68d402a	0	err
+site	src/Linux/build/MilBridge/tools/frame-step.sh	ROOT	a145f9994ca896b6	0	root
+site	src/Linux/build/MilBridge/tools/gdiplus-decode-check.sh	HERE	8c3fee02743e5375	0	benign
+site	src/Linux/build/MilBridge/tools/gen-exports.py	HERE	23b6448daffea694	0	benign
+site	src/Linux/build/MilBridge/tools/geom-revert-beat-check.sh	GEOMBEAT_REPO	19684e78f20093da	0	root
+site	src/Linux/build/MilBridge/tools/hidden-only-step.sh		73af76fdc68d402a	0	err
+site	src/Linux/build/MilBridge/tools/hidden-only-step.sh	ROOT	222951ef473ff264	0	root
+site	src/Linux/build/MilBridge/tools/hidden-only-step.sh	SELF	836bc1e597d52b56	0	benign
+site	src/Linux/build/MilBridge/tools/hidden-only-step.sh	ST_SELF	843ea9e0ca978816	0	benign
+site	src/Linux/build/MilBridge/tools/hygiene-tooth.sh		f751a2336d7567d9	0	err
+site	src/Linux/build/MilBridge/tools/hygiene-tooth.sh		f751a2336d7567d9	1	err
+site	src/Linux/build/MilBridge/tools/hygiene-tooth.sh		f751a2336d7567d9	2	err
+site	src/Linux/build/MilBridge/tools/hygiene-tooth.sh	HERE	130c8056b00c40f4	0	benign
+site	src/Linux/build/MilBridge/tools/ime-landing-check.sh	HERE	130c8056b00c40f4	0	benign
+site	src/Linux/build/MilBridge/tools/nl-intent-check.sh	R	75d564cd2b868e65	0	root
+site	src/Linux/build/MilBridge/tools/nl-intent-check.sh	cand	c22acc68070e2fe9	0	root
+site	src/Linux/build/MilBridge/tools/nul-bytes-check.sh	HERE	130c8056b00c40f4	0	benign
+site	src/Linux/build/MilBridge/tools/pc-line-step.sh		73af76fdc68d402a	0	err
+site	src/Linux/build/MilBridge/tools/pc-line-step.sh	ROOT	a145f9994ca896b6	0	root
+site	src/Linux/build/MilBridge/tools/pipefail-sigpipe-check.sh	HERE	130c8056b00c40f4	0	benign
+site	src/Linux/build/MilBridge/tools/pkg-src-retiredpath-check.sh		8aae7297ad4cf271	0	err
+site	src/Linux/build/MilBridge/tools/proc-pattern-guard.sh	REPO	c87a052e9d6b0c32	0	root
+site	src/Linux/build/MilBridge/tools/product-entry-step.sh		73af76fdc68d402a	0	err
+site	src/Linux/build/MilBridge/tools/product-entry-step.sh	ROOT	fc415a6250e70138	0	root
+site	src/Linux/build/MilBridge/tools/product-entry-step.sh	SELF	836bc1e597d52b56	0	benign
+site	src/Linux/build/MilBridge/tools/product-entry-step.sh	ST_SELF	843ea9e0ca978816	0	benign
+site	src/Linux/build/MilBridge/tools/pts-gap-count-check.sh	R	af34c76f97a71a36	0	root
+site	src/Linux/build/MilBridge/tools/r-gate-step.sh	SELF	eba58cdd93308f6a	0	benign
+site	src/Linux/build/MilBridge/tools/repin-generation.py	HERE	23b6448daffea694	0	benign
+site	src/Linux/build/MilBridge/tools/repo-alias-check.sh	ALIAS_ROOT	5b981de0ad928330	0	root
+site	src/Linux/build/MilBridge/tools/retake-arms-w21.sh	ROOT	d46d798a15a6a43d	0	root
+site	src/Linux/build/MilBridge/tools/retake-arms-w23.sh		73af76fdc68d402a	0	err
+site	src/Linux/build/MilBridge/tools/retake-arms-w23.sh	ROOT	d46d798a15a6a43d	0	root
+site	src/Linux/build/MilBridge/tools/shell-quote-trap-check.sh	HERE	130c8056b00c40f4	0	benign
+site	src/Linux/build/MilBridge/tools/shell-quote-trap-check.sh	ST_SELF	843ea9e0ca978816	0	benign
+site	src/Linux/build/MilBridge/tools/shim-in-artifact.sh	SELF_DIR	d065fc0c44e9f980	0	benign
+site	src/Linux/build/MilBridge/tools/silent-hit-v2-check.sh	SILENTHIT_DIR	99d41856d6f39e8c	0	benign
+site	src/Linux/build/MilBridge/tools/sync-applocal.sh	HERE	130c8056b00c40f4	0	benign
+site	src/Linux/build/MilBridge/tools/t1b-d3-acceptance.sh	ROOT	d46d798a15a6a43d	0	root
+site	src/Linux/build/MilBridge/tools/t1b-live-window.sh	ROOT	d46d798a15a6a43d	0	root
+site	src/Linux/build/MilBridge/tools/t1b-ls-tripwire.sh	SELF_DIR	beb3d156ae949bc4	0	benign
+site	src/Linux/build/MilBridge/tools/t1b-ls-tripwire.sh	ST_SELF	843ea9e0ca978816	0	benign
+site	src/Linux/build/MilBridge/tools/t1c-census.sh	ROOT	d46d798a15a6a43d	0	root
+site	src/Linux/build/MilBridge/tools/t1c-census.sh	SUMMARY	0fd24a4494910501	0	benign
+site	src/Linux/build/MilBridge/tools/t1c-inputtrace-verify.py	ROOT	20096ba5a9631c79	0	root
+site	src/Linux/build/MilBridge/tools/t1d-probe.sh	ROOT	d46d798a15a6a43d	0	root
+site	src/Linux/build/MilBridge/tools/t2d-extent-detail.sh	ROOT	d46d798a15a6a43d	0	root
+site	src/Linux/build/MilBridge/tools/tab-gap-check.sh	HERE	8c3fee02743e5375	0	benign
+site	src/Linux/build/MilBridge/tools/tabgap-display-polarity.sh	HERE	8c3fee02743e5375	0	benign
+site	src/Linux/build/MilBridge/tools/tline-gate.sh		73af76fdc68d402a	0	err
+site	src/Linux/build/MilBridge/tools/uia-door-check.sh	HERE	130c8056b00c40f4	0	benign
+site	src/Linux/build/MilBridge/tools/verify-all-step-check.sh	ST_SELF	843ea9e0ca978816	0	benign
+site	src/Linux/build/MilBridge/tools/wave-freeze-consistency-check.py		a7bd189858211998	0	err
+site	src/Linux/build/MilBridge/tools/wave-freeze-consistency-check.py		c8956f7d4f49cb4b	0	err
+site	src/Linux/build/MilBridge/tools/wave-freeze-consistency-check.py		fa4eb7e160a4332c	0	err
+site	src/Linux/build/MilBridge/tools/wave-freeze-consistency-check.py	HERE	23b6448daffea694	0	benign
+site	src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/reapply-patches.py	HERE	23b6448daffea694	0	benign
+site	src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework.Classic/reapply-patches.py	HERE	23b6448daffea694	0	benign
+site	src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/reapply-patches.py	HERE	23b6448daffea694	0	benign
+site	src/Microsoft.DotNet.Wpf.Linux/src/ReachFramework/reapply-patches.py	HERE	23b6448daffea694	0	benign
+site	src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/reapply-patches.py	HERE	23b6448daffea694	0	benign
+site	src/Linux/build/artifact-src-fp.py	HERE	23b6448daffea694	0	benign
+site	src/Linux/build/artifact-src-fp.sh	HERE	130c8056b00c40f4	0	benign
+site	src/Linux/build/bridge-src-fp.sh	ROOT	a93a94b7c83f9d95	0	root
+site	src/Linux/build/check-appliers.sh	HERE	130c8056b00c40f4	0	benign
+site	src/Linux/build/check-fp-polarity.sh	ROOT	a93a94b7c83f9d95	0	root
+site	src/Linux/build/close-wave.sh		0145bf4fa29528ca	0	err
+site	src/Linux/build/close-wave.sh	ROOT	a93a94b7c83f9d95	0	root
+site	src/Linux/build/gen-ui-font.py	here	987ea7ce4231ee70	0	benign
+site	src/Linux/build/integration-wave.sh		0145bf4fa29528ca	0	err
+site	src/Linux/build/integration-wave.sh	REPO	1fe0e084eb5cb5a2	0	root
+site	src/Linux/build/port-lib.py	HERE	23b6448daffea694	0	benign
+site	src/Linux/build/port-pbt.sh	SCRIPT_DIR	7f6a4e45900d2c22	0	benign
+site	src/Linux/build/publish-milbridge.sh	ROOT	a93a94b7c83f9d95	0	root
+site	src/Linux/build/selfbuilt-config.sh	_SBC_HERE	d476d669cc3e847c	0	benign
+site	src/Linux/build/setup-env.sh	SCRIPT_DIR	7f6a4e45900d2c22	0	benign
+site	src/Linux/build/verify-env.sh	SCRIPT_DIR	7f6a4e45900d2c22	0	benign
+site	src/WpfGfx.Linux.Native/build-shim.sh	HERE	130c8056b00c40f4	0	benign
+site	src/WpfGfx.Linux.Native/tools/check-shim-coverage.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/extract-win32-inventory.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/gen-unicode-tables.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/patch-presentationcore-apartment.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/patch-presentationcore-compositefont.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/patch-presentationcore-fontcache.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/patch-presentationcore-hbtextline-shimsha.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/patch-presentationcore-hwndtarget-trace.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/patch-presentationcore-inputsite-trace.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/patch-presentationcore-inputtrace.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/patch-presentationcore-lineheight-trace.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/patch-presentationcore-mimetype.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/patch-presentationcore-mousecapture-release.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/patch-presentationcore-olecontext.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/patch-presentationcore-registry.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/patch-presentationcore-securityzone.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/patch-presentationcore-textline-fallback.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/patch-presentationcore-textservices.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/patch-presentationframework-mirror-trace.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/patch-presentationframework-textbox-textdp-trace.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/patch-presentationframework-texteditor-trace.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/patch-presentationframework-window-minmax-notify.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/patch-presentationframework-xamlaccess.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/patch-shared-hwndwrapper-diag.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/patch-shared-invariant-failfast.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/patch-swe-linux.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/patch-uiautomationtypes-reservedvalue.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/patch-windowsbase-dpvalue-trace.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/patch-windowsbase-entry-flatten-trace.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/patch-windowsbase-focus-wait.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/patch-windowsbase-msgflow.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/shim-depth.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/wire-managed-layer.py	HERE	23b6448daffea694	0	benign
+site	src/WpfGfx.Linux.Native/tools/wire-uiautomation-resolver.py	HERE	23b6448daffea694	0	benign
+site	src/Linux/tests/WpfGfx.Linux.Tests/Presentation.Tests/probe-block-registry.py	HERE	23b6448daffea694	0	benign
+site	src/Linux/tests/WpfGfx.Linux.Tests/Presentation.Tests/run-hellowpf.sh		73af76fdc68d402a	0	err
+site	src/Linux/tests/WpfGfx.Linux.Tests/Presentation.Tests/run-hellowpf.sh	HERE	130c8056b00c40f4	0	benign
+site	src/Linux/tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpfprobe-1400rate.sh	REPO	ab1129800468cbec	0	root
+site	src/Linux/tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpfprobe-inputleg-tooth.sh	REPO	ab1129800468cbec	0	root
+site	src/Linux/tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpfprobe-mutation.sh	REPO	ab1129800468cbec	0	root
+site	src/Linux/tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpfprobe.sh		73af76fdc68d402a	0	err
+site	src/Linux/tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpfprobe.sh	HERE	130c8056b00c40f4	0	benign
+site	src/Linux/tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpftextdemo-minrepro.sh	HERE	130c8056b00c40f4	0	benign
+site	src/Linux/tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpftextdemo.sh		73af76fdc68d402a	0	err
+site	src/Linux/tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpftextdemo.sh	HERE	130c8056b00c40f4	0	benign
+site	src/Linux/tests/WpfGfx.Linux.Tests/Rendering.Tests/t2b-test.sh	REPO	6ddab95aba09d57b	0	root
+site	src/Linux/tests/flaky-loop.sh	ROOT	a93a94b7c83f9d95	0	root
+site	src/Linux/tests/parity/geometry/show.py	HERE	23b6448daffea694	0	benign
+site	src/Linux/tests/parity/windows/layout-b34/evidence-cd1.py	HERE	23b6448daffea694	0	benign
+site	src/Linux/tests/parity/windows/layout-b34/evidence-cd2.py	HERE	23b6448daffea694	0	benign
+site	src/Linux/tests/parity/windows/layout-b34/verify.py	HERE	23b6448daffea694	0	benign
+site	src/Linux/tests/parity/windows/verify_u1a_data.py	HERE	23b6448daffea694	0	benign
+site	Guide.Linux/verify-all.sh		fb1d0c442d48c8fd	0	err
+site	Guide.Linux/verify-all.sh	ROOT	034e6a107d390404	0	root

@@ -1,0 +1,110 @@
+<!--
+  ============================================================================
+  WindowsDesktop.App.Linux.props —— L1 路线① 的**接入形态**（给 `net10.0-windows`
+  工程：runtimeconfig 里保留 `Microsoft.WindowsDesktop.App`，实现由自产件/共享框架提供）
+  ============================================================================
+
+  【它解决什么】
+    WIN-INTEROP.md §7.1 的「零改动编译」在 Linux 上能编出 `net10.0-windows` 的产物，
+    但那个产物的 `AssemblyRef` 指向**官方身份**（`PresentationFramework, Version=10.0.0.0`，
+    `System.Xaml, ... PublicKeyToken=b77a…`），运行期只有官方实现能满足 ⇒ 本栈给不了。
+    本 props 把**编译面**换成自产件（`Version=4.0.0.1`），同时**保留**
+    `runtimeconfig.json` 里的 `Microsoft.WindowsDesktop.App` 框架声明（因为最后跑的是
+    「装一次框架」的共享框架布局，见 `docs/P1-wininteropL1-impl-report` 与
+    `src/Linux/build/third-party/windowsdesktop-app-linux-framework.sh`）。
+
+  【它怎么做到】三步（都是 MSBuild 求值次序的事实，不是口味）
+    1. 复用 `src/Linux/build/third-party/WpfLinux.props` 的**全部自产件接线**（8 件 + 主题件 + provider
+       + OOB BCL 包；那份文件是"改三处"路线的单一来源，本件不抄第二份）。
+    2. `<FrameworkReference Include="Microsoft.WindowsDesktop.App" />` —— SDK 据此把
+       `Microsoft.WindowsDesktop.App` 写进 `runtimeconfig.json`（`UseWPF=false` 时 SDK
+       自己**不会**加这一条；实测：只靠 `-windows` TFM 不够）。
+    3. 官方 ref 面（`Microsoft.WindowsDesktop.App.Ref` 带来的 `Reference`）**被同名自产件遮蔽者
+       逐条丢弃** —— 否则冲突解析按「程序集版本高者胜」把自产件（4.0.0.1）换成官方门面
+       （10.0.0.0），于是编译期身份又变回官方，本件就白做了。
+       （同一族坑与修法见 `src/Linux/build/Directory.Upstream.props` 的 M3 三段；这里只是把
+        `Microsoft.NETCore.App.Ref` 换成 `Microsoft.WindowsDesktop.App.Ref`。）
+
+  【用法】工程里：
+      <Project Sdk="Microsoft.NET.Sdk">
+        <PropertyGroup>
+          <TargetFramework>net10.0-windows</TargetFramework>
+          <EnableWindowsTargeting>true</EnableWindowsTargeting>
+        </PropertyGroup>
+        <Import Project="$(WpfLinuxRoot)/build/third-party/WindowsDesktop.App.Linux.props" />
+      </Project>
+    `WpfLinuxRoot` 必填（= 本仓根绝对路径），不给会**大声失败**（沿用 WpfLinux.props 的规矩）。
+  ============================================================================
+-->
+<Project>
+
+  <!--
+    `WpfLinuxWindowsDesktopOwnReferences=true` ⇒ 工程**自己**已经接了自产件（例如
+    `src/Linux/samples/WpfTextDemo` 那种显式 `<Reference HintPath>` 清单）⇒ 本件不再 import
+    `WpfLinux.props`（避免同名 Reference 出现第二份）；其余（TFM / FrameworkReference /
+    丢官方 ref 面）照做。
+  -->
+  <Import Project="$(WpfLinuxRoot)/build/third-party/WpfLinux.props"
+          Condition="'$(WpfLinuxRoot)' != '' And '$(WpfLinuxWindowsDesktopOwnReferences)' != 'true'" />
+
+  <PropertyGroup>
+    <!-- TFM 必须是 -windows（纯 net10.0 会被 _CheckForInvalidWindowsDesktopTargetingConfiguration 拦成
+         WindowsDesktopTargetPlatformMustBeWindows）。 -->
+    <TargetFramework Condition="'$(TargetFramework)' == ''">net10.0-windows</TargetFramework>
+    <EnableWindowsTargeting Condition="'$(EnableWindowsTargeting)' == ''">true</EnableWindowsTargeting>
+    <!--
+      UseWPF 保持 WpfLinux.props 的 **false**（本路线不经 SDK 的 WPF 实现）：
+        · XAML 输入靠工程显式 `ApplicationDefinition`/`Page` 项（同 `src/Linux/samples/WpfTextDemo`）；
+        · 运行时框架声明靠下面显式的 `<FrameworkReference Include="Microsoft.WindowsDesktop.App" />`。
+      ⚠️ 不要指望 `-windows` TFM 自动加这条 —— 实测（2026-10-02）：不设 UseWPF 时
+         `runtimeconfig.json` 里只有 `Microsoft.NETCore.App`。
+    -->
+    <WpfLinuxWindowsDesktopDropShadowedRefs Condition="'$(WpfLinuxWindowsDesktopDropShadowedRefs)' == ''">true</WpfLinuxWindowsDesktopDropShadowedRefs>
+  </PropertyGroup>
+
+  <!-- 让 runtimeconfig.json 保留 `Microsoft.WindowsDesktop.App`（实现由共享框架提供） -->
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.WindowsDesktop.App" />
+  </ItemGroup>
+
+  <Target Name="WpfLinuxPropsCheckWindowsDesktop"
+          BeforeTargets="ResolveAssemblyReferences">
+    <Error Condition="'$(WpfLinuxRoot)' == ''"
+           Text="WindowsDesktop.App.Linux.props：请设置 &lt;WpfLinuxRoot&gt;（本仓根绝对路径），或用 -p:WpfLinuxRoot=… 传入。" />
+  </Target>
+
+  <!--
+    把「被同名自产件遮蔽的 Microsoft.WindowsDesktop.App.Ref 门面」从 @(Reference) 里移除。
+    必须挂在 _HandlePackageFileConflicts **之前**（它是 ResolveAssemblyReferences 的 DependsOnTargets，
+    挂 BeforeTargets="ResolveAssemblyReferences" 已经太晚 —— 同 Directory.Upstream.props 的实测结论）。
+  -->
+  <Target Name="WpfLinuxDropShadowedWindowsDesktopRefs"
+          BeforeTargets="_HandlePackageFileConflicts"
+          Condition="'$(WpfLinuxWindowsDesktopDropShadowedRefs)' == 'true'">
+    <ItemGroup>
+      <_WpfwLocalRef Remove="@(_WpfwLocalRef)" />
+      <_WpfwFxRef Remove="@(_WpfwFxRef)" />
+      <_WpfwFxToDrop Remove="@(_WpfwFxToDrop)" />
+      <!-- 本工程显式 HintPath 引用的自产件（Identity 是简单名，多半无扩展名 ⇒ 统一补 .dll） -->
+      <_WpfwLocalRef Include="@(Reference)" Condition="'%(Reference.HintPath)' != ''">
+        <RefFileDll>%(Filename)%(Extension).dll</RefFileDll>
+      </_WpfwLocalRef>
+      <!-- 官方 ref 包带来的门面（Identity 是绝对路径，自带 .dll） -->
+      <_WpfwFxRef Include="@(Reference)" Condition="'%(Reference.NuGetPackageId)' == 'Microsoft.WindowsDesktop.App.Ref'">
+        <RefFileDll>%(Filename)%(Extension)</RefFileDll>
+      </_WpfwFxRef>
+    </ItemGroup>
+    <PropertyGroup>
+      <_WpfwLocalNames>;@(_WpfwLocalRef->'%(RefFileDll)');</_WpfwLocalNames>
+    </PropertyGroup>
+    <ItemGroup>
+      <_WpfwFxToDrop Include="@(_WpfwFxRef)" />
+    </ItemGroup>
+    <ItemGroup Condition="'@(_WpfwFxToDrop)' != ''">
+      <Reference Remove="@(_WpfwFxToDrop)" />
+    </ItemGroup>
+    <Message Importance="high" Condition="'@(_WpfwFxToDrop)' != ''"
+             Text="WindowsDesktop.App.Linux: 已移除官方 WPF ref 面 → @(_WpfwFxToDrop->'%(RefFileDll)')" />
+  </Target>
+
+</Project>

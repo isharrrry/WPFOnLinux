@@ -3,7 +3,7 @@
 // 编译期的 _Static_assert 已经保证断言不成立就编译不过；这个可执行文件是给
 // 报告与 CI 留的**可读证据**——它能直接和托管侧的
 // `Marshal.OffsetOf(typeof(MSG), "_hwnd")` 逐行对照（见
-// tests/.../ManagedLayer.Tests/NativeMessageLayoutTests.cs）。
+// src/Linux/tests/.../ManagedLayer.Tests/NativeMessageLayoutTests.cs）。
 //
 // 退出码：0 = 全部与托管侧一致；1 = 有不一致（人眼一眼能看出是哪一栏）。
 

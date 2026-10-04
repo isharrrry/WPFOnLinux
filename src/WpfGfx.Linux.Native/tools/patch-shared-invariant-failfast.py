@@ -27,8 +27,8 @@ NullReferenceException at MS.Internal.Invariant.get_IsDialogOverrideEnabled()   
      ⇒ 原文仍会丢。所以新增 `PrintInvariantFailure`（写 stderr）并把原文拼进 FailFast 文本。
   **语义**：仍然 FailFast（如实报错、进程照旧终止），**只是把原文带出来**。
 
-【生成式补丁 + csproj 接线】生成 `build/WindowsBase.Linux/Invariant.Linux.cs`（该文件只编进 WindowsBase：
-  `build/WindowsBase.Linux/WindowsBase.Linux.csproj:52`），并注入 Remove/Include（波重生成后由本脚本重放）。
+【生成式补丁 + csproj 接线】生成 `src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/Invariant.Linux.cs`（该文件只编进 WindowsBase：
+  `src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/WindowsBase.Linux.csproj:52`），并注入 Remove/Include（波重生成后由本脚本重放）。
 """
 
 import argparse
@@ -38,7 +38,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
 
-WB_DIR = os.path.join(ROOT, "build", "WindowsBase.Linux")
+WB_DIR = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "WindowsBase")
 TARGET = os.path.join(WB_DIR, "Invariant.Linux.cs")
 CSPROJ = os.path.join(WB_DIR, "WindowsBase.Linux.csproj")
 
@@ -50,7 +50,7 @@ CSPROJ_UPSTREAM_INCLUDE = ('    <Compile Include="$(UpstreamWpfRoot)src/Microsof
                            + UPSTREAM_REL + '" />')
 
 MARKER_BEGIN = ("  <!-- ==== WPF-on-Linux 补丁 N：assert 原文可见"
-                "（由 tools/patch-shared-invariant-failfast.py 注入）==== -->")
+                "（由 src/Linux/tools/patch-shared-invariant-failfast.py 注入）==== -->")
 MARKER_END = "  <!-- ==== WPF-on-Linux 补丁 N 结束 ==== -->"
 
 ANCHOR_REG = '                key = Registry.LocalMachine.OpenSubKey("Software\\\\Microsoft\\\\.NETFramework");'
@@ -158,7 +158,7 @@ def wire_csproj(csproj_path, check_only):
         MARKER_BEGIN,
         "  <ItemGroup>",
         f'    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/{UPSTREAM_REL}" />',
-        '    <Compile Include="$(WpfLinuxRoot)build/WindowsBase.Linux/Invariant.Linux.cs" />',
+        '    <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/Invariant.Linux.cs" />',
         "  </ItemGroup>",
         MARKER_END,
         "",
@@ -210,7 +210,7 @@ def main():
         rc = 0
 
     wire = wire_csproj(args.csproj or CSPROJ, args.check)
-    print("\n下一步：python3 build/port-lib.py WindowsBase && dotnet build build/WindowsBase.Linux/WindowsBase.Linux.csproj -m:1")
+    print("\n下一步：python3 src/Linux/build/port-lib.py WindowsBase && dotnet build src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/WindowsBase.Linux.csproj -m:1")
     return 0 if (rc == 0 and wire == 0) else 1
 
 

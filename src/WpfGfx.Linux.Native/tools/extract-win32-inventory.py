@@ -260,8 +260,8 @@ def classify(entry, exports):
 
 def main():
     known = load_constants()
-    wb = scan(compiles(os.path.join(ROOT, "build/WindowsBase.Linux/WindowsBase.Linux.csproj")), known)
-    pc = scan(compiles(os.path.join(ROOT, "build/PresentationCore.Linux/PresentationCore.Linux.csproj")), known)
+    wb = scan(compiles(os.path.join(ROOT, "src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/WindowsBase.Linux.csproj")), known)
+    pc = scan(compiles(os.path.join(ROOT, "src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/PresentationCore.Linux.csproj")), known)
     for e in wb:
         e["asm"] = "WindowsBase"
     for e in pc:
@@ -368,7 +368,7 @@ def main():
     A("")
     reasons = {
         "wpfgfx_cor3.dll": "MIL/DUCE 原生面。M7a 已把 **108 个导出名**实现成托管方法"
-                           "（`src/WpfGfx.Linux/Interop/MilNative*.cs`），把它们**导出成原生符号**"
+                           "（`src/Microsoft.DotNet.Wpf.Linux/src/WpfGfx/Interop/MilNative*.cs`），把它们**导出成原生符号**"
                            "并接上是 M7c 的活；Win32 shim 不该重复承担。",
         "WindowsCodecs.dll": "WIC 成像栈（109 条）。M1 已有 Skia 解码/编码能力面，"
                              "映射关系待 M7c/后续里程碑定；直接 stub 会让图像路径静默失真。",
@@ -377,7 +377,7 @@ def main():
                                        "其余是 LineServices 行排版（`Lo*`）与 `LsDisableSpecialCharacterLigature`，"
                                        "依赖 Windows 的 line-services 引擎，Linux 上应由 M1 的 Skia 文本栈承接。",
         "dwrite.dll / DirectWrite 面": "上游由 DirectWriteForwarder（C++/CLI）承担，"
-                                       "本工程已有 `build/DirectWriteForwarder.Linux` 托管骨架。",
+                                       "本工程已有 `src/Microsoft.DotNet.Wpf.Linux/src/DirectWriteForwarder` 托管骨架。",
         "PenIMC_cor3.dll": "触笔/手写输入（16 条）。X11 上走 XInput2，属独立里程碑。",
         "mshwgst.dll": "手写识别（14 条）。无 Linux 对应物。",
         "ninput.dll": "Windows 指针输入（7 条）。X11 上等价物是 XInput2。",
@@ -387,7 +387,7 @@ def main():
         "imm32.dll": "IME（18 条）。Linux 上是 IBus/Fcitx + XIM，属独立里程碑。",
         "uxtheme.dll": "视觉样式（7 条）。WPF 自绘主题，Linux 上无系统主题可问。",
         "ole32.dll": "OLE 剪贴板/DnD。M4 已裁决**最小诚实 stub**"
-                     "（`build/shims/PresentationCore.OleApi.Stubs.cs`，一律 PlatformNotSupportedException）。",
+                     "（`src/Microsoft.DotNet.Wpf.Linux/src/shims/PresentationCore.OleApi.Stubs.cs`，一律 PlatformNotSupportedException）。",
         "api-ms-win-core-winrt-*.dll": "WinRT 投影（InputPane/UISettings）。Linux 无 WinRT。",
         "oleaut32.dll / oleacc.dll / urlmon.dll / shell32.dll / shfolder.dll": "COM 自动化 / 无障碍 / URL 处理 / Shell 集成。",
         "wtsapi32.dll": "终端服务会话通知。X11 无对应物。",

@@ -17,7 +17,7 @@
   Linux 上 `windir` 未设置 ⇒ `s == "\\Fonts\\"` ⇒ **不是合法的绝对 URI**
   ⇒ `UriFormatException: Invalid URI: The format of the URI could not be determined.`
 
-  触发链（跑 samples/HelloWpf 实测，是本项目的**第 4 条**同级拦路虎）：
+  触发链（跑 src/Linux/samples/HelloWpf 实测，是本项目的**第 4 条**同级拦路虎）：
       App.Main → new Application() → ApplicationInit
         → BaseUriHelper..cctor                    （补丁 G 修掉注册表 NRE 之后走到这里）
         → Window..cctor → FrameworkElement..cctor → TextElement..cctor
@@ -46,7 +46,7 @@
 
 【为什么用生成式补丁】
   与补丁 G/H 同一套机制：从 upstream 逐字读入、只替换静态构造、写到
-  `build/PresentationCore.Linux/FontCacheUtil.Linux.cs`（与 SR.g.cs 同为生成物），
+  `src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/FontCacheUtil.Linux.cs`（与 SR.g.cs 同为生成物），
   csproj 侧 Remove 上游 + Include 生成物。锚点找不到 → **报错退出**（不静默降级）。
   重放顺序：port-lib.py → reapply-patches.py(F/D/G) → patch-presentationcore-apartment.py(H)
             → 本脚本(I)
@@ -58,14 +58,14 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
-PC_DIR = os.path.join(ROOT, "build", "PresentationCore.Linux")
+PC_DIR = os.path.join(ROOT, "src", "Microsoft.DotNet.Wpf.Linux", "src", "PresentationCore")
 CSPROJ = os.path.join(PC_DIR, "PresentationCore.Linux.csproj")
 GENERATED = os.path.join(PC_DIR, "FontCacheUtil.Linux.cs")
 UPSTREAM = os.path.join(ROOT, "upstream", "wpf", "src", "Microsoft.DotNet.Wpf", "src",
                         "PresentationCore", "MS", "internal", "FontCache", "FontCacheUtil.cs")
 
 MARKER_BEGIN = ("  <!-- ==== WPF-on-Linux M7c 补丁 I：FontCache.Util 的字体目录 URI"
-                "（由 tools/patch-presentationcore-fontcache.py 注入）==== -->")
+                "（由 src/Linux/tools/patch-presentationcore-fontcache.py 注入）==== -->")
 MARKER_END = "  <!-- ==== WPF-on-Linux M7c 补丁 I 结束 ==== -->"
 
 # 逐字锚点：上游静态构造的前三行（含缩进）。
@@ -79,7 +79,7 @@ ANCHOR = (
 
 REPLACEMENT = '''        static Util()
         {
-            // ── WPF-on-Linux M7c 补丁 I（由 tools/patch-presentationcore-fontcache.py 插入）──
+            // ── WPF-on-Linux M7c 补丁 I（由 src/Linux/tools/patch-presentationcore-fontcache.py 插入）──
             // Linux 上没有 windir："windir"(null) + "\\Fonts\\" == "\\FONTS\\"，它不是合法
             // 的绝对 URI ⇒ `new Uri(..., UriKind.Absolute)` 抛 UriFormatException ⇒
             // MS.Internal.FontCache.Util 的静态构造失败 ⇒ TextElement / FrameworkElement /
@@ -178,14 +178,14 @@ def generate(check_only):
     block = (MARKER_BEGIN + "\n"
              "  <ItemGroup>\n"
              '    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationCore/MS/internal/FontCache/FontCacheUtil.cs" />\n'
-             '    <Compile Include="$(WpfLinuxRoot)build/PresentationCore.Linux/FontCacheUtil.Linux.cs" />\n'
+             '    <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/FontCacheUtil.Linux.cs" />\n'
              "  </ItemGroup>\n"
              + MARKER_END + "\n")
     csproj = csproj.replace(anchor, block + anchor, 1)
     with open(CSPROJ, "w", encoding="utf-8") as f:
         f.write(csproj)
     print(f"[接线] 已注入 2 行到 {os.path.relpath(CSPROJ, ROOT)}")
-    print("\n下一步：dotnet build build/PresentationCore.Linux/PresentationCore.Linux.csproj -m:1")
+    print("\n下一步：dotnet build src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/PresentationCore.Linux.csproj -m:1")
     return 0
 
 

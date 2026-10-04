@@ -1,0 +1,17 @@
+# TASK-0747 / D-G124 F-A · 启动期异常两极化的**确定性台账**（随牙成对落；判据见 src/Linux/tools/appbar-startup-check.sh 头注）
+# 来源：车道 W181A 现取 12 腿（:232 裸 Xvfb / apphost / 唯一自变量 = libwpfwin32.so 一件）；本表只收 diag=1 的 6 腿（仪器档）
+# absent = 未装符号（原始件 fc60c34d51fd9247）；ret0 = 装符号（落仓版 efb087b5c7c33eb2）
+# 字节档（diag=0）另表：absent=242 B / ret0=0 B ⇒ 差恰好 242；有 diag 档 3808→3629，差 179 = 242 − 63（[APPBAR_DIAG] 行正好 63 B）
+tag	arm	shim16	rc	hc_unhandled_n	entrypoint_notfound_n	appbar_diag_n	geom	bytes_both	note
+AB1-absent-diag	absent	fc60c34d51fd9247	124	1	1	0	800x600@240,212	3808	diag=1
+AB2-absent-diag	absent	fc60c34d51fd9247	124	1	1	0	800x600@240,212	3808	diag=1
+AB3-absent-diag	absent	fc60c34d51fd9247	124	1	1	0	800x600@240,212	3808	diag=1
+R01-ret0-diag	ret0	efb087b5c7c33eb2	124	0	0	1	800x600@240,212	3629	diag=1
+R02-ret0-diag	ret0	efb087b5c7c33eb2	124	0	0	1	800x600@240,212	3629	diag=1
+R03-ret0-diag	ret0	efb087b5c7c33eb2	124	0	0	1	800x600@240,212	3629	diag=1
+# 【2026-09-27 · t23 追加（dated；原文一字未动）】`#78` 后**新造的未装符号件** `8857b251e74851d2`（553 symbols／`shappbar=0`）之 diag=1 腿。
+#   ⚠️ 本表口径（器具头注）：`arm ∈ {absent, ret0}` ⇒ 旧件的 `baseold` 别名**归入 `absent`**；且**只收 diag=1**
+#   （`R2`：`ret0` 行须 `appbar_diag_n>=1`；diag=0 行只会被读成该腿 `NOINFO`）⇒ 我在 `~/w79c` 跑的 6 腿里
+#   **只有"新件 × diag=1"这一条是新的**（旧件 `fc60c34d51fd9247`＝在册 `absent` 行、`ret0`＝在册 `efb087b5c7c33eb2` 行，逐位重复；
+#   diag=0 的两条读数 `absent=357 B`／`ret0=0 B` 落在 `P0-w78-report.md` §9.1，不入本表）。
+C79-absent-new-diag	absent	8857b251e74851d2	124	1	1	0	800x600@240,212	3923	diag=1；新造未装符号件（#78 后，553 symbols/shappbar=0）

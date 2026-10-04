@@ -836,7 +836,7 @@ static void wpf_ask_minmaxinfo_apply_hints(HWND hwnd, const char *where,
 }
 
 // ── 【波 51 · `D-G88` 落地 `P1`＋`P4`】幂等发布：**值真的变了才 `XSetWMNormalHints`** ──────
-// 【为什么删掉波 50 的那两个停止条件】W93A 实测（`build/MilBridge/W93A-report.md` §2.2/§2.5）：
+// 【为什么删掉波 50 的那两个停止条件】W93A 实测（`src/Linux/build/MilBridge/W93A-report.md` §2.2/§2.5）：
 //   · `hints_map_declared`（"问出过一次声明"即**终态**）：`W1` 首次问出后 ⇒ 运行期再改**永不重发**；
 //   · `hints_map_asks < WPF_HINTS_REASK_MAX(3)`：计的是"**问**"不是"**改**" —— `W3` 被 4 次
 //     无意义的 `HIDE/SHOW` 花光预算 ⇒ **第一次真声明也永久发不出去**。
@@ -1456,7 +1456,7 @@ INT_PTR SetWindowLongPtrA(HWND h, int i, INT_PTR v) { return SetWindowLongPtrW(h
 INT_PTR SetWindowLongPtr(HWND h, int i, INT_PTR v) { return SetWindowLongPtrW(h, i, v); }
 
 // PresentationNative_cor3.dll 里这四对是 **Wrapper 后缀**的导出名；M7b 把它们
-// 也映射到本 shim，托管侧同一条调用链就能落地（详见 build/shims 的 resolver）。
+// 也映射到本 shim，托管侧同一条调用链就能落地（详见 src/Microsoft.DotNet.Wpf.Linux/src/shims 的 resolver）。
 // Wrapper 与裸名语义相同：唯一区别是 Windows 上 Wrapper 会先 SetLastError(0)。
 INT_PTR GetWindowLongPtrWrapper(HWND h, int i) { wpf_set_last_error(0); return GetWindowLongPtrW(h, i); }
 INT_PTR GetWindowLongWrapper(HWND h, int i)    { wpf_set_last_error(0); return (INT_PTR)(int32_t)GetWindowLongW(h, i); }
@@ -2305,7 +2305,7 @@ BOOL TrackMouseEvent(WPF_TRACKMOUSEEVENT *tme)
 //   **最深**窗口；若整条链上一个本进程窗口都没有（例如别的应用真的盖在上面）⇒ **原样返回顶层窗口**
 //   （那正是 Win32 的行为 ⇒ 上游会正确地把那一击判为"不属于自己"）。
 // 【可证伪】env `WPF_LINUX_WFP_DIAG=1` ⇒ 每进程 ≤ 40 行打印 `pt/top/own_top/best/depth`（**只打印**）；
-//   反极性 = 修前 `best=top=`框架、修后 `best=`客户窗（见 `build/MilBridge/W54A-report.md`）。
+//   反极性 = 修前 `best=top=`框架、修后 `best=`客户窗（见 `src/Linux/build/MilBridge/W54A-report.md`）。
 static int wpf_point_in_window(Window win, int rx, int ry)
 {
     XWindowAttributes at;
