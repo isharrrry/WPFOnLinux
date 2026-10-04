@@ -93,6 +93,7 @@ BuildHygiene.props	移植面：产物目录排除的唯一实现在仓根（`D-R
 CODE_OF_CONDUCT.md	fork 治理件：R8 正面资产（外部贡献者入口）
 CODEOWNERS	fork 治理件：R8 正面资产（评审归属）
 docs	移植面：路线图/规范/预登记/历史账
+docs.Linux	移植面：Linux 侧文档根（与 `docs` 成对；结构上游化阶段 0 落地）
 .gitattributes	fork 治理件：换行/二进制属性基线
 .github	fork 治理件：CI/模板/CODEOWNERS 的家（R8 正面资产；现读对上游重复件零引用）
 .gitignore	fork 治理件：产物/证据的入库分界（本仓多份判据读它）
@@ -101,6 +102,8 @@ home	`#76` 冻结树根条目：`home/links-dev`（**空目录树、0 文件**�
 handoff.md	移植面：逐波技术账（接手入口之一）
 LICENSE.TXT	fork 治理件：许可证（R8 正面资产）
 README.md	移植面：本仓门面（上游 README 另存 README-Window.md）
+README.zh-CN.md	移植面：门面中文版（与 `README.md` 成对；三语门面，结构上游化阶段 1 文档面落地）
+README.es.md	移植面：门面西语版（三语门面的第三件；结构上游化阶段 1 文档面落地）
 README-Window.md	fork 治理件：上游 README 原样保留（R8 正面资产）
 samples	移植面：门禁样本（WpfTextDemo 等）
 SECURITY.md	fork 治理件：安全披露入口（R8 正面资产）

@@ -63,6 +63,18 @@ note "**8. 生成 SR 资源类**：上游 WPF 用 Arcade 的 \`GenerateCommonSRS
 本工程不引入 Arcade，改用 \`build/gen-sr.py\` 从**同一个 resx**生成等价的 \`SR.g.cs\`（239 条），
 并显式加入编译（因 \`EnableDefaultItems=false\`）。"
 
+note "**9. ReflectionHelper.cs 换本地副本 ＋ 新增 NameFallbackResolver.cs**：上游 \`Shared/System/Windows/Markup/ReflectionHelper.cs\` 的
+\`Initialize()\` 用 \`new MetadataLoadContext(new PathAssemblyResolver(assemblyPaths), …)\` 解析程序集；\`PathAssemblyResolver\` 的规矩是
+**名字同 且 公钥 token 完全一致**（版本允许 找到的 ≥ 请求的）。
+第三方 WPF NuGet 包的 windows 资产按官方 WindowsDesktop 身份请求（\`System.Xaml 5.0.0.0/b77a…\`、\`PresentationFramework 5.0.0.0/31bf…\`），
+与自产件（\`4.0.0.1/31bf…\`；System.Xaml 的 token 本身不同）对不上 ⇒ MarkupCompilePass1 抛
+\`MC1000: Could not find assembly 'System.Xaml, Version=5.0.0.0, …'\`，逼着调用方去造"身份改版件"骗编译器 ——
+而改版件在运行期与自产件内部写死的身份对不上 ⇒ 应用全黑。
+本工程把该文件复制一份到 \`build/PresentationBuildTasks.Linux/ReflectionHelper.cs\`（只改那一行：换成 \`NameFallbackResolver\`），
+并新增 \`NameFallbackResolver.cs\`（先按官方规矩解析，解析不到再退回"只按简单名找"，见该文件头注释）。
+csproj 的 \`Compile\` 项由 \`\$(WpfSharedDir)/…/ReflectionHelper.cs\` 改为本工程的 \`ReflectionHelper.cs\`，并追加 \`NameFallbackResolver.cs\`。
+上游 snapshot 一个字节不改。详见 \`RT/Links-License-Mgr/PortWpfLinux/TASK-治全黑.md\`。"
+
 note "**7. 自身源文件路径**：\`MS/Internal/**\`、\`Microsoft/Build/Tasks/Windows/**\`、\`SR.cs\`、\`System/AppContextDefaultValues.cs\` 等 29 条
 是相对「上游项目目录」的路径（改动 2 只修了分隔符、没修根目录）。本工程换了目录后全部报
 \`error CS2001: Source file '...' could not be found.\`
@@ -131,6 +143,24 @@ text = text.replace(
 if 'PresentationBuildTasks/Resources/Strings.resx' not in text:
     sys.exit("改动6失败：未匹配到 Resources/Strings.resx，上游 csproj 结构可能已变化")
 print("改动6：EmbeddedResource 已改为上游绝对路径")
+
+# --- 改动 9：ReflectionHelper.cs 改用本工程内的副本；并追加 NameFallbackResolver.cs ---
+# 上游那份 ReflectionHelper.Initialize() 用 PathAssemblyResolver（名字 + 公钥 token 必须一致）
+# ⇒ 第三方 WPF 包请求的官方身份（System.Xaml 5.0.0.0/b77a…）与自产件（4.0.0.1/31bf…）对不上 ⇒ MC1000。
+# 本工程编译"上游文件的本地副本"（只换那一行解析器）+ NameFallbackResolver.cs（按名回退）。
+rh_include = r'<Compile Include="\$\(WpfSharedDir\)/System/Windows/Markup/ReflectionHelper\.cs">'
+if not re.search(rh_include, text):
+    sys.exit("改动9失败：未匹配到 $(WpfSharedDir)/System/Windows/Markup/ReflectionHelper.cs 的 Compile 项")
+text = re.sub(
+    rh_include,
+    '<!-- 改动9：ReflectionHelper.cs 改编译本工程内的副本（只把 Initialize 里的 PathAssemblyResolver\n'
+    '         换成 NameFallbackResolver），上游 snapshot 保持一个字节不改。 -->\n'
+    '    <Compile Include="ReflectionHelper.cs">',
+    text, count=1)
+rh_marker = '<Compile Include="ReflectionHelper.cs">'
+rh_end = text.index('</Compile>', text.index(rh_marker)) + len('</Compile>')
+text = text[:rh_end] + '\n    <Compile Include="NameFallbackResolver.cs" />' + text[rh_end:]
+print("改动9：ReflectionHelper.cs 改指本地副本，并加入 NameFallbackResolver.cs")
 
 # --- 改动 3：注入路径变量（放在第一个 PropertyGroup 之后） ---
 props = """
@@ -208,6 +238,196 @@ if 'SR.g.cs' not in t:
     open(p, 'w', encoding='utf-8').write(t)
     print("改动8：SR.g.cs 已加入编译")
 PY
+
+# ---------------------------------------------------------------------------
+# 改动 9：生成 ReflectionHelper.cs 的本地副本（只换那一行解析器）＋ NameFallbackResolver.cs
+# ---------------------------------------------------------------------------
+readonly UPSTREAM_REFHELPER="${UPSTREAM_ROOT}/src/Microsoft.DotNet.Wpf/src/Shared/System/Windows/Markup/ReflectionHelper.cs"
+[[ -f "${UPSTREAM_REFHELPER}" ]] || { echo "找不到上游 ReflectionHelper.cs: ${UPSTREAM_REFHELPER}" >&2; exit 1; }
+
+python3 - "${UPSTREAM_REFHELPER}" "${OUT_DIR}/ReflectionHelper.cs" <<'PY'
+import sys
+src, dst = sys.argv[1], sys.argv[2]
+text = open(src, encoding='utf-8').read()
+old = 'new MetadataLoadContext(new PathAssemblyResolver(assemblyPaths), MscorlibReflectionAssemblyName)'
+new = 'new MetadataLoadContext(new NameFallbackResolver(assemblyPaths), MscorlibReflectionAssemblyName)'
+if old not in text:
+    sys.exit("改动9失败：上游 ReflectionHelper.cs 里未找到 new PathAssemblyResolver(assemblyPaths) 那一行")
+open(dst, 'w', encoding='utf-8').write(text.replace(old, new, 1))
+print("改动9：已生成 %s（复制上游 + 换解析器 1 行）" % dst)
+PY
+
+cat > "${OUT_DIR}/NameFallbackResolver.cs" <<'EOF'
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+#nullable disable
+
+// 改动9：PBT 的程序集解析器。
+//
+// 官方 PathAssemblyResolver 的规矩是"名字同 且 公钥 token 完全同"（版本允许 找到的 >= 请求的）。
+// 第三方 WPF NuGet 包的 windows 资产按官方 WindowsDesktop 身份请求:
+//     System.Xaml            5.0.0.0 / b77a5c561934e089
+//     PresentationFramework  5.0.0.0 / 31bf3856ad364e35
+// 而本仓自产件是 4.0.0.1 / 31bf3856ad364e35（System.Xaml 的 token 都不同）
+// ⇒ PathAssemblyResolver 一律拒绝 ⇒ MarkupCompilePass1 抛
+//    MC1000: Could not find assembly 'System.Xaml, Version=5.0.0.0, ...'
+//
+// 本类先按官方规矩解析；解析不到时退回"只按简单名找"（同名多份时优先公钥 token 相符、
+// 其次版本最近的候选）。这样 XAML 编译器可以**直接认自产真件**，
+// 不需要"身份改版件"（那会把编译期与运行期的身份劈成两套，运行期全黑）。
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using System.Text;
+
+namespace MS.Internal.Markup
+{
+    internal sealed class NameFallbackResolver : MetadataAssemblyResolver
+    {
+        private sealed class Candidate
+        {
+            internal string Path;
+            internal Version Version;
+            internal string PublicKeyToken;   // 小写十六进制；无签名件为 null
+        }
+
+        private readonly PathAssemblyResolver _strict;
+        private readonly Dictionary<string, List<Candidate>> _bySimpleName =
+            new Dictionary<string, List<Candidate>>(StringComparer.OrdinalIgnoreCase);
+
+        internal NameFallbackResolver(IEnumerable<string> assemblyPaths)
+        {
+            if (assemblyPaths == null)
+            {
+                throw new ArgumentNullException(nameof(assemblyPaths));
+            }
+
+            List<string> paths = new List<string>();
+            foreach (string p in assemblyPaths)
+            {
+                if (string.IsNullOrEmpty(p))
+                {
+                    continue;
+                }
+
+                paths.Add(p);
+
+                string simpleName = System.IO.Path.GetFileNameWithoutExtension(p);
+                if (string.IsNullOrEmpty(simpleName))
+                {
+                    continue;
+                }
+
+                Candidate candidate = new Candidate { Path = p };
+                try
+                {
+                    AssemblyName an = AssemblyName.GetAssemblyName(p);
+                    candidate.Version = an.Version;
+                    byte[] token = an.GetPublicKeyToken();
+                    if (token != null && token.Length > 0)
+                    {
+                        candidate.PublicKeyToken = ToHex(token);
+                    }
+                }
+                catch (Exception)
+                {
+                    // 读不出身份的文件（不是托管程序集等）仍按简单名登记，但不参与 token 优先选择
+                }
+
+                List<Candidate> list;
+                if (!_bySimpleName.TryGetValue(simpleName, out list))
+                {
+                    list = new List<Candidate>();
+                    _bySimpleName[simpleName] = list;
+                }
+
+                list.Add(candidate);
+            }
+
+            _strict = new PathAssemblyResolver(paths);
+        }
+
+        public override Assembly Resolve(MetadataLoadContext context, AssemblyName assemblyName)
+        {
+            if (assemblyName == null)
+            {
+                throw new ArgumentNullException(nameof(assemblyName));
+            }
+
+            Assembly resolved = null;
+            try
+            {
+                resolved = _strict.Resolve(context, assemblyName);
+            }
+            catch (FileNotFoundException)
+            {
+                resolved = null;
+            }
+
+            if (resolved != null || assemblyName.Name == null)
+            {
+                return resolved;
+            }
+
+            List<Candidate> candidates;
+            if (!_bySimpleName.TryGetValue(assemblyName.Name, out candidates) || candidates.Count == 0)
+            {
+                return null;
+            }
+
+            Candidate pick = null;
+            byte[] wantToken = assemblyName.GetPublicKeyToken();
+            if (wantToken != null && wantToken.Length > 0)
+            {
+                string want = ToHex(wantToken);
+                foreach (Candidate c in candidates)
+                {
+                    if (string.Equals(c.PublicKeyToken, want, StringComparison.OrdinalIgnoreCase))
+                    {
+                        pick = c;
+                        break;
+                    }
+                }
+            }
+
+            if (pick == null && assemblyName.Version != null)
+            {
+                foreach (Candidate c in candidates)
+                {
+                    if (c.Version != null && c.Version >= assemblyName.Version &&
+                        (pick == null || c.Version < pick.Version))
+                    {
+                        pick = c;
+                    }
+                }
+            }
+
+            if (pick == null)
+            {
+                pick = candidates[0];
+            }
+
+            return context.LoadFromAssemblyPath(pick.Path);
+        }
+
+        private static string ToHex(byte[] bytes)
+        {
+            StringBuilder sb = new StringBuilder(bytes.Length * 2);
+            foreach (byte b in bytes)
+            {
+                sb.Append(b.ToString("x2", System.Globalization.CultureInfo.InvariantCulture));
+            }
+
+            return sb.ToString();
+        }
+    }
+}
+EOF
+
+echo "改动9：已生成 ${OUT_DIR}/NameFallbackResolver.cs"
 
 echo
 echo "改动清单已写入 ${CHANGES}"

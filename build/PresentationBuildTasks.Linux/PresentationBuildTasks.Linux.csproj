@@ -84,9 +84,12 @@
     <Compile Include="$(WpfSharedDir)/MS/Internal/TokenizerHelper.cs">
       <Link>Shared\MS\Internal\TokenizerHelper.cs</Link>
     </Compile>
-    <Compile Include="$(WpfSharedDir)/System/Windows/Markup/ReflectionHelper.cs">
+    <!-- 改动9：ReflectionHelper.cs 改编译本工程内的副本（只把 Initialize 里的 PathAssemblyResolver
+         换成 NameFallbackResolver），上游 snapshot 保持一个字节不改。 -->
+    <Compile Include="ReflectionHelper.cs">
       <Link>Shared\System\Windows\Markup\ReflectionHelper.cs</Link>
     </Compile>
+    <Compile Include="NameFallbackResolver.cs" />
     <Compile Include="$(WpfSharedDir)/MS/Internal/Xaml/Parser/SpecialBracketCharacters.cs">
       <Link>Shared\MS\Internal\Xaml\Parser\SpecialBracketCharacters.cs</Link>
     </Compile>
