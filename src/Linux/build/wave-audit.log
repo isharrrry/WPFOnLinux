@@ -647,3 +647,12 @@ for i in 1 2; do
   echo "run$i rc=$? PF=$(sha256sum src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/bin/Release/PresentationFramework.dll | cut -c1-16) ReachClassic=$(sha256sum src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework.Classic/bin/Release/ReachFramework.dll 2>/dev/null | cut -c1-16)"
 done 
     ppid2_cmd=/home/links-dev/netTest/GitProj/NarnatAgent/narnat -p 阅读 /home/links-dev/netTest/GitProj/WPFOnLinux/.agents/tasks/TASK-整波闭合.md 并完整执行。先读 docs/PORT-SPEC.md §5、docs/FORK-AND-PUSH.md §3.1、.agents/tasks/TASK-合并波.md。只做『整波闭合』：补外部冻结记录段让 close-wave [5c/6] 四档转绿。§③/§④ 的边界与硬停必须遵守（不许削弱判据、冻结后不再新增提交、解锁不了就停手不动产品件）。 
+2026-10-05T22:14:49+08:00  owner=freeze-fix  pid=3715493  ppid=3715425  tty=-  cwd=/home/links-dev/netTest/GitProj/WPFOnLinux  cmd=bash src/Linux/build/integration-wave.sh 
+    ppid_cmd=bash /home/links-dev/w-freeze-fix/exp.sh 
+    ppid2_cmd=/sbin/init splash 
+2026-10-05T22:17:39+08:00  owner=freeze-fix  pid=3764419  ppid=3715425  tty=-  cwd=/home/links-dev/netTest/GitProj/WPFOnLinux  cmd=bash src/Linux/build/integration-wave.sh 
+    ppid_cmd=bash /home/links-dev/w-freeze-fix/exp.sh 
+    ppid2_cmd=/sbin/init splash 
+2026-10-05T22:24:44+08:00  owner=freeze-fix  pid=3837708  ppid=3836919  tty=-  cwd=/home/links-dev/netTest/GitProj/WPFOnLinux  cmd=bash src/Linux/build/integration-wave.sh 
+    ppid_cmd=bash /home/links-dev/w-freeze-fix/exp3.sh 
+    ppid2_cmd=/sbin/init splash 

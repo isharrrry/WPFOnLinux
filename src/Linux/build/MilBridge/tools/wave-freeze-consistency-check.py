@@ -32,6 +32,20 @@
      ⚠️ **具名声明**：不等**允许放行**，但必须逐键在 `src/Linux/build/MilBridge/blockvalues-shift.tsv` 里声明
      （`key / block9 / tier / live / registered / why`）——**声明把 `live=` 钉住** ⇒ 现取值再漂一次
      仍会红（"上限＝现读值 ⇒ 树长大也红"同形）。声明行**逐条上屏**，**不许静默**。
+     ⚠️ 🆕 **`live` 不可判的键（无字节不动点）**（`TASK-收尾-冻结口径` 加；`D-G92`／`D-G176③`）：
+       本档判「`live` == 记录值」的前提是**该产物的字节是当前树的确定函数**。`pf` **不是** ——
+       `PF⇄ReachFramework` **真互引**（`…/src/PresentationFramework/ARTIFACT-SRC-FP.txt` 维度 B 件头逐字自述
+       「该对无字节不动点、`pf` 每波必变」），`D-G92` 四趟**逐字相同**的整波重建给出**四个不同 sha**
+       ⇒ 记录（`# RE-FROZEN` 块 ＋ 本表 `live=`）**写死在冻结那一刻**，而 `close-wave` 的 `[1/6]`
+       **每趟都重建它** ⇒ 同一趟里「重钉」与「`[5c/6]` 通过」**结构上不可兼得**（`D-G176③`）。
+       ⇒ 处置 **沿用本档既有体例**（同 `WFREEZE_BLOCKVALUES_TIER_NA`：某来源**按设计**不可用 ⇒
+       **只核可得的那几格**、其余**逐条上屏但不判**）：对这些键**只核块内两个授权来源 `block9`↔`tier` 自洽**，
+       `live` **逐条上屏、不判**，并逐键印 `WFREEZE_BLOCKVALUES_NOFIXPT`（**放行必须可见**）。
+       ⚠️ **不是把牙关掉**：两个来源**互相矛盾** ⇒ 照旧红（见 `--selftest` 的 `S6nfp` 反极腿）；
+       ⚠️ 声明集**按"无字节不动点"的定义现取**（同树、同命令、**连续两趟重建** ⇒ 字节变），**不是按"谁红了"**：
+       本波现取（`h1`→`h2`）九位里**只有 `pf`** 变（`a38d6aa0→6b2c8fba`），而 `pc`／`windowsbase`／`provider`／`dwf`
+       在**同一棵树、同一条命令**下**逐位稳定**（另四位 `bridge`／`win32shim`／`wic_shim`／`hbtextline` 本就未重建）
+       ⇒ 声明集**恰为 `{'pf'}`**（表 = `NO_FIXED_POINT`）。
 
 【第四档的"模板面"（只读、可选）】`--template <path>`：扫记录模板里的**裸 16 位 hex 字面量**
    （白名单外即红）。**不给 `--template` ⇒ 本面 `skipped(no-template-given)`，不进总体状态、不算绿**。
@@ -114,6 +128,29 @@ NINE_PATHS = [
 ]
 SITES_TSV = 'src/Linux/build/MilBridge/wfreeze-root-sites.tsv'
 SHIFTS_TSV = 'src/Linux/build/MilBridge/blockvalues-shift.tsv'
+
+# ══ 档 ④：**`live` 不可判的键** = 产物**无字节不动点**（`TASK-收尾-冻结口径` 加；`D-G92`／`D-G176③`）══
+#   定义（先说死，免得被当成"新开的口子"）：该产物的字节**不是当前树的确定函数** ——
+#     **同一棵树、同一条命令、连续两趟重建**给出**不同**字节。
+#   现场（在册现取，只引用不重写 ＋ 本波复算）：
+#     · `pf`：`PF⇄ReachFramework` **真互引** ⇒ Roslyn 把被引件字节纳入输入哈希
+#       （`src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/ARTIFACT-SRC-FP.txt` 维度 B 件头**逐字自述**
+#        「…该对无字节不动点、`pf` 每波必变」）；`D-G92` 四趟**逐字相同**的整波重建 ⇒ **四个不同 sha**；
+#        本波复算（`~/w-freeze-fix/exp.sh`，两趟 `integration-wave.sh`，树静止）：九位里**只有 `pf`** 位移
+#        （`a38d6aa0e35845b1 → 6b2c8fba61641c86`），另八位**逐位相同**。
+#   ⚠️ **为什么必须与"提交号载体"分开**（不许把声明集读宽）：`provider` 内嵌 `AssemblyInformationalVersion`
+#      的 `1.0.0+<HEAD>`（本波现取：`1.0.0+57840fbe9c4e…`），`pc`／`dwf` 经 `peer=`／`ProjectReference` 随它位移
+#      —— 但那是**提交**的函数，**不是**"同一棵树两趟重建"的函数：本波复算里 `pc`／`windowsbase`／`provider`／`dwf`
+#      在 `h1→h2` **逐位稳定**。⇒ 它们的 `live` **照旧判**（有牙、且可满足），只是**冻结后不得再新增提交**
+#      （那是一条**流程约束**，不是判据口径；见报告 §残余）。
+#   ⇒ 本表**只**列"无字节不动点"的键；每项 `(mechanism, registered)`：`mechanism` 进上屏行、
+#      `registered` 必须是**已入册**缺陷号（与 `blockvalues-shift.tsv` 的 `registered` 同域）。
+#   ⚠️ 硬约束（与 `TIER_NA` 同）：① **放行必须可见**（逐键印 `WFREEZE_BLOCKVALUES_NOFIXPT`）；
+#      ② **不是"把牙关掉"**（`block9 != tier` ⇒ 照旧红并点名，见 `--selftest S6nfp`）；
+#      ③ **不许**用环境开关把整档关掉、**不许**把 `NOINFO` 当绿、**不许**改 `--expect` 之类来凑。
+NO_FIXED_POINT = {
+    'pf': ('ring', 'D-G92'),   # `PF⇄ReachFramework` 互引 ⇒ 该对无字节不动点（同上文件件头自述）
+}
 
 
 def sha16(p):
@@ -610,7 +647,7 @@ def sec_blockvalues(root, shifts_path=None, template=None, freezer=None):
     tier = parse_tier_lines(blk)
     cfg = _cfg_of(root)
     shifts = load_shifts(root, shifts_path or SHIFTS_TSV)
-    bad = 0; noinfo = 0; declared = 0; tier_na = []
+    bad = 0; noinfo = 0; declared = 0; nofixpt = 0; tier_na = []
     for name, rel in NINE_PATHS:
         rel = rel.replace('{CFG}', cfg)
         live = sha16(os.path.join(root, rel))
@@ -623,6 +660,31 @@ def sec_blockvalues(root, shifts_path=None, template=None, freezer=None):
             noinfo += 1
             print('WFREEZE_BLOCKVALUES_HIT kind=source-missing key=%s nine=%s（**九位行是权威记录**：缺该键 ⇒ 算不出来）'
                   % (name, b9))
+            continue
+        # ── 【`TASK-收尾-冻结口径`】**无字节不动点的键**：只核块内两个授权来源自洽；`live` 逐条上屏、不判 ──
+        #   依据／定义／硬约束见件头 ④ 段 ＋ `NO_FIXED_POINT` 表（`D-G92`／`D-G176③`）。
+        _nfp = NO_FIXED_POINT.get(name)
+        if _nfp:
+            _mech, _reg = _nfp
+            _why = (shifts.get(name) or {}).get('why', '')
+            if bt is None:
+                # 两个记录来源里**只剩一个**（该键按设计不在 `BASELINE tier=` 机读行）⇒ **没有可核的对**
+                # ⇒ 算不出来，**不算绿**（方向安全：宁可 NOINFO，也不把"没得核"印成 PASS）。
+                noinfo += 1
+                print('WFREEZE_BLOCKVALUES_NOFIXPT key=%s mechanism=%s registered=%s block9=%s tier=absent live=%s'
+                      '（**无字节不动点** ∧ 该键按设计不在机读行 ⇒ 两个记录来源只剩一个 ⇒ 算不出来，**不算绿**）'
+                      % (name, _mech, _reg, b9, live))
+            elif bt == 'CONFLICT' or bt != b9:
+                bad += 1
+                print('WFREEZE_BLOCKVALUES_HIT key=%s probs=block-selfcontradiction block9=%s tier=%s live=%s'
+                      '（**这一层没有被放行**：块内两个授权来源互相矛盾 —— 九位行与 `BASELINE tier=` 机读行给出**不同**值）'
+                      % (name, b9, bt, live))
+            else:
+                nofixpt += 1
+                print('WFREEZE_BLOCKVALUES_NOFIXPT key=%s mechanism=%s registered=%s block9=%s tier=%s live=%s'
+                      '（该产物**无字节不动点** ⇒ 沿用 `TIER_NA` 体例：只核块内两来源自洽，`live` **逐条上屏、不判**；'
+                      '`shifts_why=%s`）'
+                      % (name, _mech, _reg, b9, bt, live, (_why[:60] + '…') if len(_why) > 60 else (_why or '-')))
             continue
         probs = []
         if b9 != live: probs.append('nine-vs-live')
@@ -712,8 +774,8 @@ def sec_blockvalues(root, shifts_path=None, template=None, freezer=None):
     else:
         print('WFREEZE_TEMPLATE=%s（本面不在总体状态里、**不算绿**；要对模板判值须显式给 `--template`）' % tstate)
     st = 'FAIL' if bad else ('NOINFO' if noinfo else 'PASS')
-    print('WFREEZE_BLOCKVALUES=%s gen=#%s keys=%d declared_shifts=%d bad=%d noinfo=%d cfg=%s'
-          % (st, gen, len(NINE_PATHS), declared, bad, noinfo, cfg))
+    print('WFREEZE_BLOCKVALUES=%s gen=#%s keys=%d declared_shifts=%d nofixpt=%d bad=%d noinfo=%d cfg=%s'
+          % (st, gen, len(NINE_PATHS), declared, nofixpt, bad, noinfo, cfg))
     return st
 
 
@@ -755,16 +817,18 @@ def selftest():
         arm('S2', 'WFREEZE_ROOTDEFAULT=FAIL' in out and 'file=src/Linux/build/MilBridge/tools/analyze-layout-b34.py' in out,
             '少一层 dirname ⇒ 档① FAIL 并点名该件')
         # S2b 反极（`t19` 扩面）：**不在 t17 roster 里**的根站点被砍一层 ⇒ 也必须红（这正是"12 条无牙"那一格）
-        #   ⚠️ 构造：`src/Linux/build/close-wave.sh:31` 逐字是 `$(dirname …)/..` ⇒ 要把它改成 `/../..`（多一层），
-        #      首版写成"把 `../..` 换成 `..`" ⇒ **该行不含 `../..`** ⇒ `hit=0`，臂自己假红（已修）。
+        #   ⚠️ 构造：`src/Linux/build/close-wave.sh` 的根站点那行**逐字随落点变**（结构上游化把仓根深了一层：
+        #      旧 `…")/.."` ⇒ 现 `…")/../../..""`）⇒ 首版写死 `)/.."` 的 arm **在落点变后 `hit=0` 自己假红**
+        #      （本波实测：S2b 红）。⇒ 夹具改成**按形态现取**（`)/..…"` 的 n 层形态），并保留 `hit == 1` 断言
+        #      —— **判据一字未动**（该行内容被改 ⇒ 档① 必红并点名），改的只是**夹具怎么找到那一行**。
         shutil.rmtree(os.path.join(T, 'bad2'), ignore_errors=True)
         shutil.copytree(os.path.join(T, 'good'), os.path.join(T, 'bad2'))
         p = os.path.join(T, 'bad2', 'src/Linux/build/close-wave.sh')
         s = open(p, encoding='utf-8').read().split('\n')
         hit = 0
         for i, l in enumerate(s):
-            if 'dirname' in l and 'BASH_SOURCE[0]' in l and ')/.."' in l:
-                s[i] = l.replace(')/.."', ')/../.."', 1); hit += 1; break
+            if 'dirname' in l and 'BASH_SOURCE[0]' in l and re.search(r'\)(?:/\.\.)+/?"', l):
+                s[i] = re.sub(r'(\)(?:/\.\.)+/?)(\")', r'\1/..\2', l, count=1); hit += 1; break
         open(p, 'w', encoding='utf-8').write('\n'.join(s))
         out = subprocess.run(['python3', os.path.abspath(__file__), '--root', os.path.join(T, 'bad2'),
                               '--freezer', '/nonexistent'], capture_output=True, text=True).stdout
@@ -818,6 +882,38 @@ def selftest():
             out = subprocess.run(['python3', os.path.abspath(__file__), '--root', d, '--freezer', '/nonexistent',
                                   '--sites', os.path.join(d, SITES_TSV)], capture_output=True, text=True).stdout
             arm('S6' + ('' if tag == 'ok' else tag[0]), ('WFREEZE_BLOCKVALUES=' + want) in out, detail)
+        # S6nfp0／S6nfp（**`TASK-收尾-冻结口径` 加**，对应步②硬要求 2）：**无字节不动点的键**两极化。
+        #   构造：九位行／机读行／现取三方，除"声明为无字节不动点"的那一键外**逐位相等**（⇒ 其余键不进判定）；
+        #   该键的 `live` **与两个记录来源都不同**（复现现场："整波重建后记录一出生就过期"）。
+        #     · S6nfp0 正极：`block9 == tier`（块内两来源自洽）⇒ 档 **PASS** ＋ 逐条上屏 `WFREEZE_BLOCKVALUES_NOFIXPT`
+        #     · S6nfp  反极：`block9 != tier`（两来源互相矛盾）⇒ **必红并点名 `key=<该键>`**
+        for tag, tier_mut, want, detail in (
+                ('0', False, 'PASS', '`block9 == tier`（自洽）＋ `live` 漂了 ⇒ 档 **PASS** ＋ 逐条上屏 `WFREEZE_BLOCKVALUES_NOFIXPT`'),
+                ('', True, 'FAIL', '把该键的 `block9` 与 `tier` 改成**不相等** ⇒ **必红并点名**（该层没有被放行）')):
+            nfpname = sorted(NO_FIXED_POINT)[0]
+            d = os.path.join(T, 'bv-nfp' + (tag or 'x'))
+            os.makedirs(os.path.join(d, 'src/Linux/samples/WpfTextDemo'), exist_ok=True)
+            os.makedirs(os.path.join(d, 'src/Linux/build'), exist_ok=True)
+            open(os.path.join(d, 'src/Linux/build/SelfBuiltConfig.props'), 'w').write('<Configuration>Release</Configuration>\n')
+            live = {}
+            for n, rel in NINE_PATHS:
+                q = os.path.join(d, rel.replace('{CFG}', 'Release'))
+                os.makedirs(os.path.dirname(q), exist_ok=True)
+                open(q, 'w').write('content-' + n)
+                live[n] = sha16(q)
+            nine = ' '.join('`%s` `%s`' % (n, ('b' * 16 if n == nfpname else live[n])) for n, _ in NINE_PATHS)
+            row = ','.join('%s:%s' % (n, ('c' * 16) if (n == nfpname and tier_mut)
+                                      else ('b' * 16) if n == nfpname else live[n]) for n, _ in NINE_PATHS)
+            open(os.path.join(d, 'src/Linux/samples/WpfTextDemo/ACCEPTANCE-BASELINE.md'), 'w', encoding='utf-8').write(
+                '# RE-FROZEN #99 —— 合成\n#   **九位（Release 权威件）**：%s\n'
+                'BASELINE tier=default rep=1 config=%s result=PASS\n' % (nine, row))
+            out = subprocess.run(['python3', os.path.abspath(__file__), '--root', d, '--freezer', '/nonexistent',
+                                  '--sites', os.path.join(d, SITES_TSV)], capture_output=True, text=True).stdout
+            arm('S6nfp' + tag,
+                ('WFREEZE_BLOCKVALUES=' + want) in out
+                and (('WFREEZE_BLOCKVALUES_NOFIXPT key=%s' % nfpname) in out) == (want == 'PASS')
+                and (('WFREEZE_BLOCKVALUES_HIT key=%s' % nfpname) in out) == (want == 'FAIL'),
+                detail)
         # S9 反极：模板里塞回裸 hex ⇒ 档④ 红（**牙对模板**）
         # S9：口径收窄后，裸 hex 必须塞在**承载现取值的行**（九位行 / `inputs_fp` / `BRIDGE_SRC_FP`）才会红 ——
         #   夹具同步改成九位行带裸 hex（**不是放宽**：判据仍是"模板里塞回裸 hex ⇒ 必红"，只是位置按新域）。
@@ -862,14 +958,17 @@ def selftest():
             '某站点行内容被改（多一层）⇒ 内容锚下 key 变 ⇒ **FAIL 并点名**（必须重发 roster）')
         # S10 cwd 硬化（`E①`）：**同一条命令、两个不同 cwd** ⇒ 档① 判词行必须**逐字相同**
         #   （"判定不是 cwd 的函数"这句话必须**有读数**，不能只写在件头）
+        #   ⚠️ 第二个 `cwd` **必须是一个真存在的目录**：结构上游化把 `build/` 挪成 `src/Linux/build/` 之后，
+        #      原写 `SELF_ROOT/build` ⇒ `FileNotFoundError` **整个 `--selftest` 崩在 S10**（本波实测：
+        #      HEAD 版与改后版都在此崩；⇒ 本波顺手按**现落点**修，判据（两个 cwd 判词逐字相同）一字未动）。
         r1 = subprocess.run(['python3', os.path.abspath(__file__), '--root', SELF_ROOT, '--freezer', '/nonexistent'],
                             capture_output=True, text=True, cwd='/')
         r2 = subprocess.run(['python3', os.path.abspath(__file__), '--root', SELF_ROOT, '--freezer', '/nonexistent'],
-                            capture_output=True, text=True, cwd=os.path.join(SELF_ROOT, 'build'))
+                            capture_output=True, text=True, cwd=os.path.join(SELF_ROOT, 'src', 'Linux', 'build'))
         l1 = [l for l in r1.stdout.split('\n') if l.startswith('WFREEZE_ROOTDEFAULT=')]
         l2 = [l for l in r2.stdout.split('\n') if l.startswith('WFREEZE_ROOTDEFAULT=')]
         arm('S10', bool(l1) and l1 == l2,
-            '两个 cwd（`/` 与 `<仓>/build`）下档① 判词行**逐字相同** ⇒ 判定不是 cwd 的函数｜cwd=/ ⇒ %s｜cwd=<仓>/build ⇒ %s'
+            '两个 cwd（`/` 与 `<仓>/src/Linux/build`）下档① 判词行**逐字相同** ⇒ 判定不是 cwd 的函数｜cwd=/ ⇒ %s｜cwd=<仓>/src/Linux/build ⇒ %s'
             % (l1[0][:90] if l1 else 'NO-LINE', l2[0][:90] if l2 else 'NO-LINE'))
         # S11 反极：相对 root ⇒ 档① **不当绿**（不可判／红）
         r3 = subprocess.run(['python3', os.path.abspath(__file__), '--root', 'rel-root', '--freezer', '/nonexistent'],

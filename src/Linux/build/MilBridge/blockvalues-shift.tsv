@@ -45,3 +45,21 @@ pf	f61f1decd7af805a	f61f1decd7af805a	4b8ace0a47b8fd9b	D-G92	结构上游化·整
 windowsbase	94c9734d2e89fbf9	-	435082f5acc8cdbe	D-G92	结构上游化·整波闭合：同上（整波重建位移）；该键按设计不在 `BASELINE tier=` 机读行 ⇒ tier 缺（写 `-`）
 provider	08b0634d5350d31c	08b0634d5350d31c	3c81bb121afa8f07	D-G92	结构上游化·整波闭合：本仓 SDK 把提交号编进 `AssemblyInformationalVersion`（现件含 `1.0.0+f38f011b…`）⇒ 每次提交后重建必位移；`#83` 后两笔提交后现取
 dwf	ce71d91feb8ae924	-	04fe52df5b672523	D-G92	结构上游化·整波闭合：同上（整波重建位移）；该键按设计不在机读行 ⇒ tier 缺（写 `-`）
+#
+# ⚠️【2026-10-05 · `TASK-收尾-冻结口径`】下面这一块是**两趟整波重建之后**（`h1`→`h2`，树静止、同一条命令）
+#   现取的 `live=`（现取口径写在 `~/w-freeze-fix/exp.sh`，逐位读数在 `~/w-freeze-fix/{h0,h1,h2}.snapshot.txt`）：
+#   · `pc`／`windowsbase`／`provider`／`dwf` 四键在**同一棵树、同一条命令**下**逐位稳定**（九位里**只有 `pf`** 漂：
+#     `a38d6aa0e35845b1 → 6b2c8fba61641c86`）⇒ 它们的 `live` **照旧判**（牙在、且**可满足**）—— 本块只把值**重钉**到现状；
+#   · `pf` **无字节不动点**（`PF⇄ReachFramework` 互引；`ARTIFACT-SRC-FP.txt` 维度 B 件头自述；`D-G92`）
+#     ⇒ 已在 `src/Linux/build/MilBridge/tools/wave-freeze-consistency-check.py` 的 `NO_FIXED_POINT` 表里
+#     **具名声明**（沿用 `WFREEZE_BLOCKVALUES_TIER_NA` 的既有体例：**只核 `block9`↔`tier` 自洽**、
+#     `live` **逐条上屏但不判**）⇒ **本表不再为 `pf` 出 `live=` 行**（上面那条旧行**留档**、已被声明取代）。
+#   ⚠️ **射程（如实划界）**：本块的 `live=` 钉在 `HEAD=57840fbe9` 的树上 ⇒ **冻结后不得再新增提交**
+#     （`provider` 内嵌 `AssemblyInformationalVersion` 的 `1.0.0+<HEAD>`，本波现取 `1.0.0+57840fbe9c4e…`
+#     ⇒ 任何**新提交之后**的重建都会让它位移，`pc`／`dwf` 经 `peer=`／`ProjectReference` 随它位移）
+#     —— 那是一条**流程约束**（`D-G176` 影响面「冻结与哨兵必须是最后两个动作」），**不是**判据口径。
+key	block9	tier	live	registered	why
+pc	cb67a7931734770a	cb67a7931734770a	f9466265ae5a30d3	D-G92	结构上游化·收尾（两趟整波重建后现取，树静止）：整波重建位移（`#83` 后提交触发）；`live` 现取 2026-10-05，逐条上屏不进红
+windowsbase	94c9734d2e89fbf9	None	cfc3be4dab93496b	D-G92	结构上游化·收尾（同上）；该键按设计不在 `BASELINE tier=` 机读行 ⇒ tier 缺
+provider	08b0634d5350d31c	08b0634d5350d31c	4c18d3581bffac43	D-G92	结构上游化·收尾：本仓 SDK 把提交号编进 `AssemblyInformationalVersion`（现件含 `1.0.0+57840fbe9c4e…`）⇒ 提交后重建必位移；本值取 `HEAD=57840fbe9` 的重建后现取
+dwf	ce71d91feb8ae924	None	98591ec83ed315c8	D-G92	结构上游化·收尾（同上）；该键按设计不在机读行 ⇒ tier 缺

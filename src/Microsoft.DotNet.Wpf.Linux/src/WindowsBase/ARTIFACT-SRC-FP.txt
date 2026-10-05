@@ -7,12 +7,12 @@
 # 重算比对：python3 src/Linux/build/artifact-src-fp.py --check（缺本文件 / 缺被引产物 / 旧格式 ⇒ noinfo，**不报绿**）
 fp=0401987a815e636d
 n=324
-peer_fp=27b16b4ecf5d24f8
+peer_fp=44fb962e01dfa220
 peer_n=2
 tool_sha256=e978d6f4a345e4f90432ea63440cf507a11eaffb96c601e0e75dc04c197ee660
 # 被引产物（sha256 前 16 + 仓库相对路径；**产物字节**，不是源）
-peer=c2686ca01af5eb3b  src/Microsoft.DotNet.Wpf.Linux/src/System.Windows.Extensions/bin/Release/System.Windows.Extensions.dll
-peer=acddfdccd92ee256  src/Microsoft.DotNet.Wpf.Linux/src/System.Xaml/bin/Release/System.Xaml.dll
+peer=35f77b544f0756ad  src/Microsoft.DotNet.Wpf.Linux/src/System.Windows.Extensions/bin/Release/System.Windows.Extensions.dll
+peer=582245078ac459b4  src/Microsoft.DotNet.Wpf.Linux/src/System.Xaml/bin/Release/System.Xaml.dll
 # 逐文件（**源侧**）：sha256 前 16 + 仓库相对路径；只列**本仓自有输入**（上游 `src/Microsoft.DotNet.Wpf/**` 不列，用 --list 看全量）
 file=b38e0b9cda89d702  src/Linux/build/port-lib.py
 file=2985c671c57c7775  src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/DependencyObject.Linux.cs
