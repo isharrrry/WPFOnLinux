@@ -58,7 +58,7 @@ namespace WpfGfx.Linux.Tests.ManagedLayer
         /// <summary>按**字段声明顺序**取回上游 `StreamDescriptor` 的 pfn* 字段名。</summary>
         private static List<string> UpstreamDescriptorFields(out string path)
         {
-            path = Path.Combine(FindRepoRoot(), "upstream", "wpf", "src", "Microsoft.DotNet.Wpf", "src",
+            path = Path.Combine(FindRepoRoot(), "src", "Microsoft.DotNet.Wpf", "src",
                 "PresentationCore", "System", "Windows", "Media", "StreamAsIStream.cs");
             string text = File.ReadAllText(path);
 

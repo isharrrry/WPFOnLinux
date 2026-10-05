@@ -55,7 +55,7 @@ namespace WpfGfx.Linux.Tests.ManagedLayer
         [Fact]
         public void IID_IWICBitmapSource_与上游定义逐字一致()
         {
-            string path = Path.Combine(FindRepoRoot(), "upstream", "wpf", "src", "Microsoft.DotNet.Wpf",
+            string path = Path.Combine(FindRepoRoot(), "src", "Microsoft.DotNet.Wpf",
                 "src", "Common", "Graphics", "wgx_exports.cs");
             string text = File.ReadAllText(path);
 

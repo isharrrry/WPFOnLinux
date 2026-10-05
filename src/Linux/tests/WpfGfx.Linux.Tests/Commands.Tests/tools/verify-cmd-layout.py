@@ -19,7 +19,7 @@ from pathlib import Path
 _SCRIPT = Path(__file__).resolve()
 _REPO = next((p for p in _SCRIPT.parents if (p / "handoff.md").exists()), _SCRIPT.parents[4])
 _UPSTREAM_ROOT = Path(os.environ.get("UPSTREAM_WPF_ROOT") or os.environ.get("UpstreamWpfRoot")
-                      or (_REPO / "upstream" / "wpf"))
+                      or _REPO)
 UPSTREAM = _UPSTREAM_ROOT / "src/Microsoft.DotNet.Wpf/src/Common/Graphics/Generated/wgx_commands.cs"
 PORTED = _REPO / "src/Microsoft.DotNet.Wpf.Linux/src/WpfGfx/Commands/MilCommandStructs.cs"
 
