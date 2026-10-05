@@ -63,3 +63,9 @@ pc	cb67a7931734770a	cb67a7931734770a	f9466265ae5a30d3	D-G92	结构上游化·收
 windowsbase	94c9734d2e89fbf9	None	cfc3be4dab93496b	D-G92	结构上游化·收尾（同上）；该键按设计不在 `BASELINE tier=` 机读行 ⇒ tier 缺
 provider	08b0634d5350d31c	08b0634d5350d31c	4c18d3581bffac43	D-G92	结构上游化·收尾：本仓 SDK 把提交号编进 `AssemblyInformationalVersion`（现件含 `1.0.0+57840fbe9c4e…`）⇒ 提交后重建必位移；本值取 `HEAD=57840fbe9` 的重建后现取
 dwf	ce71d91feb8ae924	None	98591ec83ed315c8	D-G92	结构上游化·收尾（同上）；该键按设计不在机读行 ⇒ tier 缺
+#
+# ⚠️【2026-10-06 · `TASK-根治-提交号载体` · 根治②】**产物不再内嵌 `HEAD`**（`src/Linux/build/SelfBuiltConfig.props` 加 `IncludeSourceRevisionInInformationalVersion=false`）
+#   ⇒ `pc`／`windowsbase`／`provider`／`dwf` **同一棵树、两趟整波重建逐位稳定**（成对读数：`pc` `e0108ff2c98dddbd`==／`windowsbase` `42a9c4728647fc7b`==／`provider` `7ef51cf912234384`==／`dwf` `84f3b2d47af514e3`==；
+#     只有环成员 `pf` 漂 `58730fb0623ed6d6 → d124eea5b299b634`）⇒ **这四键不再需要 `live=` 具名声明**（`# RE-FROZEN #84` 块内 `block9 == live` ⇒ `probs` 空、`sh` **不被读取**）；
+#   **只留 `pf` 在 `NO_FIXED_POINT`**（`wave-freeze-consistency-check.py`，`D-G92`／`D-G176③`）。
+# ⚠️ 上面各代的 `pc`／`windowsbase`／`provider`／`dwf` 行**留档不删**（`load_shifts` 按"最后一条为准"，而现盘那四键 `probs` 空 ⇒ 旧行**不被读取**）。

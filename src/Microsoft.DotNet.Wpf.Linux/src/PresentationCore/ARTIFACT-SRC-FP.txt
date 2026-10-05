@@ -7,18 +7,18 @@
 # 重算比对：python3 src/Linux/build/artifact-src-fp.py --check（缺本文件 / 缺被引产物 / 旧格式 ⇒ noinfo，**不报绿**）
 fp=1702c7a097f35b51
 n=1373
-peer_fp=1fd93d9686a5ef52
+peer_fp=09bf648113e58a1f
 peer_n=8
 tool_sha256=e978d6f4a345e4f90432ea63440cf507a11eaffb96c601e0e75dc04c197ee660
 # 被引产物（sha256 前 16 + 仓库相对路径；**产物字节**，不是源）
-peer=4c18d3581bffac43  src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/Release/DirectWrite.Linux.Provider.dll
-peer=98591ec83ed315c8  src/Microsoft.DotNet.Wpf.Linux/src/DirectWriteForwarder/bin/Release/DirectWriteForwarder.dll
-peer=35f77b544f0756ad  src/Microsoft.DotNet.Wpf.Linux/src/System.Windows.Extensions/bin/Release/System.Windows.Extensions.dll
+peer=7ef51cf912234384  src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/Release/DirectWrite.Linux.Provider.dll
+peer=84f3b2d47af514e3  src/Microsoft.DotNet.Wpf.Linux/src/DirectWriteForwarder/bin/Release/DirectWriteForwarder.dll
+peer=c34c8d128c29b75f  src/Microsoft.DotNet.Wpf.Linux/src/System.Windows.Extensions/bin/Release/System.Windows.Extensions.dll
 peer=43c9cfade4428d54  src/Microsoft.DotNet.Wpf.Linux/src/System.Windows.Input.Manipulations/bin/Release/System.Windows.Input.Manipulations.dll
-peer=582245078ac459b4  src/Microsoft.DotNet.Wpf.Linux/src/System.Xaml/bin/Release/System.Xaml.dll
-peer=30f3cec264ce787c  src/Microsoft.DotNet.Wpf.Linux/src/UIAutomationProvider/bin/Release/UIAutomationProvider.dll
-peer=831b4e149285230e  src/Microsoft.DotNet.Wpf.Linux/src/UIAutomationTypes/bin/Release/UIAutomationTypes.dll
-peer=cfc3be4dab93496b  src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/bin/Release/WindowsBase.dll
+peer=ad433d7e151fa9a8  src/Microsoft.DotNet.Wpf.Linux/src/System.Xaml/bin/Release/System.Xaml.dll
+peer=4f68cf9dfa6b837e  src/Microsoft.DotNet.Wpf.Linux/src/UIAutomationProvider/bin/Release/UIAutomationProvider.dll
+peer=dae88cddb93738c6  src/Microsoft.DotNet.Wpf.Linux/src/UIAutomationTypes/bin/Release/UIAutomationTypes.dll
+peer=42a9c4728647fc7b  src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/bin/Release/WindowsBase.dll
 # 逐文件（**源侧**）：sha256 前 16 + 仓库相对路径；只列**本仓自有输入**（上游 `src/Microsoft.DotNet.Wpf/**` 不列，用 --list 看全量）
 file=6d3d32ff14e68fb8  src/Linux/build/MilBridge/src/MilBridge.Resolver/MilCoreDllImportResolver.cs
 file=b38e0b9cda89d702  src/Linux/build/port-lib.py
