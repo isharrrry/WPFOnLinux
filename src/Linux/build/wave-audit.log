@@ -627,3 +627,23 @@ echo "WAVE_START=$(date +%FT%T)"; (date +%FT%T; time env WAVE_OWNER=w48a bash bu
 2026-10-05T10:53:24+08:00  owner=r5  pid=3159193  ppid=3158102  tty=-  cwd=/home/links-dev/netTest/GitProj/WPFOnLinux  cmd=bash src/Linux/build/integration-wave.sh 
     ppid_cmd=bash src/Linux/build/close-wave.sh --skip-verify-all 
     ppid2_cmd=/usr/bin/bash -c cd /home/links-dev/netTest/GitProj/WPFOnLinux && CLOSE_WAVE_OUT=/tmp/r5/close-wave-1 WAVE_OWNER=r5 bash src/Linux/build/close-wave.sh --skip-verify-all 2>&1 | tail -60 
+2026-10-05T18:01:17+08:00  owner=close-wave:links-dev  pid=2179939  ppid=2178874  tty=-  cwd=/home/links-dev/netTest/GitProj/WPFOnLinux  cmd=bash src/Linux/build/integration-wave.sh 
+    ppid_cmd=bash src/Linux/build/close-wave.sh --skip-verify-all 
+    ppid2_cmd=/usr/bin/bash -c cd /home/links-dev/netTest/GitProj/WPFOnLinux; bash src/Linux/build/close-wave.sh --skip-verify-all > /tmp/cw-run1.out 2>&1; echo "RC=$?"; tail -5 /tmp/cw-run1.out 
+2026-10-05T18:07:42+08:00  owner=close-wave:links-dev  pid=2237866  ppid=2236801  tty=-  cwd=/home/links-dev/netTest/GitProj/WPFOnLinux  cmd=bash src/Linux/build/integration-wave.sh 
+    ppid_cmd=bash src/Linux/build/close-wave.sh --skip-verify-all 
+    ppid2_cmd=/usr/bin/bash -c cd /home/links-dev/netTest/GitProj/WPFOnLinux; CLOSE_WAVE_OUT=/tmp/cw-run2 bash src/Linux/build/close-wave.sh --skip-verify-all 2>&1 | tail -40 
+2026-10-05T18:11:21+08:00  owner=conv  pid=2290866  ppid=2290862  tty=-  cwd=/home/links-dev/netTest/GitProj/WPFOnLinux  cmd=bash src/Linux/build/integration-wave.sh 
+    ppid_cmd=/usr/bin/bash -c cd /home/links-dev/netTest/GitProj/WPFOnLinux
+for i in 1 2; do
+  WAVE_OWNER=conv bash src/Linux/build/integration-wave.sh >/tmp/iw-$i.log 2>&1
+  echo "run$i rc=$? PF=$(sha256sum src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/bin/Release/PresentationFramework.dll | cut -c1-16) ReachClassic=$(sha256sum src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework.Classic/bin/Release/ReachFramework.dll 2>/dev/null | cut -c1-16)"
+done 
+    ppid2_cmd=/home/links-dev/netTest/GitProj/NarnatAgent/narnat -p 阅读 /home/links-dev/netTest/GitProj/WPFOnLinux/.agents/tasks/TASK-整波闭合.md 并完整执行。先读 docs/PORT-SPEC.md §5、docs/FORK-AND-PUSH.md §3.1、.agents/tasks/TASK-合并波.md。只做『整波闭合』：补外部冻结记录段让 close-wave [5c/6] 四档转绿。§③/§④ 的边界与硬停必须遵守（不许削弱判据、冻结后不再新增提交、解锁不了就停手不动产品件）。 
+2026-10-05T18:14:09+08:00  owner=conv  pid=2337643  ppid=2290862  tty=-  cwd=/home/links-dev/netTest/GitProj/WPFOnLinux  cmd=bash src/Linux/build/integration-wave.sh 
+    ppid_cmd=/usr/bin/bash -c cd /home/links-dev/netTest/GitProj/WPFOnLinux
+for i in 1 2; do
+  WAVE_OWNER=conv bash src/Linux/build/integration-wave.sh >/tmp/iw-$i.log 2>&1
+  echo "run$i rc=$? PF=$(sha256sum src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/bin/Release/PresentationFramework.dll | cut -c1-16) ReachClassic=$(sha256sum src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework.Classic/bin/Release/ReachFramework.dll 2>/dev/null | cut -c1-16)"
+done 
+    ppid2_cmd=/home/links-dev/netTest/GitProj/NarnatAgent/narnat -p 阅读 /home/links-dev/netTest/GitProj/WPFOnLinux/.agents/tasks/TASK-整波闭合.md 并完整执行。先读 docs/PORT-SPEC.md §5、docs/FORK-AND-PUSH.md §3.1、.agents/tasks/TASK-合并波.md。只做『整波闭合』：补外部冻结记录段让 close-wave [5c/6] 四档转绿。§③/§④ 的边界与硬停必须遵守（不许削弱判据、冻结后不再新增提交、解锁不了就停手不动产品件）。 

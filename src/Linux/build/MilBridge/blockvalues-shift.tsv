@@ -39,3 +39,9 @@ key	block9	tier	live	registered	why
 pc	83c71acfb20f26d7	83c71acfb20f26d7	b8fbb9e5cfbff5e8	D-G92	结构上游化·合并波具名位移（close-wave 口径 --root/--template auto；现读数已稳定）；live 现取 2026-10-04
 pf	7ef0dbb210db54e3	7ef0dbb210db54e3	da10e3a46becac8b	D-G92	结构上游化·合并波具名位移（close-wave 口径；已验 PresentationFramework.dll 连构建两次同 sha ⇒ 确定）；live 现取 2026-10-04
 dwf	e0fcfd13ad86b2b4	None	8febc6b7e5b9d50d	D-G92	结构上游化·合并波具名位移（close-wave 口径）；live 现取 2026-10-04
+key	block9	tier	live	registered	why
+pc	cb67a7931734770a	cb67a7931734770a	57fefbad118190d0	D-G92	结构上游化·整波闭合：`#83` 后两笔提交（`914962338` 删 vendored `upstream/wpf` ＋ 本笔 `docs/CURRENT-STATE.md:9` 路径修正）触发 `close-wave` 整波重建；承 `provider`/`dwf` 等 peer 位移（同趟 `ARTIFACT-SRC-FP` 的 `peer_fp` 位移可核）⇒ PC 字节随之位移 ⇒ nine-vs-live/tier-vs-live；live 现取 2026-10-05，逐条上屏不进红
+pf	f61f1decd7af805a	f61f1decd7af805a	4b8ace0a47b8fd9b	D-G92	结构上游化·整波闭合：`pf` 是**环成员**（`PF⇄ReachFramework` 互引、**无字节不动点**，`D-G92`／`D-G176`③）⇒ **每趟整波重建必换一个 sha**（本趟实测 f61f1dec→3cbc401c→5e885a4f→98e850cd→4b8ace0a 五个不同值）⇒ `live=` 只能钉在**最后一次重建之后**读到的值（4b8ace0a，2026-10-05 18:16）；`[5c/6]` 在 `close-wave` 内跑（`[1/6]` 已重建）⇒ 结构上会再现红（见报告 §残余）
+windowsbase	94c9734d2e89fbf9	-	435082f5acc8cdbe	D-G92	结构上游化·整波闭合：同上（整波重建位移）；该键按设计不在 `BASELINE tier=` 机读行 ⇒ tier 缺（写 `-`）
+provider	08b0634d5350d31c	08b0634d5350d31c	3c81bb121afa8f07	D-G92	结构上游化·整波闭合：本仓 SDK 把提交号编进 `AssemblyInformationalVersion`（现件含 `1.0.0+f38f011b…`）⇒ 每次提交后重建必位移；`#83` 后两笔提交后现取
+dwf	ce71d91feb8ae924	-	04fe52df5b672523	D-G92	结构上游化·整波闭合：同上（整波重建位移）；该键按设计不在机读行 ⇒ tier 缺（写 `-`）
