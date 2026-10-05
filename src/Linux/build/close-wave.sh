@@ -692,7 +692,22 @@ say ""; say "──── [6/6] 汇总（**八位 + 第九位 + 桥指纹**，�
 #   而它此前**靠人手工更新** ⇒ 2026-09-14 出现"产物已换代、哨兵还是上一代"的事故
 #   （T3 按纪律改用"主控给的九位 + 自己 sha256sum"才没被带偏）。
 #   ⇒ 让**产生当前件的那条命令**顺手公布哨兵：谁重建，谁更新，不留人工步骤。
+# ⏪ **dated（`TASK-根治-提交号载体` · 根治②）**：本段原先只写 **12 键**（`… WAVE NOTE`），
+#   而 `SENTINEL-SPEC`（`sentinel-spec-check.sh` 的 `SPEC_KEYS`）要 **13 键**
+#   （`… WAVE BASELINE BASELINE_SHA16`）⇒ 跑到底的 `close-wave` 会把哨兵写成"规范不满足"形
+#   （`SSC_LINES=FAIL`／`SSC_KEYSET=FAIL`），历史上靠**仓外链条**补后两键。
+#   现改为**写端自产 13 键**（与 `tools/wave-push.sh`／`~/w21-verify/w83/bin/w83-sentinel.sh` 同口径）：
+#   `WAVE`＝`w<gen>-freeze`、`BASELINE`＝`#<gen>`、`BASELINE_SHA16`＝基线件现算 `sha16`，
+#   三键均由 `docs/CURRENT-STATE.md` 的 `BASELINE-FROZEN` 行**现取**（不写死）；并**保留两枚哨兵 `cmp` 自证**。
 FLAG="${CLOSE_WAVE_FLAG:-/tmp/bridge-frozen.flag}"
+CS_DOC="$ROOT/docs/CURRENT-STATE.md"
+CS_LN="$(grep -m1 'BASELINE-FROZEN' "$CS_DOC" 2>/dev/null)"
+CS_GEN="$(printf '%s\n' "$CS_LN" | sed -n 's/.*gen=#\([0-9][0-9]*\).*/\1/p')"
+CS_SHA="$(printf '%s\n' "$CS_LN" | sed -n 's/.*sha16=\([0-9a-f]*\).*/\1/p')"
+if [ -z "$CS_GEN" ] || [ -z "$CS_SHA" ]; then
+    CS_GEN='none(cs-line-absent)'; CS_SHA='none(cs-line-absent)'
+    say "  ⚠️ 哨兵 BASELINE/BASELINE_SHA16 取不到（$CS_DOC 无 BASELINE-FROZEN 行）⇒ 写 none(...)、并会让 SENTINEL-SPEC 红（**响亮失败，不当绿**）"
+fi
 {
     printf 'SHA=%s\n' "$(sha16 src/Linux/build/MilBridge/.artifacts/publish/MilBridge.Linux/release_linux-x64/wpfgfx_cor3.so)"
     printf 'FP=%s\n'  "$FP_NOW2"
@@ -704,8 +719,9 @@ FLAG="${CLOSE_WAVE_FLAG:-/tmp/bridge-frozen.flag}"
     printf 'WIC=%s\n'  "$(sha16 src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/libwpfwic.so)"
     printf 'PROVIDER=%s\n' "$(sha16 src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/$SELFBUILT_CONFIG/DirectWrite.Linux.Provider.dll)"
     printf 'DWF=%s\n'  "$(sha16 src/Microsoft.DotNet.Wpf.Linux/src/DirectWriteForwarder/bin/$SELFBUILT_CONFIG/DirectWriteForwarder.dll)"
-    printf 'WAVE=%s\n' "$(basename "$OUT")"
-    printf 'NOTE=本哨兵由 close-wave.sh 自动更新；基线号请在冻完后手工补 BASELINE=\n'
+    if [ "$CS_GEN" = 'none(cs-line-absent)' ]; then printf 'WAVE=%s\n' "$CS_GEN"; else printf 'WAVE=w%s-freeze\n' "$CS_GEN"; fi
+    if [ "$CS_GEN" = 'none(cs-line-absent)' ]; then printf 'BASELINE=%s\n' "$CS_GEN"; else printf 'BASELINE=#%s\n' "$CS_GEN"; fi
+    printf 'BASELINE_SHA16=%s\n' "$CS_SHA"
 } > "$FLAG"
 # ── 哨兵镜像（2026-09-15 加；防 `/tmp` 被整盘清掉）────────────────────────────
 # 【为什么】2026-09-14 实测发生过 `/tmp` **被整盘清空**（连带丢掉哨兵、备份与日志）
@@ -716,6 +732,12 @@ if mkdir -p "$(dirname "$FLAG_MIRROR")" 2>/dev/null && cp -f "$FLAG" "$FLAG_MIRR
     say "  🔖 哨兵镜像已同步（$FLAG_MIRROR；防 /tmp 被清）"
 else
     say "  ⚠️ 哨兵镜像写失败（$FLAG_MIRROR）—— 只更新了 $FLAG；本行即为证据，不要当成功"
+fi
+# 【两枚哨兵 `cmp` 自证（`TASK-根治-提交号载体` 根治②：写端 13 键后**自证两枚逐字节相同**）】
+if cmp -s "$FLAG" "$FLAG_MIRROR"; then
+    say "  🔖 哨兵自证：SENTINEL_CMP=IDENTICAL（两枚逐字节相同；$(wc -l < "$FLAG") 行）"
+else
+    say "  ❌ 哨兵自证：SENTINEL_CMP=DIFFER（$FLAG ≠ $FLAG_MIRROR）—— 停下核（**不许把不一致当成功**）"
 fi
 say "  🔖 哨兵已更新（$FLAG）：bridge=$(sha16 src/Linux/build/MilBridge/.artifacts/publish/MilBridge.Linux/release_linux-x64/wpfgfx_cor3.so) pc=$(sha16 src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/Debug/PresentationCore.dll) win32shim=$(sha16 "$NATIVE_AUTH") hbtextline=$(sha256sum src/Microsoft.DotNet.Wpf.Linux/src/shims/PresentationCore.HbTextLine.cs | cut -c1-16)"
 
