@@ -87,9 +87,21 @@ NEW_BLOCK = '''{ind}<!-- ── `#38` 波：官方包换成 Linux 原生替身�
 '''
 
 def _prefix(rel):
-    """九件套 csproj 里 `$(WpfLinuxRoot)` 由 `src/Linux/build/Directory.Upstream.props` 提供；
-       而**样本工程不 import 那份 props**（实测）⇒ 用 `$(MSBuildThisFileDirectory)../../`（样本在 `src/Linux/samples/<名>/`）。"""
-    return "$(WpfLinuxRoot)" if rel.startswith("src/Linux/build/") else "$(MSBuildThisFileDirectory)../../"
+    """库工程（自产覆盖层落点 `src/Microsoft.DotNet.Wpf.Linux/src/<名>/`）import
+       `src/Linux/build/Directory.Upstream.props` ⇒ 该 props 提供 `$(WpfLinuxRoot)`，用变量更稳；
+       而**样本工程不 import 那份 props**（实测）⇒ 用 `$(MSBuildThisFileDirectory)../../`（样本在 `src/Linux/samples/<名>/`）。
+
+    ⚠️【2026-10-05 修·结构上游化落点】旧判据是 `rel.startswith("src/Linux/build/")` —— 那是
+       "阶段 3 试过一版 `src.Linux/` 落点"的中间形态，**从未是最终落点**。结构上游化后库工程在
+       `src/Microsoft.DotNet.Wpf.Linux/src/<名>/` ⇒ 旧判据恒 False ⇒ 库工程被写成
+       `$(MSBuildThisFileDirectory)../../src/Microsoft.DotNet.Wpf.Linux/src/…`（多出一段
+       `src/Microsoft.DotNet.Wpf.Linux/`）⇒ 替身 `<Reference>` 落空 ⇒ `System.Xaml` 报
+       `CS0234/CS0246 XamlAccessLevel`（包资产已被排除 ⇒ 类型整体消失）。
+       ⇒ 把**最终落点**认出来（旧形态保留，兼容旧树）。"""
+    rel = rel.replace(os.sep, "/")
+    if rel.startswith("src/Microsoft.DotNet.Wpf.Linux/src/") or rel.startswith("src/Linux/build/"):
+        return "$(WpfLinuxRoot)"
+    return "$(MSBuildThisFileDirectory)../../"
 
 
 def main():

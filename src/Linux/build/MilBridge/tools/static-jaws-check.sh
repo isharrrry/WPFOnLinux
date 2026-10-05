@@ -114,9 +114,16 @@ main_check() {
     tf="$(mktemp -d)"; out="$tf/out"; err="$tf/err"
     local t0 t1 ms
     t0="$(date +%s%3N)"
-    if [[ "$base" =~ ^($RO_PARAM_JAWS)$ ]]; then
+    # ⚠️【2026-10-05 修·`t62` 在册隐患（R4 发现）】旧实现**只取 `$jaw` 裸跑**（`bash "$jaw"`），
+    #   把原步的 argv **丢掉** —— 对 `wave-push.sh --dry-run` 这种"参数决定副作用"的步，
+    #   裸跑 = **不带 `--dry-run`** ⇒ 走默认**写盘**腿，把两枚哨兵重写成现读数，
+    #   与本牙「**只读读者**」口径（件头 ⑤ 的 `EXCL_WRITE` 理由）**直接冲突**。
+    #   ⇒ 只要 `$cmd` 上带参数（含白名单的 `RO_PARAM_JAWS` 与 `--dry-run` 档），一律
+    #      **按原 argv 在 `$ROOT` 下执行**（`bash -c "$cmd"`）；无参数才走"绝对路径裸跑"。
+    #   判据不变（仍是捕获式 `rc`），只把"跑什么"改回"门禁里那一句"。
+    if [[ "$base" =~ ^($RO_PARAM_JAWS)$ ]] || [ "$cmd" != "bash $jaw" ]; then
       export ARM_LOGS="${WPF_TLINE_ARM_LOGS:-src/Linux/build/MilBridge/arm-logs}"
-      timeout -k 5 "$SJC_TIMEOUT" bash -c "$cmd" >"$out" 2>"$err"; rc=$?
+      ( cd "$ROOT" && timeout -k 5 "$SJC_TIMEOUT" bash -c "$cmd" ) >"$out" 2>"$err"; rc=$?
     else
       timeout -k 5 "$SJC_TIMEOUT" bash "$jaw" >"$out" 2>"$err"; rc=$?
     fi

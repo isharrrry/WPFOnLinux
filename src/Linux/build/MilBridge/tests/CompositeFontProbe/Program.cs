@@ -259,7 +259,7 @@ internal static class Program
             string dir = Path.GetDirectoryName(_fontPath);
             string file = Path.GetFileName(_fontPath);
             Uri baseUri = new Uri(dir.EndsWith("/") ? dir : dir + "/");
-            FontFamily family = new FontFamily(baseUri, "." + file + "#Noto Sans");
+            FontFamily family = new FontFamily(baseUri, "./" + file + "#Noto Sans");
             Console.WriteLine("   family.Source = " + family.Source);
             Typeface typeface = new Typeface(family, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
             GlyphTypeface gt;

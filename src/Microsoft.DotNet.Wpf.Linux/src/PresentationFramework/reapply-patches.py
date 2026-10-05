@@ -237,8 +237,19 @@ def _write_atomic(path, text):
 
 
 def _apply_edits(upstream_rel, out_name, edits):
-    """从上游重读、逐处 needle 替换、写生成物。needle 命中数不符 ⇒ 抛异常（不静默）。"""
-    up_abs = os.path.join(REPO, "src", "Microsoft.DotNet.Wpf", upstream_rel)
+    """从上游重读、逐处 needle 替换、写生成物。needle 命中数不符 ⇒ 抛异常（不静默）。
+
+    ⚠️【2026-10-05 修·结构上游化落点】`upstream_rel` 的**调用方**（`UP_PF`／`DPV_UP`／
+       `DPH_UP`／`FDR_UP`／`DVBI_UP`／`CHAIN_FILES`）给的都是**仓根相对**路径
+       （`src/Microsoft.DotNet.Wpf/src/PresentationFramework/…`）。R4 把这里的拼接从
+       `REPO + "upstream/wpf"` 改成 `REPO + "src/Microsoft.DotNet.Wpf"` 时**没有同时去掉
+       调用方的前缀** ⇒ 路径变成
+       `…/src/Microsoft.DotNet.Wpf/src/Microsoft.DotNet.Wpf/src/PresentationFramework/…`
+       ⇒ `materialize_derived()` 首件即抛 `上游文件不存在` ⇒ `PresentationFramework` 的
+       派生源整批不生成（波的第 2 步 `[失败]`）⇒ 它的 csproj 拿不到补丁块（CycleStub/
+       System.Printing 引用丢失）⇒ 第 3 步 `CS0246 PrintQueue/FindToolBar`。
+       本件与 `upstream_rel` 的**唯一口径**对齐：调用方给仓根相对路径，这里只做 REPO 拼接。"""
+    up_abs = os.path.join(REPO, upstream_rel)
     if not os.path.isfile(up_abs):
         raise RuntimeError("上游文件不存在：%s" % up_abs)
     with open(up_abs, encoding="utf-8-sig") as f:
@@ -254,7 +265,7 @@ def _apply_edits(upstream_rel, out_name, edits):
     out_abs = os.path.join(HERE, out_name)
     # ⏪ `T-A41`：落盘一律 **temp + rename**（本仓纪律：写盘原子化 ⇒ 半个文件不会留在盘上；
     #    `T-A39`/`T-A37` 报告里"生成件 temp+rename"的口径由此**在生成器内**成立，不靠调用者）。
-    _write_atomic(out_abs, DERIVED_HEADER.format(up="src/Microsoft.DotNet.Wpf/" + upstream_rel, n=len(edits), edits=names)
+    _write_atomic(out_abs, DERIVED_HEADER.format(up=upstream_rel, n=len(edits), edits=names)
                   + text)
     return out_abs, len(edits)
 

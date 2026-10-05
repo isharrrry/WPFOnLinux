@@ -423,7 +423,7 @@ def port(name):
             rel = os.path.relpath(abs_path, proj_dir).replace(os.sep, "/")
             if rel.startswith("../"):
                 rel = os.path.basename(abs_path)
-        rel = re.sub(r"\.[^.]+$", "", rel)          # 去扩展名
+        rel = re.sub(r"\.[^./]+$", "", rel)          # 去扩展名
         return "%s.%s" % (name, rel.replace("/", ".")), False
 
     # ---------- 3. 统计被丢弃的东西 ----------
@@ -464,7 +464,16 @@ def port(name):
     out = []
     out.append("<Project>")
     out.append("  <Import Project=\"Sdk.props\" Sdk=\"Microsoft.NET.Sdk\" />")
-    out.append("  <Import Project=\"$(MSBuildThisFileDirectory)../Directory.Upstream.props\" />")
+    # ⚠️ 自指针：本文件产出到 `LINUX_SRC/<Name>/`（深度 3），`Directory.Upstream.props` 的
+    #   权威位在 `<仓根>/src/Linux/build/`。旧写法 `../Directory.Upstream.props` 是
+    #   结构上游化**之前**（`build/<Name>.Linux/`）的口径 ⇒ 生成物落到
+    #   `<仓根>/src/Microsoft.DotNet.Wpf.Linux/src/Directory.Upstream.props`（不存在）⇒
+    #   `MSB4019`，整条"重生成 → 重建"链断在第 3 步（实测：`integration-wave.sh`
+    #   第 1 步重生成后 8 个工程全 `MSB4019`）。此处按**实际产出目录**算相对路径。
+    _props_abs = os.path.normpath(os.path.join(OUTROOT, "src", "Linux", "build", "Directory.Upstream.props"))
+    _here_abs = os.path.normpath(os.path.join(LINUX_SRC, name))
+    out.append("  <Import Project=\"$(MSBuildThisFileDirectory)%s\" />"
+               % os.path.relpath(_props_abs, _here_abs).replace(os.sep, "/"))
     out.append("  <PropertyGroup>")
     out.append("    <TargetFramework>net10.0</TargetFramework>")
     out.append("    <AssemblyName>%s</AssemblyName>" % name)

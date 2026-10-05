@@ -5,23 +5,23 @@
 #   只覆盖 src 时 `state=ok` 是**必要不充分**（源没变、peer 变了 ⇒ 产物照样变）。
 # 排除：src/Linux/build/PresentationCore.Linux/{bin,obj}/**、.artifacts/**、本文件自己
 # 重算比对：python3 src/Linux/build/artifact-src-fp.py --check（缺本文件 / 缺被引产物 / 旧格式 ⇒ noinfo，**不报绿**）
-fp=9f914f98fa94d330
+fp=1702c7a097f35b51
 n=1373
-peer_fp=a31dba44762e4a61
+peer_fp=bcb421c05be64a8b
 peer_n=8
 tool_sha256=e978d6f4a345e4f90432ea63440cf507a11eaffb96c601e0e75dc04c197ee660
 # 被引产物（sha256 前 16 + 仓库相对路径；**产物字节**，不是源）
-peer=4af924b4d7d698d4  src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/Release/DirectWrite.Linux.Provider.dll
-peer=e1052ff8b75b62d8  src/Microsoft.DotNet.Wpf.Linux/src/DirectWriteForwarder/bin/Release/DirectWriteForwarder.dll
-peer=c49530e46f2d2cd6  src/Microsoft.DotNet.Wpf.Linux/src/System.Windows.Extensions/bin/Release/System.Windows.Extensions.dll
-peer=53f8b346541d3f96  src/Microsoft.DotNet.Wpf.Linux/src/System.Windows.Input.Manipulations/bin/Release/System.Windows.Input.Manipulations.dll
-peer=8c99cdd501a0a7f2  src/Microsoft.DotNet.Wpf.Linux/src/System.Xaml/bin/Release/System.Xaml.dll
-peer=9588f7e3721f7e62  src/Microsoft.DotNet.Wpf.Linux/src/UIAutomationProvider/bin/Release/UIAutomationProvider.dll
-peer=56de2087da2403b4  src/Microsoft.DotNet.Wpf.Linux/src/UIAutomationTypes/bin/Release/UIAutomationTypes.dll
-peer=6ab12e8058195e1b  src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/bin/Release/WindowsBase.dll
+peer=5b456430ef18b149  src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/Release/DirectWrite.Linux.Provider.dll
+peer=ce71d91feb8ae924  src/Microsoft.DotNet.Wpf.Linux/src/DirectWriteForwarder/bin/Release/DirectWriteForwarder.dll
+peer=d4f3f52dd6a3b68b  src/Microsoft.DotNet.Wpf.Linux/src/System.Windows.Extensions/bin/Release/System.Windows.Extensions.dll
+peer=43c9cfade4428d54  src/Microsoft.DotNet.Wpf.Linux/src/System.Windows.Input.Manipulations/bin/Release/System.Windows.Input.Manipulations.dll
+peer=a9329e49cb8d5b76  src/Microsoft.DotNet.Wpf.Linux/src/System.Xaml/bin/Release/System.Xaml.dll
+peer=c4968856464e904a  src/Microsoft.DotNet.Wpf.Linux/src/UIAutomationProvider/bin/Release/UIAutomationProvider.dll
+peer=cf15b93c0c6a94d9  src/Microsoft.DotNet.Wpf.Linux/src/UIAutomationTypes/bin/Release/UIAutomationTypes.dll
+peer=94c9734d2e89fbf9  src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/bin/Release/WindowsBase.dll
 # 逐文件（**源侧**）：sha256 前 16 + 仓库相对路径；只列**本仓自有输入**（上游 `src/Microsoft.DotNet.Wpf/**` 不列，用 --list 看全量）
 file=6d3d32ff14e68fb8  src/Linux/build/MilBridge/src/MilBridge.Resolver/MilCoreDllImportResolver.cs
-file=4de55cfd29f35265  src/Linux/build/port-lib.py
+file=b38e0b9cda89d702  src/Linux/build/port-lib.py
 file=19f150b5a8050c96  src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/FamilyCollection.Linux.cs
 file=13b57098224f833e  src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/FontCacheUtil.Linux.cs
 file=f56e647e21c29ef0  src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/HwndKeyboardInputProvider.Linux.cs
@@ -32,7 +32,7 @@ file=3a079a8f23dbdc02  src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/Input
 file=d816fd8379184813  src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/MimeTypeMapper.Linux.cs
 file=5a8736f336aba74a  src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/MouseDevice.Linux.cs
 file=7424c0f4c836e638  src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/OleServicesContext.Linux.cs
-file=0198a0aba07c6a8f  src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/SR.g.cs
+file=1006066cd7f6ae39  src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/SR.g.cs
 file=04b64eaaf77572ee  src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/SecurityHelper.Linux.cs
 file=5f729e403fc6c7b1  src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/SimpleTextLine.Linux.cs
 file=fd57318ade379427  src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/StylusLogic.Linux.cs
@@ -60,4 +60,4 @@ file=a456731247cc718a  src/WpfGfx.Linux.Native/tools/patch-presentationcore-olec
 file=258e33e25b80ab8a  src/WpfGfx.Linux.Native/tools/patch-presentationcore-registry.py
 file=a64c0de8b064fd10  src/WpfGfx.Linux.Native/tools/patch-presentationcore-securityzone.py
 file=eacc8b053d34d2ae  src/WpfGfx.Linux.Native/tools/patch-presentationcore-textline-fallback.py
-file=0f0091cf3e564312  src/WpfGfx.Linux.Native/tools/patch-swe-linux.py
+file=cfe58bbf12622ec6  src/WpfGfx.Linux.Native/tools/patch-swe-linux.py

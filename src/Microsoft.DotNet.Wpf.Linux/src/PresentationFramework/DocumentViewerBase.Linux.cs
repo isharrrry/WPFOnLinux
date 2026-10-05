@@ -1,6 +1,6 @@
 // ⚠️ 本文件由 src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/reapply-patches.py **生成**，不要手改。
 //
-// 内容 = 上游 `upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Controls/Primitives/DocumentViewerBase.cs` 逐字复制 + 1 处 W86A（`TASK-0304`/`TASK-0305`）改动。
+// 内容 = 上游 `src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Controls/Primitives/DocumentViewerBase.cs` 逐字复制 + 1 处 W86A（`TASK-0304`/`TASK-0305`）改动。
 // 每次运行该脚本都会从上游重读重生成；needle 找不到 / 命中数不符时**报错退出**
 // （不会静默产出未打补丁的副本）。改动逐处见：
 //   E1

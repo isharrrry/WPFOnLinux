@@ -437,6 +437,17 @@ ORDER=(
     ReachFramework.Linux
     PresentationFramework.Linux
     ReachFramework.Linux
+    # ⚠️ 2026-10-05 主控补（R5 定位"全黑"根因）：主题程序集 `PresentationFramework.Classic`
+    #   **一直不在本表里** —— 结构上游化**之前**它的 `bin/Release` 是历史手动构建的残留件，
+    #   随 `build/<工程>.Linux/` 一起被搬走/丢弃后就**再也编译不出来**（本表是唯一重建链）。
+    #   后果（不是"少个主题"，是**全黑**）：`WpfLinux.props` 对它的 `<Reference>` HintPath
+    #   指向不存在的文件 ⇒ RAR **静默丢弃**（无错无警）⇒ 应用 `deps.json` 里没有
+    #   `PresentationFramework.Classic` ⇒ 运行期主题字典取不到 ⇒ `Window` 模板不套用 ⇒
+    #   合成侧 `skia 指令 0 条`（窗口建出来了但整屏全黑）。
+    #   实测：`w37-tpm-204740/app`（迁移前）`max_colors=1215`；迁移后 `max_colors=1`；
+    #   把本工程重建、样本重建后回到 `1644`。它是**叶子**（只引用 SysXaml/WB/PC/PF/PUI），
+    #   放在 `PresentationFramework` 之后即可。
+    PresentationFramework.Classic.Linux
 )
 for p in "${ORDER[@]}"; do
     # ORDER 项可以是 src/Linux/build/<Name> 目录，也可以直接是 csproj 的相对路径（Provider 这种嵌套手写工程）。
@@ -555,7 +566,11 @@ step "4/4 身份自检（每个自产程序集：按项目名精确取件 + 是�
 for d in System.Xaml.Linux WindowsBase.Linux PresentationCore.Linux \
          PresentationFramework.Linux DirectWriteForwarder.Linux; do
     want="${d%.Linux}.dll"
-    dll="src/Microsoft.DotNet.Wpf.Linux/src/${d%.Linux}/bin/Debug/$want"
+    # ⚠️【2026-10-05 修·`bin/Debug` 写死点】权威件跟着**唯一声明**（`selfbuilt-config.sh` ⇒
+    #   现 = Release）。旧句写死 `bin/Debug/` ⇒ 本步对以 Release 构建的工程恒报"找不到"
+    #   （实测 `PresentationFramework.Linux ❌ 找不到（期望 PresentationFramework.dll）`，
+    #   而它其实**刚被本波以 0 错 0 警建出来**）。§2.3 同族：配置只许有一个来源。
+    dll="src/Microsoft.DotNet.Wpf.Linux/src/${d%.Linux}/bin/$SELFBUILT_CONFIG/$want"
     if [ ! -f "$dll" ]; then
         printf '  %-52s ❌ 找不到（期望 %s）\n' "$d" "$want"
         fail=$((fail + 1)); continue

@@ -1,6 +1,6 @@
 # UIAutomationProvider → Linux 移植改动清单
 
-> 由 `build/port-lib.py` 从上游自动生成，上游仓库零改动。
+> 由 `src/Linux/build/port-lib.py` 从上游自动生成，上游仓库零改动。
 
 | 项 | 数值 |
 |---|---|
@@ -8,8 +8,8 @@
 | 解析成功 | 30 |
 | 按 basename/大小写找回 | 0 |
 | 仍缺失 | 0 |
-| 剔除（build/excludes/UIAutomationProvider.txt） | 0 |
-| shim（build/shims/UIAutomationProvider.shims.txt + 身份文件） | 2 |
+| 剔除（src/Linux/build/excludes/UIAutomationProvider.txt） | 0 |
+| shim（src/Microsoft.DotNet.Wpf.Linux/src/shims/UIAutomationProvider.shims.txt + 身份文件） | 2 |
 | 丢弃 ProjectReference | 4（含 vcxproj 0） |
 | 未解析的本地引用（需先构建对应工程） | 0 [] |
 | 丢弃私有 WinForms 引用 | 0 |

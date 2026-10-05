@@ -637,9 +637,13 @@ if [ "${1:-}" = "--selftest" ]; then
     # 新契约（2026-09-14）：副本要有**声明式来源**（否则按 UNEXPECTED 判红）⇒ 给 good 沙箱一个工程图
     printf '<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><AssemblyName>DirectWrite.Linux.Provider</AssemblyName><AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath></PropertyGroup></Project>\n' > "$tmp/good/prov/Prov.csproj"
     printf '<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath></PropertyGroup><ItemGroup><Reference Include="DirectWrite.Linux.Provider"><HintPath>%s/prov/bin/Debug/%s</HintPath><Private>true</Private></Reference></ItemGroup></Project>\n' "$tmp/good" "$PROV" > "$tmp/good/P/P.csproj"
-    cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/Debug/$PROV" "$tmp/good/prov/bin/Debug/$PROV"
+    # ⚠️【2026-10-05 修·`bin/Debug` 写死点】权威件在 `bin/$SELFBUILT_CONFIG`（现 = Release）。
+    #   旧句从**硬编码** `bin/Debug/` 取"正确副本"的源 ⇒ 取到的是**跨配置陈旧副本**
+    #   （实测 `Provider/bin/Debug/DirectWrite.Linux.Provider.dll` sha 与权威不同）⇒ 沙箱里
+    #   那份"正确副本"其实 sha≠权威 ⇒ `SELFTEST_B=FAIL（MISSING/NEWER-DIFF）`，而**不是**判据坏了。
+    cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/$SELFBUILT_CONFIG/$PROV" "$tmp/good/prov/bin/Debug/$PROV"
     cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/libwpfwic.so" "$tmp/good/P/bin/Debug/libwpfwic.so"
-    cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/Debug/$PROV" "$tmp/good/P/bin/Debug/$PROV"
+    cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/$SELFBUILT_CONFIG/$PROV" "$tmp/good/P/bin/Debug/$PROV"
     head -c 4096 "$tmp/good/P/bin/Debug/libwpfwic.so" > "$tmp/bad/P/bin/Debug/libwpfwic.so"
     head -c 4096 "$tmp/good/P/bin/Debug/$PROV"       > "$tmp/bad/P/bin/Debug/$PROV"
     touch -d '2020-01-01' "$tmp/bad/P/bin/Debug/libwpfwic.so"   # .so 走 STALE、.dll 走 NEWER-DIFF：两条分支都测到
@@ -751,8 +755,8 @@ if [ "${1:-}" = "--selftest" ]; then
     touch "$tmp/stub/App/bin/Debug/App.runtimeconfig.json"
     printf '<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><AssemblyName>DirectWrite.Linux.Provider</AssemblyName><AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath></PropertyGroup></Project>\n' > "$tmp/stub/prov/Prov.csproj"
     printf '<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath></PropertyGroup><ItemGroup><Reference Include="DirectWrite.Linux.Provider"><HintPath>%s/prov/bin/Debug/%s</HintPath><Private>true</Private></Reference></ItemGroup></Project>\n' "$tmp/stub" "$PROV" > "$tmp/stub/App/App.csproj"
-    cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/Debug/$PROV" "$tmp/stub/prov/bin/Debug/$PROV"
-    cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/Debug/$PROV" "$tmp/stub/App/bin/Debug/$PROV"
+    cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/$SELFBUILT_CONFIG/$PROV" "$tmp/stub/prov/bin/Debug/$PROV"
+    cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/$SELFBUILT_CONFIG/$PROV" "$tmp/stub/App/bin/Debug/$PROV"
     head -c 5120 /dev/zero > "$tmp/stub/CycleStub.Foo.Linux/bin/Debug/$PROV"
     outF="$(SCAN_ROOTS="$tmp/stub" HINTPATH_ROOTS="$tmp/stub" AUTH_ROOT="$PREV_AUTH" "$0")"; rcF=$?
     if grep -q 'SKIP(stub)' <<<"$outF" && grep -q 'APPSYNC=PASS' <<<"$outF" && [ "$rcF" = 0 ]; then
@@ -766,8 +770,8 @@ if [ "${1:-}" = "--selftest" ]; then
     touch "$tmp/og/Probe/bin/Debug/Probe.runtimeconfig.json"
     printf '<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><AssemblyName>DirectWrite.Linux.Provider</AssemblyName><AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath></PropertyGroup></Project>\n' > "$tmp/og/prov/Prov.csproj"
     printf '<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath></PropertyGroup><ItemGroup><Reference Include="DirectWrite.Linux.Provider"><HintPath>%s/prov/bin/Debug/%s</HintPath><Private>true</Private></Reference></ItemGroup></Project>\n' "$tmp/og" "$PROV" > "$tmp/og/Probe/Probe.csproj"
-    cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/Debug/$PROV" "$tmp/og/prov/bin/Debug/$PROV"
-    head -c 4096 "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/Debug/$PROV" > "$tmp/og/Probe/bin/Debug/$PROV"
+    cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/$SELFBUILT_CONFIG/$PROV" "$tmp/og/prov/bin/Debug/$PROV"
+    head -c 4096 "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/$SELFBUILT_CONFIG/$PROV" > "$tmp/og/Probe/bin/Debug/$PROV"
     cp "$tmp/og/Probe/bin/Debug/$PROV" "$tmp/og/Probe/obj/Debug/$PROV"
     touch -d '2020-01-01' "$tmp/og/Probe/bin/Debug/$PROV"     # 明确"早于权威"
     outG="$(SCAN_ROOTS="$tmp/og" HINTPATH_ROOTS="$tmp/og" AUTH_ROOT="$PREV_AUTH" "$0")"; rcG=$?
@@ -781,7 +785,7 @@ if [ "${1:-}" = "--selftest" ]; then
     echo "=== 自检 H：库输出目录不判定 / 同一份副本在宿主目录里必须被判定 ==="
     mkdir -p "$tmp/h/Nope/bin/Debug" "$tmp/h/App/bin/Debug"
     touch "$tmp/h/App/bin/Debug/App.runtimeconfig.json"
-    head -c 4096 "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/Debug/$PROV" > "$tmp/h/Nope/bin/Debug/$PROV"
+    head -c 4096 "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/$SELFBUILT_CONFIG/$PROV" > "$tmp/h/Nope/bin/Debug/$PROV"
     cp "$tmp/h/Nope/bin/Debug/$PROV" "$tmp/h/App/bin/Debug/$PROV"
     outH="$(SCAN_ROOTS="$tmp/h" AUTH_ROOT="$PREV_AUTH" "$0")"; rcH=$?
     n_lib=$(printf '%s' "$outH" | grep -c '^    LIB-COPY'); n_judged=$(printf '%s' "$outH" | grep -cE '^    (STALE|NEWER-DIFF|MISMATCH|UNEXPECTED)')
@@ -807,7 +811,7 @@ if [ "${1:-}" = "--selftest" ]; then
     #      同一份副本**没有** HintPath 指向时 ⇒ 必须仍是 LIB-COPY（两极化，证明是 HintPath 在起作用）──
     echo "=== 自检 J：HintPath 解析源目录必须判定（无 HintPath 时仍是 LIB-COPY）==="
     mkdir -p "$tmp/j/refbin/bin/Debug" "$tmp/j/consumer" "$tmp/j/noHint/srcbin/bin/Debug"
-    head -c 4096 "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/Debug/$PROV" > "$tmp/j/refbin/bin/Debug/$PROV"
+    head -c 4096 "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/$SELFBUILT_CONFIG/$PROV" > "$tmp/j/refbin/bin/Debug/$PROV"
     touch -d '2020-01-01' "$tmp/j/refbin/bin/Debug/$PROV"
     cp "$tmp/j/refbin/bin/Debug/$PROV" "$tmp/j/noHint/srcbin/bin/Debug/$PROV"
     touch -d '2020-01-01' "$tmp/j/noHint/srcbin/bin/Debug/$PROV"
@@ -825,7 +829,7 @@ if [ "${1:-}" = "--selftest" ]; then
     echo "=== 自检 K：期望集合的基数不变性 + 删一份必须 MISSING 红 + 还原回绿 ==="
     mkdir -p "$tmp/K/prov/bin/Debug" "$tmp/K/app/bin/Debug"
     printf '<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><AssemblyName>DirectWrite.Linux.Provider</AssemblyName><AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath></PropertyGroup></Project>\n' > "$tmp/K/prov/Prov.csproj"
-    cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/Debug/$PROV" "$tmp/K/prov/bin/Debug/$PROV"
+    cp "$REPO/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/$SELFBUILT_CONFIG/$PROV" "$tmp/K/prov/bin/Debug/$PROV"
     printf '<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework><AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath></PropertyGroup><ItemGroup><Reference Include="DirectWrite.Linux.Provider"><HintPath>%s/prov/bin/Debug/%s</HintPath><Private>true</Private></Reference></ItemGroup></Project>\n' "$tmp/K" "$PROV" > "$tmp/K/app/App.csproj"
     cp "$tmp/K/prov/bin/Debug/$PROV" "$tmp/K/app/bin/Debug/$PROV"
     kExp() { printf '%s' "$1" | sed -n 's/.*期望副本=\([0-9]*\).*/\1/p' | head -1; }

@@ -608,7 +608,7 @@ namespace MilBridge.ProductEntryArm
             return s;
         }
 
-        // ── 文件式字体：`new FontFamily(baseUri, ".<file>#<family>")`（仓内先例
+        // ── 文件式字体：`new FontFamily(baseUri, "./<file>#<family>")`（仓内先例
         //    `CompositeFontProbe/Program.cs:262`）。**绝不**退回"随便找个装了同名的族"
         //    —— 那会换掉尺子（真值用的是这一份 ttf）。 ──
         private static bool TryFileFont(string fontPath, out Typeface tf, out GlyphTypeface gt, out string why)
@@ -618,7 +618,7 @@ namespace MilBridge.ProductEntryArm
             {
                 string dir = Path.GetDirectoryName(fontPath) + "/";
                 var baseUri = new Uri("file://" + dir);
-                var family = new FontFamily(baseUri, "." + Path.GetFileName(fontPath) + "#Noto Sans");
+                var family = new FontFamily(baseUri, "./" + Path.GetFileName(fontPath) + "#Noto Sans");
                 tf = new Typeface(family, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
                 if (!tf.TryGetGlyphTypeface(out gt) || gt == null) { why = "TryGetGlyphTypeface=false（baseUri=" + baseUri + "）"; return false; }
                 return true;
