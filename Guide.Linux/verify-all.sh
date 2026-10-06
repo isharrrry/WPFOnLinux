@@ -4,6 +4,7 @@
 #           → PC 侧行对拍（`TextLine.Start` 列）→ **帧列（`FrameProbe`，帧原点机制）**。
 #
 # ⚠️ **步数口径（引用前必读；三个数不能互相引用）**：
+#   **`#86` 收官起 = 68 步**（⏪ **`TASK-口径与生成式步表` 加一步**（67 → 68）：第 `[+]` 步 `VERIFYALL-STEPS-GEN`（`src/Linux/build/MilBridge/tools/verify-all-steps-generated-check.sh` —— `verify-all.sh` 的 `run_step` 行**由 `src/Linux/build/MilBridge/verify-all-steps.tsv` 经 `tools/gen-verify-all-steps.py` 生成**（哨兵夹块），本牙对拍「块内 `^run_step "` 行 ⇔ tsv」＋ `DECL` 的 `N` ＋ `NAMES` 的名字序列；分叉**逐条点名**）。**同趟**：覆盖面 **242 → 245**（`fp_inputs()` **+3 行**）＋ 第 `[42]` 步 `--expect 242 → 245` ＋ `STEP-NAMES`（67 → 68 项）＋ 预登记 `docs/WAVE86-PREREGISTRATION.md`。）；**历史行只作留档**。
 #   **`#85` 收官起 = 67 步**（⏪ **结构「单一来源」化波 加一步**（66 → 67）：第 `[+]` 步 `NO-HARDCODEDCFG`（`src/Linux/build/MilBridge/tools/no-hardcoded-config-literal-check.sh`：**禁止未登记的 `bin/Debug` 字面量** —— 代码行里的 `bin/Debug` 命中且不在豁免表（`src/Linux/build/MilBridge/hardcoded-config-exempt.tsv`，逐条带 class/why/在册号）即红、逐条点名；`NOINFO` 不算绿。**纯读、零 `dotnet`、秒级**）；**同趟**：覆盖面 **239 → 242**（`fp_inputs()` **+3 行**：牙 ＋ 豁免表 ＋ `nine-paths.tsv`）＋ 第 `[42]` 步 `FP-MANIFEST-TEETH` 的 `--expect 239 → 242` ＋ `STEP-NAMES`（66 → 67 项）＋ 预登记 `docs/WAVE85-PREREGISTRATION.md`。）；**历史行只作留档**。
 #   **`#82` 收官起 = 66 步**（⏪ **结构上游化·合并波 加两步**（64 → 66）：第 `[+]` 步 `PATH-MAP-COVERS`（`src/Linux/build/MilBridge/tools/path-map-covers-old-paths-check.sh`）与 `NO-INTERNAL-SYMLINK`（`src/Linux/build/MilBridge/tools/no-internal-symlink-check.sh`）；覆盖面 **237 → 239**、第 `[42]` 步 `--expect 237 → 239`、`STEP-NAMES` 64 → 66 项。）；**历史行只作留档**。
 #   **`#82` 收官起 = 64 步**（⏪ 本行**取代**紧邻下方那条 `62 步`（`T-D2` **加两步**：62 → 64 —— 第 `[+]` 步 `SJC-FIELD-ID`（`src/Linux/build/MilBridge/tools/sjc-field-id-check.sh`：判「证据行是否**同给**『结构偏移 ＋ 写点』两要素」的**弱版**）与第 `[+]` 步 `SILENT-THRESHOLD`（`src/Linux/build/MilBridge/tools/silent-threshold-ban-check.sh`：`R-7` 静默阈值禁令，**只扫源码**）；覆盖面**同趟 +2 行** ⇒ 234 → 236；第 `[42]` 步 `FP-MANIFEST-TEETH` 的 `--expect 234 → 236`。⚠️ 两牙的**步骤自身信息**（射程／豁免／极性）见预登记 `docs/WAVE82-PREREGISTRATION.md` §3。）；**历史行只作留档**。）
@@ -74,6 +75,7 @@
 #   ⚠️ 本块**故意放在同一个文件里**：跨文件的手工声明在本仓**已经失败过一次**（`docs/CURRENT-STATE.md`
 #      那句"当前期望是 N 步"在 `#26`/`#27` 连加 3 步时毫无反应、全程零红）⇒ 声明必须与本体同趟改、同趟审。
 #   ⚠️ **不许**用 `echo "====="` 当接线锚（它在本文件里有 **4** 处）；锚用 `run_step "DEFECT-REGISTRY" …`。
+# VERIFYALL-STEPS-DECL: 68 gen=#86   ← ⏪ **`TASK-口径与生成式步表` 加一步**（67 → 68）：第 `[+]` 步 `VERIFYALL-STEPS-GEN`（`src/Linux/build/MilBridge/tools/verify-all-steps-generated-check.sh`：`gen-verify-all-steps.py --check` 的**薄包装** —— 判 `Guide.Linux/verify-all.sh` 生成块内 `^run_step "` 行 ⇔ `src/Linux/build/MilBridge/verify-all-steps.tsv` 生成的行 ＋ `DECL` 的 `N` ＋ `NAMES` 的名字序列，分叉**逐条点名**）。**同趟**：`run_step` 行改**由 tsv 生成**（哨兵夹块）＋ 覆盖面 **242 → 245**（`fp_inputs()` **+3 行**：tsv ＋ `gen-*.py` ＋ 新牙）＋ 第 `[42]` 步 `--expect 242 → 245` ＋ `STEP-NAMES`（67 → 68 项）＋ 预登记 `docs/WAVE86-PREREGISTRATION.md`。**仪器波 · 零产品改动**。
 # VERIFYALL-STEPS-DECL: 67 gen=#85   ← ⏪ **结构「单一来源」化波 加一步**（66 → 67）：第 `[+]` 步 `NO-HARDCODEDCFG`（`src/Linux/build/MilBridge/tools/no-hardcoded-config-literal-check.sh`：禁止未登记的 `bin/Debug` 字面量；豁免表 `src/Linux/build/MilBridge/hardcoded-config-exempt.tsv`）。**同趟**：覆盖面 **239 → 242**（`fp_inputs()` **+3 行**：牙 ＋ 豁免表 ＋ `src/Linux/build/MilBridge/nine-paths.tsv`）＋ 第 `[42]` 步 `--expect 239 → 242` ＋ `STEP-NAMES`（66 → 67 项）＋ 预登记 `docs/WAVE85-PREREGISTRATION.md`。**仪器波 · 零产品改动**。
 # VERIFYALL-STEPS-DECL: 66 gen=#82   ← ⏪ **结构上游化·合并波 加两步**（64 → 66）：`PATH-MAP-COVERS`（`src/Linux/build/MilBridge/tools/path-map-covers-old-paths-check.sh`：扫全仓旧路径前缀，逐个断言在 `docs.Linux/evidence/PATH-MAP.md` 有映射）／`NO-INTERNAL-SYMLINK`（`src/Linux/build/MilBridge/tools/no-internal-symlink-check.sh`：断言落点下无指向仓内的软链接）。**同趟**：覆盖面 **237 → 239**（`fp_inputs()` **+2 行**，件路径身份）＋ 第 `[42]` 步 `FP-MANIFEST-TEETH` 的 `--expect 237 → 239` ＋ `STEP-NAMES`（64 → 66 项）。⚠️ `T-D2` 历史行逐字保留于下行。原句：`T-D2` **加两步**（62 → 64）：`TASK-0756` 落 `SJC-FIELD-ID` 弱版（`src/Linux/build/MilBridge/tools/sjc-field-id-check.sh`：判「证据行是否**同给**『结构偏移 ＋ 写点』两要素」，射程 `src/Linux/build/MilBridge/*.md`，**强版记 `NOINFO`**（需 `field-write-registry.tsv`））／`TASK-0757` 落 `SILENT-THRESHOLD`（`src/Linux/build/MilBridge/tools/silent-threshold-ban-check.sh`：`R-7` 判据命中即红，**射程＝源码** `*.c/*.h/*.sh/*.py`（**不扫 `*.md`**），`wic_proxy.c` 三处有界 trace 预算走**具名豁免**并上屏）。**同趟**：覆盖面 **234 → 236**（`fp_inputs()` **+2 行**，**件路径身份**、不用 glob）＋ 第 `[42]` 步 `FP-MANIFEST-TEETH` 的 `--expect 234 → 236` ＋ 头注释口径句 ＋ `STEP-NAMES`（62 → 64 项）＋ 预登记 `docs/WAVE82-PREREGISTRATION.md`。
 # VERIFYALL-STEPS-DECL: 62 gen=#81   ← ⏪ `t62` **加一步**（61 → 62）：第 `[+]` 步 `STATIC-JAWS`（`src/Linux/build/MilBridge/tools/static-jaws-check.sh`：把「临时静态牙全景体检」固化成**常设牙** —— 逐颗**捕获式**跑已接线的裸静态牙，`rc≠0` 逐条点名，超时/不可判记 `NOINFO`）；覆盖面**同趟 +1 行** ⇒ 233 → 234。
@@ -129,7 +131,7 @@
 # VERIFYALL-STEPS-DECL: 18 gen=#30   ← **史实行**（`#30` 收官当时的步数 —— 那一波**一步未加**）
 #   ⚠️ 读者 `decl_line()` 取**第一条**（`sed -n … | head -1`）⇒ **最上面那条才是当前口径**；
 #   下面两条只为「本波从哪一代起、加了几步」留机读痕迹。⚠️ **史实行只许追加、不许改**（纪律 61 同族）。
-# VERIFYALL-STEP-NAMES: 主工程 WpfGfx.Linux | wpf-linux.sln | Commands.Tests | Rendering.Tests | Windowing.Tests | HelloMil.Tests | ManagedLayer.Tests | Presentation.Tests | verify-cmd-layout.py | tline-gate（五臂） | PcLineOracle·Start 列 | FrameProbe-frame | BASELINE-SHA | ARM-LOG-SHA | BUILD-HYGIENE | DEFECT-REGISTRY | VERIFYALL-SELF | FP-INPUTS-HYGIENE | HIDDEN-ONLY | COLUMN-FLOOR | QUOTE-TRAP | PRODUCT-ENTRY | FRAME-PRESENCE | PIPEFAIL-SIGPIPE | THIRD-PARTY | R-GATE（连续交互） | NUL-BYTES | HYGIENE | REGRESSION-DECISION | UIA-DOOR | IME-LANDING | GEOM-BEAT | GEOM-RESEND | PREREG-FOUR-REQ | PROC-PATTERN-GUARD | REGIME-IDENTITY | BASELINE-RATE-GATE | PTS-PAGES | SILENT-HIT-V2 | BAK-COMPLETENESS | REPO-ALIAS | FP-MANIFEST-TEETH | SELFDESC-WIRING | LANE-PATH | ROWS-IDENTITY | X-CENSUS | BOUNDARY-DECL | WIRING-COVERAGE | PARSER-GUARD | PROTO-ATTR | APPBAR-STARTUP | ROOT-ENTRIES | WIRING-CLOSURE | RETIRED-PATH | REPORT-ID-DOMAIN | SENTINEL-SPEC | WAVE-PUSH | TS-ORDER | HANDOFF-MV | PUSH-MARKER | PROVIDER-REPRO | STATIC-JAWS | SJC-FIELD-ID | SILENT-THRESHOLD | PATH-MAP-COVERS | NO-INTERNAL-SYMLINK | NO-HARDCODEDCFG
+# VERIFYALL-STEP-NAMES: 主工程 WpfGfx.Linux | wpf-linux.sln | Commands.Tests | Rendering.Tests | Windowing.Tests | HelloMil.Tests | ManagedLayer.Tests | Presentation.Tests | verify-cmd-layout.py | tline-gate（五臂） | PcLineOracle·Start 列 | FrameProbe-frame | BASELINE-SHA | ARM-LOG-SHA | BUILD-HYGIENE | DEFECT-REGISTRY | VERIFYALL-SELF | FP-INPUTS-HYGIENE | HIDDEN-ONLY | COLUMN-FLOOR | QUOTE-TRAP | PRODUCT-ENTRY | FRAME-PRESENCE | PIPEFAIL-SIGPIPE | THIRD-PARTY | R-GATE（连续交互） | NUL-BYTES | HYGIENE | REGRESSION-DECISION | UIA-DOOR | IME-LANDING | GEOM-BEAT | GEOM-RESEND | PREREG-FOUR-REQ | PROC-PATTERN-GUARD | REGIME-IDENTITY | BASELINE-RATE-GATE | PTS-PAGES | SILENT-HIT-V2 | BAK-COMPLETENESS | REPO-ALIAS | FP-MANIFEST-TEETH | SELFDESC-WIRING | LANE-PATH | ROWS-IDENTITY | X-CENSUS | BOUNDARY-DECL | WIRING-COVERAGE | PARSER-GUARD | PROTO-ATTR | APPBAR-STARTUP | ROOT-ENTRIES | WIRING-CLOSURE | RETIRED-PATH | REPORT-ID-DOMAIN | SENTINEL-SPEC | WAVE-PUSH | TS-ORDER | HANDOFF-MV | PUSH-MARKER | PROVIDER-REPRO | STATIC-JAWS | SJC-FIELD-ID | SILENT-THRESHOLD | PATH-MAP-COVERS | NO-INTERNAL-SYMLINK | NO-HARDCODEDCFG | VERIFYALL-STEPS-GEN
 #   **`#28` 收官起 = 17 步**（`#28` 加第 `[11]` 步 `VERIFYALL-SELF`）｜**`#29` 收官起 = 18 步**
 #   （`#29` 加第 `[12]` 步 `FP-INPUTS-HYGIENE`：核对 `fp_inputs()` 的覆盖面里**不许出现产物路径**）｜
 #   **`#30` 收官起 = 18 步**（**仪器加固波、步数一步未加**）｜**`#31` 收官起 = 21 步**（`#31` 加第 `[13]` 步
@@ -606,6 +608,10 @@ x_recheck_alive "选定之后立即复核"
 # ---------------------------------------------------------
 echo
 echo "[1] 构建"
+# >>> GENERATED-BY: gen-verify-all-steps.py >>>
+#   ⚠️ 本行与下方**结束哨兵**之间的 `^run_step "` 行由
+#      `src/Linux/build/MilBridge/verify-all-steps.tsv` 经 `tools/gen-verify-all-steps.py --write` 生成；
+#      块内其余行（注释/echo/赋值/if）**原样保留** ⇒ 不许手改块内 `run_step` 行，改步一律走 tsv ＋ `--write`。
 run_step "主工程 WpfGfx.Linux" dotnet build src/Microsoft.DotNet.Wpf.Linux/src/WpfGfx/WpfGfx.Linux.csproj -c "$SELFBUILT_CONFIG" --nologo -v q
 # ★ `#40`：**样本不在 `src/Linux/wpf-linux.sln` 里**（实测 `grep -c WpfTextDemo src/Linux/wpf-linux.sln` = 0）
 #   ⇒ 只建 sln 的话 `src/Linux/samples/*/bin/<声明配置>/` 根本不存在，而**应用门禁与帧读者都以 `--no-build` 跑**
@@ -1204,7 +1210,7 @@ run_step "REPO-ALIAS" bash src/Linux/build/MilBridge/tools/repo-alias-check.sh -
 #   ∧ `sha256sum` `stderr` 空。它**不**判「清单**内容正确**」—— 判不了"该收的没收"（覆盖面缺项）。
 echo
 echo "[42] 指纹清单的牙（清单逐行形状 ＋ 件数对账；D-G120②；NOINFO 不算绿；#70 加）"
-run_step "FP-MANIFEST-TEETH" bash src/Linux/build/MilBridge/tools/fp-manifest-step.sh --expect 242
+run_step "FP-MANIFEST-TEETH" bash src/Linux/build/MilBridge/tools/fp-manifest-step.sh --expect 245
 run_step "SELFDESC-WIRING" bash src/Linux/build/MilBridge/tools/selfdescription-wiring-check.sh
 run_step "LANE-PATH" bash src/Linux/build/MilBridge/tools/lane-path-check.sh
 run_step "ROWS-IDENTITY" bash src/Linux/build/MilBridge/tools/rows-identity-check.sh
@@ -1245,6 +1251,8 @@ run_step "PATH-MAP-COVERS" bash src/Linux/build/MilBridge/tools/path-map-covers-
 run_step "NO-INTERNAL-SYMLINK" bash src/Linux/build/MilBridge/tools/no-internal-symlink-check.sh
 #   `TASK-O1-O4-O6` §O2 接线：**禁止未登记的 `bin/Debug` 字面量**（防回归牙）。**纯读、零 dotnet、秒级**（扫描面＝`src/Linux`/`src/Microsoft.DotNet.Wpf.Linux`/`Guide.Linux` 的 `*.sh *.py *.csproj *.props *.targets` 代码行；注释不算命中；命中且不在豁免表即红）。覆盖面（`fp_inputs()`）**同趟 +3 行**（牙 ＋ 豁免表 ＋ `nine-paths.tsv`）⇒ 239 → 242；第 `[42]` 步 `--expect` 同趟改。⚠️ 步号不写死（以现场步序为准）。
 run_step "NO-HARDCODEDCFG" bash src/Linux/build/MilBridge/tools/no-hardcoded-config-literal-check.sh
+run_step "VERIFYALL-STEPS-GEN" bash src/Linux/build/MilBridge/tools/verify-all-steps-generated-check.sh
+# <<< END GENERATED <<<
 # W168A-0724-END
 # W160A-0721-END
 # W154A-0714-END

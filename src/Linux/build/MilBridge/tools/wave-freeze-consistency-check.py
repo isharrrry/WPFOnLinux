@@ -51,6 +51,11 @@
    （白名单外即红）。**不给 `--template` ⇒ 本面 `skipped(no-template-given)`，不进总体状态、不算绿**。
    ⚠️ `~/w186a/w78/w78freeze/w78-record.txt` 是"缺陷如何发生"的**原件证据** ⇒ **只读引用，不许改**；
    新代模板由波内另一件负责。本件**不替它做**。
+   🆕 **`kind=residue`（`TASK-口径与生成式步表` ① 加）**：除"裸 hex"外，本面**另判一类** ——
+   **机器行**（形如 `^[#\s]*IDENT=`）里出现 `xx:xx`／`\bxx\b`／`\bTBD\b`／`\bFIXME\b` 之类**半填残渣**
+   ⇒ `WFREEZE_TEMPLATE=FAIL` ＋ 逐行点名 `WFREEZE_TEMPLATE_HIT kind=residue line=N`。
+   为什么补它：本波真漏 `date=2026-10-06Txx:xx+08:00` **没有** 16 位 hex ⇒ **旧域结构上看不见它**。
+   ⚠️ **只判机器行**（正文/散文里出现 "xx" 不是残渣）⇒ 不误伤正文；且**不削弱** `kind=nine`／`kind=other`。
 
 【三态】`PASS`（rc 0）／`FAIL`（rc 1，逐条点名）／`NOINFO`（rc 3，**算不出来 ≠ 绿**）。
         任一档 `FAIL` ⇒ 整体 `FAIL`；无 `FAIL` 但有 `NOINFO` ⇒ 整体 `NOINFO`。
@@ -645,6 +650,22 @@ def template_line_kind(line):
     return 'other'
 
 
+# ══ 模板面 · `kind=residue`（`TASK-口径与生成式步表` ① 加）══════════════════════════════
+#   防什么：**未替换残渣**（半填占位）—— 本波真出现过的**真漏**是 `date=2026-10-06Txx:xx+08:00`：
+#   它是"**机器行里留了半填值**"，而 `kind=nine`／`kind=other` 那套只看**16 位 hex 裸字面量**
+#   ⇒ 结构上抓不到"把本该现取的值写成半成品"。本档补这一面。
+#   判据：**机器行**（形如 `^[#\s]*IDENT=`）里出现 `xx:xx`／`\bxx\b`／`\bTBD\b`／`\bFIXME\b` ⇒ 红并逐行点名。
+#   ⚠️ **只判机器行**：正文/散文里出现 "xx"（本件正文大量散文可能含）**不是**残渣 ⇒ 不误伤正文。
+#   ⚠️ 本档**不削弱** `kind=nine`／`kind=other`：三类判定**并列**，任一命中即 `WFREEZE_TEMPLATE=FAIL`。
+MACHINE_LINE_RE = re.compile(r'^[#\s]*[A-Za-z_][A-Za-z0-9_]*=')
+RESIDUE_RE = re.compile(r'xx:xx|\bxx\b|\bTBD\b|\bFIXME\b')
+
+
+def template_residue(line):
+    """机器行里出现半填残渣 ⇒ True（`kind=residue`）。**只对机器行判**，散文一律不算。"""
+    return bool(MACHINE_LINE_RE.match(line) and RESIDUE_RE.search(line))
+
+
 def _freezer_record_txt(freezer, root=None):
     """从冻结器 `GENS` **现取**「最新声明世代」的 `TXT`（= 本代记录模板路径）。取不到 ⇒ `None`。
     ⏪ `TASK-O1-O4-O6` §O4：记录段**可仓内寻址**之后，`TXT` 可能是**仓内相对路径**
@@ -806,6 +827,11 @@ def sec_blockvalues(root, shifts_path=None, template=None, freezer=None):
         else:
             judged = []; notes = 0
             for i, l in enumerate(read_lines(template), 1):
+                # ① residue 分支（`TASK-口径与生成式步表` ① 加）：**机器行里的未替换残渣** ⇒ 独立于 hex 判定
+                #   （本波真漏 `date=…Txx:xx+08:00` **没有** 16 位 hex ⇒ 只走 ② 会漏掉它）。
+                if template_residue(l):
+                    judged.append(('residue', i, l.strip()))
+                    continue
                 if not re.search(r'(?<![0-9a-f])[0-9a-f]{16}(?![0-9a-f])', l):
                     continue
                 kind = template_line_kind(l)
@@ -819,8 +845,12 @@ def sec_blockvalues(root, shifts_path=None, template=None, freezer=None):
                 bad += 1
                 tstate = 'FAIL'
                 for kind, i, txt in judged:
-                    print('WFREEZE_TEMPLATE_HIT kind=%s line=%d text=%s（**承载现取值的行**里不许出现 16 位 hex 裸字面量 ⇒ 用 `{…}` 占位符）'
-                          % (kind, i, txt[:120]))
+                    if kind == 'residue':
+                        print('WFREEZE_TEMPLATE_HIT kind=residue line=%d text=%s（**机器行里的未替换残渣/半填占位** ⇒ 该现取的值没落地；把 `xx:xx`／`xx`／`TBD`／`FIXME` 换成真值或删该行）'
+                              % (i, txt[:120]))
+                    else:
+                        print('WFREEZE_TEMPLATE_HIT kind=%s line=%d text=%s（**承载现取值的行**里不许出现 16 位 hex 裸字面量 ⇒ 用 `{…}` 占位符）'
+                              % (kind, i, txt[:120]))
             else:
                 tstate = 'PASS'
             print('WFREEZE_TEMPLATE=%s path=%s hits=%d notes=%d' % (tstate, template, len(judged), notes))
@@ -997,6 +1027,16 @@ def selftest():
                               '--template', tpl2], capture_output=True, text=True).stdout
         arm('S9b', 'WFREEZE_TEMPLATE=PASS' in out and 'WFREEZE_TEMPLATE_NOTE' in out and 'WFREEZE_TEMPLATE_HIT' not in out,
             '裸 hex 只在 `ARM-LOG-SHA`（非承载行）⇒ PASS ＋ 出 NOTE（**只列不判**的边界）')
+        # S9c（`TASK-口径与生成式步表` ① 加）：**机器行里的未替换残渣**（`kind=residue`）的反极性真跑 ——
+        #   往模板注入一行 `X=xx:xx`（半填占位；**没有** 16 位 hex ⇒ 旧的 hex 域抓不到它）⇒ 档④ **必红并点名**。
+        #   ⚠️ 同一份模板里**散文**含 `xx`／`TBD` ⇒ **不误伤**（只判机器行；这一条由 S9b 的 `ARM-LOG-SHA` 边界同向佐证）。
+        tpl3 = os.path.join(T, 'rec3.txt')
+        open(tpl3, 'w').write('# template\nX=xx:xx\n'
+                              '#   散文里出现 xx 与 TBD 字样（不是机器行 ⇒ 不算残渣、不误伤）\n')
+        out = subprocess.run(['python3', os.path.abspath(__file__), '--root', SELF_ROOT, '--freezer', '/nonexistent',
+                              '--template', tpl3], capture_output=True, text=True).stdout
+        arm('S9c', 'WFREEZE_TEMPLATE=FAIL' in out and 'kind=residue line=2' in out,
+            '机器行 `X=xx:xx`（半填残渣）⇒ 模板面 FAIL 并点名 `kind=residue line=2`；同件散文里的 `xx` 不误伤')
         # S12 正极（**内容锚的两极化**）：把某站点**整体下移 N 行**（纯插空行/注释）⇒ **档① 仍 PASS**。
         #   这一格正是 `t20` 落地暴露的病：行号锚下"加两行"会假红（`t27` 现场 bad=3），内容锚下不该红。
         shutil.rmtree(os.path.join(T, 'shift'), ignore_errors=True)

@@ -400,7 +400,10 @@ src/Linux/tests/WpfGfx.Linux.Tests/Commands.Tests/tools/verify-cmd-layout.py \
             src/Linux/build/MilBridge/tools/no-internal-symlink-check.sh \
             src/Linux/build/MilBridge/tools/no-hardcoded-config-literal-check.sh \
             src/Linux/build/MilBridge/hardcoded-config-exempt.tsv \
-            src/Linux/build/MilBridge/nine-paths.tsv
+            src/Linux/build/MilBridge/nine-paths.tsv \
+            src/Linux/build/MilBridge/verify-all-steps.tsv \
+            src/Linux/build/MilBridge/tools/gen-verify-all-steps.py \
+            src/Linux/build/MilBridge/tools/verify-all-steps-generated-check.sh
     } | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -d' ' -f1
 }
 sha16() { sha256sum "$1" 2>/dev/null | cut -c1-16; }

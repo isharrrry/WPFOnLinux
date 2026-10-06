@@ -1,0 +1,82 @@
+# verify-all-steps.tsv —— `Guide.Linux/verify-all.sh` **步表**的**唯一来源**（`TASK-口径与生成式步表` ②）
+#   列（TAB 分隔）：seq<TAB>name<TAB>cmd<TAB>needs_x<TAB>bare_tooth
+#     · `seq`        步序号（1..N，按现场次序；生成器**按本列顺序**产 `run_step` 行）
+#     · `name`       `run_step "NAME"` 里的 NAME（逐字照现脚本）
+#     · `cmd`        该步 `run_step "name"` 之后的**逐字**文本（**含对齐空格**；`run_step "name"` ＋ 本列 逐字重建原行）
+#     · `needs_x`    该步命令行是否含**显示位/腿批面**（判据 = 正则 `--legs|Xvfb|xdpyinfo|DISPLAY=`，
+#                    照 `src/Linux/build/MilBridge/tools/static-jaws-check.sh` 的 `DISPLAY_ERE`；**人读元数据，本表不判**）
+#     · `bare_tooth` 该步是否是 `static-jaws-check.sh` 射程内的**裸静态牙**（判据 = 其 `BARE_ERE`：
+#                    `^bash <tools>/<牙>.sh([ \t]+--dry-run)?[ \t]*$`；**人读元数据，本表不判**）
+#   ⚠️ 本表由 `src/Linux/build/MilBridge/tools/gen-verify-all-steps.py` 消费：
+#      `--check` 对拍现场 `run_step` 行（＋ DECL 的 N ＋ NAMES 的名字序列）；`--write` 就地替换生成块内 `run_step` 行。
+#   ⚠️ 改步 ⇒ 改本表 ⇒ 跑 `--write`；**不许**手改 `Guide.Linux/verify-all.sh` 里的 `run_step` 行
+#      （牙 `src/Linux/build/MilBridge/tools/verify-all-steps-generated-check.sh` 会红并点名）。
+seq	name	cmd	needs_x	bare_tooth
+1	主工程 WpfGfx.Linux	 dotnet build src/Microsoft.DotNet.Wpf.Linux/src/WpfGfx/WpfGfx.Linux.csproj -c "$SELFBUILT_CONFIG" --nologo -v q	no	no
+2	wpf-linux.sln	       build_sln_and_samples	no	no
+3	Commands.Tests	  dotnet test -c "$SELFBUILT_CONFIG" src/Linux/tests/WpfGfx.Linux.Tests/Commands.Tests/WpfGfx.Linux.Commands.Tests.csproj   --nologo -v q	no	no
+4	Rendering.Tests	 dotnet test -c "$SELFBUILT_CONFIG" src/Linux/tests/WpfGfx.Linux.Tests/Rendering.Tests/WpfGfx.Linux.Rendering.Tests.csproj --nologo -v q	no	no
+5	Windowing.Tests	 dotnet test -c "$SELFBUILT_CONFIG" src/Linux/tests/WpfGfx.Linux.Tests/Windowing.Tests/WpfGfx.Linux.Windowing.Tests.csproj --nologo -v q	no	no
+6	HelloMil.Tests	  dotnet test -c "$SELFBUILT_CONFIG" src/Linux/tests/WpfGfx.Linux.Tests/HelloMil.Tests/HelloMil.Tests.csproj                --nologo -v q	no	no
+7	ManagedLayer.Tests	 dotnet test -c "$SELFBUILT_CONFIG" src/Linux/tests/WpfGfx.Linux.Tests/ManagedLayer.Tests/ManagedLayer.Tests.csproj     --nologo -v q	no	no
+8	Presentation.Tests	 dotnet test -c "$SELFBUILT_CONFIG" src/Linux/tests/WpfGfx.Linux.Tests/Presentation.Tests/WpfGfx.Linux.Presentation.Tests.csproj --nologo -v q	no	no
+9	verify-cmd-layout.py	 python3 src/Linux/tests/WpfGfx.Linux.Tests/Commands.Tests/tools/verify-cmd-layout.py	no	no
+10	tline-gate（五臂）	 bash src/Linux/build/MilBridge/tools/tline-gate.sh --logdir "$ARM_LOGS"	no	no
+11	PcLineOracle·Start 列	 bash src/Linux/build/MilBridge/tools/pc-line-step.sh	no	yes
+12	FrameProbe-frame	 bash src/Linux/build/MilBridge/tools/frame-step.sh	no	yes
+13	BASELINE-SHA	 bash src/Linux/build/MilBridge/tools/baseline-sha-check.sh	no	yes
+14	ARM-LOG-SHA	 bash src/Linux/build/MilBridge/tools/arm-log-sha-check.sh	no	yes
+15	BUILD-HYGIENE	 bash src/Linux/build/MilBridge/tools/build-hygiene-import-check.sh	no	yes
+16	DEFECT-REGISTRY	 bash src/Linux/build/MilBridge/tools/defect-registry-check.sh	no	yes
+17	VERIFYALL-SELF	 bash src/Linux/build/MilBridge/tools/verify-all-step-check.sh	no	yes
+18	FP-INPUTS-HYGIENE	 bash src/Linux/build/MilBridge/tools/fp-inputs-hygiene-check.sh	no	yes
+19	HIDDEN-ONLY	 bash src/Linux/build/MilBridge/tools/hidden-only-step.sh	no	yes
+20	COLUMN-FLOOR	 bash src/Linux/build/MilBridge/tools/column-floor-check.sh	no	yes
+21	QUOTE-TRAP	 bash src/Linux/build/MilBridge/tools/shell-quote-trap-check.sh	no	yes
+22	PRODUCT-ENTRY	 bash src/Linux/build/MilBridge/tools/product-entry-step.sh	no	yes
+23	FRAME-PRESENCE	 bash src/Linux/build/MilBridge/tools/frame-presence-check.sh --app-args=--late-content --seconds=40 --magenta	no	no
+24	PIPEFAIL-SIGPIPE	 bash src/Linux/build/MilBridge/tools/pipefail-sigpipe-check.sh	no	yes
+25	THIRD-PARTY	 bash src/Linux/samples/ThirdPartyMini/run-thirdparty-mini.sh 25	no	no
+26	R-GATE（连续交互）	 bash src/Linux/build/MilBridge/tools/r-gate-step.sh	no	yes
+27	NUL-BYTES	 bash src/Linux/build/MilBridge/tools/nul-bytes-check.sh	no	yes
+28	HYGIENE	 bash src/Linux/build/MilBridge/tools/hygiene-tooth.sh	no	yes
+29	REGRESSION-DECISION	 python3 src/Linux/build/MilBridge/tools/regression-decision.py --cases src/Linux/build/MilBridge/tools/regression-decision-cases.tsv	no	no
+30	UIA-DOOR	 bash src/Linux/build/MilBridge/tools/known-red-arms-check.sh	no	yes
+31	IME-LANDING	 bash src/Linux/build/MilBridge/tools/ime-landing-check.sh	no	yes
+32	GEOM-BEAT	 bash src/Linux/build/MilBridge/tools/geom-revert-beat-check.sh --corpus="$GEOM_CORPUS"	no	no
+33	GEOM-RESEND	 bash src/Linux/build/MilBridge/tools/geom-resend-regression-check.sh --corpus="$GEOM_CORPUS" --verify-arms	no	no
+34	PREREG-FOUR-REQ	 bash src/Linux/build/MilBridge/tools/prereg-four-requirements-check.sh --gate --glob 'docs/WAVE*-PREREGISTRATION.md'	no	no
+35	PROC-PATTERN-GUARD	 bash src/Linux/build/MilBridge/tools/proc-pattern-guard.sh --repo="$ROOT"	no	no
+36	REGIME-IDENTITY	 bash src/Linux/build/MilBridge/tools/regime-identity-check.sh --corpus="$GEOM_CORPUS"	no	no
+37	BASELINE-RATE-GATE	 bash src/Linux/build/MilBridge/tools/baseline-rate-gate.sh --cases src/Linux/build/MilBridge/tools/baseline-rate-cases.tsv	no	no
+38	PTS-PAGES	 bash src/Linux/build/MilBridge/tools/pts-pages-guard.sh --legs "$PTS_EVIDENCE_DIR"	yes	no
+39	SILENT-HIT-V2	 bash src/Linux/build/MilBridge/tools/silent-hit-v2-check.sh --cases src/Linux/build/MilBridge/tools/silent-hit-v2-cases.tsv --expect 12	no	no
+40	BAK-COMPLETENESS	 bash src/Linux/build/MilBridge/tools/bak-completeness-step.sh	no	yes
+41	REPO-ALIAS	 bash src/Linux/build/MilBridge/tools/repo-alias-check.sh --allow src/Linux/build/MilBridge/repo-alias-allow.tsv	no	no
+42	FP-MANIFEST-TEETH	 bash src/Linux/build/MilBridge/tools/fp-manifest-step.sh --expect 245	no	no
+43	SELFDESC-WIRING	 bash src/Linux/build/MilBridge/tools/selfdescription-wiring-check.sh	no	yes
+44	LANE-PATH	 bash src/Linux/build/MilBridge/tools/lane-path-check.sh	no	yes
+45	ROWS-IDENTITY	 bash src/Linux/build/MilBridge/tools/rows-identity-check.sh	no	yes
+46	X-CENSUS	 bash src/Linux/build/MilBridge/tools/xvfb-census-check.sh --baseline "${X_CENSUS_BASE:-/dev/null}"	no	no
+47	BOUNDARY-DECL	 bash src/Linux/build/MilBridge/tools/boundary-decl-check.sh	no	yes
+48	WIRING-COVERAGE	 bash src/Linux/build/MilBridge/tools/wiring-coverage-check.sh	no	yes
+49	PARSER-GUARD	 bash src/Linux/build/MilBridge/tools/parser-guard-check.sh	no	yes
+50	PROTO-ATTR	 bash src/Linux/build/MilBridge/tools/proto-attribution-check.sh --cases src/Linux/build/MilBridge/tools/proto-attribution-cases.tsv --expect 18	no	no
+51	APPBAR-STARTUP	 bash src/Linux/build/MilBridge/tools/appbar-startup-check.sh --all --symbols src/WpfGfx.Linux.Native/bin/libwpfwin32.so --legs src/Linux/build/MilBridge/tools/appbar-startup-ledger.tsv --expect-legs 7	yes	no
+52	ROOT-ENTRIES	 bash src/Linux/build/MilBridge/tools/root-entries-allowlist-check.sh	no	yes
+53	WIRING-CLOSURE	 bash src/Linux/build/MilBridge/tools/wiring-closure-check.sh	no	yes
+54	RETIRED-PATH	 bash src/Linux/build/MilBridge/tools/pkg-src-retiredpath-check.sh --tree	no	no
+55	REPORT-ID-DOMAIN	 bash src/Linux/build/MilBridge/tools/report-id-domain-check.sh	no	yes
+56	SENTINEL-SPEC	 bash src/Linux/build/MilBridge/tools/sentinel-spec-check.sh	no	yes
+57	WAVE-PUSH	 bash src/Linux/build/MilBridge/tools/wave-push.sh --dry-run	no	yes
+58	TS-ORDER	 bash src/Linux/build/MilBridge/tools/timestamp-order-check.sh	no	yes
+59	HANDOFF-MV	 bash src/Linux/build/MilBridge/tools/handoff-machine-values-check.sh	no	yes
+60	PUSH-MARKER	 bash src/Linux/build/MilBridge/tools/push-marker-check.sh	no	yes
+61	PROVIDER-REPRO	 bash src/Linux/build/MilBridge/tools/provider-repro-check.sh	no	yes
+62	STATIC-JAWS	 bash src/Linux/build/MilBridge/tools/static-jaws-check.sh	no	yes
+63	SJC-FIELD-ID	 bash src/Linux/build/MilBridge/tools/sjc-field-id-check.sh	no	yes
+64	SILENT-THRESHOLD	 bash src/Linux/build/MilBridge/tools/silent-threshold-ban-check.sh	no	yes
+65	PATH-MAP-COVERS	 bash src/Linux/build/MilBridge/tools/path-map-covers-old-paths-check.sh	no	yes
+66	NO-INTERNAL-SYMLINK	 bash src/Linux/build/MilBridge/tools/no-internal-symlink-check.sh	no	yes
+67	NO-HARDCODEDCFG	 bash src/Linux/build/MilBridge/tools/no-hardcoded-config-literal-check.sh	no	yes
+68	VERIFYALL-STEPS-GEN	 bash src/Linux/build/MilBridge/tools/verify-all-steps-generated-check.sh	no	yes

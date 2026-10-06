@@ -5,7 +5,7 @@
 #      **该行内容被改** ⇒ key 变 ⇒ 红（必须重发本表）。
 #   state=root ⇒ **逐条真跑判值必须 == 仓根**；state=benign/err ⇒ 只钉**集合与状态**（不钉值）。
 #   ⚠️ 本表**由牙自己重算**：任何新增/删除/改状态 ⇒ 红，必须重发本表（"逼后来者显式声明"）。
-# WFROOT-SITES-TOTAL derived=182 files=150
+# WFROOT-SITES-TOTAL derived=183 files=151
 site	src/Linux/build/MilBridge/run.sh		d676e88b0c62f0c1	0	err
 site	src/Linux/build/MilBridge/run.sh	MB	c8f5d429db361a1a	0	benign
 site	src/Linux/build/MilBridge/tests/E3ReplayProbe/run-e3replay-probe.sh	HERE	8c3fee02743e5375	0	benign
@@ -39,6 +39,7 @@ site	src/Linux/build/MilBridge/tools/frame-step.sh		73af76fdc68d402a	0	err
 site	src/Linux/build/MilBridge/tools/frame-step.sh	ROOT	37f38d49de6866b8	0	root
 site	src/Linux/build/MilBridge/tools/gdiplus-decode-check.sh	HERE	8c3fee02743e5375	0	benign
 site	src/Linux/build/MilBridge/tools/gen-exports.py	HERE	23b6448daffea694	0	benign
+site	src/Linux/build/MilBridge/tools/gen-verify-all-steps.py	HERE	23b6448daffea694	0	benign
 site	src/Linux/build/MilBridge/tools/geom-revert-beat-check.sh	GEOMBEAT_REPO	56c59c392c4c832f	0	root
 site	src/Linux/build/MilBridge/tools/handoff-machine-values-check.sh	SELF	da88161238e32d48	0	benign
 site	src/Linux/build/MilBridge/tools/hidden-only-step.sh		73af76fdc68d402a	0	err

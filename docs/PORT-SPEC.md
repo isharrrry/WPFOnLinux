@@ -87,6 +87,21 @@
 
 ---
 
+## §5.1 冻结记录段的口径（**模板 vs 落地**）
+
+> **记录段（`docs.Linux/evidence/freeze/w<NN>-record.txt`）是模板。**
+> `{…}` 占位符**必须保留**（它是"该现取的值不可能被写死"的**保险丝**，见 `WFREEZE_TEMPLATE` 的 `kind=nine` 规则）；
+> **判"记录是否落地"不看有无占位符**，而看 `WFREEZE_BLOCKVALUES` / `NINEAUTH` / `NINESYNC` 三档（它们拿 `GENS` 的值**代换后**与现场对拍）。
+> **不许**为了"看起来填满了"而把 `{…}` 换成裸值（那会把保险丝拆掉，制造"看着像真的、其实是旧值"的假绿）。
+
+- **为什么写死这条**：`WFREEZE_TEMPLATE`（牙 = `src/Linux/build/MilBridge/tools/wave-freeze-consistency-check.py`，`close-wave.sh [5c/6]` 用 `--template auto` 每趟真跑）的结构面**只抓两类** ——
+  ① **承载现取值的行**里出现**裸 16 位 hex 字面量**（`kind=nine`／`kind=inputs_fp`／`kind=bridge_src_fp`）；
+  ② 🆕 **机器行里的未替换残渣**（`kind=residue`：形如 `^[#\s]*IDENT=` 的行里出现 `xx:xx`／`xx`／`TBD`／`FIXME` 之类**半填占位**，逐行点名 `WFREEZE_TEMPLATE_HIT kind=residue line=N`）。
+  ② 是本条动机的现场形态 —— 本波真出现过的**真漏**是 `date=2026-10-06Txx:xx+08:00`：它**没有** 16 位 hex ⇒ 旧的 hex 域**结构上看不见它**。
+- **边界（不许读宽）**：残渣判定**只判机器行**（正文/散文里出现 "xx" **不是**残渣）⇒ **不误伤正文**；且**不削弱**既有 `kind=nine`／`kind=other` —— 三类判定**并列**，任一命中即 `WFREEZE_TEMPLATE=FAIL`。
+
+---
+
 ## §6 并行协作的实操约定
 
 1. **一条车道 = 一个可独立验证的判据**（不是"一个功能"）。车道产出的最小集：**报告 + 判据的成对读数 + 复算命令**。
