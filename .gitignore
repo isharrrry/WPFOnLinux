@@ -77,4 +77,7 @@ src/Linux/tests/parity/windows/layout-b34/windows-results.json
 # ══════════════════════════════════════════════════════════════════════════════
 
 # narnat 框架运行时目录（非仓内容；勿提交）
-.agents/
+#   ⚠️ 例外：`.agents/tasks/`（派给子执行体的任务书）**纳入管控** —— 它们是"这波怎么做的"的一手记录。
+#   注：git 的规矩是"父目录被排除则其中文件无法再被包含" ⇒ 必须写成 `.agents/*` 而不是 `.agents/`。
+.agents/*
+!.agents/tasks/
