@@ -43,6 +43,7 @@ Two rules:
 | **build from scratch** (what to install, which command) | [guide/building.md](guide/building.md) → then `WAVE_OWNER=$(whoami) bash build/integration-wave.sh` |
 | **see a window / run a sample** | [guide/running-samples.md](guide/running-samples.md) → then `bash tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpftextdemo.sh 60 --tier both` |
 | **run one-command acceptance (64 steps)** | `bash verify-all.sh` (caliber in [guide/building.md](guide/building.md)) |
+| **find the entry points (which script to run)** | [../Guide.Linux/README.md](../Guide.Linux/README.md) — the one-command entry-point list (`verify-all.sh` / `integration-wave.sh` / `close-wave.sh`) |
 | **understand how it all fits together** | [design/architecture.md](design/architecture.md) |
 | **start changing code / claim a task** | [design/contributing.md](design/contributing.md) plus the spec [`docs/PORT-SPEC.md`](../docs/PORT-SPEC.md) |
 | **find where an upstream project lands here** | [upstream/layout.md](upstream/layout.md) |

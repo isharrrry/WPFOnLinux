@@ -52,6 +52,7 @@ bash verify-all.sh                                                              
 | [`README-Window.md`](README-Window.md) | **上游 `dotnet/wpf` README 原文**（逐字保留；上游身份与许可可追溯） |
 | [`docs/README.md`](docs/README.md) | **原始 / Windows 侧**文档总线（规范 / 现状 / 证据 / 历史 四分类） |
 | [`docs.Linux/README.md`](docs.Linux/README.md) | **移植 / Linux 侧**文档总线 —— 主题 × 语言表 ＋「我想做 X → 读哪件」（[中文](docs.Linux/README.zh-CN.md) · [Español](docs.Linux/README.es.md)） |
+| [`Guide.Linux/README.md`](Guide.Linux/README.md) | **一键入口清单** —— 三个入口（`verify-all.sh` / `integration-wave.sh` / `close-wave.sh`）的用途、典型调用、前置条件与判据 |
 
 两根的名字就是规则：**`X` = 原始 / Windows 侧**，**`X.Linux` = 移植 / Linux 侧**
 （冻结的命名约定见 [`docs.Linux/design/_PHASE0-NAMING-CONVENTION.md`](docs.Linux/design/_PHASE0-NAMING-CONVENTION.md)）。

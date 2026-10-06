@@ -34,7 +34,20 @@ APPLIER = os.path.join(ROOT, "src/WpfGfx.Linux.Native/tools/patch-presentationco
 GEN_HS = os.path.join(ROOT, "src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/HwndSource.Linux.cs")
 GEN_HK = os.path.join(ROOT, "src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/HwndKeyboardInputProvider.Linux.cs")
 PROBE_DIR = os.path.join(ROOT, "src/Linux/build/MilBridge/tests/InputTraceProbe")
-PC_DLL = os.path.join(ROOT, "src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/Debug/PresentationCore.dll")
+
+
+def _selfbuilt_cfg():
+    # ★ 权威件配置只走唯一声明（TASK-O1-O4-O6 §O2）：不再写死 bin/Debug。
+    try:
+        _t = open(os.path.join(ROOT, "src/Linux/build/SelfBuiltConfig.props"), encoding="utf-8").read()
+    except OSError:
+        return "Release"
+    _m = re.search(r"<WpfLinuxSelfBuiltConfiguration[^>]*>([^<]*)<", _t)
+    return (_m.group(1).strip() if _m else "") or "Release"
+
+
+PC_DLL = os.path.join(ROOT, "src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/%s/PresentationCore.dll"
+                      % _selfbuilt_cfg())
 
 
 def load_applier():

@@ -29,13 +29,14 @@ if [ -x "$HOME/.dotnet/dotnet" ]; then PATH="$HOME/.dotnet:$PATH"; fi
 DOTNET_BIN="$(command -v dotnet || true)"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO="$(cd "$HERE/../../../../.." && pwd)"
+. "$REPO/src/Linux/build/selfbuilt-config.sh"   # ★ 权威件配置只走唯一声明（TASK-O1-O4-O6 §O2）
 DLL="$HERE/bin/Debug/FallbackCriteria.dll"
 if [ -z "$DOTNET_BIN" ]; then
   echo "CRITERIA=NOINFO reason=dotnet-not-found（**仪器故障**，不是"读数缺失"：请装 dotnet 或设 PATH；本行不许当绿）" >&2
   exit 3
 fi
 SHIM="$REPO/src/Microsoft.DotNet.Wpf.Linux/src/shims/PresentationCore.HbTextLine.cs"
-PC="$REPO/src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/Debug/PresentationCore.dll"
+PC="$REPO/src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/$SELFBUILT_CONFIG/PresentationCore.dll"
 STAMP="$(date +%Y%m%d-%H%M%S)"
 OUTDIR="${DF1_OUT:-$HOME/wfp-runs/df1c-$STAMP}"
 mkdir -p "$OUTDIR"

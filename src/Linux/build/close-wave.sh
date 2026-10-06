@@ -397,7 +397,10 @@ src/Linux/tests/WpfGfx.Linux.Tests/Commands.Tests/tools/verify-cmd-layout.py \
             src/Linux/build/MilBridge/tools/sjc-field-id-check.sh \
             src/Linux/build/MilBridge/tools/silent-threshold-ban-check.sh \
             src/Linux/build/MilBridge/tools/path-map-covers-old-paths-check.sh \
-            src/Linux/build/MilBridge/tools/no-internal-symlink-check.sh
+            src/Linux/build/MilBridge/tools/no-internal-symlink-check.sh \
+            src/Linux/build/MilBridge/tools/no-hardcoded-config-literal-check.sh \
+            src/Linux/build/MilBridge/hardcoded-config-exempt.tsv \
+            src/Linux/build/MilBridge/nine-paths.tsv
     } | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -d' ' -f1
 }
 sha16() { sha256sum "$1" 2>/dev/null | cut -c1-16; }
@@ -739,7 +742,7 @@ if cmp -s "$FLAG" "$FLAG_MIRROR"; then
 else
     say "  ❌ 哨兵自证：SENTINEL_CMP=DIFFER（$FLAG ≠ $FLAG_MIRROR）—— 停下核（**不许把不一致当成功**）"
 fi
-say "  🔖 哨兵已更新（$FLAG）：bridge=$(sha16 src/Linux/build/MilBridge/.artifacts/publish/MilBridge.Linux/release_linux-x64/wpfgfx_cor3.so) pc=$(sha16 src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/Debug/PresentationCore.dll) win32shim=$(sha16 "$NATIVE_AUTH") hbtextline=$(sha256sum src/Microsoft.DotNet.Wpf.Linux/src/shims/PresentationCore.HbTextLine.cs | cut -c1-16)"
+say "  🔖 哨兵已更新（$FLAG）：bridge=$(sha16 src/Linux/build/MilBridge/.artifacts/publish/MilBridge.Linux/release_linux-x64/wpfgfx_cor3.so) pc=$(sha16 src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/$SELFBUILT_CONFIG/PresentationCore.dll) win32shim=$(sha16 "$NATIVE_AUTH") hbtextline=$(sha256sum src/Microsoft.DotNet.Wpf.Linux/src/shims/PresentationCore.HbTextLine.cs | cut -c1-16)"
 
 say ""; say "  ✅ 序列完成。汇总文件：$SUMMARY"
 say "  ▶ **下一步（不能省）**：用上面的八位去跑应用级门禁并**重冻基线**（src/Linux/samples/WpfTextDemo/ACCEPTANCE-BASELINE.md），"

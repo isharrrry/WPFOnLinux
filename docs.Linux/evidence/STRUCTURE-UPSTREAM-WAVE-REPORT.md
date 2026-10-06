@@ -72,3 +72,23 @@ bash src/Linux/samples/ThirdPartyMini/run-thirdparty-mini.sh 20   # 期望 THIRD
 python3 src/Linux/build/MilBridge/tools/wave-freeze-consistency-check.py --root . --template auto
 sed -n '9p' docs/CURRENT-STATE.md
 ```
+
+## 6. O6 · 入口边界厘清（**清单式**，不搬迁）
+
+> 派单 `TASK-O1-O4-O6` §O6（主控裁定：**不改路径**，只做「单一入口清单」）。本节为**具名登记**。
+
+**裁决理由（被引面 ＋ 真调用，均**现取**）**：三个入口在仓内的被引面极广 —— `git grep -l <入口>` 现取
+`Guide.Linux/verify-all.sh` **591** 件、`src/Linux/build/close-wave.sh` **501** 件、
+`src/Linux/build/integration-wave.sh` **181** 件（派单记 588／497／175；§⑦「数一律现取」）；
+且**多颗牙真的调用它们**（`sentinel-spec-check.sh`／`applier-audit.py`／`wiring-coverage-check.sh`／
+`timestamp-order-check.sh`／`wave-push.sh`／`static-jaws-check.sh`／`fp-inputs-hygiene-check.sh`／
+`handoff-machine-values-check.sh` …）。⇒ **搬迁 = 又一次全仓重写 ＋ 动门禁**，**成本 ≫ 收益**。
+
+**做了什么（清单式）**：
+1. 新建 `Guide.Linux/README.md` —— **一键入口清单**：三个入口的用途／典型调用／前置条件／判据（三条命令逐条可跑）。
+2. 根门面与移植侧文档总线指向它（各 **1 行**）：`README.md`／`README.zh-CN.md`／`README.es.md` 的「去哪看（导航）」表 ＋
+   `docs.Linux/README.md`／`README.zh-CN.md`／`README.es.md` 的「我想……→去读」表。
+3. 本节（具名登记理由）。
+
+**边界（如实）**：本波**不**移动/新增任何入口件，只**指路**。
+

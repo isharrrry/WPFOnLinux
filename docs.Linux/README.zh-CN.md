@@ -43,6 +43,7 @@
 | **从零构建**（要装什么、跑哪条命令） | [guide/building.zh-CN.md](guide/building.zh-CN.md) → 然后 `WAVE_OWNER=$(whoami) bash build/integration-wave.sh` |
 | **看见窗口 / 跑样本** | [guide/running-samples.zh-CN.md](guide/running-samples.zh-CN.md) → 然后 `bash tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpftextdemo.sh 60 --tier both` |
 | **一键验收（64 步）** | `bash verify-all.sh`（口径见 [guide/building.zh-CN.md](guide/building.zh-CN.md) §验收） |
+| **找入口（该跑哪条脚本）** | [../Guide.Linux/README.md](../Guide.Linux/README.md) —— 一键入口清单（`verify-all.sh` / `integration-wave.sh` / `close-wave.sh`） |
 | **看懂整体怎么搭的** | [design/architecture.zh-CN.md](design/architecture.zh-CN.md) |
 | **上手改代码 / 认领任务** | [design/contributing.zh-CN.md](design/contributing.zh-CN.md) ＋ 规范 [`docs/PORT-SPEC.md`](../docs/PORT-SPEC.md) |
 | **找某个上游工程在我们这儿落到了哪** | [upstream/layout.zh-CN.md](upstream/layout.zh-CN.md) |

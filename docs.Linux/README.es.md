@@ -43,6 +43,7 @@ Dos reglas:
 | **compilar desde cero** | [guide/building.es.md](guide/building.es.md) → luego `WAVE_OWNER=$(whoami) bash build/integration-wave.sh` |
 | **ver una ventana / ejecutar una muestra** | [guide/running-samples.es.md](guide/running-samples.es.md) → luego `bash tests/WpfGfx.Linux.Tests/Presentation.Tests/run-wpftextdemo.sh 60 --tier both` |
 | **aceptación en un comando (64 pasos)** | `bash verify-all.sh` (calibre en [guide/building.es.md](guide/building.es.md)) |
+| **encontrar los puntos de entrada (qué script ejecutar)** | [../Guide.Linux/README.md](../Guide.Linux/README.md) — lista de puntos de entrada (`verify-all.sh` / `integration-wave.sh` / `close-wave.sh`) |
 | **entender el conjunto** | [design/architecture.es.md](design/architecture.es.md) |
 | **empezar a tocar código / reclamar tarea** | [design/contributing.es.md](design/contributing.es.md) y la especificación [`docs/PORT-SPEC.md`](../docs/PORT-SPEC.md) |
 | **ver dónde aterriza un proyecto del upstream** | [upstream/layout.es.md](upstream/layout.es.md) |

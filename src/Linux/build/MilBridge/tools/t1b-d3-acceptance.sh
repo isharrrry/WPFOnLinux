@@ -13,10 +13,11 @@
 set -uo pipefail
 
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../../.." && pwd)"   # 波 `#77` 旧路径重指向：由仓根现推
+. "$ROOT/src/Linux/build/selfbuilt-config.sh"   # ★ 权威件配置只走唯一声明（TASK-O1-O4-O6 §O2）
 export PATH="$HOME/.dotnet:$PATH"
 OUT="${1:-/tmp/t1b-d3-accept}"
 SHIM="$ROOT/src/Microsoft.DotNet.Wpf.Linux/src/shims/PresentationCore.HbTextLine.cs"
-PCDLL="$ROOT/src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/Debug/PresentationCore.dll"
+PCDLL="$ROOT/src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/$SELFBUILT_CONFIG/PresentationCore.dll"
 D="$ROOT/src/Linux/tests/WpfGfx.Linux.Tests/Presentation.Tests"
 
 mkdir -p "$OUT"
@@ -26,7 +27,7 @@ echo "== T1b/D3 · 波后验收 =="
 SHIM_SHA=$(sha256sum "$SHIM" | cut -d' ' -f1)
 PC_SHA=$(sha256sum "$PCDLL" | cut -d' ' -f1)
 echo "shim : src/Microsoft.DotNet.Wpf.Linux/src/shims/PresentationCore.HbTextLine.cs  sha256=$SHIM_SHA  ($(wc -l < "$SHIM") 行)"
-echo "PC   : src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/Debug/PresentationCore.dll  sha256=$PC_SHA  ($(date -r "$PCDLL" +%F\ %T))"
+echo "PC   : src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/$SELFBUILT_CONFIG/PresentationCore.dll  sha256=$PC_SHA  ($(date -r "$PCDLL" +%F\ %T))"
 HBF=$(strings "$PCDLL" | grep -c "HbTextFallback" || true)
 echo "判据0: PC.dll 里 'HbTextFallback' 命中 = $HBF （波 9 实测 0；≥1 ⇒ D3 真的编进去了）"
 [ "$HBF" -ge 1 ] || { echo "[停止] D3 没编进 PC —— 后面的验收无意义"; exit 4; }

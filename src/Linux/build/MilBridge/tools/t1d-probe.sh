@@ -20,6 +20,7 @@
 set -uo pipefail
 
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../../.." && pwd)"   # 波 `#77` 旧路径重指向：由仓根现推
+. "$ROOT/src/Linux/build/selfbuilt-config.sh"   # ★ 权威件配置只走唯一声明（TASK-O1-O4-O6 §O2）
 export PATH="$HOME/.dotnet:$PATH"
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
 
@@ -43,8 +44,8 @@ echo "== [2/3] 被测文件与产物指纹 =="
     echo "== T1d CoverageProbe · $(date -Iseconds)"
     printf 'SHIM      %s sha256=%s lines=%s\n' "$SHIM" "$(sha256sum "$SHIM" | cut -d' ' -f1)" "$(wc -l < "$SHIM")"
     printf 'PROBE     %s sha256=%s\n' "$BIN/PresentationCore.Tests.dll" "$(sha256sum "$BIN/PresentationCore.Tests.dll" | cut -d' ' -f1)"
-    printf 'PC        %s sha256=%s\n' "$ROOT/src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/Debug/PresentationCore.dll" \
-        "$(sha256sum "$ROOT/src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/Debug/PresentationCore.dll" | cut -d' ' -f1)"
+    printf 'PC        %s sha256=%s\n' "$ROOT/src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/$SELFBUILT_CONFIG/PresentationCore.dll" \
+        "$(sha256sum "$ROOT/src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/$SELFBUILT_CONFIG/PresentationCore.dll" | cut -d' ' -f1)"
     printf 'HB        %s\n' "$(python3 - <<'PY'
 import ctypes
 hb=ctypes.CDLL("libharfbuzz.so.0"); hb.hb_version_string.restype=ctypes.c_char_p

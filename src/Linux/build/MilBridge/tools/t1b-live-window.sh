@@ -17,11 +17,12 @@
 set -uo pipefail
 
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../../.." && pwd)"   # 波 `#77` 旧路径重指向：由仓根现推
+. "$ROOT/src/Linux/build/selfbuilt-config.sh"   # ★ 权威件配置只走唯一声明（TASK-O1-O4-O6 §O2）
 export PATH="$HOME/.dotnet:$PATH"
 OUT="${1:-/tmp/t1b-live-window}"
 FRAMES="${2:-20}"
 SHIM="$ROOT/src/Microsoft.DotNet.Wpf.Linux/src/shims/PresentationCore.HbTextLine.cs"
-PCDLL="$ROOT/src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/Debug/PresentationCore.dll"
+PCDLL="$ROOT/src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/$SELFBUILT_CONFIG/PresentationCore.dll"
 D="$ROOT/src/Linux/tests/WpfGfx.Linux.Tests/Presentation.Tests"
 
 mkdir -p "$OUT"

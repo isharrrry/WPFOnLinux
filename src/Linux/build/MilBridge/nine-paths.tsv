@@ -1,0 +1,13 @@
+# nine-paths.tsv —— 九位**权威路径表**（单一来源；由 `wave-freeze-consistency-check.py --emit-nine` 生成并入库）
+#   列（TAB 分隔）：`path<TAB>key`；`path` 里的 `{CFG}` 由读者替换为 `src/Linux/build/SelfBuiltConfig.props` 的声明值。
+#   ⚠️ 冻结器 `~/w21-verify/w27-freeze.py` 的 `NINE` 由**本表**读取（不再各自维护一份 —— `D-G176` 族：同一语义两处 ⇒ 必然分叉）。
+#   ⚠️ 本表**必须**与 `NINE_PATHS` 逐条例同；`sec_ninesync()`（`[5c/6]` 的 decl 档）每趟现算对拍。
+src/Linux/build/MilBridge/.artifacts/publish/MilBridge.Linux/release_linux-x64/wpfgfx_cor3.so	bridge
+src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/{CFG}/PresentationCore.dll	pc
+src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/bin/{CFG}/PresentationFramework.dll	pf
+src/Microsoft.DotNet.Wpf.Linux/src/WindowsBase/bin/{CFG}/WindowsBase.dll	windowsbase
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/{CFG}/DirectWrite.Linux.Provider.dll	provider
+src/WpfGfx.Linux.Native/bin/libwpfwin32.so	win32shim
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/libwpfwic.so	wic_shim
+src/Microsoft.DotNet.Wpf.Linux/src/shims/PresentationCore.HbTextLine.cs	hbtextline
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWriteForwarder/bin/{CFG}/DirectWriteForwarder.dll	dwf

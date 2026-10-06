@@ -1,0 +1,81 @@
+# hardcoded-config-exempt.tsv —— `no-hardcoded-config-literal-check.sh` 的**声明式豁免表**（`TASK-O1-O4-O6` §O2）
+#  列：file<TAB>anchor16<TAB>class<TAB>registered<TAB>why；anchor16 = 该行 strip() 后 sha256 前 16（**内容锚、禁行号**）。
+#  `registered` 必须是**已入册**缺陷号（`defect-registry-declared.tsv`）；本表统一挂 `D-G47`（自产件配置单一来源族）。
+#  ⚠️ 本表不是"把牙关掉"：未登记的行照旧红；每行都带 class ＋ why。
+file	anchor16	class	registered	why
+src/Linux/build/MilBridge/tools/fp-inputs-hygiene-check.sh	0acb28a273da9d96	fixture-sandbox	D-G47	沙箱夹具目录 `$fix/…`/`$sb/…` 下的自建 bin/Debug（自测用，非仓内权威消费点）
+src/Linux/build/MilBridge/tools/fp-inputs-hygiene-check.sh	3aed26423d2d088b	fixture-sandbox	D-G47	沙箱夹具目录 `$fix/…`/`$sb/…` 下的自建 bin/Debug（自测用，非仓内权威消费点）
+src/Linux/build/MilBridge/tools/fp-inputs-hygiene-check.sh	d8b00f641fb9d7bc	fixture-sandbox	D-G47	沙箱夹具目录 `$fix/…`/`$sb/…` 下的自建 bin/Debug（自测用，非仓内权威消费点）
+src/Linux/build/MilBridge/tools/shim-in-artifact.sh	446d0b7750b6879f	doc-usage-heredoc	D-G47	`usage()` heredoc 里的用法示例文本（不是消费点）
+src/Linux/build/artifact-src-fp.py	c4e5ed1d8008cd29	doc-or-fixture-string	D-G47	docstring／自测样本字符串里的路径示例（不是真消费点）
+src/Linux/build/artifact-src-fp.py	0582c46ee685654a	doc-or-fixture-string	D-G47	docstring／自测样本字符串里的路径示例（不是真消费点）
+src/Linux/build/artifact-src-fp.py	b92c7ba2eac4246d	doc-or-fixture-string	D-G47	docstring／自测样本字符串里的路径示例（不是真消费点）
+src/Linux/build/selfbuilt-config.sh	ad8d3ecf34ac21bf	self-scan-pattern	D-G47	欠账计数器（`--debt`/`--debt-check`）**自身**的 grep 图案字面量 `bin/Debug`（不是消费点）
+src/Linux/build/selfbuilt-config.sh	39ec25e6a8d63287	self-scan-pattern	D-G47	欠账计数器（`--debt`/`--debt-check`）**自身**的 grep 图案字面量 `bin/Debug`（不是消费点）
+src/Linux/build/selfbuilt-config.sh	7210ab959a840eb7	self-scan-pattern	D-G47	欠账计数器（`--debt`/`--debt-check`）**自身**的 grep 图案字面量 `bin/Debug`（不是消费点）
+src/Linux/build/selfbuilt-config.sh	ad8d3ecf34ac21bf	self-scan-pattern	D-G47	欠账计数器（`--debt`/`--debt-check`）**自身**的 grep 图案字面量 `bin/Debug`（不是消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/FallbackCriteria/run-df1-criteria.sh	bf4db29426ff626c	own-build-output	D-G47	本 harness **自建输出**目录 `$HERE/bin/Debug/FallbackCriteria.dll`（-c Debug）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/FontEntryClosedLoop/run-font-harness.sh	830a7fed341f7040	own-build-output	D-G47	本 harness **自建输出**目录（`-c Debug` ⇒ bin/Debug 正确）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/WicClosedLoop/run-harness.sh	c12ff9093bb51b0d	own-build-output	D-G47	本 harness **自建输出**目录（`-c Debug` ⇒ bin/Debug 正确）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/WicWriteClosedLoop/run-write-harness.sh	1b976731dabbae79	own-build-output	D-G47	本 harness **自建输出**目录（`dotnet … -c Debug` ⇒ bin/Debug 正确）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/WiringSmoke/fix-deps.py	a116949f89e27e14	own-build-output	D-G47	本工具**自建输出**目录的默认值（装置独立构建）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	4bde92c0b56d6728	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	d95cf768404619b3	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	69dc47d395151e50	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	a710bc80b65c3a40	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	983af2f62ba32213	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	1fb0a0ff2be89c53	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	a765543d99ce10da	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	2ffe7fc1bba3c537	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	707f6adc48e6adb4	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	ebf6478a79387b16	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	0695227fe2a789be	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	51935e27f39d6288	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	cbf24d21013616c6	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	06557d0060f13bc1	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	86b4a42eb188d53f	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	efad1bb71a2373ff	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	bf493a0f52c54c69	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	f3b50dd90aca824a	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	9af941a1c0ca890d	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	3ad33f0ad1d9e17b	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	90de86786adcfeaa	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	a0e4cbb360378b42	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	fb90987af4fcb30c	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	a5db0d85f8dd765a	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	178bb057ce99eb68	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	9d0eec704f051382	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	180a8675e3cb9692	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	5f20705fcd2c2c11	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	3464dfa787940db7	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	1b00cb956b8642a4	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	b60d07a7d385f3a9	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	ed51a8be4f977ce2	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	cb9be207679d3b80	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	19ae265927cbcaeb	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	a855b9b41ecf44f4	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	3a0435ce6376fc7e	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	ac96c91759e98fb5	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	384061470ce54a34	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	293dcc1531f4738c	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	034a998ef64eb53d	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	c32adfec6ae5009a	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	8de9838471da63b5	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	0fe1365f6a4bd031	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	83d585a4bc981520	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	324747c068a4710a	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	e80b726e4ec53bed	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	d556759805ae02fa	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	bce6b59bb8c2b8e8	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	684a85fe8a82722b	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	ee77e48f0d9bbef1	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	684a85fe8a82722b	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	ee77e48f0d9bbef1	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	29a80e30f38ef465	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	ee77e48f0d9bbef1	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	0708b0e0ab3d8d60	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	557d0f691be48e6b	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	1042f168d804cc19	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	043d60b2e6e623de	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	7eec2ad00c33e441	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）
+src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/wic-shim/check-applocal-sync.sh	90b0534e352e3f1f	fixture-sandbox	D-G47	沙箱夹具目录 `$tmp/…` 下的自建 bin/Debug（装置自测用，非仓内权威消费点）

@@ -111,6 +111,7 @@ src/Linux/build/MilBridge/tools/proto-attribution-check.sh	cases-absent	2	两处
 src/Linux/build/MilBridge/tools/regime-identity-check.sh	bad-usage	1	参数误用分支（`case *)`）：本步 argv 由 verify-all 固定 ⇒ 门禁路径上不可达
 src/Linux/build/MilBridge/tools/verify-all-step-check.sh	bad-usage	1	同上（参数误用分支）
 src/Linux/build/MilBridge/tools/geom-resend-regression-check.sh	USAGE_ERR	2	两处都在"参数/角色构造误用"档（未知 arg；fix==pre 两角色塌成一个）⇒ 本步 argv 逐字给出两个不同角色
+src/Linux/build/MilBridge/tools/no-hardcoded-config-literal-check.sh	bad-usage	1	参数误用分支（`case *)`）：本步 argv 由 `verify-all` 固定（**裸调用、零参数**）⇒ 门禁路径上不可达
 EXEMPT
 }
 

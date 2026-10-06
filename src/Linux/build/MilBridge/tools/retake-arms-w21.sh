@@ -4,6 +4,7 @@
 set -uo pipefail
 
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../../.." && pwd)"   # 波 `#77` 旧路径重指向：由仓根现推
+. "$ROOT/src/Linux/build/selfbuilt-config.sh"   # ★ 权威件配置只走唯一声明（TASK-O1-O4-O6 §O2）
 cd "$ROOT" || exit 2
 export PATH="$HOME/.dotnet:$PATH"
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
@@ -12,7 +13,7 @@ OUT="$HOME/wfp-runs/arms21"
 mkdir -p "$OUT"
 echo "=== arms re-take $(date '+%F %T') loadavg=$(cut -d' ' -f1-3 /proc/loadavg) ==="
 echo "shim      = $(sha256sum src/Microsoft.DotNet.Wpf.Linux/src/shims/PresentationCore.HbTextLine.cs | cut -c1-16)"
-echo "pc        = $(sha256sum src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/Debug/PresentationCore.dll | cut -c1-16)"
+echo "pc        = $(sha256sum src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/$SELFBUILT_CONFIG/PresentationCore.dll | cut -c1-16)"
 echo "run.sh    = $(sha256sum src/Linux/build/MilBridge/run.sh | cut -c1-16)"
 echo "Parity.cs = $(sha256sum src/Linux/build/MilBridge/tests/HbTextLineParity/Program.cs | cut -c1-16)"
 

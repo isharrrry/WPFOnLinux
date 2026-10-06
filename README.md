@@ -50,6 +50,7 @@ bash verify-all.sh                                                              
 | [`README-Window.md`](README-Window.md) | the **upstream `dotnet/wpf` README**, kept verbatim (upstream identity and licence stay traceable) |
 | [`docs/README.md`](docs/README.md) | **original / Windows-side** documentation bus (normative / current / evidence / history) |
 | [`docs.Linux/README.md`](docs.Linux/README.md) | **port / Linux-side** documentation bus — topic × language table plus "I want to X → read Y" ([中文](docs.Linux/README.zh-CN.md) · [Español](docs.Linux/README.es.md)) |
+| [`Guide.Linux/README.md`](Guide.Linux/README.md) | **one-command entry-point list** — the three entry points (`verify-all.sh` / `integration-wave.sh` / `close-wave.sh`): purpose, typical invocation, prerequisites, criterion |
 
 The two roots are the rule: **`X` = original / Windows side**, **`X.Linux` = port / Linux side**
 (the frozen convention is [`docs.Linux/design/_PHASE0-NAMING-CONVENTION.md`](docs.Linux/design/_PHASE0-NAMING-CONVENTION.md)).

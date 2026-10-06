@@ -491,6 +491,54 @@ def sec_decl(root, freezer, decl_override=None):
     return st
 
 
+# ── 档 ④ · **单一来源一致牙**（`TASK-O1-O4-O6` §O1；`D-G176` 族 —— 「同一语义两处 ⇒ 必然分叉」）──────
+def sec_ninesync(root, freezer):
+    """断言「**冻冻器实际用的九条路径 == 仓内 `NINE_PATHS`**」，不等即红、逐条点名。
+       · 仓内**单一来源** = `NINE_PATHS`；**导出件** = `src/Linux/build/MilBridge/nine-paths.tsv`
+         （`--emit-nine` 生成、**入库**）；
+       · 冻结器 `~/w21-verify/w27-freeze.py` **必须读该 tsv**（不许再持一份字面量 `NINE = [...]` —— 那正是分叉源）；
+       · 三态：`PASS`／`FAIL`（逐条点名）／`NOINFO`（取不到 ⇒ **不算绿**）。"""
+    tsv_rel = 'src/Linux/build/MilBridge/nine-paths.tsv'
+    tsv = os.path.join(root, tsv_rel)
+    if freezer and not os.path.exists(freezer):
+        print('WFREEZE_NINESYNC=NOINFO reason=freezer-absent path=%s（仓外仪器取不到 ⇒ 算不出来，**不算绿**）' % freezer)
+        return 'NOINFO'
+    if not os.path.exists(tsv):
+        print('WFREEZE_NINESYNC=NOINFO reason=tsv-absent path=%s（没有单一来源导出件 ⇒ 算不出来，**不算绿**）' % tsv)
+        return 'NOINFO'
+    rows = []
+    for l in read_lines(tsv):
+        if not l or l.startswith('#'):
+            continue
+        f = l.split('\t')
+        if len(f) < 2:
+            continue
+        rows.append((f[1].strip(), f[0].strip()))          # (key, path)
+    want = [(n, r) for n, r in NINE_PATHS]
+    bad = []
+    if rows != want:
+        if len(rows) != len(want):
+            bad.append('count tsv=%d nine=%d' % (len(rows), len(want)))
+        got, wnt = dict(rows), dict(want)
+        for k in sorted(set(got) | set(wnt)):
+            if got.get(k) != wnt.get(k):
+                bad.append('key=%s tsv=%s nine=%s' % (k, got.get(k, '<absent>'), wnt.get(k, '<absent>')))
+    fz = 'freezer-absent'
+    if freezer and os.path.exists(freezer):
+        ftxt = open(freezer, encoding='utf-8', errors='replace').read()
+        reads = os.path.basename(tsv_rel) in ftxt
+        literal = re.search(r'^NINE\s*=\s*\[', ftxt, re.M) is not None
+        if not reads:
+            bad.append('freezer-does-not-read-tsv（冻结器没读 `%s` ⇒ 仍可能另持一份）' % tsv_rel)
+        if literal:
+            bad.append('freezer-keeps-literal-NINE（冻结器里仍有 `NINE = [` 字面量 ⇒ 分叉源还在）')
+        fz = 'reads-tsv' if (reads and not literal) else 'misconfigured'
+    st = 'FAIL' if bad else 'PASS'
+    print('WFREEZE_NINESYNC=%s rows=%d src=%s%s'
+          % (st, len(rows), fz, ('' if not bad else ' :: ' + ' ; '.join(bad))))
+    return st
+
+
 # ── 档 ③ ────────────────────────────────────────────────────────────────────────
 def sec_nineauth(root, pairs=None):
     pairs = NINEAUTH if pairs is None else pairs
@@ -597,8 +645,10 @@ def template_line_kind(line):
     return 'other'
 
 
-def _freezer_record_txt(freezer):
-    """从冻结器 `GENS` **现取**「最新声明世代」的 `TXT`（= 本代记录模板路径）。取不到 ⇒ `None`。"""
+def _freezer_record_txt(freezer, root=None):
+    """从冻结器 `GENS` **现取**「最新声明世代」的 `TXT`（= 本代记录模板路径）。取不到 ⇒ `None`。
+    ⏪ `TASK-O1-O4-O6` §O4：记录段**可仓内寻址**之后，`TXT` 可能是**仓内相对路径**
+    （`docs.Linux/evidence/freeze/w<NN>-record.txt`）⇒ 给出 `root` 时按仓根解析（旧代绝对路径照旧）。"""
     try:
         tree = ast.parse(open(freezer, encoding='utf-8', errors='replace').read())
         G = _gens_from_ast(tree)
@@ -614,7 +664,10 @@ def _freezer_record_txt(freezer):
                 best = (n, g)
         if best is None:
             return None
-        return (G.get(best[1]) or {}).get('TXT')
+        t = (G.get(best[1]) or {}).get('TXT')
+        if t and root and not os.path.isabs(t):
+            t = os.path.join(root, t)
+        return t
     except Exception:
         return None
 
@@ -735,7 +788,7 @@ def sec_blockvalues(root, shifts_path=None, template=None, freezer=None):
     tstate = 'skipped(no-template-given)'
     if template == 'auto':
         # 【`t34`】`--template auto`：由**冻结器 `GENS`** 现取本代记录模板 ⇒ 仓内**不写死**任何世代/车道路径。
-        _t = _freezer_record_txt(freezer) if freezer else None
+        _t = _freezer_record_txt(freezer, root) if freezer else None
         if _t:
             template = _t
             print('WFREEZE_TEMPLATE_AUTO src=freezer-GENS path=%s' % template)
@@ -777,6 +830,19 @@ def sec_blockvalues(root, shifts_path=None, template=None, freezer=None):
     print('WFREEZE_BLOCKVALUES=%s gen=#%s keys=%d declared_shifts=%d nofixpt=%d bad=%d noinfo=%d cfg=%s'
           % (st, gen, len(NINE_PATHS), declared, nofixpt, bad, noinfo, cfg))
     return st
+
+
+# ── `--emit-nine`：九位权威路径表的**只读导出端**（`TASK-O1-O4-O6` §O1）────────────────────
+def emit_nine():
+    """把仓内**单一来源** `NINE_PATHS` 导成冻结器可吃的 tsv（打印 `路径<TAB>键`）。
+    该输出**入库**为 `src/Linux/build/MilBridge/nine-paths.tsv`；冻结器 `~/w21-verify/w27-freeze.py`
+    的 `NINE` 由它读取 ⇒ 消除「两份表手工同步」。`path` 里的 `{CFG}` 由读者替换为唯一声明值。"""
+    print('# nine-paths.tsv —— 九位**权威路径表**（单一来源；由 `wave-freeze-consistency-check.py --emit-nine` 生成并入库）')
+    print('#   列（TAB 分隔）：`path<TAB>key`；`path` 里的 `{CFG}` 由读者替换为 `src/Linux/build/SelfBuiltConfig.props` 的声明值。')
+    print('#   ⚠️ 冻结器 `~/w21-verify/w27-freeze.py` 的 `NINE` 由**本表**读取（不再各自维护一份 —— `D-G176` 族：同一语义两处 ⇒ 必然分叉）。')
+    print('#   ⚠️ 本表**必须**与 `NINE_PATHS` 逐条例同；`sec_ninesync()`（`[5c/6]` 的 decl 档）每趟现算对拍。')
+    for name, rel in NINE_PATHS:
+        print('%s\t%s' % (rel, name))
 
 
 # ── 自测（真跑；每一档都要有能红的臂）────────────────────────────────────────────
@@ -990,9 +1056,13 @@ def main():
     ap.add_argument('--shifts', default=SHIFTS_TSV)
     ap.add_argument('--template')
     ap.add_argument('--emit-roster')
+    ap.add_argument('--emit-nine', action='store_true', help='只读导出九位权威路径表（path<TAB>key）后退出')
     ap.add_argument('--selftest', action='store_true')
     a = ap.parse_args()
     if a.selftest: return selftest()
+    if a.emit_nine:
+        emit_nine()
+        return 0
     root = os.path.realpath(a.root)
     if a.emit_roster:
         out = a.emit_roster if os.path.isabs(a.emit_roster) else os.path.join(root, a.emit_roster)
@@ -1001,6 +1071,12 @@ def main():
         return 0
     s1 = sec_rootdefault(root, a.sites)
     s2 = sec_decl(root, a.freezer, a.decl_override)
+    # `TASK-O1-O4-O6` §O1：九位单一来源一致牙 —— 并入 `decl` 档（保持 `[5c/6]` **四档**口径）。
+    ns = sec_ninesync(root, a.freezer)
+    if 'FAIL' in (s2, ns):
+        s2 = 'FAIL'
+    elif 'NOINFO' in (s2, ns):
+        s2 = 'NOINFO'
     pairs = None
     if a.pairs_override:
         pairs = [tuple(x.split(',')) for x in a.pairs_override.split(';')]

@@ -46,6 +46,7 @@ bash verify-all.sh                                                              
 | [`README-Window.md`](README-Window.md) | el **README original de `dotnet/wpf`**, conservado literalmente |
 | [`docs/README.md`](docs/README.md) | bus de documentación del **lado original / Windows** (normativo / actual / evidencia / historia) |
 | [`docs.Linux/README.md`](docs.Linux/README.md) | bus de documentación del **lado port / Linux** — tabla tema × idioma y «quiero X → leo Y» ([中文](docs.Linux/README.zh-CN.md) · [Español](docs.Linux/README.es.md)) |
+| [`Guide.Linux/README.md`](Guide.Linux/README.md) | **lista de puntos de entrada en un comando** — los tres puntos de entrada (`verify-all.sh` / `integration-wave.sh` / `close-wave.sh`): uso, invocación típica, requisitos previos y criterio |
 
 Las dos raíces son la regla: **`X` = lado original / Windows**, **`X.Linux` = lado port / Linux**
 (convención congelada: [`docs.Linux/design/_PHASE0-NAMING-CONVENTION.md`](docs.Linux/design/_PHASE0-NAMING-CONVENTION.md)).

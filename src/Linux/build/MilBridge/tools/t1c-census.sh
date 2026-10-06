@@ -44,6 +44,7 @@ PC_OVERRIDE=""
 HOLD_SECONDS="${HOLD_SECONDS:-18}"
 DISPLAY_NUM="${WPTD_DISPLAY:-:98}"
 EXTRA_ENV=()
+. "$ROOT/src/Linux/build/selfbuilt-config.sh"   # ★ 权威件配置只走唯一声明（TASK-O1-O4-O6 §O2）
 # ⚠️ 注意：`T1C_*` 是本装置**自己**的选项（A/B 对照、转发正则），**不要**当成"传给被测应用的 env" ——
 #    踩过一次：`T1C_AB_BASE=…` 被塞进应用环境 ⇒ 装置自己看不见它 ⇒ A/B 那两行**静默不出现**
 #    （"仪器悄悄不工作"那一族）。这里显式区分。
@@ -64,7 +65,7 @@ done
 
 mkdir -p "$OUTDIR"
 RUN="$OUTDIR/run"
-SRC="$ROOT/src/Linux/samples/WpfTextDemo/bin/Debug/net10.0"
+SRC="$ROOT/src/Linux/samples/WpfTextDemo/bin/$SELFBUILT_CONFIG/net10.0"
 FONT_FILE="$ROOT/src/Linux/build/fonts-ui/UI-NoLayout.ttf"
 LOG="$OUTDIR/app.log"
 READ="$OUTDIR/readings.txt"
@@ -76,7 +77,7 @@ rm -rf "$RUN"; mkdir -p "$RUN"
 cp -r "$SRC"/. "$RUN"/
 
 # 2a) 自产程序集刷新成**权威产物**（只取与目录同名的那一件）
-for d in "$ROOT"/src/Linux/build/*.Linux/bin/Debug/*.dll; do
+for d in "$ROOT"/src/Linux/build/*.Linux/bin/$SELFBUILT_CONFIG/*.dll; do
     [ -f "$d" ] || continue
     proj="$(basename "$(dirname "$(dirname "$(dirname "$d")")")")"
     case "$proj" in CycleStub.*) continue ;; esac
@@ -84,7 +85,7 @@ for d in "$ROOT"/src/Linux/build/*.Linux/bin/Debug/*.dll; do
     cp -f "$d" "$RUN"/ 2>/dev/null
 done
 # 2b) provider
-PROVIDER="$ROOT/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/Debug/DirectWrite.Linux.Provider.dll"
+PROVIDER="$ROOT/src/Microsoft.DotNet.Wpf.Linux/src/DirectWrite/Provider/bin/$SELFBUILT_CONFIG/DirectWrite.Linux.Provider.dll"
 [ -f "$PROVIDER" ] && cp -f "$PROVIDER" "$RUN"/ || echo "   ⚠️ 找不到 provider（PC 会 FileNotFoundException）"
 # 2c) win32 shim + 别名
 SHIM="$ROOT/src/WpfGfx.Linux.Native/bin/libwpfwin32.so"

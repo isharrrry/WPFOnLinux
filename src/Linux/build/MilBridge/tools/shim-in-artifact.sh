@@ -71,12 +71,13 @@ resolve_root() {
   return 1
 }
 if ! ROOTDIR="$(resolve_root)"; then
+. "$ROOTDIR/src/Linux/build/selfbuilt-config.sh"   # ★ 权威件配置只走唯一声明（TASK-O1-O4-O6 §O2）
   echo "SHIM_IN_ARTIFACT=NOINFO reason=root-unresolved (script=$SELF_DIR --root='$ROOT' cwd=$PWD)"
   exit 2
 fi
 [ -n "$SHIM" ]     || SHIM="$ROOTDIR/src/Microsoft.DotNet.Wpf.Linux/src/shims/PresentationCore.HbTextLine.cs"
 [ -n "$ARTIFACT" ] || for c in \
-      "$ROOTDIR/src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/Debug/PresentationCore.dll" \
+      "$ROOTDIR/src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/$SELFBUILT_CONFIG/PresentationCore.dll" \
       "$ROOTDIR/src/Microsoft.DotNet.Wpf.Linux/src/PresentationCore/bin/Release/PresentationCore.dll"; do
   if [ -f "$c" ]; then ARTIFACT="$c"; break; fi
 done
