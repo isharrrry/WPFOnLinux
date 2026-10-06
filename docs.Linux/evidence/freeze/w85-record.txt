@@ -1,16 +1,16 @@
 ===BANNER===
-# BASELINE-HEADER date=2026-10-06Txx:xx+08:00 display=:231（`verify-all`／`run-wpftextdemo` 目标显示号现取）｜车道 = **`TASK-O1-O4-O6`（唯一写者）**
+# BASELINE-HEADER date=2026-10-06T17:56+08:00 display=:231（`verify-all`／`run-wpftextdemo` 目标显示号现取）｜车道 = **`TASK-O1-O4-O6`（唯一写者）**
 #   cpu=7核  run_dir=/home/links-dev ｜车道工作目录 `~/w21-verify/w85/`（`logs/`＝链条日志）
 #   ⚠️ 权威件构建配置 = Release（唯一声明 = `src/Linux/build/SelfBuiltConfig.props`）
 #   ⚠️ **本代零产品逻辑改动**：结构「单一来源」化波（O1 九位表单一来源／O2 禁止未登记 `bin/Debug` 字面量／O4 记录段进仓／O6 入口清单）。九位**逐位未变**。
 #   ⚠️ 射程边界（如实）：① 本代**不打推送**；② 本代**只追加** `GENS['#85']`，老代一字未改；③ 记录段**进仓**（`docs.Linux/evidence/freeze/w85-record.txt`）。
 ===FROZEN===
-# RE-FROZEN {GEN} —— ✅ **当前冻结基线** —— 内容 = 「**结构「单一来源」化波**：九位权威路径表单一来源（`--emit-nine` ＋ `nine-paths.tsv`，冻结器改读）＋ 禁止未登记 `bin/Debug` 字面量（`NO-HARDCODEDCFG`）＋ 冻结记录段进仓 ＋ 入口清单（O6）」
+# RE-FROZEN #85 —— ✅ **当前冻结基线** —— 内容 = 「**结构「单一来源」化波**：九位权威路径表单一来源（`--emit-nine` ＋ `nine-paths.tsv`，冻结器改读）＋ 禁止未登记 `bin/Debug` 字面量（`NO-HARDCODEDCFG`）＋ 冻结记录段进仓 ＋ 入口清单（O6）」
 #   ① **九位表单一来源（O1）**：`src/Linux/build/MilBridge/tools/wave-freeze-consistency-check.py` 的 `NINE_PATHS`（仓内声明）＋ `--emit-nine` 导出端 ⇒ `src/Linux/build/MilBridge/nine-paths.tsv`（入库）；冻结器 `~/w21-verify/w27-freeze.py` 的 `NINE` 改**读**该 tsv；`[5c/6]` 的 `WFREEZE_NINESYNC` 每趟对拍。
 #   ② **禁止未登记 `bin/Debug` 字面量（O2）**：`src/Linux/build/MilBridge/tools/no-hardcoded-config-literal-check.sh`（＋豁免表 `hardcoded-config-exempt.tsv`）接进 `verify-all` 第 `[+]` 步 `NO-HARDCODEDCFG`。
-#   ③ **记录段进仓（O4）**：本文件（`docs.Linux/evidence/freeze/w{GEN}-record.txt`）＝新代的记录模板（**仓内可寻址**）；旧代（`#84` 及更早）记录仍在仓外、`GENS` 里**保留兼容读**。
+#   ③ **记录段进仓（O4）**：本文件（`docs.Linux/evidence/freeze/w85-record.txt`）＝新代的记录模板（**仓内可寻址**）；旧代（`#84` 及更早）记录仍在仓外、`GENS` 里**保留兼容读**。
 #   ④ **入口边界（O6）**：`Guide.Linux/README.md` ＝一键入口清单（三入口）；根门面与 `docs.Linux/README*` 指向它。
-#   ⑤ **唯一机器声明点**：`docs/CURRENT-STATE.md:9` 的 `> BASELINE-FROZEN gen={GEN} sha16=…`；**块件现算值 == 该声明值**。
+#   ⑤ **唯一机器声明点**：`docs/CURRENT-STATE.md:9` 的 `> BASELINE-FROZEN gen=#85 sha16=…`；**块件现算值 == 该声明值**。
 # COLUMN-FLOOR arm=tab-oracle-anchor col=START      judged_min=615 released_min=194
 # COLUMN-FLOOR arm=tab-oracle-anchor col=OVERFLOWED judged_min=421
 # COLUMN-CORPUS file=tests/parity/windows/tab-anchor/out/tab-anchor-oracle.json sha16=0cebc0afd5142fbf
@@ -20,11 +20,11 @@
 # ARM-LOG-SHA arm=tline         sha16=650a7d54a6483e00
 # ARM-LOG-SHA arm=textlineproto sha16=1f37005e6fa4669e
 #   **九位（Release 权威件）**：`bridge` `{BR}`（{BRSZ} B）／`pc` `{PC}`（{PCSZ} B）／`pf` `{PF}`（{PFSZ} B）／`windowsbase` `{WB}`／`provider` `{PRV}`／`win32shim` `{WSH}`／`wic_shim` `{WIC}`／`hbtextline` `{HB}`／`dwf` `{DWF}`
-#     · **相对 `{PREV}` 冻结值**：九位**逐位未变**（本代不改产品源、不跑整波重建）——`pc` `{PC_PREV}` → `{PC}`／`pf` `{PF_PREV}` → `{PF}`（**环成员**，`D-G92`）／`windowsbase` `{WB_PREV}` → `{WB}`／`provider` `{PRV_PREV}` → `{PRV}`／`dwf` `{DWF_PREV}` → `{DWF}`／`win32shim` `{WSH_PREV}` → `{WSH}`／`wic_shim` `{WIC_PREV}` → `{WIC}`／`hbtextline`（`{HB}`）。
+#     · **相对 `#84` 冻结值**：九位**逐位未变**（本代不改产品源、不跑整波重建）——`pc` `{PC_PREV}` → `{PC}`／`pf` `{PF_PREV}` → `{PF}`（**环成员**，`D-G92`）／`windowsbase` `{WB_PREV}` → `{WB}`／`provider` `{PRV_PREV}` → `{PRV}`／`dwf` `{DWF_PREV}` → `{DWF}`／`win32shim` `{WSH_PREV}` → `{WSH}`／`wic_shim` `{WIC_PREV}` → `{WIC}`／`hbtextline`（`{HB}`）。
 #   **`BRIDGE_SRC_FP` = `{BSFP}`**（上一代 `{BSFP_PREV}`）。
 #   **`inputs_fp` = `{INFP}`**（**本代冻后值 · 机读形态** —— 下一代 `prev_infp` 的唯一来源；上一代 = `{INFP_PREV}`）。覆盖面**件数 242**（本波 +3 行：`NO-HARDCODEDCFG` 牙＋豁免表＋`nine-paths.tsv`）。
 ===RECORD===
 #   【① 落仓】本代 = **结构「单一来源」化波**（**零产品逻辑改动**）：O1 九位表单一来源／O2 禁止未登记 `bin/Debug` 字面量／O4 记录段进仓／O6 入口清单。
 #   【② 改件】`src/Linux/build/MilBridge/tools/wave-freeze-consistency-check.py`（`--emit-nine` ＋ `sec_ninesync` ＋ 记录相对路径解析）／`src/Linux/build/MilBridge/nine-paths.tsv`（新建·入库）／`src/Linux/build/MilBridge/tools/no-hardcoded-config-literal-check.sh`（新建）／`src/Linux/build/MilBridge/hardcoded-config-exempt.tsv`（新建）／`src/Linux/build/close-wave.sh`（覆盖面 +3 行）／`Guide.Linux/verify-all.sh`（加一步 ＋ 四处声明 ＋ `--expect`）＋ 若干 shell/python 的 `bin/Debug` 消费点改读唯一声明 ／ `Guide.Linux/README.md`（新建）／ `docs/WAVE85-PREREGISTRATION.md`（新建）。
 #   【③ 位移声明】九位**逐位未变**（本代不改产品件、不跑整波重建）。
-#   【④ 链条】冻前 `close-wave.sh`（`[1/6]`…`[6/6]`）⇒ `Guide.Linux/verify-all.sh`（`{NSTEP}` 步；`{NCASE}` 通过 / `{NSKIP}` 跳过）⇒ 重冻（本块 ＋ `docs/CURRENT-STATE.md:9`）⇒ 冻后 `verify-all` ×2 ⇒ 两枚哨兵 `cmp IDENTICAL`。**本代不打推送。**
+#   【④ 链条】冻前 `close-wave.sh`（`[1/6]`…`[6/6]`）⇒ `Guide.Linux/verify-all.sh`（`67` 步；`875` 通过 / `2` 跳过）⇒ 重冻（本块 ＋ `docs/CURRENT-STATE.md:9`）⇒ 冻后 `verify-all` ×2 ⇒ 两枚哨兵 `cmp IDENTICAL`。**本代不打推送。**

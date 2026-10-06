@@ -9,6 +9,7 @@
 > ⚠️ **不引行号**（纪律 31）：本仓有若干件**每代重写**、且同一句会**多处出现**（如基线件的「九位」行现盘在 `:14` 与 `:77`，历史块共 7 处）⇒ **一律引内容锚**。
 
 ## §1 世代与冻结（现读）
+> ⏪ **dated 对齐（编号面对齐，读时 2026-10-06T17:56+08:00；`TASK-O1-O4-O6`）**：**现读** ＝ `BASELINE-FROZEN gen=#85 sha16=363f847f1576dcf7 file=samples/WpfTextDemo/ACCEPTANCE-BASELINE.md`（本代**零产品位移**，九位逐位未变；两枚哨兵 `WAVE=w85-freeze`／`BASELINE=#85`／`BASELINE_SHA16=363f847f1576dcf7`）。上面各行**原文保留**。
 - 冻结哨兵：`docs/CURRENT-STATE.md:9` = `BASELINE-FROZEN gen=#77 sha16=e3ebc811641bd467 file=samples/WpfTextDemo/ACCEPTANCE-BASELINE.md`（现取；⚠️ **被哈希的件由这行的 `file=` 字段指定**，不是 `CURRENT-STATE.md` 自己。）
   ⏪ **dated 对齐（`t58`，读时 `2026-09-28T12:33+08:00`）**：**现读** ＝ `BASELINE-FROZEN gen=#80 sha16=b96d4312565a3c49 file=samples/WpfTextDemo/ACCEPTANCE-BASELINE.md`（**改前**上述 `gen=#77`／`e3ebc811641bd467` 是**留档原文**，不删）。
   （⚠️ **被哈希的件由这行的 `file=` 字段指定**，不是 `CURRENT-STATE.md` 自己。）
