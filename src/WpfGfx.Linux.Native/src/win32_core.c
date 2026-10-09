@@ -1536,6 +1536,25 @@ HWND GetForegroundWindow(void) { return GetDesktopWindow(); }
 HWND SetActiveWindow(HWND hwnd) { (void)hwnd; return GetForegroundWindow(); }
 HWND SetForegroundWindow(HWND hwnd) { (void)hwnd; return GetForegroundWindow(); }
 
+// BringWindowToTop：X11 上的等价物是 `XRaiseWindow`（把窗口提到同层栈顶）。
+// 【为什么必须有】AvalonDock 的 `LayoutAutoHideWindowControl.BuildWindowCore` 直接
+//   `[DllImport("user32.dll")] BringWindowToTop`（`AvalonDock.Win32Helper`）；本 shim
+//   原先没有这个导出 ⇒ 每次建这个 HwndHost 子窗都抛 `EntryPointNotFoundException`
+//   ⇒ 自动隐藏面板的可视子树整棵建不起来。
+BOOL BringWindowToTop(HWND hwnd)
+{
+    wpf_global_init();
+    if (!hwnd) { wpf_set_last_error(ERROR_INVALID_WINDOW_HANDLE); return 0; }
+    wpf_lock();
+    int known = wpf_window_find(hwnd) != NULL;
+    pthread_mutex_unlock(&g_wpf.lock);
+    if (!known) { wpf_set_last_error(ERROR_INVALID_WINDOW_HANDLE); return 0; }
+    if (!wpf_x11_ensure()) return 0;
+    XRaiseWindow(g_wpf.dpy, (Window)(uintptr_t)hwnd);
+    wpf_x11_flush();
+    return 1;
+}
+
 // 焦点/捕获在 X11 上是「每个输入设备一个，且由 server 持有」的概念；
 // 没有窗口管理器时 PointerRoot 焦点无意义。这里退化为**进程内的软状态**：
 // 记住最近一次 SetFocus/SetCapture 的窗口并原样返回，语义自洽（Set→Get 一致），
@@ -2274,7 +2293,47 @@ HCURSOR LoadCursorW(HINSTANCE h, const uint16_t *name) { (void)h; (void)name; re
 BOOL DestroyCursor(HCURSOR c) { (void)c; return 1; }
 int ShowCursor(BOOL show) { (void)show; return 0; }
 
-int GetSysColor(int index) { (void)index; return 0x00F0F0F0; }   // COLOR_WINDOW 的现代值
+// GetSysColor：原实现不看 index、一律回 0x00F0F0F0 ⇒ 托管侧 `SystemColors` 的每一项
+// （含 WindowText / Window / ButtonFace / ButtonShadow）都退化成同一个灰值。
+// 后果：凡"靠 SystemColors 取色"的控件（经典主题模板 —— Label/TextBox/PasswordBox/CheckBox…）
+// 字色与底色同值 ⇒ 控件在可视树里尺寸/模板齐全却**什么都看不见**（实测：ICDStudio 登录窗）。
+// 这里按 Win32 的 COLOR_* 索引给出 Win10 默认调色板；值 = R | G<<8 | B<<16（COLORREF 口径）。
+int GetSysColor(int index)
+{
+    switch (index) {
+    case 0:  return 0x00C8C8C8;   // COLOR_SCROLLBAR
+    case 1:  return 0x00000000;   // COLOR_BACKGROUND（桌面）
+    case 2:  return 0x00D1B499;   // COLOR_ACTIVECAPTION
+    case 3:  return 0x00DBCDBF;   // COLOR_INACTIVECAPTION
+    case 4:  return 0x00F0F0F0;   // COLOR_MENU
+    case 5:  return 0x00FFFFFF;   // COLOR_WINDOW
+    case 6:  return 0x00646464;   // COLOR_WINDOWFRAME
+    case 7:  return 0x00000000;   // COLOR_MENUTEXT
+    case 8:  return 0x00000000;   // COLOR_WINDOWTEXT
+    case 9:  return 0x00000000;   // COLOR_CAPTIONTEXT
+    case 10: return 0x00F0F0F0;   // COLOR_ACTIVEBORDER
+    case 11: return 0x00F0F0F0;   // COLOR_INACTIVEBORDER
+    case 12: return 0x00ABABAB;   // COLOR_APPWORKSPACE
+    case 13: return 0x00D77800;   // COLOR_HIGHLIGHT
+    case 14: return 0x00FFFFFF;   // COLOR_HIGHLIGHTTEXT
+    case 15: return 0x00F0F0F0;   // COLOR_BTNFACE（Control）
+    case 16: return 0x00A0A0A0;   // COLOR_BTNSHADOW（ControlDark）
+    case 17: return 0x006D6D6D;   // COLOR_GRAYTEXT
+    case 18: return 0x00000000;   // COLOR_BTNTEXT（ControlText）
+    case 19: return 0x00000000;   // COLOR_INACTIVECAPTIONTEXT
+    case 20: return 0x00FFFFFF;   // COLOR_BTNHIGHLIGHT（ControlLightLight）
+    case 21: return 0x00696969;   // COLOR_3DDKSHADOW（ControlDarkDark）
+    case 22: return 0x00E3E3E3;   // COLOR_3DLIGHT（ControlLight）
+    case 23: return 0x00000000;   // COLOR_INFOTEXT
+    case 24: return 0x00E1FFFF;   // COLOR_INFOBK
+    case 26: return 0x00CC6600;   // COLOR_HOTLIGHT
+    case 27: return 0x00EAD1B9;   // COLOR_GRADIENTACTIVECAPTION
+    case 28: return 0x00F2E4D7;   // COLOR_GRADIENTINACTIVECAPTION
+    case 29: return 0x00FF9933;   // COLOR_MENUHILIGHT
+    case 30: return 0x00F0F0F0;   // COLOR_MENUBAR
+    }
+    return 0x00F0F0F0;
+}
 
 int MessageBeep(UINT type) { (void)type; return 1; }             // 静音环境下无对象可做
 
