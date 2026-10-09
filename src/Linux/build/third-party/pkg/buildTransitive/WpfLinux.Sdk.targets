@@ -1,0 +1,46 @@
+<!--
+  ============================================================================
+  WpfLinux.Sdk.targets —— 消费方侧接线（尾部）。**不要手改包内此文件**，改源：
+  $(WpfLinuxRepoRoot)/src/Linux/build/third-party/pkg/buildTransitive/WpfLinux.Sdk.targets
+  ============================================================================
+
+  【为什么 XAML 编译链在这里 import】Microsoft.WinFX.targets 必须在 Microsoft.NET.Sdk 的
+  targets 之后才 import（它挂 PrepareResources / CoreCompile 等目标）；而 NuGet 的 buildTransitive
+  文件是通过 obj/*.nuget.g.targets 注入的，注入点就在 SDK targets 之后 ⇒ 时机正好。
+
+  ⚠️ SDK 自带一份 Microsoft.NET.Sdk.WindowsDesktop/targets/Microsoft.WinFX.targets，**不要**把它
+     当成"Windows 专用"而删掉：XAML(→BAML) 编译链就在这份 targets 里，它只负责调用 XAML 编译器
+     （本包把 `_PresentationBuildTasksAssembly` 换成自产 PBT），不引入任何 WindowsDesktop 框架引用。
+  ============================================================================
+-->
+<Project>
+
+  <PropertyGroup>
+    <_WpfLinuxWinFXTargets>$(MSBuildSDKsPath)/Microsoft.NET.Sdk.WindowsDesktop/targets/Microsoft.WinFX.targets</_WpfLinuxWinFXTargets>
+  </PropertyGroup>
+
+  <Import Project="$(_WpfLinuxWinFXTargets)" Condition="Exists('$(_WpfLinuxWinFXTargets)')" />
+
+  <Target Name="WpfLinuxSdkCheck" BeforeTargets="PrepareResources">
+    <Error Condition="!Exists('$(_WpfLinuxWinFXTargets)')"
+           Text="WpfLinux.Sdk：找不到 XAML 编译链 $(_WpfLinuxWinFXTargets)（需要带 WindowsDesktop targets 的 .NET SDK）。" />
+    <Error Condition="!Exists('$(_PresentationBuildTasksAssembly)')"
+           Text="WpfLinux.Sdk：找不到包内自产 XAML 编译器 $(_PresentationBuildTasksAssembly)。" />
+  </Target>
+
+  <!--
+    ⚠️ 原生库要**部署到输出根目录**，不能只躺在 runtimes/linux-x64/native/：
+       `Win32ShimResolver`（加载 libwpfwin32.so 的那条路）只在"应用目录"里找，
+       不认 RID 子目录 —— 实测（仓外干净目录）：应用启动即
+       `DllNotFoundException: …'kernel32.dll' 已映射到 libwpfwin32.so，但没找到可加载的 shim 库`
+       （搜索过程列的两条候选都是 <app>/libwpfwin32.so）。
+  -->
+  <Target Name="WpfLinuxSdkDeployNativeShims" AfterTargets="Build"
+          Condition="'$(OS)' != 'Windows_NT' and '$(WpfLinuxSdkDeployNativeShims)' != 'false'">
+    <ItemGroup>
+      <_WpfLinuxNativeShim Include="$(WpfLinuxSdkPackageRoot)runtimes/linux-x64/native/*.so" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_WpfLinuxNativeShim)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

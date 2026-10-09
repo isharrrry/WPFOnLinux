@@ -1,0 +1,15 @@
+<Window x:Class="WpfLinuxSdkProbe.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:WpfLinuxSdkProbe"
+        Title="WpfLinuxSdkProbe" Width="640" Height="420"
+        WindowStartupLocation="CenterScreen">
+  <Grid Margin="16">
+    <StackPanel>
+      <TextBlock Text="WpfLinuxSdkProbe：只靠 PackageReference 编译" FontSize="18" FontWeight="Bold" />
+      <TextBlock x:Name="Status" Margin="0,10,0,0" />
+      <!-- 引用本程序集的 internal 类型：BAML 装载时会走 XamlAccessLevel（验证 System.Windows.Extensions 替身） -->
+      <local:InternalBadge Margin="0,10,0,0" />
+    </StackPanel>
+  </Grid>
+</Window>

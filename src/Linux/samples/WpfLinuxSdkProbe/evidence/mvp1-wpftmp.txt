@@ -1,0 +1,19 @@
+# wpftmp 关键行（原样摘录，/home/links-dev/netTest/GitProj/WPFOnLinux/src/Linux/samples/WpfLinuxSdkProbe/WpfLinuxSdkProbe_fwnb1a2f_wpftmp.csproj）
+6:    <MSBuildProjectExtensionsPath>/home/links-dev/netTest/GitProj/WPFOnLinux/src/Linux/samples/WpfLinuxSdkProbe/obj/</MSBuildProjectExtensionsPath>
+12:    <TargetFramework>net10.0</TargetFramework>
+15:    <PackageReference Include="WpfLinux.Sdk" Version="1.0.0" />
+18:    <ReferencePath Include="/home/links-dev/.nuget/packages/wpflinux.sdk/1.0.0/lib/net10.0/DirectWrite.Linux.Provider.dll" />
+19:    <ReferencePath Include="/home/links-dev/.nuget/packages/wpflinux.sdk/1.0.0/lib/net10.0/DirectWriteForwarder.dll" />
+28:    <ReferencePath Include="/home/links-dev/.nuget/packages/wpflinux.sdk/1.0.0/lib/net10.0/PresentationCore.dll" />
+29:    <ReferencePath Include="/home/links-dev/.nuget/packages/wpflinux.sdk/1.0.0/lib/net10.0/PresentationFramework.Classic.dll" />
+30:    <ReferencePath Include="/home/links-dev/.nuget/packages/wpflinux.sdk/1.0.0/lib/net10.0/PresentationFramework.dll" />
+31:    <ReferencePath Include="/home/links-dev/.nuget/packages/wpflinux.sdk/1.0.0/lib/net10.0/PresentationUI.dll" />
+32:    <ReferencePath Include="/home/links-dev/.nuget/packages/wpflinux.sdk/1.0.0/lib/net10.0/ReachFramework.dll" />
+121:    <ReferencePath Include="/home/links-dev/.nuget/packages/wpflinux.sdk/1.0.0/lib/net10.0/System.Printing.dll" />
+164:    <ReferencePath Include="/home/links-dev/.nuget/packages/wpflinux.sdk/1.0.0/lib/net10.0/System.Security.Permissions.dll" />
+193:    <ReferencePath Include="/home/links-dev/.nuget/packages/wpflinux.sdk/1.0.0/lib/net10.0/System.Windows.Extensions.dll" />
+194:    <ReferencePath Include="/home/links-dev/.nuget/packages/wpflinux.sdk/1.0.0/lib/net10.0/System.Windows.Input.Manipulations.dll" />
+195:    <ReferencePath Include="/home/links-dev/.nuget/packages/wpflinux.sdk/1.0.0/lib/net10.0/System.Xaml.dll" />
+205:    <ReferencePath Include="/home/links-dev/.nuget/packages/wpflinux.sdk/1.0.0/lib/net10.0/UIAutomationProvider.dll" />
+206:    <ReferencePath Include="/home/links-dev/.nuget/packages/wpflinux.sdk/1.0.0/lib/net10.0/UIAutomationTypes.dll" />
+207:    <ReferencePath Include="/home/links-dev/.nuget/packages/wpflinux.sdk/1.0.0/lib/net10.0/WindowsBase.dll" />

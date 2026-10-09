@@ -1,0 +1,19 @@
+runtime lib/net10.0/DirectWrite.Linux.Provider.dll assemblyVersion=1.0.0.0
+runtime lib/net10.0/DirectWriteForwarder.dll assemblyVersion=4.0.0.1
+runtime lib/net10.0/PresentationCore.dll assemblyVersion=4.0.0.1
+runtime lib/net10.0/PresentationFramework.Classic.dll assemblyVersion=4.0.0.1
+runtime lib/net10.0/PresentationFramework.dll assemblyVersion=4.0.0.1
+runtime lib/net10.0/PresentationUI.dll assemblyVersion=4.0.0.1
+runtime lib/net10.0/ReachFramework.dll assemblyVersion=4.0.0.1
+runtime lib/net10.0/System.Printing.dll assemblyVersion=4.0.0.1
+runtime lib/net10.0/System.Security.Permissions.dll assemblyVersion=9.0.0.0
+runtime lib/net10.0/System.Windows.Extensions.dll assemblyVersion=9.0.0.0
+runtime lib/net10.0/System.Windows.Input.Manipulations.dll assemblyVersion=4.0.0.1
+runtime lib/net10.0/System.Xaml.dll assemblyVersion=4.0.0.1
+runtime lib/net10.0/UIAutomationProvider.dll assemblyVersion=4.0.0.1
+runtime lib/net10.0/UIAutomationTypes.dll assemblyVersion=4.0.0.1
+runtime lib/net10.0/WindowsBase.dll assemblyVersion=4.0.0.1
+native  runtimes/linux-x64/native/libwpfwic.so rid=linux-x64
+native  runtimes/linux-x64/native/libwpfwin32.so rid=linux-x64
+native  runtimes/linux-x64/native/wpfgfx_cor3.so rid=linux-x64
+libraries: {'WpfLinuxSdkProbe/1.0.0': 'project', 'WpfLinux.Sdk/1.0.0': 'package'}

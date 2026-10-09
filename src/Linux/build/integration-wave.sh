@@ -208,6 +208,7 @@ APPLIERS_EXPLICIT+=( patch-uiautomationtypes-reservedvalue )
 APPLIERS_EXPLICIT+=( patch-shared-invariant-failfast )
 APPLIERS_EXPLICIT+=( patch-presentationcore-mousecapture-release )   # `#50` W88A：`D-G85` 修法（`MouseDevice.cs:388` 释放后补 `ChangeMouseCapture(null,…)`）
 APPLIERS_EXPLICIT+=( patch-presentationframework-window-minmax-notify )   # `#51` W106A：`D-G88` 的 `P3` 修法（托管侧"运行期改尺寸提示"通知 ⇒ 幂等发布到 X；名字虽在 `patch-presentation*` 通配里会被兜底执行，但**必须显式登记**才能进 `applier-audit` 的登记清单）
+APPLIERS_EXPLICIT+=( patch-presentationframework-messagebox )   # 任务 E：`MessageBox.Show` 改走自产模态实现（`MessageBox.cs:414` 那一次 `user32!MessageBox` → `WpfLinuxMessageBox.Show`；同样在 `patch-presentation*` 通配里，显式登记是为了顺序确定 + 进审计清单）
 
 # 2026-09-13 主控补：M7b 的**补丁 P**（建窗失败只报 `Win32Exception 1400`，1400 是本工程自己映射的码
 #   ⇒ **真原因被吞掉**，这正是"`XOpenDisplay` 偶发抖动"那条悬案的观测盲区）。

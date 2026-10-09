@@ -1,0 +1,225 @@
+<Project>
+  <PropertyGroup>
+    <AssemblyName>WpfLinuxSdkProbe</AssemblyName>
+    <IntermediateOutputPath>obj/Debug/net10.0/</IntermediateOutputPath>
+    <BaseIntermediateOutputPath>obj/</BaseIntermediateOutputPath>
+    <MSBuildProjectExtensionsPath>/home/links-dev/netTest/GitProj/WPFOnLinux/src/Linux/samples/WpfLinuxSdkProbe/obj/</MSBuildProjectExtensionsPath>
+    <_TargetAssemblyProjectName>WpfLinuxSdkProbe</_TargetAssemblyProjectName>
+    <RootNamespace>WpfLinuxSdkProbe</RootNamespace>
+  </PropertyGroup>
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="WpfLinux.Sdk" Version="1.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ReferencePath Include="/home/links-dev/.nuget/packages/wpflinux.sdk/1.0.0/lib/net10.0/DirectWrite.Linux.Provider.dll" />
+    <ReferencePath Include="/home/links-dev/.nuget/packages/wpflinux.sdk/1.0.0/lib/net10.0/DirectWriteForwarder.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/Microsoft.CSharp.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/Microsoft.VisualBasic.Core.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/Microsoft.VisualBasic.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/Microsoft.Win32.Primitives.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/Microsoft.Win32.Registry.dll" />
+    <ReferencePath Include="/home/links-dev/.nuget/packages/microsoft.win32.systemevents/9.0.0/lib/net9.0/Microsoft.Win32.SystemEvents.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/mscorlib.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/netstandard.dll" />
+    <ReferencePath Include="/home/links-dev/.nuget/packages/wpflinux.sdk/1.0.0/lib/net10.0/PresentationCore.dll" />
+    <ReferencePath Include="/home/links-dev/.nuget/packages/wpflinux.sdk/1.0.0/lib/net10.0/PresentationFramework.Classic.dll" />
+    <ReferencePath Include="/home/links-dev/.nuget/packages/wpflinux.sdk/1.0.0/lib/net10.0/PresentationFramework.dll" />
+    <ReferencePath Include="/home/links-dev/.nuget/packages/wpflinux.sdk/1.0.0/lib/net10.0/PresentationUI.dll" />
+    <ReferencePath Include="/home/links-dev/.nuget/packages/wpflinux.sdk/1.0.0/lib/net10.0/ReachFramework.dll" />
+    <ReferencePath Include="/home/links-dev/.nuget/packages/skiasharp/2.88.9/lib/net6.0/SkiaSharp.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.AppContext.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Buffers.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Collections.Concurrent.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Collections.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Collections.Immutable.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Collections.NonGeneric.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Collections.Specialized.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.ComponentModel.Annotations.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.ComponentModel.DataAnnotations.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.ComponentModel.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.ComponentModel.EventBasedAsync.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.ComponentModel.Primitives.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.ComponentModel.TypeConverter.dll" />
+    <ReferencePath Include="/home/links-dev/.nuget/packages/system.configuration.configurationmanager/9.0.0/lib/net9.0/System.Configuration.ConfigurationManager.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Configuration.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Console.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Core.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Data.Common.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Data.DataSetExtensions.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Data.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Diagnostics.Contracts.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Diagnostics.Debug.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Diagnostics.DiagnosticSource.dll" />
+    <ReferencePath Include="/home/links-dev/.nuget/packages/system.diagnostics.eventlog/9.0.0/lib/net9.0/System.Diagnostics.EventLog.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Diagnostics.FileVersionInfo.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Diagnostics.Process.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Diagnostics.StackTrace.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Diagnostics.TextWriterTraceListener.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Diagnostics.Tools.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Diagnostics.TraceSource.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Diagnostics.Tracing.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Drawing.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Drawing.Primitives.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Dynamic.Runtime.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Formats.Asn1.dll" />
+    <ReferencePath Include="/home/links-dev/.nuget/packages/system.formats.nrbf/9.0.0/lib/net9.0/System.Formats.Nrbf.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Formats.Tar.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Globalization.Calendars.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Globalization.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Globalization.Extensions.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.IO.Compression.Brotli.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.IO.Compression.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.IO.Compression.FileSystem.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.IO.Compression.ZipFile.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.IO.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.IO.FileSystem.AccessControl.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.IO.FileSystem.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.IO.FileSystem.DriveInfo.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.IO.FileSystem.Primitives.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.IO.FileSystem.Watcher.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.IO.IsolatedStorage.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.IO.MemoryMappedFiles.dll" />
+    <ReferencePath Include="/home/links-dev/.nuget/packages/system.io.packaging/9.0.0/lib/net9.0/System.IO.Packaging.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.IO.Pipelines.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.IO.Pipes.AccessControl.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.IO.Pipes.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.IO.UnmanagedMemoryStream.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Linq.AsyncEnumerable.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Linq.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Linq.Expressions.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Linq.Parallel.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Linq.Queryable.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Memory.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Net.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Net.Http.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Net.Http.Json.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Net.HttpListener.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Net.Mail.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Net.NameResolution.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Net.NetworkInformation.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Net.Ping.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Net.Primitives.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Net.Quic.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Net.Requests.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Net.Security.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Net.ServerSentEvents.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Net.ServicePoint.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Net.Sockets.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Net.WebClient.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Net.WebHeaderCollection.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Net.WebProxy.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Net.WebSockets.Client.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Net.WebSockets.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Numerics.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Numerics.Vectors.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.ObjectModel.dll" />
+    <ReferencePath Include="/home/links-dev/.nuget/packages/wpflinux.sdk/1.0.0/lib/net10.0/System.Printing.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Reflection.DispatchProxy.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Reflection.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Reflection.Emit.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Reflection.Emit.ILGeneration.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Reflection.Emit.Lightweight.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Reflection.Extensions.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Reflection.Metadata.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Reflection.Primitives.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Reflection.TypeExtensions.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Resources.Reader.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Resources.ResourceManager.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Resources.Writer.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Runtime.CompilerServices.Unsafe.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Runtime.CompilerServices.VisualC.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Runtime.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Runtime.Extensions.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Runtime.Handles.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Runtime.InteropServices.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Runtime.InteropServices.JavaScript.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Runtime.InteropServices.RuntimeInformation.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Runtime.Intrinsics.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Runtime.Loader.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Runtime.Numerics.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Runtime.Serialization.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Runtime.Serialization.Formatters.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Runtime.Serialization.Json.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Runtime.Serialization.Primitives.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Runtime.Serialization.Xml.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Security.AccessControl.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Security.Claims.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Security.Cryptography.Algorithms.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Security.Cryptography.Cng.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Security.Cryptography.Csp.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Security.Cryptography.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Security.Cryptography.Encoding.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Security.Cryptography.OpenSsl.dll" />
+    <ReferencePath Include="/home/links-dev/.nuget/packages/system.security.cryptography.pkcs/9.0.0/lib/net9.0/System.Security.Cryptography.Pkcs.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Security.Cryptography.Primitives.dll" />
+    <ReferencePath Include="/home/links-dev/.nuget/packages/system.security.cryptography.protecteddata/9.0.0/lib/net9.0/System.Security.Cryptography.ProtectedData.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Security.Cryptography.X509Certificates.dll" />
+    <ReferencePath Include="/home/links-dev/.nuget/packages/system.security.cryptography.xml/9.0.0/lib/net9.0/System.Security.Cryptography.Xml.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Security.dll" />
+    <ReferencePath Include="/home/links-dev/.nuget/packages/wpflinux.sdk/1.0.0/lib/net10.0/System.Security.Permissions.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Security.Principal.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Security.Principal.Windows.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Security.SecureString.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.ServiceModel.Web.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.ServiceProcess.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Text.Encoding.CodePages.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Text.Encoding.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Text.Encoding.Extensions.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Text.Encodings.Web.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Text.Json.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Text.RegularExpressions.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Threading.AccessControl.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Threading.Channels.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Threading.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Threading.Overlapped.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Threading.Tasks.Dataflow.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Threading.Tasks.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Threading.Tasks.Extensions.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Threading.Tasks.Parallel.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Threading.Thread.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Threading.ThreadPool.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Threading.Timer.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Transactions.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Transactions.Local.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.ValueTuple.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Web.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Web.HttpUtility.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Windows.dll" />
+    <ReferencePath Include="/home/links-dev/.nuget/packages/wpflinux.sdk/1.0.0/lib/net10.0/System.Windows.Extensions.dll" />
+    <ReferencePath Include="/home/links-dev/.nuget/packages/wpflinux.sdk/1.0.0/lib/net10.0/System.Windows.Input.Manipulations.dll" />
+    <ReferencePath Include="/home/links-dev/.nuget/packages/wpflinux.sdk/1.0.0/lib/net10.0/System.Xaml.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Xml.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Xml.Linq.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Xml.ReaderWriter.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Xml.Serialization.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Xml.XDocument.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Xml.XmlDocument.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Xml.XmlSerializer.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Xml.XPath.dll" />
+    <ReferencePath Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/ref/net10.0/System.Xml.XPath.XDocument.dll" />
+    <ReferencePath Include="/home/links-dev/.nuget/packages/wpflinux.sdk/1.0.0/lib/net10.0/UIAutomationProvider.dll" />
+    <ReferencePath Include="/home/links-dev/.nuget/packages/wpflinux.sdk/1.0.0/lib/net10.0/UIAutomationTypes.dll" />
+    <ReferencePath Include="/home/links-dev/.nuget/packages/wpflinux.sdk/1.0.0/lib/net10.0/WindowsBase.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="/home/links-dev/netTest/GitProj/WPFOnLinux/src/Linux/samples/WpfLinuxSdkProbe/obj/Debug/net10.0/MainWindow.g.cs" />
+    <Compile Include="/home/links-dev/netTest/GitProj/WPFOnLinux/src/Linux/samples/WpfLinuxSdkProbe/obj/Debug/net10.0/App.g.cs" />
+    <Compile Include="/home/links-dev/netTest/GitProj/WPFOnLinux/src/Linux/samples/WpfLinuxSdkProbe/obj/Debug/net10.0/GeneratedInternalTypeHelper.g.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="/home/links-dev/.dotnet/sdk/10.0.111/Sdks/Microsoft.NET.Sdk/targets/../analyzers/Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll" />
+    <Analyzer Include="/home/links-dev/.dotnet/sdk/10.0.111/Sdks/Microsoft.NET.Sdk/targets/../analyzers/Microsoft.CodeAnalysis.NetAnalyzers.dll" />
+    <Analyzer Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/analyzers/dotnet/cs/Microsoft.Interop.ComInterfaceGenerator.dll" />
+    <Analyzer Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/analyzers/dotnet/cs/Microsoft.Interop.JavaScript.JSImportGenerator.dll" />
+    <Analyzer Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/analyzers/dotnet/cs/Microsoft.Interop.LibraryImportGenerator.dll" />
+    <Analyzer Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/analyzers/dotnet/cs/Microsoft.Interop.SourceGeneration.dll" />
+    <Analyzer Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/analyzers/dotnet/cs/System.Text.Json.SourceGeneration.dll" />
+    <Analyzer Include="/home/links-dev/.dotnet/packs/Microsoft.NETCore.App.Ref/10.0.11/analyzers/dotnet/cs/System.Text.RegularExpressions.Generator.dll" />
+  </ItemGroup>
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+</Project>

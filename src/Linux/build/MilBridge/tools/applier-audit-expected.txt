@@ -37,6 +37,10 @@ patch-presentationcore-hwndtarget-trace
 patch-swe-linux
 patch-presentationcore-mousecapture-release
 patch-presentationframework-window-minmax-notify
+patch-presentationframework-messagebox
+#   ↑ 任务 E：`MessageBox.Show` 不再走 `user32!MessageBox`（上游 `MessageBox.cs:414`）⇒ 改走自产
+#     `WpfLinuxMessageBox.Show`（`Window.ShowDialog()` 真模态 + 真阻塞；无 `DISPLAY`/构造失败仍降级不阻塞）。
+#     登记两处：`src/Linux/build/integration-wave.sh` 的 `APPLIERS_EXPLICIT+=` ＋ 本表（同 `window-minmax-notify`）。
 #   ↑ `#51` W106A：`D-G88` 的 `P3`（托管侧通知 ⇒ 幂等发布尺寸提示到 X）。**主控落登记**（两处：
 #     `src/Linux/build/integration-wave.sh` 的 `APPLIERS_EXPLICIT+=` ＋ 本表）；它虽在 `patch-presentation*`
 #     通配里会被兜底执行，但**不显式登记就进不了本清单** ⇒ 漏登记会被本审计判红。

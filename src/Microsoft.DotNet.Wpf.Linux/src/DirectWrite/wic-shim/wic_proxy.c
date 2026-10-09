@@ -594,12 +594,31 @@ static void self_dir(char *out, size_t cap)
     out[n] = 0;
 }
 
+/* 本机架构对应的 .NET RID（用于下面的 runtimes/<rid>/native/ 搜索）*/
+#if defined(__x86_64__)
+#  define WIC_RID_ARCH "x64"
+#elif defined(__aarch64__)
+#  define WIC_RID_ARCH "arm64"
+#elif defined(__arm__)
+#  define WIC_RID_ARCH "arm"
+#else
+#  define WIC_RID_ARCH "x64"
+#endif
+
 static int skia_load(void)
 {
     if (g_skia) return 1;
 
     /* 候选顺序：① WPF_LINUX_WIC_SKIA ② **本 shim 同目录**（主控的部署口径）
-     *          ③ 裸名（交给 ld.so 的 rpath / LD_LIBRARY_PATH） */
+     *          ③ 同目录下的 .NET native-asset 约定目录 runtimes/<rid>/native/
+     *          ④ 裸名（交给 ld.so 的 rpath / LD_LIBRARY_PATH）
+     *
+     * ⚠ 为什么必须有 ③：包化部署（WpfLinux.Sdk + SkiaSharp.NativeAssets.Linux）里，
+     *   我们的 shim（libwpfwic.so）被复制到输出根，而 SkiaSharp 的 native 资产按 NuGet/.NET 约定
+     *   落在 `<app>/runtimes/linux-x64/native/libSkiaSharp.so` —— **不在根目录**。
+     *   只有 ② 时 skia_load 恒失败 ⇒ 每个 CreateDecoderFromStream 都返回
+     *   0x80004005(GENERIC_ERROR) ⇒ XAML 里 `<Image Source=…>`（pack 资源位图）整棵模板建不起来
+     *   （实测：ICDStudioSdkProbe 主界面只剩标题，内容区空白）。*/
     const char *env = getenv("WPF_LINUX_WIC_SKIA");
     char beside[4096];
     if (env && *env) {
@@ -608,8 +627,16 @@ static int skia_load(void)
     if (!g_skia) {
         self_dir(beside, sizeof beside);
         if (beside[0]) {
-            char candidate[4200];
+            char candidate[4300];
             snprintf(candidate, sizeof candidate, "%s/libSkiaSharp.so", beside);
+            g_skia = dlopen(candidate, RTLD_NOW | RTLD_GLOBAL);
+        }
+    }
+    if (!g_skia && beside[0]) {
+        char candidate[4300];
+        static const char *rids[] = { "linux-" WIC_RID_ARCH, "linux-musl-" WIC_RID_ARCH };
+        for (size_t i = 0; i < sizeof(rids) / sizeof(rids[0]) && !g_skia; i++) {
+            snprintf(candidate, sizeof candidate, "%s/runtimes/%s/native/libSkiaSharp.so", beside, rids[i]);
             g_skia = dlopen(candidate, RTLD_NOW | RTLD_GLOBAL);
         }
     }
@@ -986,6 +1013,23 @@ int32_t IWICImagingFactory_CreateDecoderFromStream_Proxy(void *factory, void *pI
 
     g_calls[1]++;   /* 记到 Stream 槽：语义与 CreateStream 一致（"这次走的是视频/图像流路径"）*/
 
+    if (getenv("WPF_LINUX_WIC_TRACE")) {
+        unsigned iw = 0, ih = 0;
+        if (st->stream_len >= 24 && st->stream_buf[0] == 0x89 && st->stream_buf[1] == 'P') {
+            iw = ((unsigned)st->stream_buf[16] << 24) | ((unsigned)st->stream_buf[17] << 16) |
+                 ((unsigned)st->stream_buf[18] << 8) | st->stream_buf[19];
+            ih = ((unsigned)st->stream_buf[20] << 24) | ((unsigned)st->stream_buf[21] << 16) |
+                 ((unsigned)st->stream_buf[22] << 8) | st->stream_buf[23];
+        }
+        fprintf(stderr, "WIC_TRACE CDS len=%zu magic=%02X%02X%02X%02X%02X%02X%02X%02X ihdr=%ux%u\n",
+                st->stream_len,
+                st->stream_len>0?st->stream_buf[0]:0, st->stream_len>1?st->stream_buf[1]:0,
+                st->stream_len>2?st->stream_buf[2]:0, st->stream_len>3?st->stream_buf[3]:0,
+                st->stream_len>4?st->stream_buf[4]:0, st->stream_len>5?st->stream_buf[5]:0,
+                st->stream_len>6?st->stream_buf[6]:0, st->stream_len>7?st->stream_buf[7]:0,
+                iw, ih);
+    }
+
     intptr_t h = obj_new(KIND_DECODER);
     if (!h) return E_OUTOFMEMORY;
 
@@ -996,6 +1040,8 @@ int32_t IWICImagingFactory_CreateDecoderFromStream_Proxy(void *factory, void *pI
     o->size = st->stream_len;
 
     int hr = decode_open_bytes(o);
+    if (getenv("WPF_LINUX_WIC_TRACE"))
+        fprintf(stderr, "WIC_TRACE CDS_HR hr=0x%08X w=%d h=%d\n", (unsigned)hr, o->width, o->height);
     if (hr != S_OK) { obj_drop(h, o); return hr; }
 
     *ppIDecode = (void *)h;

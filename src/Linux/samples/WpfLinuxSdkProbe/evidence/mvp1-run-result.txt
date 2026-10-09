@@ -1,0 +1,9 @@
+# MVP-1 仓外运行读数（/tmp/probe1/app；Xvfb :96 1280x1024x24）
+# 复跑：bash /tmp/mvp1-verify.sh
+ALIVE_AFTER_12S=yes COLORS=216
+# app 根目录（包 targets 复制过去的原生库）：
+#   /tmp/probe1/app/libwpfwic.so /tmp/probe1/app/libwpfwin32.so /tmp/probe1/app/wpfgfx_cor3.so
+# 应用输出（mvp1-run.log）：
+#   [G147_WORKAREA] source=fallback-screen ...
+#   SDKPROBE_WINDOW=PASS
+#   [FONT_FALLBACK] ...

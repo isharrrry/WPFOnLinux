@@ -1,0 +1,125 @@
+<!--
+  ============================================================================
+  WpfLinux.Sdk.props —— 消费方侧接线（头部）。**不要手改包内此文件**，改源：
+  $(WpfLinuxRepoRoot)/src/Linux/build/third-party/pkg/buildTransitive/WpfLinux.Sdk.props
+  ============================================================================
+
+  【它做什么】把"在自产 WPF 栈上编译"所需的属性一次性设好，消费方只需一行
+  `<PackageReference Include="WpfLinux.Sdk" Version="…" />`：
+    · 关掉 Windows Desktop SDK 的 WPF 实现（UseWPF=false）；
+    · 把 XAML 编译器指向包内的自产 PresentationBuildTasks（tools/net10.0）；
+    · 忽略第三方 WPF 包带进来的 WindowsDesktop 框架引用（Linux 上没有该目标包）；
+    · 默认把 App.xaml 当 ApplicationDefinition、其余 *.xaml 当 Page（可关，见下）。
+
+  【默认项开关】不想要默认 XAML 清单（例如自己列清单、或改用下面的源码树模式）就设：
+      <EnableDefaultWpfLinuxItems>false</EnableDefaultWpfLinuxItems>
+
+  【源码树模式】把"链接外部源码树"的清单也交给包，工程只写一行：
+      <WpfLinuxSrcTree>$(MSBuildProjectDirectory)/srctree</WpfLinuxSrcTree>
+  于是自动收集 `$(WpfLinuxSrcTree)/**/*.cs`（→Compile）、`App.xaml`（→ApplicationDefinition）、
+  其余 `**/*.xaml`（→Page，Link 去掉源码树前缀）、`**/*.resx`（→EmbeddedResource）。
+  需要排除就再给（值要写全路径，可用 $(WpfLinuxSrcTree) 变量）：
+      <WpfLinuxSrcTreeExclude>$(WpfLinuxSrcTree)/DAL/**;…</WpfLinuxSrcTreeExclude>   ← Compile 用
+      <WpfLinuxSrcTreePageExclude>$(WpfLinuxSrcTree)/Plot/TY.xaml</WpfLinuxSrcTreePageExclude> ← Page 用
+  ⚠️ 源码树**必须位于工程目录之下**（软链接即可）：XAML 编译器用工程目录当 SourceDir，
+     不在其下就取不到相对路径（多个同名 .xaml 会生成同名 .g.cs 互相覆盖）。
+  ⚠️ 源码树模式下请同时设 `<EnableDefaultCompileItems>false</EnableDefaultCompileItems>`，
+     否则 SDK 的 `**/*.cs` 默认项会顺着软链接把同一批源码再加一遍（CS2002 噪音）。
+
+  【官方借用件（可选）】Ribbon / WinForms 系 7 件（自产栈里没有、业务真用到才需要）打进包内
+  `borrow/`。要用就设：<WpfLinuxOfficialBorrows>true</WpfLinuxOfficialBorrows>
+  （编译期 + 运行期同一套"去 ReferenceAssemblyAttribute 的引用件"，故运行期 Assembly.Load 也能命中）。
+
+  【为什么默认 WinExe】WPF 工程绝大多数是可执行；库工程自己写 <OutputType>Library</OutputType> 覆盖。
+  ============================================================================
+-->
+<Project>
+
+  <PropertyGroup>
+    <WpfLinuxSdkPackageRoot>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)..'))</WpfLinuxSdkPackageRoot>
+
+    <UseWPF>false</UseWPF>
+    <DefaultXamlRuntime Condition="'$(DefaultXamlRuntime)' == ''">Wpf</DefaultXamlRuntime>
+    <OutputType Condition="'$(OutputType)' == ''">WinExe</OutputType>
+    <DisableTransitiveFrameworkReferences>true</DisableTransitiveFrameworkReferences>
+
+    <!-- XAML 编译器：必须在 WinFX targets（本包的 .targets 里 import）之前赋值 -->
+    <_PresentationBuildTasksAssembly>$(WpfLinuxSdkPackageRoot)tools/net10.0/PresentationBuildTasks.dll</_PresentationBuildTasksAssembly>
+
+    <EnableDefaultWpfLinuxItems Condition="'$(EnableDefaultWpfLinuxItems)' == ''">true</EnableDefaultWpfLinuxItems>
+  </PropertyGroup>
+
+  <!-- ① 默认清单：工程目录下的 App.xaml + 其余 *.xaml（源码树模式下不启用） -->
+  <ItemGroup Condition="'$(EnableDefaultWpfLinuxItems)' == 'true' and '$(WpfLinuxSrcTree)' == ''">
+    <ApplicationDefinition Include="App.xaml" Condition="Exists('$(MSBuildProjectDirectory)/App.xaml')">
+      <Link>App.xaml</Link>
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Page Include="**/*.xaml" Exclude="$(DefaultItemExcludes);App.xaml">
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+
+  <!-- ② 源码树模式：清单由 $(WpfLinuxSrcTree) 派生（属性在求值期先于项，故此处能读到工程里给的值）
+       · App.xaml → ApplicationDefinition（库工程不能有 ApplicationDefinition ⇒ 改作 Page） -->
+  <ItemGroup Condition="'$(WpfLinuxSrcTree)' != ''">
+    <ApplicationDefinition Include="$(WpfLinuxSrcTree)/App.xaml"
+                           Condition="Exists('$(WpfLinuxSrcTree)/App.xaml') and '$(OutputType)' != 'Library'">
+      <Link>App.xaml</Link>
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Page Include="$(WpfLinuxSrcTree)/**/*.xaml"
+          Exclude="$(WpfLinuxSrcTree)/obj/**;$(WpfLinuxSrcTree)/bin/**;@(ApplicationDefinition);$(WpfLinuxSrcTreeExclude);$(WpfLinuxSrcTreePageExclude)">
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="$(WpfLinuxSrcTree)/**/*.cs"
+             Exclude="$(WpfLinuxSrcTree)/obj/**;$(WpfLinuxSrcTree)/bin/**;$(WpfLinuxSrcTreeExclude)" />
+    <EmbeddedResource Include="$(WpfLinuxSrcTree)/**/*.resx"
+                      Exclude="$(WpfLinuxSrcTree)/obj/**;$(WpfLinuxSrcTree)/bin/**">
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <!-- ③ 官方借用件（Ribbon / WinForms 系）：自产栈没有这些件，业务用到才引（见文件头） -->
+  <ItemGroup Condition="'$(WpfLinuxOfficialBorrows)' == 'true'">
+    <Reference Include="System.Windows.Controls.Ribbon">
+      <HintPath>$(WpfLinuxSdkPackageRoot)borrow/System.Windows.Controls.Ribbon.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="System.Windows.Forms">
+      <HintPath>$(WpfLinuxSdkPackageRoot)borrow/System.Windows.Forms.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="System.Windows.Forms.Primitives">
+      <HintPath>$(WpfLinuxSdkPackageRoot)borrow/System.Windows.Forms.Primitives.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="WindowsFormsIntegration">
+      <HintPath>$(WpfLinuxSdkPackageRoot)borrow/WindowsFormsIntegration.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="System.Drawing.Common">
+      <HintPath>$(WpfLinuxSdkPackageRoot)borrow/System.Drawing.Common.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="System.Private.Windows.Core">
+      <HintPath>$(WpfLinuxSdkPackageRoot)borrow/System.Private.Windows.Core.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="System.Private.Windows.GdiPlus">
+      <HintPath>$(WpfLinuxSdkPackageRoot)borrow/System.Private.Windows.GdiPlus.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>

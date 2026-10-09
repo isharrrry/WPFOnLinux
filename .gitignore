@@ -20,6 +20,10 @@ obj/
 **/obj/
 **/.artifacts/
 
+# WpfLinux.Sdk 的打包产物（`dotnet pack` 生成，8.5 MB；重建命令见
+#   src/Linux/build/third-party/pkg/README.md —— 源码与 buildTransitive 已入库）
+src/Linux/build/third-party/pkg/out/
+
 # ── 2. 原生构建产物 ───────────────────────────────────────────────────────────
 src/WpfGfx.Linux.Native/bin/
 src/WpfGfx.Linux.Native/obj/

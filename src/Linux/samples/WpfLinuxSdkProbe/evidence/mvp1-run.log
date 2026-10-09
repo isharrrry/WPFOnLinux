@@ -1,0 +1,6 @@
+[G147_WORKAREA] source=fallback-screen GetMonitorInfo mon=0,0,1280,1024 work=0,0,1280,1024 prop_present=0 prop_n=0
+SDKPROBE_WINDOW=PASS
+[FONT_FALLBACK] requested=DEJAVU SANS fallback=no resolved=DEJAVU SANS
+[FONT_FALLBACK] requested=NOTO SANS CJK JP fallback=no resolved=NOTO SANS CJK JP
+[FONT_FALLBACK] requested=DEJAVU SANS fallback=no resolved=DEJAVU SANS
+[FONT_FALLBACK] requested=NOTO SANS CJK JP fallback=no resolved=NOTO SANS CJK JP

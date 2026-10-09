@@ -1,0 +1,127 @@
+<!--
+  ============================================================================
+  WpfLinux.Sdk —— 把自产 WPF 栈包成 NuGet 包（消费方"几行接入"即可在 Linux 上编译）
+  ============================================================================
+
+  【本工程只做一件事：组装 nupkg】不产出可用的编译产物（IncludeBuildOutput=false）。
+
+  包布局见同目录 README.md；接线文件在 buildTransitive/ 下。
+
+  ⚠️ 自产件的来源：$(WpfLinuxRepoRoot) 下**已构建**的 Release 产物。本工程不重新构建它们，
+     只取现成的 dll/.so 打进包里（打包前请确认这些产物存在；缺哪件 pack 会当场报 missing）。
+     可用 -p:WpfLinuxRepoRoot=… -p:WpfLinuxSelfBuiltConfiguration=… 覆盖默认。
+  ============================================================================
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <PackageId>WpfLinux.Sdk</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>wpf-linux</Authors>
+    <Description>在 Linux 上编译 WPF 工程所需的自产 WPF 栈：引用件（lib）、XAML 编译链（tools）、原生库（runtimes）与接线（buildTransitive）。</Description>
+    <PackageTags>wpf;linux</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Nullable>disable</Nullable>
+    <!-- NU5128：lib 无对应 ref/依赖组（本包刻意用 nuspec 依赖表达 OOB 包） -->
+    <NoWarn>$(NoWarn);NU5128;NU5100;NU5130</NoWarn>
+
+    <WpfLinuxRepoRoot Condition="'$(WpfLinuxRepoRoot)' == ''">$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)../../../../../'))</WpfLinuxRepoRoot>
+    <WpfLinuxSelfBuiltConfiguration Condition="'$(WpfLinuxSelfBuiltConfiguration)' == ''">Release</WpfLinuxSelfBuiltConfiguration>
+    <WpfLinuxSrc>$(WpfLinuxRepoRoot)src/Microsoft.DotNet.Wpf.Linux/src/</WpfLinuxSrc>
+    <WpfLinuxBin>bin/$(WpfLinuxSelfBuiltConfiguration)/</WpfLinuxBin>
+    <WpfLinuxPbtDir>$(WpfLinuxSrc)PresentationBuildTasks/bin/$(WpfLinuxSelfBuiltConfiguration)/net10.0/</WpfLinuxPbtDir>
+    <!-- 官方借用件（Ribbon / WinForms 系 7 件）：取自 RT 的 refruntime（tools/RefAssemblyStrip 去过
+         ReferenceAssemblyAttribute，类型/成员元数据一个不动，故编译期与运行期共用一个身份）。
+         ⚠️ 任务 D 把两棵 `PortWpfLinux/` 的旧 wrapper 体系归档到 `.archive-legacy-wrappers/`
+         （`refruntime/` 随之搬走）⇒ 原默认路径已不存在、`dotnet pack` 会当场报
+         `Could not find a part of the path '…/PortWpfLinux/refruntime'`。这里补一条"原位优先、
+         归档兜底"的回退（两处都是同一批文件，取到即同一身份）。 -->
+    <WpfLinuxBorrowDir Condition="'$(WpfLinuxBorrowDir)' == ''">$(WpfLinuxRepoRoot)../RT/Links-License-Mgr/PortWpfLinux/refruntime/</WpfLinuxBorrowDir>
+    <WpfLinuxBorrowDir Condition="!Exists('$(WpfLinuxBorrowDir)')">$(WpfLinuxRepoRoot)../RT/Links-License-Mgr/PortWpfLinux/.archive-legacy-wrappers/refruntime/</WpfLinuxBorrowDir>
+  </PropertyGroup>
+
+  <!-- ① 自产 WPF 栈 → lib/net10.0（编译期 + 运行期；消费方与 XAML 临时工程共用同一套引用身份）
+       ⚠️ 取"每个组件自己的 bin/<cfg>"，不用 CycleStub.PresentationFramework/bin/<cfg> 聚合目录 ——
+          该目录下的 PresentationFramework.dll 是 12.8 KB 的桩件（真件 6.0 MB，见任务书「已在事实」有误）。 -->
+  <ItemGroup>
+    <None Include="$(WpfLinuxSrc)WindowsBase/$(WpfLinuxBin)WindowsBase.dll" Pack="true" PackagePath="lib/net10.0/" />
+    <None Include="$(WpfLinuxSrc)System.Xaml/$(WpfLinuxBin)System.Xaml.dll" Pack="true" PackagePath="lib/net10.0/" />
+    <None Include="$(WpfLinuxSrc)PresentationCore/$(WpfLinuxBin)PresentationCore.dll" Pack="true" PackagePath="lib/net10.0/" />
+    <None Include="$(WpfLinuxSrc)PresentationFramework/$(WpfLinuxBin)PresentationFramework.dll" Pack="true" PackagePath="lib/net10.0/" />
+    <None Include="$(WpfLinuxSrc)DirectWriteForwarder/$(WpfLinuxBin)DirectWriteForwarder.dll" Pack="true" PackagePath="lib/net10.0/" />
+    <None Include="$(WpfLinuxSrc)UIAutomationTypes/$(WpfLinuxBin)UIAutomationTypes.dll" Pack="true" PackagePath="lib/net10.0/" />
+    <None Include="$(WpfLinuxSrc)UIAutomationProvider/$(WpfLinuxBin)UIAutomationProvider.dll" Pack="true" PackagePath="lib/net10.0/" />
+    <None Include="$(WpfLinuxSrc)System.Windows.Input.Manipulations/$(WpfLinuxBin)System.Windows.Input.Manipulations.dll" Pack="true" PackagePath="lib/net10.0/" />
+    <!-- 主题件（PresentationFramework.Classic 由 WpfLinux.props 显式引用；其余三个是它的同目录依赖） -->
+    <None Include="$(WpfLinuxSrc)PresentationFramework.Classic/$(WpfLinuxBin)PresentationFramework.Classic.dll" Pack="true" PackagePath="lib/net10.0/" />
+    <None Include="$(WpfLinuxSrc)PresentationFramework.Classic/$(WpfLinuxBin)PresentationUI.dll" Pack="true" PackagePath="lib/net10.0/" />
+    <None Include="$(WpfLinuxSrc)PresentationFramework.Classic/$(WpfLinuxBin)ReachFramework.dll" Pack="true" PackagePath="lib/net10.0/" />
+    <None Include="$(WpfLinuxSrc)PresentationFramework.Classic/$(WpfLinuxBin)System.Printing.dll" Pack="true" PackagePath="lib/net10.0/" />
+    <!-- 本仓的 DWrite provider 与 System.Windows.Extensions 的 Linux 替身 -->
+    <None Include="$(WpfLinuxSrc)DirectWrite/Provider/$(WpfLinuxBin)DirectWrite.Linux.Provider.dll" Pack="true" PackagePath="lib/net10.0/" />
+    <None Include="$(WpfLinuxSrc)System.Windows.Extensions/$(WpfLinuxBin)System.Windows.Extensions.dll" Pack="true" PackagePath="lib/net10.0/" />
+  </ItemGroup>
+
+  <!-- ② XAML 编译链（自产 PresentationBuildTasks）→ tools/net10.0 -->
+  <ItemGroup>
+    <None Include="$(WpfLinuxPbtDir)PresentationBuildTasks.dll" Pack="true" PackagePath="tools/net10.0/" />
+    <None Include="$(WpfLinuxPbtDir)PresentationBuildTasks.deps.json" Pack="true" PackagePath="tools/net10.0/" />
+  </ItemGroup>
+
+  <!-- ③ 原生库 → runtimes/linux-x64/native（消费方无需手工拷 .so） -->
+  <ItemGroup>
+    <None Include="$(WpfLinuxRepoRoot)src/WpfGfx.Linux.Native/bin/libwpfwin32.so" Pack="true" PackagePath="runtimes/linux-x64/native/" />
+    <None Include="$(WpfLinuxSrc)DirectWrite/wic-shim/libwpfwic.so" Pack="true" PackagePath="runtimes/linux-x64/native/" />
+    <None Include="$(WpfLinuxRepoRoot)src/Linux/build/MilBridge/.artifacts/publish/MilBridge.Linux/release_linux-x64/wpfgfx_cor3.so" Pack="true" PackagePath="runtimes/linux-x64/native/" />
+  </ItemGroup>
+
+  <!-- ④ 接线 → buildTransitive（对直接引用者与传递引用者都生效） -->
+  <ItemGroup>
+    <None Include="buildTransitive/WpfLinux.Sdk.props;buildTransitive/WpfLinux.Sdk.targets" Pack="true" PackagePath="buildTransitive/" />
+    <None Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+  <!-- ④b 官方借用件（Ribbon / WinForms 系）→ borrow/：默认不引，消费方设
+       <WpfLinuxOfficialBorrows>true</WpfLinuxOfficialBorrows> 才接（见 buildTransitive props）。 -->
+  <ItemGroup>
+    <None Include="$(WpfLinuxBorrowDir)System.Windows.Controls.Ribbon.dll" Pack="true" PackagePath="borrow/" />
+    <None Include="$(WpfLinuxBorrowDir)System.Windows.Forms.dll" Pack="true" PackagePath="borrow/" />
+    <None Include="$(WpfLinuxBorrowDir)System.Windows.Forms.Primitives.dll" Pack="true" PackagePath="borrow/" />
+    <None Include="$(WpfLinuxBorrowDir)WindowsFormsIntegration.dll" Pack="true" PackagePath="borrow/" />
+    <None Include="$(WpfLinuxBorrowDir)System.Drawing.Common.dll" Pack="true" PackagePath="borrow/" />
+    <None Include="$(WpfLinuxBorrowDir)System.Private.Windows.Core.dll" Pack="true" PackagePath="borrow/" />
+    <None Include="$(WpfLinuxBorrowDir)System.Private.Windows.GdiPlus.dll" Pack="true" PackagePath="borrow/" />
+  </ItemGroup>
+
+  <!-- ⑤ 自产栈在共享框架之外的 OOB BCL / SkiaSharp：写进 nuspec 依赖，消费方不必自己列清单。
+       ⚠️ System.Security.Permissions **刻意不做依赖**：它在 net8.0/net9.0 组里依赖官方
+          System.Windows.Extensions（9.0.0.0 / cc7b13ffcd2ddd51），而自产栈引用的是本仓替身
+          （9.0.0.0 / 31bf3856ad364e35）—— 一旦成为依赖，官方 SWE 就会进消费方 assets、
+          与 lib/net10.0 里的替身撞名（实测：不处理时输出目录与 deps.json 里都是官方 SWE）。
+          PackageDownload 只把它取到全局包缓存（不进依赖图），dll 由下面这条自带进 lib。 -->
+  <ItemGroup>
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.88.9" />
+    <PackageReference Include="System.IO.Packaging" Version="9.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.0" />
+    <PackageReference Include="System.Diagnostics.EventLog" Version="9.0.0" />
+    <PackageReference Include="System.Formats.Nrbf" Version="9.0.0" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Win32.SystemEvents" Version="9.0.0" />
+    <PackageDownload Include="System.Security.Permissions" Version="[9.0.0]" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="$(NuGetPackageRoot)system.security.permissions/9.0.0/lib/net9.0/System.Security.Permissions.dll" Pack="true" PackagePath="lib/net10.0/" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="PackageMarker.cs" />
+  </ItemGroup>
+
+</Project>

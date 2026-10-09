@@ -1605,5 +1605,12 @@
     <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/TextBlock.Linux.cs" />
   </ItemGroup>
   <!-- ==== T1c RTL 镜像读数 结束 ==== -->
+  <!-- ==== WPF-on-Linux 补丁：MessageBox 弹出真正的模态窗口（任务 E）=== -->
+  <ItemGroup>
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/MessageBox.cs" />
+    <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/MessageBox.Linux.cs" />
+    <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/WpfLinuxMessageBox.Linux.cs" />
+  </ItemGroup>
+  <!-- ==== WPF-on-Linux 补丁结束（任务 E）==== -->
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 </Project>
