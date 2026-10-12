@@ -4124,3 +4124,55 @@ SELFDESC_WIRING=FAIL examined=1 wired=1 unwired=0 undeclared=0 fails=1 run_step=
   本条是**纯相对路径**这一 URI 形式在资源流解析里不被支持（带程序集限定的相对 pack URI 是好的）。
 - **建议修法方向（未做）**：栈侧资源流解析应对「纯相对路径」按「相对应用程序集」解析（WPF 语义），
   或至少**不静默** —— 返回 null 时应可被上层察觉（现状是调用方一个 `?.` 就吞掉）。
+
+### 🆕 **`D-G211`** —— **鼠标输入交付缺陷：点击不产出 `WM_LBUTTONDOWN`（键盘正常）**（**产品缺陷·栈侧·未修**）
+
+- **现象**：demo 里点击**不产生** `WM_LBUTTONDOWN`（菜单点不开、demo 内切页点不动），而**键盘正常**
+  （`[KEY_DIAG] KEY KeyPress … → WM_KEYDOWN + WM_CHAR`）。
+- **已排除四项（都有读数）**：
+  ① **注入路径正常** —— 独立 C 探针在**同一 Xvfb 会话**里收到 `ButtonPress(4)/ButtonRelease(5)/MotionNotify(6)/
+     KeyPress(2)/KeyRelease(3)`；
+  ② **翻译层完整** —— `src/WpfGfx.Linux.Native/src/win32_x11.c:1241` 的 `ButtonPress/ButtonRelease` 分支：
+     `Button1/2/3 → WM_LBUTTON*/MBUTTON*/RBUTTON*`、`Button4/5/6/7 → WM_MOUSEWHEEL/HWHEEL`；
+  ③ **`push()` 无丢弃条件**（`:832` 直接 `wpf_queue_push`）；
+  ④ **事件掩码齐全**（`:390 WPF_EVENT_MASK`，`XSelectInput` 全仓仅 `:477` 一处），且泵在读 X
+     （`WPF_X11_PUMP_TRACE=1` ⇒ `[X11PUMP] call#1 pending=39/49`）。
+- **断点位置**：被夹在 `win32_x11.c:1290`（`if (b == Button1 && down) { ht = wpf_core_nc_hit_test(...) … }`）
+  与 `:1414`（`push(t, h, m, …)`）之间；`:1373` 的**「抓取重放去重闸」**是唯一"读到却不交付"的分支。
+- **候选根因（一行级）**：去重闸的限窗变量 `g_x_e3_live_button` **置位/清零不对称** —— 客户区 release（`:1407`）清零，
+  而非客户区配对的 release（`:1361` `push(WM_NCLBUTTONUP) … break`）**不清零**；`g_nc_hwnd` 又是**跨点击保留**的
+  ⇒ 一旦出现残留（NC press 残留 ＋ 后续客户区 press/release 被 NC 分支截走），该变量**永不清零** ⇒ 此后所有同键
+  press 都被判 `DROP(replay:same-button+no-release+ordered)`（`:1389`；去重闸缺省为**开**，`:327`）⇒ **再也出不了
+  `WM_LBUTTONDOWN`**。这也解释了"`BTN`（在闸之前打印，`:1266`）有两条、而鼠标消息一条都没有"，键盘不走该闸故不受影响。
+- **建议最小修复（择一，一行级，尚未落地）**：A（推荐）在 `:1361` 的 NC 配对 release 分支 `break` 之前**同步清零**
+  `g_x_e3_live_button`（让两条 release 路径对称）；B 给去重闸的限窗条件加上 `g_nc_hwnd == NULL`（NC 状态中不做客户区去重）。
+- **为什么没修**：两个复现台都拿不到 demo 窗口的**稳定点击**（一边 `BTN=0` 但 `X11PUMP pending=49`；另一边在
+  `:74`/`:75` 干净会话同样 `BTN=0`，而其独立 C 探针在同一 Xvfb 能收到事件）⇒ **无法验证**，按纪律不做盲改。
+  闭环判据：① 点一次出现 `BTN type=Press`；② 反腿 `WPF_E3_REPLAY_DEDUP=0` ⇒ 若**立刻**出现 `WM_LBUTTONDOWN`
+  即坐实是该闸，再按 A 落地并复验。
+- **影响面**：若成立，它同时解释 `D-G50`（组合框下拉打不开）与「② popup 实测 / demo 内真实切页点不动」——
+  即这些是**同一个输入交付缺陷**的表现，而不是各自独立的缺陷。
+
+### 🆕 **`D-G212`** —— **3D 的 2D-on-3D（L2）在「零内容包围盒」处中断**（**产品缺陷·栈侧·未修**）
+
+- **现象**：`hc:CoverFlow` / `hc:FlipClock` 在 L1 之后仍 `colors=56`（基线，非空白）＋ `pixdiff=[0,0]`
+  ⇒ 3D 几何画得出来，但贴在三角面上的 **2D 内容（封面/翻页数字）没出来**。
+- **五级定位链**（每级有读数；方法 = 宿主单页实例化 ＋ `WPFGFX_M3D_DIAG=1` ＋ 落盘诊断
+  `/tmp/m3d-tex.log`、`/tmp/m3d-tex2.log`、`/tmp/m3d-visres.log`）：
+  ① **几何/视口/三角全通**：`projected viewport3d handle=0x559`、`material … hostType=TYPE_DIFFUSEMATERIAL`×6、
+     `vpr=(0,0,500.16,299.52) tris=12 visible=12`；
+  ② **材质画刷识别全通**：`[M3D-TEX] hBrush=0x56c type=MilVisualBrush vis=0x56d resolver=yes`×6；
+  ③ **resolver 调用**一度 `SIGBUS`，加「重入保护 ＋ 如实返回 null」后崩溃清零（`EXIT=0`）；
+  ④ **递归防护不是原因**（已抽成 `SkiaBrush.TryResolveVisualImage`，3D 侧已改调它）；
+  ⑤ **最终缺口**：`SkiaRenderBackend.ResolveVisualImage`（`:126`）里 `VisualProjection.Project` 成功（`visual=ok`），
+     但 `VisualBrushSource.ContentBounds` 返回 **0×0**（`[M3D-VISRES] vis=0x56d bounds=(0.0,0.0,0.0,0.0) visual=ok`×8）
+     ⇒ 该函数在 `:145` 按「空包围盒 ＝ 诚实失败」返回 null（**策略正确，勿改成猜尺寸**）。
+- **原因**：`ContentBounds → Accumulate` 只遍历 `MilVisual.Content` 与 `MilVisual.Children`，而
+  `Viewport2DVisual3D` 的目标视觉是**挂在 3D 子树上的 2D 视觉**（不在 2D 树里、**从未被 `Measure/Arrange`**）
+  ⇒ 其内容/子节点投影出来是空的。
+- **修法（三步，未落地）**：① 打印该 visual 的 `Content` 类型、`Children.Count`、`ActualWidth/Height` 以区分
+  「完全没量过」与「量了为 0」；② 若是「没量过」⇒ 取图前对它**显式测量/布置**一次（候选尺寸取材质/几何尺寸或
+  `PositiveInfinity`），并在注释里写明「这是为 3D 场景补的布局步骤」、如实登记；③ 若 `ContentBounds` 只支持部分
+  节点类型，补上该视觉实际用到的类型。
+- **判据**：`colors` 明显高于基线 **56**、**封面内容可见**（截图 ＋ 封面区域非背景像素数）、`EXIT=0`（无 SIGBUS/SIGILL）、
+  L1 红三角探针 `M3D_GEOM`/`M3D_COLOR` 回归 PASS、`CoverView`/`TabControl`/`Rating` 无新异常。
