@@ -1612,5 +1612,16 @@
     <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/WpfLinuxMessageBox.Linux.cs" />
   </ItemGroup>
   <!-- ==== WPF-on-Linux 补丁结束（任务 E）==== -->
+  <!-- ==== WPF-on-Linux 补丁：窗口图标栅格化失败时降级（patch-presentationframework-iconhelper.py 注入）==== -->
+  <ItemGroup>
+    <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/AppModel/IconHelper.cs" />
+    <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/IconHelper.Linux.cs" />
+  </ItemGroup>
+  <!-- ==== WPF-on-Linux 补丁结束（窗口图标降级）==== -->
+  <!-- ==== WPF-on-Linux 补丁：System.Windows.SplashScreen 的 Linux 实现（patch-presentationframework-splashscreen.py 注入）==== -->
+  <ItemGroup>
+    <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/WpfLinuxSplashScreen.Linux.cs" />
+  </ItemGroup>
+  <!-- ==== WPF-on-Linux 补丁结束（SplashScreen）==== -->
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 </Project>
