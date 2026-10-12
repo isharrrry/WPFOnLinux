@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 //
 // Skia 渲染后端：视觉树遍历 + 25 条 MilDrawCommand 执行。
 //
@@ -285,6 +285,31 @@ namespace WpfGfx.Linux.Rendering
 
             if (v.Clip.HasValue)
                 canvas.ClipRect(v.Clip.Value, SKClipOperation.Intersect, ctx.Antialias);
+
+            // ---- 3D 视口（TYPE_VIEWPORT3DVISUAL）：L1/3D 起由 Skia3DRenderer 消费 ----
+            //   此前 3D 命令只把状态写进 MilResource3DTable，**没有任何渲染者**（症状：colors=1）。
+            //   坐标语义：此处已把 `deviceBase · world` 设进 canvas ⇒ 3D 光栅器按 **DIP 局部坐标**
+            //   在 `Viewport3DVisual.Viewport` 矩形内填三角。画不出来时**如实记账**，不假装成功。
+            if (v.Viewport3D.HasValue)
+            {
+                int vpSave = canvas.Save();
+                try
+                {
+                    bool ok = Skia3DRenderer.Render(_provider, v.Viewport3D.Value, canvas, out string m3dReason);
+                    if (Environment.GetEnvironmentVariable("WPFGFX_M3D_DIAG") == "1")
+                        Console.Error.WriteLine(ok
+                            ? $"[M3D-DIAG] render OK handle=0x{v.Viewport3D.Value.Value:x} reason={m3dReason ?? "<none>"}"
+                            : $"[M3D-DIAG] render FAIL handle=0x{v.Viewport3D.Value.Value:x} reason={m3dReason}");
+                    if (!ok)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[WpfGfx] 3D 视口未出图：{m3dReason}");
+                    }
+                }
+                finally
+                {
+                    canvas.RestoreToCount(vpSave);
+                }
+            }
 
             if (v.Content != null)
             {

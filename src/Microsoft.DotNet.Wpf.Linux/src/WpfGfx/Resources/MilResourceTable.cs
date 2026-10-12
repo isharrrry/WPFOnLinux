@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 //
 // 通道内的资源句柄表。
 //
@@ -240,6 +240,9 @@ namespace WpfGfx.Linux.Resources
                 case DUCE.ResourceType.TYPE_GUIDELINESET: return new MilGuidelineSet();
 
                 case DUCE.ResourceType.TYPE_GLYPHRUN: return new MilGlyphRun();
+
+                // L1/3D：3D 视口此前落进下面的 MilOpaqueResource ⇒ 2D 视觉命令全被拒、遍历看不到
+                case DUCE.ResourceType.TYPE_VIEWPORT3DVISUAL: return new MilViewport3DVisualResource();
 
                 default:
                     // 3D / D3D / 媒体 等 M1 不建模的类型：占位，解码器会返回 E_NOTIMPL。

@@ -1,4 +1,4 @@
-using SkiaSharp;
+﻿using SkiaSharp;
 using WpfGfx.Linux.Interop;
 
 namespace WpfGfx.Linux.Contracts;
@@ -94,6 +94,12 @@ internal sealed class MilVisual
     /// 这是本项目"投影时丢字段"这一族的**第三个**实例（前两个：`PIDWriteFont`、变换资源句柄）。</para>
     /// </summary>
     public MilResourceHandle AlphaMask { get; set; }
+
+    /// <summary>
+    /// 非空 ⇒ 该 2D 视觉是 3D 视口（`TYPE_VIEWPORT3DVISUAL`），值为视口资源句柄；
+    /// 渲染层据此调用 <c>Skia3DRenderer</c>。纯 2D 视觉为 null（默认）。
+    /// </summary>
+    public MilResourceHandle? Viewport3D { get; set; }
 }
 
 /// <summary>

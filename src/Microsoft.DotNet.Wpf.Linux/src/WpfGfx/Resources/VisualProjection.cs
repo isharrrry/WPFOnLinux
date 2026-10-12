@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 //
 // 句柄图 → 契约 MilVisual（Contracts/Interfaces.cs）的投影。
 //
@@ -49,6 +49,14 @@ namespace WpfGfx.Linux.Resources
 
             result.Clip = ResolveClip(ch, node.Clip);
             result.Content = ResolveContent(ch, node.Content);
+
+            // 3D 视口（L1）：本节点既是 2D 容器视觉，又是 3D 场景根 ⇒ 渲染层据此调 3D 光栅器。
+            if (ch.Resources.Lookup(node.Handle) is MilViewport3DVisualResource)
+            {
+                result.Viewport3D = new MilResourceHandle((uint)node.Handle);
+                if (Environment.GetEnvironmentVariable("WPFGFX_M3D_DIAG") == "1")
+                    Console.Error.WriteLine($"[M3D-DIAG] projected viewport3d handle=0x{node.Handle.Value:x}");
+            }
 
             if (depth >= MaxDepth) return result;
 

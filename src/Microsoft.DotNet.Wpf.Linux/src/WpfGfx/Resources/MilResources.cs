@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 //
 // DUCE 资源的托管数据模型。命令解码器（Commands/）把字节流翻译成这里的实例，
 // 渲染后端（Rendering/）消费这些实例。
@@ -33,12 +33,31 @@ namespace WpfGfx.Linux.Resources
 
     // ============================ Visual / 内容 ============================
 
-    internal sealed class MilVisualResource : MilResource
+    internal class MilVisualResource : MilResource
     {
-        public override DUCE.ResourceType Type => DUCE.ResourceType.TYPE_VISUAL;
+        private readonly DUCE.ResourceType _type;
+
+        public MilVisualResource() : this(DUCE.ResourceType.TYPE_VISUAL) { }
+
+        protected MilVisualResource(DUCE.ResourceType type) { _type = type; }
+
+        public override DUCE.ResourceType Type => _type;
 
         /// <summary>句柄在 CreateOrAddRefOnChannel 回填后才可用，故此处可写。</summary>
         public readonly MilVisualNode Visual = new MilVisualNode();
+    }
+
+    /// <summary>
+    /// `TYPE_VIEWPORT3DVISUAL`(40)：3D 视口在 2D 视觉树里的承载（L1/3D 起真建模）。
+    /// ⚠ 它**同时**是两样东西：① 2D 容器视觉 —— Offset/Transform/Clip/Children 由既有 Visual* 命令写入，
+    ///   所以必须能通过 `Require&lt;MilVisualResource&gt;`；② 3D 场景根 —— 相机/视口/3D 子节点由
+    ///   0x29–0x2b 与该资源在 `MilResource3DTable` 上的附加项承载。
+    /// 旧实现落到 `MilOpaqueResource` ⇒ 2D 命令一律 `E_INVALIDARG`、`GetVisual` 返回 null、
+    /// 2D 遍历根本看不到它（实测症状：hc:CoverFlow 页 colors=1 全空白）。
+    /// </summary>
+    internal sealed class MilViewport3DVisualResource : MilVisualResource
+    {
+        public MilViewport3DVisualResource() : base(DUCE.ResourceType.TYPE_VIEWPORT3DVISUAL) { }
     }
 
     /// <summary>RenderData 资源：保存原始指令流（RecordHeader + 命令体 的序列）。</summary>
