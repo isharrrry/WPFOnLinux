@@ -4091,3 +4091,36 @@ SELFDESC_WIRING=FAIL examined=1 wired=1 unwired=0 undeclared=0 fails=1 run_step=
   （见 `D-G200`）⇒ 过渡动画可能停帧后反复重建对象。
 - **结论**：**需在宿主修复（`D-G200`）后复测**，再判定是**宿主假象**还是真实分配问题。
   宿主演进页在 hc-linux 侧 `port/ControlRenderTests/`，**不是**栈缺陷。
+
+### 🆕 **`D-G209`** —— **自产栈不执行低优先级 Dispatcher op**（**产品缺陷·栈侧·未修**）
+
+- **取证（两条独立、可复算）**：
+  1. 同一 `DispatcherTimer` 诊断：用 `DispatcherPriority.Background` 时**一次都不打印**；
+     把优先级改成 `Normal` 后**立刻打印**（探针与控件渲染宿主两处都复现）。
+  2. `MainViewModel` 填充导航列表用
+     `Application.Current.Dispatcher.BeginInvoke(..., DispatcherPriority.ApplicationIdle)`：
+     诊断显示 `[HC-VM] posted=3`（3 条都投递成功）却**没有任何一条** `added=`（回调从未执行）
+     ⇒ `DemoInfoCollection` 永远为空 ⇒ demo 主窗体左侧列表一直不加载。
+- **影响面（已实测的后果）**：闪屏 `autoClose` 永不触发（它用 `Background` 轮询「主窗口已可见」）⇒
+  闪屏不关闭且占着 `Application.MainWindow`；控件渲染宿主 `inactive_ran` 恒 0；动画类页面曾停在首帧
+  （`MediaContext` 的动画渲染 op 正是 `DispatcherPriority.Inactive`）；`D-G200` 里的两类假红亦同族。
+- **已尝试的修法均无效并已回滚**：改 `src/WpfGfx.Linux.Native/src/win32_msg.c` 的
+  `MsgWaitForMultipleObjectsEx` ——（a）忽略内部唤醒消息 `DispatcherProcessQueue`；
+  （b）忽略全部注册类消息（`0xC000..0xFFFF`）。两次都未改变现象 ⇒ **闸门不在该函数**（已排除）。
+  可疑方向（未验证）：`Dispatcher.ProcessQueue` 的 `RequestProcessing()`/`_postedProcessingType`
+  与消息泵的交互、或前景/后台优先级范围（`_foregroundPriorityRange`）的判定。
+- **应用侧已绕过（非根因修复）**：`MainViewModel` 填充优先级提到 `Normal`（hc 仓 `d85eb471`）、
+  Linux 默认不启闪屏（同提交）、栈侧 `WpfLinuxSplashScreen.HookAutoClose` 定时器提到 `Normal`
+  （栈仓 `35d35e764`）。**根因修好后这些绕过可以还原为上游写法。**
+
+### 🆕 **`D-G210`** —— **启动期资源流静默失败**（**产品缺陷·栈侧，应用侧已绕过**）
+
+- **取证**：`DataService.GetDemoInfo()` 用
+  `Application.GetResourceStream(new Uri("Data/DemoInfo.json", UriKind.Relative))`（**纯相对路径**），
+  本栈解析不到 ⇒ `?.Stream == null` ⇒ 方法**静默返回空列表**（无异常、无日志）。
+  实测：加诊断后 `[HC-DATA] stream=NULL`（改前）→ 改用 `/Assembly;component/Data/DemoInfo.json` 后
+  `stream=OK / groups=3 / items=106 / jsonLen=8300`（hc 仓 `3fcbae57`）。
+- **与 `D-G203` 的区别**：那条是 `GdipCreateBitmapFromStream` 的 COM 指针 marshalling 障碍；
+  本条是**纯相对路径**这一 URI 形式在资源流解析里不被支持（带程序集限定的相对 pack URI 是好的）。
+- **建议修法方向（未做）**：栈侧资源流解析应对「纯相对路径」按「相对应用程序集」解析（WPF 语义），
+  或至少**不静默** —— 返回 null 时应可被上层察觉（现状是调用方一个 `?.` 就吞掉）。
