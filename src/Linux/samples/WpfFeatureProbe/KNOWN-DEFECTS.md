@@ -4004,3 +4004,46 @@ SELFDESC_WIRING=FAIL examined=1 wired=1 unwired=0 undeclared=0 fails=1 run_step=
 - **取证（实测）**：宿主 `Pump`（`hc-linux/port/ControlRenderTests/ControlRenderTests.cs:386`，`PushFrame(Background)` + `Sleep(5)`）下 `inactive_ran=0 / background_ran=1`，而 `MediaContext` 的动画渲染 op 正是 `DispatcherPriority.Inactive`（`MediaContext.cs:579/592/628`）⇒ **动画／自绘类页面可能停在首帧**（宿主读数不可信）；同时相邻帧实测 `AE=8128/8192` 像素却在 `colors` 上完全相同 ⇒ **颜色数判据对几何变形无区分度**。
 - **反极性／对照**：同款泵下纯 WPF 动画实际正常（`rendering=322 left=19.0`、帧间 `AE>0`），`DispatcherTimer` 96 次/5 s、`CompositionTarget.Rendering` 394 次/5 s ⇒ **栈侧帧驱动无缺陷**，问题在宿主与判据。
 - **修法**：宿主改能跑 `Inactive` 的泵（`PushFrame(frame, DispatcherPriority.Inactive)`）；动画类页面判据加"帧间 `AE>0`"。**待修**（在 hc-linux 侧）。
+
+### 🆕 **`D-G201`** —— **视觉级 `Effect` 通道未接 ⇒ `UIElement.Effect` 从未被渲染**（产品缺陷 · **已修**）
+
+- **根因**：`MilCmdVisualSetEffect`（`Commands/MilCommandDispatcher.cs:178`）把效果存进 `MilVisualNode.Effect` 后调用 `NoteVisualEffectIgnored`，而该字段**下游没有任何消费者** —— 投影层（`Resources/VisualProjection.cs`）不复制它、契约类型 `MilVisual`（`Contracts/Interfaces.cs`）连字段都没有 ⇒ 效果在**投影那一跳丢失**；`SkiaEffect` 此前只服务绘制指令 `MilPushEffect`(0x55)，视觉级下发路径与绘制级消费路径之间**没有桥**。
+- **现象**：菜单 popup 为阴影预留的 **8px 带是纯白**（即用户报告的「内容有多余边距」）；`hc:PreviewSlider` 滑钮缺阴影。
+- **修法（`a2ef40937`）**：`MilVisual` 加 `Effect` 字段 → 投影处**显式复制**（该处 `new MilVisual{…}` 是全仓唯一生产构造点，漏填只会静默默认）→ `SkiaRenderBackend` 在 `canvas.SetMatrix(...)` 之后用 `SkiaEffect.TryResolve` + `PushLayer(new SKPaint{ImageFilter=…})` 压层；**不传 rect** 以便阴影外扩不被元素边界裁掉；认不出的句柄**不记** `NotDrawn`（与 dispatcher 侧 `NoteVisualEffectIgnored` 同口径，且那个计数器是 `WpfTextDemo` 判据「未画种类 0」的输入）。
+- **验证（独立探针）**：红底 + 白 `Border` + `DropShadowEffect{BlurRadius=5, ShadowDepth=1, Direction=270, Opacity=.2}` ⇒ `colors=7`，直方图 `123804×#FF0000`（红底）＋ `21424×#FFFFFF`（白盒）＋ **`416×#FF8080`／`103×#FF2B2B`／`103×#FF2A2A`**（半透明黑阴影压暗红底产生的中间色；改前只有纯红与纯白）⇒ 阴影确实被画出。
+- **已知偏差**：自身 `Clip` 在本层**之内**应用 ⇒ 阴影外扩会被元素自身 clip 裁（WPF 语义下 Effect 结果应在外层再受祖先裁剪）；本例（`Border`/`Menu` 无自身 clip）不受影响。
+
+### 🆕 **`D-G202`** —— **`hc:CoverFlow` 负尺寸回归**（产品缺陷 · **修复中**）
+
+- **现象**：3D L1 让 `Viewport3DVisual` 真正参与布局后，`hc:CoverFlow` 由「`colors=1` 无异常」变为抛
+  `ArgumentException: Width and Height must be non-negative`。
+- **定位**：上游 `PresentationFramework/System/Windows/Controls/ViewPort3D.cs:162` 的
+  `ArrangeOverride → new Rect(new Point(), finalSize)` 收到**负的 `finalSize`**；改前该布局路径**不可达**
+  （3D 视口在 2D 树里没有节点，落到占位资源上）。
+- **修法方向**：在**布局层**修 —— 谁算出负值就修谁；**不许**用 `Math.Max(0, …)` 之类盖掉真因、不许吞异常。
+- **现状**：**修复中**；`hc:FlipClock`（`Viewport2DVisual3D`／`ContainerUIElement3D`）很可能撞同一处，需同看。
+
+### 🆕 **`D-G203`** —— **GIF 多帧能力缺失 ⇒ `hc:GifImage` 空白且静止**（产品缺陷 · **已修**）
+
+- **三层根因**：① hc 侧 `GetBitmapSource()` 走 `GdipCreateHBITMAPFromBitmap`，而栈上 HBITMAP 是**哑句柄**
+  （`CreateDIBSection` 只返回常量、`GetBitmapBits` 恒 0）⇒ 该入口如实失败、拿到 0 句柄、异常被 `catch { }` 吞；
+  ② hc 侧 `CreateSourceFromStream()` 用 `GdipCreateBitmapFromStream(new GPStream(...))`，在非 Windows CoreCLR 上
+  **连 shim 都到不了**（marshaller 抛 `MarshalDirectiveException: COM interface pointers isn't supported`，
+  与本仓已登记的 `FindMimeFromData` 同源）；③ 栈侧 GDI+ 帧 API 全是降级（`GetFrameCount→1`），
+  且换帧按**路径**重解 ⇒ 临时文件不能立刻删。
+- **修法**：栈仓 `c22570daf`（`wic_proxy.c` 5 个多帧出口 ＋ `win32_gdiplus.c` 帧 API / `PropertyTagFrameDelay` 厘秒 /
+  句柄未就绪的**宽容语义**（否则 hc 在 XAML 解析期就把整页打死）/ 临时文件延迟删除）
+  ＋ hc 仓 `72188f3e`（`GifImage.cs` 改走 `GdipBitmapLockBits`、流落临时文件走文件解码链、`_tempFilePath` 活到 `Dispose`）。
+- **验证**：正极性 `ANIM_RESULT distinct=32 total=40 verdict=PASS`；屏上 1.2 s 间隔 `compare -metric AE = 36977`；
+  负极性（静态 PNG）`distinct=1` ⇒ STATIC。
+- **运维纪律（本条踩出来的）**：`libwpfwin32.so` 与 `libwpfwic.so` **必须同版本配套部署**，
+  缺一则表现为"帧数=1 / 图片不加载"（曾被误读成资源解析问题）。
+
+### 🆕 **`D-G204`** —— **判据面：宿主对"持续动画页"恒超时**（**判据面缺陷，不是产品缺陷** · **待修**）
+
+- **取证（实测）**：`run-control-render-tests.sh --only GifImage --frames 8 --settle 4` 恒
+  `CRT=FAIL page=GifImageDemo reason=app-exit=124`；换成 `--settle 0` **同样超时** ⇒ 宿主大概在等
+  "画面稳定"而永远等不到（与 `--settle` 取值无关）。
+- **修法**：改为"定长采样 ＋ 不判稳定"，或显式加 `--no-settle`／`--anim` 让调用者声明"这页一直在动"；
+  且超时路径要给**可区分**的 `reason`（例如 `reason=anim-page-timeout`），别与"应用崩了"混在一起。
+- **位置**：hc-linux 侧 `port/ControlRenderTests/`，**不是**栈缺陷。
