@@ -4047,3 +4047,47 @@ SELFDESC_WIRING=FAIL examined=1 wired=1 unwired=0 undeclared=0 fails=1 run_step=
 - **修法**：改为"定长采样 ＋ 不判稳定"，或显式加 `--no-settle`／`--anim` 让调用者声明"这页一直在动"；
   且超时路径要给**可区分**的 `reason`（例如 `reason=anim-page-timeout`），别与"应用崩了"混在一起。
 - **位置**：hc-linux 侧 `port/ControlRenderTests/`，**不是**栈缺陷。
+
+### 🆕 **`D-G205`** —— **自产栈 `Exception.StackTrace` 不可用**（**产品缺陷** · **hc 侧已止血、栈侧根因待修**）
+
+- **取证（实测）**：demo 的流文档页抛异常后，止损 guard 去读 `ex.StackTrace` 时**自己又抛**
+  `System.BadImageFormatException: Format of the executable (.exe) or library (.dll) is invalid.`
+  `at System.RuntimeMethodHandle.GetUtf8Name(...)` ⇒ 窗口直接消失（进程仍在、窗口树为空）。
+  即：**诊断面被放大成故障** —— guard 的职责是"把异常降级为这一页失败"，反而升级成了崩溃。
+- **已止血（hc 侧）**：提交 `5949b430` —— 首帧提取加 `try/catch`，读不到就回退
+  `<stack-unreadable: 类型名>`，日志格式不变。
+- **根因（栈侧，未修）**：栈帧名解析路径 `System.RuntimeMethodHandle.GetUtf8Name` 在本栈上抛
+  `BadImageFormatException`，需在栈侧补；本笔只保证诊断面自身不再放大故障。
+
+### 🆕 **`D-G206`** —— **流文档/富文本页 `PtsException`**（**产品缺陷** · **待修**）
+
+- **取证（实测）**：导航到「流文档/富文本」类页面触发
+  `PtsException: Page formatting engine did not complete formatting operation. Error code: '-10000'.`
+  （`-10000` = 本栈 `WPF_PTS_ERR_NOT_IMPLEMENTED` 一族）。
+- **关系**：与 `D-G193`（PTS 上下文池）、`D-G195`（LS 前沿入口刻意不导出）**同族但不同入口** ——
+  此处是**分页**（page formatting）链路，不是行折叠/上下文创建。
+- **修法方向（未做）**：沿"扩大托管文本兜底接管面"的既定路线核查该入口是否也能被托管路径接管，
+  或把它做成**诚实缺口**（返回明确 reason 而非抛穿到 UI）。禁止为凑绿吞掉异常。
+
+### 🆕 **`D-G207`** —— **`hc:PreviewSlider` 滑钮阴影视觉不可辨**（**判据/模板参数面，非栈缺陷** · **已定案**）
+
+- **背景**：视觉级 Effect 通道修好后（`D-G201`，提交 `a2ef40937`），`ShadowBox` 前后对照**已见阴影**
+  （四周 6px 环带非纯红像素 `38 → 360`、最暗像素 `(255,0,0) → (240,0,0)`、
+  下方 1–4px 带均值 R `255.0 → 248.1`），负极性（无 Effect 的 `OpacityBox`）逐像素**完全不变**。
+- **现象**：滑钮模板里的 `BorderDot` 处，新旧件**逐像素一致**。
+- **运行期诊断（`WPFGFX_EFFECT_DIAG=1`，提交 `75211cadf`）**：
+  `[FX-DIAG] visual=0xc effect=0xd clip=no`，命中 3 次 ⇒ Effect **确实到达绘制层**，
+  且该 visual **无自身 Clip** ⇒ 通道无问题。
+- **结论（非栈缺陷）**：该处不明显的原因是模板参数
+  `EffectShadow1 = BlurRadius=5 / ShadowDepth=1 / Opacity=.2` 作用在 **19×19 px** 元素上，
+  影响范围仅约 1 像素、视觉不可辨。如需明显阴影，应改 **hc 侧样式参数**，不是栈的事。
+
+### 🆕 **`D-G208`** —— **单页分配异常偏大**（**待查/待复测**）
+
+- **取证（宿主读数，多次同量级）**：`BrushDemo` 单页分配 **2797 MB**（同批 `RateDemo` 仅 **3.69 MB**）；
+  `FlipClock` 单页分配 **2799 MB**。
+- **可疑点**：`BrushDemo` 页面本身只有 45 行 `Label`（无渐变、无动画），唯一可疑是
+  `TransitioningContentControl` 的过渡动画；且宿主此前的泵不跑 `DispatcherPriority.Inactive`
+  （见 `D-G200`）⇒ 过渡动画可能停帧后反复重建对象。
+- **结论**：**需在宿主修复（`D-G200`）后复测**，再判定是**宿主假象**还是真实分配问题。
+  宿主演进页在 hc-linux 侧 `port/ControlRenderTests/`，**不是**栈缺陷。
