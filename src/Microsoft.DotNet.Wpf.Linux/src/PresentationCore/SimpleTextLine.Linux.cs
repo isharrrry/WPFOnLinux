@@ -1,7 +1,9 @@
 // ⚠️ 本文件由 src/WpfGfx.Linux.Native/tools/patch-presentationcore-lineheight-trace.py **生成**，不要手改。
 //
 // 内容 = 上游 `upstream/wpf/src/Microsoft.DotNet.Wpf/src/PresentationCore/MS/internal/TextFormatting/SimpleTextLine.cs`
-//        逐字复制 + 5 处 T1c/D **只读插桩**（行高 / 行偏移 / Draw 的 origin）。
+//        逐字复制 + 5 处 T1c/D **只读插桩**（行高 / 行偏移 / Draw 的 origin）
+//        ＋ **1 处行为改动**（⑥：`SimpleTextLine.Collapse` 先试托管折叠 `HbTextFallback`，
+//          接不了则原样回落上游 LS 路径 —— 本栈没有 LineServices 且 `LoCreateLine` 刻意不导出）。
 // 每次运行该脚本都会从上游重读重生成；锚点找不到 / 计数不符时**报错退出**，不会静默产出未打补丁的副本。
 //
 // 为什么打（主控 2026-09-11 批准）：WpfTextDemo "多行摞印"要分清
@@ -646,6 +648,35 @@ namespace MS.Internal.TextFormatting
                 return this;
 
             Invariant.Assert(_settings != null);
+
+            // ── WPF-on-Linux（T1b/D3 同族·**折叠路径**）：先试**托管折叠** ──
+            //   本栈没有 LineServices：下面那段 `new TextMetrics.FullTextLine(...)` 会走到
+            //   `TextFormatterContext.CreateLine` ⇒ `LoCreateLine`，而该入口在本仓 shim 里是
+            //   **刻意不导出**的（`src/WpfGfx.Linux.Native/src/win32_pts.c` 的"不冒充"纪律：
+            //   出参含真几何/行内容/字形的入口一律不冒充）⇒ `EntryPointNotFoundException`，
+            //   把 `TextBlock.MeasureOverride → Line.GetCollapsedWidth → 本方法` 整条链打断。
+            //   （实测：HandyControl demo 的 `hc:PropertyGrid`「属性编辑器」页一进排版即抛。）
+            //   托管行引擎的 `Collapse` 已是真实现（按真机 oracle 的 CharacterEllipsis 折叠）
+            //   ⇒ 交给它接管；**接不了（返回 null）就原样走下面那条上游 LS 路径**，
+            //   与接线前的行为逐字一致（不假装成功、不吞异常）。
+            TextLine hbLine = WpfLinux.Shims.PresentationCore.HbTextFallback.TryFormatLine(
+                _settings.TextSource,
+                _cpFirst,
+                _paragraphWidth,
+                _settings.TextSource.PixelsPerDip,
+                false,      // alwaysCollapsible：本处对应上游 LineFlags.None
+                0           // lineHeight：0 ⇒ 用字体自然行高（真机口径）
+                ) as TextLine;
+            if (hbLine != null)
+            {
+                TextLine hbCollapsed = hbLine.Collapse(collapsingPropertiesList);
+                if (hbCollapsed != hbLine)
+                {
+                    // 与上游同款处置：折叠产物是**新行**时才显式释放中间行
+                    hbLine.Dispose();
+                }
+                return hbCollapsed;
+            }
 
             // instantiate a collapsible full text line, collapse it and return the collapsed line
             TextMetrics.FullTextLine textLine = new TextMetrics.FullTextLine(
