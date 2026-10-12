@@ -727,7 +727,29 @@ namespace WpfGfx.Linux.Interop
                 // _41/_42 放的是二维仿射的 OffsetX/OffsetY），故 p' = p · M。
                 float px = x * m.M11 + y * m.M21 + z * m.M31 + m.M41;
                 float py = x * m.M12 + y * m.M22 + z * m.M32 + m.M42;
+                float pz = x * m.M13 + y * m.M23 + z * m.M33 + m.M43;
                 float pw = x * m.M14 + y * m.M24 + z * m.M34 + m.M44;
+
+                // 上游语义（exports.cpp -> 3dutils.cpp `CalcProjectedBounds`）：
+                //   "If after transform all of the values aren't in (-FLT_MAX,FLT_MAX)
+                //    we quit early with an infinite bounding box."
+                // 本栈此前缺这一步 —— 而 NaN 参与比较**恒为 false**，会让下面的 min/max
+                // **一次都不更新**（min 保持 +Inf、max 保持 -Inf），于是
+                // `MILUtilities.ProjectBounds` 里 `new Rect(Left, Top, Right-Left, Bottom-Top)`
+                // 拿到 `Right-Left = -Inf` ⇒ 抛 ArgumentException
+                // "Width and Height must be non-negative"（实测栈回溯正是这一行）。
+                // 触发场景：`Viewport3DVisual._bboxChildrenSubgraph3D` 为 NaN —— 3D L1 让
+                // `Viewport3DVisual` 真正参与 2D 布局/命中测试后这条路径才可达（此前 3D 视口在
+                // 2D 树里没有节点）。返回无限矩形是上游既有语义，与"不崩"一致。
+                const float fltMax = float.MaxValue;
+                if (!(px > -fltMax && px < fltMax) ||
+                    !(py > -fltMax && py < fltMax) ||
+                    !(pz > -fltMax && pz < fltMax) ||
+                    !(pw > -fltMax && pw < fltMax))
+                {
+                    prcDestRect = new MilRectF(-fltMax, -fltMax, fltMax, fltMax);
+                    return HResult.S_OK;
+                }
 
                 if (pw != 0f && pw != 1f)
                 {
