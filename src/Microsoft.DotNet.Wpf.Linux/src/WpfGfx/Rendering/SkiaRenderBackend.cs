@@ -292,6 +292,9 @@ namespace WpfGfx.Linux.Rendering
             //   （WPF 语义下 Effect 结果应在外层再受祖先裁剪）；本例（Border/Menu 无自身 clip）不受影响。
             if (v.Effect.HasValue)
             {
+                // 诊断（默认关）：区分"Effect 没到绘制层"与"到了但被裁/太淡"。
+                if (Environment.GetEnvironmentVariable("WPFGFX_EFFECT_DIAG") == "1")
+                    Console.Error.WriteLine($"[FX-DIAG] visual=0x{v.Handle.Value:x} effect=0x{v.Effect.Value.Value:x} clip={(v.Clip.HasValue ? "yes" : "no")}");
                 if (SkiaEffect.TryResolve(_provider, v.Effect.Value, out SKImageFilter visualFilter))
                 {
                     if (visualFilter != null)
