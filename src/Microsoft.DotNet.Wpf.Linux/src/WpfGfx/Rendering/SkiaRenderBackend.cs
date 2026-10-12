@@ -290,7 +290,8 @@ namespace WpfGfx.Linux.Rendering
             //   认得但退化成空操作不算 NotDrawn）。
             //   已知偏差：自身 Clip 在本层之内应用 => 阴影外扩会被元素自身的 clip 裁掉
             //   （WPF 语义下 Effect 结果应在外层再受祖先裁剪）；本例（Border/Menu 无自身 clip）不受影响。
-            if (v.Effect.HasValue)
+            if (v.Effect.HasValue
+                && Environment.GetEnvironmentVariable("WPFGFX_EFFECT_OFF") != "1")   // 临时开关：判定 Effect 层是否影响内容渲染
             {
                 // 诊断（默认关）：区分"Effect 没到绘制层"与"到了但被裁/太淡"。
                 if (Environment.GetEnvironmentVariable("WPFGFX_EFFECT_DIAG") == "1")
