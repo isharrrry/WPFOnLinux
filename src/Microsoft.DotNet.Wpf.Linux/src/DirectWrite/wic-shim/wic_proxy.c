@@ -2500,6 +2500,159 @@ int WpfWic_DecodeFileToBgra(const char *utf8_path, unsigned char **pixels,
 }
 
 /* ---------------------------------------------------------------------------
+ * 〇-d · 多帧旁路助手（GDI+ 面的第二个消费者；`#50` 多帧能力的对外出口）
+ *
+ * 背景：HandyControl 的 `hc:GifImage` 走 **GDI+ 面**（`[DllImport("gdiplus.dll")]`），而 GDI+ 面
+ *   （`src/WpfGfx.Linux.Native/src/win32_gdiplus.c`）只能 `dlopen`/`dlsym` 本 shim 的导出
+ *   ⇒ 多帧能力必须在**这里**开三个薄出口（GDI+ 面不自己写第二份解码，沿用既有的
+ *   `decode_open`/`decode_pixels`/`decode_frame_count`/`gif_frame_delay_cs`）。
+ *
+ * 返回码口径与 `WpfWic_DecodeFileToBgra` **逐码一致**：
+ *   0 = 成功　1 = 参数非法　2 = 内存/句柄表不足　3 = 打开失败　4 = 解码失败
+ * ------------------------------------------------------------------------- */
+__attribute__((visibility("default")))
+int WpfWic_FrameCount(const char *utf8_path, int32_t *out_count)
+{
+    if (!utf8_path || !out_count) return 1;
+    *out_count = 1;
+
+    intptr_t handle = obj_new(KIND_DECODER);
+    if (!handle) return 2;
+    wic_obj *o = obj_get(handle);
+    if (!o) return 2;
+    o->fd = open(utf8_path, O_RDONLY);
+    if (o->fd < 0) { obj_drop(handle, o); return 3; }
+
+    int hr = decode_open(o);
+    if (hr != S_OK) { obj_drop(handle, o); return 4; }
+
+    *out_count = decode_frame_count(o);      /* 单帧图恒 1；多帧图 = Skia 报告的真实帧数 */
+    obj_drop(handle, o);
+    return 0;
+}
+
+/* 第 `index` 帧的显示时长（毫秒）。按时长表缺失 ⇒ 返回 4（**不编造**默认时长，
+ * 由调用方决定"没有时长信息"时怎么办）。 */
+__attribute__((visibility("default")))
+int WpfWic_FrameDelayMs(const char *utf8_path, int32_t index, int32_t *out_ms)
+{
+    if (!utf8_path || !out_ms || index < 0) return 1;
+    *out_ms = 0;
+
+    intptr_t handle = obj_new(KIND_DECODER);
+    if (!handle) return 2;
+    wic_obj *o = obj_get(handle);
+    if (!o) return 2;
+    o->fd = open(utf8_path, O_RDONLY);
+    if (o->fd < 0) { obj_drop(handle, o); return 3; }
+
+    int hr = decode_open(o);                 /* 读入 o->bytes（延时表就在 GIF 字节里）*/
+    if (hr != S_OK) { obj_drop(handle, o); return 4; }
+
+    uint16_t cs = 0;
+    if (!gif_frame_delay_cs(o->bytes, o->size, index, &cs)) { obj_drop(handle, o); return 4; }
+
+    *out_ms = (int32_t)cs * 10;              /* 厘秒 → 毫秒 */
+    obj_drop(handle, o);
+    return 0;
+}
+
+/* 解**指定帧**为 BGRA32。与 `WpfWic_DecodeFileToBgra` 的唯一差别是 `o->frame_index = index`
+ * （`decode_pixels` 的逐帧分支：`opts.frame_index` 走 `sk_codec_get_pixels`）。 */
+__attribute__((visibility("default")))
+int WpfWic_DecodeFrameToBgra(const char *utf8_path, int32_t index,
+                             unsigned char **pixels, int32_t *w, int32_t *h, int32_t *stride)
+{
+    if (!utf8_path || !pixels || !w || !h || !stride || index < 0) return 1;
+    *pixels = NULL; *w = 0; *h = 0; *stride = 0;
+
+    intptr_t handle = obj_new(KIND_DECODER);
+    if (!handle) return 2;
+    wic_obj *o = obj_get(handle);
+    if (!o) return 2;
+    o->fd = open(utf8_path, O_RDONLY);
+    if (o->fd < 0) { obj_drop(handle, o); return 3; }
+
+    o->frame_index = index;                  /* ← 唯一的差别：逐帧分支 */
+
+    int hr = decode_pixels(o);
+    if (hr != S_OK || !o->pixels || o->width <= 0 || o->height <= 0) { obj_drop(handle, o); return 4; }
+
+    size_t need = (size_t)o->rowBytes * (size_t)o->height;
+    unsigned char *out = (unsigned char *)malloc(need ? need : 1);
+    if (!out) { obj_drop(handle, o); return 2; }
+    memcpy(out, o->pixels, need);
+    *pixels = out;
+    *w = o->width; *h = o->height; *stride = (int32_t)o->rowBytes;
+    obj_drop(handle, o);
+    return 0;
+}
+
+/* ---------------------------------------------------------------------------
+ * 〇-e · 从**内存字节**解码（流/pack 资源的场景）
+ *
+ * 为什么需要：HandyControl 的 `hc:GifImage` 在 XAML 里给 `Uri`（pack 资源）时走
+ *   `GetGifStreamFromPack → CreateSourceFromStream → GdipCreateBitmapFromStream(new GPStream(stream), …)`，
+ *   也就是说**字节在内存里、没有文件路径**。文件路径那三个助手用不上，故补这两个。
+ *   实现与 `WpfWic_DecodeFrameToBgra` 同构：唯一差别是"字节由调用方给"（`o->bytes` 走
+ *   `decode_open_bytes` 分支），仍然复用 `decode_open`/`decode_pixels`/`decode_frame_count`。
+ * ------------------------------------------------------------------------- */
+__attribute__((visibility("default")))
+int WpfWic_BytesFrameCount(const unsigned char *bytes, size_t n, int32_t *out_count)
+{
+    if (!bytes || !n || !out_count) return 1;
+    *out_count = 1;
+
+    intptr_t handle = obj_new(KIND_DECODER);
+    if (!handle) return 2;
+    wic_obj *o = obj_get(handle);
+    if (!o) return 2;
+    o->bytes = (unsigned char *)malloc(n);
+    if (!o->bytes) { obj_drop(handle, o); return 2; }
+    memcpy(o->bytes, bytes, n);
+    o->size = n;
+    o->fd = -1;                      /* 字节路径：不看 fd（decode_open 会走 decode_open_bytes）*/
+
+    int hr = decode_open(o);
+    if (hr != S_OK) { obj_drop(handle, o); return 4; }
+
+    *out_count = decode_frame_count(o);
+    obj_drop(handle, o);
+    return 0;
+}
+
+__attribute__((visibility("default")))
+int WpfWic_DecodeBytesToBgra(const unsigned char *bytes, size_t n, int32_t index,
+                             unsigned char **pixels, int32_t *w, int32_t *h, int32_t *stride)
+{
+    if (!bytes || !n || !pixels || !w || !h || !stride || index < 0) return 1;
+    *pixels = NULL; *w = 0; *h = 0; *stride = 0;
+
+    intptr_t handle = obj_new(KIND_DECODER);
+    if (!handle) return 2;
+    wic_obj *o = obj_get(handle);
+    if (!o) return 2;
+    o->bytes = (unsigned char *)malloc(n);
+    if (!o->bytes) { obj_drop(handle, o); return 2; }
+    memcpy(o->bytes, bytes, n);
+    o->size = n;
+    o->fd = -1;
+    o->frame_index = index;          /* 逐帧：走 decode_pixels 的 opts.frame_index 分支 */
+
+    int hr = decode_pixels(o);
+    if (hr != S_OK || !o->pixels || o->width <= 0 || o->height <= 0) { obj_drop(handle, o); return 4; }
+
+    size_t need = (size_t)o->rowBytes * (size_t)o->height;
+    unsigned char *out = (unsigned char *)malloc(need ? need : 1);
+    if (!out) { obj_drop(handle, o); return 2; }
+    memcpy(out, o->pixels, need);
+    *pixels = out;
+    *w = o->width; *h = o->height; *stride = (int32_t)o->rowBytes;
+    obj_drop(handle, o);
+    return 0;
+}
+
+/* ---------------------------------------------------------------------------
 * 〇-c · 读路径补齐：缩略图 / 预览 / 色彩上下文
 *
 * 每个码都是**按上游调用点的容忍逻辑**选的，不是随手填（见各函数注释）：
