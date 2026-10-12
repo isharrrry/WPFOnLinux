@@ -83,7 +83,8 @@ typedef struct { uint16_t vt, r1, r2, r3; uint64_t v1, v2; } propvariant_t;
 #define FILE_SIZE_CAP (256u * 1024u * 1024u)
 
 enum { KIND_NONE = 0, KIND_FACTORY, KIND_DECODER, KIND_FRAME, KIND_CONVERTER, KIND_CODECINFO, KIND_META,
-       KIND_ENCODER, KIND_FRAMEENC, KIND_OPTIONS, KIND_STREAM, KIND_METAW, KIND_ENUM , KIND_LOCK };
+       KIND_ENCODER, KIND_FRAMEENC, KIND_OPTIONS, KIND_STREAM, KIND_METAW, KIND_ENUM , KIND_LOCK,
+       KIND_CLIPPER };
 
 typedef struct { int32_t x, y, w, h; } wic_rect;   /* 与托管 Int32Rect 的四字段一致 */
 
@@ -1208,6 +1209,111 @@ int32_t IWICBitmap_SetResolution_Proxy(void *bitmap, double dpiX, double dpiY)
     return S_OK;
 }
 
+/* ---------------------------------------------------------------------------
+ * IWICImagingFactory::CreateBitmapClipper ＋ IWICBitmapClipper::Initialize —— **真实现**
+ * （原先 `CreateBitmapClipper` 是 NOT_IMPL 桩；`IWICBitmapClipper_Initialize_Proxy`
+ *   **根本没有这个导出** ⇒ 桩时代连下一步都走不到。）
+ *
+ * 调用点（已确证）：`CroppedBitmap.FinalizeCreation`（PresentationCore）
+ *     CreateBitmapClipper(factory, out clipper) → Initialize(clipper, source.WicSourceHandle, rect)
+ *   终点是"雪碧图逐帧"这类用法：`new CroppedBitmap(_source, CalDisplayRect())`。
+ *   桩时代的症状：`new CroppedBitmap(...)` 抛 `NotImplementedException`
+ *   （0x80004001 = WINCODEC_ERR_NOTIMPLEMENTED → PC 的 ConvertHRToException）。
+ *
+ * 语义（WIC 契约）：
+ *   · `CreateBitmapClipper` 只造一个空对象；**初始化在 Initialize**，且允许重复调用 = 重置裁剪区。
+ *   · `prc == NULL` ⇒ 整幅；`w/h == 0` ⇒ 取到右/下边界（与本文件 `IWICBitmapSource_CopyPixels_Proxy`
+ *     既有的"0 = 全额"口径保持一致）。
+ *   · **负偏移 / 零尺寸 / 越界 ⇒ E_INVALIDARG（如实拒绝）**：不越界读、不静默截断、不补零。
+ *   · 像素格式与预乘标记**继承源**（本 shim 一律 32bpp 交付：BGRA 或 PBGRA）。
+ *
+ * 实现选择（明说）：**在 Initialize 时物化一份裁剪后的像素**，而非"惰性视图 + 每次 CopyPixels 算偏移"。
+ *   理由：① 复用既有 mem 位图路径 ⇒ `GetSize / GetPixelFormat / GetResolution / CopyPixels`
+ *   这四个 `IWICBitmapSource_*` 代理**一行都不用改**（`has_memFormat + pixels` 即可自洽）；
+ *   ② 源只解一次（`decode_pixels` 命中缓存），之后每个 clipper 只做一次 memcpy
+ *   ⇒ 雪碧图逐帧**不重复解码**（这是本任务点名的要求）；
+ *   ③ 不把 stride/偏移的复杂度摊到热路径上。
+ *   代价：每个 clipper 多占 rw×rh×4 字节（WIC 真实现是惰性视图）——登记为已知偏差。
+ *   未初始化就取尺寸/像素：`decode_open` 走不到（无 memFormat/无 fd/无字节）⇒ 返回 E_UNEXPECTED
+ *   （WIC 真值是 WINCODEC_ERR_WRONGSTATE；偏差已登记，不崩、不伪造数据）。
+ * --------------------------------------------------------------------------- */
+__attribute__((visibility("default")))
+int32_t IWICImagingFactory_CreateBitmapClipper_Proxy(void *factory, void **ppIBitmapClipper)
+{
+    if (!obj_get((intptr_t)factory) || !ppIBitmapClipper) return E_INVALIDARG;
+    *ppIBitmapClipper = NULL;
+
+    intptr_t h = obj_new(KIND_CLIPPER);
+    if (!h) return E_OUTOFMEMORY;
+    *ppIBitmapClipper = (void *)h;
+    return S_OK;
+}
+
+__attribute__((visibility("default")))
+int32_t IWICBitmapClipper_Initialize_Proxy(void *clipper, void *pISource, wic_rect *prc)
+{
+    wic_obj *c = obj_get((intptr_t)clipper);
+    if (!c || c->kind != KIND_CLIPPER) return E_INVALIDARG;
+
+    wic_obj *src = as_source(pISource);
+    if (!src || src == c) return E_INVALIDARG;         /* 拿自己当源：无意义，如实拒绝 */
+
+    int hr = decode_open(src);
+    if (hr != S_OK) return hr;
+    if (src->is_foreign && !src->pixels)
+        return WINCODEC_ERR_UNSUPPORTEDOPERATION;      /* 外来源未借像素：与 CopyPixels 同口径，诚实失败 */
+    hr = decode_pixels(src);
+    if (hr != S_OK) return hr;
+    if (!src->pixels || src->width <= 0 || src->height <= 0) return E_UNEXPECTED;
+
+    /* ---- rect 归一 + 边界校验（越界报错，绝不越界读）---- */
+    int32_t rx = prc ? prc->x : 0;
+    int32_t ry = prc ? prc->y : 0;
+    int32_t rw = (prc && prc->w > 0) ? prc->w : src->width - rx;
+    int32_t rh = (prc && prc->h > 0) ? prc->h : src->height - ry;
+    if (rx < 0 || ry < 0 || rw <= 0 || rh <= 0 ||
+        (int64_t)rx + (int64_t)rw > (int64_t)src->width ||
+        (int64_t)ry + (int64_t)rh > (int64_t)src->height) {
+        if (getenv("WPF_LINUX_WIC_TRACE") && g_trace_budget-- > 0)
+            fprintf(stderr, "WIC_TRACE CLIPPER_REFUSE reason=invalid-rect rect=(%d,%d,%dx%d) src=%dx%d\n",
+                    rx, ry, rw, rh, src->width, src->height);
+        return E_INVALIDARG;
+    }
+
+    /* 交付一律 32bpp；行宽口径与 `IWICBitmapSource_CopyPixels_Proxy` 一致（rowBytes / width） */
+    size_t bpp = (size_t)(src->rowBytes / (size_t)src->width);
+    if (bpp == 0) bpp = 4u;
+    size_t row = (size_t)rw * bpp;
+    size_t need = row * (size_t)rh;
+
+    unsigned char *buf = (unsigned char *)malloc(need ? need : 1);
+    if (!buf) return E_OUTOFMEMORY;
+    for (int32_t j = 0; j < rh; j++)
+        memcpy(buf + (size_t)j * row,
+               src->pixels + (size_t)(ry + j) * src->rowBytes + (size_t)rx * bpp,
+               row);
+
+    /* ---- 提交（重复 Initialize = 重置：先放掉上一轮缓冲）---- */
+    if (c->pixels && !c->pixels_borrowed) free(c->pixels);
+    c->pixels = buf;
+    c->rowBytes = row;
+    c->width = rw; c->height = rh;
+    c->colorType = src->colorType; c->alphaType = src->alphaType;
+    c->decoded = 1;
+    c->has_memFormat = 1;
+    if (src->has_memFormat) memcpy(c->memFormat, src->memFormat, 16);
+    else { guid_t bgra = (guid_t)GUID_32BPPBGRA; memcpy(c->memFormat, &bgra, 16); }
+    c->is_pbgra = src->is_pbgra;
+    if (src->has_dpi) { c->dpiX = src->dpiX; c->dpiY = src->dpiY; c->has_dpi = 1; }
+    else { double dx, dy; if (meta_resolution(src, &dx, &dy)) { c->dpiX = dx; c->dpiY = dy; c->has_dpi = 1; } }
+    c->parent_h = (intptr_t)pISource;   /* 仅诊断：本 kind 不使用 parent_h 的其它语义 */
+
+    if (getenv("WPF_LINUX_WIC_TRACE") && g_trace_budget-- > 0)
+        fprintf(stderr, "WIC_TRACE CLIPPER h=%lld src=%lld rect=(%d,%d,%dx%d) dst=%zux%zu premul=%d\n",
+                (long long)(intptr_t)clipper, (long long)(intptr_t)pISource, rx, ry, rw, rh, row, need, c->is_pbgra);
+    return S_OK;
+}
+
 /* ------------------------------------------------------------------ 导出：decoder */
 
 /* 真实帧数。**单一取数点**：`sk_codec_get_frame_count`（幂等，结果缓存在 o->frame_count）。
@@ -2243,7 +2349,8 @@ NOT_IMPL(IWICFastMetadataEncoder_Commit_Proxy)
 NOT_IMPL(IWICImagingFactory_CreateBitmapFromHBITMAP_Proxy)
 NOT_IMPL(IWICImagingFactory_CreateBitmapFromHICON_Proxy)
 NOT_IMPL(IWICImagingFactory_CreateBitmapScaler_Proxy)
-NOT_IMPL(IWICImagingFactory_CreateBitmapClipper_Proxy)
+/* IWICImagingFactory_CreateBitmapClipper_Proxy ＋ IWICBitmapClipper_Initialize_Proxy —— 已真实现
+ * （见上面「真实现」一节：`CroppedBitmap` 必经；位图裁剪）*/
 NOT_IMPL(IWICImagingFactory_CreateBitmapFlipRotator_Proxy)
 NOT_IMPL(IWICImagingFactory_CreatePalette_Proxy)
 NOT_IMPL(IWICColorContext_InitializeFromFilename_Proxy)

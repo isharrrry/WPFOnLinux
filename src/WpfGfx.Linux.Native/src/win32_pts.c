@@ -4377,7 +4377,17 @@ int GetTableObjHandlerInfo(const void *pfstableobjinit, void *pTableObjectInfo)
 // 【安全边界（真销毁的纪律）】只认**本模块自己分配并登记**的句柄：未知／伪造／重复句柄**一律拒绝返回失败**，
 //   **绝不 deref 任意指针** —— 先按**指针身份**在登记表里查，查不到就直接失败（不读它的任何字段）。
 #define WPF_PTS_LOC_MAGIC  0x5054534cu   /* "PTSL"：本模块自认的上下文魔数 */
-#define WPF_PTS_LOC_MAX    8             /* 有界分配清单（防异常调用无限增长） */
+#define WPF_PTS_LOC_MAX    64            /* 有界分配清单（防异常调用无限增长）。
+                                            容量 8 太小：`TextFormatterImp` 对上下文是**池化复用**
+                                            （`TextFormatterImp.cs:528-538` 先找 `Owner == null` 的复用，
+                                            找不到才新建并挂进 `_contextList`），而真正归还走
+                                            `CleanupInternal()`→`TextFormatterContext.Destroy()`
+                                            （`TextFormatterContext.cs:239`）—— 在归还前若已有 8 个在册，
+                                            第 9 次创建就命中本上限、`LoCreateContext` 返回 `-10000`
+                                            ⇒ `TextFormatterContext.Init()` 抛
+                                            "Text formatting engine cannot create text formatting context
+                                            due to error: 'NotImplemented'"（实测：demo「属性编辑器」页）。
+                                            提高上限不动"有界"这条纪律（仍是固定上限、非无界增长）。 */
 /* ⏪ `T-A62`：`LoSetTabs`（`LineServices.cs:1478-1484`）真落盘的**制表位条数上界**（有界，防异常调用）。 */
 #define WPF_PTS_LS_TAB_MAX 32
 /* ⏪ `T-A68`：**LS 回调面（第二条回调面）**的窗口常量（`FSCBK` 式：本侧**只接收值化、只保管、只发调**，
