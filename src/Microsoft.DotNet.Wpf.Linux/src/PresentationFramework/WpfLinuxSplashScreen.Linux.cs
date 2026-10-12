@@ -102,7 +102,10 @@ namespace System.Windows
 
             var timer = new DispatcherTimer(
                 TimeSpan.FromMilliseconds(150),
-                DispatcherPriority.Background,
+                // ⚠ 本栈实测：Background/ApplicationIdle/Inactive 这些**低优先级 op 从不执行**
+                //   （同一探针用 Background 一次都不触发、改 Normal 立刻触发）⇒ 闪屏 autoClose 永不触发。
+                //   这里提到 Normal；栈侧低优先级调度缺陷已登记。
+                DispatcherPriority.Normal,
                 (sender, args) =>
                 {
                     Window target = null;
