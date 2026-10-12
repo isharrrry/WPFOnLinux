@@ -3942,3 +3942,65 @@ SELFDESC_WIRING=FAIL examined=1 wired=1 unwired=0 undeclared=0 fails=1 run_step=
 - **hc demo 三 tab**：tab1 绕排（`T-B15`）／tab2 单页视图（`T-B12`）／tab3 查看器（`T-B16`／`T-B17`／`T-B18`／`T-B19`）现全部可用；关窗 `rc=0`（`T-B14`）。
 - **基线**：`baseline #81`（`BASELINE-FROZEN gen=#81 sha16=7cd1bc5c37a74e8d`）。
 - **载**：`docs/ROUTES.md` `§15bg`；汇总 `build/MilBridge/P1-hcbookkeep-report.md`。
+
+---
+
+### ⏪ hc demo 缺陷修复批（**dated 现值位**，读时 `2026-10-12T16:0x+0800`；**只增不改**）
+
+> 本批十条由 hc demo（HandyControl 示例）在自产栈上的实测驱动。**状态如实标注**（已修／修复中／取证中／立项／待修），不拔高；未修完的不写成"已修"。
+
+### 🆕 **`D-G191`** —— **窗口 `Icon` 栅格化失败 ⇒ `Window.UpdateIcon` 未捕获 ⇒ 带图标的窗口 `Show` 即 abort**（产品缺陷 · **已修**）
+
+- **现象／根因**：`RenderTargetBitmap.Render` 抛 `InvalidCastException`（`MS.Internal.HRESULT.Check`），`Window.UpdateIcon` 一路未捕获 ⇒ **任何带 `Window.Icon` 的窗口 `Show` 即崩进程**（hc demo 的 8 个窗口 XAML 都写了 `Icon="/HandyControlDemo;component/Resources/Img/icon.ico"`，主窗口首当其冲）。
+- **修法**：派生 `IconHelper`（`patch-presentationframework-iconhelper.py` → `IconHelper.Linux.cs`，接线 `PresentationFramework.Linux.csproj`），`GetIconHandlesFromImageSource` 包 try/catch 后退回 `GetDefaultIconHandles`（＝与"窗口未设 Icon"同一条既有分支）。⚠️ **不可直接置 null**：`UpdateIcon` 把句柄作为 SafeHandle 参数传给 `SendMessage(WM_SETICON, …)`，null 会在 marshal 层抛 `ArgumentNullException: SafeHandle cannot be null`（实测踩过）。
+- **提交**：`36bcd6e6c`。
+
+### 🆕 **`D-G192`** —— **自产 WindowsBase 缺 `System.Windows.SplashScreen` ⇒ 应用侧 `new SplashScreen(…)` 直接 `CS0246`**（产品缺陷 · **已修**）
+
+- **现象／根因**：上游该类在 WindowsBase（纯 Win32 分层窗口：CsWin32 绑定 + user32/GDI + `UpdateLayeredWindow`），**未随自产件移植** ⇒ `WindowsBase.Linux.csproj` 里查无此件；hc demo `App.xaml.cs:96` 实测 `error CS0246`。
+- **修法**：手写 `WpfLinuxSplashScreen.Linux.cs`（`namespace System.Windows`，以 WPF 窗口实现等价语义：显示入口程序集资源图、`autoClose` 时首个非闪屏窗口可见后关闭并把 `Application.MainWindow` 交还），落 **PresentationFramework**（WindowsBase 层级更低、拿不到 `Window`/`Image`）；接线走 `patch-presentationframework-splashscreen.py`。
+- **提交**：`36bcd6e6c`。
+
+### 🆕 **`D-G193`** —— **PTS 上下文池容量过小（`WPF_PTS_LOC_MAX=8`）⇒ 池满后 `LoCreateContext` 返 `-10000` ⇒ `TextFormatterContext.Init()` 抛 "NotImplemented"**（产品缺陷 · **已修**）
+
+- **现象／根因**：`TextFormatterImp` 对上下文是**池化复用**（`TextFormatterImp.cs:528-538` 先找 `Owner == null` 复用、找不到才新建并挂 `_contextList`），归还走 `CleanupInternal()`→`TextFormatterContext.Destroy()`；归还前若已有 8 个在册，第 9 次创建即被 `win32_pts.c` 的上限拒（`LsErr.NotImplemented = -10000`）。hc demo「属性编辑器」实测该异常，日志编号累计到 `#11707` 量级。
+- **修法**：`WPF_PTS_LOC_MAX` 8 → 64（**保留"有界"纪律**，不是无界增长）。修复后异常**前移**到下一跳 `LoCreateLine`（见 `D-G195`）。
+- **提交**：`5e2ef2330`。
+
+### 🆕 **`D-G194`** —— **WIC 位图裁剪未实现（`CreateBitmapClipper` 是桩、`IWICBitmapClipper_Initialize` 未导出）⇒ `CroppedBitmap.FinalizeCreation()` 抛 `NotImplementedException`**（产品缺陷 · **已修**）
+
+- **现象／根因**：`wic-shim/wic_proxy.c:2246 NOT_IMPL(IWICImagingFactory_CreateBitmapClipper_Proxy)`（`0x80004001` ⇒ .NET `NotImplementedException`）；hc demo「图片块」（`hc:ImageBlock` 用 `CroppedBitmap` 做**雪碧图逐帧**，`ImageBlock.cs:210`）整页空白、并在真实循环下 abort。
+- **修法**：真实现裁剪（越界／负／零矩形 ⇒ `E_INVALIDARG`；源只解一次后物化，复用内存位图 + `CopyPixels` 路径）。
+- **读数**：`ImageBlock` 由 `NOINFO` → `PASS`（`colors=39`）。
+- **提交**：`5e2ef2330`。
+
+### 🆕 **`D-G195`** —— **LineServices 前沿入口刻意不导出（`LoCreateLine` 等）⇒ 文本一旦回落 LS 就 `EntryPointNotFoundException`**（产品缺陷 · **修复中**）
+
+- **现象／根因**：`win32_pts.c:4902` 明写"**凡出参含真几何、或需行内容/字形的入口一律不冒充**" ⇒ `LoCreateLine` 等**故意**不导出；托管侧 `HbTextFallback` 接不住时原样回落 LS ⇒ `EntryPointNotFoundException: Unable to find an entry point named 'LoCreateLine'`（hc demo「属性编辑器」实测，紧随 `D-G193` 修复之后现形）。
+- **修法方向**：**扩大托管文本兜底（`HbTextFallback`）的接管面**，让这类文本不回落 LS —— **不是**去实现 LS 行布局（那是另一个量级的工程）。现状：**修复中**。
+
+### 🆕 **`D-G196`** —— **`Popup` 定位失效：菜单子菜单弹层落在窗口中央而非贴菜单旁**（产品缺陷 · **取证中**）
+
+- **现象**：hc demo 顶部菜单点击后，弹出视图出现在窗口中央（应贴菜单旁），并伴随"弹出慢／内容多余边距"。
+- **现状**：`Popup` 实现全在上游（`PresentationFramework/System/Windows/Controls/Primitives/Popup.cs` 的 `UpdatePosition():1999`），**Linux 侧无覆盖件**；而其依赖的原生面（`SetWindowPos`／`GetMonitorInfoW`）都是真实现 ⇒ 疑在**定位算法的输入**（坐标换算 / `_positionInfo.ChildSize` 测量为 0）。**取证中**。
+
+### 🆕 **`D-G197`** —— **菜单项前景色偏浅灰（应为正常前景色）**（产品缺陷 · **取证中**）
+
+- **现象**：hc demo 顶部菜单项文字颜色偏浅灰。
+- **现状**：候选两处 —— `Themes/Styles/Base/MenuBaseStyle.xaml:14` 的 `Setter Foreground={DynamicResource PrimaryTextBrush}`（画刷解析）与模板内 `TextElement.Foreground` 的传播（继承未生效）；二者之一。**取证中**（需运行期读实际生效值与来源）。
+
+### 🆕 **`D-G198`** —— **GIF 走 GDI+ 面导致空白且不动**（产品缺陷 · **修复中**）
+
+- **现象／根因**：`hc:GifImage` 空白（实测 `colors=3`）；`GdipCreateHBITMAPFromBitmap` 返 `NotImplemented` + 空句柄、帧 API 全降级（`GetFrameCount→1`）。**多帧能力其实已在 WIC 侧就绪**（`decode_frame_count`／`GetFrame_Proxy`／`gif_frame_delay_cs`）却未被 GDI+ 面接上。
+- **裁决**：栈侧补 GDI+ 帧 API ＋ 应用侧 1 处改走 `GdipBitmapLockBits`。现状：**修复中**。
+
+### 🆕 **`D-G199`** —— **Media3D 未实现 ⇒ `Viewport3D` 类控件整页空白**（产品缺陷 · **立项**）
+
+- **现象**：`hc:CoverFlow`（`Viewport3D`／`ModelVisual3D`）整页空白（`colors=1`）；`hc:FlipClock`（`FlipNumber : Viewport3D`）几乎空白。
+- **现状**：栈侧**没有 3D 渲染管线**；已按"栈侧真做 3D"裁决**立项**（透视相机 + 基础网格 + 2D 贴面的最小可用面），本轮不承诺完成。
+
+### 🆕 **`D-G200`** —— **判据面：控件渲染宿主的泵不执行 `DispatcherPriority.Inactive`，且颜色数判据对几何变形类动画不敏感**（**判据面缺陷，不是产品缺陷** · **待修**）
+
+- **取证（实测）**：宿主 `Pump`（`hc-linux/port/ControlRenderTests/ControlRenderTests.cs:386`，`PushFrame(Background)` + `Sleep(5)`）下 `inactive_ran=0 / background_ran=1`，而 `MediaContext` 的动画渲染 op 正是 `DispatcherPriority.Inactive`（`MediaContext.cs:579/592/628`）⇒ **动画／自绘类页面可能停在首帧**（宿主读数不可信）；同时相邻帧实测 `AE=8128/8192` 像素却在 `colors` 上完全相同 ⇒ **颜色数判据对几何变形无区分度**。
+- **反极性／对照**：同款泵下纯 WPF 动画实际正常（`rendering=322 left=19.0`、帧间 `AE>0`），`DispatcherTimer` 96 次/5 s、`CompositionTarget.Rendering` 394 次/5 s ⇒ **栈侧帧驱动无缺陷**，问题在宿主与判据。
+- **修法**：宿主改能跑 `Inactive` 的泵（`PushFrame(frame, DispatcherPriority.Inactive)`）；动画类页面判据加"帧间 `AE>0`"。**待修**（在 hc-linux 侧）。

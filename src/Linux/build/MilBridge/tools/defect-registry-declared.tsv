@@ -1,5 +1,5 @@
-# DECL-GEN = (--emit) 2026-10-03 12:40:55 +0800
-# DECL-ANCHORS = KD=88d195b0f838895f CS=dd05b5ec23574b2c HO=a4d8ffcf4c37f6fe AB=7cd1bc5c37a74e8d KRJ=dcc22fd3c80cfcac KRF=ab09235afd949bc2 KRP=3c9e3a309b990d31
+# DECL-GEN = (--emit) 2026-10-12 15:30:45 +0800
+# DECL-ANCHORS = KD=bb96d5372b3abda0 CS=0039b877ba3a488f HO=a4d8ffcf4c37f6fe AB=363f847f1576dcf7 KRJ=e9ebc379c799f764 KRF=ab09235afd949bc2 KRP=3c9e3a309b990d31
 # grammar: D-[A-Z][0-9]*[a-z]?(-[A-Za-z0-9]+)*
 # fields:  ID<TAB><id><TAB>req=<key,key,...|-><TAB>present=<key,key,...>
 # 词法边界（实测）：D-ZZ9 **不合法**（scope 段只许"1 个大写字母 + 数字量词 + 可选 1 个小写"）
@@ -23,8 +23,8 @@ ID	D-F3	req=CS,HO,AB	present=CS,HO,AB
 ID	D-G	req=KD,CS,HO,AB	present=KD,CS,HO,AB
 ID	D-G1	req=KD,CS,HO	present=KD,CS,HO
 ID	D-G10	req=KD,CS,HO,AB	present=KD,CS,HO,AB
-ID	D-G100	req=KD,AB	present=KD,AB,KRJ
-ID	D-G101	req=KD,AB	present=KD,AB,KRJ
+ID	D-G100	req=KD,AB	present=KD,AB
+ID	D-G101	req=KD,AB	present=KD,AB
 ID	D-G102	req=KD	present=KD
 ID	D-G103	req=KD,AB	present=KD,AB
 ID	D-G104	req=KD	present=KD
@@ -32,7 +32,7 @@ ID	D-G105	req=KD,AB	present=KD,AB
 ID	D-G106	req=KD	present=KD
 ID	D-G107	req=KD	present=KD
 ID	D-G108	req=KD,AB	present=KD,AB
-ID	D-G109	req=KD,AB	present=KD,AB,KRJ
+ID	D-G109	req=KD,AB	present=KD,AB
 ID	D-G11	req=KD,CS,HO,AB	present=KD,CS,HO,AB
 ID	D-G110	req=KD	present=KD
 ID	D-G111	req=KD	present=KD
@@ -122,8 +122,18 @@ ID	D-G188	req=KD	present=KD
 ID	D-G189	req=KD	present=KD
 ID	D-G19	req=KD,CS,HO,AB	present=KD,CS,HO,AB,KRJ
 ID	D-G190	req=KD	present=KD
+ID	D-G191	req=KD	present=KD
+ID	D-G192	req=KD	present=KD
+ID	D-G193	req=KD	present=KD
+ID	D-G194	req=KD	present=KD
+ID	D-G195	req=KD	present=KD
+ID	D-G196	req=KD	present=KD
+ID	D-G197	req=KD	present=KD
+ID	D-G198	req=KD	present=KD
+ID	D-G199	req=KD	present=KD
 ID	D-G2	req=KD,CS,HO,AB	present=KD,CS,HO,AB
 ID	D-G20	req=KD,CS,HO,AB	present=KD,CS,HO,AB,KRJ
+ID	D-G200	req=KD	present=KD
 ID	D-G21	req=KD,CS,HO,AB	present=KD,CS,HO,AB
 ID	D-G22	req=KD,CS,HO,AB	present=KD,CS,HO,AB
 ID	D-G23	req=KD,CS,HO,AB	present=KD,CS,HO,AB
@@ -161,9 +171,9 @@ ID	D-G51	req=KD,CS,AB	present=KD,CS,AB
 ID	D-G52	req=KD,CS,HO,AB	present=KD,CS,HO,AB
 ID	D-G53	req=KD,CS,HO,AB	present=KD,CS,HO,AB
 ID	D-G54	req=KD,CS,HO,AB	present=KD,CS,HO,AB
-ID	D-G55	req=KD,CS,HO,AB	present=KD,CS,HO,AB,KRJ
-ID	D-G56	req=KD,CS,HO,AB	present=KD,CS,HO,AB,KRJ
-ID	D-G57	req=KD,CS,HO,AB	present=KD,CS,HO,AB,KRJ
+ID	D-G55	req=KD,CS,HO,AB	present=KD,CS,HO,AB
+ID	D-G56	req=KD,CS,HO,AB	present=KD,CS,HO,AB
+ID	D-G57	req=KD,CS,HO,AB	present=KD,CS,HO,AB
 ID	D-G58	req=KD,CS,AB	present=KD,CS,AB
 ID	D-G59	req=KD,CS,HO,AB	present=KD,CS,HO,AB
 ID	D-G6	req=KD,CS	present=KD,CS
@@ -180,35 +190,35 @@ ID	D-G69	req=KD	present=KD
 ID	D-G7	req=KD,CS,HO,AB	present=KD,CS,HO,AB
 ID	D-G70	req=KD,AB	present=KD,AB
 ID	D-G71	req=KD	present=KD
-ID	D-G72	req=KD,AB	present=KD,AB,KRJ
+ID	D-G72	req=KD,AB	present=KD,AB
 ID	D-G73	req=KD	present=KD
 ID	D-G74	req=KD	present=KD
 ID	D-G75	req=KD	present=KD,KRJ
 ID	D-G76	req=KD,AB	present=KD,AB
-ID	D-G77	req=KD,AB	present=KD,AB,KRJ
+ID	D-G77	req=KD,AB	present=KD,AB
 ID	D-G78	req=KD	present=KD
 ID	D-G79	req=KD,AB	present=KD,AB
 ID	D-G8	req=KD,CS,HO,AB	present=KD,CS,HO,AB
 ID	D-G80	req=KD,AB	present=KD,AB
-ID	D-G81	req=KD,AB	present=KD,AB,KRJ
-ID	D-G82	req=KD,AB	present=KD,AB,KRJ
-ID	D-G83	req=KD,AB	present=KD,AB,KRJ
+ID	D-G81	req=KD,AB	present=KD,AB
+ID	D-G82	req=KD,AB	present=KD,AB
+ID	D-G83	req=KD,AB	present=KD,AB
 ID	D-G84	req=KD	present=KD
-ID	D-G85	req=KD,AB	present=KD,AB,KRJ
+ID	D-G85	req=KD,AB	present=KD,AB
 ID	D-G86	req=KD	present=KD
 ID	D-G87	req=KD	present=KD
-ID	D-G88	req=KD,AB	present=KD,AB,KRJ
+ID	D-G88	req=KD,AB	present=KD,AB
 ID	D-G89	req=KD,AB	present=KD,AB
 ID	D-G9	req=KD,CS,HO,AB	present=KD,CS,HO,AB,KRJ
 ID	D-G90	req=KD,AB	present=KD,AB
 ID	D-G91	req=KD,AB	present=KD,AB
-ID	D-G92	req=KD,AB	present=KD,AB,KRJ
+ID	D-G92	req=KD,AB	present=KD,AB
 ID	D-G93	req=KD,AB	present=KD,AB
 ID	D-G94	req=KD	present=KD
 ID	D-G95	req=KD	present=KD
 ID	D-G96	req=KD	present=KD
-ID	D-G97	req=KD,AB	present=KD,AB,KRJ
-ID	D-G98	req=KD,AB	present=KD,AB,KRJ
+ID	D-G97	req=KD,AB	present=KD,AB
+ID	D-G98	req=KD,AB	present=KD,AB
 ID	D-G99	req=KD,AB	present=KD,AB
 ID	D-K1	req=KD,CS,HO,AB	present=KD,CS,HO,AB
 ID	D-O1	req=KD,CS,HO,AB	present=KD,CS,HO,AB,KRJ
