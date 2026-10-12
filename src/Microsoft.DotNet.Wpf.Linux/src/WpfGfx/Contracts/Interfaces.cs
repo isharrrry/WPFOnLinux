@@ -100,6 +100,13 @@ internal sealed class MilVisual
     /// 渲染层据此调用 <c>Skia3DRenderer</c>。纯 2D 视觉为 null（默认）。
     /// </summary>
     public MilResourceHandle? Viewport3D { get; set; }
+
+    /// <summary>
+    /// 视觉级效果（由 MilCmdVisualSetEffect 下发；MilVisualNode.Effect 是唯一写入点）。
+    /// 句柄为空 = 无效果。此前该字段在投影那一跳就丢了，挂在视觉上的 Effect 从未被画
+    /// （D-G71 / W70 的台账 NoteVisualEffectIgnored 记的就是这件事）。
+    /// </summary>
+    public MilResourceHandle? Effect { get; set; }
 }
 
 /// <summary>

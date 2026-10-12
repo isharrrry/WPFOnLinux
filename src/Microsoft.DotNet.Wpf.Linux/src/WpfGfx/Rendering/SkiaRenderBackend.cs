@@ -283,6 +283,35 @@ namespace WpfGfx.Linux.Rendering
             //   单位阵（画布矩阵 × Dpi/96，Dpi=96），所以这条**一直没显形**；牙见 `MatrixCompositionSpaceTests.cs`。
             canvas.SetMatrix(SKMatrix.Concat(deviceBase, world));
 
+            // ---- 视觉级 Effect（UIElement.Effect -> MilCmdVisualSetEffect -> MilVisual.Effect）----
+            //   历史：该字段收得下但没有消费者（投影层丢、契约类型连字段都没有）=> 阴影从未被画，
+            //   popup 为阴影预留的 8px 带只好是纯白（即用户看到的「内容多余边距」）。
+            //   现在：认得出来的效果压成图层（ImageFilter）；认不出来的如实记账（与 MilPushEffect 同口径：
+            //   认得但退化成空操作不算 NotDrawn）。
+            //   已知偏差：自身 Clip 在本层之内应用 => 阴影外扩会被元素自身的 clip 裁掉
+            //   （WPF 语义下 Effect 结果应在外层再受祖先裁剪）；本例（Border/Menu 无自身 clip）不受影响。
+            if (v.Effect.HasValue)
+            {
+                if (SkiaEffect.TryResolve(_provider, v.Effect.Value, out SKImageFilter visualFilter))
+                {
+                    if (visualFilter != null)
+                    {
+                        using SKPaint effectPaint = new SKPaint { ImageFilter = visualFilter };
+                        PushLayer(canvas, effectPaint);   // 不传 rect => 阴影可外扩，不被元素边界裁
+                    }
+                    else
+                    {
+                        visualFilter?.Dispose();
+                    }
+                }
+                else
+                {
+                    // 认不出来的效果句柄：**不**在这里记 NotDrawn —— dispatcher 侧已用
+                    // NoteVisualEffectIgnored 具名记账，且 RecordNotDrawn 是 WpfTextDemo
+                    // 判据「未画种类 0」的输入，记进去会当场把那条冻死的判据打红。
+                }
+            }
+
             if (v.Clip.HasValue)
                 canvas.ClipRect(v.Clip.Value, SKClipOperation.Intersect, ctx.Antialias);
 

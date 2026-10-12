@@ -41,6 +41,8 @@ namespace WpfGfx.Linux.Resources
                 RenderOptions = node.RenderOptions,
                 // 同理显式搬：漏填只会静默默认（句柄 0 = 无遮罩），正是"投影时丢字段"那一族
                 AlphaMask = new MilResourceHandle((uint)node.AlphaMask),
+                // 视觉级效果：同样显式搬，漏填只会静默默认（= 无效果），正是投影丢字段那一族
+                Effect = node.Effect.IsNull ? (MilResourceHandle?)null : new MilResourceHandle((uint)node.Effect),
             };
 
             // 只读留痕：把"这个节点的变换是哪份资源、原始值多少"带出投影（缺省关）。
