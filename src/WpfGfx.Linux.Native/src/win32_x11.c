@@ -1039,6 +1039,23 @@ int wpf_x11_pump_into_queue(wpf_thread *t)
     Display *d = g_wpf.dpy;
     int produced = 0;
 
+    // 【临时仪器】env `WPF_X11_PUMP_TRACE=1`：打印本函数被调用的次数与 XPending 结果。
+    //   用来区分"泵根本没调这个函数"/"XPending 恒 0（事件没到本连接）"/"读到了但翻译层丢弃"。
+    {
+        static int cached = -1, calls = 0;
+        if (cached < 0) {
+            const char *e = getenv("WPF_X11_PUMP_TRACE");
+            cached = (e && *e && *e != '0') ? 1 : 0;
+        }
+        if (cached && calls++ < 200) {
+            XLOCK();
+            int pend = XPending(d);
+            XUNLOCK();
+            fprintf(stderr, "[X11PUMP] call#%d pending=%d\n", calls, pend);
+            fflush(stderr);
+        }
+    }
+
     XLOCK();
     while (XPending(d)) {
         XEvent ev;

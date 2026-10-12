@@ -38,6 +38,9 @@ namespace WpfGfx.Linux.Rendering
     /// <summary>L1：把已解码的 3D 场景状态光栅化成 Skia 三角形。</summary>
     internal static class Skia3DRenderer
     {
+        private static int _texSeen;
+        private static int _texSeen2;
+        private static int _uvSeen;
         private const int MaxDepth = 32;
         private const int MaxTriangles = 20000;
 
@@ -45,6 +48,15 @@ namespace WpfGfx.Linux.Rendering
         {
             public Vector3 A, B, C;
             public SKColor Color;
+
+            // ---- L2：2D-on-3D 的纹理贴图 ----
+            //   `Viewport2DVisual3D` 的 2D 内容在上游被装进一个 `VisualBrush` 再换进材质
+            //   （`Viewport2DVisual3D.cs:340 InternalVisualBrush.Visual = newValue` / `:462 SwapInCyclicBrush`），
+            //   所以这里只需：材质 HBrush 是 VisualBrush ⇒ 用 provider.VisualImageResolver 拿离屏 SKImage
+            //   （2D 侧 SkiaBrush 就是这么做的），再按 MeshGeometry3D.TextureCoordinates 贴到三角上。
+            public SKImage Texture;          // null = 纯色填充
+            public bool HasTexture;          // 纹理 + UV 都齐才置位
+            public SKPoint TUvA, TUvB, TUvC; // **纹理像素坐标**（已按图像尺寸换算，供 DrawVertices 用）
             public float Depth;              // 相机空间深度（越大越远）
         }
 
@@ -74,7 +86,7 @@ namespace WpfGfx.Linux.Rendering
 
             var lights = new LightInfo();
             var tris = new List<Triangle>();
-            Collect(ch, viewport.HChild, Matrix4x4.Identity, lights, tris, 0, ref reason);
+            Collect(ch, viewport.HChild, Matrix4x4.Identity, lights, tris, 0, ref reason, provider);
             if (tris.Count == 0) { reason ??= "no-triangles"; return false; }
 
             // ---- 相机 ----
@@ -133,17 +145,57 @@ namespace WpfGfx.Linux.Rendering
 
             using var paint = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Fill };
             using var path = new SKPath();
-            for (int i = 0; i < visible.Count; i++)
+            // 纹理 shader 按图像缓存（同一页里多张三角常共用一张图；逐三角新建会慢且易漏 Dispose）。
+            Dictionary<IntPtr, (SKImage Image, SKShader Shader)> shaderCache = new();
+            int textured = 0, texturedFails = 0;
+            try
             {
-                Triangle t = visible[i];
-                paint.Color = t.Color;
-                path.Reset();
-                path.MoveTo(t.A.X, t.A.Y);
-                path.LineTo(t.B.X, t.B.Y);
-                path.LineTo(t.C.X, t.C.Y);
-                path.Close();
-                canvas.DrawPath(path, paint);
+                for (int i = 0; i < visible.Count; i++)
+                {
+                    Triangle t = visible[i];
+
+                    if (t.HasTexture && t.Texture != null)
+                    {
+                        // ---- L2：纹理三角 ----
+                        //   一次 DrawVertices 只画这一个三角：`texs` 用**像素坐标**、shader 用 Identity，
+                        //   于是 Skia 直接按顶点纹理坐标采样 —— 免去"解 UV→屏幕仿射矩阵"那一步。
+                        //   ⚠️ 已知偏差：Skia 的顶点纹理是**仿射插值**，透视正确需要切分/细分；
+                        //   本层先做"能用 + 视觉可接受"，不假装透视正确（见文件头 L2 说明）。
+                        IntPtr key = t.Texture.Handle;
+                        if (!shaderCache.TryGetValue(key, out var entry))
+                        {
+                            SKShader sh = SKShader.CreateImage(t.Texture, SKShaderTileMode.Clamp, SKShaderTileMode.Clamp);
+                            entry = (t.Texture, sh);
+                            shaderCache[key] = entry;
+                        }
+                        using var texPaint = new SKPaint { IsAntialias = true, Shader = entry.Shader };
+                        texPaint.Color = t.Color;   // 顶点色（已含光照）⇒ 用 Modulate 与纹理相乘
+                        using SKVertices verts = SKVertices.CreateCopy(
+                            SKVertexMode.Triangles,
+                            new[] { new SKPoint(t.A.X, t.A.Y), new SKPoint(t.B.X, t.B.Y), new SKPoint(t.C.X, t.C.Y) },
+                            new[] { t.TUvA, t.TUvB, t.TUvC },
+                            null);
+                        if (verts == null) { texturedFails++; }
+                        else { canvas.DrawVertices(verts, SKBlendMode.Modulate, texPaint); textured++; }
+                        continue;
+                    }
+
+                    paint.Color = t.Color;
+                    path.Reset();
+                    path.MoveTo(t.A.X, t.A.Y);
+                    path.LineTo(t.B.X, t.B.Y);
+                    path.LineTo(t.C.X, t.C.Y);
+                    path.Close();
+                    canvas.DrawPath(path, paint);
+                }
             }
+            finally
+            {
+                foreach (var kv in shaderCache) kv.Value.Shader.Dispose();
+            }
+
+            if (Environment.GetEnvironmentVariable("WPFGFX_M3D_DIAG") == "1")
+                Console.Error.WriteLine($"[M3D-DIAG] textured={textured} texturedFails={texturedFails} shaders={shaderCache.Count}");
 
             return true;
         }
@@ -170,26 +222,28 @@ namespace WpfGfx.Linux.Rendering
             => !handle.IsNull && ch.Resources.Lookup(handle) != null;
 
         private static void Collect(MilChannel ch, DUCE.ResourceHandle handle, Matrix4x4 world,
-                                    LightInfo lights, List<Triangle> tris, int depth, ref string reason)
+                                    LightInfo lights, List<Triangle> tris, int depth, ref string reason,
+                                    MilResourceProvider provider)
         {
             if (handle.IsNull || depth > MaxDepth || tris.Count >= MaxTriangles) return;
 
             if (State<MilVisual3D>(ch, handle) is { } visual)
             {
                 Matrix4x4 w = world * ResolveTransform(ch, visual.HTransform, ref reason, 0);
-                CollectContent(ch, visual.HContent, w, lights, tris, depth, ref reason);
+                CollectContent(ch, visual.HContent, w, lights, tris, depth, ref reason, provider);
                 for (int i = 0; i < visual.Children.Count; i++)
                 {
-                    Collect(ch, visual.Children[i], w, lights, tris, depth + 1, ref reason);
+                    Collect(ch, visual.Children[i], w, lights, tris, depth + 1, ref reason, provider);
                 }
                 return;
             }
 
-            CollectContent(ch, handle, world, lights, tris, depth, ref reason);
+            CollectContent(ch, handle, world, lights, tris, depth, ref reason, provider);
         }
 
         private static void CollectContent(MilChannel ch, DUCE.ResourceHandle handle, Matrix4x4 world,
-                                           LightInfo lights, List<Triangle> tris, int depth, ref string reason)
+                                           LightInfo lights, List<Triangle> tris, int depth, ref string reason,
+                                           MilResourceProvider provider)
         {
             if (handle.IsNull || depth > MaxDepth || tris.Count >= MaxTriangles) return;
 
@@ -198,7 +252,7 @@ namespace WpfGfx.Linux.Rendering
                 Matrix4x4 w = world * ResolveTransform(ch, group.HTransform, ref reason, 0);
                 for (int i = 0; i < group.Children.Count; i++)
                 {
-                    CollectContent(ch, group.Children[i], w, lights, tris, depth + 1, ref reason);
+                    CollectContent(ch, group.Children[i], w, lights, tris, depth + 1, ref reason, provider);
                 }
                 return;
             }
@@ -210,7 +264,10 @@ namespace WpfGfx.Linux.Rendering
                 if (mesh == null) { reason ??= "no-mesh"; return; }
 
                 Vector3 color = ResolveMaterialColor(ch, model.HMaterial, ref reason);
-                AddTriangles(mesh, w, color, lights, tris);
+                // ---- L2：材质若是 VisualBrush（`Viewport2DVisual3D` 的 2D 内容就是这么装进去的）
+                //      就取它的离屏位图当纹理 ⇒ 三角按 TextureCoordinates 贴图。 ----
+                SKImage texture = ResolveMaterialTexture(ch, model.HMaterial, provider, ref reason);
+                AddTriangles(mesh, w, color, lights, texture, tris);
                 return;
             }
 
@@ -245,11 +302,26 @@ namespace WpfGfx.Linux.Rendering
         }
 
         private static void AddTriangles(MilMeshGeometry3D mesh, Matrix4x4 world, Vector3 color,
-                                         LightInfo lights, List<Triangle> tris)
+                                         LightInfo lights, SKImage texture, List<Triangle> tris)
         {
             List<int> idx = mesh.TriangleIndices;
             List<MilPoint3F> pos = mesh.Positions;
             if (idx.Count < 3 || pos.Count < 3) return;
+
+            // UV 只有在"每个顶点都有一份"时才能用（WPF 允许 TextureCoordinates 为空或与 Positions 等长）。
+            List<MilPoint> uvs = mesh.TextureCoordinates;
+            // ⚠ WPF 两种形态都合法：UV 与 Positions 等长（每顶点一份）**或**与 TriangleIndices 等长
+            //   （每索引一份）。实测 `hc:CoverFlow` 的 mesh 是 **pos=4 / uv=6 / idx=6** ⇒ 必须支持按索引取。
+            bool uvByVertex = texture != null && uvs.Count == pos.Count;
+            bool uvByIndex = texture != null && uvs.Count == idx.Count;
+            bool uvOk = uvByVertex || uvByIndex;
+            if (Environment.GetEnvironmentVariable("WPFGFX_M3D_DIAG") == "1" && _uvSeen < 6)
+            {
+                _uvSeen++;
+                string _l2 = $"[M3D-UV] pos={pos.Count} uv={uvs.Count} idx={idx.Count} tex={(texture == null ? "NULL" : "ok")} uvOk={uvOk}";
+                Console.Error.WriteLine(_l2);
+                try { System.IO.File.AppendAllText("/tmp/m3d-uv.log", _l2 + "\n"); } catch { }
+            }
 
             for (int i = 0; i + 2 < idx.Count; i += 3)
             {
@@ -261,7 +333,23 @@ namespace WpfGfx.Linux.Rendering
                 Vector3 c = Vector3.Transform(ToVector(pos[i2]), world);
 
                 Vector3 n = NormalizeOr(Vector3.Cross(b - a, c - a), new Vector3(0f, 0f, 1f));
-                tris.Add(new Triangle { A = a, B = b, C = c, Color = Shade(color, n, lights) });
+                var tri = new Triangle { A = a, B = b, C = c, Color = Shade(color, n, lights) };
+                if (uvOk)
+                {
+                    // `TextureCoordinates` 是归一化 UV（原点左上，与 Skia 一致）⇒ 乘图像尺寸换成像素坐标，
+                    // 这样 DrawVertices 的 texs 与 `SKShader.CreateImage`(默认矩阵) 直接对齐。
+                    tri.Texture = texture;
+                    tri.HasTexture = true;
+                    int ui0 = uvByVertex ? i0 : i, ui1 = uvByVertex ? i1 : i + 1, ui2 = uvByVertex ? i2 : i + 2;
+                    if (ui2 < uvs.Count)
+                    {
+                        tri.TUvA = new SKPoint((float)(uvs[ui0].X * texture.Width), (float)(uvs[ui0].Y * texture.Height));
+                        tri.TUvB = new SKPoint((float)(uvs[ui1].X * texture.Width), (float)(uvs[ui1].Y * texture.Height));
+                        tri.TUvC = new SKPoint((float)(uvs[ui2].X * texture.Width), (float)(uvs[ui2].Y * texture.Height));
+                    }
+                    else { tri.HasTexture = false; }
+                }
+                tris.Add(tri);
                 if (tris.Count >= MaxTriangles) return;
             }
         }
@@ -283,6 +371,56 @@ namespace WpfGfx.Linux.Rendering
             float g = Math.Clamp(baseColor.Y * lit.Y, 0f, 1f);
             float b = Math.Clamp(baseColor.Z * lit.Z, 0f, 1f);
             return new SKColor((byte)(r * 255f + 0.5f), (byte)(g * 255f + 0.5f), (byte)(b * 255f + 0.5f), 255);
+        }
+
+        /// <summary>
+        /// L2：材质 → 纹理（`Viewport2DVisual3D` 的 2D 内容路径）。
+        /// 上游把 2D 视觉装进 `VisualBrush` 换进材质（`Viewport2DVisual3D.cs:340/:462`），
+        /// 所以这里只需把该 VisualBrush 的 `Visual` 交给 provider 的视觉扩展点拿离屏位图
+        /// （与 2D 侧 `SkiaBrush` 的 VisualBrush 链路同源，不另写一套渲染）。
+        /// 返回 null = 该材质没有可用纹理（调用方退回纯色）。
+        /// </summary>
+        private static SKImage ResolveMaterialTexture(MilChannel ch, DUCE.ResourceHandle hMaterial,
+                                                      MilResourceProvider provider, ref string reason)
+        {
+            if (provider?.VisualImageResolver == null || hMaterial.IsNull) return null;
+            if (State<MilDiffuseMaterial>(ch, hMaterial) is not { } diffuse || diffuse.HBrush.IsNull) return null;
+
+            object brush = ch.Resources.Lookup(diffuse.HBrush);
+            if (Environment.GetEnvironmentVariable("WPFGFX_M3D_DIAG") == "1" && _texSeen < 12)
+            {
+                _texSeen++;
+                string _t = brush?.GetType().Name ?? "<null>";
+                string _vis = brush is MilVisualBrush _vb ? (_vb.Visual.IsNull ? "vis=null" : $"vis=0x{_vb.Visual.Value:x}") : "-";
+                string _line = $"[M3D-TEX] #{_texSeen} hBrush=0x{diffuse.HBrush.Value:x} type={_t} {_vis} resolver={(provider?.VisualImageResolver != null ? "yes" : "NO")}";
+                Console.Error.WriteLine(_line);
+                try { System.IO.File.AppendAllText("/tmp/m3d-tex.log", _line + "\n"); } catch { }
+            }
+            switch (brush)
+            {
+                case MilVisualBrush vb when !vb.Visual.IsNull:
+                    // 走 2D 侧的**正规入口**（含递归防护），不要裸调 provider.VisualImageResolver：
+                    // 两者的深度/环闸语义必须一致，否则 3D→2D 的正常嵌套会被判成自引用。
+                    SKImage img = SkiaBrush.TryResolveVisualImage(provider, new MilResourceHandle((uint)vb.Visual.Value));
+                    if (Environment.GetEnvironmentVariable("WPFGFX_M3D_DIAG") == "1" && _texSeen2 < 6)
+                    {
+                        _texSeen2++;
+                        string _l = $"[M3D-TEX2] vis=0x{vb.Visual.Value:x} img={(img == null ? "NULL" : $"{img.Width}x{img.Height}")}";
+                        Console.Error.WriteLine(_l);
+                        try { System.IO.File.AppendAllText("/tmp/m3d-tex2.log", _l + "\n"); } catch { }
+                    }
+                    if (img != null) return img;
+                    reason ??= "visual-brush-no-image";
+                    return null;
+
+                case MilImageBrush ib when !ib.ImageSource.IsNull:
+                    SKBitmap bmp = provider.LookupBitmap(new MilResourceHandle((uint)ib.ImageSource.Value));
+                    if (bmp == null) { reason ??= "image-brush-no-bitmap"; return null; }
+                    return SKImage.FromBitmap(bmp);
+
+                default:
+                    return null;   // 纯色/渐变等仍走 ResolveMaterialColor
+            }
         }
 
         private static Vector3 ResolveMaterialColor(MilChannel ch, DUCE.ResourceHandle handle, ref string reason)

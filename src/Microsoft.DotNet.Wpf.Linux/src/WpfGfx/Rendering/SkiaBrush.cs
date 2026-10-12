@@ -441,6 +441,26 @@ namespace WpfGfx.Linux.Rendering
         /// 视觉渲染本身由 provider 的 VisualImageResolver 提供（后端挂载），本函数只负责
         /// **递归防护 + 平铺语义**。
         /// </summary>
+        /// <summary>
+        /// 供 **3D 侧**（`Skia3DRenderer` 解析材质纹理）复用的正规入口：
+        /// 与 <see cref="CreateVisualFill"/> 共用同一套**递归防护**与语义 ——
+        /// 3D 渲染途中去取 2D 视觉的离屏图属"正常嵌套"，但自引用/环形引用仍必须被拦下，
+        /// 否则会栈溢出。抽成一处的理由：两条路径若各自实现防护，语义必然漂移
+        /// （例如 3D 裸调 provider.VisualImageResolver 就绕过了这里的深度/环闸）。
+        /// 命中防护或渲染不出内容时返回 null，由调用方如实记账（不要伪造尺寸）。
+        /// </summary>
+        internal static SKImage TryResolveVisualImage(MilResourceProvider provider, MilResourceHandle visualHandle)
+        {
+            if (provider?.VisualImageResolver == null || visualHandle.IsNull) return null;
+            uint vkey = (uint)visualHandle.Value;
+            s_visualStack ??= new HashSet<uint>();
+            if (s_visualDepth >= VisualMaxDepth || s_visualStack.Contains(vkey)) return null;
+            s_visualStack.Add(vkey);
+            s_visualDepth++;
+            try { return provider.VisualImageResolver(new MilResourceHandle(vkey)); }
+            finally { s_visualDepth--; s_visualStack.Remove(vkey); }
+        }
+
         private static SKShader CreateVisualFill(
             MilResourceProvider provider, MilVisualBrush brush, SKRect bounds, float opacity)
         {

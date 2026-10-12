@@ -19,6 +19,7 @@ namespace WpfGfx.Linux.Resources
 {
     internal static class VisualProjection
     {
+        private static int _projSeen;
         private const int MaxDepth = 64;   // 防御环引用，正常视觉树远不到这个深度
 
         /// <summary>把句柄指向的 Visual 子图投影成契约 MilVisual；句柄无效返回 null。</summary>
@@ -30,6 +31,15 @@ namespace WpfGfx.Linux.Resources
 
         private static MilVisual Project(MilChannel ch, MilVisualNode node, HashSet<uint> visiting, int depth)
         {
+            if (Environment.GetEnvironmentVariable("WPFGFX_M3D_DIAG") == "1" && _projSeen < 60)
+            {
+                _projSeen++;
+                object _res = ch.Resources.Lookup(node.Handle);
+                { string _line = $"[M3D-PROJ] #{_projSeen} h=0x{node.Handle.Value:x} res={(_res?.GetType().Name ?? "<null>")}";
+                  Console.Error.WriteLine(_line);
+                  try { System.IO.File.AppendAllText("/tmp/m3d-diag.log", _line + "\n"); } catch { } }
+            }
+
             var result = new MilVisual
             {
                 Handle = new MilResourceHandle((uint)node.Handle),

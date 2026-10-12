@@ -107,6 +107,9 @@ namespace WpfGfx.Linux.Rendering
         // 【缺省不覆盖】只在扩展点为 null 时挂 → 测试注入的假解析器仍然优先，
         //   既有用例（visual_brush_produces_fill_paint / _self_reference_is_guarded）行为不变。
 
+        private static int _m3dVisualSeen;
+        private static int _m3dVpSeen;
+
         private void EnsureVisualResolver()
         {
             if (_provider.VisualImageResolver != null) return;
@@ -118,6 +121,8 @@ namespace WpfGfx.Linux.Rendering
         /// Visual 句柄 → 离屏渲染好的 SKImage（尺寸 = 该视觉子树的自然尺寸 / 内容包围盒）。
         /// 做不到就返回 null（`CreateVisualFill` 会记为"未画出"，不猜尺寸、不画半张）。
         /// </summary>
+        private static int _visResSeen;
+
         private SKImage ResolveVisualImage(MilResourceHandle handle)
         {
             if (handle.IsNull || _provider is not MilChannelResourceProvider channelProvider) return null;
@@ -129,6 +134,14 @@ namespace WpfGfx.Linux.Rendering
 
             // 空包围盒 = 没有可计量的内容（含"只有字形"的情形，见 VisualBrushSource 文件头）。
             // 此时**诚实失败**：猜一个尺寸会画出一张错比例的图，比不画更难查。
+            if (Environment.GetEnvironmentVariable("WPFGFX_M3D_DIAG") == "1" && _visResSeen < 8)
+            {
+                _visResSeen++;
+                string _l = $"[M3D-VISRES] vis=0x{handle.Value:x} bounds=({bounds.Left:F1},{bounds.Top:F1},{bounds.Width:F1},{bounds.Height:F1}) visual={(visual == null ? "NULL" : "ok")}";
+                Console.Error.WriteLine(_l);
+                try { System.IO.File.AppendAllText("/tmp/m3d-visres.log", _l + "\n"); } catch { }
+            }
+
             if (!(bounds.Width > 0f) || !(bounds.Height > 0f)) return null;
 
             int w = (int)Math.Ceiling(bounds.Width);
@@ -323,6 +336,14 @@ namespace WpfGfx.Linux.Rendering
             //   此前 3D 命令只把状态写进 MilResource3DTable，**没有任何渲染者**（症状：colors=1）。
             //   坐标语义：此处已把 `deviceBase · world` 设进 canvas ⇒ 3D 光栅器按 **DIP 局部坐标**
             //   在 `Viewport3DVisual.Viewport` 矩形内填三角。画不出来时**如实记账**，不假装成功。
+            // 【L2 诊断】统计"遍历到多少个 visual / 其中多少带 3D 视口"（默认关，最多打 40 行）。
+            if (Environment.GetEnvironmentVariable("WPFGFX_M3D_DIAG") == "1" && _m3dVisualSeen < 40)
+            {
+                _m3dVisualSeen++;
+                if (v.Viewport3D.HasValue) _m3dVpSeen++;
+                Console.Error.WriteLine($"[M3D-VIS] #{_m3dVisualSeen} handle=0x{v.Handle.Value:x} vp={(v.Viewport3D.HasValue ? $"0x{v.Viewport3D.Value.Value:x}" : "null")} content={(v.Content != null ? "yes" : "no")}");
+            }
+
             if (v.Viewport3D.HasValue)
             {
                 int vpSave = canvas.Save();
