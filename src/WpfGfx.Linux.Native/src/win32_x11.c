@@ -1065,6 +1065,21 @@ int wpf_x11_pump_into_queue(wpf_thread *t)
         // 【KEY_DIAG 第一格】"事件到底有没有进到本进程" —— 收到即打（含合成位）。
         //   若注入后这里**一条都没有** ⇒ 事件根本没到我们（注入 id 不是我们的窗口 /
         //   别的客户端持有那个窗口 / 注入被 server 丢掉），与"我们收到了又丢"必须分清。
+        // 【诊断】把**每个** X 事件的 type 打出来（env 门控、默认关、有界）。
+        //   为什么需要：实测"鼠标移动能到（WM_MOUSEMOVE）而按钮完全不到（BTN=0）"，
+        //   而 xwininfo 证实窗口掩码含 ButtonPress/ButtonRelease、指针也在窗口上。
+        //   ⇒ 必须看 X 事件循环里究竟收到了哪些 type（4=ButtonPress, 5=ButtonRelease, 6=MotionNotify）。
+        {
+            static int evn = 0;
+            const char *evtr = getenv("WPF_X11_EV_TRACE");
+            if (evtr && *evtr && *evtr != '0' && evn++ < 120) {
+                fprintf(stderr, "[X11EV] #%d type=%d name=%s window=0x%llx detail=%d send=%d\n",
+                        evn, ev.type, wpf_xevent_name(ev.type),
+                        (unsigned long long)(uintptr_t)ev.xany.window,
+                        (ev.type == ButtonPress || ev.type == ButtonRelease) ? ev.xbutton.button : 0,
+                        ev.xany.send_event ? 1 : 0);
+            }
+        }
         if (ev.type == KeyPress || ev.type == KeyRelease || ev.type == FocusIn || ev.type == FocusOut) {
             wpf_key_diag("XEV %s window=0x%llx send_event=%d（1=XSendEvent 合成）",
                          wpf_xevent_name(ev.type),
