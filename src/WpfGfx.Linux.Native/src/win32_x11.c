@@ -1033,6 +1033,9 @@ static int wpf_x11_sync_window_state(HWND h, const char *where,
     return changed;
 }
 
+// 指针抓取态（供 MotionNotify 自愈判断；定义必须在使用点之前）
+static int g_x11_grabbed = 0;
+
 int wpf_x11_pump_into_queue(wpf_thread *t)
 {
     if (!g_wpf.dpy) return 0;
@@ -1432,6 +1435,14 @@ int wpf_x11_pump_into_queue(wpf_thread *t)
 
         case MotionNotify: {
             HWND h = (HWND)(uintptr_t)ev.xmotion.window;
+            // 【自愈】抓取只在"NC 按下后的拖动"期间有意义。若已经不在那次交互里（`g_nc_hwnd`
+            //   已被清空），却仍处于抓取态，说明存在**残留抓取** ⇒ 主动释放，避免永久吃掉
+            //   按钮事件（见 `wpf_x11_pointer_grab` 的注释：修前这正是"点不动"的现场）。
+            if (g_nc_hwnd == NULL && g_x11_grabbed) {
+                wpf_x11_pointer_grab(h, 0);
+                g_x11_grabbed = 0;
+                wpf_nc_diag("GRAB-SELFHEAL 残留抓取已释放 hwnd=0x%llx", (unsigned long long)(uintptr_t)h);
+            }
             // ── 【波 59 · B】NC 拖动/缩放的**驱动**：按下之后由 motion 决定搬多少 ───────
             //   为什么不让 WM 代劳：EWMH `_NET_WM_MOVERESIZE` 在本装置的 xfwm4 上实测无效
             //   （外部工具在按住左键期间单独发它，窗口纹丝不动）⇒ 只能自己按帧算几何，
@@ -2136,11 +2147,23 @@ void wpf_x11_pointer_grab(HWND hwnd, int grab)
     if (!wpf_x11_ensure()) return;
     XLOCK();
     if (grab)
+        // ⚠️ 【必修】掩码必须含 `ButtonPressMask`：抓取生效期间 X 只会把**掩码内**的事件发给
+        //   抓取窗口，掩码外的一律丢弃。修前用 `PointerMotionMask | ButtonReleaseMask` ⇒
+        //   实测（用户真实桌面 + 本机 Xvfb 一致）出现"`MotionNotify` 能到、`ButtonPress` 一条都收不到"，
+        //   表现就是**点不动任何东西**（列表/菜单全无反应）。而且该抓取只在配对的 NC release 才释放，
+        //   一旦不配对就**永久**吃掉所有按钮事件 —— 这正是用户报告的"鼠标点击不响应"。
+        //   补上 ButtonPressMask 后，即使处于抓取态，按钮按下也照常送达。
+    {
         XGrabPointer(g_wpf.dpy, (Window)(uintptr_t)hwnd, False,
-                     PointerMotionMask | ButtonReleaseMask,
+                     PointerMotionMask | ButtonPressMask | ButtonReleaseMask,
                      GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+        g_x11_grabbed = 1;
+    }
     else
+    {
         XUngrabPointer(g_wpf.dpy, CurrentTime);
+        g_x11_grabbed = 0;
+    }
     XFlush(g_wpf.dpy);
     XUNLOCK();
 }
