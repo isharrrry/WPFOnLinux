@@ -675,6 +675,54 @@ static int compute_timeout(const wpf_thread *t)
 
 BOOL GetMessageW(WPF_MSG *msg, HWND hwnd, UINT lo, UINT hi)
 {
+    // 【诊断·env 门控】`WPF_FAKE_CLICK="x,y[,delay_ms]"` ⇒ 启动约 3s 后，向**当前焦点顶层窗口**
+    //   直接入队一对合成 `WM_LBUTTONDOWN`/`WM_LBUTTONUP`（用 `wpf_queue_push`，**完全绕开 X 注入**）。
+    //   用途：本机 XTEST 与 XSendEvent 都注入不进这个栈（见 port/STATUS.md §32），
+    //   而"点击到底响不响应"必须能验证 ⇒ 这条通道验证的是"入队 → 派发 → 命中测试 → UI 反应"这一段。
+    {
+        static int s_fc_done = 0;
+        const char *fc = getenv("WPF_FAKE_CLICK");
+        if (fc && *fc && !s_fc_done) {
+            static unsigned long s_fc_t0 = 0;
+            if (!s_fc_t0) {
+                s_fc_t0 = wpf_now_ms();
+                fprintf(stderr, "[FAKECLICK] armed spec=%s\n", fc);
+            } else if (wpf_now_ms() - s_fc_t0 >= 3000) {
+                const char *comma = strchr(fc, ',');
+                int cx = atoi(fc), cy = comma ? atoi(comma + 1) : 0;
+                // 取"可交互的顶层窗口"：优先焦点窗口，否则遍历窗口表找第一个顶层、已映射、
+                //   非 message-only 且非 1x1 的窗口（demo 的主窗口就是这个）。
+                HWND h = g_focus_window;
+                if (!h) {
+                    wpf_lock();
+                    for (wpf_window *wi = g_wpf.windows; wi; wi = wi->next) {
+                        if (wi->is_message_only || wi->parent != NULL) continue;
+                        if (wi->width > 1 && wi->height > 1) { h = wi->hwnd; break; }
+                    }
+                    pthread_mutex_unlock(&g_wpf.lock);
+                }
+                if (h) {
+                    WPF_MSG dm, um;
+                    memset(&dm, 0, sizeof dm); memset(&um, 0, sizeof um);
+                    dm.hwnd = um.hwnd = h;
+                    dm.message = WM_LBUTTONDOWN; um.message = WM_LBUTTONUP;
+                    dm.wParam = 1;   // MK_LBUTTON（本文件未定义该宏，按值写）
+                    um.wParam = 0;
+                    dm.lParam = um.lParam = (LPARAM)(uint32_t)(((uint32_t)(cx & 0xFFFF)) | (((uint32_t)(cy & 0xFFFF)) << 16));
+                    dm.pt_x = um.pt_x = cx; dm.pt_y = um.pt_y = cy;
+                    dm.time = um.time = (uint32_t)wpf_now_ms();
+                    wpf_queue_push(wpf_thread_self(), &dm);
+                    wpf_queue_push(wpf_thread_self(), &um);
+                    fprintf(stderr, "[FAKECLICK] pushed DOWN+UP hwnd=0x%llx at %d,%d\n",
+                            (unsigned long long)(uintptr_t)h, cx, cy);
+                    s_fc_done = 1;
+                } else {
+                    fprintf(stderr, "[FAKECLICK] no focus window yet\n");
+                }
+            }
+        }
+    }
+
     wpf_global_init();
     if (!msg) { wpf_set_last_error(87); return (BOOL)-1; }
     wpf_thread *t = wpf_thread_self();
