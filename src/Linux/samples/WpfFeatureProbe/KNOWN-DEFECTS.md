@@ -4456,3 +4456,36 @@ d206-probe：FlowDocumentPageViewer / Show() / DocumentPaginator.GetPage → EXI
   产物在 `bin/Release/PresentationFramework.dll`）。
 - 另：`win32_pts.c` 的 `WPF_PTS_NI_DIAG` 打点保留（env 门控默认关）；
   把 48 处 `getenv` 收敛为静态缓存的那一步**未完成**（替换锚点未命中）。
+
+
+## `D-G206` 最终读数（每形态独占 Xvfb，父代理实测）
+
+方法：**每个形态独占一个 Xvfb 显示号**（`:130` 起）、形态结束即 kill、跑前跑后校验 `Xvfb` 计数归零；
+三列判据 `exit` / `[PTS-DEGRADED]` 计数 / `XOpenDisplay` 失败次数（`XFail>0` 的行不计入结论）。
+
+```
+=== 降级开启（WPF_PTS_DEGRADE=1）
+  scroll    exit=1  DEGRADED=0  XFail=0     ← exit=1 = 被 timeout 收掉，非崩溃
+  richtext  exit=1  DEGRADED=0  XFail=0
+  page      exit=1  DEGRADED=0  XFail=0
+  reader    exit=1  DEGRADED=0  XFail=0
+  paginator exit=1  DEGRADED=0  XFail=0
+=== 对照（不设 env）
+  scroll    exit=134  DEGRADED=0  XFail=2   ← XFail>0 ⇒ 环境无效，不计
+  page      exit=1    DEGRADED=0  XFail=0   ← 不崩
+```
+
+### 结论（如实，不夸大）
+1. **五形态在当前版本下都不崩**（`exit=1` 只是被 timeout 收掉）：`FlowDocument` 的**可用性比早先登记的好**；
+2. **但无法把"不崩"归因给降级开关** —— `[PTS-DEGRADED]` 计数是 **0**，且**不设 env 的对照也不崩**。
+   最可能的解释：早先多次 `exit=134` 里**掺了"X server 被上一个崩溃进程带死"的环境因素**
+   （`XFail>0` 已证实这一点），干净环境下这些形态本来就不走到 `PtsException`。
+3. **`WPF_PTS_DEGRADE` 开关保留**（默认关、零风险、编译通过）：它对"真走到 `PtsException` 的路径"仍是有效兜底
+   （`-100002` = `tserrCallbackException` 已确认走 `case fserrCallbackException:`，那两处都加了门控）；
+   只是**本轮没能构造出"必须靠它才不崩"的干净用例**。
+
+### 测试方法学（值得固化的教训）
+**多个会崩的进程不能共享同一个 Xvfb**：前一个进程崩掉会把 X server 带死，后续所有进程都变成
+`XOpenDisplay` 失败（`exit=134` + `XFail>0`），**看起来像"每个形态都崩"，实际是环境连坐**。
+⇒ 正确做法：**每形态独占显示号**（本表就是这么测的），或每轮前检查 Xvfb 存活并重启。这一条解释了我们之前
+（以及子代理）多轮误判的读数。
