@@ -4489,3 +4489,36 @@ d206-probe：FlowDocumentPageViewer / Show() / DocumentPaginator.GetPage → EXI
 `XOpenDisplay` 失败（`exit=134` + `XFail>0`），**看起来像"每个形态都崩"，实际是环境连坐**。
 ⇒ 正确做法：**每形态独占显示号**（本表就是这么测的），或每轮前检查 Xvfb 存活并重启。这一条解释了我们之前
 （以及子代理）多轮误判的读数。
+
+
+## `D-G206` 决定性三列表（每形态独占 Xvfb，`XFail` 全 0 ⇒ 读数有效）
+
+```
+轮次 deg（WPF_PTS_DEGRADE=1）        轮次 off（不设 env）
+mode        exit  DEGRADED XFail     mode        exit  DEGRADED XFail
+scroll      1     0        0         scroll      1     0        0
+richtext    134   1        0  ★      richtext    1     0        0
+page        1     0        0         page        134   0        0  ★
+reader      1     0        0         reader      1     0        0
+paginator   1     0        0         paginator   1     0        0
+```
+（`XFail` 全 0 ⇒ 无"环境无效"行；`exit=1` 是**程序自己异常退出**，不是 timeout（124），也不是崩溃（134/139）。）
+
+### 结论
+1. **降级开关确实有效**：`page` 形态 **off 崩（134）→ deg 不崩（1）** ⇒ `WPF_PTS_DEGRADE` 救回了它。
+2. **但只救到部分**：`richtext` 在 deg 轮**降级已触发**（`DEGRADED=1`，`[PTS-DEGRADED]` 打了一条）**却仍崩（134）**
+   ⇒ 它在"分页降级之后"还有**第二处致命点**（非 PTS 异常；怀疑 `RichTextBox` 的编辑/命中测试路径，
+   或降级返回处留下的半初始化状态被后续代码使用）。⇒ **本项应为"部分修复"**，不是全绿。
+3. **`scroll`/`richtext` "能出内容"的证据仍未取到**（需在进程存活期间抓 `xwd`；本轮进程提前退出/被 timeout 收掉）。
+
+### 已落地的两条降级路径（互补、均默认关/降级到可用形态）
+- `Pts.cs`（上游文件补丁，**需登记**）：`WPF_PTS_DEGRADE=1` 时 `default:` 与 `case fserrCallbackException:` 两处不抛
+  （`-100002 = tserrCallbackException` 已确认）；不设时与上游逐字一致。
+- 托管侧 `PtsDegrade.cs` + `FlowDocumentFormatter.Linux.cs`（并已写进 `reapply-patches.py`）：
+  `FormatFinite` 失败 ⇒ **回退 bottomless 底流**（能出内容、分页不精确）；`WPF_PTS_STRICT=1` 反极性原样重抛；
+  非 PTS 缺口的异常照旧重抛（不掩盖真 bug）。
+
+### 遗留（如实）
+- `richtext` 降级后仍崩（第二处致命点，未定位、未修）；
+- `scroll`/`richtext` 出内容未取证；
+- 8 页回归未在"形态测试干净"之后重跑。
