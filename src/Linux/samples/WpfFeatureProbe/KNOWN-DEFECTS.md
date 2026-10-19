@@ -4319,3 +4319,31 @@ POPUP=OPEN-REQUESTED IsOpen=True ／ POPUP=TICK IsOpen=True childVis=True
 
 用户反馈"启动较慢"，在 `D-G213` 修复后**用户确认已改善**（"感觉解决了"），未做专项定位，**不列为缺陷**。
 若后续再出现，按"进程启动 → 窗口创建 → 首帧呈现"三段拆耗时定位（`SkiaSurface` 首建 / 字形加载 / 106 项数据加载）。
+
+
+## 改判：`D-G209` **已修复**（随 `D-G213` 自然恢复）＋ 记一条回退开关的新缺陷
+
+### `D-G209`（自产栈不执行低优先级 Dispatcher op）→ **改判：已修复**
+用独立探针（`/tmp` 下自建，投 20 条消息覆盖四档）实测，**两次复测一致**：
+```
+[D209] sent=20  normal=5  background=5  idle=5  inactive=0
+```
+- `Normal` / **`Background`** / **`ApplicationIdle`** 全部正常执行 —— 修前 `Background`/`ApplicationIdle` **一条都不跑**
+  （本项最初就是靠"`Background` 定时器一次不打印、改 `Normal` 立刻打印"确证的）；
+- 仅 `DispatcherPriority.Inactive` 不执行 —— 查上游/本栈 `WindowsBase/Dispatcher.Linux.cs:1786/2236/2588` 三处均写有
+  `MaxPriority != DispatcherPriority.Inactive  // NOTE: should be Priority.Min` ⇒ **这是 WPF 上游自己的语义**
+  （最低档"可能永不执行"），**不是栈缺陷**。
+- **结论**：`D-G209` 的真实根因就是 `D-G213`（动画每帧整窗重绘把 UI 线程占满，低优先级永远轮不到）；
+  `D-G213` 修好后（局部帧 151~220ms → 6~8ms、UI 占用 440% → ~15%）低优先级调度**自然恢复**。
+  ⇒ 本项状态改为**已修复**，修复来源记为 `D-G213`（`de4838abc` + `db2a68f46` + `643de8406`）。
+  ⇒ 应用侧的两处绕过（`MainViewModel` 填充优先级提到 `Normal`、Linux 默认不启闪屏）**保留**：
+  它们本身是正确做法，且对"低优先级不可靠"这一上游语义也是合理防御，不因本项修复而回退。
+
+### 新发现（未修，记录）：`WPFGFX_DIRTY_OFF=1` 时**建窗失败**
+在做 A/B 对照时（`WPFGFX_DIRTY_OFF=1` 跑同一个探针）出现：
+```
+[WIN_DIAG]   窗口参数: cls="HwndWrapper[...]" parent=0xfffffffffffffffd（message_only=1）
+[SHIM_DIAG] HwndWrapper 建窗失败（CreateWindowEx 返回 0） cls="HwndWrapper[...]" title="" parent=0xfffffffffffffffd
+```
+⇒ 回退开关把渲染路径切回整窗后，**`MessageOnly` 窗口创建失败**（`parent = HWND_MESSAGE`）。影响面：
+只影响显式设置 `WPFGFX_DIRTY_OFF=1` 的 A/B 对照场景，**默认路径不受影响**。未修，留待后续。
