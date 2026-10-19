@@ -4347,3 +4347,41 @@ POPUP=OPEN-REQUESTED IsOpen=True ／ POPUP=TICK IsOpen=True childVis=True
 ```
 ⇒ 回退开关把渲染路径切回整窗后，**`MessageOnly` 窗口创建失败**（`parent = HWND_MESSAGE`）。影响面：
 只影响显式设置 `WPFGFX_DIRTY_OFF=1` 的 A/B 对照场景，**默认路径不受影响**。未修，留待后续。
+
+
+## 复核定论：`D-G206`（流文档分页 `PtsException -10000`）→ **不可修（需实现整个分页引擎）**
+
+### 复现（最小探针，五种形态**全部**触发）
+```
+scroll      FlowDocumentScrollViewer        → PtsException
+richtext    RichTextBox(Document=...)       → PtsException
+page        FlowDocumentPageViewer          → PtsException（Show 后立刻，最快）
+reader      FlowDocumentReader              → PtsException
+paginator   直接调 DocumentPaginator        → 也抛（GetPage(0) 前 PageCount=0；page0 本身 OK；pageSize=816x1056）
+```
+完整异常：
+```
+MS.Internal.PtsHost.UnsafeNativeMethods.PTS+PtsException:
+  Page formatting engine did not complete formatting operation. Error code: '-10000'.
+```
+**⚠️ 重要修正**：本项此前记为"只在 demo 内导航路径出现、宿主逐页渲染不触发"；实际**四种 UI 形态都稳定触发**。
+宿主 `--only FlowDocument` 之所以 PASS，推测是它只做"单页 instantiate + 截图"、**没跑完整分页循环**（未进一步验证）。
+
+### 定位
+- 抛点：上游 `MS/Internal/PtsHost/Pts.cs:73` `throw new PtsException(SR.Format(SR.PTSError, fserr))`
+  （`Validate(int fserr)` 在 `:40`/`:44`；`SR.PTSError` 在 `SR.g.cs:920`）。
+- 调用面（示例）：`PtsHelper.Linux.cs:155` `PTS.Validate(PTS.FsQueryTrackDetails(...))`；
+  `FlowDocumentPage.Linux.cs:468`、`FigureParaClient.Linux.cs:590/630/685/710` 同类。
+- **`-10000` 不是唯一错误码**：加大 PTS 台账后拿到一串
+  `[NMP-TYPE] slot=GetFirstPara fserr=-100002 fSucc=0 … TYPE=MS.Internal.PtsHost.TextParagraph`、
+  `[DRIVE-PROBE3-OOW] where=FsQueryTrackParaList … rc176=-9999 rc192=-9999`、`rc=-9999`
+  ⇒ **多个入口同时失败** ⇒ 说明是**PTS（分页排版引擎）整体未实现**，不是某个入口的局部 bug。
+
+### 结论
+- **不可修**：要修等于**实现整个 PTS 分页引擎**（上游 `PtsHost` 是一整套原生排版器：行/段落/图/表的分页驱动 +
+  `FsQuery*` 一族查询接口）。性价比极低，且不在"让 demo 可跑"的目标范围内。
+- **用户可见影响**：`FlowDocument` 类控件（流文档、富文本、分页查看器）**不可用**，用到就抛异常。
+  demo 里相关示例页打不开；本栈其它部分不受影响。
+- **补救方向（若将来真需要）**：不做完整 PTS，而是**为 `FlowDocument` 提供"非分页"实现**
+  （用现有的 `SimpleTextLine`/托管文本排版能力做 ScrollViewer 形态，`FlowDocumentPageViewer`/`Reader` 直接不提供），
+  即"**诚实缺口 + 明确报错**"，而不是假装支持。**禁止**吞异常凑绿。
