@@ -4293,3 +4293,29 @@ POPUP=OPEN-REQUESTED IsOpen=True ／ POPUP=TICK IsOpen=True childVis=True
 **部署注意（收尾轮踩到的坑，重要）**：`wpfgfx_cor3.so` 与 `libwpfwin32.so`/`libwpfwic.so` **必须配套部署到被测目录**；
 收尾时曾出现 demo 目录里 `wpfgfx_cor3.so` 是旧件（`5,172,544` 字节 / 19:12）而仓库新件为 `5,217,952` 字节 / 11:18 的情况，
 导致用户跑 `HC_GIF_FPS=0` 仍卡 —— 部署后请用 `sha256sum` 核对三件与仓库/权威件一致。
+
+
+## 决策记录（收尾轮）—— 以下 4 条**经用户决定暂不修**，状态保持如实
+
+> 本节是**主动决策**的记录，不是遗漏。后续接手者若要动这几条，请先与用户确认优先级。
+
+1. **`D-G205`（栈侧 `Exception.StackTrace` 抛 `BadImageFormatException at RuntimeMethodHandle.GetUtf8Name`）**
+   —— **暂不修**。定性：`System.RuntimeMethodHandle.GetUtf8Name` 属 **.NET 运行时层**（栈侧无实现、shim 无相关导出、
+   无 `Exception`/`StackTrace` 覆盖件），**不在本栈可控范围**。应用侧已止血（hc 侧对 `ex.StackTrace` 取值加 try/catch，
+   commit `5949b430`）。
+2. **`D-G206`（流文档页 `PtsException: Page formatting engine did not complete formatting operation. Error code: '-10000'`）**
+   —— **暂不修**。定性：属本栈 `WPF_PTS_ERR_NOT_IMPLEMENTED` 一族（分页链路，与 `D-G193`/`D-G195` 同族、入口不同）；
+   宿主逐页渲染 `FlowDocument`/`RichTextBox` **不触发**（只在 demo 内导航路径出现）。若将来要修，方向是"托管文本兜底接管"
+   或"诚实缺口 + 明确 reason"，**禁止吞异常凑绿**。
+3. **`D-G208`（单页入场分配 2812MB > 64MB）** —— **暂不修**。定性：`Controls/OutlineTextDemo` **该页自身路径的一次性缓存**
+   （轮廓文本 → 字体几何 / `PathGeometry` 化）；同页 `sample` 仅 **0.878MB** ⇒ 稳定态**无泄漏迹象**。处置已定：
+   **单列标注为已知页、不放宽 `alloc_enter_mb` 阈值**（其余 105 页最大仅 35MB）。
+4. **`D-G209`（自产栈不执行低优先级 Dispatcher op：`ApplicationIdle`/`Background`/`Inactive`）** —— **暂不修**（未复测）。
+   已记录：其表现与 `D-G213`（动画每帧整窗重绘占满 UI）**同源**；`D-G213` 修好后是否仍存在**尚未复测**，
+   所以状态保持"未修"，不凭推断改写。应用侧的两处绕过（`MainViewModel` 填充优先级提到 `Normal`、
+   Linux 默认不启闪屏）保留在工作代码里，属正确做法，与本条是否修复无关。
+
+## 另：启动耗时（非缺陷）
+
+用户反馈"启动较慢"，在 `D-G213` 修复后**用户确认已改善**（"感觉解决了"），未做专项定位，**不列为缺陷**。
+若后续再出现，按"进程启动 → 窗口创建 → 首帧呈现"三段拆耗时定位（`SkiaSurface` 首建 / 字形加载 / 106 项数据加载）。
