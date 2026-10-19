@@ -401,7 +401,7 @@ namespace MS.Internal.Documents
         {
             if (!WpfLinuxChainProbe.EnvOn("WPF_LINEVIS_ONSCREEN"))
             {
-                page.FormatBottomless(pageSize, pageMargin);
+                FormatBottomlessDegradable(pageSize, pageMargin, page, "ONS.FormatBottomless(upstream-leg)");
                 return;
             }
 
@@ -415,7 +415,46 @@ namespace MS.Internal.Documents
 
             WpfLinuxChainProbe.Hit("ONS.FormatFinite",
                 "w=" + WpfLinuxChainProbe.N(finiteSize.Width) + " h=" + WpfLinuxChainProbe.N(finiteSize.Height));
-            page.FormatFinite(finiteSize, pageMargin, null);
+
+            // ── `D-G206`：**托管侧降级** ────────────────────────────────────────────────
+            //  本移植没有完整 PTS（native `win32_pts.c` 大量入口如实返回 `WPF_PTS_ERR_NOT_IMPLEMENTED`），
+            //  `FormatFinite`（有限页）这条路会撞上未实现的入口 ⇒ 上游 `PTS.Validate()` 抛 `PtsException`。
+            //  修前该异常冒泡到 UI 线程 ⇒ FlowDocument 类控件**整体不可用**（五种形态全炸）。
+            //  这里降级为「**回退底流**（bottomless）」—— 底流是本移植"能出内容"的形态（滚动/编辑场景够用），
+            //  只是分页不精确。零假值：`WPF_PTS_STRICT=1` ⇒ 原样重抛（反极性对照）；
+            //  非 PTS 缺口的异常 ⇒ 同样原样重抛（不掩盖真 bug）。
+            try
+            {
+                page.FormatFinite(finiteSize, pageMargin, null);
+            }
+            catch (Exception ex)
+            {
+                if (!PtsDegrade.ShouldSwallow(ex, "ONS.FormatFinite"))
+                {
+                    throw;
+                }
+
+                FormatBottomlessDegradable(pageSize, pageMargin, page, "ONS.FormatBottomless(fallback-after-Finite)");
+            }
+        }
+
+        /// <summary>
+        /// 底流格式化，带 `D-G206` 降级：PTS 缺口 ⇒ 吞掉（已记账）；`WPF_PTS_STRICT=1` 或非 PTS 异常 ⇒ 重抛。
+        /// </summary>
+        private static void FormatBottomlessDegradable(
+            Size pageSize, Thickness pageMargin, FlowDocumentPage page, string where)
+        {
+            try
+            {
+                page.FormatBottomless(pageSize, pageMargin);
+            }
+            catch (Exception ex)
+            {
+                if (!PtsDegrade.ShouldSwallow(ex, where))
+                {
+                    throw;
+                }
+            }
         }
     }
 }
