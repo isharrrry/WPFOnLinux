@@ -689,15 +689,29 @@ BOOL GetMessageW(WPF_MSG *msg, HWND hwnd, UINT lo, UINT hi)
                 fprintf(stderr, "[FAKECLICK] armed spec=%s\n", fc);
             } else if (wpf_now_ms() - s_fc_t0 >= 3000) {
                 const char *comma = strchr(fc, ',');
-                int cx = atoi(fc), cy = comma ? atoi(comma + 1) : 0;
-                // 取"可交互的顶层窗口"：优先焦点窗口，否则遍历窗口表找第一个顶层、已映射、
-                //   非 message-only 且非 1x1 的窗口（demo 的主窗口就是这个）。
+                int cx = 0, cy = 0;                 // 客户区坐标（规格里给出）
                 HWND h = g_focus_window;
+                if (fc[0] == '0' && (fc[1] == 'x' || fc[1] == 'X')) {
+                    // 规格 "0xHWND,x,y"：显式指定窗口与坐标
+                    h = (HWND)(uintptr_t)strtoul(fc, NULL, 0);
+                    const char *c1 = strchr(fc, ',');
+                    if (c1) { cx = atoi(c1 + 1); const char *c2 = strchr(c1 + 1, ','); if (c2) cy = atoi(c2 + 1); }
+                } else {
+                    cx = atoi(fc); cy = comma ? atoi(comma + 1) : 0;
+                }
+                // 自动挑**主窗口**：顶层 + 已映射 + 非 message-only + 尺寸 > 1x1 + **原点不在 (0,0)**。
+                // 【为什么要"原点不在 (0,0)"】修前只按"第一个顶层窗口"取，取到的是隐藏的 `HwndWrapper`
+                //   （800x600+0+0，如 0x200006/0x200005），点击打在它身上毫无反应 —— 实测踩到。
+                //   主窗口在 (+240+212) 这类真实位置；隐藏的内部窗口都是 (0,0)。
                 if (!h) {
                     wpf_lock();
                     for (wpf_window *wi = g_wpf.windows; wi; wi = wi->next) {
                         if (wi->is_message_only || wi->parent != NULL) continue;
-                        if (wi->width > 1 && wi->height > 1) { h = wi->hwnd; break; }
+                        if (!wi->mapped) continue;
+                        if (wi->width < 2 || wi->height < 2) continue;
+                        if (wi->x == 0 && wi->y == 0) continue;   // 隐藏的内部 HwndWrapper 都是 (0,0)
+                        h = wi->hwnd;
+                        break;
                     }
                     pthread_mutex_unlock(&g_wpf.lock);
                 }
