@@ -219,12 +219,15 @@ namespace WpfGfx.Linux.Rendering
                                 SKClipOperation.Intersect, antialias: false);
                 using var clearPaint = new SKPaint { Color = ctx.ClearColor, BlendMode = SKBlendMode.Src };
                 canvas.DrawRect(new SKRect(clipRect.Left, clipRect.Top, clipRect.Right, clipRect.Bottom), clearPaint);
+                _clipDev = new SKRect(clipRect.Left, clipRect.Top, clipRect.Right, clipRect.Bottom);
             }
             else
             {
                 canvas.Clear(ctx.ClearColor);
+                _clipDev = null;      // 整窗 ⇒ 不剔除
             }
             _dirty = false;
+            _matValid = false;      // ②b：每帧首次必设矩阵
 
             _frameContext = ctx;
             EnsureVisualResolver();
@@ -250,6 +253,60 @@ namespace WpfGfx.Linux.Rendering
         //  视觉树遍历
         // ==================================================================
 
+        // ==============================================================
+        //  ②c：脏区外子树整体跳过
+        // ==============================================================
+        //  实测该页单帧 `RenderVisual` 被调用 **23600 次**，而绘制指令只有 226 条 ⇒ 绝大部分节点
+        //  在脏区外（脏区只有 27% 面积）。对"整棵子树都在脏区外"的节点直接返回，能一次省掉
+        //  该子树的全部 `Save + SetMatrix + Clip + 内容 + RestoreToCount`。
+        //  保守条件：带 Effect / 3D 视口 / AlphaMask 的节点**不参与剔除**（它们的可见范围可能
+        //  超出内容矩形：阴影外扩、3D 投影、遮罩），并给包围盒固定外扩 8px 以覆盖描边宽度。
+        private readonly Dictionary<MilVisual, (long Stamp, SKRect Bounds)> _boundsCache = new();
+        private SKRect? _clipDev;      // 本帧脏区（设备空间）；null ⇒ 整窗（不做剔除）
+
+        private const float BoundsPad = 8f;
+
+        /// <summary>子树在**该节点自身局部坐标**下的包围盒（含缓存；按 SrcPaintStamp 失效）。</summary>
+        private SKRect GetSubtreeBounds(MilVisual v)
+        {
+            if (_boundsCache.TryGetValue(v, out var cached) && cached.Stamp == v.SrcPaintStamp)
+                return cached.Bounds;
+
+            SKRect acc = SKRect.Empty;
+            if (v.Content != null)
+            {
+                IReadOnlyList<MilDrawInstruction> ins = v.Content.Instructions;
+                for (int i = 0; i < ins.Count; i++)
+                {
+                    SKRect r = ins[i].Rect;
+                    if (r.Width <= 0f && r.Height <= 0f) continue;
+                    acc = acc.IsEmpty ? r : SKRect.Union(acc, r);
+                }
+            }
+            for (int i = 0; i < v.Children.Count; i++)
+            {
+                MilVisual ch = v.Children[i];
+                SKRect cb = GetSubtreeBounds(ch);
+                if (cb.IsEmpty) continue;
+                SKMatrix cm = SKMatrix.Concat(ch.Transform, SKMatrix.CreateTranslation(ch.Offset.X, ch.Offset.Y));
+                SKRect mapped = cm.MapRect(cb);
+                acc = acc.IsEmpty ? mapped : SKRect.Union(acc, mapped);
+            }
+            if (!acc.IsEmpty)
+                acc.Inflate(BoundsPad, BoundsPad);
+            _boundsCache[v] = (v.SrcPaintStamp, acc);
+            return acc;
+        }
+
+        // ②b：画布矩阵缓存（同值跳过 SetMatrix）。
+        private SKMatrix _mat;
+        private bool _matValid;
+
+        private static bool SameMatrix(in SKMatrix a, in SKMatrix b)
+            => a.ScaleX == b.ScaleX && a.SkewX == b.SkewX && a.TransX == b.TransX
+            && a.SkewY == b.SkewY && a.ScaleY == b.ScaleY && a.TransY == b.TransY
+            && a.Persp0 == b.Persp0 && a.Persp1 == b.Persp1 && a.Persp2 == b.Persp2;
+
         private void RenderVisual(
             MilVisual v, SKMatrix parentWorld, double parentOpacity,
             SKCanvas canvas, RenderContext ctx, SKMatrix deviceBase, int depth)
@@ -271,6 +328,21 @@ namespace WpfGfx.Linux.Rendering
                 SKMatrix.Concat(parentWorld, v.Transform),
                 SKMatrix.CreateTranslation(v.Offset.X, v.Offset.Y));
             v.WorldTransform = world;
+
+            // ②c：整棵子树在脏区外 ⇒ 直接跳过（保守条件见字段注释）。
+            if (_clipDev is { } clipDev
+                && !v.Effect.HasValue && !v.Viewport3D.HasValue && v.AlphaMask.IsNull)
+            {
+                SKRect local = GetSubtreeBounds(v);
+                if (!local.IsEmpty)
+                {
+                    SKRect dev = SKMatrix.Concat(deviceBase, world).MapRect(local);
+                    if (!dev.IntersectsWith(clipDev))
+                    {
+                        return;
+                    }
+                }
+            }
 
             double opacity = parentOpacity * v.Opacity;
             if (opacity <= 0.0) return;      // 完全透明：整棵子树跳过
@@ -339,7 +411,18 @@ namespace WpfGfx.Linux.Rendering
             //   `Concat(a,b)` 实测为 **b 先作用** ⇒ 必须 `Concat(deviceBase, world)`；反写会让 `deviceBase`
             //   先作用，`world` 的平移就不再被 deviceBase 的缩放乘到。真机与全部测试里 `deviceBase` 恰为
             //   单位阵（画布矩阵 × Dpi/96，Dpi=96），所以这条**一直没显形**；牙见 `MatrixCompositionSpaceTests.cs`。
-            canvas.SetMatrix(SKMatrix.Concat(deviceBase, world));
+            // 【②b 性能】`SetMatrix` 是每节点一次的固定开销（实测单帧 23600 次 ≈ 136ms）。
+            //   绝大多数节点是**无 offset/无 transform 的容器** ⇒ 它们的 `world` 与父节点逐值相同，
+            //   此时重复 `SetMatrix` 纯属浪费。这里缓存"画布当前矩阵"，同值直接跳过。
+            //   失效点：`RenderVisual` 末尾的 `RestoreToCount(entry)` 会把画布矩阵恢复成父节点的，
+            //   所以那里必须把缓存标记为失效（否则会画出错位画面）。
+            SKMatrix canvasMat = SKMatrix.Concat(deviceBase, world);
+            if (!_matValid || !SameMatrix(canvasMat, _mat))
+            {
+                canvas.SetMatrix(canvasMat);
+                _mat = canvasMat;
+                _matValid = true;
+            }
 
             // ---- 视觉级 Effect（UIElement.Effect -> MilCmdVisualSetEffect -> MilVisual.Effect）----
             //   历史：该字段收得下但没有消费者（投影层丢、契约类型连字段都没有）=> 阴影从未被画，
@@ -431,6 +514,7 @@ namespace WpfGfx.Linux.Rendering
             }
 
             canvas.RestoreToCount(entry);
+            _matValid = false;      // ②b：Restore 会把画布矩阵恢复成父节点的 ⇒ 缓存失效
             DrawInstructionCensus.LeaveVisual();
         }
 
