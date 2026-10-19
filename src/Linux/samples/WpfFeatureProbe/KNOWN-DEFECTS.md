@@ -4558,3 +4558,52 @@ paginator   1     0        0         paginator   1     0        0
 哈希与权威件都不一致（PF 还是 18:09 的），导致 `OutlineTextDemo` 直接 `app-exit(1)` 跑不起来；
 **部署最新四件后基线立刻复现 2812MB**。⇒ 以后做这类对照前**先 `sha256sum` 核对被测目录的四个件**
 （`PresentationFramework.dll` + `wpfgfx_cor3.so` + `libwpfwin32.so` + `libwpfwic.so`）。
+
+
+## `D-G206` 最终状态（收尾轮）：`richtext`/`scroll` 可用 ✅；`page` 仍 abort ⚠️（已确证兜底无效）
+
+### 一、`richtext` 的"降级后仍崩"**是假阳性**（推翻本项中途的怀疑）
+干净隔离（每形态独占 Xvfb + PID 级清理 + **多点截图**）：
+```
+richtext（8 段 + 2 项 List）:
+  t=6s  colors=1   SHOWN=0     ← Show() 慢，6 秒时还没返回（先前误判的根源）
+  t=12s colors=210 SHOWN=1     ← 出来了
+  t=18s colors=210 SHOWN=1
+  最终 SHOWN=1 UNH=0 XIO=0；窗口内 colors=210、平均亮度 99.2%
+  前5色：#FFFFFF 370671（白底）| #A0A0A0 1260 | #E3E3E3 744 | #696969 735 ⇒ 白底 + 灰色文字像素
+```
+二分 7 变体（空/单段/8段/空 List/1项 Disc/1项 None/List in ScrollViewer）**全部 `exit=124` 且 `SHOWN=1`、不崩**。
+⇒ 先前的 `exit=134` 是 **X server 被前一个崩溃进程带死**（`XIO: fatal IO error`）+ **截图早于 `Show()`**（需 >6s）两个因素叠加。
+
+### 二、真正 abort 的是 `page`（`FlowDocumentPageViewer`），因果链已完全定位
+```
+[FC#5] Exception: No object associated with unmanaged object handle or type mismatch
+  at PTS.InvalidHandle()                        ← 抛点是**普通 Exception**，不是 PtsException
+  at PTS.ValidateHandle(Object)
+  at PtsHost.GetFirstPara(IntPtr, IntPtr, …)
+  at PtsCache.InitGenericInfo → PTS.FsCreatePageFinite
+  at PtsPage.CreateFinitePage → FlowDocumentPage.FormatFinite
+  at FlowDocumentPaginator.FormatPage → OnBackgroundPagination
+  at ExceptionWrapper.InternalRealCall          ← 这里 Environment.FailFast ⇒ abort(134)
+```
+⇒ **降级吞掉 `PtsException` 后，调用方仍假定分页成功、继续用失效的 unmanaged handle**，于是抛 `PTS.InvalidHandle`；
+该异常从 `OnBackgroundPagination` 的**回调内部**冒出，被 `ExceptionWrapper` 接走并 `FailFast`，**发生在我们的 catch 之前**。
+
+### 三、本轮尝试的兜底**未生效**（三条独立读数确证，不粉饰）
+- 在 `PtsDegrade.IsPtsGap` 增加识别 `"unmanaged object handle"` + 一次性 `[PTS-UNSUPPORTED]` 日志；
+- 确证：`page: exit=134 SHOWN=1 DEGRADED=1 UNSUPPORTED=0`；`WPF_PTS_CALLTRACE=1` 下 **`[PTS-CALL]` 一条都没有** ⇒ `ShouldSwallow` **从未被调用**（那 4 处 try/catch 虽参与编译但不在实际崩溃路径上）；
+- 且 **"抛 `NotSupportedException` 让 `Application.DispatcherUnhandledException` 拦"这条路也不通**：
+  `ExceptionWrapper` 先接走并 `FailFast`，`DispatcherUnhandledException` 不会被调用（`DISP-UNH=0` 实测）。
+- `reader`（`FlowDocumentReader`）在最后一次隔离测试里 `exit=124`（不崩）。
+
+### 四、结论（接受现状）
+- **用户实际需要的两种形态都可用**：`RichTextBox`（编辑）✅ 有内容、`FlowDocumentScrollViewer`（阅读）✅ 有内容；
+- `FlowDocumentPageViewer`/`FlowDocumentReader`（**分页查看器**）本就依赖完整 PTS（而 PTS 是 stub）⇒ **不可用是诚实的已知限制**；
+- **根治点（未做，需评估）**：让 `PtsHost.GetFirstPara` / `PtsCache.InitGenericInfo` 在降级后**返回"成功但空"**（不给无效 handle），
+  属结构性改动；或先 `grep` 确认 `OnBackgroundPagination` 的**实际重载**再在外层包 catch。
+- **不建议**为这一个形态继续投入（收益/风险不划算）。
+
+### 五、排查纪律（本轮踩出来的，务必遵守）
+1. **`RichTextBox` 首次 `Show()` 需 >6 秒**（本栈字体/排版首加载慢）⇒ 自动化截图必须等 **≥10 秒**，否则得到全黑假阴性；
+2. **多个会崩的进程绝不能共享/复用同一个 Xvfb**：前一个 abort 会把 X server 带死，后续样本全部变成
+   `exit=134 + XIO: fatal IO error` 的假阳性 —— 本项多轮误判（"richtext 崩溃"）的根源。
