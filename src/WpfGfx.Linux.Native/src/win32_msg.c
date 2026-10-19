@@ -681,13 +681,26 @@ BOOL GetMessageW(WPF_MSG *msg, HWND hwnd, UINT lo, UINT hi)
     //   而"点击到底响不响应"必须能验证 ⇒ 这条通道验证的是"入队 → 派发 → 命中测试 → UI 反应"这一段。
     {
         static int s_fc_done = 0;
+        static int s_fc_delay = 3000;
         const char *fc = getenv("WPF_FAKE_CLICK");
         if (fc && *fc && !s_fc_done) {
             static unsigned long s_fc_t0 = 0;
             if (!s_fc_t0) {
                 s_fc_t0 = wpf_now_ms();
-                fprintf(stderr, "[FAKECLICK] armed spec=%s\n", fc);
-            } else if (wpf_now_ms() - s_fc_t0 >= 3000) {
+                // 规格：`x,y[,delay_ms]` 或 `0xHWND,x,y[,delay_ms]`；delay 默认 3000
+                s_fc_delay = 3000;
+                {
+                    const char *q = fc;
+                    int ncommas = 0;
+                    for (const char *cc = fc; *cc; cc++) if (*cc == ',') ncommas++;
+                    // 最后一个逗号后的数字 == delay（仅当给的字段数比坐标多一个）
+                    if ((ncommas == 2 && fc[0] != '0') || (ncommas == 3 && fc[0] == '0')) {
+                        const char *last = strrchr(fc, ',');
+                        if (last) s_fc_delay = atoi(last + 1);
+                    }
+                }
+                fprintf(stderr, "[FAKECLICK] armed spec=%s delay=%d\n", fc, s_fc_delay);
+            } else if (wpf_now_ms() - s_fc_t0 >= s_fc_delay) {
                 const char *comma = strchr(fc, ',');
                 int cx = 0, cy = 0;                 // 客户区坐标（规格里给出）
                 HWND h = g_focus_window;
