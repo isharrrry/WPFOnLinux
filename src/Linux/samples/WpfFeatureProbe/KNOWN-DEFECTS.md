@@ -4522,3 +4522,39 @@ paginator   1     0        0         paginator   1     0        0
 - `richtext` 降级后仍崩（第二处致命点，未定位、未修）；
 - `scroll`/`richtext` 出内容未取证；
 - 8 页回归未在"形态测试干净"之后重跑。
+
+
+## `D-G208` 真凶定位：**单个 `OutlineText` 的超长文本**（容器与数量都不是）
+
+### 有效读数（每个变体独立 Xvfb、`XFail=0`、`colors=314` 不变）
+| 变体 | XAML 结构 | `alloc_enter_mb` | `sample_mb` |
+|---|---|---|---|
+| 基线 | 原样（两容器 + 7×`OutlineText`） | **2812.956** | 0.653 |
+| **C** | **两个容器都去掉**（裸 `StackPanel` + 7×`OutlineText`） | **2812.593** | — |
+| **D** | 两容器保留 + **只放 1 个** `OutlineText` | **2812.685** | 0.679 |
+（A/B/E1/E2 四次读数因测试脚本显示号问题（`XOpenDisplay` 失败、`XFail=8`）**判为环境无效、不计入结论**。）
+
+### 结论（修正两处旧判断）
+1. **不是** `hc:TransitioningContentControl`，**也不是** `hc:ScrollViewer`（变体 C 把两个都去掉仍是 2812MB）；
+2. **不是**"7 个"的规模问题（变体 D 只留 1 个仍是 2812MB）；
+3. **元凶是"那一个 `OutlineText`"**：其 `Text` 由 `StringRepeatConverter{ConverterParameter=20}` **重复 20 次**，
+   叠加 `TextWrapping="Wrap"`（宽 400 内折行）⇒ **超长文本**。
+4. **对原定性的修正**：
+   - 最初登记写"轮廓文字 → 字体几何化的一次性缓存"——**方向对、但不完整**；
+   - 中间复核"7 个探针只 49.6MB ⇒ 不是几何化"——**该排除只在短文本下成立**；
+   - 合并后的正确表述：**超长文本（重复 20 次 + 折行）的轮廓几何化**是 2812MB 的来源。
+5. `sample_mb` 全程 0.65~0.68MB ⇒ **稳定态无泄漏**，是**构造期一次性成本**；第二页仅 2.72MB ⇒ **只影响这一页**。
+
+### 修法方向（未执行，需拍板）
+1. **最省、不碰 hc**：把该示例的 `ConverterParameter` 20 → 2~4（**改示例，不是修缺陷**）；
+2. **栈侧**：在"文本 → 轮廓几何化"路径做**降精度 / 缓存 / 可见区裁剪**（`FormattedText.BuildGeometry` 一侧，属 PresentationCore，
+   若是 applier 管的文件要走 applier）；
+3. **hc 侧**（跨平台库，需谨慎）：`OutlineText.OnRender` 对超长文本加长度上限，或改 `DrawText` + `DrawGeometry` 分层，
+   用 `#if WPF_LINUX` 或平台无关最小改动；
+4. **不建议现在硬改**：稳定态无泄漏、范围仅这一页；对真机是"打开这页卡一下 + 吃 2.8GB"。
+
+### 附带发现（排查纪律，务必遵守）
+验证工程 `port/ControlRenderTests/bin` 里的**四个件会变旧**：本次接手时 `wpfgfx_cor3.so`/`libwpfwin32.so`/`PresentationFramework.dll`
+哈希与权威件都不一致（PF 还是 18:09 的），导致 `OutlineTextDemo` 直接 `app-exit(1)` 跑不起来；
+**部署最新四件后基线立刻复现 2812MB**。⇒ 以后做这类对照前**先 `sha256sum` 核对被测目录的四个件**
+（`PresentationFramework.dll` + `wpfgfx_cor3.so` + `libwpfwin32.so` + `libwpfwic.so`）。
