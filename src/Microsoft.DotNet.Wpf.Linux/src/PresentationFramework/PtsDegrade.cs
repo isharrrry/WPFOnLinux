@@ -35,10 +35,57 @@ namespace MS.Internal.PtsHost
         // 一次性记账：同一个 `where` 只打一行（`WPF_PTS_DIAG=1` ⇒ 每次都打）。
         private static readonly HashSet<string> s_reported = new HashSet<string>(StringComparer.Ordinal);
 
+        // ── `WPF_PTS_TRAP=1`：**首次抛出**时抓完整调用栈（仅诊断；默认关） ───────────────────────
+        //   为什么用 `FirstChanceException`：此时异常还没被展开，`Environment.StackTrace` 能拿到
+        //   **真业务帧**（`DispatcherUnhandledException` 里已经看不到业务帧了）。
+        //   注意：**不读 `ex.StackTrace`**（本栈读它会抛 `BadImageFormatException`，那是 `D-G205`）。
+        private static bool s_trapHooked;
+
+        private static void HookTrapOnce()
+        {
+            if (s_trapHooked || !ReadFlag("WPF_PTS_TRAP"))
+            {
+                return;
+            }
+
+            s_trapHooked = true;
+            try
+            {
+                AppDomain.CurrentDomain.FirstChanceException += (s, e) =>
+                {
+                    try
+                    {
+                        if (!IsPtsGap(e.Exception))
+                        {
+                            return;
+                        }
+
+                        Console.Error.WriteLine("[PTS-TRAP] first-chance " + e.Exception.GetType().Name
+                            + ": " + OneLine(e.Exception.Message));
+                        Console.Error.WriteLine("[PTS-TRAP] stack>>>");
+                        Console.Error.WriteLine(Environment.StackTrace);
+                        Console.Error.WriteLine("[PTS-TRAP] <<<stack");
+                    }
+                    catch
+                    {
+                    }
+                };
+            }
+            catch
+            {
+            }
+        }
+
         /// <summary>`WPF_PTS_STRICT=1` ⇒ 旧行为（异常照抛）。</summary>
         internal static bool StrictMode
         {
             get { return s_strict; }
+        }
+
+        /// <summary>诊断用：让调用方（或程序启动处）显式挂上 first-chance trap（`WPF_PTS_TRAP=1` 时才生效）。</summary>
+        internal static void EnsureTrapHook()
+        {
+            HookTrapOnce();
         }
 
         /// <summary>这个异常是不是「PTS 引擎没实现/没排完」这一类（而不是别的真 bug）。</summary>
@@ -72,6 +119,7 @@ namespace MS.Internal.PtsHost
         /// </summary>
         internal static bool ShouldSwallow(Exception ex, string where)
         {
+            HookTrapOnce();
             if (!IsPtsGap(ex))
             {
                 return false;

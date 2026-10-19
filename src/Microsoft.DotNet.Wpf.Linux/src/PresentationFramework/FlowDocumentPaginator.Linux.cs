@@ -1,9 +1,9 @@
 // ⚠️ 本文件由 src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/reapply-patches.py **生成**，不要手改。
 //
-// 内容 = 上游 `src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/documents/FlowDocumentPaginator.cs` 逐字复制 + 1 处 W86A（`TASK-0304`/`TASK-0305`）改动。
+// 内容 = 上游 `src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/documents/FlowDocumentPaginator.cs` 逐字复制 + 4 处 W86A（`TASK-0304`/`TASK-0305`）改动。
 // 每次运行该脚本都会从上游重读重生成；needle 找不到 / 命中数不符时**报错退出**
 // （不会静默产出未打补丁的副本）。改动逐处见：
-//   E1
+//   E1 ／ E2 ／ E3 ／ E4
 //
 // 背景（`D-G70`/`D-G78`）：本移植没有 PTS/原生 LineServices ⇒ 切「富文本」/「流文档」页
 // 曾**整进程 `rc=134`**。本件把它变成「**具名、可判、可见的能力边界**」：
@@ -751,15 +751,48 @@ namespace MS.Internal.Documents
             pageSize = ComputePageSize();
             pageMargin = _document.ComputePageMargin();
 
-            breakRecordOut = page.FormatFinite(pageSize, pageMargin, breakRecordIn);
-            page.Arrange(pageSize);
+            // ── `D-G206`：`FormatFinite` / `Arrange` 遇 PTS 未实现入口 ⇒ 降级（不抛、页可能空白）──
+            try
+            {
+                breakRecordOut = page.FormatFinite(pageSize, pageMargin, breakRecordIn);
+            }
+            catch (Exception exBreak)
+            {
+                if (!PtsDegrade.ShouldSwallow(exBreak, "FDPaginator.FormatPage.FormatFinite"))
+                {
+                    throw;
+                }
+                breakRecordOut = breakRecordIn;
+            }
+
+            try
+            {
+                page.Arrange(pageSize);
+            }
+            catch (Exception exArrange)
+            {
+                if (!PtsDegrade.ShouldSwallow(exArrange, "FDPaginator.FormatPage.Arrange"))
+                {
+                    throw;
+                }
+            }
 
             // ── `T-A44`（`CONTENT-LINEVIS-BRANCH-REACH`）**驱动：补上"页视觉帧"缺的那一跳** ──
             //  见生成器内该块的说明；`WPF_LINEVIS_DRIVE=0` ⇒ 逐字回上游（反极性腿）。
             if (WpfLinuxChainProbe.EnvOn("WPF_LINEVIS_DRIVE"))
             {
                 WpfLinuxChainProbe.Hit("DRIVE.EnsurePageVisuals", "site=FDPaginator.FormatPage page=" + page.GetHashCode());
-                page.EnsureValidVisuals();
+                try
+                {
+                    page.EnsureValidVisuals();
+                }
+                catch (Exception exVis)
+                {
+                    if (!PtsDegrade.ShouldSwallow(exVis, "FDPaginator.FormatPage.EnsureValidVisuals"))
+                    {
+                        throw;
+                    }
+                }
             }
 
             // NOTE: May execute external code, so it is possible to get
@@ -840,6 +873,14 @@ namespace MS.Internal.Documents
 
                         // Initiate the next async operation.
                         InitiateNextAsyncOperation();
+                    }
+                }
+                catch (Exception exBg)
+                {
+                    // `D-G206`：PTS 引擎未实现的入口 ⇒ 降级（已记账），不要让 Dispatcher 抛出去。
+                    if (!PtsDegrade.ShouldSwallow(exBg, "FDPaginator.OnBackgroundPagination"))
+                    {
+                        throw;
                     }
                 }
                 finally

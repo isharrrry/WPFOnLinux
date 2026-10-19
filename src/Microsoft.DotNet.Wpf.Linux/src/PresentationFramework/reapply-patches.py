@@ -126,6 +126,8 @@ PATCH_C = '''  <!-- ============================================================
     <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/PtsPage.Linux.cs" />
     <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/PtsHelper.cs" />
     <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/PtsHelper.Linux.cs" />
+    <!-- D-G206：PTS 能力缺口的**托管侧降级**工具（手写件，非生成） -->
+    <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/PtsDegrade.cs" />
     <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/FigureParaClient.cs" />
     <Compile Include="$(WpfLinuxRoot)src/Microsoft.DotNet.Wpf.Linux/src/PresentationFramework/FigureParaClient.Linux.cs" />
     <Compile Remove="$(UpstreamWpfRoot)src/Microsoft.DotNet.Wpf/src/PresentationFramework/MS/Internal/PtsHost/ContainerParaClient.cs" />
@@ -4490,6 +4492,103 @@ CHAIN_FILES = [
             }
 
             // NOTE: May execute external code, so it is possible to get
+""", 1),
+        # ── `D-G206` **托管侧降级**：分页器造页时 PTS 引擎未实现的入口不再打死分页 ────────────
+        #  【抛点（`WPF_PTS_TRAP=1` 现取）】后台分页 `OnBackgroundPagination` → `FormatPage` →
+        #    `FlowDocumentPage.Arrange` → `PtsPage.ArrangePage` → `PtsHelper.ArrangeTrack/ParaList`
+        #    → `PtsHelper.ParaListFromSubtrack` → `PTS.Validate(FsQuerySubtrackDetails)` ⇒
+        #    `PtsException("Page formatting engine did not complete formatting operation. Error code: '-10000'.")`
+        #    ⇒ 冒泡到 `Dispatcher.ProcessQueue` ⇒ `DispatcherUnhandledException` ⇒ 五形态里
+        #    `FlowDocumentPageViewer`/`FlowDocumentReader`/`DocumentPaginator` 全部不可用。
+        #  【为什么不直接返回 `DocumentPage.Missing`】`FormatPagesTill` 的循环条件是
+        #    `while (!_brt.HasPageBreakRecord(pageNumber) && !_brt.IsClean) FormatPage(_brt.Count);`
+        #    ⇒ 若失败后**不** `_brt.UpdateEntry`，**必然死循环**。所以降级语义是：
+        #    **吞掉 PTS 缺口、跳过出错的那一步（页可能内容不全/空白）、但让分页表照常前进**。
+        #  【零假值】`WPF_PTS_STRICT=1` ⇒ 全部原样重抛（反极性腿）；非 PTS 缺口的异常同样原样重抛。
+        ("""            breakRecordOut = page.FormatFinite(pageSize, pageMargin, breakRecordIn);
+            page.Arrange(pageSize);
+""",
+         """            // ── `D-G206`：`FormatFinite` / `Arrange` 遇 PTS 未实现入口 ⇒ 降级（不抛、页可能空白）──
+            try
+            {
+                breakRecordOut = page.FormatFinite(pageSize, pageMargin, breakRecordIn);
+            }
+            catch (Exception exBreak)
+            {
+                if (!PtsDegrade.ShouldSwallow(exBreak, "FDPaginator.FormatPage.FormatFinite"))
+                {
+                    throw;
+                }
+                breakRecordOut = breakRecordIn;
+            }
+
+            try
+            {
+                page.Arrange(pageSize);
+            }
+            catch (Exception exArrange)
+            {
+                if (!PtsDegrade.ShouldSwallow(exArrange, "FDPaginator.FormatPage.Arrange"))
+                {
+                    throw;
+                }
+            }
+""", 1),
+        ("""                WpfLinuxChainProbe.Hit("DRIVE.EnsurePageVisuals", "site=FDPaginator.FormatPage page=" + page.GetHashCode());
+                page.EnsureValidVisuals();
+""",
+         """                WpfLinuxChainProbe.Hit("DRIVE.EnsurePageVisuals", "site=FDPaginator.FormatPage page=" + page.GetHashCode());
+                try
+                {
+                    page.EnsureValidVisuals();
+                }
+                catch (Exception exVis)
+                {
+                    if (!PtsDegrade.ShouldSwallow(exVis, "FDPaginator.FormatPage.EnsureValidVisuals"))
+                    {
+                        throw;
+                    }
+                }
+""", 1),
+        # ── `D-G206` **最后一道兜底**：后台分页这一层是 DispatcherOperation 的入口 ──────────────
+        #  【为什么还要这一层】`FormatPage` 里已包住 `FormatFinite`/`Arrange`/`EnsureValidVisuals`，
+        #    但 `OnBackgroundPagination` 循环里还会经 `AsyncRequest.Process()` 与
+        #    `PtsPage.UpdatePageVisuals`/`GetPageVisual` 等**其它**PTS 入口（`WPF_PTS_TRAP=1` 现取：
+        #    第 3 次 `PtsHelper.ParaListFromSubtrack` 从 `PtsPage.UpdatePageVisuals` 冒出来）。
+        #    抛出点一旦离开本方法就会进 `Dispatcher.ProcessQueue` ⇒ `DispatcherUnhandledException`
+        #    ⇒ 整个分页文档不可用。故在此再兜一层：**只吞 PTS 缺口**、其余原样重抛。
+        #  【零假值】`WPF_PTS_STRICT=1` ⇒ 原样重抛（反极性腿）。
+        ("""                finally
+                {
+                    _document.StructuralCache.IsFormattingInProgress = false;    // Clear reentrancy flag.
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Compute size for the page.
+""",
+         """                catch (Exception exBg)
+                {
+                    // `D-G206`：PTS 引擎未实现的入口 ⇒ 降级（已记账），不要让 Dispatcher 抛出去。
+                    if (!PtsDegrade.ShouldSwallow(exBg, "FDPaginator.OnBackgroundPagination"))
+                    {
+                        throw;
+                    }
+                }
+                finally
+                {
+                    _document.StructuralCache.IsFormattingInProgress = false;    // Clear reentrancy flag.
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Compute size for the page.
 """, 1),
     ]),
     # ── ⏪ `T-B7`（`BAML-TYPE-UNRESOLVED`）：BAML 类型解析失败的**具名出口** ────────────────
