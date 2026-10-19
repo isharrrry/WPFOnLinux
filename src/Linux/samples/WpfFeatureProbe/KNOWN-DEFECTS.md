@@ -4424,3 +4424,35 @@ d206-probe：FlowDocumentPageViewer / Show() / DocumentPaginator.GetPage → EXI
 ⇒ **不触发分页的路径可用**（Measure/Arrange/UpdateLayout）；**真正走分页的路径仍不可用**（抛/崩）。
 ⇒ `D-G206` 的"不可修（需实现整个 PTS 分页引擎）"结论**不变**；但影响面应表述为：
   **`FlowDocument` 的滚动/编辑形态可显示内容，分页形态（`PageViewer`/`Reader`/`Paginator`）不可用**。
+
+
+## 复核：`D-G208` 的真实成因**不是** `OutlineText` 几何化（前提被推翻）＋ 降级路线现状
+
+### `D-G208`（`OutlineTextDemo` 入场分配 2812MB）—— 仍未降低，但排除了四个方向
+| 实验 | 读数 | 结论 |
+|---|---|---|
+| 探针：**7 个** `hc:OutlineText`（同参 `FontSize=80`+Bold+`StrokeThickness=4`） | `alloc_mb=49.6` | ❌ **几何化只花 ~50MB，不是 2.8GB** —— 原登记里"轮廓文字→字体几何化的一次性缓存"这个成因**不成立** |
+| 同进程两页：`OutlineTextDemo` vs `BrushDemo` | `2812.669` vs **`2.72`** | ❌ 不是进程级/首窗固定成本 |
+| 同进程连跑两个 `OutlineTextDemo` | `2812.89` / `2812.58` | ❌ 不是"首次缓存"（每次实例化都付） |
+| `--no-warmup` 对照 | `5687.94 ≈ 2897(warmup)+2812` | ❌ 不是计量口径问题 |
+- `sample_mb` 一直 **0.3~0.7MB** ⇒ **稳定态无泄漏**，是**构造期一次性分配**。
+- 该页 XAML 仅 21 行：`hc:TransitioningContentControl` → `hc:ScrollViewer(IsInertiaEnabled=True)` → `StackPanel` → **7×`hc:OutlineText`**。
+- **唯一剩下的嫌疑区**：`hc:TransitioningContentControl` / `hc:ScrollViewer` 两个容器
+  （探针里单独构造它们会抛 `Win32Exception(1400)` —— 未加载 hc 主题资源，容器初始化失败 ⇒ 无法在探针内隔离）。
+- **倾向判断**：更像"**某容器在首次 Arrange 时按极大尺寸实例化整棵子树**"，而不是缓存没复用。
+- **下一步（需 hc 仓权限或 applier 打点）**：
+  ① hc 侧把该页临时缩减为"只放 ScrollViewer"/"只放 TransitioningContentControl"两版跑对照（最快）；
+  ② 栈侧加"按控件类型统计分配"的打点（在 `ArrangeOverride`/`OnRender` 前后取 `GC.GetTotalAllocatedBytes`），需走 applier。
+- **建议**：保持"单列标注为已知页、不放宽 `alloc_enter_mb` 阈值"，并按上述方案隔离后再定修法。**未放松任何阈值。**
+
+### `D-G206` 的托管侧降级：代码已落（**默认关、编译通过**），但**未取得"降级生效"的读数**
+- 已落地：`Pts.cs`（上游文件补丁，**已获批准**）的 `default:` 与 `case fserrCallbackException:` 两处都加了
+  `WPF_PTS_DEGRADE=1` 门控降级（不设时与上游逐字一致；`OutOfMemory`/`FormatRestrictionsExceeded` 照旧抛；
+  降级路径保留上游的 `ptsContext.CallbackException = null` 清理语义）；`PtsPage.Linux.cs` 的第一层兜底保留。
+- **但验证未通过**：`WPF_PTS_DEGRADE=1` 下五形态仍 `exit=134`、`[PTS-DEGRADED]` 计数 **0**；
+  且对照组出现 `XOpenDisplay` 失败（测试脚本把 Xvfb 清早了）⇒ **本轮读数不可信**，降级是否真能拦住**尚未证实**。
+- ⇒ 状态：**代码在、默认关、零风险**；**效果待验**（下次需：Xvfb 只起一次、循环外清理；并确认探针确实加载了新构建的
+  `PresentationFramework.dll` —— `MilBridge` 只产出 `wpfgfx_cor3.so`，PF 需单独构建 `Microsoft.DotNet.Wpf.Linux/src/PresentationFramework`，
+  产物在 `bin/Release/PresentationFramework.dll`）。
+- 另：`win32_pts.c` 的 `WPF_PTS_NI_DIAG` 打点保留（env 门控默认关）；
+  把 48 处 `getenv` 收敛为静态缓存的那一步**未完成**（替换锚点未命中）。

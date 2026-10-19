@@ -52,6 +52,15 @@
 // 且 `PTS.Validate` 对任何非 `fserrNone` 都抛 `PtsException`（`Pts.cs:40-72`）。
 #define WPF_PTS_ERR_NOT_IMPLEMENTED   (-10000)
 
+// 【诊断】`WPF_PTS_NI_DIAG=1` ⇒ 打印每个"未实现返回点"的 函数:行号（默认关）。
+//   getenv **只读一次并静态缓存** —— 这些点都在 PTS 调用热路径上，不能每次 getenv。
+static int wpf_pts_ni_diag_on(void)
+{
+    static int on = -1;
+    if (on < 0) { const char *e = getenv("WPF_PTS_NI_DIAG"); on = (e && *e && *e != '0') ? 1 : 0; }
+    return on;
+}
+
 // ── 具名台账（本文件的唯一状态）─────────────────────────────────────────────
 // ⏪ **dated 更正（`t81`，2026-09-28；只改注释，与现盘对齐）**：本行原文写「**6 个入口**的名字 ＋ 各自被调次数」
 //   —— 那是本文件只导出 6 条 stub 时的说法。**现盘该表 12 名**（表区间内 `grep -c '"'` 现取 ＝ 12，
@@ -681,8 +690,7 @@ int FsCreatePageBottomless(void *pfscontext, const void *fsnmsect, int *pfsfmtrb
     g_pts_fsp_last_reason = reason;
     fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s ctx=%p sect=%p ok=%d gap=%d\n",
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason, pfscontext, fsnmsect, g_pts_fsp_ok, g_pts_fsp_gap);
-    { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-      if (_ni && *_ni && *_ni != '0')
+    { if (wpf_pts_ni_diag_on())
           fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
@@ -767,8 +775,7 @@ static int wpf_pts_gap(const char *entry)
             fflush(stderr);
         }
     }
-    { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-      if (_ni && *_ni && *_ni != '0')
+    { if (wpf_pts_ni_diag_on())
           fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
@@ -943,8 +950,7 @@ int DestroyInstalledObjectsInfo(void *pInstalledObjects)
         return 0;
     }
     g_pts_io_rejected++;
-    { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-      if (_ni && *_ni && *_ni != '0')
+    { if (wpf_pts_ni_diag_on())
           fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
@@ -4289,8 +4295,7 @@ int DestroyDocContext(void *pfscontext)
         return 0;
     }
     g_pts_doc_destroy_rej++;
-    { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-      if (_ni && *_ni && *_ni != '0')
+    { if (wpf_pts_ni_diag_on())
           fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
@@ -4311,8 +4316,7 @@ int GetFloaterHandlerInfo(const void *pfsfloaterinit, void *pFloaterObjectInfo)
         fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=null-init entry=GetFloaterHandlerInfo init=%p out=%p "
                         "out=UNWRITTEN bytes=0\n",
                 WPF_PTS_ERR_NOT_IMPLEMENTED, pfsfloaterinit, pFloaterObjectInfo);
-        { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-          if (_ni && *_ni && *_ni != '0')
+        { if (wpf_pts_ni_diag_on())
               fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
         return WPF_PTS_ERR_NOT_IMPLEMENTED;
     }
@@ -4347,8 +4351,7 @@ int GetTableObjHandlerInfo(const void *pfstableobjinit, void *pTableObjectInfo)
         fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=null-init entry=GetTableObjHandlerInfo init=%p out=%p "
                         "out=UNWRITTEN bytes=0\n",
                 WPF_PTS_ERR_NOT_IMPLEMENTED, pfstableobjinit, pTableObjectInfo);
-        { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-          if (_ni && *_ni && *_ni != '0')
+        { if (wpf_pts_ni_diag_on())
               fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
         return WPF_PTS_ERR_NOT_IMPLEMENTED;
     }
@@ -4600,8 +4603,7 @@ int LoDestroyContext(void *ploc)
         return 0;
     }
     g_pts_loc_rejected++;
-    { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-      if (_ni && *_ni && *_ni != '0')
+    { if (wpf_pts_ni_diag_on())
           fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
@@ -4963,8 +4965,7 @@ static int wpf_pts_b2_gap(const char *entry, int idx, const char *reason, const 
     g_pts_b2_gap[idx]++;
     fprintf(stderr, "[LSBATCH2] rc=%d reason=%s entry=%s p=%p ok=%d gap=%d out=UNWRITTEN bytes=0\n",
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason, entry, p, g_pts_b2_ok[idx], g_pts_b2_gap[idx]);
-    { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-      if (_ni && *_ni && *_ni != '0')
+    { if (wpf_pts_ni_diag_on())
           fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
@@ -5415,24 +5416,21 @@ int WpfLinuxWin32_PtsLscbfInvoke(void *ploc, int slot, const void *a0, const voi
         g_pts_lscbf_inv_rej++; if (c) c->cbf_inv_rej++;
         fprintf(stderr, "[LSCBF] invoke=REJECT reason=invoke-gate-off(reverse-leg) ploc=%p slot=%d out=UNWRITTEN bytes=0\n",
                 ploc, slot);
-        { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-          if (_ni && *_ni && *_ni != '0')
+        { if (wpf_pts_ni_diag_on())
               fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
         return WPF_PTS_ERR_NOT_IMPLEMENTED;
     }
     if (!c) {
         g_pts_lscbf_inv_rej++;
         fprintf(stderr, "[LSCBF] invoke=REJECT reason=unknown-context ploc=%p slot=%d out=UNWRITTEN bytes=0\n", ploc, slot);
-        { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-          if (_ni && *_ni && *_ni != '0')
+        { if (wpf_pts_ni_diag_on())
               fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
         return WPF_PTS_ERR_NOT_IMPLEMENTED;
     }
     if (slot < 0 || slot >= WPF_PTS_LSCBF_SLOT_N) {
         g_pts_lscbf_inv_rej++; c->cbf_inv_rej++;
         fprintf(stderr, "[LSCBF] invoke=REJECT reason=slot-out-of-range ploc=%p slot=%d out=UNWRITTEN bytes=0\n", ploc, slot);
-        { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-          if (_ni && *_ni && *_ni != '0')
+        { if (wpf_pts_ni_diag_on())
               fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
         return WPF_PTS_ERR_NOT_IMPLEMENTED;
     }
@@ -5440,8 +5438,7 @@ int WpfLinuxWin32_PtsLscbfInvoke(void *ploc, int slot, const void *a0, const voi
         g_pts_lscbf_inv_rej++; c->cbf_inv_rej++;
         fprintf(stderr, "[LSCBF] invoke=REJECT reason=null-slot ploc=%p slot=%d name=%s out=UNWRITTEN bytes=0\n",
                 ploc, slot, k_pts_lscbf_slots[slot].name);
-        { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-          if (_ni && *_ni && *_ni != '0')
+        { if (wpf_pts_ni_diag_on())
               fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
         return WPF_PTS_ERR_NOT_IMPLEMENTED;
     }
@@ -5651,8 +5648,7 @@ int WpfLinuxWin32_PtsTextSrcFeed(const void *parah, int cp_off, const void *pwch
         g_pts_textsrc_gap++;
         fprintf(stderr, "[TEXTSRC] rx=REJECT reason=%s parah=%p cch=%d bound=%d out=UNWRITTEN bytes=0\n",
                 reason, parah, cch, WPF_PTS_TEXTSRC_CCH_MAX);
-        { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-          if (_ni && *_ni && *_ni != '0')
+        { if (wpf_pts_ni_diag_on())
               fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
         return WPF_PTS_ERR_NOT_IMPLEMENTED;
     }
@@ -5668,8 +5664,7 @@ int WpfLinuxWin32_PtsTextSrcFeed(const void *parah, int cp_off, const void *pwch
                 g_pts_textsrc_gap++;
                 fprintf(stderr, "[TEXTSRC] rx=REJECT reason=alloc-failed parah=%p cch=%d out=UNWRITTEN bytes=0\n",
                         parah, cch);
-                { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-                  if (_ni && *_ni && *_ni != '0')
+                { if (wpf_pts_ni_diag_on())
                       fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
                 return WPF_PTS_ERR_NOT_IMPLEMENTED;
             }
@@ -5909,8 +5904,7 @@ int WpfLinuxWin32_PtsCpDcpMapFeed(const void *parah, int cp_base, int n, const i
         g_pts_cpdc_gap++;
         fprintf(stderr, "[CPDCMAP] rx=REJECT reason=%s parah=%p cp_base=%d n=%d bound=%d out=UNWRITTEN bytes=0\n",
                 reason, parah, cp_base, n, WPF_PTS_CPDCMAP_PT_MAX);
-        { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-          if (_ni && *_ni && *_ni != '0')
+        { if (wpf_pts_ni_diag_on())
               fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
         return WPF_PTS_ERR_NOT_IMPLEMENTED;
     }
@@ -5926,8 +5920,7 @@ int WpfLinuxWin32_PtsCpDcpMapFeed(const void *parah, int cp_base, int n, const i
                 g_pts_cpdc_gap++;
                 fprintf(stderr, "[CPDCMAP] rx=REJECT reason=alloc-failed parah=%p n=%d out=UNWRITTEN bytes=0\n",
                         parah, n);
-                { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-                  if (_ni && *_ni && *_ni != '0')
+                { if (wpf_pts_ni_diag_on())
                       fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
                 return WPF_PTS_ERR_NOT_IMPLEMENTED;
             }
@@ -6165,8 +6158,7 @@ int WpfLinuxWin32_PtsParaChainFeed(const void *parah, int page_id, int cp_first,
         g_pts_pc_gap++;
         fprintf(stderr, "[PARACHAIN] rx=REJECT reason=%s parah=%p page=%d cp=[%d,%d) out=UNWRITTEN\n",
                 reason, parah, page_id, cp_first, cp_lim);
-        { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-          if (_ni && *_ni && *_ni != '0')
+        { if (wpf_pts_ni_diag_on())
               fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
         return WPF_PTS_ERR_NOT_IMPLEMENTED;
     }
@@ -6189,8 +6181,7 @@ int WpfLinuxWin32_PtsParaChainFeed(const void *parah, int page_id, int cp_first,
             if (!g_pts_pc[slot]) {
                 g_pts_pc_gap++;
                 fprintf(stderr, "[PARACHAIN] rx=REJECT reason=alloc-failed parah=%p out=UNWRITTEN\n", parah);
-                { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-                  if (_ni && *_ni && *_ni != '0')
+                { if (wpf_pts_ni_diag_on())
                       fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
                 return WPF_PTS_ERR_NOT_IMPLEMENTED;
             }
@@ -6485,8 +6476,7 @@ int WpfLinuxWin32_PtsLsSessFeed(const void *ploc, const void *para)
         g_pts_lss_gap++;
         fprintf(stderr, "[LSSESS] rx=REJECT reason=%s ploc=%p para=%p out=UNWRITTEN bytes=0\n",
                 reason, ploc, para);
-        { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-          if (_ni && *_ni && *_ni != '0')
+        { if (wpf_pts_ni_diag_on())
               fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
         return WPF_PTS_ERR_NOT_IMPLEMENTED;
     }
@@ -6505,8 +6495,7 @@ int WpfLinuxWin32_PtsLsSessFeed(const void *ploc, const void *para)
                 g_pts_lss_gap++;
                 fprintf(stderr, "[LSSESS] rx=REJECT reason=alloc-failed ploc=%p para=%p out=UNWRITTEN bytes=0\n",
                         ploc, para);
-                { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-                  if (_ni && *_ni && *_ni != '0')
+                { if (wpf_pts_ni_diag_on())
                       fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
                 return WPF_PTS_ERR_NOT_IMPLEMENTED;
             }
@@ -7573,8 +7562,7 @@ int FsQueryPageDetails(void *pfscontext, void *pPage, void *pPageDetails)
     g_pts_fsp_qpd_gap++;
     fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=FsQueryPageDetails ctx=%p page=%p qpd_ok=%d qpd_gap=%d\n",
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason, pfscontext, pPage, g_pts_fsp_qpd_ok, g_pts_fsp_qpd_gap);
-    { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-      if (_ni && *_ni && *_ni != '0')
+    { if (wpf_pts_ni_diag_on())
           fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
@@ -7636,8 +7624,7 @@ int FsDestroyPage(void *pfscontext, void *pfspage)
                     "retired=%d\n",
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason, pfscontext, pfspage, g_pts_fsp_des_ok, g_pts_fsp_des_gap,
             g_pts_fsp_retired_n);
-    { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-      if (_ni && *_ni && *_ni != '0')
+    { if (wpf_pts_ni_diag_on())
           fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
@@ -7715,8 +7702,7 @@ int FsClearUpdateInfoInPage(void *pfscontext, void *pfspage)
                     "clr_ok=%d clr_gap=%d\n",
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason, pfscontext, pfspage,
             g_pts_fsp_clr_ok, g_pts_fsp_clr_gap);
-    { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-      if (_ni && *_ni && *_ni != '0')
+    { if (wpf_pts_ni_diag_on())
           fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
@@ -7792,8 +7778,7 @@ int FsUpdateBottomlessPage(void *pfscontext, void *pfspage, const void *fsnmsect
                     "upd_ok=%d upd_gap=%d\n",
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason, pfscontext, pfspage, fsnmsect,
             g_pts_fsp_upd_ok, g_pts_fsp_upd_gap);
-    { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-      if (_ni && *_ni && *_ni != '0')
+    { if (wpf_pts_ni_diag_on())
           fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
@@ -8369,8 +8354,7 @@ int FsQueryTextDetails(void *pfscontext, void *pPara, void *pTextDetails)
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason, pfscontext, pPara,
             g_pts_fsqtd_calls, g_pts_fsqtd_gap, g_pts_fsqtd_nullout, g_pts_fsqtd_nullpara,
             g_pts_fsqtd_unclaim, g_pts_fsqtd_unknown_ctx, g_pts_fsqtd_nomodel);
-    { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-      if (_ni && *_ni && *_ni != '0')
+    { if (wpf_pts_ni_diag_on())
           fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;   /* ← 无真值时改成 0 就是制造静默半通／伪成功 */
 #endif
@@ -8462,8 +8446,7 @@ static int wpf_pts_line_reject(const char *entry, const char *objkind, void *pfs
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason, entry, pfscontext, pObj, cIn,
             g_pts_fsqll_calls, g_pts_fsqll_ok, g_pts_fsqll_gap, g_pts_fsqll_nullout, g_pts_fsqll_nullobj,
             g_pts_fsqll_unclaim, g_pts_fsqll_unknownctx, g_pts_fsqll_nomodel);
-    { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-      if (_ni && *_ni && *_ni != '0')
+    { if (wpf_pts_ni_diag_on())
           fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;   /* ← 无真值时改成 0 就是制造静默半通／伪成功 */
 }
@@ -8739,8 +8722,7 @@ int FsQueryAttachedObjectList(void *pfscontext, void *pPara, int cAttachedObject
                     "ok=%d gap=%d out=UNWRITTEN bytes=0\n",
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason ? reason : "unknown", pfscontext, pPara, cAttachedObject,
             g_pts_att_list_ok, g_pts_att_list_gap);
-    { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-      if (_ni && *_ni && *_ni != '0')
+    { if (wpf_pts_ni_diag_on())
           fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
@@ -8822,8 +8804,7 @@ int FsCreateSubpageFinite(void *pfscontext, void *pBRSubPageStart, int fFromPrev
     g_pts_sp_gap++;
     fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=FsCreateSubpageFinite ctx=%p seg=%p ok=%d gap=%d\n",
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason ? reason : "unknown", pfscontext, nSeg, g_pts_sp_ok, g_pts_sp_gap);
-    { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-      if (_ni && *_ni && *_ni != '0')
+    { if (wpf_pts_ni_diag_on())
           fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
@@ -8833,8 +8814,7 @@ int FsDestroySubpage(void *pfscontext, void *pSubPage)
     (void)pfscontext;
     struct wpf_pts_subpage_s *s = NULL;
     if (pSubPage && wpf_pts_sp_claim_track(pSubPage, &s)) { wpf_pts_sp_destroy(s); return 0; }
-    { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-      if (_ni && *_ni && *_ni != '0')
+    { if (wpf_pts_ni_diag_on())
           fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
@@ -8863,8 +8843,7 @@ int FsClearUpdateInfoInSubpage(void *pfscontext, void *pSubpage)
                     "ok=%d gap=%d out=UNWRITTEN bytes=0\n",
             WPF_PTS_ERR_NOT_IMPLEMENTED, pSubpage ? "unknown-subpage" : "null-subpage",
             pfscontext, pSubpage, g_pts_sp_clrupd_ok, g_pts_sp_clrupd_gap);
-    { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-      if (_ni && *_ni && *_ni != '0')
+    { if (wpf_pts_ni_diag_on())
           fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
@@ -8929,8 +8908,7 @@ int FsQuerySubpageDetails(void *pfscontext, void *pSubPage, void *pSubPageDetail
                     "ok=%d gap=%d out=UNWRITTEN bytes=0\n",
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason ? reason : "unknown", pfscontext, pSubPage,
             g_pts_subpage_ok, g_pts_subpage_gap);
-    { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-      if (_ni && *_ni && *_ni != '0')
+    { if (wpf_pts_ni_diag_on())
           fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
@@ -8965,8 +8943,7 @@ int FsQueryFigureObjectDetails(void *pfscontext, void *pPara, void *pFigureDetai
                     "ok=%d gap=%d out=UNWRITTEN bytes=0\n",
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason ? reason : "unknown", pfscontext, pPara,
             g_pts_figdet_ok, g_pts_figdet_gap);
-    { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-      if (_ni && *_ni && *_ni != '0')
+    { if (wpf_pts_ni_diag_on())
           fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
@@ -8998,8 +8975,7 @@ int FsQueryFloaterDetails(void *pfscontext, void *pPara, void *pFloaterDetails)
                     "ok=%d gap=%d out=UNWRITTEN bytes=0\n",
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason ? reason : "unknown", pfscontext, pPara,
             g_pts_flodet_ok, g_pts_flodet_gap);
-    { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-      if (_ni && *_ni && *_ni != '0')
+    { if (wpf_pts_ni_diag_on())
           fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
@@ -9113,8 +9089,7 @@ int FsQueryTableObjDetails(void *pfscontext, void *pPara, void *pTableObjDetails
                     "ok=%d gap=%d out=UNWRITTEN bytes=0\n",
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason ? reason : "unknown", pfscontext, pPara,
             g_pts_tbl_query_ok, g_pts_tbl_query_gap);
-    { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-      if (_ni && *_ni && *_ni != '0')
+    { if (wpf_pts_ni_diag_on())
           fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
@@ -9142,8 +9117,7 @@ int FsQueryTableObjTableProperDetails(void *pfscontext, void *pTableProper, void
                     "ok=%d gap=%d out=UNWRITTEN bytes=0\n",
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason ? reason : "unknown", pfscontext, pTableProper,
             g_pts_tbl_query_ok, g_pts_tbl_query_gap);
-    { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-      if (_ni && *_ni && *_ni != '0')
+    { if (wpf_pts_ni_diag_on())
           fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
@@ -9183,8 +9157,7 @@ int FsQueryTableObjRowList(void *pfscontext, void *pTableProper, int cRows, void
                     "ok=%d gap=%d out=UNWRITTEN bytes=0\n",
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason ? reason : "unknown", pfscontext, pTableProper,
             g_pts_tbl_query_ok, g_pts_tbl_query_gap);
-    { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-      if (_ni && *_ni && *_ni != '0')
+    { if (wpf_pts_ni_diag_on())
           fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
@@ -9218,8 +9191,7 @@ int FsQueryTableObjRowDetails(void *pfscontext, void *pTableRow, void *pTableRow
                     "ok=%d gap=%d out=UNWRITTEN bytes=0\n",
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason ? reason : "unknown", pfscontext, pTableRow,
             g_pts_tbl_query_ok, g_pts_tbl_query_gap);
-    { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-      if (_ni && *_ni && *_ni != '0')
+    { if (wpf_pts_ni_diag_on())
           fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
@@ -9264,8 +9236,7 @@ int FsQueryTableObjCellList(void *pfscontext, void *pTableRow, int cCells, void 
                     "ok=%d gap=%d out=UNWRITTEN bytes=0\n",
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason ? reason : "unknown", pfscontext, pTableRow,
             g_pts_tbl_query_ok, g_pts_tbl_query_gap);
-    { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-      if (_ni && *_ni && *_ni != '0')
+    { if (wpf_pts_ni_diag_on())
           fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
@@ -9367,8 +9338,7 @@ int FsQueryTrackDetails(void *pfscontext, void *pTrack, void *pTrackDetails)
     g_pts_fsp_trk_gap++;
     fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=FsQueryTrackDetails ctx=%p track=%p ok=%d gap=%d\n",
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason, pfscontext, pTrack, g_pts_fsp_trk_ok, g_pts_fsp_trk_gap);
-    { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-      if (_ni && *_ni && *_ni != '0')
+    { if (wpf_pts_ni_diag_on())
           fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
@@ -9422,8 +9392,7 @@ int FsCreatePageFinite(void *pfscontext, void *pfsBRPageStart, const void *fsnmS
     g_pts_fsp_fin_gap++;
     fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=FsCreatePageFinite ctx=%p ok=%d gap=%d\n",
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason, pfscontext, g_pts_fsp_fin_ok, g_pts_fsp_fin_gap);
-    { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-      if (_ni && *_ni && *_ni != '0')
+    { if (wpf_pts_ni_diag_on())
           fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
@@ -9957,8 +9926,7 @@ int FsQueryTrackParaList(void *pfscontext, void *pTrack, int cParas, void *rgPar
                 wpf_pts_track_owned(pTrack), g_pts_fsp_pl_ok, g_pts_fsp_pl_gap,
                 (unsigned long)pthread_self(), dptid ? dptid->win_tid : 0ul);
     }
-    { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-      if (_ni && *_ni && *_ni != '0')
+    { if (wpf_pts_ni_diag_on())
           fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;                  /* ← 本步**永不**返 0（返 0 ＝ 假成功） */
 }
@@ -10116,8 +10084,7 @@ int FsQuerySubtrackDetails(void *pfscontext, void *pSubTrack, void *pSubTrackDet
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason, pfscontext, pSubTrack,
             g_pts_fsqstd_calls, g_pts_fsqstd_ok, g_pts_fsqstd_gap,
             g_pts_fsqstd_null, g_pts_fsqstd_unclaim, g_pts_fsqstd_unformatted, g_pts_fsqstd_nullout);
-    { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-      if (_ni && *_ni && *_ni != '0')
+    { if (wpf_pts_ni_diag_on())
           fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;      /* ← 无真值时改成 0 就是制造静默半通／伪成功（判据 §4-D2） */
 }
@@ -10388,8 +10355,7 @@ int FsQuerySubtrackParaList(void *pfscontext, void *pSubTrack, int cParas,
                     "calls=%d ok=%d gap=%d out=UNWRITTEN\n",
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason, pfscontext, pSubTrack, cParas,
             g_pts_fsqspl_calls, g_pts_fsqspl_ok, g_pts_fsqspl_gap);
-    { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-      if (_ni && *_ni && *_ni != '0')
+    { if (wpf_pts_ni_diag_on())
           fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;      /* ← 无真值时改成 0 就是伪成功 */
 }
@@ -10677,8 +10643,7 @@ static int wpf_pts_b1_gap(const char *entry, int idx, const char *reason,
                     "out=UNWRITTEN bytes=0\n",
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason, entry, ctx, p,
             g_pts_b1_ok[idx], g_pts_b1_gap[idx]);
-    { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-      if (_ni && *_ni && *_ni != '0')
+    { if (wpf_pts_ni_diag_on())
           fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
@@ -11091,8 +11056,7 @@ static int wpf_pts_b3_gap(const char *entry, int idx, const char *reason,
     fprintf(stderr, "[FS_PAGE_GAP] rc=%d reason=%s entry=%s ctx=%p p=%p ok=%d gap=%d out=%s\n",
             WPF_PTS_ERR_NOT_IMPLEMENTED, reason, entry, ctx, p,
             g_pts_b3_ok[idx], g_pts_b3_gap[idx], outstate);
-    { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-      if (_ni && *_ni && *_ni != '0')
+    { if (wpf_pts_ni_diag_on())
           fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
     return WPF_PTS_ERR_NOT_IMPLEMENTED;
 }
@@ -12038,8 +12002,7 @@ int WpfLinuxWin32_PtsLineBreakFeed(const void *parah)
     if (reason) {
         g_pts_lb_gap++;
         fprintf(stderr, "[LINEBREAK] rx=REJECT reason=%s parah=%p out=UNWRITTEN bytes=0\n", reason, parah);
-        { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-          if (_ni && *_ni && *_ni != '0')
+        { if (wpf_pts_ni_diag_on())
               fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
         return WPF_PTS_ERR_NOT_IMPLEMENTED;
     }
@@ -12064,8 +12027,7 @@ int WpfLinuxWin32_PtsLineBreakFeed(const void *parah)
         fprintf(stderr, "[LINEBREAK] rx=REJECT reason=%s parah=%p n_brk=%d n_hard=%d mono=%d first=%d cover=%d "
                         "out=UNWRITTEN bytes=0\n",
                 reason, parah, n_brk, n_hard, mono, first_ok, cover_ok);
-        { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-          if (_ni && *_ni && *_ni != '0')
+        { if (wpf_pts_ni_diag_on())
               fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
         return WPF_PTS_ERR_NOT_IMPLEMENTED;
     }
@@ -12079,8 +12041,7 @@ int WpfLinuxWin32_PtsLineBreakFeed(const void *parah)
             if (!g_pts_lb[slot]) {
                 g_pts_lb_gap++;
                 fprintf(stderr, "[LINEBREAK] rx=REJECT reason=alloc-failed parah=%p out=UNWRITTEN bytes=0\n", parah);
-                { const char *_ni = getenv("WPF_PTS_NI_DIAG");
-                  if (_ni && *_ni && *_ni != '0')
+                { if (wpf_pts_ni_diag_on())
                       fprintf(stderr, "[PTS-NI] %s:%d\n", __func__, __LINE__); }
                 return WPF_PTS_ERR_NOT_IMPLEMENTED;
             }

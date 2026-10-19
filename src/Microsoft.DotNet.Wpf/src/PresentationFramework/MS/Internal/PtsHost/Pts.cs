@@ -18,6 +18,7 @@
 //
 
 
+using System;
 using System.Runtime.InteropServices;
 using System.Windows;
 using MS.Internal.Text;
@@ -53,15 +54,31 @@ namespace MS.Internal.PtsHost.UnsafeNativeMethods
                     throw new OutOfMemoryException();
 
                 case fserrCallbackException:
+                    // 【D-G206 栈侧补丁 · 2】实测探针里的失败码 -100002 走的就是这条分支
+                    //   （只改 `default:` 覆盖面不够：`[PTS-DEGRADED]` 一次都没打印就是证据）。
+                    //   同样 **env 门控、默认关**：不设 `WPF_PTS_DEGRADE=1` 时与上游逐字一致。
+                    //   ⚠️ 降级路径里**必须**保留上游的清理动作 `ptsContext.CallbackException = null`
+                    //   （否则下一次会重复拿到同一个异常、并泄漏引用），然后再 return。
                     Debug.Assert(ptsContext != null, "Null argument 'ptsContext' - required for return value validation.");
                     if (ptsContext != null)
                     {
+                        if (WpfLinuxPtsDegradeEnabled)
+                        {
+                            NotePtsDegraded(fserr);
+                            ptsContext.CallbackException = null;   // 保留上游的清理语义
+                            return;                                 // 降级：不抛
+                        }
                         SecondaryException se = new SecondaryException(ptsContext.CallbackException);
                         ptsContext.CallbackException = null;
                         throw se;
                     }
                     else
                     {
+                        if (WpfLinuxPtsDegradeEnabled)
+                        {
+                            NotePtsDegraded(fserr);
+                            return;
+                        }
                         throw new Exception(SR.Format(SR.PTSError, fserr));
                     }
 
@@ -70,7 +87,57 @@ namespace MS.Internal.PtsHost.UnsafeNativeMethods
                     throw new PtsException(SR.Format(SR.FormatRestrictionsExceeded, fserr));
 
                 default:
+                    // ══ 【WpfLinux 栈侧补丁 · D-G206】env 门控的**分页降级**（默认关）══
+                    // 为什么在这里改：本栈没有完整 PTS（分页排版引擎，`win32_pts.c` 里 72 处
+                    //   `WPF_PTS_ERR_NOT_IMPLEMENTED`、入口表 24 条）⇒ 分页过程中 `Validate(...)`
+                    //   会收到 `-10000`(tserrNotImplemented)/`-100002`/`-9999` 等失败码。
+                    //   而这个 `Error()` 是**唯一集中**的抛出点（`PtsPage` 17 处调用、
+                    //   `PtsHelper`/`FlowDocumentPage`/`FigureParaClient` 各处都经过它）
+                    //   ⇒ 只在此处降级即可覆盖全部调用面；逐个调用点 try/catch 覆盖不全。
+                    // 开关：`WPF_PTS_DEGRADE=1` 才降级；**不设时行为与上游逐字一致**（照旧抛）。
+                    // 降级后：置静态标志（供 PtsPage 共用、日志去重）、每进程只打一行日志、**不抛**。
+                    //   `OutOfMemoryException`/`CallbackException`/`FormatRestrictionsExceeded`
+                    //   三个分支**不受本开关影响**（照旧抛）。
+                    // ⚠️ 本文件是**上游整树源码**（不在 `reapply-patches.py` 的生成清单内）
+                    //   ⇒ 上游升级时**必须重新打这个补丁**（用 `WPF_PTS_DEGRADE` 搜索即可找到）。
+                    if (WpfLinuxPtsDegradeEnabled)
+                    {
+                        NotePtsDegraded(fserr);
+                        return;   // 降级：不抛，让调用方按"已拿到结果"继续（内容可能不完整）
+                    }
                     throw new PtsException(SR.Format(SR.PTSError, fserr));
+            }
+        }
+
+        // ── 【WpfLinux 栈侧补丁 · D-G206】降级状态与日志（与 PtsPage 共用去重标志）──
+        // 供 `PtsPage.Linux.cs` 的第一层兜底复用：两处**共用** `WpfLinuxPtsDegradeLogged`，
+        // 保证每进程只出现一行 `[PTS-DEGRADED]`（不刷屏）。
+        internal static bool WpfLinuxPtsDegraded;
+        internal static bool WpfLinuxPtsDegradeLogged;
+
+        private static int s_wpfLinuxPtsDegrade = -1;   // -1=未读环境；0=关（默认）；1=开
+
+        internal static bool WpfLinuxPtsDegradeEnabled
+        {
+            get
+            {
+                if (s_wpfLinuxPtsDegrade < 0)
+                {
+                    string v = Environment.GetEnvironmentVariable("WPF_PTS_DEGRADE");
+                    s_wpfLinuxPtsDegrade = (v == "1") ? 1 : 0;
+                }
+                return s_wpfLinuxPtsDegrade == 1;
+            }
+        }
+
+        private static void NotePtsDegraded(int fserr)
+        {
+            WpfLinuxPtsDegraded = true;
+            if (!WpfLinuxPtsDegradeLogged)
+            {
+                WpfLinuxPtsDegradeLogged = true;
+                Console.Error.WriteLine(
+                    "[PTS-DEGRADED] 分页引擎不可用（本栈无完整 PTS），已降级为不完整排版；首个失败码=" + fserr);
             }
         }
         internal static void ValidateAndTrace(int fserr, PtsContext ptsContext)
