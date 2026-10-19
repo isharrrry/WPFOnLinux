@@ -4176,3 +4176,101 @@ SELFDESC_WIRING=FAIL examined=1 wired=1 unwired=0 undeclared=0 fails=1 run_step=
   节点类型，补上该视觉实际用到的类型。
 - **判据**：`colors` 明显高于基线 **56**、**封面内容可见**（截图 ＋ 封面区域非背景像素数）、`EXIT=0`（无 SIGBUS/SIGILL）、
   L1 红三角探针 `M3D_GEOM`/`M3D_COLOR` 回归 PASS、`CoverView`/`TabControl`/`Rating` 无新异常。
+
+
+---
+
+## 改判与新增（第 89 轮 · 动画卡顿根治后的复查）
+
+> 本节**不改写历史条目**，只对下列编号给出**改判/补充说明**，并新增 `D-G213`。
+
+### `D-G211` 鼠标输入交付缺陷 —— **改判：不成立**
+
+**决定性证据**（用户真实桌面，两条对照命令）：
+
+```
+HC_NO_ANIM=1（不加载动图） → [E3-REPLAY] click=1..7  deliver=1..7     ← 7/7 全部交付
+HC_NO_ANIM=0（动图启用）   → 一条 E3-REPLAY 都没有，连 [X11EV] type=4(ButtonPress) 都不出现
+```
+
+⇒ 真实根因是**动图每帧整窗重绘把 UI 线程占满**（见新增 `D-G213`），**不是输入链路缺陷**。
+
+**当时的误判来源（自行更正）**：
+1. 读数开关写错 —— 我一直在用 `WPF_WIN32_MSG_TRACE`，而那次实际开的是 `WPF_LINUX_KEY_DIAG`，
+   正确名是 `WPF_LINUX_MSGFLOW_TRACE`；把"工具没启用"当成了"消息没产出"；
+2. 只 grep 了客户区一个消息名（`WM_LBUTTONDOWN`），没查 `WM_NCLBUTTON*`，也未查"消息是否到队"这一层。
+
+**保留的有价值产出**：`WPF_X11_EV_TRACE=1`（X 事件级 trace）与 `WPF_X11_GRAB_PROBE=1`（指针抓取探测，
+自测阳性/阴性均正确）**都是好工具**，后续排查输入问题仍应先用它们。
+
+### `D-G53` Popup 窗口不建不出画 —— **改判：不成立**
+
+**证据**（最小探针，源码已入库 `hc-linux/port/popup-probe-Program.cs`）：
+`Popup{ Placement=Center, Child=黄绿 Border(4px 边框) + TextBlock, IsOpen=true }`，宿主窗口 500×400：
+
+```
+窗口总数 6，其中 0x200006 = 208x125   ← = Border 200x120 + 4px 边框，正是 Popup 自己的窗口
+POPUP=OPEN-REQUESTED IsOpen=True ／ POPUP=TICK IsOpen=True childVis=True
+截图 colors=255、lime=1（含绿色像素）  ← 内容真的画出来了
+```
+
+⇒ **Popup 在自产栈上能创建窗口、能渲染内容**。
+
+**当时"点菜单没反应"的真实原因**：**服务器坐标算错** —— 窗口位置在不同会话里会在 `+240+212` 与 `+0+0`
+之间变化（有无窗口管理器不同），我没有每次重新定位就点，点在了菜单项之外。
+
+### `D-G209` 自产栈不执行低优先级 Dispatcher op —— **补充根因说明（状态仍为"未修"）**
+
+**追加**：当窗口存在**持续动画**时（例如 `GifImage` 20fps），每次 `InvalidateVisual` 都会触发**整窗 Skia 重绘**
+（修前单帧 151~220ms）⇒ UI 线程长期被渲染占满 ⇒ **低优先级 Dispatcher op 永远轮不到**。
+该现象与新增的 `D-G213` **同源**。
+⇒ `D-G213` 修复（局部帧降到 ~17ms、UI 占用 ~33%）之后，**本现象是否仍然存在需要重新测量**（目前**未复测**），
+因此本条保持"未修"，但根因方向已明确。
+
+### `D-G213` 持续动画导致整窗重绘、UI 线程被占满（点击/悬停全冻结、`Ctrl+C` 后窗体滞留）
+
+**产品缺陷 · 栈侧 · 已修**
+
+- **现象**（用户真实桌面）：动图一启用，"所有点击包括鼠标滑动列表样式变化都没了，除了图在动什么都不变"；
+  `Ctrl+C` 之后窗体很久才销毁（退出消息也排在渲染后面）。
+- **根因链**：
+  `HandyControl_Shared/Controls/Image/GifImage.cs:413` `ImageAnimator.Animate(this, OnFrameChanged)`
+  → 每帧 `OnFrameChanged`（`UpdateFrames + Freeze + GetBitmapSource(锁 GDI+ 位图) + InvalidateVisual`）
+  → 栈侧 `WpfGfx/Rendering/SkiaRenderBackend.cs` 的 `RenderVisualTree(root, …)` **从 root 整树重画**
+    ＋ `canvas.Clear` 清整窗
+  ⇒ 每帧一次"整窗 Skia CPU 光栅"（修前 **151~220ms/帧**）。
+- **逐层修复与读数**（同一 demo、动图页稳定态、`HC_GIF_FPS=0` 不节流、GIF 保持上游 20fps）：
+
+  | 阶段 | 局部帧 `render_ms` | UI 占用（20fps 预算 50ms/帧） |
+  |---|---|---|
+  | 原始（整窗重画） | 151~220 | 300~440% |
+  | ① 脏区裁剪（`de4838abc`） | ~70 | 140% |
+  | ② ＋ 空壳节点快速返回（`db2a68f46`） | ~57 | 114%（仍超载） |
+  | ③ ＋ **脏区外子树整体跳过**（`643de8406`） | **15.8~19.8（中位 ~17）** | **~33%** |
+
+- **关键定位**（耗时分解，`WPFGFX_DIRTY_DIAG=1`）：`raster` 占 95%，其中真正的绘制指令只有 **~11.8ms**；
+  单帧 `RenderVisual` 被调用 **23600 次**、`SetMatrix` 23600 次，而**绘制指令仅 226 条**
+  ⇒ 大头是"**遍历整树 ＋ 每节点 canvas 操作**"，**与脏区面积无关**
+  ⇒ 所以只做脏区不够（脏区只减"绘制面积"，没减"遍历"），必须做**子树级剔除**。
+- **修法要点**（全在 `SkiaRenderBackend.cs`）：
+  `GetSubtreeBounds(v)` = 自身指令 `Rect` 的并集 ∪ 各子节点 bounds 经 `(Transform, Offset)` 变换后的并集，
+  按 `SrcPaintStamp` 缓存（`Dictionary`，**零新对象分配**）；包围盒**外扩 8px** 覆盖描边；
+  用 `deviceBase·world` 映射到设备空间，与本帧脏区 `IntersectsWith` 不相交 ⇒ **整棵子树直接 return**；
+  **保守条件**：带 `Effect`/`Viewport3D`/`AlphaMask` 的节点**不参与剔除**（阴影外扩、3D 投影、遮罩可见范围
+  可能超出内容矩形）；**整窗帧（无脏区）完全走旧路径**，行为与旧版逐字一致。
+- **正确性**：8 页抽样全 PASS、`exceptions=0`；`CoverView=97737` 与优化前**逐值一致**（硬判据）。
+  其余：`GifImage 158 / CoverFlow 56 / FlipClock 256 / TabControl 244 / BrushDemo 1028 / ImageBlock 92 /
+  AnimationPath 288`。
+- **同批的否定结论（避免后人重走）**：
+  1. **矩阵缓存（减少 `SetMatrix`）无效**：`RestoreToCount` 会把画布矩阵恢复成父节点的，且各容器 `Offset` 不同
+     ⇒ 每个兄弟节点开头必然重设矩阵，命中率极低（实测 58.3ms vs 基线 57ms）；
+  2. **`PushLayer` 传 bounds 不做**：51 次 `SaveLayer` 合计仅 4~7ms，已非瓶颈，且传 bounds 会让阴影/描边被裁（正确性风险）；
+  3. **异步渲染线程未达成、已撤回**：接线后 SIGBUS（窗口 0、全黑；候选根因＝`SKSurface` 跨线程析构、
+     `MilVisual.Content` 里共享的 `MilRenderData`/画刷被 GIF 每帧原地改写、`GlyphRenderer`/`MilBitmapSourceTable`
+     的 UI 线程状态、快照只复制引用未深拷贝）。**代码保留但默认不启用**（须显式 `WPFGFX_ASYNC_RENDER=1`），
+     原则：不能交付比原状态更差的默认行为。
+- **用户可用开关**：`WPFGFX_DIRTY_OFF=1`（回整窗重画）、`WPFGFX_DIRTY_DIAG=1`（每帧 `[DIRTY]`：路径/矩形/
+  面积/耗时/最近写入类型）、`HC_GIF_FPS=N`（动图重绘节流；**优化到位后建议设 0 恢复上游 20fps**）、
+  `HC_NO_ANIM=1`（完全不加载动图，用于病因对照）。
+- **遗留（不夸大）**：未跑全量 106 页（进行中）；**启动较慢**（用户反馈，尚未定位）；几何类动画（移动/缩放）
+  与描边/`Effect`/`AlphaMask` 仍走整窗。
