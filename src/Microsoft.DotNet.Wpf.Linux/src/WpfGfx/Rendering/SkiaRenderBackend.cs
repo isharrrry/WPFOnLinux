@@ -256,6 +256,17 @@ namespace WpfGfx.Linux.Rendering
         {
             if (v == null || depth > MaxDepth) return;
 
+            // 【性能】空壳节点直接返回：无内容、无子节点、无 3D 视口、无裁剪/效果/遮罩的视觉对画面
+            //   没有任何贡献，却会走完备的 `Save + SetMatrix + Clip + RestoreToCount`。
+            //   实测该页单帧 `SkiaRenderBackend.RenderVisual` 被调用 **23600 次**，而绘制指令只有 226 条
+            //   （`exec_total` 仅 10~14ms，`render` 却 60~77ms）⇒ 绝大部分时间花在这类空壳的
+            //   canvas 书上。这是"脏区已缩到 27% 面积、单帧仍要 70ms"的主因：面积小了，节点数没少。
+            if (!v.Viewport3D.HasValue && !v.Clip.HasValue && !v.Effect.HasValue
+                && v.AlphaMask.IsNull && v.Content == null && v.Children.Count == 0)
+            {
+                return;
+            }
+
             SKMatrix world = SKMatrix.Concat(
                 SKMatrix.Concat(parentWorld, v.Transform),
                 SKMatrix.CreateTranslation(v.Offset.X, v.Offset.Y));
