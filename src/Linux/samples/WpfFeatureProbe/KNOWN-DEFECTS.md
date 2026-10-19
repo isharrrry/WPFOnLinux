@@ -4385,3 +4385,42 @@ MS.Internal.PtsHost.UnsafeNativeMethods.PTS+PtsException:
 - **补救方向（若将来真需要）**：不做完整 PTS，而是**为 `FlowDocument` 提供"非分页"实现**
   （用现有的 `SimpleTextLine`/托管文本排版能力做 ScrollViewer 形态，`FlowDocumentPageViewer`/`Reader` 直接不提供），
   即"**诚实缺口 + 明确报错**"，而不是假装支持。**禁止**吞异常凑绿。
+
+
+## 复核定论：`D-G205` **当前不可复现**（改判）＋ `D-G206` 按"路径"细分（父代理仲裁）
+
+### `D-G205`（读 `Exception.StackTrace` 抛 `BadImageFormatException at GetUtf8Name`）→ **改判：当前不可复现**
+独立探针（`/tmp/d205-probe/`，5 场景 × 每场景 4 种读法，各跑 3 次）**一次都没炸**：
+```
+A 纯应用代码抛                        STACKTRACE-OK len=71    （带 文件名:行号）
+B PresentationCore 内部抛（BitmapImage）  STACKTRACE-OK len=1311（12 帧全解析）
+C PresentationFramework 内部抛（XamlReader） STACKTRACE-OK len=1170（10 帧全解析）
+D FlowDocument/RichTextBox Measure+Arrange+UpdateLayout  → 不抛异常（"measured OK"/"UpdateLayout OK"）
+E **DispatcherUnhandledException 内读**（hc 的 InstallUnhandledGuard 正是这条路径）
+                                       STACKTRACE-OK len=1427；TOSTRING-OK len=2645；TARGETSITE-OK RewrapException
+```
+demo 实测也干净：窗口 1、`TabControl items=3`、`HC-UNHANDLED=0`、`stack-unreadable=0`、`BadImageFormat=0`。
+（期间两次 `SIGABRT` 已查清是 **X server 挂了**（`XIO: fatal IO error 203`），与本缺陷无关。）
+
+**逐条证伪原定性的候选方向**：
+| 候选 | 结论 | 证据 |
+|---|---|---|
+| 缺 PDB/调试信息 | **不是** | `PresentationFramework/PresentationCore/WindowsBase` 的 `pdbExists=False`，但**含它们的栈帧照样解析出方法名** |
+| 元数据损坏/裁剪 | **不是** | `MS.Internal.*`/`System.Windows.Media.Imaging.*` 的方法名与声明类型都能取到 |
+| 只在未处理异常处理器内炸 | **不是** | 场景 E 正是该路径，正常 |
+| 符号路径/模块枚举被阻断 | **不是** | `Process.Modules` 可枚举（33 个）、`asm.Location` 可达 |
+⇒ **原定性"属 .NET 运行时层、不可控"也是错的** —— 不是"改不了"，而是"**现在根本不发生**"。
+  时间线查不出是哪次改动顺带修的（hc 止血 `5949b430` 之后，栈侧只有闪屏定时器、文本折叠兜底等提交，
+  **没有** PDB/`DebugType`/StackTrace 相关改动）。
+⇒ **hc 侧的 try/catch（`5949b430`）保留**：防御性、无害，能兜住未来任何形态的"读栈失败"。
+
+### `D-G206` 按"路径"细分（父代理仲裁，澄清两路看似矛盾的读数）
+两路探针结论曾看似矛盾，实测是**两条不同路径**：
+```
+d205-probe：FlowDocument + RichTextBox 的 Measure/Arrange/UpdateLayout  → EXIT=0 ✅ 不抛
+d206-probe：FlowDocumentPageViewer / Show() / DocumentPaginator.GetPage → EXIT=134 ❌ 崩
+            （日志： [NMP-TYPE] slot=GetFirstPara fserr=-100002 … ）
+```
+⇒ **不触发分页的路径可用**（Measure/Arrange/UpdateLayout）；**真正走分页的路径仍不可用**（抛/崩）。
+⇒ `D-G206` 的"不可修（需实现整个 PTS 分页引擎）"结论**不变**；但影响面应表述为：
+  **`FlowDocument` 的滚动/编辑形态可显示内容，分页形态（`PageViewer`/`Reader`/`Paginator`）不可用**。
