@@ -1,4 +1,4 @@
-// ⚠️ 手写件（**不是** `reapply-patches.py` 生成的 `*.Linux.cs`），可直接修改。
+﻿// ⚠️ 手写件（**不是** `reapply-patches.py` 生成的 `*.Linux.cs`），可直接修改。
 //
 // 目的：`D-G206` —— 本移植没有完整的 PTS（分页排版引擎），native 侧 `win32_pts.c` 大量入口如实返回
 //   `WPF_PTS_ERR_NOT_IMPLEMENTED`（`-10000` 等）。上游 `PTS.Validate()` 收到非零码就抛
@@ -28,12 +28,14 @@ namespace MS.Internal.PtsHost
         //   "Page dimensions exceed maximum allowed value of 3.579 million pixels."
         private const string PtseErrorPrefix = "Page formatting engine did not complete formatting operation";
         private const string RestrictionsPrefix = "Page dimensions exceed maximum allowed value";
+        private const string InvalidHandleMarker = "unmanaged object handle";   // PTS.InvalidHandle()
 
         private static readonly bool s_strict = ReadFlag("WPF_PTS_STRICT");
         private static readonly bool s_diag = ReadFlag("WPF_PTS_DIAG");
 
         // 一次性记账：同一个 `where` 只打一行（`WPF_PTS_DIAG=1` ⇒ 每次都打）。
         private static readonly HashSet<string> s_reported = new HashSet<string>(StringComparer.Ordinal);
+        private static readonly HashSet<string> s_unsupportedLogged = new HashSet<string>(StringComparer.Ordinal);
 
         // ── `WPF_PTS_TRAP=1`：**首次抛出**时抓完整调用栈（仅诊断；默认关） ───────────────────────
         //   为什么用 `FirstChanceException`：此时异常还没被展开，`Environment.StackTrace` 能拿到
@@ -108,8 +110,30 @@ namespace MS.Internal.PtsHost
                 return false;
             }
 
-            return m.IndexOf(PtseErrorPrefix, StringComparison.Ordinal) >= 0
-                || m.IndexOf(RestrictionsPrefix, StringComparison.Ordinal) >= 0;
+            if (m.IndexOf(PtseErrorPrefix, StringComparison.Ordinal) >= 0
+                || m.IndexOf(RestrictionsPrefix, StringComparison.Ordinal) >= 0)
+            {
+                return true;
+            }
+
+            // ── `D-G206` 第二处致命点 ──────────────────────────────────────────────
+            //  `PTS.InvalidHandle()`（由 `PTS.ValidateHandle` 调用，位于分页主链
+            //    `FsCreatePageFinite → PtsCache.InitGenericInfo → PtsHost.GetFirstPara` 上）抛的是
+            //  **普通 `Exception`**，消息为：
+            //    "No object associated with unmanaged object handle or type mismatch."
+            //  它不是 `PtsException`、也不带 `Sr.PTSError` 前缀 ⇒ 修前 `ShouldSwallow` 返回 false
+            //  ⇒ 调用方（`FlowDocumentPaginator.FormatPage`）重抛 ⇒ 该异常在
+            //  `ExceptionWrapper.InternalRealCall`（Dispatcher 回调）里 ⇒ **`Environment.FailFast` 直接 abort**。
+            //  表现：`FlowDocumentPageViewer` 建窗后 abort（纯 core dump），而 `RichTextBox`/`ScrollViewer` 正常
+            //  （后两者不走 `FormatFinite` 的这条链）。
+            //  ⇒ 这里按"PTS 缺口"处理（降级吞掉），与 `-10000` 同族：本栈没有完整 PTS，
+            //    handle 校验必然失败，属于**诚实缺口**而不是真 bug。
+            if (m.IndexOf(InvalidHandleMarker, StringComparison.Ordinal) >= 0)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -120,6 +144,13 @@ namespace MS.Internal.PtsHost
         internal static bool ShouldSwallow(Exception ex, string where)
         {
             HookTrapOnce();
+            // 【确证】证明这个判定点确实在崩溃路径上（env 门控，一次性）
+            if (Environment.GetEnvironmentVariable("WPF_PTS_CALLTRACE") == "1")
+            {
+                Console.Error.WriteLine("[PTS-CALL] ShouldSwallow where=" + (where ?? "?")
+                    + " type=" + (ex == null ? "<null>" : ex.GetType().Name)
+                    + " isGap=" + (IsPtsGap(ex) ? 1 : 0));
+            }
             if (!IsPtsGap(ex))
             {
                 return false;
@@ -142,6 +173,14 @@ namespace MS.Internal.PtsHost
                 if (!s_diag && !s_reported.Add(where ?? "?"))
                 {
                     return;
+                }
+
+                if (ex != null && ex.Message != null
+                    && ex.Message.IndexOf(InvalidHandleMarker, StringComparison.Ordinal) >= 0
+                    && s_unsupportedLogged.Add(where ?? "?"))
+                {
+                    Console.Error.WriteLine("[PTS-UNSUPPORTED] 分页查看器（FlowDocumentPageViewer/Reader）不可用："
+                        + "本栈 PTS 分页引擎未实现（handle 校验失败）；已降级、不崩溃。where=" + (where ?? "?"));
                 }
 
                 Console.Error.WriteLine("[PTS-DEGRADED] where=" + (where ?? "?")
