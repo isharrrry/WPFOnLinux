@@ -675,6 +675,30 @@ static int compute_timeout(const wpf_thread *t)
 
 BOOL GetMessageW(WPF_MSG *msg, HWND hwnd, UINT lo, UINT hi)
 {
+    // 【诊断·env 门控】`WPF_X11_GRAB_PROBE=1` ⇒ 启动约 4s 后尝试 `XGrabPointer` 一次：
+    //   - 返回 `GrabSuccess` ⇒ **没有别人持有指针抓取**（我们抢得到，随即释放）；
+    //   - 返回 `AlreadyGrabbed`（1）⇒ **别的客户端正抓着指针** ⇒ 这就能解释"鼠标能动、按钮收不到"
+    //     （抓取期间只有抓取方收按钮事件，掩码外的事件被丢弃）。
+    //   用途：用户在真实桌面（RDP）上跑一次即可判定"是不是环境/转发层在抓指针"。
+    {
+        static int s_gp_done = 0;
+        static unsigned long s_gp_t0 = 0;
+        const char *gp = getenv("WPF_X11_GRAB_PROBE");
+        if (gp && *gp && *gp != '0' && !s_gp_done) {
+            if (!s_gp_t0) s_gp_t0 = wpf_now_ms();
+            else if (wpf_now_ms() - s_gp_t0 >= 4000) {
+                s_gp_done = 1;
+                {
+                    HWND gw = g_focus_window;
+                    int r = wpf_x11_grab_probe(gw);
+                    fprintf(stderr, "[GRABPROBE] XGrabPointer=%d (%s)%s\n", r,
+                            r == 0 ? "GrabSuccess=没有人抓着" :
+                            (r == 1 ? "AlreadyGrabbed=**别的客户端正抓着指针**" : "其它错误"),
+                            "");
+                }
+            }
+        }
+    }
     // 【诊断·env 门控】`WPF_FAKE_CLICK="x,y[,delay_ms]"` ⇒ 启动约 3s 后，向**当前焦点顶层窗口**
     //   直接入队一对合成 `WM_LBUTTONDOWN`/`WM_LBUTTONUP`（用 `wpf_queue_push`，**完全绕开 X 注入**）。
     //   用途：本机 XTEST 与 XSendEvent 都注入不进这个栈（见 port/STATUS.md §32），

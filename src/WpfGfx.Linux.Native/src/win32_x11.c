@@ -2142,6 +2142,25 @@ int wpf_x11_moveresize_window(HWND hwnd, int x, int y, int w, int h)
 // 【为什么必须抓】不抓的话指针一旦移出窗口，X 就把 motion 送给别的窗口 ⇒ 拖动循环收不到
 //   后续位移（表现：拖两下就断）。抓取期间事件仍送给**同一个客户窗**（就是我们）⇒ 托管侧
 //   照常收到 WM_MOUSEMOVE/按键消息，语义不变。
+// 【诊断】探测"是否有人持有指针抓取"：尝试抓一次并立即释放，返回 XGrabPointer 的原始返回码
+//   （0=GrabSuccess、1=AlreadyGrabbed、2=GrabInvalidTime、3=GrabNotViewable、4=GrabFrozen）。
+int wpf_x11_grab_probe(HWND hwnd)
+{
+    if (!wpf_x11_ensure()) return -1;
+    int r;
+    XLOCK();
+    {
+        Window w = hwnd ? (Window)(uintptr_t)hwnd : DefaultRootWindow(g_wpf.dpy);
+        r = XGrabPointer(g_wpf.dpy, w, False,
+                         PointerMotionMask | ButtonPressMask | ButtonReleaseMask,
+                         GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+        if (r == GrabSuccess) XUngrabPointer(g_wpf.dpy, CurrentTime);
+        XFlush(g_wpf.dpy);
+    }
+    XUNLOCK();
+    return r;
+}
+
 void wpf_x11_pointer_grab(HWND hwnd, int grab)
 {
     if (!wpf_x11_ensure()) return;

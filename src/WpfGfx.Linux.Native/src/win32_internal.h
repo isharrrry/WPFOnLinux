@@ -600,6 +600,7 @@ void     wpf_x11_destroy_window(HWND hwnd);
 void     wpf_x11_map(HWND hwnd, int map);
 void     wpf_x11_move_resize(HWND hwnd, int x, int y, int w, int h);
 void     wpf_x11_set_title(HWND hwnd, const char *title);
+int      wpf_x11_grab_probe(HWND hwnd);   // 诊断：探测是否有别的客户端持有指针抓取
 
 // ── 【波 58 · 屏幕适配】顶层窗"装得下"：读数与 X 提示 ────────────────────────────
 // 【为什么需要这一组】Win32 里窗口装饰由 USER32 画在**屏幕坐标系内**（客户区 800×600
