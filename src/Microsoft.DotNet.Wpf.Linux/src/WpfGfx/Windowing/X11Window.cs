@@ -256,7 +256,14 @@ namespace WpfGfx.Linux.Windowing
         /// 把一帧图像画到窗口上。帧尺寸与窗口尺寸不一致时，只呈现两者重叠的
         /// 左上角区域（X server 自己也会裁，这里显式算清楚，避免画到窗口外）。
         /// </summary>
-        public void Present(SKImage frame)
+        public void Present(SKImage frame) => Present(frame, SKRectI.Empty);
+
+        /// <summary>
+        /// 只把 `dirty` 这块矩形 blit 到窗口上（其余像素**保持窗口里的原样**）。
+        /// `dirty` 为空 ⇒ 整帧（等价旧行为）。这是脏区重绘的第二半：
+        /// 渲染只在脏区内重画，传输也只传脏区 —— 否则"省下的光栅"会被整窗 XPutImage 吃掉。
+        /// </summary>
+        public void Present(SKImage frame, SKRectI dirty)
         {
             ThrowIfDisposed();
             if (frame == null) throw new ArgumentNullException(nameof(frame));
@@ -265,9 +272,14 @@ namespace WpfGfx.Linux.Windowing
             int height = Math.Min(frame.Height, _height);
             if (width <= 0 || height <= 0) return;
 
-            EnsureBuffers(width, height);
-            ReadFrame(frame, width, height);
-            BlitToWindow(width, height);
+            SKRectI d = dirty.IsEmpty
+                ? new SKRectI(0, 0, width, height)
+                : SKRectI.Intersect(dirty, new SKRectI(0, 0, width, height));
+            if (d.Width <= 0 || d.Height <= 0) return;
+
+            EnsureBuffers(d.Width, d.Height);
+            ReadFrame(frame, d.Width, d.Height, d.Left, d.Top);
+            BlitToWindow(d.Width, d.Height, d.Left, d.Top);
 
             X11Native.XFlush(_display.Handle);
         }
@@ -503,10 +515,10 @@ namespace WpfGfx.Linux.Windowing
         }
 
         /// <summary>SKImage → 暂存位图（RGBA8888 预乘）。</summary>
-        private void ReadFrame(SKImage frame, int width, int height)
+        private void ReadFrame(SKImage frame, int width, int height, int srcX = 0, int srcY = 0)
         {
             var info = new SKImageInfo(width, height, SKColorType.Rgba8888, SKAlphaType.Premul);
-            if (!frame.ReadPixels(info, _staging.GetPixels(), _staging.RowBytes, 0, 0))
+            if (!frame.ReadPixels(info, _staging.GetPixels(), _staging.RowBytes, srcX, srcY))
             {
                 throw new InvalidOperationException(
                     "SKImage.ReadPixels 失败，无法把帧读进 CPU 位图（帧可能来自 GPU 后端）");
@@ -514,7 +526,7 @@ namespace WpfGfx.Linux.Windowing
         }
 
         /// <summary>暂存位图 → X 像素缓冲区 → XPutImage。</summary>
-        private unsafe void BlitToWindow(int width, int height)
+        private unsafe void BlitToWindow(int width, int height, int dstX = 0, int dstY = 0)
         {
             // 窗口背景色（XCreateSimpleWindow 用的是 XWhitePixel）。
             const byte bgR = 255, bgG = 255, bgB = 255;
@@ -582,7 +594,7 @@ namespace WpfGfx.Linux.Windowing
             try
             {
                 X11Native.XPutImage(
-                    _display.Handle, Id, _gc, image, 0, 0, 0, 0, (uint)width, (uint)height);
+                    _display.Handle, Id, _gc, image, 0, 0, dstX, dstY, (uint)width, (uint)height);
             }
             finally
             {

@@ -32,6 +32,43 @@ namespace WpfGfx.Linux.Resources
         /// <summary>当前活跃句柄数（不含 Null）。</summary>
         public int Count => _entries.Count;
 
+        /// <summary>
+        /// 全局写计数：任何资源被命令写过一次就 +1（含非视觉资源：画刷/位图/变换…）。
+        /// 脏区判定用它做**安全网** —— 若"写计数前进了"但"所有视觉的版本戳都没变"，
+        /// 说明改的是我们没建模到视觉签名里的东西（例如 RenderData 内部的画刷），
+        /// 这时必须回落整窗重画，绝不能当成"没变化"（否则会留残影）。
+        /// </summary>
+        public long WriteEpoch;
+
+        /// <summary>
+        /// 最近若干次写入的**资源类型名**（环形缓冲，仅诊断用）：`WPFGFX_DIRTY_DIAG=1` 时
+        /// 跟着 `[DIRTY]` 行打出来，用来回答"这一帧到底谁被改了"（脏区判定是否漏了某类资源）。
+        /// </summary>
+        private readonly string[] _recentWrites = new string[8];
+        private int _recentWriteNext;
+        public long RecentWriteCount;
+
+        internal void NoteWrite(DUCE.ResourceType type)
+        {
+            _recentWrites[_recentWriteNext] = type.ToString();
+            _recentWriteNext = (_recentWriteNext + 1) & 7;
+            RecentWriteCount++;
+        }
+
+        internal string RecentWritesSummary()
+        {
+            if (RecentWriteCount == 0) return "-";
+            var sb = new System.Text.StringBuilder(96);
+            for (int i = 0; i < 8; i++)
+            {
+                string n = _recentWrites[(_recentWriteNext + i) & 7];
+                if (n == null) continue;
+                if (sb.Length > 0) sb.Append(' ');
+                sb.Append(n);
+            }
+            return sb.ToString();
+        }
+
         /// <summary>已分配过的句柄总数（含已释放）——用于测试句柄回收。</summary>
         public uint HighWaterMark => _nextHandle - 1;
 

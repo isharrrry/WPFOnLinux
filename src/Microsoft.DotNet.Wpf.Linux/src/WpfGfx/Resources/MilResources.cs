@@ -21,6 +21,14 @@ namespace WpfGfx.Linux.Resources
 
         /// <summary>最近一次设置该资源的命令字（调试用）。</summary>
         public MilCmd LastCommand;
+
+        /// <summary>
+        /// 资源版本：**每次有命令写这个资源就 +1**（唯一写入点 `MilCommandDispatcher.Require&lt;T&gt;`）。
+        /// 用途：脏区判定 —— 投影结果里带一份"版本戳"，两帧戳不同就说明该视觉（或其引用资源）变了，
+        /// 只需重画它的包围盒；戳全相同则说明这一帧没有任何视觉相关的写入（可以整帧跳过）。
+        /// 只是计数器，不参与任何线格布局/协议对齐。
+        /// </summary>
+        public int Version;
     }
 
     /// <summary>未知 / 暂未建模的资源类型。解码器对其只记命令字，不解释负载。</summary>

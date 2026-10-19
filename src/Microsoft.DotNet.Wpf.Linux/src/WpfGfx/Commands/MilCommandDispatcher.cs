@@ -1457,6 +1457,12 @@ namespace WpfGfx.Linux.Commands
             if (r is not T typed) return HResult.E_INVALIDARG;
 
             resource = typed;
+            // ★ 脏区判定：这条命令要写这个资源 ⇒ 版本 +1、全表写计数 +1。
+            //   放在 Require 里是因为它是**所有**"取资源再改字段"命令的唯一集中点
+            //   （184 个 case 全走它），一处改动即可覆盖全部 mutation。
+            typed.Version++;
+            ch.Resources.WriteEpoch++;
+            ch.Resources.NoteWrite(typed.Type);
             return HResult.S_OK;
         }
 

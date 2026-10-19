@@ -53,6 +53,9 @@ namespace WpfGfx.Linux.Resources
                 AlphaMask = new MilResourceHandle((uint)node.AlphaMask),
                 // 视觉级效果：同样显式搬，漏填只会静默默认（= 无效果），正是投影丢字段那一族
                 Effect = node.Effect.IsNull ? (MilResourceHandle?)null : new MilResourceHandle((uint)node.Effect),
+                // 脏区判定用：内容句柄 + 资源版本戳（漏填只会退化成"每帧都脏"，不会画错）
+                ContentHandle = node.Content.IsNull ? 0u : (uint)node.Content.Value,
+                SrcPaintStamp = VersionStamp(ch, node),
             };
 
             // 只读留痕：把"这个节点的变换是哪份资源、原始值多少"带出投影（缺省关）。
@@ -95,6 +98,40 @@ namespace WpfGfx.Linux.Resources
                                   (float)r.Rect.Right, (float)r.Rect.Bottom);
             }
             return null;
+        }
+
+        /// <summary>把本节点直接引用的几份资源的版本揉成一个戳（脏区判定用）。</summary>
+        private static long VersionStamp(MilChannel ch, MilVisualNode node)
+        {
+            static long V(MilChannel c, DUCE.ResourceHandle h)
+                => h.IsNull ? 0L : (c.Resources.Lookup(h)?.Version ?? 0);
+
+            // ⚠ 只盖"绘制"这一维：几何（offset/transform/clip/alpha 的**值**）由脏区跟踪器
+            //   直接比投影结果里的字段，比资源版本更准（同一个 transform 资源可能被多视觉共享）。
+            long s = V(ch, node.Content);
+            s = s * 31 + V(ch, node.AlphaMask);
+            s = s * 31 + V(ch, node.Effect);
+
+            // ★ 内容**内部**引用的资源也要进戳：GIF/图片那类更新改的是"RenderData 里那把画刷"
+            //   （例如 `ImageBrush.Source`），视觉节点与 RenderData 资源本身都可能不变
+            //   ⇒ 只看节点/内容句柄会**漏判**（实测：每帧都落到 `writes-but-no-visual-area` 的整窗回落）。
+            //   代价：每个有内容的视觉每帧遍历一遍指令 + 几次字典查找（相对整窗光栅可忽略）。
+            if (!node.Content.IsNull && ch.Resources.Lookup(node.Content) is MilRenderDataResource rd)
+            {
+                IMilRenderData content = rd.RenderData ??= RenderDataDecoder.Decode(rd.Data);
+                IReadOnlyList<MilDrawInstruction> ins = content?.Instructions;
+                if (ins != null)
+                {
+                    for (int i = 0; i < ins.Count; i++)
+                    {
+                        MilDrawInstruction d = ins[i];
+                        s = s * 31 + V(ch, new DUCE.ResourceHandle(d.Brush.Value));
+                        s = s * 31 + V(ch, new DUCE.ResourceHandle(d.Pen.Value));
+                        s = s * 31 + V(ch, new DUCE.ResourceHandle(d.Geometry.Value));
+                    }
+                }
+            }
+            return s;
         }
 
         private static IMilRenderData ResolveContent(MilChannel ch, DUCE.ResourceHandle content)

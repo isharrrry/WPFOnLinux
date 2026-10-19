@@ -89,6 +89,13 @@ namespace WpfGfx.Linux.Windowing
             _window.Present(frame);
         }
 
+        /// <summary>只呈现脏矩形（其余像素保留窗口原样）—— 脏区重绘的第二半。</summary>
+        public void Present(SKImage frame, SKRectI dirty)
+        {
+            ThrowIfDisposed();
+            _window.Present(frame, dirty);
+        }
+
         /// <summary>
         /// 为**本呈现连接**订阅 Expose / 结构事件（M7c 轨道 C）。
         ///

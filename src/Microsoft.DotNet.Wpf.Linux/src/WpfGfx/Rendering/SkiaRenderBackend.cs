@@ -122,6 +122,7 @@ namespace WpfGfx.Linux.Rendering
         /// 做不到就返回 null（`CreateVisualFill` 会记为"未画出"，不猜尺寸、不画半张）。
         /// </summary>
         private static int _visResSeen;
+        private static int _visResSeen2;
 
         private SKImage ResolveVisualImage(MilResourceHandle handle)
         {
@@ -131,6 +132,15 @@ namespace WpfGfx.Linux.Rendering
             if (visual == null) return null;
 
             SKRect bounds = VisualBrushSource.ContentBounds(_provider, visual);
+            if (Environment.GetEnvironmentVariable("WPFGFX_M3D_DIAG") == "1" && _visResSeen2 < 8)
+            {
+                _visResSeen2++;
+                int _instr = 0, _kids = visual.Children.Count;
+                if (visual.Content is IMilRenderData _rd) _instr = _rd.Instructions.Count;
+                string _l = $"[M3D-CT] vis=0x{handle.Value:x} content={(visual.Content == null ? "NULL" : $"instr={_instr}")} children={_kids} bounds=({bounds.Width:F1}x{bounds.Height:F1})";
+                Console.Error.WriteLine(_l);
+                try { System.IO.File.AppendAllText("/tmp/m3d-ct.log", _l + "\n"); } catch { }
+            }
 
             // 空包围盒 = 没有可计量的内容（含"只有字形"的情形，见 VisualBrushSource 文件头）。
             // 此时**诚实失败**：猜一个尺寸会画出一张错比例的图，比不画更难查。
@@ -184,6 +194,17 @@ namespace WpfGfx.Linux.Rendering
         }
 
         public void RenderVisualTree(MilVisual root, SKCanvas canvas, RenderContext ctx)
+            => RenderVisualTree(root, canvas, ctx, null);
+
+        /// <summary>
+        /// 带**脏区裁剪**的渲染。`dirtyClip == null` ⇒ 与旧行为逐字一致（整窗 clear + 整树画）。
+        /// `dirtyClip` 有值 ⇒ 只清、只画该矩形内的像素，矩形外**保留上一帧**（调用方保证 surface 是持久的）。
+        /// <para>
+        /// ⚠ 为什么不是 `canvas.Clear(...)` + `ClipRect`：Skia 的 `Clear` **忽略裁剪**，它填满整张
+        /// surface。要"只清脏区"必须用 `DrawRect(..., SKBlendMode.Src)`（Src = 直接覆盖，语义等价于 clear）。
+        /// </para>
+        /// </summary>
+        public void RenderVisualTree(MilVisual root, SKCanvas canvas, RenderContext ctx, SKRectI? dirtyClip)
         {
             if (canvas == null) throw new ArgumentNullException(nameof(canvas));
             ctx ??= new RenderContext();
@@ -191,7 +212,18 @@ namespace WpfGfx.Linux.Rendering
             Diagnostics.Reset();
             GlyphRunCensus.FrameBegin();      // 只读普查（缺省关，见 GlyphRunCensus 注释）
             DrawInstructionCensus.FrameBegin();
-            canvas.Clear(ctx.ClearColor);
+            if (dirtyClip is { } clipRect)
+            {
+                canvas.Save();
+                canvas.ClipRect(new SKRect(clipRect.Left, clipRect.Top, clipRect.Right, clipRect.Bottom),
+                                SKClipOperation.Intersect, antialias: false);
+                using var clearPaint = new SKPaint { Color = ctx.ClearColor, BlendMode = SKBlendMode.Src };
+                canvas.DrawRect(new SKRect(clipRect.Left, clipRect.Top, clipRect.Right, clipRect.Bottom), clearPaint);
+            }
+            else
+            {
+                canvas.Clear(ctx.ClearColor);
+            }
             _dirty = false;
 
             _frameContext = ctx;
@@ -206,6 +238,8 @@ namespace WpfGfx.Linux.Rendering
                 deviceBase = SKMatrix.Concat(deviceBase, SKMatrix.CreateScale(dpiScale, dpiScale));
 
             RenderVisual(root, SKMatrix.Identity, 1.0, canvas, ctx, deviceBase, 0);
+
+            if (dirtyClip != null) canvas.Restore();
 
             GlyphRunCensus.FrameEnd();
             DrawInstructionCensus.ReferenceCheck(_provider);

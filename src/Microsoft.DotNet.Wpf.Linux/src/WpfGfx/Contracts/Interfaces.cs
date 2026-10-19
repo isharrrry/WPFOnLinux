@@ -71,6 +71,21 @@ internal sealed class MilVisual
 
     public List<MilVisual> Children { get; } = new();
 
+    /// <summary>内容资源句柄（投影时记录；脏区判定用。0 = 无内容）。</summary>
+    public uint ContentHandle { get; init; }
+
+    /// <summary>
+    /// 投影时刻的**绘制维**版本戳：内容资源 + 内容指令里引用的画刷/画笔/几何 + 遮罩/效果
+    /// 的 `MilResource.Version` 加权和。
+    /// <para>
+    /// 脏区判定把它与**几何维**（offset/transform/clip/alpha 这些投影后的**值**）分开比较：
+    /// 只有绘制维变（例如 GIF 换了 `ImageBrush.Source`）⇒ 几何没动 ⇒ 只需重画该视觉自己的
+    /// 包围盒；几何维一变（位移/缩放/裁剪）⇒ 保守整窗（避免旧位置残影与新位置被裁）。
+    /// </para>
+    /// ⚠ 只是比较用的数值，不参与任何协议/线格对齐。
+    /// </summary>
+    public long SrcPaintStamp { get; init; }
+
     /// <summary>累积的世界矩阵（父矩阵 × 本地变换 × 偏移）。由渲染层在遍历时计算。</summary>
     public SKMatrix WorldTransform { get; set; } = SKMatrix.Identity;
 
@@ -159,6 +174,9 @@ internal sealed class MilDrawInstruction
 internal interface IRenderBackend
 {
     void RenderVisualTree(MilVisual root, SKCanvas canvas, RenderContext ctx);
+
+    /// <summary>脏区裁剪版：`dirtyClip` 有值时只清/只画该矩形内的像素（矩形外保留上一帧）。</summary>
+    void RenderVisualTree(MilVisual root, SKCanvas canvas, RenderContext ctx, SKRectI? dirtyClip);
     void Invalidate();
 }
 

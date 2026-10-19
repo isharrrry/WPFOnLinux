@@ -707,6 +707,9 @@ namespace WpfGfx.Linux.Interop
                         lock (_gate) _channelByHwnd.TryGetValue(hwnd, out ch);
                         if (ch == null) continue;
                         if (!done.Add(ch)) continue;
+                        // Expose/Resize 触发的是"窗口需要整窗重建"（可能刚被遮挡/尺寸变了），
+                        // 与"内容脏区"是两回事 ⇒ 必须强制整窗重画，否则脏区路径会以为没事可做。
+                        InvalidateWindow(hwnd);
                         PresentChannel(ch);
                     }
                 }
@@ -729,6 +732,7 @@ namespace WpfGfx.Linux.Interop
                 _lastXSize.Remove(hwnd);
                 if (removed)
                 {
+                    ReleaseWindowSurface(hwnd);
                     // 只释放我们的 GC —— X11Window.Wrap 建的目标**不拥有**窗口，
                     // 因此这里不会把 WPF 的窗口拆掉（拆窗归 Win32 shim 的 DestroyWindow）。
                     try { target.Dispose(); } catch { /* 解绑阶段的清理失败不改变语义 */ }
@@ -1156,9 +1160,22 @@ namespace WpfGfx.Linux.Interop
             //   更不能在渲染**前**打。这里抓本地量并显式传给 `TracePresentResult`。
             long drawn, notDrawn;
             string notDrawnSummary;
+            SKRectI dirtyRect = new SKRectI(0, 0, width, height);
+            string dirtyPath = "full";
             try
             {
-                frame = RenderChannel(channel, root, width, height, target.ClearColor);
+                // ★ 脏区重绘：在**持久 surface** 上只重画脏矩形，并只把脏矩形 blit 到窗口。
+                //   `skippedFrame` ⇒ 本帧没有任何资源写入 ⇒ 窗口像素已是最终结果，直接返回
+                //   （这是"动画间歇"的最快路径：连渲染都不做）。
+                frame = RenderWindowFrame(hwnd, channel, root, width, height, target.ClearColor,
+                                          out dirtyRect, out bool skippedFrame, out dirtyPath);
+                if (skippedFrame)
+                {
+                    if (_dirtyDiag && ShouldTracePresent(callNo))
+                        Trace($"  ▸ 脏区：帧跳过（无写入）HWND 0x{(long)hwnd:x} path={dirtyPath}");
+                    lock (_gate) _framesSkippedNoWrite++;
+                    return HResult.S_OK;
+                }
                 drawn = DrawnCommands; notDrawn = NotDrawnCommands; notDrawnSummary = NotDrawnSummary;
                 MilPresentProbe.OnPresent(callNo, hwnd, width, height, drawn, notDrawn, root, channel);
             }
@@ -1179,7 +1196,7 @@ namespace WpfGfx.Linux.Interop
             {
                 try
                 {
-                    presentation.Present(frame);
+                    presentation.Present(frame, dirtyRect);
                     presentation.Sync();     // xwd 截屏要的是"server 上真的有这一帧"
                 }
                 catch (Exception ex)
@@ -1195,6 +1212,209 @@ namespace WpfGfx.Linux.Interop
             return HResult.S_OK;
         }
 
+
+        /// <summary>
+        /// 渲染环境（provider / context / backend）的唯一搭建点：离屏（`RenderChannel`）与
+        /// 窗口呈现（`RenderWindowFrame`）共用，避免两处各写一遍、日后漂移。
+        /// </summary>
+        private static void PrepareRenderEnvironment(MilChannel channel, int width, int height, MilColorF clearColor,
+                                                     out MilChannelResourceProvider provider,
+                                                     out RenderContext context,
+                                                     out SkiaRenderBackend backend)
+        {
+    provider = new MilChannelResourceProvider(channel);
+
+    // 两个扩展点必须挂上，否则"渲染成功但少了东西"——这是本工程既有的范式：
+    // 字形（T6 的 TextRenderer）与位图源（0x0c/0x0d 的 MilBitmapSourceTable）
+    // 都是以委托形式挂到 provider 上的。挂不上时后端会**记账**（NotDrawn），
+    // 而不是静默丢弃，所以这里挂的是"能挂的都挂上"。
+    // 字形钩子需要一个 **TextRenderer 实例**（它持有字体资源，得由宿主拥有并
+    // 负责释放），所以呈现路径上不新建、不做隐式全局单例。宿主可通过
+    // `MilPresentation.GlyphRenderer` 挂进来（与 RenderContext/MilResourceProvider
+    // 的"委托扩展点"是同一范式）。
+    // 没挂上时后端会把 MilDrawGlyphRun 记进 NotDrawn —— 这是刻意的：
+    // **"少画了东西"必须可观测**，而不是静默丢指令（NotDrawnCommands 就是对它的断言）。
+    EnsureGlyphRenderer();
+    Text.GlyphFaceCensus.NoteEntry("MilPresentation.RenderChannel（呈现路径）");
+    if (GlyphRenderer != null)
+        Text.TextRenderer.AttachTo(provider, GlyphRenderer);
+    else
+        Text.GlyphFaceCensus.NoteEntry("MilPresentation：GlyphRenderer == null（没建出来）");
+    Commands.MilBitmapSourceTable.AttachTo(provider);
+
+    context = new RenderContext
+    {
+        Width = width,
+        Height = height,
+        Dpi = RenderContext.FixedDpi,
+        ClearColor = ToSKColor(clearColor),
+        Antialias = true,
+        FontDirectory = FontDirectoryProbe(),
+    };
+
+    backend = new SkiaRenderBackend(provider);
+        }
+
+        // ================================================================
+        //  窗口呈现：持久 surface + 脏矩区裁剪重绘
+        // ================================================================
+        //  修的问题（用户实测）：`hc:GifImage` 每帧 `InvalidateVisual()` ⇒ 旧实现**整窗**
+        //  重画 + 整窗 blit（Skia CPU 光栅）⇒ UI 线程被帧渲染占满 ⇒ 消息泵饿死，
+        //  现象是"动图在跑、点击/悬停/布局全部冻结"。upstream milcore 按脏矩形画，
+        //  本桥没有这层 ⇒ 在这里补：脏区由 `DirtyRegionTracker` 从视觉签名算出。
+        private sealed class WindowSurfaceState
+        {
+            public SKSurface Surface;
+            public int W, H;
+            public SKColor Clear;
+            public readonly DirtyRegionTracker Tracker = new DirtyRegionTracker();
+            public long LastEpoch = -1;
+            public long Frame;
+        }
+
+        private static readonly Dictionary<IntPtr, WindowSurfaceState> _winStates =
+            new Dictionary<IntPtr, WindowSurfaceState>();
+
+        private static readonly bool _dirtyOff = IsEnvFlag("WPFGFX_DIRTY_OFF");
+        private static readonly bool _dirtyDiag = IsEnvFlag("WPFGFX_DIRTY_DIAG");
+
+        private static long _framesSkippedNoWrite, _framesPartial, _framesFull;
+
+        private static bool IsEnvFlag(string name)
+        {
+            string v = Environment.GetEnvironmentVariable(name);
+            return !string.IsNullOrEmpty(v) && v != "0";
+        }
+
+        /// <summary>本进程的脏区统计（跳过 / 局部 / 整窗），供探针与判据读。</summary>
+        internal static (long Skipped, long Partial, long Full) DirtyStats
+        {
+            get { lock (_gate) return (_framesSkippedNoWrite, _framesPartial, _framesFull); }
+        }
+
+        /// <summary>强制该窗口下一帧整窗重画（Expose / Resize / 解绑前的兜底）。</summary>
+        internal static void InvalidateWindow(IntPtr hwnd)
+        {
+            lock (_gate)
+            {
+                if (_winStates.TryGetValue(hwnd, out WindowSurfaceState st))
+                {
+                    st.Tracker.Reset();
+                    st.LastEpoch = -1;
+                }
+            }
+        }
+
+        private static void ReleaseWindowSurface(IntPtr hwnd)
+        {
+            // 调用方已持锁（TryUnbind 的 lock(_gate) 块内）。
+            if (_winStates.Remove(hwnd, out WindowSurfaceState st))
+            {
+                try { st.Surface?.Dispose(); } catch { /* 释放期异常不影响解绑语义 */ }
+                st.Surface = null;
+            }
+        }
+
+        /// <summary>
+        /// 窗口呈现用渲染：在**每窗口持久 surface** 上按脏区重画，返回该 surface 的快照。
+        /// `skipped=true` ⇒ 本帧没有任何写入（窗口像素已是最终结果）⇒ 调用方不要 Present。
+        /// </summary>
+        internal static SKImage RenderWindowFrame(IntPtr hwnd, MilChannel channel, MilVisual root,
+                                                  int width, int height, MilColorF clearColor,
+                                                  out SKRectI dirtyRect, out bool skipped, out string pathNote)
+        {
+            dirtyRect = new SKRectI(0, 0, width, height);
+            skipped = false;
+            pathNote = "full";
+
+            WindowSurfaceState st;
+            lock (_gate)
+            {
+                if (!_winStates.TryGetValue(hwnd, out st))
+                {
+                    st = new WindowSurfaceState();
+                    _winStates[hwnd] = st;
+                }
+            }
+
+            SKColor clear = ToSKColor(clearColor);
+            if (st.Surface == null || st.W != width || st.H != height || st.Clear != clear)
+            {
+                st.Surface?.Dispose();
+                var info = new SKImageInfo(width, height, SKColorType.Rgba8888, SKAlphaType.Premul);
+                st.Surface = SKSurface.Create(info)
+                             ?? throw new InvalidOperationException("SKSurface.Create 失败（窗口持久 surface）");
+                st.W = width; st.H = height; st.Clear = clear;
+                st.Tracker.Reset();
+                st.LastEpoch = -1;
+                st.Frame = 0;
+            }
+
+            PrepareRenderEnvironment(channel, width, height, clearColor,
+                                     out MilChannelResourceProvider provider,
+                                     out RenderContext ctx,
+                                     out SkiaRenderBackend backend);
+
+            SKRectI clip = dirtyRect;      // 默认整窗
+            bool partial = false;
+
+            if (!_dirtyOff)
+            {
+                long epoch = channel.Resources.WriteEpoch;
+                long lastEpoch = st.LastEpoch;
+                if (st.Tracker.TryCompute(channel, root, provider, width, height, epoch,
+                                          ref lastEpoch, out SKRectI dirty, out string why, out bool nothing))
+                {
+                    st.LastEpoch = lastEpoch;
+                    if (nothing)
+                    {
+                        skipped = true;
+                        pathNote = "skip(" + why + ")";
+                        st.Frame++;
+                        return null;
+                    }
+                    clip = dirty;
+                    partial = true;
+                    pathNote = "partial(" + why + ")";
+                }
+                else
+                {
+                    st.LastEpoch = epoch;
+                    pathNote = "full(" + why + ")";
+                }
+            }
+            else
+            {
+                st.LastEpoch = channel.Resources.WriteEpoch;
+                pathNote = "full(WPFGFX_DIRTY_OFF)";
+            }
+
+            var sw = _dirtyDiag ? System.Diagnostics.Stopwatch.StartNew() : null;
+            backend.RenderVisualTree(root, st.Surface.Canvas, ctx, partial ? clip : (SKRectI?)null);
+            NotDrawnCommands = backend.Diagnostics.NotDrawn.Count;
+            NotDrawnSummary = backend.Diagnostics.NotDrawnSummary();
+            DrawnCommands = backend.Diagnostics.InstructionCount;
+            sw?.Stop();
+
+            dirtyRect = partial ? clip : new SKRectI(0, 0, width, height);
+            st.Frame++;
+            lock (_gate) { if (partial) _framesPartial++; else _framesFull++; }
+
+            if (_dirtyDiag && st.Frame <= 500)
+            {
+                long area = (long)dirtyRect.Width * dirtyRect.Height;
+                long total = Math.Max((long)width * height, 1);
+                Console.Error.WriteLine(
+                    $"[DIRTY] hwnd=0x{(long)hwnd:x} frame={st.Frame} path={pathNote} " +
+                    $"rect={dirtyRect.Left},{dirtyRect.Top} {dirtyRect.Width}x{dirtyRect.Height} " +
+                    $"area={area * 100 / total}% render_ms={(sw == null ? -1 : sw.Elapsed.TotalMilliseconds):F2} " +
+                    $"writes={channel.Resources.RecentWritesSummary()}");
+            }
+
+            ReportGlyphDrop(backend.Diagnostics.NotDrawn);
+            return st.Surface.Snapshot();
+        }
+
         /// <summary>
         /// 把根视觉渲染成不可变 SKImage。**与 HelloMil 用的是同一条渲染路径**
         /// （MilChannelResourceProvider + SkiaRenderBackend + RenderContext）。
@@ -1202,37 +1422,10 @@ namespace WpfGfx.Linux.Interop
         internal static SKImage RenderChannel(MilChannel channel, MilVisual root,
                                               int width, int height, MilColorF clearColor)
         {
-            var provider = new MilChannelResourceProvider(channel);
-
-            // 两个扩展点必须挂上，否则"渲染成功但少了东西"——这是本工程既有的范式：
-            // 字形（T6 的 TextRenderer）与位图源（0x0c/0x0d 的 MilBitmapSourceTable）
-            // 都是以委托形式挂到 provider 上的。挂不上时后端会**记账**（NotDrawn），
-            // 而不是静默丢弃，所以这里挂的是"能挂的都挂上"。
-            // 字形钩子需要一个 **TextRenderer 实例**（它持有字体资源，得由宿主拥有并
-            // 负责释放），所以呈现路径上不新建、不做隐式全局单例。宿主可通过
-            // `MilPresentation.GlyphRenderer` 挂进来（与 RenderContext/MilResourceProvider
-            // 的"委托扩展点"是同一范式）。
-            // 没挂上时后端会把 MilDrawGlyphRun 记进 NotDrawn —— 这是刻意的：
-            // **"少画了东西"必须可观测**，而不是静默丢指令（NotDrawnCommands 就是对它的断言）。
-            EnsureGlyphRenderer();
-            Text.GlyphFaceCensus.NoteEntry("MilPresentation.RenderChannel（呈现路径）");
-            if (GlyphRenderer != null)
-                Text.TextRenderer.AttachTo(provider, GlyphRenderer);
-            else
-                Text.GlyphFaceCensus.NoteEntry("MilPresentation：GlyphRenderer == null（没建出来）");
-            Commands.MilBitmapSourceTable.AttachTo(provider);
-
-            var context = new RenderContext
-            {
-                Width = width,
-                Height = height,
-                Dpi = RenderContext.FixedDpi,
-                ClearColor = ToSKColor(clearColor),
-                Antialias = true,
-                FontDirectory = FontDirectoryProbe(),
-            };
-
-            var backend = new SkiaRenderBackend(provider);
+            PrepareRenderEnvironment(channel, width, height, clearColor,
+                                     out MilChannelResourceProvider provider,
+                                     out RenderContext context,
+                                     out SkiaRenderBackend backend);
 
             var info = new SKImageInfo(width, height, SKColorType.Rgba8888, SKAlphaType.Premul);
             using SKSurface surface = SKSurface.Create(info);
