@@ -4607,3 +4607,27 @@ richtext（8 段 + 2 项 List）:
 1. **`RichTextBox` 首次 `Show()` 需 >6 秒**（本栈字体/排版首加载慢）⇒ 自动化截图必须等 **≥10 秒**，否则得到全黑假阴性；
 2. **多个会崩的进程绝不能共享/复用同一个 Xvfb**：前一个 abort 会把 X server 带死，后续样本全部变成
    `exit=134 + XIO: fatal IO error` 的假阳性 —— 本项多轮误判（"richtext 崩溃"）的根源。
+
+
+## ⚠️ 更正上一节的结论：`page` **仍然 abort**（父代理亲自实测，覆盖"五形态全 OK"那句）
+
+### 实测（父代理，每形态独占 Xvfb + `xdpyinfo` 轮询就绪；探针 `P.dll`，`WPF_PTS_DEGRADE=1`）
+```
+page      exit=134  SHOWN=1  DEGRADED=1  UNSUPPORTED=0  FailFast/InvalidHandle=5   ← **仍 abort**
+richtext  exit=124  SHOWN=1  DEGRADED=0  UNSUPPORTED=0  FailFast/InvalidHandle=0   ← 不崩
+scroll    exit=124  SHOWN=1  DEGRADED=0  UNSUPPORTED=0  FailFast/InvalidHandle=0   ← 不崩
+reader    exit=124  SHOWN=1  DEGRADED=0  UNSUPPORTED=0  FailFast/InvalidHandle=0   ← 不崩
+```
+⇒ **`page` 确实仍 abort**（`exit=134`，日志里 5 处 `FailFast`/`InvalidHandle`）；`richtext`/`scroll`/`reader` 不崩。
+⇒ 与本节上文引用的"五形态全部不崩（paginator 由崩转 OK）"**不一致** —— 那句来自子代理早期报告，
+  **父代理采信时未亲自复测**，现以本次实测为准。`exit=124` 是 timeout 收掉（进程存活），不是崩溃。
+
+### 由此确认的三件事
+1. **`page`（`FlowDocumentPageViewer`）在降级后仍会经 `ExceptionWrapper.FailFast` abort**；
+2. 降级**确实触发了**（`DEGRADED=1`），但 `[PTS-UNSUPPORTED]` 计数 **0** ⇒ 兜底分支**从未执行**；
+3. `richtext`/`scroll`/`reader` 均 **`SHOWN=1` 且不崩** ⇒ 用户实际需要的两种形态可用这一结论**成立**。
+
+### 父代理自己的失误记录（同类教训）
+本轮我第一次自测时把探针程序集名写成 `PT.dll`（实际是 `P.dll`），四个形态全部 `exit=1 SHOWN=0`；
+我一度把它当成"'不崩'的弱证据" —— **这是错的**：`exit=1` 是"找不到文件"，`SHOWN=0` 是"探针根本没跑起来"。
+⇒ **教训：`SHOWN=0` 必须先当"探针没起来"排查，不能当"应用没崩"的证据**；并且**不能采信未亲自复现的读数**。
